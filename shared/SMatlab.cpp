@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -23,13 +23,6 @@
 //								number_of_bands, and initial information for the actual pixels.
 //								Support BIS only.
 //
-//	Functions in file:	void					savemat
-//								void					savematHeaderOnly
-//								void					WriteMatlabHeader
-//
-//	Include files:			"SMultiSpec.h"
-//								SExtGlob.h
-//
 /* Template for debugging
 	int numberChars2 = sprintf ((char*)gTextString3,
 											" SMatlab::xxx (linWidth, width): %d, %d%s",
@@ -42,8 +35,7 @@
 
 #include "SMultiSpec.h"  
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 	
 #if defined multispec_mac
@@ -51,30 +43,30 @@
                              
 #if defined multispec_win
 #endif	// defined multispec_win
-  
-//#include	"SExtGlob.h"
 
 
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
 										
-void 								savemat (
-										CMFileStream*		outFileStreamPtr, 
-										SInt32				type, 
-										char					*pname, 
-										SInt32				mrows, 
-										SInt32				ncols, 
-										SDouble				preal); 	// short double
+void savemat (
+				CMFileStream*						outFileStreamPtr,
+				SInt32								type,
+				char*									pname,
+				SInt32								mrows,
+				SInt32								ncols,
+				SDouble								preal); 	// short double
 										
- void 							savematHeaderOnly (
-										CMFileStream*		outFileStreamPtr, 
-										SInt32				type, 
-										char					*pname, 
-										SInt32				mrows, 
-										SInt32				ncols);
+ void savematHeaderOnly (
+				CMFileStream*						outFileStreamPtr,
+				SInt32								type,
+				char*									pname,
+				SInt32								mrows,
+				SInt32								ncols);
 
 
+
+//------------------------------------------------------------------------------------
 //
 // savemat - C language routine to save a matrix in a MAT-file.
 //
@@ -98,14 +90,17 @@ void 								savemat (
 
 typedef struct 
 	{
-     long type;	// type
-     long mrows;	// row dimension
-     long ncols;	// column dimension
-     long imagf;	// flag indicating imag part
-     long namlen;	// name length (including NULL)
-	} Fmatrix;
+	long 		type;	// type
+	long 		mrows;	// row dimension
+	long 		ncols;	// column dimension
+	long 		imagf;	// flag indicating imag part
+	long 		namlen;	// name length (including NULL)
+	
+	}	Fmatrix;
 
 
+//------------------------------------------------------------------------------------
+//
 // FileInfoPtr		outFileInfoPtr;		 File pointer
 // SInt32			type;				 Type flag: Normally 0 for PC, 1000 for Sun, Mac, and
 //											 Apollo, 2000 for VAX D-float, 3000 for VAX G-float
@@ -123,6 +118,7 @@ void savemat (
 				SInt32								mrows, 
 				SInt32								ncols, 
 				SDouble								preal)
+				
 {
 	Fmatrix								x;
 	SInt32								mn;
@@ -139,17 +135,17 @@ void savemat (
 	
 	temp = (SInt32)sizeof (Fmatrix);
 	
-			// write header structure
+			// Write header structure
 	
 	errCode = MWriteData (outFileStreamPtr, &temp, &x, kNoErrorMessages);
 	
-			// write name of array
+			// Write name of array
 				
 	temp = (SInt32)(sizeof (char) * x.namlen);
 	if (errCode == noErr)
 		errCode = MWriteData (outFileStreamPtr, &temp, pname, kNoErrorMessages);
 	
-			// write array values
+			// Write array values
 		
 	temp = (SInt32)(sizeof (SDouble) * mn);
 	if (errCode == noErr)
@@ -158,6 +154,8 @@ void savemat (
 }	// end "savemat"
 
 
+
+//------------------------------------------------------------------------------------
 //
 // savematHeaderOnly - 	C language routine to save a header information
 //						for a Matlab matrix.
@@ -205,12 +203,12 @@ void savematHeaderOnly (
 	if (errCode == noErr)
 		errCode = MWriteData (outFileStreamPtr, &temp, pname, kNoErrorMessages);
 		
-}		// end "savematHeaderOnly"
+}	// end "savematHeaderOnly"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -242,7 +240,7 @@ void WriteMatlabHeader (
 	
 	if (gBigEndianFlag)	
 		type = 1000;
-	else		// !gBigEndianFlag	
+	else	// !gBigEndianFlag	
 		type = 0;
 							
 	fileStreamPtr = GetFileStreamPointer (outFileInfoPtr);
@@ -269,9 +267,10 @@ void WriteMatlabHeader (
 }	// end "WriteMatlabHeader"
 
 /*
+//------------------------------------------------------------------------------------
 //
-//		ConvertToMatlabFormat : called by reformat.c to reformat output buffer
-//		to Matlab data size (SDouble)
+//		ConvertToMatlabFormat : called by SReformatChangeImageFileFormat.cpp
+//		to reformat output buffer to Matlab data size (SDouble)
 //
 //		Michael Gansler
 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2019
+//	Revision date:			12/06/2019
 //
 //	Language:				C
 //
@@ -20,32 +20,16 @@
 //	Brief description:	This file contains functions that determine, print and
 //								plot the field and class histograms.
 //
-//	Functions in file:	Boolean 				CheckSizeOfStatHistogramGraphVectors
-//								void 					GetSumOfClassFieldColumns
-//								SInt16	 			HistogramClassStats
-//								SInt16	 			HistogramFieldStats
-//								SInt16	 			HistogramProjectStats
-//								SInt16	 			HistogramStatsControl
-//								void					InitializeStatHistogramBuffers
-//								Boolean 				ListChannelInformation
-//								void 					ListStatHistogramValues
-//								Boolean 				LoadGraphData
-//								Boolean				LoadStatHistogramSpecs
-//								Boolean 				SetupHistogramStatsMemory
-//								Boolean 				StatHistogramDialog
-//								UInt32	 			stci_d
-//								UInt32 				stc_d
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-   #include "LGraphDoc.h"
-   #include "LGraphFrame.h"
-   #include "LGraphView.h"
-   #include "LMultiSpec.h"
-   #include "LStatisticsHistogramDialog.h"
+#if defined multispec_wx
+   #include "xGraphDoc.h"
+   #include "xGraphFrame.h"
+   #include "xGraphView.h"
+   #include "xMultiSpec.h"
+   #include "xStatisticsHistogramDialog.h"
 #endif  
 	
 #if defined multispec_mac || defined multispec_mac_swift
@@ -73,8 +57,6 @@
 	#include "WStatisticsHistogramDialog.h"
 	#include "WGraphDoc.h"
 #endif	// defined multispec_win  
-
-//#include "SExtGlob.h"
 
 #define	kMatrixList					1
 
@@ -205,7 +187,7 @@ UInt32 	stc_d (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -278,7 +260,7 @@ Boolean CheckIfCanMatrixChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -360,7 +342,7 @@ Boolean CheckSizeOfStatHistogramGraphVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -401,7 +383,7 @@ void ForceStatHistogramCodeResourceLoad (void)
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -453,7 +435,7 @@ UInt32 GetBinIndexForStatDataValue (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -517,7 +499,7 @@ double GetDataValueForStatBinIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -592,7 +574,7 @@ void GetEstimatedTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -681,7 +663,7 @@ void GetSumOfClassFieldColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -793,7 +775,7 @@ void GetTransformedChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -812,7 +794,7 @@ void GetTransformedChannelMinMaxes (
 //							HistogramProjectStats
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 HistogramClassStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -874,7 +856,7 @@ SInt16 HistogramClassStats (
 								(SInt32)numberOfTrainFields);
 				
 		if (gStatHistogramSpecsPtr->histogramOutputCode != 0 &&
-					gProjectInfoPtr->histogramFieldFlag &&
+					gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 							outputGroupCode == kClassFieldGrouping)
 			{
 			fieldCount = 1;
@@ -888,13 +870,13 @@ SInt16 HistogramClassStats (
 												FALSE))
 																								return (0);
 											
-			}	// end "if (gProjectInfoPtr->histogramFieldFlag && ...)" 
+			}	// end "if (gStatHistogramSpecsPtr->histogramOutputCode != 0 && ...)"
 					
 				// Set up to data in columnar list if requested.						
 			
 		numberChannelSets = 1;
 		if (gStatHistogramSpecsPtr->histogramOutputCode == kListData &&
-					gProjectInfoPtr->histogramFieldFlag && 
+					gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 							outputGroupCode == kClassFieldGrouping)
 			numberChannelSets = gStatHistogramSpecsPtr->numberFeatures;
 		
@@ -903,7 +885,7 @@ SInt16 HistogramClassStats (
 						// Update message in histogram status dialog.					
 						
 			if (gStatHistogramSpecsPtr->histogramOutputCode == kListData &&
-						gProjectInfoPtr->histogramFieldFlag && 
+						gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 								outputGroupCode == kClassFieldGrouping)
 				{
 				MGetString (gTextString, kProjectStrID, 7);
@@ -930,7 +912,7 @@ SInt16 HistogramClassStats (
 					{
 							// Data are to be grouped by channels.
 							
-					if (gProjectInfoPtr->histogramClassFlag)
+					if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 						{
 						InitializeStatHistogramBuffers (
 															fileInfoPtr,
@@ -945,7 +927,7 @@ SInt16 HistogramClassStats (
 				
 						channelStart = channelSet;
 						
-						}	//end "if (gProjectInfoPtr->histogramFieldFlag)"
+						}	//end "if (gProjectInfoPtr->histogramClassFieldCode == ..."
 					
 					}	// end "if (outputGroupCode == kChannelGrouping)"
 					
@@ -953,7 +935,7 @@ SInt16 HistogramClassStats (
 					{
 							// Data are to be grouped by classes or fields.
 							
-					if (gProjectInfoPtr->histogramFieldFlag)
+					if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField)
 						{
 								// Data are to be grouped by fields.
 			
@@ -975,7 +957,7 @@ SInt16 HistogramClassStats (
 				
 						channelStart = channelSet;
 						
-						}	// end "if (gProjectInfoPtr->histogramFieldFlag)"
+						}	// end "if (...->histogramClassFieldCode == kHistogramField)"
 					
 					}	// end "else outputGroupCode == kClassFieldGrouping"
 				
@@ -983,7 +965,7 @@ SInt16 HistogramClassStats (
 				
 			else if (gStatHistogramSpecsPtr->histogramOutputCode == kPlotData)
 				{
-				if (gProjectInfoPtr->histogramClassFlag)
+				if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 					InitializeStatHistogramBuffers (fileInfoPtr,
 																kChannelGrouping,
 																gStatHistogramSpecsPtr->numberColumns,
@@ -1008,7 +990,7 @@ SInt16 HistogramClassStats (
 							// Put message in histogram status dialog if these are	
 							// field histograms.													
 							
-					if (!gProjectInfoPtr->histogramClassFlag && 
+					if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 																outputGroupCode == kChannelGrouping)
 						LoadDItemStringNumber (kProjectStrID,
 														IDS_Project80,	// Computing histograms
@@ -1036,7 +1018,7 @@ SInt16 HistogramClassStats (
 							// Ready the start index into the buffers for the next column or
 							// vector if field grouping is being used.											
 							
-					if (gProjectInfoPtr->histogramFieldFlag && 
+					if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 															outputGroupCode == kClassFieldGrouping)
 						indexStart++;
 									
@@ -1051,7 +1033,7 @@ SInt16 HistogramClassStats (
 						// List the histogram values if this is a class histogram and	
 						// channel grouping is requested.										
 				
-				if (gProjectInfoPtr->histogramClassFlag && 
+				if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass &&
 														outputGroupCode == kChannelGrouping)
 					{
 							// List class name and number of training fields and number	
@@ -1076,12 +1058,12 @@ SInt16 HistogramClassStats (
 																							
 						}	// end "if (...->totalNumberValues > 0)" 
 												
-					}	// end "if (gProjectInfoPtr->histogramClassFlag && ...)" 
+					}	// end "if (...->histogramClassFieldCode == kHistogramClass && ...)"
 			
 						// List the histogram values if this is a field histogram 		
 						// and field grouping is requested.										
 				
-				if (gProjectInfoPtr->histogramFieldFlag && 
+				if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 															outputGroupCode == kClassFieldGrouping)
 					{						
 					if (gStatHistogramSpecsPtr->totalNumberValues > 0)
@@ -1122,7 +1104,7 @@ SInt16 HistogramClassStats (
 																							
 						}	// end "if (...->totalNumberValues > 0)" 
 												
-					}	// end "if (gProjectInfoPtr->histogramFieldFlag && ...)"
+					}	// end "if (...->histogramClassFieldCode == kHistogramField && ...)"
 					
 				}	// end "if (...->histogramOutputCode == kListData)"
 		
@@ -1130,7 +1112,7 @@ SInt16 HistogramClassStats (
 					// be graphed.																			
 			
 			if (gStatHistogramSpecsPtr->histogramOutputCode == kPlotData && 
-																gProjectInfoPtr->histogramClassFlag)
+								gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 				{
 				if (!LoadGraphData (fileInfoPtr, indexStart)) 
 																								return (0);
@@ -1156,7 +1138,7 @@ SInt16 HistogramClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1180,7 +1162,7 @@ SInt16 HistogramClassStats (
 //							histogramClassStats
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 02/19/2014	
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 HistogramFieldStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -1290,10 +1272,10 @@ SInt16 HistogramFieldStats (
 																						
 	if (gProjectInfoPtr->fieldIdentPtr[fieldNumber].pointType == kClusterType)
 		{
-			// List the class and field name if this is a field summary and		
-			// channel grouping.																	
+				// List the class and field name if this is a field summary and
+				// channel grouping.
 	
-		if (!gProjectInfoPtr->histogramClassFlag && 
+		if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 															outputGroupCode == kChannelGrouping)
 			{
 					// List class name and field name.										
@@ -1302,7 +1284,7 @@ SInt16 HistogramFieldStats (
 					fieldNumber, totalNumberPixels, 0, lineInterval, columnInterval, 2))
 																								return (0);
 																						
-			}	// end "if (!...histogramClassFlag && outputGroupCode == ..." 
+			}	// end "if (...histogramClassFieldCode == kHistogramField && ..."
 			
 																								return (1);
 		}	// end "if ...pointType == kClusterType)"
@@ -1311,7 +1293,7 @@ SInt16 HistogramFieldStats (
 		{
 		if (outputGroupCode == kChannelGrouping)
 			{
-			if (!gProjectInfoPtr->histogramClassFlag)
+			if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField)
 				{
 						// Set parameters for listing field data in a channel grouping.
 								
@@ -1332,9 +1314,9 @@ SInt16 HistogramFieldStats (
 				
 				histogramIndex = 0;
 				
-				}	// end "if (outputGroupCode == kChannelGrouping)"
+				}	// end "if (...->histogramClassCode == kHistogramField"
 				
-			else	// gProjectInfoPtr->histogramClassFlag
+			else	// gProjectInfoPtr->histogramClassFieldCode == kHistogramClass
 				{
 						// Set parameters for listing class data in a channel grouping.
 						// Note that the input value is used for channelStart.
@@ -1347,7 +1329,7 @@ SInt16 HistogramFieldStats (
 				
 				histogramIndex = 0;
 				
-				}	// end "else gProjectInfoPtr->histogramClassFlag"
+				}	// end "else ...->histogramClassFieldCode == kHistogramClass"
 			
 			}	// end "if (outputGroupCode == kChannelGrouping)"
 				
@@ -1381,7 +1363,7 @@ SInt16 HistogramFieldStats (
 		storageColumnStart = 0;
 		storageColumnEnd = gStatHistogramSpecsPtr->numberFeatures;
 		
-		if (!gProjectInfoPtr->histogramClassFlag)
+		if (gProjectInfoPtr->histogramClassFieldCode == kHistogramField)
 			{
 					// Set parameters for plotting field data.	
 			
@@ -1393,7 +1375,7 @@ SInt16 HistogramFieldStats (
 														gStatHistogramSpecsPtr->channelMinPtr, 
 														gStatHistogramSpecsPtr->channelMaxPtr);
 			
-			}	// end "if (!gProjectInfoPtr->histogramClassFlag)"
+			}	// end "if (...->histogramClassFieldCode == kHistogramField)"
 		
 		histogramIndex = 0;
 		
@@ -1647,7 +1629,8 @@ SInt16 HistogramFieldStats (
 				
 	gStatHistogramSpecsPtr->totalNumberValues += totalNumberPixels;
 	
-	if ((gProjectInfoPtr->histogramFieldFlag && outputGroupCode == 1) || 
+	if ((gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
+																	outputGroupCode == 1) ||
 					(gProjectInfoPtr->statsWindowMode == kCoordinateListMode &&
 							gStatHistogramSpecsPtr->histogramOutputCode == kPlotData))							
 		{		
@@ -1658,7 +1641,7 @@ SInt16 HistogramFieldStats (
 																								return (0);
 																								
 																					
-		}	// end "if ((gProjectInfoPtr->histogramFieldFlag && ..."
+		}	// end "if ((...->histogramClassFieldCode == kHistogramField && ..."
 		
 	if (gStatHistogramSpecsPtr->totalNumberValues > 0)
 		{		
@@ -1666,7 +1649,7 @@ SInt16 HistogramFieldStats (
 				// grouping.																			
 		
 		if (gStatHistogramSpecsPtr->histogramOutputCode == kListData && 
-					gProjectInfoPtr->histogramFieldFlag && 
+					gProjectInfoPtr->histogramClassFieldCode == kHistogramField &&
 							outputGroupCode == kChannelGrouping)
 			{
 			if (!ListStatHistogramValues (
@@ -1686,7 +1669,7 @@ SInt16 HistogramFieldStats (
 				// be graphed.																			
 		
 		if (gStatHistogramSpecsPtr->histogramOutputCode == kPlotData && 
-					gProjectInfoPtr->histogramFieldFlag)
+					gProjectInfoPtr->histogramClassFieldCode == kHistogramField)
 			{
 			if (!LoadGraphData (fileInfoPtr, (SInt16)indexStart))
 																								return (0);
@@ -1702,7 +1685,7 @@ SInt16 HistogramFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1758,7 +1741,7 @@ SInt16 HistogramProjectStats (
 			
 		numberChannelSets = 1;
 		if (outputGroupCode == kClassFieldGrouping && 
-				gProjectInfoPtr->histogramClassFlag)
+				gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 			{
 			if (!ListClassesUsed (NULL,
 											fileInfoPtr, 
@@ -1784,7 +1767,7 @@ SInt16 HistogramProjectStats (
 			{
 					// Initialize the buffers if reqest is for class grouping.		
 					
-			if (gProjectInfoPtr->histogramClassFlag && 
+			if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass &&
 														outputGroupCode == kClassFieldGrouping)
 				{
 				if (gStatHistogramSpecsPtr->histogramOutputCode == kListData)
@@ -1825,14 +1808,15 @@ SInt16 HistogramProjectStats (
 				
 				channelStart = channelSet;
 					
-				}	// end "if (gProjectInfoPtr->histogramClassFlag && ..." 
+				}	// end "if (...->histogramClassFieldCode == kHistogramClass && ..."
 			
 			for (classIndex=0; classIndex<numberClasses; classIndex++)
 				{
 						// Put message in histogram status dialog if these are		
 						// class histograms.														
 						
-				if (gProjectInfoPtr->histogramClassFlag && outputGroupCode == 1)
+				if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass &&
+																				outputGroupCode == 1)
 					LoadDItemStringNumber (kProjectStrID,
 													IDS_Project80,	// Computing histograms
 													gStatusDialogPtr,
@@ -1861,14 +1845,14 @@ SInt16 HistogramProjectStats (
 						// Ready the start index into the buffers for the next column or
 						// vector if class grouping is being used.											
 						
-				if (gProjectInfoPtr->histogramClassFlag && 
+				if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass &&
 														outputGroupCode == kClassFieldGrouping)
 					indexStart++;
 				
 				}	// end "for (classIndex=0; ... 
 	
 			if (gStatHistogramSpecsPtr->histogramOutputCode == kListData &&
-						gProjectInfoPtr->histogramClassFlag && 
+						gProjectInfoPtr->histogramClassFieldCode == kHistogramClass &&
 								outputGroupCode == kClassFieldGrouping)
 				{
 						// List channel number.													
@@ -1900,7 +1884,7 @@ SInt16 HistogramProjectStats (
 																						
 					}	// end "if (...->totalNumberValues > 0)" 
 											
-				}	// end "if (gProjectInfoPtr->histogramClassFlag && ...)" 
+				}	// end "if (...->histogramClassFieldCode == kHistogramClass && ...)"
 				
 			}	// end "for (channelSet=0; ...)" 
 			
@@ -1915,7 +1899,7 @@ SInt16 HistogramProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1934,7 +1918,7 @@ SInt16 HistogramProjectStats (
 // Called By:			StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 05/03/2019
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode, 
@@ -2015,8 +1999,7 @@ SInt16 HistogramStatsControl (
 				
 				if (histogramRequest == 1)
 					{
-					gProjectInfoPtr->histogramClassFlag = TRUE;
-					gProjectInfoPtr->histogramFieldFlag = FALSE;
+					gProjectInfoPtr->histogramClassFieldCode = kHistogramClass;
 					
 					if (gStatHistogramSpecsPtr->histogramOutputCode == kListData)
 						{
@@ -2040,8 +2023,7 @@ SInt16 HistogramStatsControl (
 					
 				else if (histogramRequest == 2)
 					{
-					gProjectInfoPtr->histogramClassFlag = FALSE;
-					gProjectInfoPtr->histogramFieldFlag = TRUE;
+					gProjectInfoPtr->histogramClassFieldCode = kHistogramField;
 					
 					if (gStatHistogramSpecsPtr->histogramOutputCode == kListData)
 						{
@@ -2180,7 +2162,7 @@ SInt16 HistogramStatsControl (
 						graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
 					#endif	// defined multispec_win
 
-					#if defined multispec_lin
+					#if defined multispec_wx
 						wxDocument*  graph_doc =
 											((CMultiSpecApp*)wxTheApp)->ActivateGraphView ();
 						 
@@ -2188,7 +2170,7 @@ SInt16 HistogramStatsControl (
 						
 								// Assign window ID for Histogram window
 						((wxWindow*)graphViewCPtr)->SetId (GR_HISTOGRAM);                     
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 					
 					continueFlag = (graphViewCPtr != NULL);
 					
@@ -2262,6 +2244,7 @@ SInt16 HistogramStatsControl (
 					/*
 							// Take into account the offset to be used to force the 
 							// transformed data to be in the middle of the allowable range.
+							// Decided not to use.
 													
 					if (gTransformationMatrix.offsetVectorPtr != NULL &&
 									gTransformationMatrix.createdByCode < 16 && 
@@ -2356,8 +2339,8 @@ SInt16 HistogramStatsControl (
 																			
 				if (continueFlag && DetermineFieldTypes () == 4)
 					{
-							// All training areas are defined by clusters. Listing or plotting
-							// histograms will not be possible.
+							// All training areas are defined by clusters. Listing or
+							// plotting histograms will not be possible.
 							
 					continueFlag = ListSpecifiedStringNumber (kProjectStrID,
 																			IDS_Project89, 
@@ -2381,13 +2364,13 @@ SInt16 HistogramStatsControl (
 						xDataTypeCode = kRealType;
 					
 					continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
-								NULL,
-								0,
-								(SInt32)gStatHistogramSpecsPtr->initialNumberHistogramDataBins,
-								(SInt32)gStatHistogramSpecsPtr->numberVectors,
-								gStatHistogramSpecsPtr->numberFeatures,
-								xDataTypeCode,
-								kIntegerType);
+							NULL,
+							0,
+							(SInt32)gStatHistogramSpecsPtr->initialNumberHistogramDataBins,
+							(SInt32)gStatHistogramSpecsPtr->numberVectors,
+							gStatHistogramSpecsPtr->numberFeatures,
+							xDataTypeCode,
+							kIntegerType);
 
 							// Lock handles and get pointers to the graph vectors to
 							// be ready to load data into.
@@ -2488,8 +2471,8 @@ SInt16 HistogramStatsControl (
 																			kOriginalStats, 
 																			kDontIncludeClusterFields);
 					
-							// Intialize the nextTime variables to indicate when the next check	
-							// should occur for a command-. and status information.					
+							// Intialize the nextTime variables to indicate when the next
+							// check should occur for a command-. and status information.
 							
 					gNextTime = TickCount ();
 					gNextStatusTime = TickCount ();
@@ -2505,18 +2488,18 @@ SInt16 HistogramStatsControl (
 						case kFieldListMode:
 							indexStart = 0;
 							returnCode = HistogramClassStats (fileIOInstructionsPtr,
-																			gProjectInfoPtr->currentClass, 
-																			outputGroupCode,
-																			&indexStart,
-																			0);
+																		gProjectInfoPtr->currentClass,
+																		outputGroupCode,
+																		&indexStart,
+																		0);
 							break;
 							
 						case kCoordinateListMode:
 							returnCode = HistogramFieldStats (fileIOInstructionsPtr,
-																			gProjectInfoPtr->currentField,
-																			outputGroupCode,
-																			0,
-																			0);
+																		gProjectInfoPtr->currentField,
+																		outputGroupCode,
+																		0,
+																		0);
 							break;
 							
 						}	// end "switch (statsWindowMode)"
@@ -2596,7 +2579,8 @@ SInt16 HistogramStatsControl (
 							
 					if (continueFlag)
 						{
-								// Set graph data vector handles to just the size that was used.
+								// Set graph data vector handles to just the size that was
+								// used.
 						
 						if (gGraphRecordPtr->xVector.numberPoints < 
 																		gGraphRecordPtr->xVector.size)
@@ -2622,7 +2606,8 @@ SInt16 HistogramStatsControl (
 							
 								// Now allow the graph to be drawn.
 														 
-						gGraphRecordPtr->drawGraphCode = gGraphRecordPtr->graphCodesAvailable;
+						gGraphRecordPtr->drawGraphCode =
+																gGraphRecordPtr->graphCodesAvailable;
 					
 						continueFlag = CreateGraph (gGraphRecordPtr->graphViewCPtr,
 																gGraphRecordPtr, 
@@ -2648,7 +2633,7 @@ SInt16 HistogramStatsControl (
 								gGraphRecordPtr->graphViewCPtr->UpdateGraphControls ();
 							#endif	// defined multispec_win
 
-                     #if defined multispec_lin
+                     #if defined multispec_wx
                         gGraphRecordPtr->graphViewCPtr->UpdateGraphControls ();
                      #endif
 
@@ -2689,7 +2674,7 @@ SInt16 HistogramStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2898,7 +2883,7 @@ void InitializeStatHistogramBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2913,11 +2898,11 @@ void InitializeStatHistogramBuffers (
 //
 // Value Returned:	None	
 //
-// Called By:			HistogramClassStats in statHistogram.c
-//							HistogramProjectStats in statHistogram.c
+// Called By:			HistogramClassStats in SProjectHistogramStatistics.cpp
+//							HistogramProjectStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1990
-//	Revised By:			Larry L. Biehl			Date: 12/21/2016	
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 Boolean ListStatHistogramValues (
 				FileInfoPtr							fileInfoPtr, 
@@ -3156,11 +3141,11 @@ Boolean ListStatHistogramValues (
 			stringNumber = IDS_Project64;
 			
 		if (outputGroupCode == kClassFieldGrouping && 
-																gProjectInfoPtr->histogramClassFlag)
+								gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 			stringNumber = IDS_Project5;
 			
 		else if (outputGroupCode == kClassFieldGrouping && 
-																gProjectInfoPtr->histogramFieldFlag)
+								gProjectInfoPtr->histogramClassFieldCode == kHistogramField)
 			stringNumber = IDS_Project6;		
 
 		continueFlag = ListSpecifiedStringNumber (kProjectStrID,
@@ -3250,7 +3235,7 @@ Boolean ListStatHistogramValues (
 							value = columnIndex + 1;
 							
 						lenText = (UInt32)stc_d (
-										(char*)&gTextString[1], (UInt32)value, kMaxLength, FALSE);
+									(char*)&gTextString[1], (UInt32)value, kMaxLength, FALSE);
 						charPtr = strcpy (&gCharBufferPtr1[charIndex], (char*)gTextString);
 						charIndex += lenText + 1;
 					
@@ -3276,8 +3261,10 @@ Boolean ListStatHistogramValues (
 						else	// outputGroupCode == kClassFieldGrouping 
 							value = columnIndex + 1;
 							
-						sprintf (
-								&gCharBufferPtr1[charIndex], "\t%*d", numberFieldSize, (int)value);
+						sprintf (&gCharBufferPtr1[charIndex],
+									"\t%*d",
+									numberFieldSize,
+									(int)value);
 						charIndex += numberFieldSize + 1;
 					
 						}	// end "for (columnIndex=0; columnIndex<..." 
@@ -3451,9 +3438,9 @@ Boolean ListStatHistogramValues (
 						else	// m >= colMinIndex && ... 
 							{
 							sprintf (&gCharBufferPtr1[charIndex], 
-											"\t%*lu", 
+											"\t%*u",
 											numberFieldSize, 
-											*tempHistogramDataPtr);
+											(unsigned int)*tempHistogramDataPtr);
 				
 							}	// end "else m >= colMinIndex && ... " 
 							
@@ -3562,7 +3549,7 @@ Boolean ListStatHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3616,15 +3603,15 @@ Boolean ListChannelInformation (
 	if (!featureTransformationFlag)	
 		numberCharacters = sprintf (
 										(char*)gTextString,
-										"%s    Channel  %ld",
+										"%s    Channel  %d",
 										gEndOfLine, 
-										(SInt32)gProjectInfoPtr->channelsPtr[featureNumber]+1);
+										(int)gProjectInfoPtr->channelsPtr[featureNumber]+1);
 	
 	else	// featureTransformationFlag 
 		numberCharacters = sprintf ((char*)gTextString, 
-												"%s    Feature  %ld",
+												"%s    Feature  %d",
 												gEndOfLine, 
-												featureNumber+1);
+												(int)featureNumber+1);
 	
 	if (channelDescriptionPtr == NULL)
 		sprintf ((char*)&gTextString[numberCharacters], 
@@ -3657,7 +3644,7 @@ Boolean ListChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3833,8 +3820,8 @@ Boolean LoadClassMeanAndStdDevData (
 				#if defined multispec_win 
 					if (_isnan (*outputVectorPtr))
 				#endif	// defined multispec_win  	 	
-            #if defined multispec_lin
-                  if (std::isnan (*outputVectorPtr))
+            #if defined multispec_wx
+					if (std::isnan (*outputVectorPtr))
 				#endif
 						{
 						continueFlag = FALSE;
@@ -3906,7 +3893,7 @@ Boolean LoadClassMeanAndStdDevData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4099,7 +4086,7 @@ Boolean LoadGraphData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4144,7 +4131,7 @@ void LoadListOfClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4216,7 +4203,7 @@ void LoadProjectClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4293,7 +4280,7 @@ Str31* LoadClassClassFieldNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4531,7 +4518,7 @@ Boolean LoadStatHistogramSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4633,7 +4620,7 @@ void SetSomeStatHistogramGraphParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4648,7 +4635,7 @@ void SetSomeStatHistogramGraphParameters (
 //
 // Value Returned:	None
 // 
-// Called By:			GetGraphTitle in graphicsUtilities.c
+// Called By:			GetGraphTitle in SGraphiUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1999
 //	Revised By:			Larry L. Biehl			Date: 02/03/1999			
@@ -4667,7 +4654,7 @@ void SetStatHistogramGraphTitles (
 		graphRecordPtr->title[0] = 0;
 		graphRecordPtr->title[1] = 0;
 		
-		if (gProjectInfoPtr->histogramClassFlag)
+		if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 			{
 			if (gProjectInfoPtr->statsWindowMode == kFieldListMode || 
 																graphRecordPtr->numberVectors == 1)
@@ -4689,9 +4676,9 @@ void SetStatHistogramGraphTitles (
 				sprintf ((char*)&graphRecordPtr->title[1],
 								"Histogram of Classes");
 								
-			}	// end "if (gProjectInfoPtr->histogramClassFlag)"
+			}	// end "if (...->histogramClassFieldCode == kHistogramClass)"
 								
-		else	// !gProjectInfoPtr->histogramClassFlag
+		else	// gProjectInfoPtr->histogramClassFieldCode == kHistogramField
 			{
 			if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode || 
 																graphRecordPtr->numberVectors == 1)
@@ -4720,7 +4707,7 @@ void SetStatHistogramGraphTitles (
 				sprintf ((char*)&graphRecordPtr->title[1],
 								"Histogram of Fields");
 								
-			}	// end "else !gProjectInfoPtr->histogramClassFlag"
+			}	// end "else ...->histogramClassFieldCode == kHistogramField"
 								
 		graphRecordPtr->title[0] = (UInt8)strlen ((char*)&graphRecordPtr->title[1]);
 		
@@ -4735,7 +4722,7 @@ void SetStatHistogramGraphTitles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4806,11 +4793,11 @@ Boolean SetupStatHistogramMemory (
 					// Number of columns will be either number of classes or maximum
 					// number of training fields in a class.									
 		
-			if (gProjectInfoPtr->histogramClassFlag)
+			if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 				gStatHistogramSpecsPtr->numberColumns = 
 														gProjectInfoPtr->numberStatisticsClasses;
 													
-			else	// !gProjectInfoPtr->histogramClassFlag 
+			else	// gProjectInfoPtr->histogramClassFieldCode == kHistogramField
 				{
 				if (statsWindowMode == kClassListMode)
 					{
@@ -4826,7 +4813,7 @@ Boolean SetupStatHistogramMemory (
 						
 						classStorage = gProjectInfoPtr->storageClass[index];
 	
-						gStatHistogramSpecsPtr->numberColumns = MAX (	
+						gStatHistogramSpecsPtr->numberColumns = MAX (
 							gProjectInfoPtr->classNamesPtr[classStorage].numberOfTrainFields, 
 							gStatHistogramSpecsPtr->numberColumns);
 										
@@ -4845,7 +4832,7 @@ Boolean SetupStatHistogramMemory (
 					
 					}	// end "else statsWindowMode != kClassListMode" 
 								
-				}	// end "else !gProjectInfoPtr->histogramClassFlag" 
+				}	// end "else ...->histogramClassFieldCode == kHistogramField"
 				
 					// Add one column for sum of other columns if there is more than
 					// one column.								
@@ -4927,7 +4914,7 @@ Boolean SetupStatHistogramMemory (
 					// Now check on memory for the graph vectors.
 							
 			numberVectors = 1;		
-			if (gProjectInfoPtr->histogramClassFlag)
+			if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 				{
 				if (statsWindowMode == kClassListMode)
 					numberVectors = gProjectInfoPtr->numberStatisticsClasses;
@@ -4935,9 +4922,9 @@ Boolean SetupStatHistogramMemory (
 				else if (statsWindowMode == kFieldListMode)
 					numberVectors = 1;
 				
-				}	// end "if (gProjectInfoPtr->histogramClassFlag)"
+				}	// end "if (...->histogramClassFieldCode == kHistogramClass)"
 				
-			else	// !gProjectInfoPtr->histogramClassFlag
+			else	// gProjectInfoPtr->histogramClassFieldCode == kHistogramField
 				{
 				if (statsWindowMode == kClassListMode)
 					numberVectors = gProjectInfoPtr->numberStatTrainFields;
@@ -4957,7 +4944,7 @@ Boolean SetupStatHistogramMemory (
 				else	// statsWindowMode == kCoordinateListMode
 					numberVectors = 1;
 				
-				}	// end "else statsWindowMode == kCoordinateListMode"
+				}	// end "else ...->histogramClassFieldCode == kHistogramField"
 				
 			gStatHistogramSpecsPtr->numberVectors = (SInt16)numberVectors;
 			
@@ -5034,7 +5021,7 @@ Boolean SetupStatHistogramMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5528,10 +5515,9 @@ Boolean StatHistogramDialog (
 		END_CATCH_ALL 
 	#endif // defined multispec_win 
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMStatHistogramSpecsDlg*		dialogPtr = NULL;
-      
-      //dialogPtr = new CMStatHistogramSpecsDlg ((wxWindow*)GetMainFrame ());
+	
       dialogPtr = new CMStatHistogramSpecsDlg (NULL);
 			                  
 	   returnFlag = dialogPtr->DoDialog (gStatHistogramSpecsPtr, fileInfoPtr);
@@ -5566,7 +5552,7 @@ void StatHistogramDialogClassesParameters (
 											IDC_Classes, 
 											(Str255*)&gTextString);
 	
-	#if !defined multispec_lin
+	//#if !defined multispec_wx
 		if (!listFlag && overlayDFAllowedFlag)
 			{							
 			SetDLogControlHilite (dialogPtr, IDC_OverlayCheck, 0);
@@ -5574,7 +5560,7 @@ void StatHistogramDialogClassesParameters (
 						dialogPtr, IDC_OverlayCheck, (SInt16)overlayDensityFunctionFlag);
 			
 			}	// end "if (!listFlag && overlayDFAllowedFlag)"
-	#endif
+	//#endif
 						
 }	// end "if (StatHistogramDialogClassesParameters)"
 
@@ -5661,28 +5647,15 @@ void StatHistogramDialogPlotParameters (
 	
 	SetDLogControl (dialogPtr, IDC_ColumnRadio, 0);
 	SetDLogControlHilite (dialogPtr, IDC_ColumnRadio, 255);
-	/*
+
 	if (histogramClassFlag)
 		{
-		SetDLogControl (dialogPtr, IDC_OverlayCheck, (SInt16)overlayDensityFunctionFlag);
+		SetDLogControl (
+						dialogPtr, IDC_OverlayCheck, (SInt16)overlayDensityFunctionFlag);
 		SetDLogControlHilite (dialogPtr, IDC_OverlayCheck, 0);
 		
 		}	// end "if (histogramClassFlag)"
-	*/
-	#if defined multispec_lin
-		if (histogramClassFlag){
-			SetDLogControl (
-							dialogPtr, IDC_OverlayCheck, (SInt16)overlayDensityFunctionFlag);
-			SetDLogControlHilite (dialogPtr, IDC_OverlayCheck, 0);
-			}	// end "if (histogramClassFlag)"
-	#else
-		if (histogramClassFlag){
-			SetDLogControl (
-							dialogPtr, IDC_OverlayCheck, (SInt16)overlayDensityFunctionFlag);
-			SetDLogControlHilite (dialogPtr, IDC_OverlayCheck, 0);
-			}	// end "if (histogramClassFlag)"
-	#endif
-						
+
 }	// end "StatHistogramDialogPLotParameters"
 
 
@@ -5738,7 +5711,8 @@ void StatHistogramDialogInitialize (
 	
 			// Class or Field flag.												
 	
-	*histogramClassFlagPtr = gProjectInfoPtr->histogramClassFlag;
+	*histogramClassFlagPtr =
+							(gProjectInfoPtr->histogramClassFieldCode == kHistogramClass);
 		
 	if (statsWindowMode == kCoordinateListMode)
 		SetDLogControlHilite (dialogPtr, IDC_ClassesRadio, 255);
@@ -5782,7 +5756,8 @@ void StatHistogramDialogInitialize (
 	else	// numberEigenvectors > 0 
 		{
 		*featureTransformAllowedFlagPtr = TRUE;
-		*featureTransformationFlagPtr = gStatHistogramSpecsPtr->featureTransformationFlag;
+		*featureTransformationFlagPtr =
+											gStatHistogramSpecsPtr->featureTransformationFlag;
 		
 		}	// end "else numberEigenvectors > 0"
 	
@@ -5926,7 +5901,7 @@ void StatHistogramDialogInitialize (
 	*columnMatrixCodePtr = (*columnMatrixCodePtr >> 4);
 	
 	stringNumber = IDS_Dialog21;
-	if (gProjectInfoPtr->histogramClassFlag)
+	if (gProjectInfoPtr->histogramClassFieldCode == kHistogramClass)
 		stringNumber = IDS_Dialog11;	
 		
 	SetDLogControlTitleNumber (kDialogStrID, 
@@ -5960,9 +5935,21 @@ void StatHistogramDialogOK (
 				
 			//  Histogram classes or fields.						
 
-	gProjectInfoPtr->histogramClassFlag = histogramClassFlag;
-					
-	gProjectInfoPtr->histogramFieldFlag = !gProjectInfoPtr->histogramClassFlag;
+	if (histogramClassFlag)
+		gProjectInfoPtr->histogramClassFieldCode = kHistogramClass;
+	
+	else
+		gProjectInfoPtr->histogramClassFieldCode = kHistogramField;
+	
+			// Update the use specified settings relative to the stats window mode.
+	
+	if (gProjectInfoPtr->statsWindowMode == kClassListMode)
+		gProjectInfoPtr->histogramClassListClassFieldCode =
+														gProjectInfoPtr->histogramClassFieldCode;
+	
+	else if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
+		gProjectInfoPtr->histogramFieldListClassFieldCode =
+														gProjectInfoPtr->histogramClassFieldCode;
 
 			// lineInterval.												
 			
@@ -6049,7 +6036,8 @@ void StatHistogramDialogOK (
 
 
 
-//	(C) Copyright 1986. THINK Technologies, Inc.  All rights reserved. 	
+//------------------------------------------------------------------------------------
+//	(C) Copyright 1986. THINK Technologies, Inc.  All rights reserved.
 
 UInt32 stc_d (
 				char*									out, 
@@ -6091,9 +6079,11 @@ UInt32 stc_d (
 	
 	return ((UInt32)(out-out0));
 	
-}
+}	// end "stc_d"
 
 /*
+//------------------------------------------------------------------------------------
+
 UInt32 stci_d (
 				char* 								out,
 				SInt32						 		in,
@@ -6101,5 +6091,6 @@ UInt32 stci_d (
 
 {
 	return (stc_d (out, (in>=0?in:-in), outlen, in<0));
-}
+ 
+}	// end "stci_d"
 */

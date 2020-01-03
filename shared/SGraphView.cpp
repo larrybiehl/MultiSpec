@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,8 +20,6 @@
 //	Brief description:	This file contains functions that relate to the graph view 
 //								class.
 //
-//	Functions in file:	
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"                
@@ -37,9 +35,9 @@
 	#include "WGraphDoc.h"
 #endif	// defined multispec_win 
  
-#if defined multispec_lin 
-	#include "LGraphView.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx 
+	#include "xGraphView.h"
+#endif	// defined multispec_wx
  
 //#include	"SExtGlob.h"	
 
@@ -59,7 +57,7 @@ UInt16			CMGraphView::s_numberOfGWindows = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -91,13 +89,13 @@ void CMGraphView::DrawGraphGrowIcon	(
 											
 	Boolean								printCopyFlag;
 									
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxColour								black,
 												red;
 												
 		red.Set (wxT("#ff0000"));
 		black.Set (wxT("#000000"));
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 									
 	#if defined multispec_win
 		CRect					graphWindowRect;
@@ -107,9 +105,9 @@ void CMGraphView::DrawGraphGrowIcon	(
 
 	if (graphRecordPtr != NULL)
 		{
-		#if defined multispec_lin
+		#if defined multispec_wx
 			printCopyFlag = m_printCopyModeFlag;
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		
 		#if defined multispec_mac
 			printCopyFlag = FALSE;
@@ -143,13 +141,13 @@ void CMGraphView::DrawGraphGrowIcon	(
 					
 			textWidth = TextWidth (tempString, 0, 15);
 				          
-			#if defined multispec_lin
+			#if defined multispec_wx
 				left = 105 - textWidth - 1;
 				top  = (SInt16)(graphRecordPtr->clientRect.bottom -
 									 graphRecordPtr->clientRect.top - 7);
 				graphRecordPtr->pDC->SetBackground (wxBrush (red));
 				graphRecordPtr->pDC->SetTextForeground (black);
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 				          
 			#if defined multispec_mac 
 				ClipRect (&gTempRect); 
@@ -190,8 +188,8 @@ void CMGraphView::DrawGraphGrowIcon	(
 						// Draw a line along the bottom of the graph window
 						// just above the controls.
 			
-				#if defined multispec_lin
-				#endif	// defined multispec_lin
+				#if defined multispec_wx
+				#endif	// defined multispec_wx
 			
 				#if defined multispec_mac 
 					MoveTo (gTempRect.left, gTempRect.bottom-kSBarWidth);
@@ -224,7 +222,7 @@ void CMGraphView::DrawGraphGrowIcon	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -332,7 +330,7 @@ Boolean CMGraphView::FinishGraphRecordSetUp (
 			{
 			if (gProcessorCode == kListDataProcessor)
 				{
-						// Implementation for subsets of channels not finished. Not
+						// Implementation for subsets of channels not finished. Not sure
 						// this feature is really needed.
 				/*
 				SInt16* channelWavelengthOrderListPtr =
@@ -473,10 +471,10 @@ void CMGraphView::IntializeGraphRecord (void)
 			graphRecordPtr->backgroundPatternPtr = NULL;
 		#endif	// defined multispec_mac 
 		 
-		#if defined multispec_lin || defined multispec_win
+		#if defined multispec_wx || defined multispec_win
 			graphRecordPtr->imageViewCPtr = gActiveImageViewCPtr;
 			graphRecordPtr->backgroundPatternPtr = (Ptr)&CMGraphView::s_grayBrush;
-		#endif	// defined multispec_lin || ...
+		#endif	// defined multispec_wx || ...
 		
 		graphRecordPtr->graphViewCPtr = this;
 		
@@ -542,7 +540,7 @@ void CMGraphView::IntializeGraphRecord (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

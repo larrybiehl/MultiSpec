@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/28/2019
+//	Revision date:			12/12/2019
 //
 //	Language:				C
 //
@@ -20,39 +20,23 @@
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec.
 //
-//	Functions in file:	SInt16				CheckIfSTAFile
-//								SInt16				CheckIfThematicSupportFile
-//								void					CloseFile
-//								SInt32	 			ConvertATRealtoInt
-//								double 				ConvertATRealtoReal
-//								SInt32				ConvertRealAT
-//								Boolean 				GetBILSpecial
-//								SInt32	 			GetLongIntValue
-//								SInt16	 			GetShortIntValue
-//								Boolean 				GetThematicSupportFileToCreate
-//								SInt16	 			GetVolumeFreeSpace
-//								void 					PackBlockedData
-//								UInt32 				PackMaskData
-//								void 					SetVolumeReference
-//
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
 												" SFileIO::GetFile (entered routine. %s", 
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
 */
-//
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h" 
+#include "SMultiSpec.h"
+#include "SFileStream_class.h"
       
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/wx.h"
-	#include "CFileStream.h"
-	#include "LMultiSpec.h"
-	#include "LOpenFileDialog.h"
+	#include "xMultiSpec.h"
+	#include "xOpenFileDialog.h"
 	#include "wx/filedlg.h"
-#endif   // defined multispec_lin
+#endif   // defined multispec_wx
 
 #if defined multispec_mac
 	#define kOpenPrefKey						1234
@@ -84,8 +68,7 @@
   
 #if defined multispec_win
 	//#include <afxpriv.h>
-	#include "CWindowInfo.h"
-	#include "CFileStream.h"
+	#include "SWindowInfo_class.h"
 	#include "WOpenFileDialog.h"  
 	#include <direct.h>
 	                                                                   
@@ -108,7 +91,7 @@
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#if defined NetBeansProject
 			// The size of a 'unsigned long', as computed by sizeof.
 			#define SIZEOF_UNSIGNED_LONG 8
@@ -118,11 +101,11 @@
 	#endif
 	
 	// oul: changed file path of gdal.h
-	#ifndef multispec_lin
+	#ifndef multispec_wx
 		#include "gdal.h"
 	#endif
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#ifndef NetBeansProject
 			//#include "gdal/gdal.h"
 			#include "gdal.h"
@@ -327,13 +310,15 @@ void 		SetUpHeirarchalFileIOParameters (
 													
 // === Static Member Variable ===
 
-static UInt16				sCustomControlCount = 0;
-static Boolean				sInitialLinkSelectedFilesFlag = FALSE;
 
+#if defined multispec_mac
+	static UInt16				sCustomControlCount = 0;
+	static Boolean				sInitialLinkSelectedFilesFlag = FALSE;
+#endif
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -409,7 +394,92 @@ void AdjustSignedData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void CheckIfDirectoryIsWriteable
+//
+//	Software purpose:	The purpose of this routine is to determine if the specified
+//							directory is writeable. If not, the directory in the file
+//							path in the input file stream structure is changed to the
+//							working directory.
+//							This routine is currently only used for the wxWidgets interface
+//							version, specifically needed for MultiSpec Online on mygeohub.
+//							Other notes:
+// 						Use wxSetWorkingDirectory (wxString) or wxFileDialog::SetDirectory
+// 						to do this. Use wxGetCwd or wxFileDialog::GetDirectory to determine
+// 						if the default one is the standard directory.
+
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 12/09/2019
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+
+void CheckIfDirectoryIsWriteable (
+				CMFileStream*						fileStreamPtr)
+
+{
+#if defined multispec_wx && !defined NetBeansProject
+	wxFileName 							fileName;
+
+	FileStringPtr						fileNamePtr,
+											filePathPtr;
+	
+	
+	filePathPtr = (FileStringPtr)fileStreamPtr->GetFilePathPPtr ();
+	wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
+	fileName.Assign (wxFilePathName);
+
+	if (!fileName.IsDirWritable ())
+		{
+				// Need to change the directory to the working output directory
+		
+		fileNamePtr = (FileStringPtr)fileStreamPtr->GetFileNameCPtr ();
+		
+		wxString workingDirectory = wxGetCwd ();
+		workingDirectory.Append ("/");
+		workingDirectory.Append (fileNamePtr);
+		wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii ();
+		
+				// Close the current file and reset the path name for new .sta file
+
+		fileStreamPtr->SetFilePathFromCharString (
+										(StringPtr)charWorkingDirectory.data (),
+										TRUE);  // force current file to be closed
+		
+		UpdateFileNameInformation (fileStreamPtr, NULL);
+		
+				// Now set the gOutputDirectory string
+		
+		gOutputDirectory = wxGetCwd ();
+		
+		}	// end "if (!fileName.IsDirWritable ())"
+	
+	else	// fileName.IsDirWritable
+		{
+		/*
+		SInt16 numberChars9 = sprintf ((char*)gTextString3,
+												" Directory is writable: %s",
+												gEndOfLine);
+		ListString ((char*)gTextString3, numberChars9, gOutputTextH);
+		*/
+		}	// end "else fileName.IsDirWritable"
+#endif	// defined multispec_wx && !defined NetBeansProject
+	
+}	// end "CheckIfDirectoryIsWriteable"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -483,7 +553,7 @@ Boolean CheckIfSpecifiedFileExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -545,7 +615,7 @@ SInt16 CheckIfSTAFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -616,7 +686,7 @@ SInt16 CheckIfThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -701,9 +771,9 @@ void CloseFile (
 				}	// end "if (fileStreamPtr->refNum != 0)"
 		#endif	// defined multispec_mac
 			
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			fileStreamPtr->MCloseFile ();
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 			
 		}	// end "if (fileStreamPtr != NULL)" 
 	
@@ -734,7 +804,7 @@ void CloseFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -788,7 +858,7 @@ void CloseUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -854,7 +924,7 @@ void CloseUpGeneralFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -962,7 +1032,7 @@ void CloseUpHeirarchalFileIOParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -979,9 +1049,8 @@ void CloseUpHeirarchalFileIOParameters (
 //
 // Value Returned:	None
 //
-// Called By:			DeactivateProject in project.c
-//							ChangeProjectBaseImage in project.c
-//							CloseImageWindow in window.c
+// Called By:			DeactivateProject in SProject.cpp
+//							ChangeProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
 //	Revised By:			Larry L. Biehl			Date: 06/04/1996
@@ -1016,7 +1085,7 @@ void CloseWindowImageFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1052,7 +1121,7 @@ SInt32 ConvertATRealtoInt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1157,7 +1226,7 @@ double ConvertATRealtoReal (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1241,7 +1310,7 @@ double ConvertIBM370RealtoReal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1257,7 +1326,7 @@ double ConvertIBM370RealtoReal (
 //	Value Returned:	None	
 //
 // Called By:			LoadErdasHeader in SFileIO.cpp
-//							CreateSTASupportFile in SHistgrm.cpp						
+//							CreateSTASupportFile in SHistogram.cpp						
 //										
 //	Global Data:
 //
@@ -1315,7 +1384,7 @@ SInt32 ConvertRealAT (
 			else if (actualExponent < -126)	// actualExponent < -126
 				exponent = 0;
 				
-			else // actualExponent > 127
+			else	// actualExponent > 127
 				exponent = 255;
 			
 			}	// end "if (mantissa > 0)"
@@ -1378,7 +1447,7 @@ SInt32 ConvertRealAT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1441,7 +1510,7 @@ void CopyFileStream (
 			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          WideFileStringPtr	oldFilePathPtr = 
 					(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
@@ -1449,7 +1518,7 @@ void CopyFileStream (
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
 			newFileStreamPtr->mUnicodePathLength = oldFileStreamPtr->mUnicodePathLength;
 			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
- 		#endif	// defined multispec_lin 
+ 		#endif	// defined multispec_wx 
 		
 		}	// end "if (newFileStreamPtr != NULL && ..."
 
@@ -1524,7 +1593,7 @@ Boolean CopyFileStream (
 				}	// end "if (outputFileStreamHandlePtr != NULL)"
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			if (outputFileStreamPtrPtr != NULL)
 				{
 				if (*outputFileStreamPtrPtr == NULL)
@@ -1546,7 +1615,7 @@ Boolean CopyFileStream (
 		      	}	// end "if (*outputFileStreamPtrPtr != NULL)"
          
          	}	// end "if (outputFileStreamPtrPtr != NULL)"
-		#endif	// defined multispec_lin 
+		#endif	// defined multispec_wx 
 		
 		#if defined multispec_win
 			if (outputFileStreamPtrPtr != NULL)
@@ -1586,7 +1655,7 @@ Boolean CopyFileStream (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1639,7 +1708,7 @@ void CopyWideStringToUnicodeStringInFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1657,9 +1726,9 @@ void CopyWideStringToUnicodeStringInFileStream (
 //
 // Called By:			GetThematicSupportFileToCreate in SFileIO.cpp
 //							PutFile in SFileIO.cpp
-//							WriteArcViewWorldFile in SSaveWrt.cpp
-//							WriteArcViewHeaderFile in SSaveWrt.cpp
-//							FS_make_cor_mean_std in submslee.c
+//							WriteArcViewWorldFile in SSaveWrite.cpp
+//							WriteArcViewHeaderFile in SSaveWrite.cpp
+//							FS_make_cor_mean_std in SStatisticsAlgorithms.cpp
 //							CreateResultsDiskFile in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/23/1990
@@ -1818,10 +1887,10 @@ SInt16 CreateNewFile (
 			}	// end "else !fileStreamPtr->fSRefFlag"
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		UpdateFileNameInformation (fileStreamPtr, NULL);
 		errCode = fileStreamPtr->MCreateNewFile (replaceFlag);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	return (errCode);
 
@@ -1830,7 +1899,7 @@ SInt16 CreateNewFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1846,7 +1915,7 @@ SInt16 CreateNewFile (
 //							AreasToThematicFileControl (paletteID)
 //							CovertMultispectralToThematic (paletteHandle)
 //							CreateTrailerFiles (paletteID)
-//							ChangeFormatToBILorBIS (paletteHandle)
+//							ChangeFormatToBILorBISorBSQ (paletteHandle)
 //							WriteThematicClassesAs (colorSpecPtr)
 //
 //	Parameters in:					
@@ -1855,20 +1924,20 @@ SInt16 CreateNewFile (
 //
 // Value Returned:	None
 //
-// Called By:			AreasToThematicFileControl in SFieldT.cpp
-//							CovertMultispectralToThematic in SFieldT.cpp
-//							ENVI_ASCII_ROI_ToThematicFileControl in SFieldT.cpp
-//							CreateTrailerFiles in SClassfy.cpp
+// Called By:			AreasToThematicFileControl in SFieldsToThematicFile.cpp
+//							CovertMultispectralToThematic in SFieldsToThematicFile.cpp
+//							ENVI_ASCII_ROI_ToThematicFileControl in SFieldsToThematicFile.cpp
+//							CreateTrailerFiles in SClassify.cpp
 //							CreateClusterMaskFile in SCluster.cpp
 //							MosaicImagesSideBySide in Mosaic.c
 //							RectifyImage in SRectification.cpp
 //							ReprojectImage in SRectification.cpp
-//							ChangeFormatToBILorBIS in SReform1.cpp
+//							ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //							ShapeToThematicFileControl in SShapeToThematic.cpp
-//							WriteThematicClassesAs in SSaveWrt.cpp
+//							WriteThematicClassesAs in SSaveWrite.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 02/21/1990
-//	Revised By:			Larry L. Biehl			Date: 05/28/2019
+//	Revised By:			Larry L. Biehl			Date: 12/11/2019
 
 Boolean CreateThematicSupportFile (
 				FileInfoPtr							gisFileInfoPtr, 
@@ -1889,8 +1958,6 @@ Boolean CreateThematicSupportFile (
 
 {
 	CMFileStream						trailerStream;
-	//unsigned char					classColorTable[768],
-	//										groupColorTable[768];
 											
 	Boolean								*listAllGroupInfoPtr = NULL;
 	EchoClassifierVarPtr				echoClassifierVarPtr;
@@ -1920,7 +1987,8 @@ Boolean CreateThematicSupportFile (
 	SInt16								errCode,
 											nameLength,
 											numberProjectClasses,
-											stringLength;
+											stringLength,
+											statusStringNumber;
 										
 	UInt16								classIndex,
 											numberGroups,
@@ -2023,20 +2091,25 @@ Boolean CreateThematicSupportFile (
 		{
 				// Put writing trailer file message in status dialog.	
 
-		SInt16 stringNumber = 0;
+		statusStringNumber = 0;
 		if (gStatusIDNumber == kUpdateStatsInfoID)
-			stringNumber = IDC_Status11;
+			statusStringNumber = IDC_Status11;
 		else if (gStatusIDNumber == kShortStatusInfoID)
-			stringNumber = IDC_ShortStatusText;
+			statusStringNumber = IDC_ShortStatusText;
 
-		if (stringNumber != 0)
+		if (statusStringNumber != 0)
 			{
-			MGetString (gTextString, kClassifyStrID, IDS_Classify1);
-			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)gTextString);
+			UInt16	stringIndex = IDS_Support_trl;
+			if (supportFileType == kICLRFileType)
+				stringIndex = IDS_Support_clr;
+				
+			MGetString (gTextString, kClassifyStrID, stringIndex);
+			
+			LoadDItemString (gStatusDialogPtr, statusStringNumber, (Str255*)gTextString);
 		
 			CheckSomeEvents (updateMask);
 
-			}	// end "if (stringNumber != 0)"
+			}	// end "if (statusStringNumber != 0)"
 	
 				// Now load the class color table to be used for the support file.
 				
@@ -2468,7 +2541,10 @@ Boolean CreateThematicSupportFile (
 			
 			UnlockSupportFileStream (windowInfoHandle, handleStatus);
 	   	
-	   	}	// end "if (gProcessorCode == kSaveProcessor)"		
+	   	}	// end "if (gProcessorCode == kSaveProcessor)"
+		
+		if (statusStringNumber != 0)
+			LoadDItemString (gStatusDialogPtr, statusStringNumber, (Str255*)"\0");
 			
 		}	// end "if (continueFlag && errCode == noErr) 
 	
@@ -2489,7 +2565,7 @@ Boolean CreateThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2728,7 +2804,7 @@ Boolean LoadProbabilityGroupInformation (
 		
 			if (colorTableIndex != lastColorTableIndex)
 				{
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					theColor.red = classColorTablePtr[colorTableIndex].red << 8;
 					theColor.green = classColorTablePtr[colorTableIndex].green << 8;
 					theColor.blue = classColorTablePtr[colorTableIndex].blue << 8;
@@ -2773,7 +2849,7 @@ Boolean LoadProbabilityGroupInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2788,7 +2864,7 @@ Boolean LoadProbabilityGroupInformation (
 //							AreasToThematicFileControl (paletteID)
 //							CovertMultispectralToThematic (paletteHandle)
 //							CreateTrailerFiles (paletteID)
-//							ChangeFormatToBILorBIS (paletteHandle)
+//							ChangeFormatToBILorBISorBSQ (paletteHandle)
 //							WriteThematicClassesAs (colorSpecPtr)
 //
 //	Parameters in:					
@@ -2951,246 +3027,12 @@ Boolean CreateTRLSupportFile (
 	
 	return (continueFlag && errCode == noErr);
 
-}	// end "CreateTRLSupportFile"  
+}	// end "CreateTRLSupportFile"
 
-
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		Boolean WriteSupportInformation
-//
-//	Software purpose:	This routine writes the support information for an image file
-//							including the class names and class colors for ERDAS TRL files
-//							associated with ERDAS .gis files and the color table for 
-//							TIFF/GeoTIFF files.
-//							If the classNameCode is 'kFromDescriptionCode', then this
-//							is called from the Reformat-Change Image File Format
-//							processor. The class names and colors come from those
-//							currently being used in the active image window.
-//
-//							AreasToThematicFileControl (paletteID)
-//							CovertMultispectralToThematic (paletteHandle)
-//							CreateTrailerFiles (paletteID)
-//							ChangeFormatToBILorBIS (paletteHandle)
-//							WriteThematicClassesAs (colorSpecPtr)
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	None
-//
-// Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
-//							CovertMultispectralToThematic in fieldsToThematicFile.c
-//							CreateTrailerFiles in SClassfy.cpp
-//							ChangeFormatToBILorBIS in SReform1.cpp
-//							WriteThematicClassesAs in SSaveWrt.cpp
-//							
-//	Coded By:			Larry L. Biehl			Date: 10/07/2002
-//	Revised By:			Larry L. Biehl			Date: 10/07/2002	
-
-Boolean WriteSupportInformation (
-				FileInfoPtr							gisFileInfoPtr, 
-				UInt16								numberClasses, 
-				SInt16*								classPtr,
-				UInt16								numberListClasses,  
-				ColorSpec*							inputColorSpecPtr,
-				CMPaletteInfo						paletteHandle,
-				UInt16*								paletteIndexPtr,
-				SInt16								paletteOffset, 
-				SInt16								classNameCode, 
-				SInt16								trailerCode)
-
-{
-	CMFileStream						trailerStream;
-											
-	EchoClassifierVarPtr				echoClassifierVarPtr;
-	CMFileStream*						trailerStreamPtr;
-	ColorSpec*							colorSpecPtr;
-	HFileIOBufferPtr					ioBufferPtr;
-										
-	UCharPtr								classNamePtr,
-											ioTempBufferPtr;
-										
-	SInt32								classNumber;
-	
-	UInt32								count,
-											index,
-											numberBytes;
-	
-	SInt16								errCode,
-											numberProjectClasses,
-											numberTRLClasses,
-											thematicPaletteType;
-										
-	UInt16								classIndex,
-											inputPaletteOffset,
-											paletteCode,
-											paletteIndex;
-										
-	Boolean								backgroundFlag,
-											continueFlag,
-											promptFlag;
-	
-	
-	if (gisFileInfoPtr == NULL)
-																							return (FALSE);
-	
-			// Do not create a trailer file if there are more than the class		
-			// limit.																				
-			
-	if (numberClasses > gClassListLimit)
-																							return (TRUE);
-																				
-			// Make certain that we have the proper information for the 			
-			// palette information.																
-			
-	if (paletteHandle != NULL || inputColorSpecPtr != NULL)
-		paletteType = 0;
-		
-	else	// paletteHandle == NULL && inputColorSpecPtr == NULL
-		if (paletteType <= 0)
-																							return (FALSE);
-		
-	continueFlag = TRUE;
-	numberProjectClasses = 0;
-	if (gProjectInfoPtr != NULL)
-		numberProjectClasses = gProjectInfoPtr->numberStatisticsClasses;
-	
-			// Determine the number of trailer classes.									
-			
-	numberTRLClasses = numberClasses;
-	if (classPtr != NULL)
-		numberTRLClasses = numberProjectClasses;
-		
-			// Make sure that the number of classes is not more than 256.
-			// Allow for the background class if needed.
-			
-	if (classNameCode < kFromDescriptionCode)
-		numberTRLClasses = MIN (kMaxNumberStatClasses-1, numberTRLClasses);
-	numberTRLClasses = MIN (kMaxNumberStatClasses, numberTRLClasses);
-	
-			// Get buffer to load color table into if needed.
-			
-	colorSpecPtr = inputColorSpecPtr;
-	if (continueFlag && inputColorSpecPtr == NULL)
-		{	
-				// Get table for palette information. Allow enough for the
-				// number of classes, white, black, and background. The
-				// white, black and background will probably not be need for
-				// the trailer file, but the routines being called will
-				// fix those colors.
-					
-		colorSpecPtr = (ColorSpec*)MNewPointer (
-									(SInt32)(numberTRLClasses+3)*sizeof (ColorSpec));
-		continueFlag = (colorSpecPtr != NULL);
-				
-		}	// end "if (continueFlag && colorSpecPtr != NULL)"
-	
-			// Continue if memory not full													
-			
-	if (continueFlag)
-		{
-				// Put writing trailer file message in status dialog.	
-
-		SInt16 stringNumber = 0;
-		if (gStatusIDNumber == kUpdateStatsInfoID)
-			stringNumber = IDC_Status11;
-		else if (gStatusIDNumber == kShortStatusInfoID)
-			stringNumber = IDC_ShortStatusText;
-
-		if (stringNumber != 0)
-			{
-			MGetString (gTextString, kClassifyStrID, IDS_Classify1);
-			LoadDItemString (gStatusDialogPtr, stringNumber, (Str255*)gTextString);
-
-			}	// end "if (stringNumber != 0)"
-		
-				// Set up the palette type variable depending upon the source
-				// for the palette information.
-				
-		thematicPaletteType = paletteType;
-		inputPaletteOffset = 0;
-		if (thematicPaletteType == 0)
-			{
-			if (inputColorSpecPtr == NULL)
-				{
-				if (paletteHandle != NULL)
-					{
-					thematicPaletteType = kPaletteHandle;
-					
-					if (gProcessorCode != kMultispecToThematicProcessor)
-						inputPaletteOffset = 1;
-					
-					}	// end "if (paletteHandle != NULL)"
-					
-				else	// resourcePHandle == NULL 
-					thematicPaletteType = kComputedGrays;
-				
-				}	// end "if (colorSpecPtr == NULL)"
-			
-			}	// end "if (thematicPaletteType == 0)"
-			
-				// Get the requested color scheme for the classes.
-		
-		if (thematicPaletteType != 0)
-			continueFlag = LoadColorSpecTable (NULL, 
-															NULL,
-															colorSpecPtr,
-															paletteHandle,
-															inputPaletteOffset,
-															MIN (numberTRLClasses+3, 256),
-															numberTRLClasses,
-															thematicPaletteType,
-															numberTRLClasses,
-															kClassDisplay,
-															&paletteCode);
-											
-		if (continueFlag)
-			{
-			switch (thematicFileInfoPtr->format)
-				{
-				case kTIFFType:
-				case kGeoTIFFType:
-					continueFlag = WriteTIFFColorMap (outFileInfoPtr,
-																	colorSpecPtr, 
-																	numberTRLClasses,
-																	paletteIndexPtr,
-																	trailerCode);
-					break;
-				
-				default:
-					continueFlag = CreateTRLSupportFile (gisFileInfoPtr, 
-																		numberClasses, 
-																		classPtr,
-																		numberListClasses,  
-																		inputColorSpecPtr,
-																		paletteIndexPtr,
-																		paletteType,
-																		paletteOffset, 
-																		classNameCode, 
-																		trailerCode);
-				
-				}	// end "switch (thematicFileInfoPtr->format)"
-			
-			}	// end "if (continueFlag)"
-			
-		}	// end "if (continueFlag) 
-	
-	if (inputColorSpecPtr == NULL)
-		CheckAndDisposePtr ((Ptr)colorSpecPtr);
-	
-	return (continueFlag && errCode == noErr);
-
-}	// end "WriteSupportInformation" 
-*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3222,10 +3064,10 @@ CMFileStream* DisposeCMFileStream (
 			fileStreamPtr = (CMFileStream*)CheckAndDisposePtr ((Ptr)fileStreamPtr);
 		#endif	// defined multispec_mac
    	
-      #if defined multispec_win || defined multispec_lin                        
+      #if defined multispec_win || defined multispec_wx                        
 			delete fileStreamPtr;
 			fileStreamPtr = NULL;
-		#endif	// defined multispec_win || defined multispec_lin 
+		#endif	// defined multispec_win || defined multispec_wx 
 		
 		}	// end "if (fileStreamPtr != NULL)"
 		
@@ -3236,7 +3078,7 @@ CMFileStream* DisposeCMFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3309,7 +3151,7 @@ void DiskFullAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3341,9 +3183,9 @@ Boolean FileExists (
 			return (fileStreamPtr->fileName[0] > 0); 
 		#endif	// defined multispec_mac
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			return (fileStreamPtr->mFileType != -1);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (fileStreamPtr != NULL)"
 		
@@ -3354,7 +3196,7 @@ Boolean FileExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3385,7 +3227,7 @@ Boolean FileOpen (
 			return (fileStreamPtr->refNum != 0); 
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_lin || defined multispec_win
+		#if defined multispec_wx || defined multispec_win
 			return (fileStreamPtr->FileOpen ());
 		#endif	// defined multispec_win
 		
@@ -3398,7 +3240,7 @@ Boolean FileOpen (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3416,21 +3258,21 @@ Boolean FileOpen (
 //
 //	Value Returned: 
 //
-// Called By:			BiPlotFieldData in biPlotData.c
-//							MosaicImagesSideBySide in mosaic.c
-//							RectifyImage in rectification.c
-//							ClassifyPerPointArea in SClassfy.cpp
+// Called By:			BiPlotFieldData in SBiPlotData.cpp
+//							MosaicImagesSideBySide in SMosaic.cpp
+//							RectifyImage in SRectifyImage.cpp
+//							ClassifyPerPointArea in SClassify.cpp
 //							ClusterClassification in SCluster.cpp
 //							GetNextClusterArea in SCluster.cpp
-//							DisplayImagesSideBySide in SDisMulc.cpp
-//							EchoClassifier in SEchoSpc.cpp
-//							ComputeHistogram in SHistgrm.cpp
-//							ListFieldData in SLstData.cpp
-//							GetAreaStats in SMatUtil.cpp
-//							GetFieldDataValues in SPMatUtl.cpp
-//							ChangeFormatToBILorBIS in SReform1.cpp
-//							UpdateProjectMaskStats in SStatCom.cpp
-//							HistogramFieldStats in statHistogram.c
+//							DisplayImagesSideBySide in SDisplayMultispectral.cpp
+//							EchoClassifier in SClassifyEcho.cpp
+//							ComputeHistogram in SHistogram.cpp
+//							ListFieldData in SListData.cpp
+//							GetAreaStats in SMatrixUtilities.cpp
+//							GetFieldDataValues in SProjectMatrixUtilities.cpp
+//							ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
+//							UpdateProjectMaskStats in SProjectComputeStatistics.cpp
+//							HistogramFieldStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1989
 //	Revised By:			Larry L. Biehl			Date: 01/24/2000
@@ -3577,7 +3419,7 @@ Boolean GetBILSpecial (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3661,7 +3503,7 @@ void GetClassNameFromDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3695,7 +3537,7 @@ void GetCopyOfPFileNameFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3747,7 +3589,7 @@ void GetCopyOfPFileNameFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3780,7 +3622,7 @@ void GetCopyOfPFileNameFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3827,7 +3669,7 @@ void GetCopyOfPFileNameFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4012,7 +3854,7 @@ UInt32 GetDataConversionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4030,11 +3872,11 @@ UInt32 GetDataConversionCode (
 //
 // Value Returned:	Error code for file operations.
 //
-// Called By:			GetSTASupportFile in histogram.c
-//							OpenImageFile in openImageRoutines.c
-//							GetProjectFile in project.c
-//							UserLocateProjectBaseImage in project.c
-//							LoadTransformationFile in saveWrite.c
+// Called By:			GetSTASupportFile in SHistogram.cpp
+//							OpenImageFile in SOpenFileDialog.cpp
+//							GetProjectFile in SProject.cpp
+//							UserLocateProjectBaseImage in SProject.cpp
+//							LoadTransformationFile in SSaveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
 //	Revised By:			Larry L. Biehl			Date: 01/31/2019
@@ -4074,7 +3916,7 @@ SInt16 GetFile (
 			}	// end "if (gNavServicesExistsFlag)"
 	#endif	// defined multispec_mac
 
-	#if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 		#if defined multispec_win
 					// Initialize variables.
 				
@@ -4233,7 +4075,7 @@ SInt16 GetFile (
 			fileStreamPtr->GetFileNamePPtr ();		
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			long style;
 		
 				// Initialize variables.															
@@ -4435,7 +4277,7 @@ SInt16 GetFile (
 					// expecting to use it.
 
 			fileStreamPtr->GetFileNamePPtr ();
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 	
 		if (errCode == noErr)
 			errCode = OpenFileReadOnly (fileStreamPtr, 
@@ -4447,7 +4289,7 @@ SInt16 GetFile (
 		
 		if (errCode != noErr)	
 			SetReferenceNumber (fileStreamPtr, 0);
-	#endif	// defined multispec_lin || defined multispec_win
+	#endif	// defined multispec_wx || defined multispec_win
 	
 	#if defined multispec_mac
 		if (errCode == noErr && gMultiSpecWorkflowInfo.workFlowCode > 0)
@@ -4463,7 +4305,7 @@ SInt16 GetFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4496,7 +4338,7 @@ SInt32 GetFileCreator (
 			fileCreator = fileStreamPtr->creator;
 		#endif	// defined multispec_mac 
 	              
-      #if defined multispec_win | defined multispec_lin                           
+      #if defined multispec_win | defined multispec_wx                           
 			fileCreator = fileStreamPtr->mCreator;
 		#endif	// defined multispec_win
 		
@@ -4509,7 +4351,7 @@ SInt32 GetFileCreator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4551,7 +4393,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4614,7 +4456,7 @@ SInt16 GetFileNameFromFSRef (
 			}	// end "if (errCode == noErr)" 
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		UInt8									uft8String[_MAX_PATH];
 		FileStringPtr						localFileNamePtr;
 		WideFileStringPtr					inputFileStringPtr;
@@ -4642,9 +4484,9 @@ SInt16 GetFileNameFromFSRef (
 				while ((nameLength < pathLength) &&	(*localFileNamePtr != '\\'))
 			#endif	// defined multispec_win
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				while ((nameLength < pathLength) &&	(*localFileNamePtr != '/'))
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 				{
 				localFileNamePtr--;
 				nameLength++;
@@ -4670,7 +4512,7 @@ SInt16 GetFileNameFromFSRef (
 				// Now copy the file name to the output file string location.
 
 		CtoPstring (localFileNamePtr, fileNamePtr);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	return (errCode);
 	
@@ -4679,7 +4521,7 @@ SInt16 GetFileNameFromFSRef (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4712,7 +4554,7 @@ void* GetFileNameCPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4751,7 +4593,7 @@ void* GetFileNameCPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4784,7 +4626,7 @@ void* GetFileNameCPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4829,7 +4671,7 @@ void* GetFileNameCPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4862,7 +4704,7 @@ void* GetFileNameCPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4901,9 +4743,9 @@ void* GetFileNameCPointerFromFileStream (
 				fileNamePtr = (FileStringPtr)fileStreamPtr->uniFileName.unicode;
 		#endif	// defined multispec_mac 
 	      
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			fileNamePtr = fileStreamPtr->GetFileNameCPtr (returnCode);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (fileNamePtr);
@@ -4913,7 +4755,7 @@ void* GetFileNameCPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4949,7 +4791,7 @@ void* GetFileNamePPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4995,7 +4837,7 @@ void* GetFileNamePPointerFromFileHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5028,7 +4870,7 @@ void* GetFileNamePPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5073,7 +4915,7 @@ void* GetFileNamePPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5108,7 +4950,7 @@ void* GetFileNamePPointerFromFileStream  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5157,9 +4999,9 @@ void* GetFileNamePPointerFromFileStream  (
 					}	// end "if (fileStreamPtr->uniPascalFileName[0] == 0)"
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			fileNamePtr = fileStreamPtr->GetFileNamePPtr (returnCode);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (fileInfoPtr != NULL)" 
 
@@ -5170,7 +5012,7 @@ void* GetFileNamePPointerFromFileStream  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5243,7 +5085,7 @@ SInt16 GetFilePathFromFSRef (
 		CtoPstring (uft8String, filePathPtr);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win	|| defined multispec_lin
+	#if defined multispec_win	|| defined multispec_wx
 		UInt8									uft8String[_MAX_PATH];
 		WideFileStringPtr					inputFileStringPtr;
 		
@@ -5278,7 +5120,7 @@ SInt16 GetFilePathFromFSRef (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5311,7 +5153,7 @@ void* GetFilePathPPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5356,7 +5198,7 @@ void* GetFilePathPPointerFromFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5391,7 +5233,7 @@ void* GetFilePathPPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5422,9 +5264,9 @@ void* GetFilePathPPointerFromFileStream (
 	
 	if (fileStreamPtr != NULL)
 		{
-		#if defined multispec_lin
+		#if defined multispec_wx
 			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		#if defined multispec_mac
 			if (returnCode == kReturnASCII)
@@ -5446,7 +5288,7 @@ void* GetFilePathPPointerFromFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5479,9 +5321,9 @@ SInt32 GetFileType (
 			fileType = fileStreamPtr->type;
 		#endif	// defined multispec_mac 
 	
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			fileType = fileStreamPtr->mFileType;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (fileStreamPtr != NULL)" 
 
@@ -5492,7 +5334,7 @@ SInt32 GetFileType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5568,7 +5410,7 @@ SInt16 GetFileTypeAndCreator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5803,7 +5645,7 @@ SInt64 GetFilePositionOffset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5839,9 +5681,9 @@ Boolean GetFSSpecFlag (
 			fSSpecFlag = fileStreamPtr->fSSpecFlag;
 		#endif	// defined multispec_mac 
 	              
-      #if defined multispec_win | defined multispec_lin
+      #if defined multispec_win | defined multispec_wx
 	 
-		#endif	// defined multispec_win  | defined multispec_lin
+		#endif	// defined multispec_win  | defined multispec_wx
 		
 		}	// end "if (fileInfoPtr != NULL)" 
 	
@@ -5853,7 +5695,7 @@ Boolean GetFSSpecFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5891,7 +5733,7 @@ Boolean GetFSSpecFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5908,10 +5750,10 @@ Boolean GetFSSpecFlag (
 //	Value Returned:	Error code for file operations. 
 //
 // Called By:			GetLineOfData in SFileIO.cpp
-//							GetClassesFromHistogram in SOpnImag.cpp
-//							DisplayColorThematicImage in SDisThem.cpp
+//							GetClassesFromHistogram in SOpenImage.cpp
+//							DisplayColorThematicImage in SDisplayThematic.cpp
 //							CreateClusterMaskFile in SCluster.cpp
-//							ConvertImagePixelsToClassNumbers in SFieldsT.cpp
+//							ConvertImagePixelsToClassNumbers in SFieldsToThematicFile.cpp
 //							ConvertShapeToClassNumber in SShapeToThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1988
@@ -6237,7 +6079,7 @@ SInt16 GetLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6609,7 +6451,7 @@ SInt16 GetLineOfData (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6869,7 +6711,7 @@ SInt16 GetGDALLineOfData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6902,7 +6744,7 @@ SInt32 GetNumberGAIALineSegments (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6947,7 +6789,7 @@ SInt32 GetParID (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6985,7 +6827,7 @@ SInt32 GetParID (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7027,7 +6869,7 @@ SInt16 GetReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7070,7 +6912,7 @@ SInt16 GetShortIntValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7104,7 +6946,7 @@ SInt16 GetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7182,12 +7024,12 @@ SInt16 GetSizeOfFile (
 				fileStreamPtr->fileSize = forkSize;
 		#endif	// defined multispec_mac 
 	
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			errCode2 = fileStreamPtr->MGetSizeOfFile (&forkSize); 
 			
 			if (errCode == noErr)
 				fileStreamPtr->mFileSize = (SInt32)forkSize;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 			
 		IOCheck (errCode2, fileStreamPtr);
 		
@@ -7212,7 +7054,7 @@ SInt16 GetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7269,7 +7111,7 @@ SInt64 GetSizeOfImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7410,7 +7252,7 @@ SInt16 GetThematicSupportFileToCreate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							 Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7428,17 +7270,19 @@ SInt16 GetThematicSupportFileToCreate (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1989
-//	Revised By:			Larry L. Biehl			Date: 03/27/2017
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 GetVolumeFreeSpace (
-				Str255*								fileNamePtr, 
+				CMFileStream*						fileStreamPtr,
 				SInt16								vRefNum, 
 				SInt64*								freeBytesPtr)
 
 {
 	SInt16								errCode;
 	 
-		
+	
+			// Get pointer to the file name
+	
 	#if defined multispec_mac
 		//SInt16								tmpVRefNum;
 		FSVolumeInfo						volumeInformation;
@@ -7453,6 +7297,9 @@ SInt16 GetVolumeFreeSpace (
 				
 		*freeBytesPtr = 0;
 		errCode = 1;
+
+		char* fileNamePtr =
+						(char*)GetFileNamePPointerFromFileStream (fileStreamPtr);
 		
 		if (gHasHFSPlusAPIs)
 			{
@@ -7543,27 +7390,47 @@ SInt16 GetVolumeFreeSpace (
 			}	// end "if (..."
 	#endif	// defined multispec_win
 	
-   #if defined multispec_lin
-			// Note that this needs to be implemented for the Linux version.
-			// Assume 500 MB free for now.
+   #if defined multispec_wx
+		FileStringPtr filePathPtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
+	
+				// Only want the path. Temporarily place an end of string character at
+				// end of the path and replace when done checking the volume space.
+	
+		int pathLength = fileStreamPtr->mUTF8PathLength;
+		UInt8 savedCharacter = filePathPtr[pathLength];
+		filePathPtr[pathLength] = 0;
 		/*
-		*freeBytesPtr = 500000000;
 		int numberChars = sprintf ((char*)gTextString3,
-											" SFileIO::GetVolumeFreeSpace (fileNamePtr): %s%s",
-											fileNamePtr,
+											" SFileIO::GetVolumeFreeSpace (filePathPtr): %s%s",
+											&filePathPtr[1],
 											gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		
-		errCode = wxGetDiskSpace (wxString::FromAscii ((char*)&fileNamePtr[1]), 
-																		NULL, (wxLongLong*)freeBytesPtr);
-		 
+		*/
+		wxLongLong wxFreeBytes;
+   	const wxString pathString = wxString (&filePathPtr[1]);
+		if (wxGetDiskSpace (pathString, NULL, &wxFreeBytes))
+			{
+			*freeBytesPtr = wxFreeBytes.GetValue ();
+			errCode = noErr;
+			
+			}	// end "if (wxGetDiskSpace (pathString,..."
+	
+		else	// !wxGetDiskSpace (pathString, ...
+			{
+					// Assume 2 GB space is available for now.
+			*freeBytesPtr = 0;
+			errCode = -1;
+			
+			}	// end "else !wxGetDiskSpace (pathString, ..."
+		/*
 		int numberChars2 = sprintf ((char*)gTextString3,
-												" SFileIO::GetVolumeFreeSpace (errCode): %d%s",
-												errCode,
+												" SFileIO::GetVolumeFreeSpace (freeBytes): %lld%s",
+												*freeBytesPtr,
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 		*/
-		errCode = noErr;
+		filePathPtr[pathLength] = savedCharacter;
    #endif
 	
 	return (errCode);
@@ -7573,7 +7440,7 @@ SInt16 GetVolumeFreeSpace (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7615,7 +7482,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7653,7 +7520,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7691,7 +7558,7 @@ SInt16 GetVolumeReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7738,7 +7605,7 @@ void IndicateFileClosed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7781,9 +7648,9 @@ void InitializeFileIOInstructions (
 }	// end "InitializeFileIOInstructions"
 
 
-#if defined multispec_mac || defined multispec_lin
+#if defined multispec_mac || defined multispec_wx
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7831,7 +7698,7 @@ Handle InitializeFileStream (
 	return (fileStreamHandle);
 
 }	// end "InitializeFileStream"
-#endif	// defined multispec_mac || defined multispec_lin
+#endif	// defined multispec_mac || defined multispec_wx
       
                       
 		           	
@@ -7867,7 +7734,7 @@ CMFileStream* InitializeFileStream (
 			}	// end "if (fileStreamPtr != NULL)"
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win | defined multispec_wx
 		if (fileStreamPtr == NULL) 
 			fileStreamPtr = new CMFileStream;
 			
@@ -7889,7 +7756,7 @@ CMFileStream* InitializeFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7938,13 +7805,13 @@ void InitializeFileStream (
 			newFileStreamPtr->fSRefFlag = oldFileStreamPtr->fSRefFlag;
 		#endif	// defined multispec_mac
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          WideFileStringPtr	oldFilePathPtr = 
 					(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
 			newFileStreamPtr->SetFilePath (oldFilePathPtr, TRUE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType;
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		
       #if defined multispec_win
          TBYTE* oldFilePathPtr =
@@ -7961,7 +7828,7 @@ void InitializeFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7980,7 +7847,7 @@ void InitializeFileStream (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 03/17/2017
+//	Revised By:			Larry L. Biehl			Date: 12/10/2019
 
 void IOCheck (
 				SInt16								errCode,
@@ -8183,14 +8050,55 @@ void IOCheck (
 		   	}	// end "switch (errCode)"                
 		#endif	// defined multispec_win 
 
-		#if defined multispec_lin
-				// TODO
+		#if defined multispec_wx
+			SInt16							returnCode,
+												stringIndex;
+			
+			
+					// Get error alert string.
+			
+			MGetString (gTextString, kFileIOStrID, IDS_FileIO_Error);
+			
+					// Append the file name to the string.
+			
+			ConcatPStrings (gTextString, (StringPtr)fileNamePtr, 255);
+			ConcatPStrings (gTextString, (StringPtr)"\0'.  \0", 255);
+			
+					// Convert the error code to a string.
+			
+			NumToString ((SInt32)errCode, gTextString2);
+			ConcatPStrings (gTextString, gTextString2, 255);
+			
+					// Get the error description string.
+			
+			stringIndex = 0;
+			if (errCode == 2)
+				stringIndex = IDS_FileIO_NoSuchFileOrDirectory;
+			else if (errCode == 13)
+				stringIndex = IDS_FileIO_PermissionDenied;
+			
+			if (stringIndex != 0)
+				{
+				ConcatPStrings (gTextString, (StringPtr)"\0: \0", 255);
+				
+				MGetString (gTextString3, kFileIOStrID, stringIndex);
+				ConcatPStrings (gTextString, gTextString3, 255);
+				
+				}	// end "if (stringIndex != 0)"
+			
+			else	// stringIndex == 0
+				gTextString3[0] = 0;
+			
+			MInitCursor ();
+			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
+			/*
 			int numberChars = sprintf ((char*)gTextString3,
 													" File error: %d for '%s'. %s", 
 													errCode,
 													fileNamePtr,
 													gEndOfLine);
-			ListString ((char*)gTextString3, numberChars, gOutputTextH);	
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+			*/
 		#endif
 	   	
 	  	}	// end "if (errCode != noErr)" 
@@ -8200,7 +8108,7 @@ void IOCheck (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8219,7 +8127,7 @@ void IOCheck (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 08/27/2018
+//	Revised By:			Larry L. Biehl			Date: 12/10/2019
 
 void IOCheck (
 				SInt16								errCode,
@@ -8234,13 +8142,13 @@ void IOCheck (
 				IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);
 			#endif	// defined multispec_mac
 
-			#if defined multispec_lin || defined multispec_win
+			#if defined multispec_wx || defined multispec_win
 				CharPtr filePathPtr = (CharPtr)fileStreamPtr->GetFilePathPPtr ();
 				if (filePathPtr != NULL)
-					IOCheck (errCode, (CharPtr)&filePathPtr[1]);
+					IOCheck (errCode, filePathPtr);
 				else	// filePathPtr == NULL
 					IOCheck (errCode, (CharPtr)NULL);
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 
 			}	// end "if fileStreamPtr != NULL)"
 					
@@ -8255,7 +8163,7 @@ void IOCheck (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean LoadErdasHeader
@@ -8269,7 +8177,7 @@ void IOCheck (
 //
 // Value Returned:	None
 //
-// Called By:			WriteErdasHeader in saveWrite.c
+// Called By:			WriteErdasHeader in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/21/1991
 //	Revised By:			Larry L. Biehl			Date: 02/17/2012
@@ -8440,7 +8348,7 @@ Boolean	LoadErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8568,7 +8476,7 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8720,7 +8628,7 @@ void LoadErdasTRLClassColorBuffer (
 						// in case it is white for background class.
 				tableIndex = ((index-1) % numberColorSpecEntries) + 1;
 			
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				classColorTablePtr->red =
 												(UInt8)(colorSpecPtr[tableIndex].rgb.red >> 8);
 				classColorTablePtr->green =
@@ -8729,7 +8637,7 @@ void LoadErdasTRLClassColorBuffer (
 												(UInt8)(colorSpecPtr[tableIndex].rgb.blue >> 8);
 			#endif
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				classColorTablePtr->red = (UInt8)colorSpecPtr[tableIndex].rgb.red;
 				classColorTablePtr->green = (UInt8)colorSpecPtr[tableIndex].rgb.green;
 				classColorTablePtr->blue = (UInt8)colorSpecPtr[tableIndex].rgb.blue;
@@ -8752,7 +8660,7 @@ void LoadErdasTRLClassColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8845,7 +8753,7 @@ SInt16 LoadGroupInformationBuffers (
 						// Order is green, red, blue to be consistant with that in the ERDAS
 						// trailer file.
 				
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					groupColorTablePtr[groupNumber].red =
 														(colorSpecPtr[classIndex].rgb.red >> 8);
 					groupColorTablePtr[groupNumber].green =
@@ -8884,7 +8792,7 @@ SInt16 LoadGroupInformationBuffers (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean LoadNewErdasHeader
@@ -8899,7 +8807,7 @@ SInt16 LoadGroupInformationBuffers (
 //
 // Value Returned:	None
 //
-// Called By:			??? in statisticsImage.c
+// Called By:			FS_gen_make_stat_image_same_scale in SStatisticsImageAlgorithms.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/21/1991
 //	Revised By:			Larry L. Biehl			Date: 11/21/1991
@@ -8937,7 +8845,7 @@ Boolean	LoadNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8990,7 +8898,7 @@ SInt16 MDeleteFile (
 				IOCheck (errCode, (CharPtr)&fileStreamPtr->fileName);	
 		#endif	// defined multispec_mac 
 		
-      #if defined multispec_win | defined multispec_lin
+      #if defined multispec_win | defined multispec_wx
 			errCode = fileStreamPtr->MDeleteFile (messageCode);
 		#endif	// defined multispec_win 
 		
@@ -9003,7 +8911,7 @@ SInt16 MDeleteFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9051,9 +8959,9 @@ SInt16 MGetMarker (
 			IOCheck (errCode, fileStreamPtr);
 	#endif	// defined multispec_mac
               
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		errCode = fileStreamPtr->MGetMarker (outOffsetPtr, messageCode);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 							 
 	return (errCode);
 		      
@@ -9062,7 +8970,7 @@ SInt16 MGetMarker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9111,7 +9019,7 @@ SInt16 MReadData (
 			IOCheck (errCode, (CharPtr)&fileStreamCPtr->fileName);                       
 	#endif	// defined multispec_mac 
               
-   #if defined multispec_win | defined multispec_lin
+   #if defined multispec_win | defined multispec_wx
 		errCode = fileStreamCPtr->MReadData (inBufferPtr, numberBytesPtr, messageCode); 
 	#endif	// defined multispec_win 
 							 
@@ -9122,7 +9030,7 @@ SInt16 MReadData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9163,9 +9071,9 @@ SInt16 MSetMarker (
 			IOCheck (errCode, (CharPtr)&fileStreamCPtr->fileName);
 	#endif	// defined multispec_mac
 
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		errCode = fileStreamCPtr->MSetMarker (inOffset, fromCode, messageCode);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	return (errCode);
   
@@ -9174,7 +9082,7 @@ SInt16 MSetMarker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9211,9 +9119,9 @@ SInt16 MSetSizeOfFile (
 			errCode = ::SetEOF (fileStreamPtr->refNum, (SInt32)countBytes);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		errCode = fileStreamPtr->MSetSizeOfFile (countBytes);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	if (messageCode == kErrorMessages)		
 		IOCheck (errCode, fileStreamPtr);                       
@@ -9225,7 +9133,7 @@ SInt16 MSetSizeOfFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9273,7 +9181,7 @@ SInt16 MWriteData (
 			IOCheck (errCode, fileStreamPtr);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		errCode = fileStreamPtr->MWriteData (inBufferPtr, numberBytesPtr, messageCode);
 	#endif	// defined multispec_win
 							 
@@ -9284,7 +9192,7 @@ SInt16 MWriteData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9360,7 +9268,7 @@ Boolean NavServicesCheckForIgnoredFiles (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9590,7 +9498,7 @@ pascal Boolean NavServicesFilterProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10149,7 +10057,7 @@ pascal void NavServicesGetEventProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10167,11 +10075,11 @@ pascal void NavServicesGetEventProc (
 //
 // Value Returned:	Error code for file operations.
 //
-// Called By:			GetSTASupportFile in histogram.c
-//							OpenImageFile in openImageRoutines.c
-//							GetProjectFile in project.c
-//							UserLocateProjectBaseImage in project.c
-//							LoadTransformationFile in saveWrite.c
+// Called By:			GetSTASupportFile in SHistogram.cpp
+//							OpenImageFile in SOpenFileDialog.cpp
+//							GetProjectFile in SProject.cpp
+//							UserLocateProjectBaseImage in SProject.cpp
+//							LoadTransformationFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/24/2001
 //	Revised By:			Larry L. Biehl			Date: 03/25/2017
@@ -10941,7 +10849,7 @@ SInt16 NavServicesGetFile (
 /*
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10964,7 +10872,7 @@ SInt16 NavServicesGetFile (
 
 pascal Boolean NavServicesPreviewProc (
 				NavCBRecPtr							callBackParms,
-				void *								callBackUD)				
+				void*									callBackUD)				
 {
 
 	
@@ -10976,7 +10884,7 @@ pascal Boolean NavServicesPreviewProc (
 
   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11319,7 +11227,7 @@ pascal void NavServicesPutEventProc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11338,7 +11246,7 @@ pascal void NavServicesPutEventProc (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/30/2001
-//	Revised By:			Larry L. Biehl			Date: 03/22/2017
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 NavServicesPutFile (
 				CMFileStream*		 				fileStreamPtr, 
@@ -11571,7 +11479,7 @@ SInt16 NavServicesPutFile (
 			
 				// Check if enough space on the volume.									
 				
-		errCode = GetVolumeFreeSpace ((Str255*)&tempFileStream.fileName, 
+		errCode = GetVolumeFreeSpace (tempFileStream,
 												tempFileStream.vRefNum, 
 												&freeBytes);
 															
@@ -11724,7 +11632,7 @@ SInt16 NavServicesPutFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11738,13 +11646,13 @@ SInt16 NavServicesPutFile (
 //
 // Value Returned:	None
 //
-// Called By:			GetDefaultERDASsupportFile in fileIO.c
-//							GetFile in fileIO.c	
-//							ReadOneBytePalette in paletteProc.c
-//							GetSpecifiedImageFile in project.c	
-//							LoadProjectFileAndLayerInformation in project.c
-//							OpenProjectImageWindow in project.c
-//							InsertNewErdasHeader in reformat.c	
+// Called By:			GetDefaultERDASsupportFile in SFileIO.cpp
+//							GetFile in SFileIO.cpp
+//							ReadOneBytePalette in SPalette.cpp
+//							GetSpecifiedImageFile in SProject.cpp	
+//							LoadProjectFileAndLayerInformation in SProject.cpp
+//							OpenProjectImageWindow in SProject.cpp
+//							InsertNewErdasHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1991
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017
@@ -11852,7 +11760,7 @@ SInt16 OpenFileReadOnly (
 			}	// end "if (fileStreamPtr->refNum == 0)"
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (verifyFileStreamFlag)
 				// Force the unicode name to be regenerated to match the
 				// UTF8 char file name.
@@ -11879,7 +11787,7 @@ SInt16 OpenFileReadOnly (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12687,7 +12595,7 @@ void PackBISData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12839,7 +12747,7 @@ void PackBlockedData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12902,7 +12810,7 @@ void PackGAIAData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -13002,7 +12910,7 @@ UInt32 PackMaskData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14123,7 +14031,7 @@ void PackNonBISData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14174,7 +14082,7 @@ SInt16 PrepareToReadTextFile (
 																				numberEndOfLineBytesPtr); 
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		paramBlockPtr->ioPosOffset = 0;
 		paramBlockPtr->ioActCount = 0;
 		paramBlockPtr->fileStreamPtr = fileStreamPtr;
@@ -14188,7 +14096,7 @@ SInt16 PrepareToReadTextFile (
 																		&errCode,
 																		endOfLineCodePtr,
 																		numberEndOfLineBytesPtr);         
-	#endif	// defined multispec_win || defined multispec_lin 
+	#endif	// defined multispec_win || defined multispec_wx 
 		
 	return (errCode);
 
@@ -14197,7 +14105,7 @@ SInt16 PrepareToReadTextFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14216,7 +14124,7 @@ SInt16 PrepareToReadTextFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1988
-//	Revised By:			Larry L. Biehl			Date: 01/15/2019
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
 
 SInt16 PutFile (
 				CMFileStream*		 				fileStreamPtr, 
@@ -14388,39 +14296,17 @@ SInt16 PutFile (
 		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		WideFileStringPtr				fileNamePtr;
-		//SInt16							filterStringIndex = IDS_FilterString;
 		Boolean							fileSelected;
-		/*
-		if (stringIndex == IDS_SaveProjectFile)
-			filterStringIndex = IDS_ProjectFilterString;
-		else if (stringIndex == IDS_FileIO61)
-			filterStringIndex = IDS_TransformFilterString;
-		else if (stringIndex == IDS_FileIO69)
-			filterStringIndex = IDS_ImageFilterString;
-		else if (stringIndex == IDS_FileIO75)
-			filterStringIndex = IDS_ThematicFilterString;
-		else if (stringIndex == IDS_SaveImageStats)
-			filterStringIndex = IDS_StatFilterString;
-		else if (stringIndex == IDS_SaveClassificationAs)
-			filterStringIndex = IDS_ClassificationFilterString;
-		else if (stringIndex == IDS_SaveProbabilityAs)
-			filterStringIndex = IDS_ClassificationFilterString;
-
-		GetSpecifiedStringNumber (
-								kFileIOStrID, filterStringIndex, (UCharPtr)gTextString, TRUE);
-		wxString wdcard ((char*)&gTextString[1], wxConvUTF8);
-		*/
+	
+	
 		GetSpecifiedStringNumber (
 								kFileIOStrID, stringIndex, (UCharPtr)gTextString, TRUE);
 		wxString promptString ((char*)&gTextString[1], wxConvUTF8);
 		
 		wxFrame* frame = GetActiveFrame ();
-		//wxFileDialog temp (
-		//				gActiveImageViewCPtr->m_frame, wxT("Save file as"), wxEmptyString,
-		//wxFileDialog temp (GetMainFrame (), wxT("Save file as"), wxEmptyString,
-		wxFileDialog temp (frame, 
+		wxFileDialog temp (frame,
 									//wxT("Save file as"), 
 									promptString,
 									wxEmptyString,
@@ -14428,7 +14314,11 @@ SInt16 PutFile (
 									wxEmptyString,
 									//wdcard,
 									wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-		//temp.SetFilterIndex (0);
+			
+				// Set default directory if needed.
+		
+		if (gOutputDirectory != wxEmptyString)
+			temp.SetDirectory (gOutputDirectory);
 
 		fileSelected = FALSE;
 		fileNamePtr = 
@@ -14439,8 +14329,6 @@ SInt16 PutFile (
 			gGetFileStatus = -1;
 			if (stringIndex == IDS_SaveProjectFile)
 				gGetFileStatus = 0;
-
-			//wxString newName (fileNamePtr, wxConvUTF8);
 
 			StringHandle stringHandle = NULL;
 			CharPtr stringPtr = NULL;
@@ -14501,60 +14389,102 @@ SInt16 PutFile (
 				
 				}	// end "if (stringIndex == IDS_SaveProbabilityAs)"
 
-			if (temp.ShowModal () == wxID_CANCEL)
-																							return (-1);
-
-			//strncpy ((char *)fileNamePtr, 
-			//				(const char*)(temp.GetPath ().mb_str (wxConvUTF8)), 
-			//				(int)(temp.GetPath ()).Length ());
-			wcsncpy (fileNamePtr, temp.GetPath (), (int)(temp.GetPath ()).Length ());
-			
-					//Get file name length and add zero at the end
-					
-			int pathlength = (int)(temp.GetPath ()).Length ();
-			//*(fileNamePtr+pathlength) = '\0';
-			fileNamePtr[pathlength] = 0;
-			
-					// Get the path length.
-
-			//size_t stringLength = strlen ((CharPtr)fileNamePtr);
-			if (pathlength > gFileNameLengthLimit)
-				DisplayAlert (kErrorAlertID,
-									kStopAlert,
-									kAlertStrID,
-									IDS_Alert92,
-									0,
-									NULL);
-
-			else	// pathlength <= gFileNameLengthLimit
+			int returnError = temp.ShowModal ();
+			if (returnError == wxID_OK)
 				{
-				wchar_t pathName[_MAX_PATH];
-				CtoPstring (fileNamePtr, pathName);
-				pathName[pathName[0]+1] = 0;
+				wcsncpy (fileNamePtr, temp.GetPath (), (int)(temp.GetPath ()).Length ());
+				
+						//Get file name length and add zero at the end
+						
+				int pathlength = (int)(temp.GetPath ()).Length ();
+				fileNamePtr[pathlength] = 0;
+				
+						// Get the path length.
 
-				fileNamePtr = pathName;
+				if (pathlength > gFileNameLengthLimit)
+					DisplayAlert (kErrorAlertID,
+										kStopAlert,
+										kAlertStrID,
+										IDS_Alert92,
+										0,
+										NULL);
 
-				fileSelected = TRUE;
+				else	// pathlength <= gFileNameLengthLimit
+					{
+					wchar_t pathName[_MAX_PATH];
+					CtoPstring (fileNamePtr, pathName);
+					pathName[pathName[0]+1] = 0;
 
-				fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
+					fileNamePtr = pathName;
 
-				}	// end "else stringLength <= gFileNameLengthLimit"
+					fileSelected = TRUE;
 
-		} while (!fileSelected);
+					fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
+
+					}	// end "else stringLength <= gFileNameLengthLimit"
+				
+				}	// end "if (returnError == wxID_OK)"
+			
+			else
+				errCode = -1;
+
+			}	while (!fileSelected && errCode == noErr);
+	
+				// This is only set when needed to change output directory to a
+				// writeable one. See CheckIfDirectoryIsWriteable routine.
+	
+		ResetOutputDirectory ();
 
 				// Create the file on the selected volume
 
-		errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
-	#endif	// defined multispec_lin
+		if (errCode == noErr)
+			errCode = fileStreamPtr->MCreateNewFile (kReplaceFlag);
+	
+	#endif	// defined multispec_wx
 
 	return (errCode);
 
-}	// end "PutFile"  
+}	// end "PutFile"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void ResetOutputDirectory
+//
+//	Software purpose:	The purpose of this routine is to set the gOutputDirectory
+//							global wxString to empty. This routine is currently on used
+//							in the wxWidgets versions of MultiSpec.
+//							The CheckIfDirectoryIsWriteable routine will set this variable
+//							if needed.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+
+void ResetOutputDirectory (void)
+
+{
+#if defined multispec_wx
+	gOutputDirectory = wxEmptyString;
+#endif
+
+}	// end "ResetOutputDirectory"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14571,8 +14501,8 @@ SInt16 PutFile (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetImageNameFromSupportFile in fileIO.c
-//							OpenFileReadOnly in fileIO.c
+// Called By:			GetImageNameFromSupportFile in SFileIO.cpp
+//							OpenFileReadOnly in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/08/1993
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -14642,9 +14572,9 @@ SInt16 ResolveAnyAliases (
 			}	// end "if (gAliasMgrPresentFlag)"
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		*wasAliasedFlagPtr = FALSE;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 		
 	return (errCode);
 			
@@ -14653,7 +14583,7 @@ SInt16 ResolveAnyAliases (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14750,7 +14680,7 @@ void SetCFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14791,7 +14721,7 @@ void SetFileDoesNotExist (
 			fileStreamPtr->uniPascalFileName[0] = 0;
 		#endif	// defined multispec_mac
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			fileStreamPtr->mFileType = -1;
 			if (keepNameTypeCode != kKeepUTF8CharName)
 				{
@@ -14815,7 +14745,7 @@ void SetFileDoesNotExist (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14829,8 +14759,8 @@ void SetFileDoesNotExist (
 //
 // Value Returned:	None
 //
-// Called By:			ChangeErdasHeader in reformat.c
-//							ModifyChannelDescriptions in reformat.c
+// Called By:			ChangeErdasHeader in SReformatUtilities.cpp
+//							ModifyChannelDescriptions in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1988
 //	Revised By:			Larry L. Biehl			Date: 03/12/2008
@@ -14859,7 +14789,7 @@ void SetFileReadOnly (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14874,8 +14804,8 @@ void SetFileReadOnly (
 //
 // Value Returned:
 //
-// Called By:			CreateNewFile in fileIO.c
-//							GetProjectFileName in project.c
+// Called By:			CreateNewFile in SFileIO.cpp
+//							GetProjectFileName in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/26/1989
 //	Revised By:			Larry L. Biehl			Date: 04/09/1996
@@ -14907,7 +14837,7 @@ SInt16 SetFileSizeToZero (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -14921,10 +14851,10 @@ SInt16 SetFileSizeToZero (
 //
 // Value Returned:	None
 //
-// Called By:			WriteErdasHeader in saveWrite.c
-//							InsertNewErdasHeader in reformat.c
-//							ModifyChannelDescriptions in reformat.c
-//							SetFileSizeToZero in fileIO.c	
+// Called By:			WriteErdasHeader in SSaveWrite.cpp
+//							InsertNewErdasHeader in SReformatUtilities.cpp
+//							ModifyChannelDescriptions in SReformatUtilities.cpp
+//							SetFileSizeToZero in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/10/1992
 //	Revised By:			Larry L. Biehl			Date: 02/09/2008
@@ -14981,12 +14911,12 @@ SInt16 SetFileWriteEnabled (
 												(SInt16)kErrorMessages);
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// Set to write permission and reopen
 
 		errCode = fileStreamPtr->MOpenFile (
 										(SInt16) (wxFile::read_write),(SInt16) kErrorMessages);
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 										
 	if (errCode == noErr)
 		gNumberOfOpenFiles++;
@@ -14998,7 +14928,7 @@ SInt16 SetFileWriteEnabled (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15041,7 +14971,7 @@ void SetFSSpecFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15079,7 +15009,7 @@ void SetParID (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15117,7 +15047,7 @@ void SetReferenceNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15148,9 +15078,9 @@ void SetType (
 	   	fileStreamPtr->type = type;
 		#endif	// defined multispec_mac 
 	
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 	   	fileStreamPtr->mFileType = type;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (fileStreamPtr != NULL)" 
 	
@@ -15159,7 +15089,7 @@ void SetType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15174,18 +15104,18 @@ void SetType (
 //
 // Value Returned:	None
 //
-// Called By:			BiPlotFieldData in biPlotData.c
-//							ClassifyPerPointArea in SClassfy.cpp
+// Called By:			BiPlotFieldData in SBiPlotData.cpp
+//							ClassifyPerPointArea in SClassify.cpp
 //							ClusterClassification in SCluster.cpp
 //							CreateClusterMaskFile in SCluster.cpp
 //							GetClusterAreaStatistics in SCluster.cpp
-//							ISODATAClusterPass in SClustID.cpp
-//							OnePassClusterAreas in SClustSP.cpp
-//							ListFieldData in SLstData.cpp
-//							GetAreaResults in SLstRslt.cpp
-//							GetAreaStats in SMatUtil.cpp
-//							GetFieldDataValues in SPMatUtl.cpp
-//							HistogramFieldStats in statHistogram.c
+//							ISODATAClusterPass in SClusterIsodata.cpp
+//							OnePassClusterAreas in SClusterSinglePass.cpp
+//							ListFieldData in SListData.cpp
+//							GetAreaResults in SListResults.cpp
+//							GetAreaStats in SMatrixUtilities.cpp
+//							GetFieldDataValues in SProjectMatrixUtilities.cpp
+//							HistogramFieldStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1998
 //	Revised By:			Larry L. Biehl			Date: 10/26/1999
@@ -15220,7 +15150,7 @@ SInt16 SetUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15235,7 +15165,7 @@ SInt16 SetUpFileIOInstructions (
 //
 // Value Returned:	None
 //
-// Called By:			DisplayCImage in SDisMulc.cpp
+// Called By:			DisplayCImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1999
 //	Revised By:			Larry L. Biehl			Date: 10/17/2012
@@ -15502,7 +15432,7 @@ SInt16 SetUpFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15595,7 +15525,7 @@ void SetUpGeneralFileIOInstructions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15682,7 +15612,7 @@ SInt16 SetUpDataConversionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15816,7 +15746,7 @@ void SetUpHeirarchalFileIOParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15830,7 +15760,7 @@ void SetUpHeirarchalFileIOParameters (
 //
 // Value Returned:	None
 //
-// Called By:			GetProjectFileName in project.c
+// Called By:			GetProjectFileName in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1995
 //	Revised By:			Larry L. Biehl			Date: 12/19/1997
@@ -15861,7 +15791,7 @@ SInt16 SetVolume (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15909,7 +15839,7 @@ void SetVolumeReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15954,7 +15884,7 @@ void SwapBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -15995,7 +15925,7 @@ void Swap2Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16039,7 +15969,7 @@ void Swap4Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16095,7 +16025,7 @@ void Swap8Bytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16205,12 +16135,12 @@ SInt16 UpdateFileNameInformation (
 		*/
 	#endif	// defined multispec_mac
 			  
-	#if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 				// for Windows and Linux versions, now copy the proposed file name to the
 				// file path string. 
 
 		fileStreamPtr->SetFileName (fileNamePtr);
-	#endif	// defined multispec_lin || defined multispec_win
+	#endif	// defined multispec_wx || defined multispec_win
 
 	return (errCode);
 						
@@ -16219,7 +16149,7 @@ SInt16 UpdateFileNameInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -16282,11 +16212,11 @@ SInt16 VerifyFileStreamForOpen (
 			}	// end "if (fileStreamPtr->fSRefFlag)"
 	#endif	// defined multispec_mac
 
-	#if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 				// Create UTF8 character formatted file path name string
 
 		UpdateFileNameInformation (fileStreamPtr, fileNamePtr);
-	#endif	// defined multispec_lin || defined multispec_win
+	#endif	// defined multispec_wx || defined multispec_win
    	
    return (errCode);
 	

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/05/2018
+//	Revision date:			11/08/2019
 //
 //	Language:				C
 //
@@ -20,16 +20,14 @@
 //	Brief description:	This file contains functions that relate to listing
 //								classification results.
 //
-//	Functions in file:
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"   
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#define	IDOK									1
-	#include "LRecodeThematicImageDialog.h"
-#endif	// defined multispec_lin
+	#include "xRecodeThematicImageDialog.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDOK									1
@@ -39,7 +37,7 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
   
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WRecodeThematicImageDialog.h"
 #endif	// defined multispec_win 
 
@@ -54,44 +52,44 @@ SInt16				gThresholdImageSelection = 1;
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 			
-PascalVoid 			DrawCompareParameterPopUp (
-							DialogPtr							dialogPtr, 
-							SInt16								itemNumber);
+PascalVoid DrawCompareParameterPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 							
-PascalVoid 			DrawSelectThresholdImagePopUp (
-							DialogPtr							dialogPtr, 
-							SInt16								itemNumber);
+PascalVoid DrawSelectThresholdImagePopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-Boolean 				LoadRecodeThematicImageSpecs (
-							Handle*								reformatOptionsHPtr);
+Boolean LoadRecodeThematicImageSpecs (
+				Handle*								reformatOptionsHPtr);
 
-Boolean 				DoRecodeThematicImage (
-							FileIOInstructionsPtr			fileIOInstructions1Ptr,
-							FileIOInstructionsPtr			fileIOInstructions2Ptr,
-							RecodeThematicImagePtr			recodeThematicImagePtr,
-							UInt32*								outputValuesChangedPtr);
+Boolean DoRecodeThematicImage (
+				FileIOInstructionsPtr			fileIOInstructions1Ptr,
+				FileIOInstructionsPtr			fileIOInstructions2Ptr,
+				RecodeThematicImagePtr			recodeThematicImagePtr,
+				UInt32*								outputValuesChangedPtr);
 
-Boolean 				RecodeThematicImageDialog (
-							ReformatOptionsPtr				reformatOptionsPtr);
+Boolean RecodeThematicImageDialog (
+				ReformatOptionsPtr				reformatOptionsPtr);
 							
-void 					RecodeThematicImageDialogSetThresholdFileName (
-							UCharPtr								fileNamePPointer,
-							MenuHandle							popUpSelectThresholdImageMenu,
-							DialogPtr							dialogPtr,
-							SInt16								thresholdPopupItemNumber,
-							SInt16								menuItemNumber);
+void RecodeThematicImageDialogSetThresholdFileName (
+				UCharPtr								fileNamePPointer,
+				MenuHandle							popUpSelectThresholdImageMenu,
+				DialogPtr							dialogPtr,
+				SInt16								thresholdPopupItemNumber,
+				SInt16								menuItemNumber);
 
-void 					RecodeThematicImageDialogSetThresholdItems (
-							MenuHandle							popUpSelectThresholdImageMenu,
-							DialogPtr							dialogPtr,
-							SInt16								thresholdPopupItemNumber,
-							SInt16								thresholdImageSelection,
-							Handle								thresholdFileInfoHandle);	
+void RecodeThematicImageDialogSetThresholdItems (
+				MenuHandle							popUpSelectThresholdImageMenu,
+				DialogPtr							dialogPtr,
+				SInt16								thresholdPopupItemNumber,
+				SInt16								thresholdImageSelection,
+				Handle								thresholdFileInfoHandle);	
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -119,14 +117,10 @@ Boolean DoRecodeThematicImage (
 				UInt32*								outputValuesChangedPtr)
 					
 {
-	//double								minutesLeft;	
-												
 	CMFileStream*						outFileStreamPtr;
 	
 	HUInt16Ptr							ioBuffer2Ptr,
 				 							thresholdBuffer2Ptr;
-				 							
-	//Ptr									stringPtr;	
 	
 	SInt32								startTick;
 											
@@ -171,7 +165,7 @@ Boolean DoRecodeThematicImage (
 			
 	outFileStreamPtr = GetFileStreamPointer (gImageFileInfoPtr);
 	if (outFileStreamPtr == NULL)									
-																							return (FALSE);
+																						return (FALSE);
 	
 			// Initialize local variables														
 	
@@ -475,8 +469,8 @@ Boolean DoRecodeThematicImage (
 			if (percentComplete != lastPercentComplete)
 				{
 				LoadDItemValue (gStatusDialogPtr, 
-									IDC_ShortStatusValue, 
-									(SInt32)percentComplete);
+										IDC_ShortStatusValue,
+										(SInt32)percentComplete);
 				lastPercentComplete = percentComplete;
 				
 				}	// end "if (percentComplete != lastPercentComplete)" 
@@ -526,10 +520,9 @@ Boolean DoRecodeThematicImage (
 }	// end "DoRecodeThematicImage" 
 							
 
-
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -570,7 +563,7 @@ pascal void DrawCompareParameterPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -611,7 +604,7 @@ pascal void DrawSelectThresholdImagePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -717,7 +710,7 @@ Boolean LoadRecodeThematicImageSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -810,7 +803,7 @@ void RecodeThematicImageControl (void)
 												IDS_Reform16,
 												NULL, 
 												gOutputForce1Code, 
-												fileNamePtr, 
+												&fileNamePtr[1],
 												continueFlag,
 												kUTF8CharString);	
 		
@@ -911,7 +904,9 @@ void RecodeThematicImageControl (void)
 				
 				}	// end "if (continueFlag && reformatOptionsPtr->..."
 			/*
-					// For now the input file will be changed directly		
+					// For now the input file will be changed directly	so will not need
+					// an output buffer or a different output file.
+			 
 					// Get buffer for output data.													
 					
 			continueFlag = GetReformatOutputBuffer (outFileInfoPtr, reformatOptionsPtr);
@@ -1103,7 +1098,7 @@ void RecodeThematicImageControl (void)
 					delete GetWindowClassPointer (thresholdWindowInfoHandle);
 				#endif	// defined multispec_win 
 
-            #if defined multispec_lin
+            #if defined multispec_wx
                gImageWindowInfo2Ptr->fileInfoHandle = NULL;
                thresholdWindowInfoHandle = NULL;
             #endif
@@ -1136,10 +1131,6 @@ void RecodeThematicImageControl (void)
 	recodeThematicImagePtr->thresholdFileInfoHandle = NULL;
 	
 	ReleaseReformatOutputFileInfoAndBuffers (reformatOptionsPtr, NULL);
-			
-			// Release memory used for the reformat structure.							
-			
-	//ReleaseReformatSpecsMemory (&reformatOptionsHandle, NULL);
 					
 			// Dispose of updating statistics status dialog box.						
 		
@@ -1152,7 +1143,7 @@ void RecodeThematicImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1169,7 +1160,7 @@ void RecodeThematicImageControl (void)
 // Value Returned:  	0 if user clicked on cancel
 //							1 if user clicked on ok.
 //
-// Called By:			StatisticsControl   in statistics.c
+// Called By:			StatisticsControl   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/15/1999
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
@@ -1386,7 +1377,7 @@ Boolean RecodeThematicImageDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win  
       
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMRecodeThematicDialog*		dialogPtr = NULL;
       dialogPtr = new CMRecodeThematicDialog (); 
 			
@@ -1444,7 +1435,7 @@ void RecodeThematicImageDialogInitialize (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1459,7 +1450,7 @@ void RecodeThematicImageDialogInitialize (
 //
 // Value Returned:  	None
 //
-// Called By:			StatisticsDialog in statistics.c
+// Called By:			StatisticsDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/15/1999
 //	Revised By:			Larry L. Biehl			Date: 07/16/1999
@@ -1579,13 +1570,14 @@ void RecodeThematicImageDialogSetThresholdFileName (
 														&fileNamePPointer[1]);
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
-         wxComboBox* comboBoxPtr =
-								(wxComboBox*)dialogPtr->FindWindow (thresholdPopupItemNumber);
+		#if defined multispec_wx
+         wxChoice* comboBoxPtr =
+								(wxChoice*)dialogPtr->FindWindow (thresholdPopupItemNumber);
          if (comboBoxPtr->GetCount () < menuItemNumber)
             comboBoxPtr->Insert (" ", comboBoxPtr->GetCount ());
 				
-			dialogPtr->SetComboItemText (thresholdPopupItemNumber, 
+			//dialogPtr->SetComboItemText (thresholdPopupItemNumber,
+			dialogPtr->SetChoiceItemText (thresholdPopupItemNumber,
 													menuItemNumber-1,
 													(char*)&fileNamePPointer[1]);
 		#endif
@@ -1634,23 +1626,23 @@ void RecodeThematicImageDialogSetThresholdItems (
 												(UCharPtr)"Select threshold file...");
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin
-      wxComboBox* comboBoxPtr =
-							(wxComboBox*)dialogPtr->FindWindow (thresholdPopupItemNumber);
+   #if defined multispec_wx
+      wxChoice* comboBoxPtr =
+							(wxChoice*)dialogPtr->FindWindow (thresholdPopupItemNumber);
       if (comboBoxPtr->GetCount () < 2)
          comboBoxPtr->Insert (" ", comboBoxPtr->GetCount ());
       
-      dialogPtr->SetComboItemText (thresholdPopupItemNumber, 
+      dialogPtr->SetChoiceItemText (thresholdPopupItemNumber,
 												1,
-												"Select threshold file...");
-   #endif // defined multispec_lin
+												(char*)"Select threshold file...");
+   #endif // defined multispec_wx
 		
 	if (thresholdImageSelection == 1)
 		{
-		#if defined multispec_lin
+		#if defined multispec_wx
          if (comboBoxPtr->GetCount () == 3)
              comboBoxPtr->Delete (2); 
-      #endif // defined multispec_lin
+      #endif // defined multispec_wx
 		
 		#if defined multispec_mac
 			DeleteMenuItem (popUpSelectThresholdImageMenu, 3);
@@ -1672,18 +1664,19 @@ void RecodeThematicImageDialogSetThresholdItems (
 																				thresholdFileInfoHandle,
 																				&handleStatus);
 
-			RecodeThematicImageDialogSetThresholdFileName (fileNamePPointer,
-																			popUpSelectThresholdImageMenu,
-																			dialogPtr,
-																			thresholdPopupItemNumber,
-																			3);
+			RecodeThematicImageDialogSetThresholdFileName (
+																	fileNamePPointer,
+																	popUpSelectThresholdImageMenu,
+																	dialogPtr,
+																	thresholdPopupItemNumber,
+																	3);
 		
 					// Unlock the class name structure handle if needed.					
 			
 			MHSetState (thresholdFileInfoHandle, handleStatus);
 		#endif	// defined multispec_win
 
-      #if defined multispec_lin
+      #if defined multispec_wx
          SignedByte							handleStatus;
 			
 			fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromFileHandle (

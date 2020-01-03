@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -36,31 +36,18 @@
 //									Written: 12/19/91
 //									Last Update:  1/27/92 Brian J. Buckley
 //
-//	Functions in file:	SInt16 CalculateCoefficients
-//								SInt16 CalculateWithLeastSquares
-//								SInt16 ComputeGeorefCoefficients
-//								SInt16 ExactDetermination
-//								SInt16 GetPolynomialModel
-//								SInt16 SolveMatrix
-//								double TermValue
-//
-//	Include files:			"MultiSpecHeaders"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 	
 #if defined multispec_mac 
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win
-#endif	// defined multispec_win 
- 
-//#include	"SExtGlob.h"	
+#endif	// defined multispec_win
 
 struct MATRIX
 {
@@ -131,7 +118,7 @@ double	TermValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -220,7 +207,7 @@ SInt16 CalculateCoefficients (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -331,7 +318,7 @@ SInt16 CalculateWithLeastSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -422,7 +409,7 @@ SInt16 ComputeGeorefCoefficients (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -502,7 +489,7 @@ SInt16 ExactDetermination (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -545,8 +532,7 @@ SInt16 GetPolynomialModel (
 		{ 								
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)
 		GetHandlePointer (mapProjectionHandle,
-								kLock,
-								kNoMoveHi);
+								kLock);
 		
 		controlPointsPtr = GetControlPointVectorPointers (
 																	fileInfoPtr->controlPointsHandle,
@@ -638,7 +624,7 @@ SInt16 GetPolynomialModel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -688,6 +674,7 @@ SInt16 SolveMatrix (
 				double 								b[], 
 				double 								E[], 
 				double 								N[])
+
 {
 	UInt32								i, 
 											j, 
@@ -785,7 +772,7 @@ SInt16 SolveMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -824,6 +811,7 @@ double TermValue (
 				UInt32								term,
 				double 								e, 
 				double 								n)
+
 {
 	switch (term)
 		{

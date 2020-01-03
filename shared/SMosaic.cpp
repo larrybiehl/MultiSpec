@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,37 +11,27 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/03/2018
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	This file of routines allows the user to combine two image
-//								side by side or top to bottom also called mosaicing them. One can
-//								indicate that background pixels should be ignored. This 
+//								side by side or top to bottom also called mosaicing them. One
+//								can indicate that background pixels should be ignored. This
 //								capability was orginally created to combine Landsat images
 //								which were in quarter quad files.
-//
-//	Functions in file:	UInt32 				FindLeftBytesToMove
-//								UInt32 				FindRightBytesToMove
-//								UInt32 				GetBackgroundValueForDataTypeCode
-//								Boolean 				MosaicTwoImages
-//								void					MosaicTwoImagesControl
-//								void					MosaicTwoImagesDialog
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin  
-	#include "LImageView.h" 
-	#include	"LMosaicTwoImagesDialog.h" 
-	#include "LMultiSpec.h"
-#endif	// defined multispec_lin  
+#if defined multispec_wx  
+	#include "xImageView.h" 
+	#include	"xMosaicTwoImagesDialog.h" 
+	#include "xMultiSpec.h"
+#endif	// defined multispec_wx  
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_MosaicDirection					4
@@ -84,75 +74,63 @@
   
 #if defined multispec_win   
 	#include	"WMosaicTwoImagesDialog.h" 
-	#include "SExternalGlobals.h"
 #endif	// defined multispec_win      
 
 
 
-extern void 		GetOutputBufferParameters (
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr,
-							UInt32*								outChannelByteIncrementPtr,
-							UInt32*								outLineByteIncrementPtr,
-							UInt32*								outNumberBytesPerLineAndChannelPtr);
-
-extern SInt16 		GetHeaderFormatFromPopUpSelection (
-							SInt16		 						headerOptionsSelection);
-
-
-			// Prototypes for routines in this file that are only called by		
+			// Prototypes for routines in this file that are only called by
 			// other routines in this file.
 			
-PascalVoid			DrawMosaicDirectionPopUp (
-							DialogPtr							dialogPtr, 
-							SInt16								itemNumber);	
+PascalVoid DrawMosaicDirectionPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-UInt32 				FindLeftBytesToMove (
-							char*									ioLBuffer2Ptr,
-							UInt32								numberBytes,
-							char*									backgroundValuePtr,
-							UInt32								numberLeftColumns,
-							UInt32								columnInterval,
-							UInt32								numberChannels,
-							UInt32								leftSkip);	
+UInt32 FindLeftBytesToMove (
+				char*									ioLBuffer2Ptr,
+				UInt32								numberBytes,
+				char*									backgroundValuePtr,
+				UInt32								numberLeftColumns,
+				UInt32								columnInterval,
+				UInt32								numberChannels,
+				UInt32								leftSkip);
 							
-UInt32 				FindRightBytesToMove (
-							char*									ioRBuffer2Ptr,
-							UInt32								numberBytes,
-							char*									backgroundValuePtr,
-							UInt32								numberRightColumns,
-							UInt32								columnInterval,
-							UInt32								numberChannels,
-							UInt32								rightSkip);
+UInt32 FindRightBytesToMove (
+				char*									ioRBuffer2Ptr,
+				UInt32								numberBytes,
+				char*									backgroundValuePtr,
+				UInt32								numberRightColumns,
+				UInt32								columnInterval,
+				UInt32								numberChannels,
+				UInt32								rightSkip);
 			
-UInt32 				GetBackgroundValueForDataTypeCode (
-							FileInfoPtr							outFileInfoPtr, 
-							double								backgroundValue,
-							double*								backgroundValueStringPtr);		
+UInt32 GetBackgroundValueForDataTypeCode (
+				FileInfoPtr							outFileInfoPtr,
+				double								backgroundValue,
+				double*								backgroundValueStringPtr);
 							
-Boolean				MosaicTwoImages (
-							FileIOInstructionsPtr			fileIOInstructionsLeftPtr, 
-							FileIOInstructionsPtr			fileIOInstructionsRightPtr, 
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr);						
+Boolean MosaicTwoImages (
+				FileIOInstructionsPtr			fileIOInstructionsLeftPtr,
+				FileIOInstructionsPtr			fileIOInstructionsRightPtr,
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-Boolean 				MosaicTwoImagesLeftRight (
-							FileIOInstructionsPtr			fileIOInstructionsLeftPtr, 
-							FileIOInstructionsPtr			fileIOInstructionsRightPtr,  
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr,
-							UInt32*								numberColumnsReducedPtr);
+Boolean MosaicTwoImagesLeftRight (
+				FileIOInstructionsPtr			fileIOInstructionsLeftPtr,
+				FileIOInstructionsPtr			fileIOInstructionsRightPtr,
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				UInt32*								numberColumnsReducedPtr);
 
-Boolean 				MosaicTwoImagesDialog (
-							FileInfoPtr 						fileInfoPtr, 
-							FileInfoPtr 						outFileInfoPtr, 
-							ReformatOptionsPtr 				reformatOptionsPtr);
+Boolean MosaicTwoImagesDialog (
+				FileInfoPtr 						fileInfoPtr,
+				FileInfoPtr 						outFileInfoPtr,
+				ReformatOptionsPtr 				reformatOptionsPtr);
 
-Boolean				MosaicTwoImagesTopBottom (
-							FileIOInstructionsPtr			fileIOInstructionsTopPtr, 
-							FileIOInstructionsPtr			fileIOInstructionsBottomPtr,
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr);
+Boolean MosaicTwoImagesTopBottom (
+				FileIOInstructionsPtr			fileIOInstructionsTopPtr,
+				FileIOInstructionsPtr			fileIOInstructionsBottomPtr,
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
 
 
 		// Globals for the file.
@@ -163,7 +141,7 @@ SInt16				gMosaicDirectionCode;
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -204,7 +182,7 @@ pascal void DrawMosaicDirectionPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -226,7 +204,7 @@ pascal void DrawMosaicDirectionPopUp (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2006
-//	Revised By:			Larry L. Biehl			Date: 03/24/2006
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 UInt32 FindLeftBytesToMove (
 				char*									ioLBuffer2Ptr,
@@ -249,7 +227,7 @@ UInt32 FindLeftBytesToMove (
 			// Find last valid data value at end of left part of line.	
 	
 	backgroundFlag = TRUE;
-	for (column=numberLeftColumns-1; column>=0; column--)
+	for (column=numberLeftColumns-1; column<numberLeftColumns; column--)
 		{
 		j = column * columnInterval * numberBytes;
 		channelCount = 0;
@@ -278,7 +256,7 @@ UInt32 FindLeftBytesToMove (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -286,10 +264,10 @@ UInt32 FindLeftBytesToMove (
 //
 //	Software purpose:	This routine finds the number of bytes to be moved in the right
 //							line to be mosaiced.  It does this by checking for background
-//							values starting from the beginning of the line and going towards the
-//							end of the line.  The routine stops searching for the start of
-//							the data line when it does not find a backgound value in at least
-//							one of the channels for a pixel.
+//							values starting from the beginning of the line and going towards
+//							the end of the line.  The routine stops searching for the start
+//							of the data line when it does not find a backgound value in at
+//							least one of the channels for a pixel.
 //
 //	Parameters in:					
 //
@@ -353,7 +331,7 @@ UInt32 FindRightBytesToMove (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -479,7 +457,7 @@ UInt32 GetBackgroundValueForDataTypeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -657,21 +635,21 @@ Boolean MosaicTwoImages (
 				supportFileType = kICLRFileType;
 
 			continueFlag = CreateThematicSupportFile (
-											outFileInfoPtr,
-											NULL, 
-											(UInt16)outFileInfoPtr->numberClasses, 
-											NULL,
-											0,
-											NULL, 
-											GetPaletteHandle (),
-											NULL,		// newPaletteIndexPtr, 
-											GetPaletteType (),
-											(UInt16)outFileInfoPtr->numberClasses, 
-											kFromDescriptionCode, 
-											kPaletteHistogramClassNames,
-											kClassDisplay,
-											kCollapseClass,
-											supportFileType);
+															outFileInfoPtr,
+															NULL,
+															(UInt16)outFileInfoPtr->numberClasses,
+															NULL,
+															0,
+															NULL,
+															GetPaletteHandle (),
+															NULL,		// newPaletteIndexPtr,
+															GetPaletteType (),
+															(UInt16)outFileInfoPtr->numberClasses,
+															kFromDescriptionCode,
+															kPaletteHistogramClassNames,
+															kClassDisplay,
+															kCollapseClass,
+															supportFileType);
 											
 			}	// end "if (continueFlag && outFileInfoPtr->thematicType)" 
 			
@@ -684,7 +662,7 @@ Boolean MosaicTwoImages (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1096,7 +1074,8 @@ Boolean MosaicTwoImagesLeftRight (
 		percentComplete = 100 * line/numberOutputLines;
 		if (percentComplete != lastPercentComplete)
 			{
-			LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
+			LoadDItemValue (
+						gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
 			lastPercentComplete = percentComplete;
 			
 			}	// end "if (percentComplete != lastPercentComplete)" 
@@ -1139,7 +1118,7 @@ Boolean MosaicTwoImagesLeftRight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1244,7 +1223,8 @@ Boolean MosaicTwoImagesTopBottom (
 	
 	bottomColumnStart = reformatOptionsPtr->startColumn;
 	bottomColumnEnd =  reformatOptionsPtr->stopColumn;
-	numberBottomLines = reformatOptionsPtr->stopLine - reformatOptionsPtr->startLine + 1;
+	numberBottomLines =
+							reformatOptionsPtr->stopLine - reformatOptionsPtr->startLine + 1;
 	
 	numberOutputColumns = topColumnEnd - topColumnStart + 1;
 	numberBytesPerChannel = numberOutputColumns * outFileInfoPtr->numberBytes;
@@ -1411,7 +1391,8 @@ Boolean MosaicTwoImagesTopBottom (
 		percentComplete = 100 * line/numberOutputLines;
 		if (percentComplete != lastPercentComplete)
 			{
-			LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
+			LoadDItemValue (
+							gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
 			lastPercentComplete = percentComplete;
 			
 			}	// end "if (percentComplete != lastPercentComplete)" 
@@ -1534,7 +1515,8 @@ Boolean MosaicTwoImagesTopBottom (
 		percentComplete = 100 * line/numberOutputLines;
 		if (percentComplete != lastPercentComplete)
 			{
-			LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
+			LoadDItemValue (
+						gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)percentComplete);
 			lastPercentComplete = percentComplete;
 			
 			}	// end "if (percentComplete != lastPercentComplete)" 
@@ -1574,7 +1556,7 @@ Boolean MosaicTwoImagesTopBottom (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1659,7 +1641,8 @@ void MosaicTwoImagesControl (void)
 		{												
 		outFileInfoPtr = (FileInfoPtr)GetHandlePointer (outFileInfoHandle, kLock);
 												
-		reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer (reformatOptionsH, kLock);
+		reformatOptionsPtr =
+							(ReformatOptionsPtr)GetHandlePointer (reformatOptionsH, kLock);
 			
 		if (gImageFileInfoPtr->format != kGAIAType &&
 												gImageFileInfoPtr->format != kGAIA2Type)
@@ -1682,9 +1665,9 @@ void MosaicTwoImagesControl (void)
 														kKeepSameFormatAsInput);	
 													
 				// The output file will not need to have the bytes swapped.  If the input
-				// file contains data with bytes swapped, they will be swapped when read in
-				// before writing to the new file.  The user does not have the option to
-				// force the output file to have bytes swapped.
+				// file contains data with bytes swapped, they will be swapped when read
+				// in before writing to the new file.  The user does not have the option
+				// to force the output file to have bytes swapped.
 													
 		outFileInfoPtr->swapBytesFlag = FALSE;
 		
@@ -1715,32 +1698,32 @@ void MosaicTwoImagesControl (void)
 			
 			if (continueFlag)	 						
 				continueFlag = GetIOBufferPointers (
-										&gFileIOInstructions[0],
-										gImageWindowInfoPtr,
-										gImageLayerInfoPtr,
-										gImageFileInfoPtr,
-										&gInputBufferPtr, 
-										&gOutputBufferPtr,
-										reformatOptionsPtr->columnStart,
-				 						reformatOptionsPtr->columnEnd,
-				 						1,
-				 						reformatOptionsPtr->numberChannels,
-				 						(UInt16*)reformatOptionsPtr->channelPtr, 
-										kPackData, 
-										outFileInfoPtr->bandInterleave == kBIS, 
-										reformatOptionsPtr->forceByteCode,
-										kDoNotAllowForThreadedIO,
-										&fileIOInstructionsLeftPtr);
-		
+														&gFileIOInstructions[0],
+														gImageWindowInfoPtr,
+														gImageLayerInfoPtr,
+														gImageFileInfoPtr,
+														&gInputBufferPtr,
+														&gOutputBufferPtr,
+														reformatOptionsPtr->columnStart,
+														reformatOptionsPtr->columnEnd,
+														1,
+														reformatOptionsPtr->numberChannels,
+														(UInt16*)reformatOptionsPtr->channelPtr,
+														kPackData,
+														outFileInfoPtr->bandInterleave == kBIS,
+														reformatOptionsPtr->forceByteCode,
+														kDoNotAllowForThreadedIO,
+														&fileIOInstructionsLeftPtr);
+
 					// Get the file information pointer for the right file.					
 
 			if (continueFlag)	
 				GetImageInformationPointers (
-												&rightBottomImageHandleStatus, 
-												reformatOptionsPtr->rightBottomMosaicWindowInfoHandle,
-												&rightWindowInfoPtr, 
-												&rightLayerInfoPtr, 
-												&rightFileInfoPtr);
+										&rightBottomImageHandleStatus,
+										reformatOptionsPtr->rightBottomMosaicWindowInfoHandle,
+										&rightWindowInfoPtr,
+										&rightLayerInfoPtr,
+										&rightFileInfoPtr);
 			
 					// Get pointer to memory to use to read right image file line		
 					// into. 																								
@@ -1769,8 +1752,8 @@ void MosaicTwoImagesControl (void)
 			if (continueFlag)
 				continueFlag = GetReformatOutputBuffer (outFileInfoPtr, reformatOptionsPtr);
 		
-				// Branch to end of routine if memory is full and do cleanup of	
-				// handles.																			
+					// Branch to end of routine if memory is full and do cleanup of
+					// handles.
 				
 			if (continueFlag)
 				{		
@@ -1783,7 +1766,8 @@ void MosaicTwoImagesControl (void)
 						
 			if (continueFlag)
 				{
-						// Change cursor to watch cursor until done withMosaicTwoImagesControl process.	
+						// Change cursor to watch cursor until done with
+						// MosaicTwoImagesControl process.
 				
 				MSetCursor (kWait);
 					
@@ -1811,7 +1795,8 @@ void MosaicTwoImagesControl (void)
 						gImageFileInfoPtr->swapBytesFlag = TRUE;
 					
 					MGetString (gTextString, kReformatStrID, IDS_PercentComplete);
-					LoadDItemString (gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
+					LoadDItemString (
+								gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
 					LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)0);
 					ShowStatusDialogWindow (kShortStatusInfoID);
 					
@@ -1862,8 +1847,9 @@ void MosaicTwoImagesControl (void)
 												&gInputBuffer2Ptr, 
 												&gOutputBuffer2Ptr);
 		
-			UnlockImageInformationHandles (rightBottomImageHandleStatus, 
-												reformatOptionsPtr->rightBottomMosaicWindowInfoHandle);
+			UnlockImageInformationHandles (
+										rightBottomImageHandleStatus,
+										reformatOptionsPtr->rightBottomMosaicWindowInfoHandle);
 				
 					// Dispose of the IO buffer for left image.		
 										
@@ -1877,17 +1863,12 @@ void MosaicTwoImagesControl (void)
 		
 	ReleaseReformatOutputFileInfoAndBuffers (reformatOptionsPtr, gImageFileInfoPtr);
 	
-			// Release the memory connected with the reformat specification		
-			// structure.																			
-			
-//	ReleaseReformatSpecsMemory (&reformatOptionsH, gImageFileInfoPtr);
-					
-}	// end "MosaicTwoImagesControl" 
+}	// end "MosaicTwoImagesControl"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2069,10 +2050,11 @@ Boolean MosaicTwoImagesDialog (
 															&rightOrBottomMosaicWindowInfoHandle,
 															gMosaicDirectionCode);
 								
-//								// Force lines on right image to be checked against the left image.
-//								
-//						itemHit = 25;
-//						updateLineColumnEndFlag = TRUE;
+								// Force lines on right image to be checked against the left
+								//image.
+
+						//itemHit = 25;
+						//updateLineColumnEndFlag = TRUE;
 						
 						}	// end "if (itemHit2 != gFileNamesSelection ..." 
 	
@@ -2102,10 +2084,11 @@ Boolean MosaicTwoImagesDialog (
 															&rightOrBottomMosaicWindowInfoHandle,
 															gMosaicDirectionCode);
 								
-								// Force columns on bottom image to be checked against the top image.
+								// Force columns on bottom image to be checked against the
+								// top image.
 						
-//						itemHit = 35;
-//						updateLineColumnEndFlag = TRUE;
+						//itemHit = 35;
+						//updateLineColumnEndFlag = TRUE;
 						
 						}	// end "if (itemHit2 != gFileNamesSelection ..." 
 	
@@ -2116,28 +2099,30 @@ Boolean MosaicTwoImagesDialog (
 					break;
 
 					
-				case 11:				// Entire area to selected area switch.
-				case 43:				// Entire area to selected area switch. (Appearance Manager)	
-				case 15:				//	 left image lineStart  
-				case 16:				//	 left image lineEnd  
-				case 18:				//	 left image columnStart  
-				case 19:				//	 left image columnEnd  
+				case 11:		// Entire area to selected area switch.
+				case 43:		// Entire area to selected area switch. (Appearance Manager)
+				case 15:		//	 left image lineStart
+				case 16:		//	 left image lineEnd
+				case 18:		//	 left image columnStart
+				case 19:		//	 left image columnEnd
 					DialogLineColumnHits (&leftTopDialogSelectArea,
 													dialogPtr, 
 													itemHit,
 													theHandle,
 													theNum);
 					
-					if (gMosaicDirectionCode == kMosaicLeftRight && (leftTopDialogSelectArea.lineEnd - 
+					if (gMosaicDirectionCode == kMosaicLeftRight &&
+									(leftTopDialogSelectArea.lineEnd -
 														leftTopDialogSelectArea.lineStart) != 
-						  (rightBottomDialogSelectArea.lineEnd - 
-														rightBottomDialogSelectArea.lineStart))
+						  			(rightBottomDialogSelectArea.lineEnd -
+															rightBottomDialogSelectArea.lineStart))
 						updateLineColumnEndFlag = TRUE;
 					
-					else if (gMosaicDirectionCode == kMosaicTopBottom && (leftTopDialogSelectArea.columnEnd - 
+					else if (gMosaicDirectionCode == kMosaicTopBottom &&
+									(leftTopDialogSelectArea.columnEnd -
 														leftTopDialogSelectArea.columnStart) != 
-						  (rightBottomDialogSelectArea.columnEnd - 
-														rightBottomDialogSelectArea.columnStart))
+						  			(rightBottomDialogSelectArea.columnEnd -
+															rightBottomDialogSelectArea.columnStart))
 						updateLineColumnEndFlag = TRUE;						
 					break;
 					
@@ -2204,7 +2189,7 @@ Boolean MosaicTwoImagesDialog (
 									GetHeaderFormatFromPopUpSelection (gHeaderOptionsSelection),
 									outFileInfoPtr->thematicType);
 							
-						}	// end "if (itemHit2 != 0 && gHeaderOptionsSelection != itemHit2)"
+						}	// end "if (itemHit2 != 0 && gHeaderOptionsSelection != ..."
 	
 							// Make certain that the correct label is drawn in the	
 							// header options pop up box.										
@@ -2217,12 +2202,12 @@ Boolean MosaicTwoImagesDialog (
 			if (updateLineColumnEndFlag)
 				{								
 				MosaicTwoImagesDialogUpdateLineColumnEnds (
-													dialogPtr,
-													&leftTopDialogSelectArea,
-													&rightBottomDialogSelectArea,
-													gMosaicDirectionCode,
-													rightOrBottomMosaicWindowInfoHandle,
-													itemHit);
+																dialogPtr,
+																&leftTopDialogSelectArea,
+																&rightBottomDialogSelectArea,
+																gMosaicDirectionCode,
+																rightOrBottomMosaicWindowInfoHandle,
+																itemHit);
 
 				updateLineColumnEndFlag = FALSE;
 				
@@ -2237,18 +2222,16 @@ Boolean MosaicTwoImagesDialog (
 					// equal to 0 to allow user to make changes.							
 					
 			if (itemHit == 1)
-				itemHit = CheckLineColValues (
-										&leftTopDialogSelectArea,
-										reformatOptionsPtr->lineStart,
-										reformatOptionsPtr->columnStart,
-										dialogPtr);
+				itemHit = CheckLineColValues (&leftTopDialogSelectArea,
+														reformatOptionsPtr->lineStart,
+														reformatOptionsPtr->columnStart,
+														dialogPtr);
 					
 			if (itemHit == 1)
-				itemHit = CheckLineColValues (
-										&rightBottomDialogSelectArea,
-										1, 
-										1,
-										dialogPtr);
+				itemHit = CheckLineColValues (&rightBottomDialogSelectArea,
+														1,
+														1,
+														dialogPtr);
 										
 			if (itemHit == 1)
 				{
@@ -2257,9 +2240,9 @@ Boolean MosaicTwoImagesDialog (
 						// if they are not.
 						
 				itemHit = MosaicTwoImagesDialogVerifyLineColumnSettings (
-										&leftTopDialogSelectArea,
-										&rightBottomDialogSelectArea,
-										gMosaicDirectionCode);		
+																		&leftTopDialogSelectArea,
+																		&rightBottomDialogSelectArea,
+																		gMosaicDirectionCode);
 										
 				}	// end "if (itemHit == 1)"
 					
@@ -2326,10 +2309,9 @@ Boolean MosaicTwoImagesDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
 		CMMosaicTwoImagesDialog*		dialogPtr = NULL;
 
-		//dialogPtr = new CMMosaicTwoImagesDialog ((wxWindow*)GetMainFrame ());
 		dialogPtr = new CMMosaicTwoImagesDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog (fileInfoPtr,
@@ -2361,13 +2343,13 @@ void MosaicTwoImagesDialogInitialize (
 				SInt16*								headerOptionsSelectionPtr)
 
 {	
-#	if defined multispec_win
+	#if defined multispec_win
 		CComboBox* 							comboBoxPtr;
-#	endif	// defined multispec_win
+	#endif	// defined multispec_win
 
-#	if defined multispec_lin
-		wxComboBox* 						comboBoxPtr;
-#	endif	// defined multispec_win
+	#if defined multispec_wx
+		wxChoice*							listCtrl;
+	#endif	// defined multispec_win
 
 	UInt32								windowIndex;
 
@@ -2419,33 +2401,43 @@ void MosaicTwoImagesDialogInitialize (
 			// Initialize right and bottom selected area structure.														
 			
 	Handle activeImageWindowInfoH = GetActiveImageWindowInfoHandle ();
-	*fileNamesSelectionPtr = GetImageList (
-								dialogPtr, activeImageWindowInfoH, IDC_RightImageFileList, TRUE, &listCount);   
+	*fileNamesSelectionPtr = GetImageList (dialogPtr,
+														activeImageWindowInfoH,
+														IDC_RightImageFileList,
+														TRUE,
+														&listCount);
 
 	#if defined multispec_mac 
 		windowIndex = kImageWindowStart + *fileNamesSelectionPtr - 1;
-//		*rightOrBottomWindowInfoHandlePtr =
-//				(Handle)GetWindowInfoHandle (gWindowList[kImageWindowStart+*fileNamesSelectionPtr-1]);
-	#endif	// defined multispec_mac   
+	#endif	// defined multispec_mac
 	
 	#if defined multispec_win  
-				// Windows interface requires two separate lists which are associate with each control.
-		*fileNamesSelectionPtr = GetImageList (
-								dialogPtr, activeImageWindowInfoH, IDC_BottomImageFileList, TRUE, &listCount);
+				// Windows interface requires two separate lists which are associate
+				// with each control.
+		*fileNamesSelectionPtr = GetImageList (dialogPtr,
+															activeImageWindowInfoH,
+															IDC_BottomImageFileList,
+															TRUE,
+															&listCount);
 
 		comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_RightImageFileList);
 
-					// Note that the item data for the list already contains 'kImageWindowStart'.
+				// Note that the item data for the list already contains
+				// 'kImageWindowStart'.
 
 		windowIndex = (UInt32)comboBoxPtr->GetItemData (*fileNamesSelectionPtr-1);
-//		*rightOrBottomWindowInfoHandlePtr = GetWindowInfoHandle (gWindowList [windowIndex]);
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
-   	*fileNamesSelectionPtr = GetImageList (
-								dialogPtr, activeImageWindowInfoH, IDC_BottomImageFileList, TRUE, &listCount);
-		comboBoxPtr = (wxComboBox*) wxWindow::FindWindowById (IDC_RightImageFileList);
-		SInt64 windowIndex64 = (SInt64)((int*)comboBoxPtr->GetClientData (*fileNamesSelectionPtr - 1));
+   #if defined multispec_wx
+   	*fileNamesSelectionPtr = GetImageList (dialogPtr,
+															activeImageWindowInfoH,
+															IDC_BottomImageFileList,
+															TRUE,
+															&listCount);
+	
+		listCtrl = (wxChoice*)wxWindow::FindWindowById (IDC_RightImageFileList);
+		SInt64 windowIndex64 = (SInt64)((int*)listCtrl->
+													GetClientData (*fileNamesSelectionPtr - 1));
       windowIndex = (UInt32)windowIndex64;
    #endif
 	
@@ -2476,18 +2468,19 @@ void MosaicTwoImagesDialogInitialize (
 														
 			// Left/Top image file name.															
 
-	FileStringPtr fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (leftTopFileInfoPtr);
-#	if defined multispec_mac
+	FileStringPtr fileNamePtr =
+						(FileStringPtr)GetFileNamePPointerFromFileInfo (leftTopFileInfoPtr);
+	#if defined multispec_mac
 		if (CreateUnicodeStaticTextControl (dialogPtr,
 														&fileNamePtr[1],
 														fileNamePtr[0],
 														IDC_LeftTopImage, NULL) != noErr)
 			LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
-#	endif
+	#endif
 
-#	if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 		LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
-#	endif
+	#endif
 
 			// Left 'to entire image icon'.													
 			//	Left reformat area	
@@ -2499,13 +2492,17 @@ void MosaicTwoImagesDialogInitialize (
 			// Ignore background value check box.											
  
 	*ignoreBackgroundFlagPtr = reformatOptionsPtr->ignoreBackgroundFlag;
-	SetDLogControl (dialogPtr, IDC_IgnoreBackgroundValue, reformatOptionsPtr->ignoreBackgroundFlag);
+	SetDLogControl (dialogPtr,
+							IDC_IgnoreBackgroundValue,
+							reformatOptionsPtr->ignoreBackgroundFlag);
 
 			// Background data value.													
 		
 	*maxDataValuePtr = gImageFileInfoPtr->numberBins - 1;
 	*newBackgroundValuePtr = reformatOptionsPtr->backgroundValue;																	
-	LoadDItemValue (dialogPtr, IDC_BackgroundValue, (SInt32)reformatOptionsPtr->backgroundValue);
+	LoadDItemValue (dialogPtr,
+							IDC_BackgroundValue,
+							(SInt32)reformatOptionsPtr->backgroundValue);
 	HideDialogItem (dialogPtr, IDC_BackgroundValue);
 		
 			// Make sure that all header choices are enabled to start with.
@@ -2529,7 +2526,7 @@ void MosaicTwoImagesDialogInitialize (
 				// will not be used.
 
 		InitializeHeaderPopupMenu (dialogPtr, (MenuHandle)IDC_HeaderFormatList);
-		comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem (IDC_HeaderFormatList));  // IDC_Header
+		comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem (IDC_HeaderFormatList));
 		comboBoxPtr->SetItemData (0, kNoneMenuItem);
 		comboBoxPtr->SetItemData (1, kArcViewMenuItem);
 		comboBoxPtr->SetItemData (2, kERDAS74MenuItem);
@@ -2544,14 +2541,15 @@ void MosaicTwoImagesDialogInitialize (
 		menuTIFFGeoTIFFIndex = comboBoxPtr->GetCount ();
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin
-	  comboBoxPtr = (wxComboBox*)wxWindow::FindWindowById (IDC_HeaderFormatList);
-	  menuTIFFGeoTIFFIndex = comboBoxPtr->GetCount ();
+   #if defined multispec_wx
+		wxChoice*		comboPtr;
+		comboPtr = (wxChoice*)wxWindow::FindWindowById (IDC_HeaderFormatList);
+		menuTIFFGeoTIFFIndex = comboPtr->GetCount ();
      
-	  if (outFileInfoPtr->numberBytes > 2)
+		if (outFileInfoPtr->numberBytes > 2)
 			menuTIFFGeoTIFFIndex -= 1;
-	  if (outFileInfoPtr->numberBytes > 4)
-	 		menuTIFFGeoTIFFIndex -= 1;
+		if (outFileInfoPtr->numberBytes > 4)
+			menuTIFFGeoTIFFIndex -= 1;
    #endif
 													
 			// Set text indicating whether the output file format could be GeoTIFF
@@ -2565,9 +2563,9 @@ void MosaicTwoImagesDialogInitialize (
 												#if defined multispec_win 
 													IDC_HeaderFormatList,
 												#endif	// defined multispec_win
-												#if defined multispec_lin 
+												#if defined multispec_wx 
 													NULL,
-												#endif	// defined multispec_lin  
+												#endif	// defined multispec_wx  
 												menuTIFFGeoTIFFIndex);
 			
 	if (outFileInfoPtr->format == kArcViewType)
@@ -2603,16 +2601,18 @@ void MosaicTwoImagesDialogOK (
 {	
 	reformatOptionsPtr->rightBottomMosaicWindowInfoHandle =
 														rightBottomMosaicWindowInfoHandle;
-/*	
+	/*
 	if (mosaicDirectionCode	== kMosaicLeftRight)
 		{
 				// Force the number of selected lines in the left and right images to 
-				// be the same. This covers case when the right image has fewer lines than
-				// the left image.					
+				// be the same. This covers case when the right image has fewer lines
+				// than the left image.
 			
-		if (leftTopDialogSelectAreaPtr->lineEnd - leftTopDialogSelectAreaPtr->lineStart > 
-			rightBottomDialogSelectAreaPtr->lineEnd - rightBottomDialogSelectAreaPtr->lineStart)
-				leftTopDialogSelectAreaPtr->lineEnd = 
+		if (leftTopDialogSelectAreaPtr->lineEnd -
+						leftTopDialogSelectAreaPtr->lineStart >
+										rightBottomDialogSelectAreaPtr->lineEnd -
+														rightBottomDialogSelectAreaPtr->lineStart)
+			leftTopDialogSelectAreaPtr->lineEnd =
 						leftTopDialogSelectAreaPtr->lineStart + 
 								rightBottomDialogSelectAreaPtr->lineEnd - 
 													rightBottomDialogSelectAreaPtr->lineStart;
@@ -2625,15 +2625,17 @@ void MosaicTwoImagesDialogOK (
 				// be the same. This covers case when the top image has fewer columns than
 				// the bottom image.					
 			
-		if (leftTopDialogSelectAreaPtr->columnEnd - leftTopDialogSelectAreaPtr->columnStart > 
-			rightBottomDialogSelectAreaPtr->columnEnd - rightBottomDialogSelectAreaPtr->columnStart)
-				leftTopDialogSelectAreaPtr->columnEnd = 
+		if (leftTopDialogSelectAreaPtr->columnEnd -
+						leftTopDialogSelectAreaPtr->columnStart >
+										rightBottomDialogSelectAreaPtr->columnEnd -
+													rightBottomDialogSelectAreaPtr->columnStart)
+			leftTopDialogSelectAreaPtr->columnEnd =
 						leftTopDialogSelectAreaPtr->columnStart + 
 								rightBottomDialogSelectAreaPtr->columnEnd - 
 													rightBottomDialogSelectAreaPtr->columnStart;
 		
 		}	// "else mosaicDirectionCode == kMosaicTopBottom"
-*/	
+	*/
 			// Selected area for left part of output file.					
 	
 	reformatOptionsPtr->lineStart = leftTopDialogSelectAreaPtr->lineStart;
@@ -2720,8 +2722,8 @@ void MosaicTwoImagesDialogOnSelectRightBottomImage (
 	#if defined multispec_win                                
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
-	#if defined multispec_lin
-		wxComboBox* 						comboBoxPtr;
+	#if defined multispec_wx
+		wxChoice*							listCtrl;
 	#endif
 
 	WindowInfoPtr						rightOrBottomMosaicWindowInfoPtr;
@@ -2742,30 +2744,32 @@ void MosaicTwoImagesDialogOnSelectRightBottomImage (
 			else	// mosaicDirectionCode == kMosaicTopBottom
 				comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_BottomImageFileList);
 
-					// Note that the item data for the list already contains 'kImageWindowStart'.
+					// Note that the item data for the list already contains
+					// 'kImageWindowStart'.
 
 			windowIndex = (UInt32)comboBoxPtr->GetItemData (fileNamesSelection - 1);
 		#endif	// defined multispec_win 
 
 		// Note: To double check the GetClientData in linux
-		#if defined multispec_lin			
-			//windowIndex = kImageWindowStart + fileNamesSelection - 1;
-			comboBoxPtr = (wxComboBox*)wxWindow::FindWindowById (IDC_RightImageFileList);
-			SInt64 windowIndex64 = (SInt64)((int*)comboBoxPtr->GetClientData (fileNamesSelection - 1));
+		#if defined multispec_wx			
+			listCtrl = (wxChoice*)wxWindow::FindWindowById (IDC_RightImageFileList);
+			SInt64 windowIndex64 = (SInt64)((int*)listCtrl->
+														GetClientData (fileNamesSelection - 1));
 			windowIndex = (UInt32)windowIndex64;
-		#endif	// defined multispec_lin     
+		#endif	// defined multispec_wx     
 				
-		rightOrBottomMosaicWindowInfoHandle = GetWindowInfoHandle (gWindowList[windowIndex]);
+		rightOrBottomMosaicWindowInfoHandle =
+												GetWindowInfoHandle (gWindowList[windowIndex]);
 		
 		rightOrBottomMosaicWindowInfoPtr = (WindowInfoPtr)
-											GetHandlePointer (rightOrBottomMosaicWindowInfoHandle);
+										GetHandlePointer (rightOrBottomMosaicWindowInfoHandle);
 		
 		MosaicTwoImagesDialogSetUpRightBottomSelectArea (
-												dialogPtr,
-												leftTopDialogSelectAreaPtr,
-												rightBottomDialogSelectAreaPtr,
-												mosaicDirectionCode,
-												rightOrBottomMosaicWindowInfoHandle);
+																dialogPtr,
+																leftTopDialogSelectAreaPtr,
+																rightBottomDialogSelectAreaPtr,
+																mosaicDirectionCode,
+																rightOrBottomMosaicWindowInfoHandle);
 
 		if (rightOrBottomMosaicWindowInfoHandle != NULL)
 			*rightOrBottomMosaicWindowInfoHandlePtr = rightOrBottomMosaicWindowInfoHandle;
@@ -2853,7 +2857,7 @@ void MosaicTwoImagesDialogUpdateDirectionItems (
 			ShowDialogItem (dialogPtr, IDSelectedImage2);
 			ShowDialogItem (dialogPtr, IDEntireImage2);
 		#endif	// defined multispec_win
-		#if defined multispec_lin
+		#if defined multispec_wx
 			ShowDialogItem (dialogPtr, IDC_RightImageSettings);
 			ShowDialogItem (dialogPtr, IDC_StartTitleMosaic2);
 			ShowDialogItem (dialogPtr, IDC_EndTitleMosaic2);
@@ -2880,7 +2884,7 @@ void MosaicTwoImagesDialogUpdateDirectionItems (
 			HideDialogItem (dialogPtr, IDSelectedImage3);
 			HideDialogItem (dialogPtr, IDEntireImage3);
 		#endif	// defined multispec_win
-		#if defined multispec_lin
+		#if defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_StartTitleMosaic3);
 			HideDialogItem (dialogPtr, IDC_EndTitleMosaic3);
 			HideDialogItem (dialogPtr, IDC_BottomImageSettings);
@@ -2911,7 +2915,7 @@ void MosaicTwoImagesDialogUpdateDirectionItems (
 			HideDialogItem (dialogPtr, IDSelectedImage2);
 			HideDialogItem (dialogPtr, IDEntireImage2);
 		#endif	// defined multispec_win
-		#if defined multispec_lin
+		#if defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_RightImageSettings);
 			HideDialogItem (dialogPtr, IDC_StartTitleMosaic2);
 			HideDialogItem (dialogPtr, IDC_EndTitleMosaic2);
@@ -2967,25 +2971,22 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 
 	leftTopWindowInfoPtr = leftTopDialogSelectAreaPtr->imageWindowInfoPtr;
 	rightBottomWindowInfoPtr = (WindowInfoPtr)
-											GetHandlePointer (rightOrBottomMosaicWindowInfoHandle);
-	/*
-	int numberChars = sprintf ((char*)gTextString3,
-												" SMosaic:UpdateLineColumnEnds (mosaicDirectionCode, itemSelected): %d, %d%s", 
-												mosaicDirectionCode,
-												itemSelected,
-												gEndOfLine);
-	ListString ((char*)gTextString3, numberChars, gOutputTextH);	
-	*/
+										GetHandlePointer (rightOrBottomMosaicWindowInfoHandle);
+
 	if (rightBottomWindowInfoPtr != NULL)
 		{
 		if (mosaicDirectionCode == kMosaicLeftRight)
 			{
 			if (itemSelected == IDC_LineStart)
 				{
-				if (rightBottomWindowInfoPtr->maxNumberLines == leftTopWindowInfoPtr->maxNumberLines)
+				if (rightBottomWindowInfoPtr->maxNumberLines ==
+															leftTopWindowInfoPtr->maxNumberLines)
 					{
-					rightBottomDialogSelectAreaPtr->lineStart = leftTopDialogSelectAreaPtr->lineStart;
-					LoadDItemValue (dialogPtr, IDC_LineStart2, rightBottomDialogSelectAreaPtr->lineStart);
+					rightBottomDialogSelectAreaPtr->lineStart =
+															leftTopDialogSelectAreaPtr->lineStart;
+					LoadDItemValue (dialogPtr,
+											IDC_LineStart2,
+											rightBottomDialogSelectAreaPtr->lineStart);
 					
 					}	// end "if (rightBottomWindowInfoPtr->maxNumberColumns == ..."
 				
@@ -2993,10 +2994,14 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 			
 			else if (itemSelected == IDC_LineEnd)
 				{
-				if (rightBottomWindowInfoPtr->maxNumberLines == leftTopWindowInfoPtr->maxNumberLines)
+				if (rightBottomWindowInfoPtr->maxNumberLines ==
+															leftTopWindowInfoPtr->maxNumberLines)
 					{
-					rightBottomDialogSelectAreaPtr->lineEnd = leftTopDialogSelectAreaPtr->lineEnd;
-					LoadDItemValue (dialogPtr, IDC_LineEnd2, rightBottomDialogSelectAreaPtr->lineEnd);
+					rightBottomDialogSelectAreaPtr->lineEnd =
+																leftTopDialogSelectAreaPtr->lineEnd;
+					LoadDItemValue (dialogPtr,
+											IDC_LineEnd2,
+											rightBottomDialogSelectAreaPtr->lineEnd);
 					
 					}	// end "if (rightBottomWindowInfoPtr->maxNumberColumns == ..."
 									
@@ -3005,13 +3010,16 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 			else if (itemSelected == IDC_LineStart2)
 				{
 				rightBottomDialogSelectAreaPtr->lineEnd = MIN (
-					rightBottomWindowInfoPtr->maxNumberLines,
+								rightBottomWindowInfoPtr->maxNumberLines,
 								rightBottomDialogSelectAreaPtr->lineStart + 
 										leftTopDialogSelectAreaPtr->lineEnd - 
 											leftTopDialogSelectAreaPtr->lineStart);
 
-				rightBottomDialogSelectAreaPtr->lineEnd = MAX (1, rightBottomDialogSelectAreaPtr->lineEnd);
-				LoadDItemValue (dialogPtr, IDC_LineEnd2, rightBottomDialogSelectAreaPtr->lineEnd);
+				rightBottomDialogSelectAreaPtr->lineEnd =
+											MAX (1, rightBottomDialogSelectAreaPtr->lineEnd);
+				LoadDItemValue (dialogPtr,
+										IDC_LineEnd2,
+										rightBottomDialogSelectAreaPtr->lineEnd);
 				
 				}	// end "else if (itemSelected == IDC_LineStart2)"
 
@@ -3021,10 +3029,14 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 			{
 			if (itemSelected == IDC_ColumnStart)
 				{
-				if (rightBottomWindowInfoPtr->maxNumberColumns == leftTopWindowInfoPtr->maxNumberColumns)
+				if (rightBottomWindowInfoPtr->maxNumberColumns ==
+															leftTopWindowInfoPtr->maxNumberColumns)
 					{
-					rightBottomDialogSelectAreaPtr->columnStart = leftTopDialogSelectAreaPtr->columnStart;
-					LoadDItemValue (dialogPtr, IDC_ColumnStart3, rightBottomDialogSelectAreaPtr->columnStart);
+					rightBottomDialogSelectAreaPtr->columnStart =
+															leftTopDialogSelectAreaPtr->columnStart;
+					LoadDItemValue (dialogPtr,
+											IDC_ColumnStart3,
+											rightBottomDialogSelectAreaPtr->columnStart);
 					
 					}	// end "if (rightBottomWindowInfoPtr->maxNumberColumns == ..."
 				
@@ -3032,10 +3044,14 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 			
 			else if (itemSelected == IDC_ColumnEnd)
 				{
-				if (rightBottomWindowInfoPtr->maxNumberColumns == leftTopWindowInfoPtr->maxNumberColumns)
+				if (rightBottomWindowInfoPtr->maxNumberColumns ==
+															leftTopWindowInfoPtr->maxNumberColumns)
 					{
-					rightBottomDialogSelectAreaPtr->columnEnd = leftTopDialogSelectAreaPtr->columnEnd;
-					LoadDItemValue (dialogPtr, IDC_ColumnEnd3, rightBottomDialogSelectAreaPtr->columnEnd);
+					rightBottomDialogSelectAreaPtr->columnEnd =
+															leftTopDialogSelectAreaPtr->columnEnd;
+					LoadDItemValue (dialogPtr,
+											IDC_ColumnEnd3,
+											rightBottomDialogSelectAreaPtr->columnEnd);
 					
 					}	// end "if (rightBottomWindowInfoPtr->maxNumberColumns == ..."
 									
@@ -3044,13 +3060,16 @@ void MosaicTwoImagesDialogUpdateLineColumnEnds (
 			else if (itemSelected == IDC_ColumnStart3)
 				{
 				rightBottomDialogSelectAreaPtr->columnEnd = MIN (
-					rightBottomWindowInfoPtr->maxNumberColumns,
-						rightBottomDialogSelectAreaPtr->columnStart + 
-									leftTopDialogSelectAreaPtr->columnEnd - 
+								rightBottomWindowInfoPtr->maxNumberColumns,
+								rightBottomDialogSelectAreaPtr->columnStart +
+										leftTopDialogSelectAreaPtr->columnEnd -
 														leftTopDialogSelectAreaPtr->columnStart);
 
-				rightBottomDialogSelectAreaPtr->columnEnd = MAX (1, rightBottomDialogSelectAreaPtr->columnEnd);
-				LoadDItemValue (dialogPtr, IDC_ColumnEnd3, rightBottomDialogSelectAreaPtr->columnEnd);
+				rightBottomDialogSelectAreaPtr->columnEnd =
+											MAX (1, rightBottomDialogSelectAreaPtr->columnEnd);
+				LoadDItemValue (dialogPtr,
+										IDC_ColumnEnd3,
+										rightBottomDialogSelectAreaPtr->columnEnd);
 				
 				}	// end "else if (itemSelected == IDC_ColumnStart3)"
 
@@ -3088,29 +3107,24 @@ void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
 
 
 	leftTopWindowInfoPtr = leftTopDialogSelectAreaPtr->imageWindowInfoPtr;
-	rightBottomWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (rightBottomWindowInfoHandle);
+	rightBottomWindowInfoPtr =
+							(WindowInfoPtr)GetHandlePointer (rightBottomWindowInfoHandle);
    
 
 	if (rightBottomWindowInfoPtr != NULL)
 		{
 		rightBottomColumnEnd = rightBottomWindowInfoPtr->maxNumberColumns;
 		rightBottomLineEnd = rightBottomWindowInfoPtr->maxNumberLines;	
-		/*
-		int numberChars2 = sprintf ((char*)gTextString3,
-									" SMosaic:SetUpRightBottomSelectArea (mosaicDirectionCode, numberLines numberLines): %d, %d, %d%s", 
-									mosaicDirectionCode,
-									rightBottomWindowInfoPtr->maxNumberLines,
-									leftTopWindowInfoPtr->maxNumberLines,
-									gEndOfLine);
-		ListString ((char*)gTextString3, numberChars2, gOutputTextH);	
-		*/			
+
 		if (mosaicDirectionCode == kMosaicLeftRight)
 			{					
-					// If the left and right files have the same number of lines, the default start and end lines
-					// for the right file will be the same as for the left file. Otherwise the line end will be 
-					// determined by the start line and	number of selected lines in the left image.	
+					// If the left and right files have the same number of lines, the
+					// default start and end lines for the right file will be the same as
+					// for the left file. Otherwise the line end will be determined by the
+					// start line and	number of selected lines in the left image.
 			
-			if (rightBottomWindowInfoPtr->maxNumberLines == leftTopWindowInfoPtr->maxNumberLines)
+			if (rightBottomWindowInfoPtr->maxNumberLines ==
+															leftTopWindowInfoPtr->maxNumberLines)
 				{
 				rightBottomLineStart = leftTopDialogSelectAreaPtr->lineStart;
 				rightBottomLineEnd = leftTopDialogSelectAreaPtr->lineEnd;
@@ -3119,10 +3133,10 @@ void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
 				
 			else	// rightBottomWindowInfoPtr->maxNumberLines != ...
 				{
-				rightBottomLineEnd = 1 + 
-						leftTopDialogSelectAreaPtr->lineEnd - leftTopDialogSelectAreaPtr->lineStart;
+				rightBottomLineEnd = 1 + leftTopDialogSelectAreaPtr->lineEnd -
+															leftTopDialogSelectAreaPtr->lineStart;
 				rightBottomLineEnd = MIN (rightBottomLineEnd,
-																rightBottomWindowInfoPtr->maxNumberLines);
+													rightBottomWindowInfoPtr->maxNumberLines);
 				
 				}	// end "else rightBottomWindowInfoPtr->maxNumberLines != ..."
 																
@@ -3130,11 +3144,14 @@ void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
 			
 		else if (mosaicDirectionCode == kMosaicTopBottom)
 			{							
-					// If the left and right files have the same number of columns, the default start and end columns
-					// for the bottom file will be the same as for the top file. Otherwise the column end will be 
-					// determined by the start column and number of selected columns in the top image.	
+					// If the left and right files have the same number of columns, the
+					// default start and end columns for the bottom file will be the same
+					// as for the top file. Otherwise the column end will be
+					// determined by the start column and number of selected columns in
+					// the top image.
 			
-			if (rightBottomWindowInfoPtr->maxNumberColumns == leftTopWindowInfoPtr->maxNumberColumns)
+			if (rightBottomWindowInfoPtr->maxNumberColumns ==
+															leftTopWindowInfoPtr->maxNumberColumns)
 				{
 				rightBottomColumnStart = leftTopDialogSelectAreaPtr->columnStart;
 				rightBottomColumnEnd = leftTopDialogSelectAreaPtr->columnEnd;
@@ -3143,10 +3160,10 @@ void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
 				
 			else	// rightBottomWindowInfoPtr->maxNumberColumns != ...
 				{
-				rightBottomColumnEnd = 1 + 
-						leftTopDialogSelectAreaPtr->columnEnd - leftTopDialogSelectAreaPtr->columnStart;
+				rightBottomColumnEnd = 1 + leftTopDialogSelectAreaPtr->columnEnd -
+															leftTopDialogSelectAreaPtr->columnStart;
 				rightBottomColumnEnd = MIN (rightBottomColumnEnd,
-																rightBottomWindowInfoPtr->maxNumberColumns);
+														rightBottomWindowInfoPtr->maxNumberColumns);
 				
 				}	// end "else rightBottomWindowInfoPtr->maxNumberLines != ..."
 																
@@ -3173,17 +3190,7 @@ void MosaicTwoImagesDialogSetUpRightBottomSelectArea (
 							lineColumnItemStart,
 							0,
 							kDontAdjustToBaseImage);
-	/*						
-	int numberChars = sprintf ((char*)gTextString3,
-									" SMosaic:SetUpRightBottomSelectArea (mosaicDirectionCode, lines columns): %d, %d, %d, %d, %d%s", 
-									mosaicDirectionCode,
-									rightBottomLineStart,
-									rightBottomLineEnd,
-									rightBottomColumnStart,
-									rightBottomColumnEnd,
-									gEndOfLine);
-	ListString ((char*)gTextString3, numberChars, gOutputTextH);	
-	*/	
+
 			//	Load line and column dialog items for right or bottom mosaic area																
 	
 	LoadLineColumnItems (rightBottomDialogSelectAreaPtr, 
@@ -3205,8 +3212,10 @@ SInt16 MosaicTwoImagesDialogVerifyLineColumnSettings (
 		{
 				// The number of lines in each image need to be the same					
 			
-		if (leftTopDialogSelectAreaPtr->lineEnd - leftTopDialogSelectAreaPtr->lineStart != 
-			rightBottomDialogSelectAreaPtr->lineEnd - rightBottomDialogSelectAreaPtr->lineStart)
+		if (leftTopDialogSelectAreaPtr->lineEnd -
+					leftTopDialogSelectAreaPtr->lineStart !=
+									rightBottomDialogSelectAreaPtr->lineEnd -
+														rightBottomDialogSelectAreaPtr->lineStart)
 			{
 			DisplayAlert (kErrorAlertID, 
 								kStopAlert, 
@@ -3224,8 +3233,10 @@ SInt16 MosaicTwoImagesDialogVerifyLineColumnSettings (
 		{
 				// The number of columns in each image need to be the same	
 			
-		if (leftTopDialogSelectAreaPtr->columnEnd - leftTopDialogSelectAreaPtr->columnStart != 
-			rightBottomDialogSelectAreaPtr->columnEnd - rightBottomDialogSelectAreaPtr->columnStart)
+		if (leftTopDialogSelectAreaPtr->columnEnd -
+					leftTopDialogSelectAreaPtr->columnStart !=
+									rightBottomDialogSelectAreaPtr->columnEnd -
+													rightBottomDialogSelectAreaPtr->columnStart)
 			{
 			DisplayAlert (kErrorAlertID, 
 								kStopAlert, 
@@ -3242,5 +3253,3 @@ SInt16 MosaicTwoImagesDialogVerifyLineColumnSettings (
 	return (1);
 
 }	// end "MosaicTwoImagesDialogVerifyLineColumnSettings"
-
-

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Eric E. Demaree, Larry L. Biehl
 //
-//	Revision date:			04/21/2019
+//	Revision date:			11/21/2019
 //
 //	Language:				C
 //
@@ -22,12 +22,6 @@
 //								by Eric E. Demaree for an EE577 class project during
 //								the spring semester of 1989 under the direction of
 //								Professor Phil Swain.
-//
-//	Functions in file:	void 				ClusterOnePassControl
-//								Boolean			GetOnePassClusterCenters
-//								SInt16	 		OnePassCluster
-//								Boolean 			OnePassClusterDialog
-//								Boolean 			OnePassClusterAreas
 //
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
@@ -61,10 +55,10 @@
 
 #include "SMultiSpec.h"    
 
-#if defined multispec_lin  
-	#include "LClusterSinglePassDialog.h"   
-	#include "LImageView.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx  
+	#include "xClusterSinglePassDialog.h"   
+	#include "xImageView.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ClusterTrainingAreas			12 
@@ -79,9 +73,7 @@
 #if defined multispec_win    
 	#include "WImageView.h"
 	#include "WClusterSinglePassDialog.h" 
-#endif	// defined multispec_win    
-
-//#include "SExtGlob.h"
+#endif	// defined multispec_win  
 
 
 
@@ -217,7 +209,7 @@ ClusterType*	gClusterHead; // ptr to head of cluster list.
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -233,13 +225,14 @@ ClusterType*	gClusterHead; // ptr to head of cluster list.
 // Value Returned:	True if everything worked okay
 //							False if a problem came up such as shortage of memory
 // 
-// Called By:			ClusterControl in cluster.c
+// Called By:			ClusterControl in SCluster.cpp
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
 //	Revised By:			Larry L. Biehl			Date: 02/23/2012	
 
 Boolean ClusterOnePassControl (
 				FileInfoPtr							fileInfoPtr)
+
 {
    ClusterType							*currentCluster,
 											*lastCluster;
@@ -363,7 +356,7 @@ Boolean ClusterOnePassControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -380,7 +373,7 @@ Boolean ClusterOnePassControl (
 // Value Returned:	True if everything worked okay
 //							False if a problem came up such as shortage of memory
 // 
-// Called By:			InitializeClusterCenters in clusterISODATA.c
+// Called By:			InitializeClusterCenters in SClusterIsodata.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/14/1991
 //	Revised By:			Larry L. Biehl			Date: 04/19/2019
@@ -479,7 +472,7 @@ Boolean GetOnePassClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -496,13 +489,14 @@ Boolean GetOnePassClusterCenters (
 //											occurred.
 //							The number of clusters found.
 // 
-// Called By:			ClusterOnePassControl in clusterSinglePass.c
+// Called By:			ClusterOnePassControl in SClusterSinglePass.cpp
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
 //	Revised By:			Larry L. Biehl			Date: 04/19/2019
 
 SInt16 OnePassCluster (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
+
 {
 			// Define local structures and variables.
 	
@@ -603,7 +597,7 @@ SInt16 OnePassCluster (
 												  gOutputForce1Code,
 												  continueFlag))
 																							return (0);
-      else // !ListSpecifiedStringNumber (...
+      else	// !ListSpecifiedStringNumber (...
 																							return (-1);
 
    	}	// end "if (gClusterHead == NULL)" 
@@ -663,7 +657,7 @@ SInt16 OnePassCluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -700,17 +694,18 @@ SInt16 OnePassCluster (
 // Value Returned:	True if everything worked okay
 //							False if a problem came up such as shortage of memory
 // 
-// Called By:			OnePassCluster in clusterSinglePass.c
-//							GetOnePassClusterCenters in clusterSinglePass.c
+// Called By:			OnePassCluster in SClusterSinglePass.cpp
+//							GetOnePassClusterCenters in SClusterSinglePass.cpp
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 04/21/2019
+//	Revised By:			Larry L. Biehl			Date: 11/21/2019
 
 Boolean OnePassClusterAreas (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
 				HUInt16Ptr*							dataClassPtrPtr,
-				SInt16								firstLineCode) 
+				SInt16								firstLineCode)
+
 {
 			// Define local structures and variables.	
 
@@ -892,7 +887,7 @@ Boolean OnePassClusterAreas (
 				// which is currently every 1 second.
 		
 		double magnification = lcToWindowUnitsVariablesPtr->magnification;
-		nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+		nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 		nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 	
 		}	// end "if (createImageOverlayFlag)"
@@ -921,7 +916,7 @@ Boolean OnePassClusterAreas (
 										  &lastClassIndex,
 										  &lastFieldIndex,
 										  &linesLeft))
-																								return (FALSE);
+																						return (FALSE);
 
 				// Initialize local image area variables.
 
@@ -1033,17 +1028,7 @@ Boolean OnePassClusterAreas (
 															skipCount >= 2)
 					{
 					sourceRect.bottom = lineCount;
-					/*
-					int numberChars = sprintf ((char*)gTextString3,
-													"%s SClusterSinglePass.cpp:OnePassClusterAreas (top, bottom): %d, %d%s",
-													gEndOfLine,
-													sourceRect.top,
-													sourceRect.bottom,
-													gEndOfLine);
-					ListString ((char*)gTextString3, numberChars, gOutputTextH);
-					*/
-					InvalidateImageSegment (gImageWindowInfoPtr,
-													//displaySpecsPtr,
+					InvalidateImageSegment (imageWindowInfoPtr,
 													lcToWindowUnitsVariablesPtr,
 													&sourceRect,
 													displayBottomMax);
@@ -1104,8 +1089,9 @@ Boolean OnePassClusterAreas (
             if (pointType == kMaskType)
                numberSamples = fileIOInstructionsPtr->numberOutputBufferSamples;
 
-            else // pointType != kMaskType
-               numberSamples = (columnEnd - firstColumn + columnInterval) / columnInterval;
+            else	// pointType != kMaskType
+               numberSamples =
+								(columnEnd - firstColumn + columnInterval) / columnInterval;
 
             column = firstColumn;
 
@@ -1190,7 +1176,7 @@ Boolean OnePassClusterAreas (
 
                   	}	// end "for (channel=0; channel<...)" 
 
-                  //}		// end "if (distanceType == 1)"
+                  //}	// end "if (distanceType == 1)"
 
                   //else	// distanceType != 1
 							/*
@@ -1265,12 +1251,14 @@ Boolean OnePassClusterAreas (
 							{
                      AddNewCluster (currentPixel, gClusterHead);
                      closestCluster = gClusterHead;
-							}
+							
+							}	// end "if (closestCluster == NULL)"
 						
-						else
+						else	// closestCluster != NULL
 							{
                      UpdateClusterMean (currentPixel, closestCluster);
-							}
+							
+							}	// end "else closestCluster != NULL"
 
                   if (localDataClassPtr)
 							{
@@ -1353,16 +1341,7 @@ Boolean OnePassClusterAreas (
       if (createImageOverlayFlag && firstLineCode != 1)
 			{
         	sourceRect.bottom = displayBottomMax;
-			
-			int numberChars2 = sprintf ((char*)gTextString3,
-											"%s SClusterSinglePass.cpp:OnePassClusterAreas (top, bottom): %d, %d%s",
-											gEndOfLine,
-											sourceRect.top,
-											sourceRect.bottom,
-											gEndOfLine);
-			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-			
-			InvalidateImageSegment (gImageWindowInfoPtr,
+			InvalidateImageSegment (imageWindowInfoPtr,
 											//displaySpecsPtr,
 											lcToWindowUnitsVariablesPtr,
 											&sourceRect,
@@ -1411,17 +1390,7 @@ Boolean OnePassClusterAreas (
    	}	// end "for (areaNumber=1; areaNumber<=totolNumberAreas; ...)" 
 
    UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
-	/*
-   if (!gOSXCoreGraphicsFlag) 
-		{
-      //Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
-      WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																		activeImageWindowInfoHandle);
-      if (imageWindowInfoPtr != NULL)
-         imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 
-   	}	// end "if (!gOSXCoreGraphicsFlag)"
-	*/
    if (dataClassPtrPtr != NULL)
       *dataClassPtrPtr = localDataClassPtr;
 
@@ -1432,7 +1401,7 @@ Boolean OnePassClusterAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1456,7 +1425,8 @@ Boolean OnePassClusterAreas (
 
 Boolean OnePassClusterDialog (
 				FileInfoPtr							fileInfoPtr,
-				DialogPtr							parentDialogPtr) 
+				DialogPtr							parentDialogPtr)
+				
 {
    Boolean								returnFlag;
 
@@ -1783,7 +1753,7 @@ Boolean OnePassClusterDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMSinglePassClusterDialog* dialogPtr = NULL;
 
 		//dialogPtr = new CMSinglePassClusterDialog (wxTheApp->GetTopWindow ());
@@ -1792,7 +1762,7 @@ Boolean OnePassClusterDialog (
 		returnFlag = dialogPtr->DoDialog ();
 
 		delete dialogPtr;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
    return (returnFlag);
 
@@ -1801,7 +1771,7 @@ Boolean OnePassClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1816,7 +1786,7 @@ Boolean OnePassClusterDialog (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1999
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -1832,6 +1802,7 @@ void OnePassClusterDialogInitialize (
 				SInt16*								classAreaSelectionPtr,
 				UInt32*								numberClassAreasPtr,
 				DialogSelectArea*					dialogSelectAreaPtr)
+
 {
    SInt16								fieldsExistCode;
 
@@ -1937,7 +1908,7 @@ void OnePassClusterDialogInitialize (
 
 		if (gAppearanceManagerFlag)
 			HideDialogItem (dialogPtr, 25);
-		else // !gAppearanceManagerFlag
+		else	// !gAppearanceManagerFlag
 			HideDialogItem (dialogPtr, 26);
 	#endif	// defined multispec_mac
 
@@ -1960,7 +1931,7 @@ void OnePassClusterDialogInitialize (
 
 		}	// end "if (*clustersFromPtr == ..."
 
-   else // *clustersFromPtr != kTrainingType 
+   else	// *clustersFromPtr != kTrainingType 
 		{
    			// If clusters from selection area, then only allow line and 		
    			// column start, end and intervals to show for definition.			
@@ -1974,7 +1945,7 @@ void OnePassClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1989,7 +1960,7 @@ void OnePassClusterDialogInitialize (
 //
 // Value Returned:	None
 //
-// Called By:			OnePassClusterDialog   in cluster.c
+// Called By:			OnePassClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/1999
 //	Revised By:			Larry L. Biehl			Date: 12/22/2005	
@@ -2003,6 +1974,7 @@ void OnePassClusterDialogOK (
 				UInt16*								localClassAreaPtr,
 				UInt32								localNumberClassAreas,
 				DialogSelectArea*					dialogSelectAreaPtr)
+
 {
    SInt16*								classAreaPtr;
 
@@ -2037,7 +2009,7 @@ void OnePassClusterDialogOK (
          LoadClassAreaVector (&gClusterSpecsPtr->numberClusterClasses,
 										classAreaPtr);
 
-      else // classAreaSelection == kSubsetMenuItem
+      else	// classAreaSelection == kSubsetMenuItem
 			{
          gClusterSpecsPtr->numberClusterClasses = localNumberClassAreas;
          for (index=0; index<localNumberClassAreas; index++)
@@ -2062,7 +2034,7 @@ void OnePassClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2078,13 +2050,14 @@ void OnePassClusterDialogOK (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/1999
 //	Revised By:			Larry L. Biehl			Date: 03/25/1999	
 
 void OnePassClusterDialogOnImageArea (
 				DialogPtr							dialogPtr)
+
 {
    HideDialogItem (dialogPtr, IDC_ClassPrompt);
    HideDialogItem (dialogPtr, IDC_ClassCombo);
@@ -2101,7 +2074,7 @@ void OnePassClusterDialogOnImageArea (
 
 		if (gAppearanceManagerFlag)
 			ShowDialogItem (dialogPtr, 26);
-		else // !gAppearanceManagerFlag
+		else	// !gAppearanceManagerFlag
 			ShowDialogItem (dialogPtr, 25);
 	#endif	// defined multispec_mac
 
@@ -2110,7 +2083,7 @@ void OnePassClusterDialogOnImageArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2126,13 +2099,14 @@ void OnePassClusterDialogOnImageArea (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/1999
 //	Revised By:			Larry L. Biehl			Date: 03/25/1999	
 
 void OnePassClusterDialogOnTrainingAreas (
 				DialogPtr							dialogPtr)
+
 {
    ShowDialogItem (dialogPtr, IDC_ClassPrompt);
    ShowDialogItem (dialogPtr, IDC_ClassCombo);

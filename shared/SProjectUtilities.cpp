@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //							West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/04/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -20,81 +20,14 @@
 //	Brief description:	The purpose of the routines in this file is to provide utility
 //								type functions for projects in MultiSpec.
 //
-//	Functions in file:	double 				Bhattacharyya
-//								void					Area_Of_SND_by_Direct_Calculation
-//								void 					ChangeProjectAssociatedImageItem
-//								void 					CheckClassStats
-//								Boolean 				CheckNumberOfPixelsInClass
-//								Boolean 				ClassDialog
-//								Boolean 				ClassPairWeightsDialog
-//								Boolean				ClassToBeUsed
-//								Boolean 				ClassWeightsDialog
-//								pascal Boolean 	ClassWeightsDialogFilter
-//								void 					ComputeChiSquaredConstants
-//								double 				ComputeChiSquaredValue
-//								void 					ComputeGammaFunctionHalfValue
-//								void 					CreateFieldRgn
-//								short int 			DetermineFieldTypes
-//								short int 			DiskFilePopUpMenu
-//								pascal void 		DrawChannelsPopUp2
-//								pascal void 		DrawInterClassWeightsPopUp
-//								pascal void 		DrawProjectChangesPopUp
-//								void 					FindRThreshold
-//								void					ForceProjectUtilityCodeResourceLoad
-//								double 				GetChiSquaredValue
-//								ClassInfoPtr 		GetClassInfoStructure
-//								float* 				GetClassWeightsPtr
-//								void 					GetFieldBoundary
-//								Boolean 				GetListResultsFlag
-//								short int 			GetNextFieldArea
-//								SInt16	 			GetNumberOfAreas
-//								UInt32	 			GetNumberOfCombinations
-//								float* 				GetProjectClassWeightsPtr
-//								double 				GetTotalProbability
-//								void 					Intg_Normal
-//								double 				Intg_Normal_2
-//								Boolean 				ListClassesUsed
-//								Boolean 				ListClassFieldsUsed
-//								Boolean 				ListClassificationHeaderInfo
-//								Boolean 				ListClassInformationMessage
-//								Boolean 				ListFieldsTitle
-//								Boolean 				ListProjectFieldsUsed
-//								void					LoadClassList
-//								void 					LoadClassSymbolVector
-//								void 					LoadClassWeightGroups
-//								void					LoadClassVector
-//								void 					LoadClassPairWeightVector
-//								void					LoadClassWtVector
-//								void 					LoadFieldVector
-//								void					LoadTrainClassVector
-//								void 					LockProjectMemory
-//								Boolean 				ModalClassPairWeightsDialog
-//								Boolean 				ModalClassWeightsDialog
-//								Boolean 				ModalSymbolsDialog
-//								void 					NoClassStatsAlert
-//								short int 			ProjectChangesPopUpMenu
-//								Boolean 				ProjectMenuClearStatistics
-//								void 					ReleaseClassifySpecsMemory
-//								void 					ReleaseSeparabilitySpecsMemory
-//								void 					ReleaseStatHistogramSpecsMemory
-//								void 					ReleaseStatisticsEnhanceSpecsMemory
-//								SInt16	 			StatHistogramPopUpMenu
-//								SInt16 				StatisticsPopUpMenu
-//								SInt16 				StatListPopUpMenu
-//								Boolean 				SymbolsDialog
-//								pascal Boolean 	SymbolsDialogFilter
-//								void 					UnlockProjectMemory
-//								short int			UpdateDialogClassWeightsInfo
-//								void 					UpdateProjectClassWeights
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "LClassWeightsDialog.h"
-	#include "LClassPairWeightsDialog.h"
-	#include "LImageView.h"
+#if defined multispec_wx
+	#include "xClassWeightsDialog.h"
+	#include "xClassPairWeightsDialog.h"
+	#include "xImageView.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -198,7 +131,7 @@ Boolean VerifyAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -231,6 +164,7 @@ Boolean VerifyAreaDescription (
 void Area_Of_SND_by_Direct_Calculation (
 				double								r,
 				double*								ret)
+
  {
    double								incre = 0.02,
 											localR,
@@ -379,7 +313,7 @@ void Area_Of_SND_by_Direct_Calculation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -416,6 +350,7 @@ Boolean AssignClassInfoMemory (
 				SInt16								meanCode,
 				SInt16								transformedCovCode,
 				SInt16								transformedMeanCode)
+
 {
 	SInt64								numberPixels;
 
@@ -511,10 +446,10 @@ Boolean AssignClassInfoMemory (
 
       if (transformedCovCode & kAllowLoadingSquare)
          tNumberEntries +=
-								(numberChannels * numberChannels - numberTransformedCovEntries);
+							(numberChannels * numberChannels - numberTransformedCovEntries);
 
-      classInfoPtr[0].transformedCovPtr = (HDoublePtr) MNewPointer (
-																		tNumberEntries * sizeof (double));
+      classInfoPtr[0].transformedCovPtr = (HDoublePtr)MNewPointer (
+																	tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedCovPtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -528,7 +463,7 @@ Boolean AssignClassInfoMemory (
          numberTransformedMeanEntries = numberChannels;
 
       classInfoPtr[0].transformedMeanPtr = (HDoublePtr)MNewPointer (
-					(UInt32)numberClasses * numberTransformedMeanEntries * sizeof (double));
+				(UInt32)numberClasses * numberTransformedMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].transformedMeanPtr != NULL);
 
 		}	// end "if (continueFlag && ...)"
@@ -592,11 +527,13 @@ Boolean AssignClassInfoMemory (
 
          if (transformedCovCode > 0)
             classInfoPtr[index].transformedCovPtr =
-						&classInfoPtr[0].transformedCovPtr[index * numberTransformedCovEntries];
+									&classInfoPtr[0].transformedCovPtr[
+															index * numberTransformedCovEntries];
 
          if (transformedMeanCode > 0)
             classInfoPtr[index].transformedMeanPtr =
-						&classInfoPtr[0].transformedMeanPtr[index * numberTransformedMeanEntries];
+									&classInfoPtr[0].transformedMeanPtr[
+														index * numberTransformedMeanEntries];
 
 			}	// end "for (index=0; index<..."
 
@@ -609,7 +546,7 @@ Boolean AssignClassInfoMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -726,7 +663,8 @@ double Bhattacharyya (
 
 		}	// end "for (channel1=0; channel1<numberFeatures; channel1++)"
 
-			// Get the i=j component items of the mean part of the Bhattacharyya distance.
+			// Get the i=j component items of the mean part of the Bhattacharyya
+			// distance.
 
    tInversePtr = gInverseMatrixMemory.inversePtr;
    temp1Ptr = meanDifPtr;
@@ -745,9 +683,9 @@ double Bhattacharyya (
 
 			// Get the i!=j component items of the mean part of the
 			// Bhattacharyya distance.		
-			// Note that the i!=j component is double the value computed for bhattacharyya2.
-			// This is taken care of by dividing by 2 instead of 4 at the end of the
-			// computation.																	
+			// Note that the i!=j component is double the value computed for
+			// bhattacharyya2. This is taken care of by dividing by 2 instead of 4 at
+			// the end of the computation.
 
    tInversePtr = &gInverseMatrixMemory.inversePtr[numberFeatures];
    temp1Ptr = meanDifPtr + 1;
@@ -772,7 +710,7 @@ double Bhattacharyya (
 		}	// end "for (channel1=1; channel1<numberFeatures; channel1++)"
 
    bhattacharyya1 += .5 * (bhattacharyya2 + logDeterminant -
-							numberFeatures * kLN2 - .5 * (logDeterminant1 + logDeterminant2));
+						numberFeatures * kLN2 - .5 * (logDeterminant1 + logDeterminant2));
 
    return (bhattacharyya1);
 
@@ -781,7 +719,7 @@ double Bhattacharyya (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -804,6 +742,7 @@ double Bhattacharyya (
 
 void ChangeProjectAssociatedImageItem (
 				Handle								windowInfoHandle)
+
 {
 	WindowInfoPtr						windowInfoPtr;
 
@@ -825,9 +764,9 @@ void ChangeProjectAssociatedImageItem (
 
             if (gProjectInfoPtr->outlineFieldType != 0)
 					{
-					#if defined multispec_mac  || defined multispec_lin
+					#if defined multispec_mac  || defined multispec_wx
 						InvalidateWindow (gActiveImageWindow, kImageFrameArea, FALSE);
-					#endif	// defined multispec_mac || defined multispec_lin
+					#endif	// defined multispec_mac || defined multispec_wx
 
 					#if defined multispec_win
 						gActiveImageViewCPtr->Invalidate ();
@@ -854,9 +793,9 @@ void ChangeProjectAssociatedImageItem (
 					gActiveImageViewCPtr->Invalidate ();
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					InvalidateWindow (gActiveImageViewCPtr, kImageFrameArea, FALSE);
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 				}	// else !windowInfoPtr->projectWindowFlag
 
@@ -871,7 +810,7 @@ void ChangeProjectAssociatedImageItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -896,6 +835,7 @@ void ChangeProjectAssociatedImageItem (
 Boolean CheckClassEnhancedStats (
 				UInt32								numberClasses,
 				SInt16*								classPtr)
+
 {
 	HPClassNamesPtr					classNamesPtr;
 
@@ -941,7 +881,7 @@ Boolean CheckClassEnhancedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -970,6 +910,7 @@ Boolean CheckClassStats (
 				Boolean								checkOnlyFlag,
 				SInt32*								minimumNumberTrainPixelsPtr,
 				Boolean*								computeCommonCovarianceFlagPtr)
+
 {
 	HPClassNamesPtr					classNamesPtr;
 
@@ -1088,7 +1029,7 @@ Boolean CheckClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1114,6 +1055,7 @@ Boolean CheckNumberOfPixelsInClass (
 				UInt32								numberClasses,
 				SInt16*								classPtr,
 				SInt16								numberFeatures)
+
 {
 	CMFileStream*						resultsFileStreamPtr;
 
@@ -1215,7 +1157,7 @@ Boolean CheckNumberOfPixelsInClass (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1231,7 +1173,7 @@ Boolean CheckNumberOfPixelsInClass (
 //
 // Value Returned:	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/1989
 //	Revised By:			Larry L. Biehl			Date: 06/12/1998	
@@ -1243,6 +1185,7 @@ SInt16 ClassDialog (
 				SInt16								numberInputClasses,
 				SInt16								currentSelection,
 				Handle								parentOKHandle)
+
 {
 	DialogPtr							dialogPtr;
 
@@ -1363,7 +1306,7 @@ SInt16 ClassDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1379,7 +1322,7 @@ SInt16 ClassDialog (
 //
 // Value Returned:  	None
 //
-// Called By:			SeparabilityDialog   in separability.c
+// Called By:			SeparabilityDialog   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999	
@@ -1469,7 +1412,8 @@ SInt16 ClassPairWeightsDialog (
 
 			continueFlag = FALSE;
 			if (gMemoryError == noErr)
-				continueFlag = ClassPairWeightsDialogModal (dialogPtr, numberOfClassesToUse);
+				continueFlag =
+							ClassPairWeightsDialogModal (dialogPtr, numberOfClassesToUse);
 
 			if (continueFlag)
 				{
@@ -1524,7 +1468,7 @@ SInt16 ClassPairWeightsDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMClassPairWeightDlg* classPairWeightDialogPtr = NULL;
 
 		try
@@ -1546,7 +1490,7 @@ SInt16 ClassPairWeightsDialog (
 			{
 			MemoryMessage (0, kObjectMessage);
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
    return (interClassWeightsSelection);
 
@@ -1556,7 +1500,7 @@ SInt16 ClassPairWeightsDialog (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1571,14 +1515,14 @@ SInt16 ClassPairWeightsDialog (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Wei-Kang Hsu			Date: 12/21/2016
 void ClassPairWeightsDialogChangeWeight (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							classListHandle,
 					wxListBox*							weightListHandle,
 				#else
@@ -1586,6 +1530,7 @@ void ClassPairWeightsDialogChangeWeight (
 					ListHandle							weightListHandle,
 				#endif
 				SInt16								newWeight)
+
 {
 	Cell									cell;
 
@@ -1629,8 +1574,8 @@ void ClassPairWeightsDialogChangeWeight (
 		TextFont	(gWindowTextFont); // monaco
 	#endif	// defined multispec_mac
 
-	#if defined multispec_lin
-		SInt16 numberrow =  (SInt16)weightListHandle->GetCount (); //modified  Oct 12 2015
+	#if defined multispec_wx
+		SInt16 numberrow =  (SInt16)weightListHandle->GetCount (); //modified Oct 12 2015
 		cell.v = LAddRow (1, numberrow, weightListHandle);
 	#else
 		cell.v = LAddRow (1, SHRT_MAX, weightListHandle);
@@ -1647,7 +1592,7 @@ void ClassPairWeightsDialogChangeWeight (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1662,19 +1607,20 @@ void ClassPairWeightsDialogChangeWeight (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
 SInt16 ClassPairWeightsDialogClassSelectionChange (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
 				#endif
 				SInt16								newWeight)
+
 {
 	Cell									cell;
 
@@ -1726,7 +1672,7 @@ SInt16 ClassPairWeightsDialogClassSelectionChange (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1741,7 +1687,7 @@ SInt16 ClassPairWeightsDialogClassSelectionChange (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
@@ -1767,7 +1713,7 @@ void ClassPairWeightsDialogInitialize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1783,7 +1729,7 @@ void ClassPairWeightsDialogInitialize (
 //
 //	 Value Returned:  None
 //
-// Called By:			ClassPairWeightsDialog   in separability.c
+// Called By:			ClassPairWeightsDialog   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -1791,6 +1737,7 @@ void ClassPairWeightsDialogInitialize (
 Boolean ClassPairWeightsDialogModal (
 				DialogPtr							dialogPtr,
 				UInt16								numberOfClassesToUse)
+
 {
 	Rect									theBox;
 
@@ -1899,11 +1846,13 @@ Boolean ClassPairWeightsDialogModal (
                   returnCode = DisplayAlert (1152, 0, kAlertStrID, 9, 0, NULL);
 
                   TextFont (gWindowTextFont); // monaco
-                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
-										gDialogListHandle);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr),
+																	gTempRegion1),
+																	gDialogListHandle);
                   SetEmptyRgn (gTempRegion1);
-                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
-										gDialogListHandle2);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr),
+																	gTempRegion1),
+																	gDialogListHandle2);
                   SetEmptyRgn (gTempRegion1);
                   HiliteControl ((ControlHandle)okHandle, 0);
                   break;
@@ -1952,7 +1901,7 @@ Boolean ClassPairWeightsDialogModal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1968,14 +1917,14 @@ Boolean ClassPairWeightsDialogModal (
 //
 //	 Value Returned:  None
 //
-// Called By:			ClassPairWeightsDialog   in separability.c
+// Called By:			ClassPairWeightsDialog   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999	
 
 void ClassPairWeightsDialogOK (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -1984,6 +1933,7 @@ void ClassPairWeightsDialogOK (
 				SInt16*								interClassWeightsSelectionPtr,
 				SInt16								localDefaultClassPairWeight,
 				SInt16*								defaultClassPairWeightPtr)
+
 {
    Cell									cell;
 
@@ -2014,9 +1964,9 @@ void ClassPairWeightsDialogOK (
 		numberWeightGroups = ((ListPtr)*listHandle)->dataBounds.bottom;
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win  || defined multispec_lin
+	#if defined multispec_win  || defined multispec_wx
 		numberWeightGroups = listHandle->GetCount ();
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 
    if (numberWeightGroups > 0)
 		{
@@ -2121,7 +2071,7 @@ void ClassPairWeightsDialogOK (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2136,19 +2086,20 @@ void ClassPairWeightsDialogOK (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
 SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
 				#endif
 				SInt16								selectedWeightGroupCell)
+
 {
    LDelRow (1, selectedWeightGroupCell, listHandle);
    selectedWeightGroupCell = -1;
@@ -2162,7 +2113,7 @@ SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2177,14 +2128,14 @@ SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 12/28/1999
 
 SInt16 ClassPairWeightsDialogWeightSelectionChange (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle)
 				#else
 					ListHandle							listHandle)
@@ -2219,7 +2170,7 @@ SInt16 ClassPairWeightsDialogWeightSelectionChange (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2244,6 +2195,7 @@ Boolean ClassToBeUsed (
 				SInt16								classIndex,
 				SInt16*								classPtr,
 				UInt16								numberClasses)
+
 {
    UInt16								index;
 
@@ -2265,7 +2217,7 @@ Boolean ClassToBeUsed (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2281,7 +2233,7 @@ Boolean ClassToBeUsed (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/22/1990
 //	Revised By:			Larry L. Biehl			Date: 12/20/1999
@@ -2292,6 +2244,7 @@ SInt16 ClassWeightsDialog (
 				float*								weightsPtr,
 				SInt16								weightsSelection,
 				Boolean								useEnhancedStatFlag)
+
 {
 	#if defined multispec_mac
 		double								weightSum;
@@ -2431,7 +2384,7 @@ SInt16 ClassWeightsDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMClassWeightsDlg* classWeightsDialogPtr = NULL;
 		classWeightsDialogPtr = new CMClassWeightsDlg ();
 
@@ -2453,7 +2406,7 @@ SInt16 ClassWeightsDialog (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2468,14 +2421,14 @@ SInt16 ClassWeightsDialog (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
 SInt16 ClassWeightsDialogClassSelectionChange (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -2518,7 +2471,7 @@ SInt16 ClassWeightsDialogClassSelectionChange (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2533,14 +2486,14 @@ SInt16 ClassWeightsDialogClassSelectionChange (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
 double ClassWeightsDialogChangeWeights (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -2548,6 +2501,7 @@ double ClassWeightsDialogChangeWeights (
 				double*								weightSumPtr,
 				double								newWeight,
 				SInt16								okItemNumber)
+
 {
    Cell									cell;
 
@@ -2617,7 +2571,7 @@ double ClassWeightsDialogChangeWeights (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2632,7 +2586,7 @@ double ClassWeightsDialogChangeWeights (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1999
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999
@@ -2640,6 +2594,7 @@ double ClassWeightsDialogChangeWeights (
 void ClassWeightsDialogInitialize (
 				DialogPtr							dialogPtr,
 				SInt16*								weightUnitsPtr)
+
 {
 			//	Unhilite the 'Enter New Weight' button.
 
@@ -2664,7 +2619,7 @@ void ClassWeightsDialogInitialize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2680,7 +2635,7 @@ void ClassWeightsDialogInitialize (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog   in projectUtilities.c
+// Called By:			ClassWeightsDialog   in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1990
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -2689,6 +2644,7 @@ Boolean ClassWeightsDialogModal (
 				DialogPtr							dialogPtr,
 				UInt16								numberOfClassesToUse,
 				double*								weightSumPtr)
+
 {
    double								newWeight,
 											saveNewWeight,
@@ -2733,8 +2689,9 @@ Boolean ClassWeightsDialogModal (
                   returnCode = DisplayAlert (1152, 0, kAlertStrID, 7, 0, NULL);
 
                   TextFont (gWindowTextFont); // monaco
-                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
-									gDialogListHandle);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr),
+																	gTempRegion1),
+																	gDialogListHandle);
                   SetEmptyRgn (gTempRegion1);
                   HiliteControl ((ControlHandle) okHandle, 0);
                   break;
@@ -2822,7 +2779,7 @@ Boolean ClassWeightsDialogModal (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2839,14 +2796,14 @@ Boolean ClassWeightsDialogModal (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1999
 //	Revised By:			Larry L. Biehl			Date: 12/20/1999
 
 SInt16 ClassWeightsDialogOK (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -2854,6 +2811,7 @@ SInt16 ClassWeightsDialogOK (
 				UInt16								numberOfClassesToUse,
 				SInt16*								classPtr,
 				float*								weightsPtr)
+
 {
 	Cell									cell;
 
@@ -2909,7 +2867,7 @@ SInt16 ClassWeightsDialogOK (
 
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2924,14 +2882,14 @@ SInt16 ClassWeightsDialogOK (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassWeightsDialog in SProjUtl.cpp
+// Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
 //	Revised By:			Larry L. Biehl			Date: 12/17/1999
 
 void ClassWeightsDialogSetEqualWeights (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -2939,6 +2897,7 @@ void ClassWeightsDialogSetEqualWeights (
 				double*								weightSumPtr,
 				double								defaultEqualWeight,
 				SInt16								okItemNumber)
+
 {
    Cell									cell;
 
@@ -2970,7 +2929,7 @@ void ClassWeightsDialogSetEqualWeights (
 				gTextString2[0] = '.';
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win ||multispec_lin
+			#if defined multispec_win ||multispec_wx
 				gTextString2[0] = '#';
 			#endif	// defined multispec_win
 
@@ -2978,9 +2937,9 @@ void ClassWeightsDialogSetEqualWeights (
 
          LSetCell ((char*)gTextString2, stringLength, cell, listHandle);
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				LSetSelect (TRUE, cell, listHandle);
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 
 			}	// end "if (stringLength == ...)"
 
@@ -3000,7 +2959,7 @@ void ClassWeightsDialogSetEqualWeights (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3023,6 +2982,7 @@ void ClassWeightsDialogSetEqualWeights (
 //	Revised By:			Larry L. Biehl			Date: 01/07/1994
 
 void ClearGlobalAlertVariables (void)
+
 {
    gAlertId = 0;
    gAlertStrID = 0;
@@ -3034,7 +2994,7 @@ void ClearGlobalAlertVariables (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3051,8 +3011,8 @@ void ClearGlobalAlertVariables (void)
 //
 // Value Returned:  	None
 //
-// Called By:			CreateChiSquareThresholdTable in classify.c
-//							GetChiSquaredValue in projectUtilities.c
+// Called By:			CreateChiSquareThresholdTable in SClassify.cpp
+//							GetChiSquaredValue in SProjectUtilities.cpp
 //	Coded By:			Larry L. Biehl			Date: 12/20/1993
 //	Revised By:			Larry L. Biehl			Date: 12/20/1993	
 
@@ -3061,6 +3021,7 @@ void ComputeChiSquaredConstants (
 				double*								factor1Ptr,
 				double*								factor2Ptr,
 				double*								oneOverGammaOfHalfDFPtr)
+
 {
 			// Get constants for calculations that only depend on the number of
 			// degrees of freedom.																
@@ -3072,7 +3033,8 @@ void ComputeChiSquaredConstants (
 				// Get the gamma of one half the number of degrees of freedom and	
 				// then invert it.																
 
-      ComputeGammaFunctionHalfValue ((SInt16)degreesOfFreedom, oneOverGammaOfHalfDFPtr);
+      ComputeGammaFunctionHalfValue ((SInt16)degreesOfFreedom,
+													oneOverGammaOfHalfDFPtr);
       *oneOverGammaOfHalfDFPtr = 1. / (*oneOverGammaOfHalfDFPtr);
 
 				// Get the intregral factor.
@@ -3098,7 +3060,7 @@ void ComputeChiSquaredConstants (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Fmundation
 //									All rights reserved.
 //
@@ -3114,7 +3076,7 @@ void ComputeChiSquaredConstants (
 //
 // Value Returned:	None
 // 
-// Called By:			FS_decision_boundary in mul.c
+// Called By:			FS_decision_boundary in SFeatureExtractionMath.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1993
 //	Revised By:			Larry L. Biehl			Date: 04/03/1997	
@@ -3125,6 +3087,7 @@ double ComputeChiSquaredValue (
 				double								factor2,
 				double								oneOverGammaOfHalfDF,
 				double								threshold_probability)
+
 {
    double								chiSquaredValue,
 											rIncrement,
@@ -3227,7 +3190,7 @@ double ComputeChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3253,6 +3216,7 @@ double ComputeChiSquaredValue (
 void ComputeGammaFunctionHalfValue (
 				SInt16								n,
 				double*								ret)
+
 {
    double								x;
 
@@ -3286,7 +3250,7 @@ void ComputeGammaFunctionHalfValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3301,9 +3265,9 @@ void ComputeGammaFunctionHalfValue (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetPolygonLabelPoint in SOutFlds.cpp
-//							GetFieldBoundary in SProjUtl.cpp
-//							GetSelectionBoundary in SSetUtl.cpp
+// Called By:			GetPolygonLabelPoint in SOutlineFields.cpp
+//							GetFieldBoundary in SProjectUtilities.cpp
+//							GetSelectionBoundary in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
 //	Revised By:			Larry L. Biehl			Date: 10/27/2015	
@@ -3376,7 +3340,7 @@ void CreateFieldRgn (
 			CheckAndDisposePtr ((Ptr)pointsPtr);
 		#endif	// defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			wxPoint* pointsPtr = (wxPoint*)MNewPointer (
 															(SInt64)numberPoints * sizeof (wxPoint));
 			if (pointsPtr != NULL)
@@ -3394,7 +3358,7 @@ void CreateFieldRgn (
 				}	// end "if (pointsPtr != NULL)"
 
 			CheckAndDisposePtr ((Ptr)pointsPtr);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		}	// end "if (numberPoints >= 3)"
 
@@ -3403,7 +3367,7 @@ void CreateFieldRgn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3422,12 +3386,13 @@ void CreateFieldRgn (
 //										set if non-cluster, testing field exists,
 //										4's column is set if a cluster field exists.
 // 
-// Called By:			ListResultsDialog in listResults
+// Called By:			ListResultsDialog in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/31/1991
 //	Revised By:			Larry L. Biehl			Date: 12/30/1998	
 
 SInt16 DetermineFieldTypes (void)
+
 {
 	HPClassNamesPtr					classNamesPtr;
    HPFieldIdentifiersPtr			fieldIdentPtr;
@@ -3442,7 +3407,7 @@ SInt16 DetermineFieldTypes (void)
 
 
    if (gProjectInfoPtr == NULL)
-																									return (0);
+																							return (0);
 
 			// Initialize local variables.													
 
@@ -3496,7 +3461,7 @@ SInt16 DetermineFieldTypes (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3512,7 +3477,7 @@ SInt16 DetermineFieldTypes (void)
 //
 // Value Returned:	
 //
-// Called By:			ClassifyDialog in classify.c	
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp	
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1990
 //	Revised By:			Larry L. Biehl			Date: 04/18/2013	
@@ -3521,6 +3486,7 @@ SInt16 DiskFilePopUpMenu (
 				DialogPtr							dialogPtr,
 				MenuHandle							diskFileMenu,
 				SInt16								dialogItem)
+
 {
    SInt16								returnCode;
 
@@ -3544,7 +3510,7 @@ SInt16 DiskFilePopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3571,6 +3537,7 @@ SInt16 DiskFilePopUpMenu (
 pascal void DrawChannelsPopUp2 (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.
 
@@ -3585,7 +3552,7 @@ pascal void DrawChannelsPopUp2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3610,6 +3577,7 @@ pascal void DrawChannelsPopUp2 (
 pascal void DrawInterClassWeightsPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.
 
@@ -3624,7 +3592,7 @@ pascal void DrawInterClassWeightsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3695,7 +3663,7 @@ pascal void DrawProjectChangesPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3721,6 +3689,7 @@ pascal void DrawProjectChangesPopUp (
 pascal void DrawSeparabilityDistancePopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.
 
@@ -3736,7 +3705,7 @@ pascal void DrawSeparabilityDistancePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3752,7 +3721,7 @@ pascal void DrawSeparabilityDistancePopUp (
 //
 // Value Returned:  	None
 //
-// Called By:			CreateChiSquareThresholdTable in classify.c
+// Called By:			CreateChiSquareThresholdTable in SClassify.cpp
 //
 //	Coded By:			Chulhee Lee				Date: ?
 //	Revised By:			Larry L. Biehl			Date: 03/12/1990	
@@ -3765,6 +3734,7 @@ void FindRThreshold (
 				double								thresholdPrecision,
 				double								factor,
 				double								oneOverGammaOfHalfDF)
+
 {
    double								endProbability,
 											lowestR = 0.0000,
@@ -3782,7 +3752,7 @@ void FindRThreshold (
 			// Check for invalid input value.
 
    if (*rThreshold < 0)
-																										return;
+																									return;
 
 			// Initialize local variables.
 
@@ -3854,7 +3824,7 @@ void FindRThreshold (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3876,11 +3846,12 @@ void FindRThreshold (
 //	Revised By:			Larry L. Biehl			Date: 11/19/1992
 
 void ForceProjectUtilityCodeResourceLoad (void)
+
 {
 			// If spare memory had to be used to load code resources, then exit routine.
 
    if (gMemoryTypeNeeded < 0)
-																										return;
+																									return;
 
 			// Code resources loaded okay, so set flag back for non-Code
 			// resources.
@@ -3892,7 +3863,7 @@ void ForceProjectUtilityCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3908,7 +3879,7 @@ void ForceProjectUtilityCodeResourceLoad (void)
 //
 // Value Returned:	None	
 // 
-// Called By:			FS_decision_boundary in mul.c
+// Called By:			FS_decision_boundary in SFeatureExtractionMath.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/22/1992
 //	Revised By:			Larry L. Biehl			Date: 12/20/1993	
@@ -3916,6 +3887,7 @@ void ForceProjectUtilityCodeResourceLoad (void)
 double GetChiSquaredValue (
 				SInt32								degreesOfFreedom,
 				double								threshold_probability)
+
 {
    double								chiSquaredValue,
 											factor1,
@@ -3949,7 +3921,7 @@ double GetChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3965,8 +3937,8 @@ double GetChiSquaredValue (
 // Value Returned:
 //
 //	Called by:			ListClusterStatistics in SCluster.cpp
-//							GetTableColumnWidths in SLstRslt.cpp
-//							ListClassificationSummary in SLstRslt.cpp
+//							GetTableColumnWidths in SListResults.cpp
+//							ListClassificationSummary in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1997
 //	Revised By:			Larry L. Biehl			Date: 01/09/1998
@@ -4018,7 +3990,7 @@ UInt32 GetClassNameMaxLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4039,6 +4011,7 @@ UInt32 GetClassNameMaxLength (
 
 ClassInfoPtr GetClassInfoStructure (
 				UInt16								numberClasses)
+
 {
    ClassInfoPtr						classInfoPtr;
 
@@ -4077,7 +4050,7 @@ ClassInfoPtr GetClassInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4092,10 +4065,10 @@ ClassInfoPtr GetClassInfoStructure (
 //
 //	Parameters out:			
 //
-// Value Returned:	GetProjectClassWeightsIndex in SProjUtl.cpp
-//							UpdateProjectClassWeights in SProjUtl.cpp
-//							LoadStatEnhanceClassStatistics in statisticsEnhancement.c
-//							StatisticsEnhanceControl in statisticsEnhancement.c
+// Value Returned:	GetProjectClassWeightsIndex in SProjectUtilities.cpp
+//							UpdateProjectClassWeights in SProjectUtilities.cpp
+//							LoadStatEnhanceClassStatistics in SStatisticsEnhancement.cpp
+//							StatisticsEnhanceControl in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/27/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
@@ -4103,6 +4076,7 @@ ClassInfoPtr GetClassInfoStructure (
 SInt16 GetClassWeightsIndex (
 				Boolean								useEnhancedStatisticsFlag,
 				Boolean								equalWeightsFlag)
+
 {
    SInt16								weightIndex;
 
@@ -4126,7 +4100,7 @@ SInt16 GetClassWeightsIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4152,6 +4126,7 @@ float* GetClassWeightsPtr (
 				float*								weightsPtr,
 				Boolean								useEnhancedStatisticsFlag,
 				Boolean								equalWeightsFlag)
+
 {
    if (equalWeightsFlag)
       weightsPtr = &weightsPtr[2 * gProjectInfoPtr->numberStatisticsClasses];
@@ -4170,7 +4145,7 @@ float* GetClassWeightsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4195,6 +4170,7 @@ double GetClassWeightValue (
 				UInt16								statClassNumber,
 				UInt32								weightsIndex,
 				double								totalProbability)
+
 {
    double								weightValue;
 
@@ -4216,8 +4192,9 @@ double GetClassWeightValue (
 		}	// end "if (weightsIndex <= 3)"
 
    else	// weightsIndex == 4
-      weightValue = gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels /
-																								totalProbability;
+      weightValue =
+				gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels /
+																							totalProbability;
 
    return (weightValue);
 
@@ -4226,7 +4203,7 @@ double GetClassWeightValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4241,12 +4218,13 @@ double GetClassWeightValue (
 //
 //	Parameters out:			
 //
-// Value Returned:	GetCommonCovariance in SStatCom.cpp
+// Value Returned:	GetCommonCovariance in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/19/1997
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999
 
 UInt16 GetCommonCovarianceWeightsIndex ()
+
 {
 	UInt16								weightIndex;
 
@@ -4270,7 +4248,7 @@ UInt16 GetCommonCovarianceWeightsIndex ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4288,16 +4266,16 @@ UInt16 GetCommonCovarianceWeightsIndex ()
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyTrainTestFields in classify.c
-//							GetNextClusterArea in cluster.c
-//							GetNumberOfClusterPixels in cluster.c
-//							ConvertImagePixelsToClassNumbers in fieldsToThematicFile.c
-//							ListFieldData in listData.c
-//							ListResultsTrainTestFields in listResults.c
-//							GetTotalCovariance in matrixUtilities.c
-//							CompareImageDimensionsWithProjectFields in project.c
-//							UpdateFieldStats in statCompute.c
-//							HistogramFieldStats in statHistogram.c
+// Called By:			ClassifyTrainTestFields in SClassify.cpp
+//							GetNextClusterArea in SCluster.cpp
+//							GetNumberOfClusterPixels in SCluster.cpp
+//							ConvertImagePixelsToClassNumbers in SFieldsToThematicFile.cpp
+//							ListFieldData in SListData.cpp
+//							ListResultsTrainTestFields in SListResults.cpp
+//							GetTotalSumSquares in SMatrixUtilities.cpp
+//							CompareImageDimensionsWithProjectFields in SProject.cpp
+//							UpdateFieldStats in SProjectComputeStatistics.cpp
+//							HistogramFieldStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
 //	Revised By:			Larry L. Biehl			Date: 10/27/2015
@@ -4306,6 +4284,7 @@ void GetFieldBoundary (
 				ProjectInfoPtr						classProjectInfoPtr,
 				AreaDescriptionPtr				areaDescriptionPtr,
 				SInt16								fieldNumber)
+
 {
 	HPFieldIdentifiersPtr			fieldIdentPtr;
    HPFieldPointsPtr					fieldPointsPtr;
@@ -4457,10 +4436,10 @@ void GetFieldBoundary (
 						// for the project base image.
 
             imageStartLine = (UInt32)(classProjectInfoPtr->startLine -
-																		areaDescriptionPtr->lineOffset);
+																	areaDescriptionPtr->lineOffset);
 
             imageStartColumn = (UInt32)(classProjectInfoPtr->startColumn -
-																		areaDescriptionPtr->columnOffset);
+																	areaDescriptionPtr->columnOffset);
 
 				}	// end "if (areaDescriptionPtr->applyOffsetFlag"
 
@@ -4532,7 +4511,7 @@ void GetFieldBoundary (
 								// the image line start.
 
                   areaDescriptionPtr->maskLineStart +=
-												areaDescriptionPtr->lineStart - previousLineStart;
+											areaDescriptionPtr->lineStart - previousLineStart;
 
 						}	// end "if (areaDescriptionPtr->lineStart > 0)"
 
@@ -4598,7 +4577,7 @@ void GetFieldBoundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4623,6 +4602,7 @@ void GetFieldBoundary (
 Boolean GetListResultsFlag (
 				SInt16								fieldTypeCode,
 				SInt16								listInformationCode)
+
 {
 	Boolean								listFlag = FALSE;
 
@@ -4642,7 +4622,7 @@ Boolean GetListResultsFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4673,7 +4653,7 @@ Boolean GetListResultsFlag (
 //
 // Value Returned:	None				
 // 
-// Called By:			UpdateProjectLOOStats in SLooCov.cpp
+// Called By:			UpdateProjectLOOStats in SLOOCovariance.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/17/1997
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010
@@ -4684,6 +4664,7 @@ SInt64 GetMaximumPixelsPerClass (
 				SInt16								fieldTypeCode,
 				UInt16								covarianceStatsToUse,
 				Boolean								includeClusterFieldsFlag)
+
 {
 	SInt64								maxNumberPixelsPerClass,
 											numberPixelsInClass;
@@ -4768,7 +4749,7 @@ SInt64 GetMaximumPixelsPerClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4798,15 +4779,15 @@ SInt64 GetMaximumPixelsPerClass (
 //								which is of the correct type and is not a cluster
 //								field.			
 // 
-// Called By:			ClassifyDialog in classify.c
-//							ClusterDialog in cluster.c
-//							ClusterClassification in cluster.c
-//							GetNextClusterArea in cluster.c
-//							GetNumberOfClusterPixels in cluster.c
-//							ISODATAClusterDialog in clusterISODATA.c
-//							OnePassClusterDialog in clusterSinglePass.c
-//							GetTotalCovariance in matrixUtilities.c
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp
+//							ClusterDialog in SCluster.cpp
+//							ClusterClassification in SCluster.cpp
+//							GetNextClusterArea in SCluster.cpp
+//							GetNumberOfClusterPixels in SCluster.cpp
+//							ISODATAClusterDialog in SClusterIsodata.cpp
+//							OnePassClusterDialog in SClusterSinglePass.cpp
+//							GetTotalCovariance in SMatrixUtilities.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/08/1990
 //	Revised By:			Larry L. Biehl			Date: 12/22/1998
@@ -4819,6 +4800,7 @@ SInt16 GetNextFieldArea (
 				SInt16								lastField,
 				SInt16								fieldTypeCode,
 				Boolean								includeClusterFieldsFlag)
+
 {
 	SInt16								classStorage;
 
@@ -4887,7 +4869,7 @@ SInt16 GetNextFieldArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4911,10 +4893,10 @@ SInt16 GetNextFieldArea (
 //
 // Value Returned:	None				
 // 
-// Called By:			LoadClassifySpecs in SClassfy.cpp
+// Called By:			LoadClassifySpecs in SClassify.cpp
 //							InitializeClusterMemory in SCluster.cpp
-//							GetTotalSumSquares in SMatUtil.cpp
-//							CreateStatisticsImages in statisticsImage.c
+//							GetTotalSumSquares in SMatrixUtilities.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/08/1990
 //	Revised By:			Larry L. Biehl			Date: 12/28/1998
@@ -4924,6 +4906,7 @@ SInt16 GetNumberOfAreas (
 				UInt32								numberClasses,
 				SInt16								fieldTypeCode,
 				Boolean								includeClusterFieldsFlag)
+
 {
    SInt16								classStorage,
 											fieldCount;
@@ -4994,7 +4977,7 @@ SInt16 GetNumberOfAreas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5023,6 +5006,7 @@ UInt32 GetNumberOfCombinations (
 				SInt32								numberContiguousPerGroup,
 				Boolean								stepSearchFlag,
 				SInt16*								returnCodePtr)
+
 {
 			// Declare local variables and structures										
 
@@ -5097,7 +5081,7 @@ UInt32 GetNumberOfCombinations (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5136,6 +5120,7 @@ SInt16 GetProjectFieldsBoundingArea (
 				SInt32								areaColumnStart,
 				SInt32								areaColumnEnd,
 				LongRect*							longRectPtr)
+
 {
 	AreaDescription					areaDescription;
 
@@ -5235,7 +5220,7 @@ SInt16 GetProjectFieldsBoundingArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5255,15 +5240,16 @@ SInt16 GetProjectFieldsBoundingArea (
 //
 //	Calls To:				
 //
-// Called By:			ClassifyDialog in classify.c
-//							FeatureExtractionDialog in featureExtraction.c
-//							LoadClassWtVector in projectUtilities.c
-//							StatisticsEnhanceDialog in statisticsEnhancement.c
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp
+//							FeatureExtractionDialog in SFeatureExtraction.cpp
+//							LoadClassWtVector in SProjectUtilities.cpp
+//							StatisticsEnhanceDialog in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
 
 SInt16 GetProjectClassWeightsIndex (void)
+
 {
    SInt16								weightsIndex;
    Boolean								equalWeightsFlag;
@@ -5289,7 +5275,7 @@ SInt16 GetProjectClassWeightsIndex (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5311,6 +5297,7 @@ SInt16 GetProjectClassWeightsIndex (void)
 
 void GetProjectWindowTitle (
 				UCharPtr								titleStringPtr)
+
 {
 	if (gProjectWindow != NULL)
 		{
@@ -5366,7 +5353,7 @@ void GetProjectWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5393,6 +5380,7 @@ void GetBoundingRegionRectangle (
 				HPFieldPointsPtr					fieldPointsPtr,
 				SInt32								columnOffset,
 				SInt32								lineOffset)
+
 {
 	#if defined multispec_mac  
 		UInt32 i;
@@ -5459,7 +5447,7 @@ void GetBoundingRegionRectangle (
 			}	// end "else returnValue != SIMPLEREGION && ..."		
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxRect rectangle = rgnHandle->GetBox ();
 
 		if (rectangle.width > 0 && rectangle.height > 0) 
@@ -5502,14 +5490,14 @@ void GetBoundingRegionRectangle (
 				}	// end "for (i=0; i<numberPoints; i++)"
 				
 			}	// end "else rectangle.width == 0 || rectangle.height == 0"
-	#endif	// defined multispec_lin					
+	#endif	// defined multispec_wx					
 	
 }	// end "GetBoundingRegionRectangle"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5527,14 +5515,15 @@ void GetBoundingRegionRectangle (
 //
 // Value Returned:		
 //
-// Called By:			ClassifyDialog in classify.c
-//							FeatureExtractionDialog in featureExtraction.c
-//							StatisticsEnhanceDialog in statisticsEnhancement.c
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp
+//							FeatureExtractionDialog in SFeatureExtraction.cpp
+//							StatisticsEnhanceDialog in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 01/06/1994
 
 float* GetTempClassWeightsPtr (void)
+
 {
    HPClassNamesPtr					classNamesPtr;
    float*								classWeightsPtr;
@@ -5580,7 +5569,7 @@ float* GetTempClassWeightsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5605,6 +5594,7 @@ double GetTotalProbability (
 				UInt16*								classPtr,
 				UInt32								numberClasses,
 				UInt32								weightsIndex)
+
 {
 	double								totalProbability;
 
@@ -5650,7 +5640,7 @@ double GetTotalProbability (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5676,6 +5666,7 @@ void InitializeGlobalAlertVariables (
 				SInt16								alertId,
 				SInt16								alertStrID,
 				SInt16								alertStringNumber)
+
 {
    gAlertId = alertId;
    gAlertStrID = alertStrID;
@@ -5687,7 +5678,7 @@ void InitializeGlobalAlertVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5715,6 +5706,7 @@ void Intg_Normal (
 				double*								returnPtr,
 				double								factor,
 				double								oneOverGammaOfHalfDF)
+
 {
    double								expMinusHalfRSquared;
 
@@ -5736,7 +5728,7 @@ void Intg_Normal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5763,6 +5755,7 @@ double Intg_Normal_2 (
 				double								r,
 				double								input,
 				double								expMinusHalfRSquared)
+
 {
    double								x,
 											returnValue;
@@ -5800,7 +5793,7 @@ double Intg_Normal_2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5815,7 +5808,7 @@ double Intg_Normal_2 (
 //
 // Value Returned:	None
 // 
-// Called By:			IsProjectData in SStatEnh.cpp
+// Called By:			IsProjectData in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
@@ -5825,6 +5818,7 @@ Boolean IsClassData (
 				UInt32								classNumber,
 				UInt32								pixelLine,
 				UInt32								pixelColumn)
+
 {
    HPClassNamesPtr					classNamesPtr;
    HPFieldIdentifiersPtr			fieldIdentPtr;
@@ -5879,7 +5873,7 @@ Boolean IsClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5894,7 +5888,7 @@ Boolean IsClassData (
 //
 // Value Returned:	None
 // 
-// Called By:			IsClassData in SStatEnh.cpp
+// Called By:			IsClassData in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
@@ -5904,6 +5898,7 @@ Boolean IsFieldData (
 				SInt16								fieldNumber,
 				UInt32								pixelLine,
 				UInt32								pixelColumn)
+
 {
    Point									point;
 
@@ -5971,7 +5966,7 @@ Boolean IsFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5986,7 +5981,7 @@ Boolean IsFieldData (
 //
 // Value Returned:	None
 // 
-// Called By:			GetFieldDataValues in SPMatUtl.cpp
+// Called By:			GetFieldDataValues in SProjectMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/26/1996
 //	Revised By:			Larry L. Biehl			Date: 11/08/1999	
@@ -5996,6 +5991,7 @@ Boolean IsProjectData (
 				AreaDescriptionPtr				projectAreaDescriptionPtr,
 				UInt32								pixelLine,
 				UInt32								pixelColumn)
+
 {
    HPClassNamesPtr					classNamesPtr;
    HPFieldIdentifiersPtr			fieldIdentPtr;
@@ -6091,7 +6087,7 @@ Boolean IsProjectData (
 									classNumber,
 									pixelLine,
 									pixelColumn))
-																								return (TRUE);
+																							return (TRUE);
 
 			}	// end "for (classNumber=0; ... 
 
@@ -6107,7 +6103,7 @@ Boolean IsProjectData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6124,12 +6120,12 @@ Boolean IsProjectData (
 //
 // Value Returned:	None				
 // 
-// Called By:			ClassifyAreasControl in classify.c
-//							ListDataControl in listData.c
-//							ListResultsControl in listResults.c
-//							PrincipalComponentControl in principalComponent.c
-//							SeparabilityControl in separability.c
-//							HistogramProjectStats in statHistogram.c
+// Called By:			ClassifyAreasControl in SClassify.cpp
+//							ListDataControl in SListData.cpp
+//							ListResultsControl in SListResults.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
+//							SeparabilityControl in SFeatureSelection.cpp
+//							HistogramProjectStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/09/1989
 //	Revised By:			Larry L. Biehl			Date: 02/24/2000	
@@ -6144,6 +6140,7 @@ Boolean ListClassesUsed (
 				CMFileStream*						outputFilePtr,
 				SInt16*								outputCodePtr,
 				Boolean								thresholdFlag)
+
 {
 			// Declare local variables and structures	
 
@@ -6274,9 +6271,10 @@ Boolean ListClassesUsed (
 
 		}	// end "if (...->covarianceStatsToUse == kLeaveOneOutStats || ..." 
 
-   sprintf (stringPtr, gEndOfLine);
+   sprintf (stringPtr, "%s", gEndOfLine);
 
-   stringLength = (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters - 1;
+   stringLength =
+				(Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters - 1;
    continueFlag = OutputString (outputFilePtr,
 											(char*)&gTextString[1],
 											stringLength,
@@ -6413,7 +6411,7 @@ Boolean ListClassesUsed (
 
 			}	// end "else classNumber != classPtr[index]" 
 
-      sprintf (stringPtr, gEndOfLine);
+      sprintf (stringPtr, "%s", gEndOfLine);
       stringLength = (Ptr)stringPtr - (Ptr)&gTextString + gNumberOfEndOfLineCharacters;
       continueFlag = OutputString (outputFilePtr, 
 												(char*)gTextString,
@@ -6441,7 +6439,7 @@ Boolean ListClassesUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6458,8 +6456,8 @@ Boolean ListClassesUsed (
 //
 // Value Returned:	None				
 // 
-// Called By:			HistogramClassStats in statHistogram.c
-//							ListProjectFieldsUsed in projectUtilities.c
+// Called By:			HistogramClassStats in SProjectHistogramStatistics.cpp
+//							ListProjectFieldsUsed in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1990
 //	Revised By:			Larry L. Biehl			Date: 08/30/2006
@@ -6473,6 +6471,7 @@ Boolean ListClassFieldsUsed (
 				SInt16								stringNumber,
 				SInt16*								fieldLabelNumberPtr,
 				Boolean								includeClusterFieldsFlag)
+
 {
 			// Declare local variables and structures	
 
@@ -6515,7 +6514,7 @@ Boolean ListClassFieldsUsed (
 										stringNumber,
 										classNumber,
 										fieldTypeCode))
-																						return (FALSE);
+																							return (FALSE);
 
 		}	// end "if (stringNumber > 0)" 
 
@@ -6562,11 +6561,11 @@ Boolean ListClassFieldsUsed (
             if (fieldIdentPtr->pointType == kRectangleType) 
 					{
                sprintf (stringPtr,
-									"\t%5ld\t%5ld\t%5ld\t%5ld%s",
-									fieldPointsPtr[pointIndex].line,
-									fieldPointsPtr[pointIndex + 1].line,
-									fieldPointsPtr[pointIndex].col,
-									fieldPointsPtr[pointIndex + 1].col,
+									"\t%5u\t%5u\t%5u\t%5u%s",
+									(unsigned int)fieldPointsPtr[pointIndex].line,
+									(unsigned int)fieldPointsPtr[pointIndex + 1].line,
+									(unsigned int)fieldPointsPtr[pointIndex].col,
+									(unsigned int)fieldPointsPtr[pointIndex + 1].col,
 									gEndOfLine);
 
                if (!OutputString (outputFilePtr,
@@ -6596,9 +6595,9 @@ Boolean ListClassFieldsUsed (
 										"                                               ");
 
                   sprintf (stringPtr,
-										"\t%5ld      \t%5ld      %s",
-										fieldPointsPtr[pointIndex].line,
-										fieldPointsPtr[pointIndex].col,
+										"\t%5u      \t%5u      %s",
+										(unsigned int)fieldPointsPtr[pointIndex].line,
+										(unsigned int)fieldPointsPtr[pointIndex].col,
 										gEndOfLine);
 
                   if (!OutputString (outputFilePtr,
@@ -6676,7 +6675,7 @@ Boolean ListClassFieldsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6691,8 +6690,8 @@ Boolean ListClassFieldsUsed (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassifyControl   in classify.c
-// 						ClusterControl   in cluster.c
+// Called By:			ClassifyControl   in SClassify.cpp
+// 						ClusterControl   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/13/1991
 //	Revised By:			Larry L. Biehl			Date: 03/03/2017	
@@ -6702,6 +6701,7 @@ Boolean ListClassificationHeaderInfo (
 				SInt16*								outputCodePtr,
 				SInt16								covarianceStatsToUse,
 				Boolean								continueFlag)
+
 {
 			// Initialize local variables.													
 
@@ -6728,10 +6728,10 @@ Boolean ListClassificationHeaderInfo (
 
    MGetString (gTextString2, kFileIOStrID, IDS_ImageStartLine); // 36 
    sprintf ((char*)gTextString,
-					"    %s %ld, %ld%s",
+					"    %s %u, %u%s",
 					&gTextString2[1],
-					gProjectInfoPtr->startLine,
-					gProjectInfoPtr->startColumn,
+					(unsigned int)gProjectInfoPtr->startLine,
+					(unsigned int)gProjectInfoPtr->startColumn,
 					gEndOfLine);
 	
    continueFlag = OutputString (resultsFileStreamPtr,
@@ -6747,7 +6747,7 @@ Boolean ListClassificationHeaderInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6762,8 +6762,8 @@ Boolean ListClassificationHeaderInfo (
 //
 // Value Returned:	None			
 // 
-// Called By:			ListClassFieldsUsed in projectUtilities.c
-//							ListProjectFieldsUsed in projectUtilities.c
+// Called By:			ListClassFieldsUsed in SProjectUtilities.cpp
+//							ListProjectFieldsUsed in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1991
 //	Revised By:			Larry L. Biehl			Date: 02/09/1994	
@@ -6774,6 +6774,7 @@ Boolean ListFieldsTitle (
 				SInt16								stringNumber,
 				SInt16								classNumber,
 				SInt16								fieldTypeCode)
+
 {
    char*									stringPtr;
    HPClassNamesPtr					classNamesPtr;
@@ -6824,9 +6825,9 @@ Boolean ListFieldsTitle (
       stringPtr = (char*)&gTextString[gTextString[0] + 1];
 
       sprintf (stringPtr,
-					"(line interval = %ld; column interval = %ld)%s",
-					gAreaDescription.lineInterval,
-					gAreaDescription.columnInterval,
+					"(line interval = %u; column interval = %u)%s",
+					(unsigned int)gAreaDescription.lineInterval,
+					(unsigned int)gAreaDescription.columnInterval,
 					gEndOfLine);
 
 		}	// end "if (stringNumber == 0)" 
@@ -6841,10 +6842,10 @@ Boolean ListFieldsTitle (
 					(char*)&classNamesPtr[classStorage].name, &strLength);
 
       sprintf (stringPtr,
-					" %s (line interval = %ld; column interval = %ld)%s",
+					" %s (line interval = %u; column interval = %u)%s",
 					gTextString2,
-					gAreaDescription.lineInterval,
-					gAreaDescription.columnInterval,
+					(unsigned int)gAreaDescription.lineInterval,
+					(unsigned int)gAreaDescription.columnInterval,
 					gEndOfLine);
 
 		}	// end "else stringNumber != 0" 
@@ -6878,7 +6879,7 @@ Boolean ListFieldsTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6895,11 +6896,11 @@ Boolean ListFieldsTitle (
 //
 // Value Returned:	None				
 // 
-// Called By:			ClassifyAreasControl in classify.c
-//							ListDataControl in listData.c
-//							PrincipalComponentControl in principalComponent.c
-//							HistogramProjectStats in statHistogram.c
-//							StatisticsImageControl in statisticsImage.c
+// Called By:			ClassifyAreasControl in SClassify.cpp
+//							ListDataControl in SListData.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
+//							HistogramProjectStats in SProjectHistogramStatistics.cpp
+//							StatisticsImageControl in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/08/1991
 //	Revised By:			Larry L. Biehl			Date: 04/08/1997	
@@ -6963,7 +6964,7 @@ Boolean ListProjectFieldsUsed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7032,7 +7033,7 @@ Boolean ListClassInformationMessage (
 
          else if (stringIndex == IDS_Project69)
             sprintf ((char*)gTextString,
-								(char*)&stringPtr2[1]);
+								"%s", (char*)&stringPtr2[1]);
 
          else if (stringIndex == IDS_Project78)
             sprintf ((char*)gTextString,
@@ -7040,7 +7041,7 @@ Boolean ListClassInformationMessage (
 							(char*)gTextString3);
 
          else	// stringIndex == IDS_Project79
-            sprintf ((char*)gTextString, (char*)&stringPtr2[1]);
+            sprintf ((char*)gTextString, "%s", (char*)&stringPtr2[1]);
 
          continueFlag = OutputString (resultsFileStreamPtr,
 													(char*)gTextString,
@@ -7059,7 +7060,7 @@ Boolean ListClassInformationMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7078,14 +7079,14 @@ Boolean ListClassInformationMessage (
 //
 // Value Returned: 			
 //
-// Called By:			ClassPairWeightsDialog in separability.c
+// Called By:			ClassPairWeightsDialog in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1990
 //	Revised By:			Larry L. Biehl			Date: 03/01/2017
 
 void LoadClassList (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							dialogListHandle,
 				#else
 					ListHandle							dialogListHandle,
@@ -7094,6 +7095,7 @@ void LoadClassList (
 				SInt16*								classPtr,
 				unsigned char*						symbolPtr,
 				Boolean								clusterFlag)
+
 {
 	Cell									cell;
 
@@ -7136,7 +7138,7 @@ void LoadClassList (
 			// Load the class names to be used into the list.							
 
    LSetDrawingMode (FALSE, dialogListHandle);
-	#if defined multispec_lin
+	#if defined multispec_wx
 		row = LAddRow (numberOfClassesToUse, 0, dialogListHandle);
 	#else
 		row = LAddRow (numberOfClassesToUse, 0, dialogListHandle);
@@ -7211,7 +7213,7 @@ void LoadClassList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7327,7 +7329,7 @@ void LoadClassPairWeightVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7343,7 +7345,7 @@ void LoadClassPairWeightVector (
 //
 // Value Returned: 		
 //
-// Called By:			LoadClassifySpecs in classify.c
+// Called By:			LoadClassifySpecs in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1989
 //	Revised By:			Larry L. Biehl			Date: 05/01/1998
@@ -7387,7 +7389,7 @@ void LoadClassSymbolVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7428,7 +7430,7 @@ void LoadClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7444,19 +7446,20 @@ void LoadClassVector (
 //
 // Value Returned: 			
 //
-// Called By:			ClassPairWeightsDialog in separability.c
+// Called By:			ClassPairWeightsDialog in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/1990
 //	Revised By:			Larry L. Biehl			Date: 12/21/2016
 
 void LoadClassWeightGroups (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							dialogListHandle,
 				#else
 					ListHandle							dialogListHandle,
 				#endif
 				SInt16*								weightsListPtr)
+
 {
    Cell									cell;
 
@@ -7518,7 +7521,7 @@ void LoadClassWeightGroups (
 
       stringLength--;
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			cell.v = LAddRow (1, set-1, dialogListHandle);
 		#else
 			cell.v = LAddRow (1, SHRT_MAX, dialogListHandle);
@@ -7533,7 +7536,7 @@ void LoadClassWeightGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7555,7 +7558,7 @@ void LoadClassWeightGroups (
 //	Revised By:			Larry L. Biehl			Date: 12/16/1999	
 
 double LoadClassWeightsIntoList (
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -7564,6 +7567,7 @@ double LoadClassWeightsIntoList (
 				SInt16*								classPtr,
 				float*								weightsPtr,
 				Boolean								useEnhancedStatFlag)
+
 {
    double								weightSum;
 
@@ -7605,7 +7609,7 @@ double LoadClassWeightsIntoList (
             gTextString[0] = '.';
 			#endif	// defined multispec_mac 
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				gTextString[0] = '#';
 			#endif	// defined multispec_win ...
          
@@ -7639,7 +7643,7 @@ double LoadClassWeightsIntoList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7693,7 +7697,7 @@ void LoadFieldVector (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7708,7 +7712,7 @@ void LoadFieldVector (
 //
 // Value Returned: 		
 //
-// Called By:			SymbolsDialog in projectUtilities.c
+// Called By:			SymbolsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/1990
 //	Revised By:			Larry L. Biehl			Date: 01/28/2003
@@ -7716,6 +7720,7 @@ void LoadFieldVector (
 void LoadSymbolList (
 				DialogPtr							dialogPtr,
 				ListHandle							dialogListHandle)
+
 {
    Cell									cell;
 
@@ -7785,7 +7790,7 @@ void LoadSymbolList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7849,7 +7854,7 @@ void LoadTrainClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7874,6 +7879,7 @@ void LockProjectMemory (
 				Handle								inputProjectInfoHandle,
 				SInt16								lockCode,
 				ProjectInfoPtr*					outputProjectInfoPtrPtr)
+
 {
    ProjectInfoPtr						localProjectInfoPtr;
 
@@ -7995,7 +8001,7 @@ void LockProjectMemory (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8011,7 +8017,7 @@ void LockProjectMemory (
 //
 // Value Returned: 	None
 //
-// Called By:			SymbolsDialog   in projectUtilities.c
+// Called By:			SymbolsDialog   in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/1990
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016	
@@ -8019,6 +8025,7 @@ void LockProjectMemory (
 Boolean ModalSymbolsDialog (
 				DialogPtr							dialogPtr,
 				UInt16								numberOfClassesToUse)
+
 {
    Rect									theBox;
 
@@ -8123,11 +8130,13 @@ Boolean ModalSymbolsDialog (
                   returnCode = DisplayAlert (1152, 0, kAlertStrID, 13, 0, NULL);
 
                   TextFont (gWindowTextFont); // monaco  
-                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
-										gDialogListHandle);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr),
+																	gTempRegion1),
+																	gDialogListHandle);
                   SetEmptyRgn (gTempRegion1);
-                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr), gTempRegion1),
-										gDialogListHandle2);
+                  LUpdate (GetPortVisibleRegion (GetDialogPort (dialogPtr),
+																	gTempRegion1),
+																	gDialogListHandle2);
                   SetEmptyRgn (gTempRegion1);
                   HiliteControl ((ControlHandle)okHandle, 0);
                   break;
@@ -8162,7 +8171,7 @@ Boolean ModalSymbolsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8185,6 +8194,7 @@ Boolean ModalSymbolsDialog (
 
 void NoClassStatsAlert (
 				UInt32								minimumNumber)
+
 {
    SInt16								returnCode;
 
@@ -8206,7 +8216,7 @@ void NoClassStatsAlert (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8232,6 +8242,7 @@ SInt16 ProjectChangesPopUpMenu (
 				Rect*									popUpProjectChangesBoxPtr,
 				Boolean*								newProjectFlag,
 				SInt16								currentListType)
+
 {
    Point									popUpLoc;
 
@@ -8320,7 +8331,7 @@ SInt16 ProjectChangesPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8335,13 +8346,14 @@ SInt16 ProjectChangesPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			Menus in menus.c
-//							ProjectChangesPopUpMenu in projectUtilities.c
+// Called By:			Menus in MMenus.c
+//							ProjectChangesPopUpMenu in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/1989
 //	Revised By:			Larry L. Biehl			Date: 04/27/2019
 
 Boolean ProjectMenuClearStatistics (void)
+
 {
 	WindowInfoPtr						projectWindowInfoPtr;
 
@@ -8414,7 +8426,7 @@ Boolean ProjectMenuClearStatistics (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8430,7 +8442,7 @@ Boolean ProjectMenuClearStatistics (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			CloseProjectStructure in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/14/1988
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
@@ -8513,7 +8525,7 @@ void ReleaseClassifySpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8537,6 +8549,7 @@ void ReleaseClassifySpecsMemory (
 void ReleaseClassInfoMemory (
 				ClassInfoPtr						classInfoPtr,
 				UInt16								numberClasses)
+
 {
    if (classInfoPtr != NULL)
 		{
@@ -8566,7 +8579,7 @@ void ReleaseClassInfoMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8582,7 +8595,7 @@ void ReleaseClassInfoMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:			CloseProjectStructure in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1992
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
@@ -8642,7 +8655,7 @@ void ReleaseFeatureExtractionSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8658,13 +8671,14 @@ void ReleaseFeatureExtractionSpecsMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:			CloseProjectStructure in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1989
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
 void ReleaseSeparabilitySpecsMemory (
 				Handle*								separabilitySpecsHandlePtr)
+
 {
    SeparabilitySpecsPtr				separabilitySpecsPtr;
 
@@ -8742,7 +8756,7 @@ void ReleaseSeparabilitySpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8758,14 +8772,15 @@ void ReleaseSeparabilitySpecsMemory (
 //
 // Value Returned:	None				
 // 
-// Called By:			CloseProjectStructure  in project.c
-//							LoadStatHistogramSpecs in statHistogram.c
+// Called By:			CloseProjectStructure  in SProject.cpp
+//							LoadStatHistogramSpecs in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1990
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
 
 void ReleaseStatHistogramSpecsMemory (
 				Handle*								statHistogramSpecsHPtr)
+
 {
    StatHistogramSpecsPtr			statHistogramSpecsPtr;
 
@@ -8809,7 +8824,7 @@ void ReleaseStatHistogramSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8825,8 +8840,8 @@ void ReleaseStatHistogramSpecsMemory (
 //
 // Value Returned:	None	
 // 
-// Called By:			CloseProjectStructure  in project.c
-//							LoadStatisticsEnhanceSpecs in statisticsEnhancement.c
+// Called By:			CloseProjectStructure  in SProject.cpp
+//							LoadStatisticsEnhanceSpecs in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1993
 //	Revised By:			Larry L. Biehl			Date: 11/16/1999
@@ -8861,7 +8876,7 @@ void ReleaseStatisticsEnhanceSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8882,7 +8897,7 @@ void ReleaseStatisticsEnhanceSpecsMemory (
 //	Revised By:			Larry L. Biehl			Date: 04/30/1998
 
 SInt32 SetClassListSelections (
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8926,7 +8941,7 @@ SInt32 SetClassListSelections (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8949,6 +8964,7 @@ SInt32 SetClassListSelections (
 
 SInt16 StatHistogramPopUpMenu (
 				SInt16								statsWindowMode)
+
 {
    Point									histogramPopUpLoc;
 
@@ -9046,7 +9062,7 @@ SInt16 StatHistogramPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9062,13 +9078,14 @@ SInt16 StatHistogramPopUpMenu (
 //
 // Value Returned:	
 //
-// Called By:			StatisticsWMouseDn in SStatist.cpp
+// Called By:			StatisticsWMouseDn in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/1990
 //	Revised By:			Larry L. Biehl			Date: 03/08/2000
 
 SInt16 StatisticsPopUpMenu (
 				SInt16								statsWindowMode)
+
 {
    Point									statisticsPopUpLoc;
 
@@ -9215,7 +9232,7 @@ SInt16 StatisticsPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9237,6 +9254,7 @@ SInt16 StatisticsPopUpMenu (
 
 SInt16 StatListPopUpMenu (
 				SInt16								statsWindowMode)
+
 {
    Point									listPopUpLoc;
 
@@ -9333,7 +9351,7 @@ SInt16 StatListPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9349,9 +9367,9 @@ SInt16 StatListPopUpMenu (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassifyDialog   		in classify.c
-//							SeparabilityDialog   in separability.c
-//							ClusterDialog   		in cluster.c
+// Called By:			ClassifyDialog   		in SClassifyDialogs.cpp
+//							SeparabilityDialog   in SFeatureSelection.cpp
+//							ClusterDialog   		in SCluster.cpp
 //
 //
 //	Coded By:			Larry L. Biehl			Date: 07/25/1990
@@ -9508,7 +9526,7 @@ Boolean SymbolsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9530,12 +9548,11 @@ Boolean SymbolsDialog (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus in menus.c
-//							SetupModifiedStatsMemory in SStatCom.cpp
-//							SetupStatsMemory in SStatCom.cpp
-//							AddClassToProject in SStatist.cpp
-//							AddFieldToProject in SStatist.cpp
-//							GetImageWindowRecord in window.c
+// Called By:			Menus in MMenus.c
+//							SetupModifiedStatsMemory in SProjectComputeStatistics.cpp
+//							SetupStatsMemory in SProjectComputeStatistics.cpp
+//							AddClassToProject in SStatistics.cpp
+//							AddFieldToProject in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/06/1991
 //	Revised By:			Larry L. Biehl			Date: 01/09/1999	
@@ -9544,6 +9561,7 @@ void UnlockProjectMemory (
 				ProjectInfoPtr*					inputProjectInfoPtrPtr,
 				SInt16								unlockCode,
 				Handle*								outputProjectInfoHandlePtr)
+
 {
    ProjectInfoPtr						localProjectInfoPtr;
 
@@ -9649,7 +9667,7 @@ void UnlockProjectMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9668,9 +9686,9 @@ void UnlockProjectMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:			ClassifyDialog in classify.c
-//							FeatureExtractionDialog in featureExtraction.c
-//							StatisticsEnhanceDialog in statisticsEnhancement.c
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp
+//							FeatureExtractionDialog in SFeatureExtraction.cpp
+//							StatisticsEnhanceDialog in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 11/05/1999
@@ -9680,6 +9698,7 @@ SInt16 UpdateDialogClassWeightsInfo (
 				Boolean								useEnhancedStatisticsFlag,
 				SInt16*								classWeightSetCodePtr,
 				Boolean								initializeClassWeightSetFlag)
+
 {
 	SInt16								classWeightSet,
 											newWeightsSelection;
@@ -9763,7 +9782,7 @@ SInt16 UpdateDialogClassWeightsInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9779,8 +9798,8 @@ SInt16 UpdateDialogClassWeightsInfo (
 //
 // Value Returned:	None		
 // 
-// Called By:			ClassifyDialog in classify.c
-//							FeatureExtractionDialog in featureExtraction.c
+// Called By:			ClassifyDialog in SClassifyDialogs.cpp
+//							FeatureExtractionDialog in SFeatureExtraction.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1993
 //	Revised By:			Larry L. Biehl			Date: 03/10/1994
@@ -9789,6 +9808,7 @@ void UpdateProjectClassWeights (
 				Boolean								useEnhancedStatisticsFlag,
 				SInt16								weightsSelection,
 				float*								classWeightsPtr)
+
 {
    HPClassNamesPtr					classNamesPtr;
 
@@ -9839,7 +9859,7 @@ void UpdateProjectClassWeights (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9862,6 +9882,7 @@ void UpdateProjectClassWeights (
 
 Boolean VerifyAreaDescription (
 				AreaDescriptionPtr				areaDescriptionPtr)
+
 {
    Boolean								definedAreaFlag = TRUE;
 
@@ -9888,7 +9909,7 @@ Boolean VerifyAreaDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9918,14 +9939,14 @@ Boolean VerifyAreaDescription (
 //								number of training classes is less than the minimum number
 //								needed.
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							FeatureExtractionControl in featureExtraction.c
-//							ClassifyControl in SClassfy.cpp
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							FeatureExtractionControl in SFeatureExtraction.cpp
+//							ClassifyControl in SClassify.cpp
 //							ClusterControl in SCluster.cpp
-//							SeparabilityControl in SFeatSel.cpp
+//							SeparabilityControl in SFeatureSelection.cpp
 //							EvaluateCovariancesControl in SOther.cpp
-//							StatisticsEnhanceControl in statisticsEnhancement.c
-//							StatisticsImageControl in statisticsImage.c
+//							StatisticsEnhanceControl in SStatisticsEnhancement.cpp
+//							StatisticsImageControl in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/23/1997
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -10052,7 +10073,7 @@ Boolean VerifyProjectStatsUpToDate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

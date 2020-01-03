@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/19/2019
+//	Revision date:			01/03/2020
 //
 //	Language:				C
 //
@@ -21,36 +21,6 @@
 //								image windows. Some routines which write into the offscreen
 //								buffers are in other files.
 //
-//	Functions in file:	void 					DisplayImagesSideBySide
-//								void 					DisplayMultispectralImage
-//								void 					DisplayCImage
-//								Boolean				DisplayMultispectralDialog
-//								void 					DisplayMultispectralDialogUpdateDisplayLevels
-//								void 					Display1CImage
-//								void 					Display2CImage
-//								void					Display3CImage
-//								PascalVoid 			DrawBitsColorPopUp
-//								PascalVoid 			DrawDisplayTypePopUp
-//								PascalVoid 			DrawEnhancementPopUp
-//								SInt16 				EnhancementPopUpMenu
-//								Boolean 				EqualAreaDataToDisplayLevels
-//								Boolean 				FillDataToDisplayLevels
-//								void 					GetDefaultPaletteSpecs
-//								SInt16 				GetHistogramComputeCode
-//								SInt16 				GetMinMaxPopupCode
-//								Boolean 				HistogramVector
-//								DisplaySpecsPtr 	LoadMultispectralDisplaySpecs
-//								Boolean 				MinMaxEnhancementDialog
-//								void 					MinMaxEnhancementDialogInitialize
-//								void 					MinMaxEnhancementDialogOK
-//								Boolean 				MinMaxEnhancementDialogOnMinMaxCode
-//								void 					MinMaxEnhancementDialogSetSelection
-//								void 					SetImageWTitle
-//								void 					DisplayMultispectralDialogUpdateComputeHistogram
-//								void 					UpdateDialogChannelItems
-//								void 					UpdatePopUpDisplayTypeMenu
-//								void 					UpdateEnhancementMinMaxes	 
-//
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
 													" SDisplayMultispectral.cpp: (): %s",
@@ -59,17 +29,17 @@
 */
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h"    
+#include "SMultiSpec.h"
+#include "SDisplay_class.h"
 
-#if defined multispec_lin
-	#include "CDisplay.h"
-	#include "CImageWindow.h"
-	#include "LDisplayMultispectralDialog.h"  
-   #include "LGaussianParameterDlg.h"        
-	#include "LImageFrame.h"
-	#include "LImageView.h"  
-	#include "LMultiSpec.h"
-#endif // defined multispec_lin  
+#if defined multispec_wx
+	#include "SImageWindow_class.h"
+	#include "xDisplayMultispectralDialog.h"  
+   #include "xGaussianParameterDialog.h"        
+	#include "xImageFrame.h"
+	#include "xImageView.h"  
+	#include "xMultiSpec.h"
+#endif // defined multispec_wx  
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define ID3C_LineStart            8
@@ -126,7 +96,6 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CDisplay.h"
 	#include "WImageView.h"                                                           
 	#include "WDisplayMultispectralDialog.h" 
 	#include "WDisplayMinMaxDialog.h" 
@@ -157,10 +126,6 @@ PascalVoid DrawDisplayTypePopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
 
-//PascalVoid DrawEnhancementPopUp (
-//				DialogPtr							dialogPtr,
-//				SInt16								itemNumber);
-
 PascalVoid DrawMinMaxPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
@@ -183,15 +148,6 @@ SInt16 EnhanceMinMaxPopUpMenu (
 				SInt16								minMaxSelection,
 				double*								minMaxValuesPtr,
 				SInt16*								percentTailsClippedPtr);
-
-Boolean MinMaxEnhancementDialog (
-				SInt16*								channelsPtr,
-				SInt16								rgbColors,
-				SInt16								displayType,
-				SInt16								numberLevels,
-				SInt16*								percentTailsClippedPtr,
-				SInt16*								minMaxSelectionPtr,
-				double*								minMaxValuesPtr);
 
 void Display1Channel8BitLine (
 				SInt16								displayCode,
@@ -313,24 +269,9 @@ void SetUpMinMaxPopUpMenu (
 				DialogPtr							dialogPtr,
 				SInt16								displayType);
 
-void UpdateDialogChannelItems (
-				DialogPtr							dialogPtr,
-				SInt16								rgbColors,
-				SInt16								displayType);
-
 void UpdatePopUpDisplayTypeMenu (
 				UInt16								totalNumberChannels,
 				SInt16								maxSystemPixelSize);
-
-void UpdateEnhancementMinMaxes (
-				HistogramSpecsPtr					histogramSpecsPtr,
-				DialogPtr							dialogPtr,
-				SInt16								localMinMaxCode,
-				SInt16								percentTailsClipped,
-				SInt16								numberLevels,
-				double*								minMaxValuesPtr,
-				SInt16*								channels,
-				Boolean								updateUserDefinedFlag);
 
 void UpdateMinMaxValueIndices (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -348,7 +289,7 @@ void UpdateThematicTypeMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -378,6 +319,7 @@ void DisplayImagesSideBySide (
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
 				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
+
 {
 	LongRect								longSourceRect;
 
@@ -398,7 +340,6 @@ void DisplayImagesSideBySide (
 											savedOffScreenLinePtr;
 
 	HUInt16Ptr							buffer2Ptr;
-											//offScreen2BytePtr;
 
 	UInt16*								channelsPtr;
 	
@@ -423,7 +364,7 @@ void DisplayImagesSideBySide (
 											maxValue,
 											numberSamples;
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		UInt32								lineBytesOffset = 0;
 		UInt32								savedLineBytesOffset = 0;
 	#endif
@@ -462,7 +403,7 @@ void DisplayImagesSideBySide (
 
 	separatorByte = (char)0xFF;
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		separatorByte = (char)0xFF;
 	#endif
 
@@ -511,10 +452,6 @@ void DisplayImagesSideBySide (
 			// Get display bottom maximum of image window
 
 	longSourceRect = *rectPtr;
-	//longSourceRect.left = rectPtr->left;
-	//longSourceRect.top = rectPtr->top;
-	//longSourceRect.right = rectPtr->right;
-	//longSourceRect.bottom = rectPtr->bottom;
 
 	displayBottomMax = longSourceRect.bottom;
 
@@ -559,9 +496,9 @@ void DisplayImagesSideBySide (
 			// images are loaded with first line at the end of the bitmap
 			// to last line at the beginning of the bitmap.
 
-	#if defined multispec_mac || defined multispec_lin
+	#if defined multispec_mac || defined multispec_wx
 		savedOffScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
-	#endif	// defined multispec_mac || defined multispec_lin
+	#endif	// defined multispec_mac || defined multispec_wx
 
 	#if defined multispec_win
 		UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
@@ -578,7 +515,8 @@ void DisplayImagesSideBySide (
 			// after a very few lines are loaded in. It will override the time interval
 			// which is currently every 1 second.
 	
-	nextStatusAtLeastLineIncrement = (10 * lineInterval) / displaySpecsPtr->magnification;
+	nextStatusAtLeastLineIncrement =
+								(int)((10 * lineInterval) / displaySpecsPtr->magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 	nextStatusAtLeastLine = displaySpecsPtr->lineStart + nextStatusAtLeastLineIncrement;
 
@@ -631,7 +569,7 @@ void DisplayImagesSideBySide (
 				interval = imageFileNumberChannels;
 				numberSamples = ((UInt32)displaySpecsPtr->columnEnd -
 						displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-						displaySpecsPtr->columnInterval;
+																		displaySpecsPtr->columnInterval;
 				numberSamples *= imageFileNumberChannels;
 				columnIntervalUsed = displaySpecsPtr->columnInterval;
 				packDataFlag = TRUE;
@@ -734,7 +672,7 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 								offScreenPtr++;
-								#if defined multispec_lin
+								#if defined multispec_wx
 									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 									offScreenPtr++;
@@ -746,7 +684,7 @@ void DisplayImagesSideBySide (
 												// Skip last (alpha) byte in wxBitmap
 										offScreenPtr++;
 									#endif
-								#endif	// defined multispec_lin
+								#endif	// defined multispec_wx
 								buffer1Ptr += interval;
 
 								}	// end "for (j=0;..."
@@ -758,7 +696,7 @@ void DisplayImagesSideBySide (
 
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
-							#if defined multispec_lin
+							#if defined multispec_wx
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
@@ -781,7 +719,7 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
-							#endif	// defined multispec_lin
+							#endif	// defined multispec_wx
 							
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
@@ -808,7 +746,7 @@ void DisplayImagesSideBySide (
 							if (BISFlag)
 								buffer2Ptr = (HUInt16Ptr)&ioBufferPtr[2*channel];
 
-							else // !BISFlag
+							else	// !BISFlag
 								buffer2Ptr =
 										(HUInt16Ptr)&ioBufferPtr[2*channel*numberSamples];
 
@@ -825,7 +763,7 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 								offScreenPtr++;
-								#if defined multispec_lin
+								#if defined multispec_wx
 									*offScreenPtr = (SInt8)(dataToLevelPtr[dataValue]);
 
 									offScreenPtr++;
@@ -850,7 +788,7 @@ void DisplayImagesSideBySide (
 
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
-							#if defined multispec_lin
+							#if defined multispec_wx
 								*offScreenPtr = separatorByte;
 							
 								offScreenPtr++;
@@ -873,7 +811,7 @@ void DisplayImagesSideBySide (
 								*offScreenPtr = separatorByte;
 
 								offScreenPtr++;
-							#endif	// defined multispec_lin
+							#endif	// defined multispec_wx
 							
 							*offScreenPtr = separatorByte;
 							offScreenPtr++;
@@ -895,7 +833,7 @@ void DisplayImagesSideBySide (
 					lineCount++;
 					if (TickCount () >= gNextTime && lineCount >= nextStatusAtLeastLine)
 						{
-						#if defined multispec_lin
+						#if defined multispec_wx
 							displaySpecsPtr->updateEndLine = lineCount;
 						#endif
 					
@@ -913,13 +851,16 @@ void DisplayImagesSideBySide (
 
 							}	// end "if (!CheckSomeEvents (osMask..."
 						
-						#if defined multispec_lin
+						#if defined multispec_wx
 							displaySpecsPtr->updateStartLine = lineCount;
 
-									// Get the bitmap raw data pointer again. It may have changed.
+									// Get the bitmap raw data pointer again. It may have
+									// changed.
 
-							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
-							offScreenLinePtr += lineBytesOffset + (SInt64)(lineCount-1) * pixRowBytes;
+							offScreenLinePtr =
+										(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+							offScreenLinePtr +=
+										lineBytesOffset + (SInt64)(lineCount-1) * pixRowBytes;
 						#endif
 					
 						nextStatusAtLeastLine = lineCount + nextStatusAtLeastLineIncrement;
@@ -931,7 +872,7 @@ void DisplayImagesSideBySide (
 
 					if (line == lineStart)
 						{
-						#if defined multispec_lin
+						#if defined multispec_wx
 									// Also get the number bytes offset in case needed for
 									// wx version
 						
@@ -942,9 +883,9 @@ void DisplayImagesSideBySide (
 						
 						}	// end "if (line == lineStart)"
 
-					#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wx
 						offScreenLinePtr += pixRowBytes;
-					#endif	// defined multispec_mac || defined multispec_lin
+					#endif	// defined multispec_mac || defined multispec_wx
 
 					#if defined multispec_win
 						offScreenLinePtr -= pixRowBytes;
@@ -965,11 +906,9 @@ void DisplayImagesSideBySide (
 
 					// Force last lines in image window for image file to be updated.
 
-			//if (longSourceRect.bottom != -1)
-			//	longSourceRect.bottom = lineCount;
 			longSourceRect.bottom = lineCount;
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				displaySpecsPtr->updateEndLine = lineCount;
 			#endif
 			
@@ -986,7 +925,7 @@ void DisplayImagesSideBySide (
 
 				}	// end "if (!CheckSomeEvents (osMask..."
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				displaySpecsPtr->updateStartLine = lineCount;
 			#endif
 
@@ -999,7 +938,7 @@ void DisplayImagesSideBySide (
 		if (stopFlag)
 			break;
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			lineBytesOffset = savedLineBytesOffset;
 
 			displaySpecsPtr->updateStartLine = lineCount;
@@ -1032,7 +971,7 @@ void DisplayImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1048,7 +987,7 @@ void DisplayImagesSideBySide (
 //
 // Value Returned:	None			
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/2006
 //	Revised By:			Larry L. Biehl			Date: 04/15/2019
@@ -1063,6 +1002,7 @@ void Display4_8ByteImagesSideBySide (
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
 				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr)
+
 {
 	LongRect								longSourceRect;
 
@@ -1145,7 +1085,7 @@ void Display4_8ByteImagesSideBySide (
 	fileIOInstructionsPtr = NULL;
 
 	separatorByte = (char)0xFF;
-	#if defined multispec_lin
+	#if defined multispec_wx
 		separatorByte = (char)0xFF;
 	#endif
 
@@ -1194,10 +1134,6 @@ void Display4_8ByteImagesSideBySide (
 			// Get display bottom maximum of image window
 
 	longSourceRect = *rectPtr;
-	//longSourceRect.left = rectPtr->left;
-	//longSourceRect.top = rectPtr->top;
-	//longSourceRect.right = rectPtr->right;
-	//longSourceRect.bottom = rectPtr->bottom;
 
 	displayBottomMax = longSourceRect.bottom;
 
@@ -1221,7 +1157,7 @@ void Display4_8ByteImagesSideBySide (
 										kForceReal8Bytes,
 										gHasThreadManager,
 										&fileIOInstructionsPtr))
-																												return;
+																									return;
 
 	dataDisplayPtr = (HUCharPtr)GetHandlePointer (
 								gToDisplayLevels.vectorHandle, kLock);
@@ -1239,9 +1175,9 @@ void Display4_8ByteImagesSideBySide (
 			// images are loaded with first line at the end of the bitmap 
 			// to last line at the beginning of the bitmap.
 
-	#if defined multispec_mac || defined multispec_lin
+	#if defined multispec_mac || defined multispec_wx
 		savedOffScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
-	#endif	// defined multispec_mac || defined multispec_lin
+	#endif	// defined multispec_mac || defined multispec_wx
 
 	#if defined multispec_win
 		UInt32 numberLines = (lineEnd - lineStart + lineInterval) / lineInterval;
@@ -1311,20 +1247,20 @@ void Display4_8ByteImagesSideBySide (
 
 				}	// end "if (localFileInfoPtr->bandInterleave == kBIS)"
 
-			else // localFileInfoPtr->bandInterleave != kBIS
+			else	// localFileInfoPtr->bandInterleave != kBIS
 				{
 				if (BILSpecialFlag)
 					{
 					interval = 1;
 					numberSamples = ((UInt32)displaySpecsPtr->columnEnd -
-							 displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
-									displaySpecsPtr->columnInterval;
+							displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
+																	displaySpecsPtr->columnInterval;
 					columnIntervalUsed = displaySpecsPtr->columnInterval;
 					packDataFlag = TRUE;
 
 					}	// end "if (BILSpecialFlag)"
 
-				else // !BILSpecialFlag
+				else	// !BILSpecialFlag
 					{
 					interval = displaySpecsPtr->columnInterval;
 					numberSamples = (UInt32)displaySpecsPtr->columnEnd -
@@ -1377,7 +1313,7 @@ void Display4_8ByteImagesSideBySide (
 				if (errCode != noErr)
 					break;
 
-				else // errCode == noErr
+				else	// errCode == noErr
 					{
 					offScreenPtr = offScreenLinePtr;
 
@@ -1389,13 +1325,14 @@ void Display4_8ByteImagesSideBySide (
 					for (channel = 0; channel < imageFileNumberChannels; channel++)
 						{
 						binFactor = histogramSummaryPtr[channelsPtr[chanIndex]].binFactor;
-						minValue = histogramSummaryPtr[channelsPtr[chanIndex]].minNonSatValue;
+						minValue =
+								histogramSummaryPtr[channelsPtr[chanIndex]].minNonSatValue;
 						maxBin = histogramSummaryPtr[channelsPtr[chanIndex]].numberBins - 1;
 
 						if (BISFlag)
 							buffer8BytePtr = &ioBufferPtr[channel];
 
-						else // !BISFlag 
+						else	// !BISFlag 
 							buffer8BytePtr = &ioBufferPtr[channel * numberSamples];
 
 						for (j = 0; j < numberSamples; j += interval)
@@ -1407,7 +1344,7 @@ void Display4_8ByteImagesSideBySide (
 							else if (doubleBinIndex > (double)maxBin)
 								binIndex = maxBin;
 
-							else // doubleBinIndex >= 0 && doubleBinIndex <= maxBin
+							else	// doubleBinIndex >= 0 && doubleBinIndex <= maxBin
 								{
 								binIndex = (UInt32)doubleBinIndex;
 
@@ -1426,7 +1363,7 @@ void Display4_8ByteImagesSideBySide (
 
 							*offScreenPtr = (SInt8)dataToLevelPtr[binIndex];
 
-							#if defined multispec_lin
+							#if defined multispec_wx
 								offScreenPtr++;
 								*offScreenPtr = (SInt8)(dataToLevelPtr[binIndex]);
 
@@ -1450,7 +1387,7 @@ void Display4_8ByteImagesSideBySide (
 						#endif
 
 						*offScreenPtr = separatorByte;
-						#if defined multispec_lin
+						#if defined multispec_wx
 							offScreenPtr++;
 							*offScreenPtr = separatorByte;
 
@@ -1508,10 +1445,12 @@ void Display4_8ByteImagesSideBySide (
 
 							}	// end "if (!CheckSomeEvents (osMask..."
 						
-						#if defined multispec_lin
-									// Get the bitmap raw data pointer again. It may have changed.
+						#if defined multispec_wx
+									// Get the bitmap raw data pointer again. It may have
+									// changed.
 
-							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+							offScreenLinePtr =
+										(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
 							offScreenLinePtr += size_t((lineCount-1) * pixRowBytes);
 						#endif
 
@@ -1530,9 +1469,9 @@ void Display4_8ByteImagesSideBySide (
 
 						}	// end "if (line == lineStart)"
 
-					#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wx
 						offScreenLinePtr += pixRowBytes;
-					#endif	// defined multispec_mac || defined multispec_lin
+					#endif	// defined multispec_mac || defined multispec_wx
 
 					#if defined multispec_win
 						offScreenLinePtr -= pixRowBytes;
@@ -1571,7 +1510,7 @@ void Display4_8ByteImagesSideBySide (
 						// Get the bitmap raw data pointer again. It may have changed.
 
 				savedOffScreenLinePtr = lineBytesOffset +
-									(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
+										(unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
 			#endif
 
 			dataDisplayPtr += bytesOffset*imageFileNumberChannels;
@@ -1602,7 +1541,7 @@ void Display4_8ByteImagesSideBySide (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1617,13 +1556,14 @@ void Display4_8ByteImagesSideBySide (
 //
 // Value Returned:	None			
 // 
-// Called By:			DisplayImage in display.c
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/11/1988
 //	Revised By:			Ravi S. Budruk			Date: 06/17/1988	
 //	Revised By:			Larry L. Biehl			Date: 04/10/2019
 
 Boolean DisplayMultispectralImage (void)
+
 {
 	GrafPtr								savedPort;
 
@@ -1675,7 +1615,7 @@ Boolean DisplayMultispectralImage (void)
 		displaySpecsPtr = LoadMultispectralDisplaySpecs ();
 		continueFlag = (displaySpecsPtr != NULL);
 
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 
 			// Handle to file information should already be locked.  Get pointer
 			// to file information.																
@@ -1722,7 +1662,7 @@ Boolean DisplayMultispectralImage (void)
 			histogramSpecsPtr->histogramArrayPtr =
                     (UInt32*)GetHandlePointer (histogramSpecsPtr->histogramArrayH);
 
-			} // end "if (displaySpecsPtr->enhancementCode == ..."
+			}	// end "if (displaySpecsPtr->enhancementCode == ..."
 
 				// Get start time for the processor.
 
@@ -1776,7 +1716,7 @@ Boolean DisplayMultispectralImage (void)
 					if (!displaySpecsPtr->paletteUpToDateFlag)
 						ReleaseDisplayPaletteMemory (displaySpecsPtr);
 
-					} // end "if (...->displayType == k1_ChannelThematicDisplayType)"
+					}	// end "if (...->displayType == k1_ChannelThematicDisplayType)"
 
 				continueFlag = CreatePalette (gImageWindowInfoPtr->windowInfoHandle,
 														displaySpecsPtr,
@@ -1788,9 +1728,9 @@ Boolean DisplayMultispectralImage (void)
 
 				if (continueFlag)
 					{
-					#if defined multispec_lin
+					#if defined multispec_wx
 						gActiveImageViewCPtr->m_Scale = displaySpecsPtr->magnification;
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 					UpdateImageZoomControls (
                             gActiveImageWindow, displaySpecsPtr->magnification, TRUE);
 
@@ -1844,12 +1784,6 @@ Boolean DisplayMultispectralImage (void)
 
 					imageDisplayedFlag = TRUE;
 
-							// Update palette menu and redraw the palette if it
-							// exists.																
-
-					//gUpdatePaletteMenuItemsFlag = TRUE;
-					//UpdatePaletteWindow (savePaletteChangedFlag, FALSE);
-
 					gConvertSignedDataFlag = FALSE;
 
 							// Save some of the last display structure settings.
@@ -1858,13 +1792,13 @@ Boolean DisplayMultispectralImage (void)
 															 gImageFileInfoPtr,
 															 gImageWindowInfoPtr);
 
-					}		// end "if (continueFlag)"
+					}	// end "if (continueFlag)"
 
 				UpdateActiveImageWScrolls (displaySpecsPtr->magnification);
 
 				SetPort (savedPort);
 
-            }		// end "if (HistogramVector (displaySpecsPtr))"
+            }	// end "if (HistogramVector (displaySpecsPtr))"
 
 					// Indicate that the entire image can be selected if it is the
 					// active window
@@ -1901,12 +1835,12 @@ Boolean DisplayMultispectralImage (void)
 
 	return (imageDisplayedFlag);
 
-}		// end "DisplayMultispectralImage"
+}	// end "DisplayMultispectralImage"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1922,10 +1856,10 @@ Boolean DisplayMultispectralImage (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 04/15/2019
+//	Revised By:			Larry L. Biehl			Date: 11/02/2019
 
 void DisplayCImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -2013,7 +1947,7 @@ void DisplayCImage (
 											packDataFlag;
 	
 	/*
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// This did not work.
 		wxBusyCursor wait;
 	#endif
@@ -2133,27 +2067,27 @@ void DisplayCImage (
 				// loaded above.
 
 		GetOneChannelThematicDisplayConversionValues (
-				 gImageWindowInfoPtr,
-				 &histogramSummaryPtr[channelPtr[0]],
-				 displaySpecsPtr,
-				 &binFactor1,
-				 &minValue1,
-				 &maxBin1);
-		/*			
+															 gImageWindowInfoPtr,
+															 &histogramSummaryPtr[channelPtr[0]],
+															 displaySpecsPtr,
+															 &binFactor1,
+															 &minValue1,
+															 &maxBin1);
+		/*
 		if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne)
 			{
 			binFactor1 = displaySpecsPtr->thematicBinWidth;
 			minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
 			maxBin1 = displaySpecsPtr->numberLevels - 1;
 
-			}		// end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
+			}	// end "if (...[channelPtr[0]].binType == kBinWidthOfOne)"
 
 		else if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthNotOne)
 			{
 			minValue1 = displaySpecsPtr->thematicTypeMinMaxValues[0];
 			binFactor1 = displaySpecsPtr->thematicBinWidth;
 
-			}		// end "else if (...[channelPtr[0]].binType == kBinWidthNotOne)"
+			}	// end "else if (...[channelPtr[0]].binType == kBinWidthNotOne)"
 		*/
 		}	// end "else if (displayCode == 151"
 
@@ -2168,7 +2102,7 @@ void DisplayCImage (
 
 		}	// end "if (displayCode < 100)"
 
-	else // displayCode >= 100
+	else	// displayCode >= 100
 		{
 		forceOutputByteCode = kForceReal8Bytes;
 		forceBISflag = kDoNotForceBISFormat;
@@ -2240,9 +2174,9 @@ void DisplayCImage (
 			 // images are loaded with first line at the end of the bitmap 
 			 // to last line at the beginning of the bitmap.	
 
-	#if defined multispec_mac || defined multispec_lin
+	#if defined multispec_mac || defined multispec_wx
 		offScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
-	#endif	// defined multispec_mac || defined multispec_lin
+	#endif	// defined multispec_mac || defined multispec_wx
 
 	#if defined multispec_win
 		UInt32 numberLines =
@@ -2393,7 +2327,7 @@ void DisplayCImage (
 
 					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
-				else // forceOutputByteCode == kForceReal8Bytes
+				else	// forceOutputByteCode == kForceReal8Bytes
 					{
 					buffer1Offset *= 8;
 					buffer2Offset *= 8;
@@ -2403,7 +2337,7 @@ void DisplayCImage (
 
             }	// end "if (localFileInfoPtr1->gdalDataSetH != NULL)"
 
-			else // localFileInfoPtr1->gdalDataSetH == NULL
+			else	// localFileInfoPtr1->gdalDataSetH == NULL
             {
 				buffer1Offset = 0;
 				if (forceOutputByteCode == kDoNotForceBytes)
@@ -2430,14 +2364,14 @@ void DisplayCImage (
 			}	// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
 
 
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			ioBuffer1Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer1Offset];
 			ioBuffer2Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer2Offset];
 			ioBuffer3Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer3Offset];
-		#else	// not defined multispec_lin
+		#else	// not defined multispec_wx
 			ioBuffer1Ptr = (HFileIOBufferPtr)
 						((unsigned char*)(outputBufferPtr->data.onebyte) + buffer1Offset);
 			ioBuffer2Ptr = (HFileIOBufferPtr)
@@ -2459,7 +2393,7 @@ void DisplayCImage (
 				// after a very few lines are loaded in. It will override the time interval
 				// which is currently every 1 second.
 		
-		nextStatusAtLeastLineIncrement = (10 * lineInterval) / displaySpecsPtr->magnification;
+		nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / displaySpecsPtr->magnification);
 		nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 		nextStatusAtLeastLine = displaySpecsPtr->lineStart + nextStatusAtLeastLineIncrement;
 
@@ -2480,7 +2414,7 @@ void DisplayCImage (
 			if (errCode != noErr)
 				break;
 
-			else // errCode == noErr
+			else	// errCode == noErr
             {
 						//	Draw the line of data
 
@@ -2545,7 +2479,8 @@ void DisplayCImage (
 														  maxBin1,
 														  (HUInt16Ptr)offScreenPtr);
 						break;
-
+					/*
+							Option removed in 11/2019
 					case 22:
 						Display2Channel16BitLine (numberSamples,
 														  interval,
@@ -2561,7 +2496,9 @@ void DisplayCImage (
 														  (HUInt16Ptr) offScreenPtr,
 														  displaySpecsPtr->rgbColors);
 						break;
-
+					*/
+					/*
+							Option removed in 11/2019
 					case 23:
 						Display2Channel24BitLine (numberSamples,
 														  interval,
@@ -2577,7 +2514,7 @@ void DisplayCImage (
 														  offScreenPtr,
 														  displaySpecsPtr->rgbColors);
 						break;
-
+					*/
 					case 32:
 						Display3Channel16BitLine (numberSamples,
 														  interval,
@@ -2668,6 +2605,8 @@ void DisplayCImage (
 																  offScreenPtr);
 						break;
 
+					/*
+							Option removed in 11/2019
 					case 122:
 						Display2Channel4Byte16BitLine (numberSamples,
 																  interval,
@@ -2684,7 +2623,9 @@ void DisplayCImage (
 																  maxBin2,
 																  (HUInt16Ptr)offScreenPtr,
 																  displaySpecsPtr->rgbColors);
-
+					*/
+					/*
+							Option removed in 11/2019
 					case 123:
 						Display2Channel4Byte24BitLine (numberSamples,
 																  interval,
@@ -2702,7 +2643,7 @@ void DisplayCImage (
 																  offScreenPtr,
 																  displaySpecsPtr->rgbColors);
 						break;
-
+					*/
 					case 132:
 						Display3Channel4Byte16BitLine (numberSamples,
 																  interval,
@@ -2755,7 +2696,7 @@ void DisplayCImage (
 				lineCount++;
 				if (TickCount() >= gNextTime && lineCount >= nextStatusAtLeastLine)
 					{
-					#if defined multispec_lin
+					#if defined multispec_wx
 						displaySpecsPtr->updateEndLine = lineCount;
 					#endif
 				
@@ -2769,7 +2710,7 @@ void DisplayCImage (
 															 displayBottomMax))
 						break;
 				
-					#if defined multispec_lin
+					#if defined multispec_wx
 						displaySpecsPtr->updateStartLine = lineCount;
 
 						if (gImageWindowInfoPtr->offscreenMapSize == 0)
@@ -2788,7 +2729,7 @@ void DisplayCImage (
 
 					}	// end "if (TickCount() >= gNextTime && lineCount >= nextStatusAtLeastLine)"
 
-				#if defined multispec_mac || defined multispec_lin
+				#if defined multispec_mac || defined multispec_wx
 					offScreenLinePtr += pixRowBytes;
 				#endif	// defined multispec_mac
 
@@ -2826,7 +2767,7 @@ void DisplayCImage (
 			longSourceRect.bottom = lineCount;
 		rectPtr->bottom = longSourceRect.bottom;
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			displaySpecsPtr->updateEndLine = lineCount;
 		#endif
 
@@ -2845,7 +2786,7 @@ void DisplayCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3196,14 +3137,14 @@ Boolean DisplayMultispectralDialog (
 
 		dialogWindowShownFlag = TRUE;
 
-		} // end "if (gMultiSpecWorkflowInfo.workFlowCode != 1 && ..."
+		}	// end "if (gMultiSpecWorkflowInfo.workFlowCode != 1 && ..."
 
-	else // gMultiSpecWorkflowInfo.workFlowCode == 1 || ...
+	else	// gMultiSpecWorkflowInfo.workFlowCode == 1 || ...
 		{
 		setUpDFilterTableFlag = kDoNotSetUpDFilterTable;
 		itemHit = gMultiSpecWorkflowInfo.workFlowCode;
 
-		} // end "else gMultiSpecWorkflowInfo.workFlowCode == 1 || ..."
+		}	// end "else gMultiSpecWorkflowInfo.workFlowCode == 1 || ..."
 
 	updateComputeHistogramFlag = FALSE;
 
@@ -3276,7 +3217,7 @@ Boolean DisplayMultispectralDialog (
 					if (gAppearanceManagerFlag)
 						itemHit2 = GetDItemValue (dialogPtr, 15);
 
-					else // !gAppearanceManagerFlag)
+					else	// !gAppearanceManagerFlag)
 						itemHit2 = StandardPopUpMenu (dialogPtr,
 																 14,
 																 15,
@@ -3338,7 +3279,7 @@ Boolean DisplayMultispectralDialog (
 					if (gAppearanceManagerFlag)
 						itemHit2 = GetDItemValue (dialogPtr, 19);
 
-					else // !gAppearanceManagerFlag)
+					else	// !gAppearanceManagerFlag)
 						{
 						itemHit2 = StandardPopUpMenu (dialogPtr,
 																  18,
@@ -3497,8 +3438,8 @@ Boolean DisplayMultispectralDialog (
 				case 27:	// Number of display levels
 					maxValue = localColorLevelsMax[abs (gBitsOfColorSelection) - 1][0];
 
-					if (localDisplayType == k2_ChannelDisplayType)
-						maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
+					//if (localDisplayType == k2_ChannelDisplayType)
+					//	maxValue = localColorLevelsMax[gBitsOfColorSelection - 1][1];
 
 					if (localDisplayType == k3_ChannelDisplayType)
 						{
@@ -3873,15 +3814,13 @@ Boolean DisplayMultispectralDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMDisplaySpecsDlg* dialogPtr = NULL;
 		try
 			{
-			//dialogPtr = new CMDisplaySpecsDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
-			//dialogPtr = new CMDisplaySpecsDlg ((wxWindow*)GetMainFrame ());
          dialogPtr = new CMDisplaySpecsDlg (NULL);
 			gActiveImageViewCPtr->m_displayMultiCPtr->SetDisplaySpecsPtr (
-																							displaySpecsPtr);
+																						displaySpecsPtr);
 
 			returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
 
@@ -3900,7 +3839,7 @@ Boolean DisplayMultispectralDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3915,7 +3854,7 @@ Boolean DisplayMultispectralDialog (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayMultispectralDialog in SDisMulc.cpp
+// Called By:			DisplayMultispectralDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
 //	Revised By:			Larry L. Biehl			Date: 12/01/2006
@@ -3931,6 +3870,7 @@ void DisplayMultispectralDialogCheckDisplayLevels (
 				SInt16*								duplicateChannelCodePtr,
 				SInt16								bitsOfColorSelection,
 				SInt16*								numberDisplayLevelsPtr)
+
 {
 	*duplicateChannelCodePtr = 0;
 
@@ -3960,7 +3900,7 @@ void DisplayMultispectralDialogCheckDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3975,7 +3915,7 @@ void DisplayMultispectralDialogCheckDisplayLevels (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayMultispectralDialog in SDisMulc.cpp
+// Called By:			DisplayMultispectralDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
 //	Revised By:			Larry L. Biehl			Date: 11/22/2006
@@ -3986,6 +3926,7 @@ void DisplayMultispectralDialogCheckMinMaxSettings (
 				SInt16*								enhanceMinMaxMenuSelectionPtr,
 				SInt16*								enhanceMinMaxOptionPtr,
 				Boolean*								thematicDisplayWithUserSettingFlagPtr)
+
 {
 	if (inputEnhanceMinMaxMenuSelection == kThematicDefault &&
 										displayTypeSelection != k1_ChannelThematicDisplayType)
@@ -4025,7 +3966,7 @@ void DisplayMultispectralDialogCheckMinMaxSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4054,6 +3995,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 				SInt16								lMinMaxCode,
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 	Boolean								histogramRequiredFlag,
 											setComputeItemFlag;
@@ -4061,10 +4003,9 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 
 			// Determine if histogram is required for the stretch enhancement
 
-	histogramRequiredFlag = GetHistogramRequiredFlag (
-												displayType,
-												enhanceStretchSelection,
-												lMinMaxCode);
+	histogramRequiredFlag = GetHistogramRequiredFlag (displayType,
+																		enhanceStretchSelection,
+																		lMinMaxCode);
 
 	setComputeItemFlag = FALSE;
 	if (!displaySpecsPtr->defaultHistogramFileFlag)
@@ -4077,7 +4018,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 
 		}	// end "if ((gEnhancementSelection != 1 ||..." 
 
-	else // !setComputeItemFlag 
+	else	// !setComputeItemFlag 
 		{
 		if (!userComputeFlag || !histogramRequiredFlag)
 			SetDLogControl (dialogPtr, itemNumber, 0);
@@ -4098,7 +4039,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4116,7 +4057,7 @@ Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
-//	Revised By:			Larry L. Biehl			Date: 04/02/2019
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 
 void DisplayMultispectralDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -4155,6 +4096,7 @@ void DisplayMultispectralDialogInitialize (
 				Boolean*								blueChannelInvertFlagPtr,
 				double*								localThematicValueFactorPtr,
 				Boolean*								includeVectorOverlaysFlagPtr)
+
 {
 			// Initialize selected area structure.		
 
@@ -4232,7 +4174,7 @@ void DisplayMultispectralDialogInitialize (
 
 	*localrgbColorsPtr = displaySpecsPtr->rgbColors;
 
-			// Set up diplay type radio buttons.  First get default values to		
+			// Set up diplay type.  First get default values to
 			// use for number display values and palette type.							
 
 	GetDefaultPaletteSpecs (displaySpecsPtr->displayType,
@@ -4265,8 +4207,8 @@ void DisplayMultispectralDialogInitialize (
 
 			// 2-channel display radio button.										
 
-	if (*localDisplayTypePtr == k2_ChannelDisplayType && *localrgbColorsPtr >= 7)
-		*localrgbColorsPtr = kRGColor;
+	//if (*localDisplayTypePtr == k2_ChannelDisplayType && *localrgbColorsPtr >= 7)
+	//	*localrgbColorsPtr = kRGColor;
 
 			// 3-channel display.														
 
@@ -4313,9 +4255,9 @@ void DisplayMultispectralDialogInitialize (
 		#if defined multispec_mac 
 			*savedBitsOfColorPtr = 3;
 		#endif	// defined multispec_mac 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			*savedBitsOfColorPtr = 2;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 
 	switch (*localDisplayTypePtr) 
 		{
@@ -4337,7 +4279,7 @@ void DisplayMultispectralDialogInitialize (
 			break;
 		*/
 		case k3_ChannelDisplayType:
-		case k2_ChannelDisplayType:
+		//case k2_ChannelDisplayType:		// Option removed 11/2019
 		case k3_2_ChannelDisplayType:
 			if (displaySpecsPtr->pixelSize == 16)
 				*bitsOfColorSelectionPtr = 2;
@@ -4347,9 +4289,9 @@ void DisplayMultispectralDialogInitialize (
 			#if defined multispec_mac 
 				*bitsOfColorSelectionPtr = 3;
 			#endif	// defined multispec_mac 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				*bitsOfColorSelectionPtr = 2;
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			break;
 
 		}	// end "switch (*localDisplayTypePtr)" 
@@ -4486,20 +4428,20 @@ void DisplayMultispectralDialogInitialize (
 
 	*userComputeFlagPtr = FALSE;
 	*userComputeFlagPtr = DisplayMultispectralDialogUpdateComputeHistogram (
-														displaySpecsPtr,
-														*userComputeFlagPtr,
-														*localDisplayTypePtr,
-														*enhanceStretchSelectionPtr,
-														*enhanceMinMaxOptionCodePtr,
-														dialogPtr,
-														ID3C_NewHistogram);
+																	displaySpecsPtr,
+																	*userComputeFlagPtr,
+																	*localDisplayTypePtr,
+																	*enhanceStretchSelectionPtr,
+																	*enhanceMinMaxOptionCodePtr,
+																	dialogPtr,
+																	ID3C_NewHistogram);
 
 			// Display channel descriptions.										
 
 	if (windowInfoPtr->descriptionCode != 0)
 		SetDLogControl (dialogPtr, ID3C_ChannelDescriptions, 0);
 
-	else // windowInfoPtr->descriptionCode == 0
+	else	// windowInfoPtr->descriptionCode == 0
 		SetDLogControlHilite (dialogPtr, ID3C_ChannelDescriptions, 255);
 
 	*channelSelectionPtr = displaySpecsPtr->channelSet;
@@ -4513,7 +4455,7 @@ void DisplayMultispectralDialogInitialize (
 			// Set up edit text fields for channels to be used for diplay			
 
 			// Set the color text item 														
-	#ifndef multispec_lin
+	#ifndef multispec_wx
 		LoadDItemString (dialogPtr, ID3C_GrayPrompt, (Str255*)"\0Grey  ");
 	#endif
 	UpdateDialogChannelItems (dialogPtr, *localrgbColorsPtr, *localDisplayTypePtr);
@@ -4529,44 +4471,13 @@ void DisplayMultispectralDialogInitialize (
 							dialogPtr,
 							IDC_VectorOverlays,
 							includeVectorOverlaysFlagPtr);
-
-	/*	
-	if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)
-		{
-		SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
-		HideDialogItem (dialogPtr, IDC_VectorOverlays);
-		*includeVectorOverlaysFlagPtr = FALSE;
-
-		}	// end "if (gActiveOffscreenMapExists || gNumberShapeFiles <= 0)"
-
-	else	// !gActiveOffscreenMapExists
-		{
-				// Check vector overlays are available for this image.
-
-		if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))
-			{
-			SetDLogControl (dialogPtr, IDC_VectorOverlays, 1);
-			SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 0);
-			*includeVectorOverlaysFlagPtr = TRUE;
-
-			}		// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
-
-		else	// !CheckIfVectorOverlaysIntersectImage (windowInfoPtr)
-			{
-			SetDLogControl (dialogPtr, IDC_VectorOverlays, 0);
-			SetDLogControlHilite (dialogPtr, IDC_VectorOverlays, 255);
-			*includeVectorOverlaysFlagPtr = FALSE;
-
-			}	// end "if (CheckIfVectorOverlaysIntersectImage (windowInfoPtr))"
-
-		}	// end "else !gActiveOffscreenMapExists"
-	*/
+	
 }	// end "DisplayMultispectralDialogInitialize"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4621,6 +4532,7 @@ void DisplayMultispectralDialogOK (
 				Boolean								blueChannelInvertFlag,
 				double								localThematicValueFactor,
 				Boolean								includeVectorOverlaysFlag)
+
 {
 	UInt16*								channelsPtr;
 
@@ -4689,6 +4601,7 @@ void DisplayMultispectralDialogOK (
 
 			// Get min max values to use for enhancement.  This is needed
 			// here so that the legend list gets loaded correctly.
+			// Decided not to do here.
 
 	//if (displaySpecsPtr->minMaxCode == kThematicDefault)
 	//	UpdateThematicTypeMinMaxes (displaySpecsPtr->numberLevels,
@@ -4788,7 +4701,7 @@ void DisplayMultispectralDialogOK (
 		if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
 			displaySpecsPtr->paletteUpToDateFlag = FALSE;
 
-		else // ...->displayType == k1_ChannelThematicDisplayType
+		else	// ...->displayType == k1_ChannelThematicDisplayType
 			gToDisplayLevels.upToDateFlag = FALSE;
 
 		}	// end "if (...->invertValuesFlag[2] != redChannelInvertFlag)"
@@ -4811,11 +4724,12 @@ void DisplayMultispectralDialogOK (
 			// If the display type is a 3-channel display, determine		
 			// if there are any duplicate channels.							
 
-	if (displaySpecsPtr->displayType == 3 && duplicateChannelCode != 0)
+	if (displaySpecsPtr->displayType == k3_ChannelDisplayType &&
+															duplicateChannelCode != 0)
 		{
 		displaySpecsPtr->rgbColors = duplicateChannelCode;
 		displaySpecsPtr->paletteUpToDateFlag = FALSE;
-		displaySpecsPtr->displayType = 5;
+		displaySpecsPtr->displayType = k3_2_ChannelDisplayType;
 
 		}	// end "if (displaySpecsPtr->displayType == 3 && ...)"
 
@@ -4829,12 +4743,12 @@ void DisplayMultispectralDialogOK (
 	displaySpecsPtr->numberPaletteLevels = displaySpecsPtr->numberLevels;
 	if (displaySpecsPtr->pixelSize > 8)
 		{
-		if (displaySpecsPtr->displayType == 4 ||
-											displaySpecsPtr->displayType == 5)
+		if (//displaySpecsPtr->displayType == 4 ||
+						displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 			displaySpecsPtr->numberPaletteLevels =
 												localColorLevelsMaxPtr[1]; // [1][0]
 
-		else // displaySpecsPtr->displayType != 4 or 5 
+		else	// displaySpecsPtr->displayType != k3_2_ChannelDisplayType
 			displaySpecsPtr->numberPaletteLevels =
 												localColorLevelsMaxPtr[2]; // [2][0]
 
@@ -4845,7 +4759,7 @@ void DisplayMultispectralDialogOK (
 
 		}	// end "if (displaySpecsPtr->pixelSize > 8)"
 
-	if (localDisplayType == k2_ChannelDisplayType ||
+	if (//localDisplayType == k2_ChannelDisplayType ||
 												localDisplayType == k3_ChannelDisplayType)
 		displaySpecsPtr->lastColorPixelSize = displaySpecsPtr->pixelSize;
 
@@ -4872,7 +4786,7 @@ void DisplayMultispectralDialogOK (
 
 			displaySpecsPtr->thematicGroupPaletteType = kCorrelationMatrixColors;
 
-			} // end "if (displaySpecsPtr->numberDisplayClasses != ..."
+			}	// end "if (displaySpecsPtr->numberDisplayClasses != ..."
 
 		displaySpecsPtr->numberDisplayClasses = fileInfoPtr->numberClasses;
 		displaySpecsPtr->classGroupCode = kClassDisplay;
@@ -4886,7 +4800,7 @@ void DisplayMultispectralDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4911,6 +4825,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 				DialogPtr							dialogPtr,
 				SInt16								rgbColors,
 				SInt16								displayType)
+
 {
 	SInt16 hiliteItem;
 
@@ -4920,7 +4835,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 	if (displayType == kSideSideChannelDisplayType)
 		hiliteItem = ID3C_LineStart;
 
-	else // displayType != kSideSideChannelDisplayType 
+	else	// displayType != kSideSideChannelDisplayType 
 		{
 		hiliteItem = ID3C_GrayChannel;
 		if (rgbColors & 4)
@@ -4939,7 +4854,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 
 #if defined multispec_mac  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4965,6 +4880,7 @@ void DisplayMultispectralDialogSetDefaultSelection (
 Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 				MenuHandle							popUpBitsOfColorMenu,
 				SInt16								localDisplayType)
+
 {
 			// Update number of color bits popup menu options.	
 
@@ -4997,12 +4913,12 @@ Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 
 			}	// end "if (gQD32IsImplemented)" 
 
-		else // !gQD32IsImplemented
+		else	// !gQD32IsImplemented
 			{
 			DisableMenuItem (popUpBitsOfColorMenu, 2);
 			DisableMenuItem (popUpBitsOfColorMenu, 3);
 
-			} // end "else !gQD32IsImplemented" 
+			}	// end "else !gQD32IsImplemented" 
 
 		if (gOSXFlag && !gOSXCoreGraphicsFlag)
 			DisableMenuItem (popUpBitsOfColorMenu, 1);
@@ -5017,7 +4933,7 @@ Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5032,7 +4948,7 @@ Boolean DisplayMultispectralDialogUpdateBitsOfColor (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayMultispectralDialog in SDisMulc.cpp
+// Called By:			DisplayMultispectralDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2006
 //	Revised By:			Larry L. Biehl			Date: 11/22/2006
@@ -5054,6 +4970,7 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 				SInt16*								localColorLevelsMaxPtr,
 				SInt16*								duplicateChannelCodePtr,
 				Boolean*								checkMinMaxSettingFlagPtr)
+
 {
 			// Set text fields for channels to be displayed and	
 			// number of bits variables.									
@@ -5062,7 +4979,8 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 		{
 		case 1: // 1-channel thematic display 
 		case 2: // 1-channel gray level display 
-		case 7: // Side by Side channels 
+		//case 7: // Side by Side channels
+		case 4: // Side by Side channels
 			*localDisplayTypePtr = newDisplayTypeMenuSelection;
 
 					// Indicate that only one color plane will be used.														
@@ -5086,7 +5004,8 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 
 				}	// end "else !gOSXFlag || gOSXCoreGraphicsFlag"
 			break;
-
+		/*
+		// These options were removed in 11/2019
 		case 3: // 2-channel Red-Green display 
 			*localDisplayTypePtr = k2_ChannelDisplayType;
 			*localRGBColorsPtr = kRGColor;
@@ -5104,8 +5023,9 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 			*localRGBColorsPtr = kRBColor;
 			*bitsOfColorSelectionPtr = savedBitsOfColor;
 			break;
-
-		case 6: // 3-channel display 
+		*/
+		//case 6: // 3-channel display
+		case 3: // 3-channel display
 			*localDisplayTypePtr = k3_ChannelDisplayType;
 
 					// Indicate that red, green, blues color planes will be used.											
@@ -5151,7 +5071,7 @@ SInt16 DisplayMultispectralDialogUpdateDisplayType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5179,6 +5099,7 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 				SInt16								duplicateChannelCode,
 				SInt16								bitsOfColorSelection,
 				SInt16*								numberDisplayLevelsPtr)
+
 {
 	SInt32								colorLevelsIndex,
 											localDisplayLevels,
@@ -5200,11 +5121,12 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 			else
 				numberChannelsIndex = 2;
 			break;
-
+		/*
+				This option was removed in 11/2019
 		case k2_ChannelDisplayType:
 			numberChannelsIndex = 1;
 			break;
-
+		*/
 		}	// end "switch (displayType)" 
 
 	localDisplayLevels = displaySpecsPtr->numberLevels;
@@ -5220,9 +5142,9 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 
 		}	// end "displayType == k1_ChannelThematicDisplayType"
 
-	else // displayType != k1_ChannelThematicDisplayType
+	else	// displayType != k1_ChannelThematicDisplayType
 		{
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 					// For windows and linux, take into account that there are only 
 					// 2 bits of color choices 8 and 24 not 8, 16 and 24.  Bits of Color 
 					// of 2 actually is is an index of 3 into the color levels max vector.
@@ -5247,7 +5169,7 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5263,7 +5185,7 @@ void DisplayMultispectralDialogUpdateDisplayLevels (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/01/1996
 //	Revised By:			Larry L. Biehl			Date: 12/13/2018
@@ -5277,6 +5199,7 @@ void Display1Channel8BitLine (
 				HUCharPtr							dataDisplayPtr,
 				UInt32								maxValue,
 				HUCharPtr							offScreenPtr)
+
 {
 	UInt32								dataValue,
 											j;
@@ -5315,7 +5238,7 @@ void Display1Channel8BitLine (
 			}	// end "else if (fileInfoPtr->numberBytes == 2)"
 	#endif
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 				//	 This loop will draw the image lines for one byte data
 
 		if (fileInfoPtr->numberBytes == 1) 
@@ -5434,14 +5357,14 @@ void Display1Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display2Channel8BitLine
 //
 //	Software purpose:	The purpose of this routine is to copy the input
-//							line of data to the offscreen buffer for a 3-channel
+//							line of data to the offscreen buffer for a 2-channel
 //							color image.
 //
 //	Parameters in:					
@@ -5450,7 +5373,7 @@ void Display1Channel8BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
 //	Revised By:			Larry L. Biehl			Date: 12/12/2018
@@ -5468,6 +5391,7 @@ void Display2Channel8BitLine (
 				UInt32								maxValue1,
 				UInt32								maxValue2,
 				HUCharPtr							offScreenPtr)
+
 {
 				UInt32								backgroundValue,
 														dataValue,
@@ -5493,7 +5417,7 @@ void Display2Channel8BitLine (
 			{
 			if (backgroundValueCode == 1)
 				*offScreenPtr = 255;
-			else // backgroundValueCode == 2 
+			else	// backgroundValueCode == 2 
 				*offScreenPtr = 0;
 
 			}	// end "if (backgroundValueCode && !backgroundValue)"
@@ -5502,71 +5426,12 @@ void Display2Channel8BitLine (
 
 		}	// end "for (j=0; ..."  
 
-	/*	
-	if (fileInfoPtr->numberBytes == 1)
-		{	
-		for (j=0; j<numberSamples; j+=interval)
-			{
-			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
-						(UInt32)ioBuffer1Ptr->data.onebyte[j] : 
-															(UInt32)ioBuffer1Ptr->data.twobyte[j];
-			if (dataValue > maxValue1)  
-				dataValue = backgroundValue = 0;
-			*offScreenPtr = dataDisplay1Ptr[dataValue];
-
-			dataValue = (bytesEqualOneFlag2) ?
-						(UInt32)ioBuffer2Ptr->data.onebyte[j] : 
-															(UInt32)ioBuffer2Ptr->data.twobyte[j];
-			if (dataValue > maxValue2)  
-				dataValue = 0;
-			backgroundValue += dataValue;
-			*offScreenPtr += dataDisplay2Ptr[dataValue];
-
-			if (useBackgroundValueFlag && !backgroundValue) 
-			*offScreenPtr = 0;
-
-			offScreenPtr++;
-
-			}	// end "for (j=0; ..."  
-
-		}	// end "if (fileInfoPtr->numberBytes == 1)"
-
-	else if (fileInfoPtr->numberBytes == 2)
-		{	
-		HUInt16Ptr ioBuffer2Ptr = (HUInt16Ptr)ioBuffer1Ptr;
-
-		for (j=0; j<numberSamples; j+=interval)
-			{
-			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
-						(UInt32)ioBuffer1Ptr->data.onebyte[j] : 
-															(UInt32)ioBuffer1Ptr->data.twobyte[j];
-			if (dataValue > maxValue1)  
-					dataValue = backgroundValue = 0;
-			*offScreenPtr = dataDisplay1Ptr[dataValue];
-
-			dataValue = (bytesEqualOneFlag2) ?
-						(UInt32)ioBuffer2Ptr->data.onebyte[j] : 
-															(UInt32)ioBuffer2Ptr->data.twobyte[j];
-			if (dataValue > maxValue2)  
-					dataValue = 0;
-			backgroundValue += dataValue;
-			*offScreenPtr += dataDisplay2Ptr[dataValue];
-
-			if (useBackgroundValueFlag && !backgroundValue) 
-				*offScreenPtr = 0;
-
-			offScreenPtr++;
-
-			}	// end "for (j=0; ..."  
-
-		}	// end "else if (fileInfoPtr->numberBytes == 2)"
-	*/
 }	// end "Display2Channel8BitLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5582,7 +5447,7 @@ void Display2Channel8BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
 //	Revised By:			Larry L. Biehl			Date: 10/24/2009
@@ -5604,6 +5469,7 @@ void Display3Channel8BitLine (
 				UInt32								maxValue2,
 				UInt32								maxValue3,
 				HUCharPtr							offScreenPtr)
+
 {
 	UInt32								backgroundValue,
 											dataValue,
@@ -5659,7 +5525,7 @@ void Display3Channel8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5682,6 +5548,7 @@ void Display3Channel8BitLine (
 void DoNextDisplayChannelEvent (
             WindowPtr                     window,
             char                          theChar)
+
 {
    DisplaySpecsPtr               displaySpecsPtr;
 
@@ -5719,9 +5586,9 @@ void DoNextDisplayChannelEvent (
 				#if defined multispec_mac || defined multispec_mac_swift
                if (theChar == kLeftArrowCharCode)
 				#endif	// defined multispec_mac || defined multispec_mac_swift
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
                if (theChar == 0X25)
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
                {
                if (displaySpecsPtr->channelNumber > 1)
                   {
@@ -5735,9 +5602,9 @@ void DoNextDisplayChannelEvent (
 				#if defined multispec_mac || defined multispec_mac_swift
                else if (theChar == kRightArrowCharCode)
 				#endif	// defined multispec_mac || defined multispec_mac_swift
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
                else if (theChar == 0X27)
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
                   {
                   if (displaySpecsPtr->channelNumber < (SInt16)totalNumberChannels)
                      {
@@ -5765,18 +5632,18 @@ void DoNextDisplayChannelEvent (
                #if defined multispec_win
                   shiftKeyFlag = (GetKeyState (VK_SHIFT) & 0x8000);
                #endif	// defined multispec_win
-               #if defined multispec_lin
+               #if defined multispec_wx
                   shiftKeyFlag = wxGetKeyState (WXK_SHIFT);
-               #endif	// defined multispec_lin
+               #endif	// defined multispec_wx
 
                if (shiftKeyFlag)
                   {
 						#if defined multispec_mac || defined multispec_mac_swift
                      if (theChar == kUpArrowCharCode)
 						#endif	// defined multispec_mac || defined multispec_mac_swift
-						#if defined multispec_win || defined multispec_lin
+						#if defined multispec_win || defined multispec_wx
                      if (theChar == 0X26)
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
                         {
                         if (displaySpecsPtr->channelNumber < 
 																			(SInt16)totalNumberChannels)
@@ -5813,9 +5680,9 @@ void DoNextDisplayChannelEvent (
                   menuData = (kProcessorMenuID << 16) + kDisplaysMItem;
                   Menus (menuData);
 					#endif	// defined multispec_mac
-					#if defined multispec_win || defined multispec_lin
+					#if defined multispec_win || defined multispec_wx
                   DisplayImage ();
-					#endif	// defined multispec_win || defined multispec_lin
+					#endif	// defined multispec_win || defined multispec_wx
 
                gCallProcessorDialogFlag = TRUE;
                gOutputForce1CodeSetting = 0x0001;
@@ -5834,7 +5701,7 @@ void DoNextDisplayChannelEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5858,6 +5725,7 @@ void DoNextDisplayChannelEvent (
 PascalVoid DrawBitsColorPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.									
 
@@ -5874,7 +5742,7 @@ PascalVoid DrawBitsColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5898,6 +5766,7 @@ PascalVoid DrawBitsColorPopUp (
 PascalVoid DrawDisplayTypePopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 
 			// Use the generic pop up drawing routine.									
@@ -5908,14 +5777,14 @@ PascalVoid DrawDisplayTypePopUp (
 								gDisplayTypeMenuSelection, 
 								TRUE);
 
-} // end "DrawDisplayTypePopUp" 
+}	// end "DrawDisplayTypePopUp" 
 #endif	// defined multispec_mac	
 
 
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5956,7 +5825,7 @@ PascalVoid DrawEnhancementPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5980,6 +5849,7 @@ PascalVoid DrawEnhancementPopUp (
 PascalVoid DrawMinMaxPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.									
 
@@ -5996,7 +5866,7 @@ PascalVoid DrawMinMaxPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6020,6 +5890,7 @@ PascalVoid DrawMinMaxPopUp (
 PascalVoid DrawStretchPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.									
 
@@ -6036,7 +5907,7 @@ PascalVoid DrawStretchPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6060,6 +5931,7 @@ PascalVoid DrawStretchPopUp (
 PascalVoid DrawZeroAsPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 			// Use the generic pop up drawing routine.									
 
@@ -6069,14 +5941,14 @@ PascalVoid DrawZeroAsPopUp (
 								gEnhanceZeroAsSelection, 
 								TRUE);
 
-} // end "DrawZeroAsPopUp" 
+}	// end "DrawZeroAsPopUp" 
 #endif	// defined multispec_mac	
 
 
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6176,7 +6048,7 @@ SInt16 EnhancementPopUpMenu (
 		HiliteControl ((ControlHandle)okHandle, 255);								
 
 		SInt16 itemNumber = 32;
-		if (displayType <= 2)		
+		if (displayType <= k1_ChannelGrayLevelDisplayType)
 			itemNumber = 31;
 
 		channels[0] = (SInt16)GetDItemValue (dialogPtr, itemNumber);
@@ -6211,7 +6083,7 @@ SInt16 EnhancementPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6229,7 +6101,7 @@ SInt16 EnhancementPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/2001
-//	Revised By:			Larry L. Biehl			Date: 10/21/2006
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 SInt16 EnhanceMinMaxPopUpMenu (
 				DialogPtr							dialogPtr,
@@ -6241,6 +6113,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 				SInt16								minMaxSelection,
 				double*								minMaxValuesPtr,
 				SInt16*								percentTailsClippedPtr)
+
 {
 	SInt16								channels[3],
 											itemHit,
@@ -6255,7 +6128,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 	if (gAppearanceManagerFlag)
 	  itemHit = GetDItemValue (dialogPtr, dialogItem);
 
-	else // !gAppearanceManagerFlag)
+	else	// !gAppearanceManagerFlag)
 	  itemHit = StandardPopUpMenu (dialogPtr,
 												dialogItem - 1,
 												dialogItem,
@@ -6291,7 +6164,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 		HiliteControl ((ControlHandle)okHandle, 255);
 
 		SInt16 itemNumber = 34;
-		if (displayType <= 2)
+		if (displayType <= k1_ChannelGrayLevelDisplayType)
 			itemNumber = 33;
 
 		channels[0] = (SInt16)GetDItemValue (dialogPtr, itemNumber);
@@ -6338,7 +6211,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6370,10 +6243,10 @@ SInt16 EnhanceMinMaxPopUpMenu (
 // Value Returned:  	True if vector loaded okay.
 //							False if vector did not load okay.
 //
-// Called By:			DisplayImage in display.c
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	07/03/1990
-//	Revised By:			Larry L. Biehl			Date: 10/26/2006
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 Boolean EqualAreaDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6382,6 +6255,7 @@ Boolean EqualAreaDataToDisplayLevels (
 				UInt32								dataDisplayVectorLength,
 				SInt16								numberChannels,
 				UInt16*								channelsPtr)
+
 {
 	double								displayAreaInterval,
 											floatMultiplier,
@@ -6461,7 +6335,7 @@ Boolean EqualAreaDataToDisplayLevels (
 				if (displaySpecsPtr->pixelSize == 16)
 					highValue = 31;
 
-				else // displaySpecsPtr->pixelSize >= 24
+				else	// displaySpecsPtr->pixelSize >= 24
 					highValue = 255;
 
 				floatMultiplier = (double)highValue / (double)(numberLevels - 1);
@@ -6473,7 +6347,7 @@ Boolean EqualAreaDataToDisplayLevels (
 				if (displaySpecsPtr->pixelSize == 16)
 					initialValue = 15;
 
-				else // displaySpecsPtr->pixelSize >= 24
+				else	// displaySpecsPtr->pixelSize >= 24
 					initialValue = 127;
 
 				highValue = initialValue;
@@ -6525,8 +6399,9 @@ Boolean EqualAreaDataToDisplayLevels (
 					// Set the multiplier for this channel to be used to determine 
 					// the look up table for the data values to color value table.	
 
-			if (displaySpecsPtr->displayType != 7 && channel > 0 &&
-																		displaySpecsPtr->pixelSize <= 8)
+			if (displaySpecsPtr->displayType != kSideSideChannelDisplayType &&
+								channel > 0 &&
+											displaySpecsPtr->pixelSize <= 8)
 				rgbMultiplier *= numberLevels;
 
 					// Get the number of pixels within the requested range.			
@@ -6557,7 +6432,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 				}	// end "if (...->displayType == k1_ChannelThematicDisplayType)"
 
-			else // displaySpecsPtr->displayType != k1_ChannelThematicDisplayType
+			else	// displaySpecsPtr->displayType != k1_ChannelThematicDisplayType
 				 displayAreaInterval = (double)totalPixels / numberLevels;
 
 					// Initialize the begin display level.  The first level in the	
@@ -6667,7 +6542,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 				}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
-			else // displaySpecsPtr->pixelSize > 8 
+			else	// displaySpecsPtr->pixelSize > 8 
 				{
 						// These "displayValues" need to range between 0 to 31 for 16-bit
 						// color display and 0 to 255 for 24 bit color display. Missing 
@@ -6714,7 +6589,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 			if (displaySpecsPtr->pixelSize <= 8) 
 				{
-				if (displaySpecsPtr->displayType != 7)
+				if (displaySpecsPtr->displayType != kSideSideChannelDisplayType)
 					rgbOffset = 0;
 
 				initialValue = rgbOffset;
@@ -6740,7 +6615,7 @@ Boolean EqualAreaDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6782,10 +6657,10 @@ Boolean EqualAreaDataToDisplayLevels (
 //
 // Value Returned:  	None
 //
-// Called By:			DisplayImage in display.c
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	04/21/1988
-//	Revised By:			Larry L. Biehl			Date: 05/02/2013
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 Boolean FillDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6794,6 +6669,7 @@ Boolean FillDataToDisplayLevels (
 				UInt32								dataDisplayVectorLength,
 				SInt16								numberChannels,
 				UInt16*								channelsPtr)
+
 {
 	double								floatDisplayLevel,
 											floatMultiplier,
@@ -6858,7 +6734,7 @@ Boolean FillDataToDisplayLevels (
 
 		}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
-	else // displaySpecsPtr->pixelSize > 8 
+	else	// displaySpecsPtr->pixelSize > 8 
 		{
 		//rgbOffset = 0;
 
@@ -6867,12 +6743,12 @@ Boolean FillDataToDisplayLevels (
 			if (displaySpecsPtr->pixelSize == 16)
 				floatMultiplier = 31. / (double)(numberLevels - 1);
 
-			else // displaySpecsPtr->pixelSize >= 24
+			else	// displaySpecsPtr->pixelSize >= 24
 				floatMultiplier = 255. / (double)(numberLevels - 1);
 
 			}	// end "if (numberLevels > 1)"
 
-		else // numberLevels == 1
+		else	// numberLevels == 1
 			floatMultiplier = 1;
 
 		}	// end "else displaySpecsPtr->pixelSize > 8 "
@@ -6892,7 +6768,7 @@ Boolean FillDataToDisplayLevels (
 			{
 			if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 				invertValueIndex = 2;
-			else // displaySpecsPtr->displayType != kSideSideChannelDisplayType
+			else	// displaySpecsPtr->displayType != kSideSideChannelDisplayType
 				invertValueIndex = displaySpecsPtr->minMaxPointers[channel];
 
 			invertValuesFlag = displaySpecsPtr->invertValuesFlag[invertValueIndex];
@@ -6908,7 +6784,7 @@ Boolean FillDataToDisplayLevels (
 
 			}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
-		else // displaySpecsPtr->pixelSize > 8
+		else	// displaySpecsPtr->pixelSize > 8
 			{
 			if (numberLevels > 1)
 				{
@@ -6951,8 +6827,9 @@ Boolean FillDataToDisplayLevels (
 				// Set the multiplier for this channel to be used to determine
 				// the look up table for the data values to color value table.
 
-		if (displaySpecsPtr->displayType != 7 && channel > 0 &&
-															displaySpecsPtr->pixelSize <= 8)
+		if (displaySpecsPtr->displayType != kSideSideChannelDisplayType &&
+								channel > 0 &&
+												displaySpecsPtr->pixelSize <= 8)
 			rgbMultiplier *= numberLevels;
 
 				// Initialize the begin display level.  The first level in the
@@ -7082,7 +6959,7 @@ Boolean FillDataToDisplayLevels (
 
 				}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
-			else // displaySpecsPtr->pixelSize > 8
+			else	// displaySpecsPtr->pixelSize > 8
 				{
 				if (minBinIndex == maxBinIndex)
 					{
@@ -7196,7 +7073,7 @@ Boolean FillDataToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7211,7 +7088,8 @@ Boolean FillDataToDisplayLevels (
 //
 // Value Returned:	None
 //
-// Called By:			in controls.c
+// Called By:			OnEnhancementComboSelendok in xDisplayMultispectralDialog.cpp
+//							DisplayMultispectralDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/06/2003
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
@@ -7327,7 +7205,7 @@ Boolean GaussianParameterDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
 		CMGaussianParameterDlg* dialogPtr = NULL;
 
 		try 
@@ -7343,7 +7221,7 @@ Boolean GaussianParameterDialog (
 			{
 			MemoryMessage (0, kObjectMessage);
 			}
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 
 	return (continueFlag);
 
@@ -7352,7 +7230,7 @@ Boolean GaussianParameterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7384,10 +7262,10 @@ Boolean GaussianParameterDialog (
 // Value Returned:  	True if vector loaded okay.
 //							False if vector did not load okay.
 //
-// Called By:			DisplayImage in display.c
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	05/02/2003
-//	Revised By:			Larry L. Biehl			Date: 10/26/2006
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 Boolean GaussianToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7396,6 +7274,7 @@ Boolean GaussianToDisplayLevels (
 				UInt32								dataDisplayVectorLength,
 				SInt16								numberChannels,
 				UInt16*								channelsPtr)
+
 {
 	double								constant1,
 											constant2,
@@ -7479,7 +7358,7 @@ Boolean GaussianToDisplayLevels (
 				if (displaySpecsPtr->pixelSize == 16)
 					highValue = 31;
 
-				else // displaySpecsPtr->pixelSize >= 24
+				else	// displaySpecsPtr->pixelSize >= 24
 					highValue = 255;
 
 				floatMultiplier = (double)highValue / (double)(numberLevels - 1);
@@ -7491,7 +7370,7 @@ Boolean GaussianToDisplayLevels (
 				if (displaySpecsPtr->pixelSize == 16)
 					initialValue = 15;
 
-				else // displaySpecsPtr->pixelSize >= 24
+				else	// displaySpecsPtr->pixelSize >= 24
 					initialValue = 127;
 
 				highValue = initialValue;
@@ -7607,16 +7486,15 @@ Boolean GaussianToDisplayLevels (
 											  (UInt16)numberLevels,
 											  &minValueIndex,
 											  &maxValueIndex,
-											  //&classForMinThematicValue,
-											  //&classForMaxThematicValue,
 											  &classForMinDataValue,
 											  &classForMaxDataValue);
 
 					// Set the multiplier for this channel to be used to determine 
 					// the look up table for the data values to color value table.	
 
-			if (displaySpecsPtr->displayType != 7 && channel > 0 &&
-																		displaySpecsPtr->pixelSize <= 8)
+			if (displaySpecsPtr->displayType != kSideSideChannelDisplayType &&
+									channel > 0 &&
+												displaySpecsPtr->pixelSize <= 8)
 				rgbMultiplier *= numberLevels;
 
 					// Get the number of pixels within the requested range.			
@@ -7649,7 +7527,7 @@ Boolean GaussianToDisplayLevels (
 
 			if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 				invertValueIndex = 2;
-			else // displaySpecsPtr->displayType != kSideSideChannelDisplayType
+			else	// displaySpecsPtr->displayType != kSideSideChannelDisplayType
 				invertValueIndex = displaySpecsPtr->minMaxPointers[channel];
 
 					// Note that inverted data value for thematic type windows are
@@ -7913,7 +7791,7 @@ Boolean GaussianToDisplayLevels (
 
 			if (displaySpecsPtr->pixelSize <= 8) 
 				{
-				if (displaySpecsPtr->displayType != 7)
+				if (displaySpecsPtr->displayType != kSideSideChannelDisplayType)
 					rgbOffset = 0;
 
 				initialValue = rgbOffset;
@@ -7943,7 +7821,7 @@ Boolean GaussianToDisplayLevels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7960,7 +7838,7 @@ Boolean GaussianToDisplayLevels (
 //
 // Value Returned:	None		
 // 
-// Called By:			DisplayMultispectralDialog in displayMultispectral.c
+// Called By:			DisplayMultispectralDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/1988
 //	Revised By:			Larry L. Biehl			Date: 09/24/1993	
@@ -7971,6 +7849,7 @@ void GetDefaultPaletteSpecs (
 				SInt16								numberChannels,
 				UInt16*								newDisplayTypePtr,
 				SInt16*								maxSystemPixelSizePtr)
+
 {
 	SInt16								newImagePixelSize;
 
@@ -8001,7 +7880,7 @@ void GetDefaultPaletteSpecs (
 			if (gOSXFlag && !gOSXCoreGraphicsFlag)
 				newImagePixelSize = 16;
 
-			else // !gOSXFlag || gOSXCoreGraphicsFlag 
+			else	// !gOSXFlag || gOSXCoreGraphicsFlag 
 				newImagePixelSize = 8;
 
 			}	// end "if (numberChannels == 1 && newImagePixelSize > 8)"
@@ -8027,7 +7906,7 @@ void GetDefaultPaletteSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8050,6 +7929,7 @@ void GetDefaultPaletteSpecs (
 
 SInt16 GetHistogramComputeCode (
 				DisplaySpecsPtr					displaySpecsPtr)
+
 {
 	HistogramSpecsPtr					histogramSpecsPtr;
 
@@ -8096,7 +7976,7 @@ SInt16 GetHistogramComputeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8121,6 +8001,7 @@ Boolean GetHistogramRequiredFlag (
 				SInt16								displayType,
 				SInt16								enhanceStretchSelection,
 				SInt16								lMinMaxCode)
+
 {
 	Boolean								histogramRequiredFlag;
 
@@ -8138,7 +8019,7 @@ Boolean GetHistogramRequiredFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8190,7 +8071,7 @@ SInt16 GetMinMaxPopupCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8223,10 +8104,9 @@ void GetMinMaxValuesIndices (
 				UInt16								numberClasses,
 				SInt32*								minBinIndexPtr,
 				SInt32*								maxBinIndexPtr,
-				//SInt16*								classForMinThematicValuePtr,
-				//SInt16*								classForMaxThematicValuePtr,
 				SInt16*								classForMinDataValuePtr,
 				SInt16*								classForMaxDataValuePtr)
+
 {
 	double								maxThematicValue,
 											minThematicValue;
@@ -8240,9 +8120,6 @@ void GetMinMaxValuesIndices (
 	minThematicValue = 0;
 	maxThematicValue = 0;
 
-	//*classForMinThematicValuePtr = 0;
-	//*classForMaxThematicValuePtr = 0;
-
 	*classForMinDataValuePtr = 0;
 	*classForMaxDataValuePtr = 0;
 
@@ -8251,7 +8128,6 @@ void GetMinMaxValuesIndices (
 	if (displaySpecsPtr->minMaxCode == kEntireDataRange) 
 		{
 		minBinIndex = 0;
-		//maxBinIndex = numberBins - 1;
 		maxBinIndex = histogramSummaryPtr->numberBins - 1;
 
 		}	// end "if (displaySpecsPtr->minMaxCode == kEntireDataRange)" 
@@ -8417,7 +8293,7 @@ void GetMinMaxValuesIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8445,6 +8321,7 @@ SInt16 GetThematicClassForDataValue (
 				double								minThematicRange,
 				double								maxThematicRange,
 				SInt16								numberThematicClasses)
+
 {
 	double								thematicClassBinMaximum,
 											thematicClassDataBinWidth;
@@ -8497,12 +8374,12 @@ SInt16 GetThematicClassForDataValue (
 
 	return (classNumber);
 
-} // end "GetThematicClassForDataValue"
+}	// end "GetThematicClassForDataValue"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8530,6 +8407,7 @@ void GetThematicTypeMinMaxIndices (
 				double*								maxThematicValuePtr,
 				SInt32*								minValueIndexPtr,
 				SInt32*								maxValueIndexPtr)
+
 {
 	double								//maxThematicValue,
 											maxThematicValueWithSignedOffset,
@@ -8595,7 +8473,7 @@ void GetThematicTypeMinMaxIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8638,14 +8516,15 @@ void GetThematicTypeMinMaxIndices (
 // Value Returned:  	True if vector loaded okay.
 //							False if vector was not loaded.
 //
-// Called By:			DisplayImage in display.c
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/21/1988
-//	Revised By:			Larry L. Biehl			Date: 10/21/2006
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 Boolean HistogramVector (
 				DisplaySpecsPtr					displaySpecsPtr,
 				HistogramSpecsPtr					histogramSpecsPtr)
+
 {
 	Boolean								continueFlag,
 											redoFlag,
@@ -8682,19 +8561,20 @@ Boolean HistogramVector (
 
 	channelsPtr = (UInt16*)GetHandlePointer (displaySpecsPtr->channelsHandle);
 
-	if (displaySpecsPtr->displayType != 7)
+	if (displaySpecsPtr->displayType != kSideSideChannelDisplayType)
 		channelsPtr = channelNumber;
 
 	histogramDisplayType = displaySpecsPtr->displayType;
-	if (displaySpecsPtr->pixelSize > 8 && displaySpecsPtr->displayType == 5)
-		histogramDisplayType = 3;
+	if (displaySpecsPtr->pixelSize > 8 &&
+							displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
+		histogramDisplayType = k3_ChannelDisplayType;
 
 			// Initialize channels to be used for setting up display vector		
 
 	switch (histogramDisplayType) 
 		{
-		case 1: // 1-channel thematic display 
-		case 2: // 1-channel gray level 
+		case k1_ChannelThematicDisplayType: // 1-channel thematic display
+		case k1_ChannelGrayLevelDisplayType: // 1-channel gray level
 			numberChannels = 1;
 			channelNumber[0] = displaySpecsPtr->channelNumber - 1;
 			channelNumber[1] = 0;
@@ -8702,7 +8582,7 @@ Boolean HistogramVector (
 			displaySpecsPtr->minMaxPointers[0] = 2;
 			break;
 
-		case 3: // 3-channel display 
+		case k3_ChannelDisplayType: // 3-channel display
 			numberChannels = 3;
 			channelNumber[0] = displaySpecsPtr->blueChannelNumber - 1;
 			channelNumber[1] = displaySpecsPtr->greenChannelNumber - 1;
@@ -8712,8 +8592,8 @@ Boolean HistogramVector (
 			displaySpecsPtr->minMaxPointers[2] = 2;
 			break;
 
-		case 4: // 2-channel display 
-		case 5: // 3-channel display with 2 channels repeated. 
+		//case 4: // 2-channel display
+		case k3_2_ChannelDisplayType: // 3-channel display with 2 channels repeated.
 			numberChannels = 2;
 			channelNumber[0] = 0;
 			channelNumber[1] = 0;
@@ -8744,7 +8624,7 @@ Boolean HistogramVector (
 			channelNumber[2] = 0;
 			break;
 
-		case 7: // Channels side by side. 
+		case kSideSideChannelDisplayType: // Channels side by side.
 			numberChannels = 1;
 			channelNumber[0] = *channelsPtr;
 			channelNumber[1] = 0;
@@ -8773,7 +8653,7 @@ Boolean HistogramVector (
 			redoFlag = TRUE;
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		else if (gToDisplayLevels.window != gActiveImageViewCPtr)
 			redoFlag = TRUE;
 	#endif	// defined multispec_win
@@ -8812,7 +8692,7 @@ Boolean HistogramVector (
 	numberValues = 256;
 	if (gImageWindowInfoPtr->numberBytes == 2)
 		numberValues = gImageWindowInfoPtr->numberBins;
-	else // gImageWindowInfoPtr->numberBytes > 2
+	else	// gImageWindowInfoPtr->numberBytes > 2
 		numberValues = histogramSpecsPtr->maxNumberBins;
 
 	vectorBytes = (SInt32)numberChannels * numberValues;
@@ -8910,9 +8790,9 @@ Boolean HistogramVector (
 					gToDisplayLevels.window = gActiveImageWindow;
 				#endif	// defined multispec_mac
 
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					gToDisplayLevels.window = gActiveImageViewCPtr;
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
 
 				gToDisplayLevels.numberLevels = displaySpecsPtr->numberLevels;
 				gToDisplayLevels.numberBytes = gImageWindowInfoPtr->numberBytes;
@@ -8951,7 +8831,7 @@ Boolean HistogramVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8972,9 +8852,10 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 04/04/2019
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
+
 {
    LongRect                      longRect;
 
@@ -9051,7 +8932,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
 				// Get pointer to palette class with space for 256 entries.
 
-		#if defined multispec_win // || defined multispec_lin
+		#if defined multispec_win // || defined multispec_wx
          if (displaySpecsPtr->paletteObject == NULL)
             displaySpecsPtr->paletteObject = new CMPalette;
 
@@ -9061,7 +8942,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 																							return (NULL);
 
             }	// end "if (displaySpecsPtr->paletteObject == NULL)"
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 
 				// Set initial palette type setting.
 				// This will be use for 1-channel thematic type display
@@ -9093,7 +8974,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
          displaySpecsPtr->greenChannelNumber = 1;
          displaySpecsPtr->redChannelNumber = 1;
 
-         displaySpecsPtr->displayType = 2;
+         displaySpecsPtr->displayType = k1_ChannelGrayLevelDisplayType;
 
          }	// end "if (windowInfoPtr->totalNumberChannels == 1)"
 
@@ -9103,7 +8984,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
          displaySpecsPtr->greenChannelNumber = 1;
          displaySpecsPtr->redChannelNumber = 2;
 
-         displaySpecsPtr->displayType = 5;
+         displaySpecsPtr->displayType = k3_2_ChannelDisplayType;
 
          displaySpecsPtr->rgbColors = kRGColor;
 
@@ -9121,7 +9002,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             displaySpecsPtr->greenChannelNumber = 2;
             displaySpecsPtr->redChannelNumber = 1;
 
-            displaySpecsPtr->displayType = 3;
+            displaySpecsPtr->displayType = k3_ChannelDisplayType;
             displaySpecsPtr->rgbColors = kRGBColor;
 
             }	// end "else if (gImageFileInfoPtr->format == kTIFFType ..."
@@ -9131,7 +9012,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             displaySpecsPtr->blueChannelNumber = 2;
             displaySpecsPtr->greenChannelNumber = 2;
             displaySpecsPtr->redChannelNumber = 3;
-            displaySpecsPtr->displayType = 5;
+            displaySpecsPtr->displayType = k3_2_ChannelDisplayType;
             displaySpecsPtr->rgbColors = kRGColor;
 
             if (displaySpecsPtr->pixelSize >= 16)
@@ -9139,7 +9020,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->blueChannelNumber = 1;
                displaySpecsPtr->greenChannelNumber = 2;
                displaySpecsPtr->redChannelNumber = 3;
-               displaySpecsPtr->displayType = 3;
+               displaySpecsPtr->displayType = k3_ChannelDisplayType;
                displaySpecsPtr->rgbColors = kRGBColor;
 
                }	// end "if (displaySpecsPtr->pixelSize >= 16)"
@@ -9157,19 +9038,19 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 			displaySpecsPtr->greenChannelNumber = 2;
 			displaySpecsPtr->redChannelNumber = 1;
 
-			displaySpecsPtr->displayType = 3;
+			displaySpecsPtr->displayType = k3_ChannelDisplayType;
 			displaySpecsPtr->rgbColors = kRGBColor;
 
 			}	// end "else if (gImageFileInfoPtr->format == kTIFFType ..."
 
       else	// (gImageWindowInfoPtr->totalNumberChannels >= 4)
          {
-         displaySpecsPtr->displayType = 5;
+         displaySpecsPtr->displayType = k3_2_ChannelDisplayType;
          displaySpecsPtr->rgbColors = kRGColor;
 
          if (displaySpecsPtr->pixelSize >= 16)
             {
-            displaySpecsPtr->displayType = 3;
+            displaySpecsPtr->displayType = k3_ChannelDisplayType;
             displaySpecsPtr->rgbColors = kRGBColor;
 
             }	// end "if (displaySpecsPtr->pixelSize >= 16)"
@@ -9300,7 +9181,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
                }	// end "else if (gImageFileInfoPtr->instrumentCode == kPeruSat)
 
-            else // ...->instrumentCode != kSPOT && != kLandsatMSS != kSentinel2A_MSI
+            else	// ...->instrumentCode != kSPOT && != kLandsatMSS != kSentinel2A_MSI
                {
                if (gImageWindowInfoPtr->totalNumberChannels == 4)
                   {
@@ -9608,7 +9489,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
             }	// end "if (windowInfoPtr->totalNumberChannels == 136)"
 
-         else // gImageWindowInfoPtr->totalNumberChannels > 128 
+         else	// gImageWindowInfoPtr->totalNumberChannels > 128 
             {
                   // Assume AVIRIS Imaging Spectrometer data.
 
@@ -9621,24 +9502,16 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             }	// end "else ...->totalNumberChannels > 128" 
 
          }	// end "else gImageWindowInfoPtr->totalNumberChannels >= 4"
-      /*
-      if (displaySpecsPtr->pixelSize == 1)
-         {
-               // Display element is B&W pattern
-               // Color quick draw is not available; force display type to 	
-               // be a pattern.																
 
-         displaySpecsPtr->displayType = 1;
-         displaySpecsPtr->rgbColors = 8;
-
-         }	// end "if (displaySpecsPtr->pixelSize == 1)" 
-      */
             // Initialize pop up menu selections.
 
       displaySpecsPtr->displaySet = displaySpecsPtr->displayType;
-      if (displaySpecsPtr->displayType == 3 ||
-             displaySpecsPtr->displayType == 5)
-         displaySpecsPtr->displaySet = 6;
+      if (displaySpecsPtr->displayType == k3_ChannelDisplayType ||
+             displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
+         displaySpecsPtr->displaySet = k3_ChannelDisplayType;
+		
+		else if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
+         displaySpecsPtr->displaySet = kSideSideChannelDisplayType;
 
       displaySpecsPtr->enhancementCode = kLinearStretch;
 
@@ -9658,8 +9531,6 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
              gImageFileInfoPtr->numberBytes == 1 &&
              gImageFileInfoPtr->numberChannels <= 3)
          displaySpecsPtr->minMaxCode = kEntireDataRange;
-
-      //SInt32 signedValueOffset = gImageFileInfoPtr->signedValueOffset;
 
       displaySpecsPtr->minMaxValuesIndex[0][0] = 0;
       displaySpecsPtr->minMaxValuesIndex[0][1] =
@@ -9690,7 +9561,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 															gDisplaySpecsDefault.signedDataFlag &&
 					gImageWindowInfoPtr->channelsInWavelengthOrderCode ==
 										gDisplaySpecsDefault.channelsInWavelengthOrderCode &&
-					gImageWindowInfoPtr->totalNumberChannels == gDisplaySpecsDefault.numberChannels)
+					gImageWindowInfoPtr->totalNumberChannels ==
+																gDisplaySpecsDefault.numberChannels)
             {
             if (gDisplaySpecsDefault.lastDisplayType == k1_ChannelThematicDisplayType)
                {
@@ -9719,7 +9591,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
                }	// end "if (displaySpecsPtr->displayType == ..."
 
-            else if (gDisplaySpecsDefault.lastDisplayType == k1_ChannelGrayLevelDisplayType)
+            else if (gDisplaySpecsDefault.lastDisplayType ==
+																		k1_ChannelGrayLevelDisplayType)
                {
                displaySpecsPtr->numberLevels = gDisplaySpecsDefault.numberLevels;
                displaySpecsPtr->channelNumber = gDisplaySpecsDefault.channelNumber;
@@ -9740,8 +9613,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                }	// end "if (displaySpecsPtr->displayType == k1_ChannelGrayLevelDisplayType)"
 
             else if (gDisplaySpecsDefault.lastDisplayType == k3_ChannelDisplayType ||
-                     gDisplaySpecsDefault.lastDisplayType == k3_2_ChannelDisplayType ||
-                     gDisplaySpecsDefault.lastDisplayType == k2_ChannelDisplayType)
+                     gDisplaySpecsDefault.lastDisplayType == k3_2_ChannelDisplayType) // ||
+                     //gDisplaySpecsDefault.lastDisplayType == k2_ChannelDisplayType)
                {
                displaySpecsPtr->numberLevels = gDisplaySpecsDefault.numberLevels;
                displaySpecsPtr->redChannelNumber = 
@@ -9844,7 +9717,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9861,7 +9734,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 //
 // Value Returned:	None			
 // 
-// Called By:			EnhancementPopUpMenu in SDisMulc.cpp
+// Called By:			EnhancementPopUpMenu in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1993
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016	
@@ -9874,6 +9747,7 @@ Boolean MinMaxEnhancementDialog (
 				SInt16*								percentTailsClippedPtr,
 				SInt16*								minMaxSelectionPtr,
 				double*								minMaxValuesPtr)
+
 {
 	Boolean								returnFlag;
 
@@ -10108,7 +9982,7 @@ Boolean MinMaxEnhancementDialog (
 												(SInt32)*percentTailsClippedPtr, 
 												(Str255*)gTextString);
 
-						else // theNum <= 100 
+						else	// theNum <= 100 
 							{
 							if (*percentTailsClippedPtr != theNum && histogramAvailableFlag)
 								updateMinMaxFlag = TRUE;
@@ -10121,7 +9995,7 @@ Boolean MinMaxEnhancementDialog (
 							}	// end "else theNum <=> 100" 
 						break;
 
-					} // end "switch (itemHit)" 
+					}	// end "switch (itemHit)" 
 
 				if (checkValueFlag) 
 					{
@@ -10300,12 +10174,10 @@ Boolean MinMaxEnhancementDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win   
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMDisplayMinMaxDialog* dialogPtr = NULL;
 
-		//dialogPtr = new CMDisplayMinMaxDialog ((wxWindow*)gActiveImageViewCPtr->m_frame);
-		//dialogPtr = new CMDisplayMinMaxDialog ((wxWindow*)GetMainFrame ());
-      dialogPtr = new CMDisplayMinMaxDialog (NULL);
+		dialogPtr = new CMDisplayMinMaxDialog (NULL);
       
 		returnFlag = dialogPtr->DoDialog (channelsPtr,
 														rgbColors,
@@ -10325,7 +10197,7 @@ Boolean MinMaxEnhancementDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10340,10 +10212,10 @@ Boolean MinMaxEnhancementDialog (
 //
 // Value Returned:	None			
 // 
-// Called By:			MinMaxEnhancementDialog in SDisMulc.cpp
+// Called By:			MinMaxEnhancementDialog in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1993
-//	Revised By:			Larry L. Biehl			Date: 05/17/2011	
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void MinMaxEnhancementDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -10360,6 +10232,7 @@ void MinMaxEnhancementDialogInitialize (
 				SInt16*								localMinMaxCodePtr,
 				SInt16*								percentTailsClippedPtr,
 				Boolean*								histogramAvailableFlagPtr)
+
 {
 	HistogramSummaryPtr				histogramSummaryPtr;
 
@@ -10438,8 +10311,8 @@ void MinMaxEnhancementDialogInitialize (
 
 	switch (displayType) 
 		{
-		case 1: // 1 channel thematic display 
-		case 2: // 1 channel grey display 
+		case k1_ChannelThematicDisplayType: // 1 channel thematic display
+		case k1_ChannelGrayLevelDisplayType: // 1 channel grey display
 			LoadDItemStringNumber (kDialogStrID,
 										  IDS_Dialog30,
 										  dialogPtr,
@@ -10460,8 +10333,8 @@ void MinMaxEnhancementDialogInitialize (
 			channelsPtr[2] = -1;
 			break;
 
-		case 3: // 3 channel display 
-		case 4: // 2 channel display 
+		case k3_ChannelDisplayType: // 3 channel display
+		//case 4: // 2 channel display
 
 					// red channel number													
 
@@ -10515,7 +10388,7 @@ void MinMaxEnhancementDialogInitialize (
 				channelsPtr[2] = -1;
 			break;
 
-		case 7:
+		case kSideSideChannelDisplayType:
 			HideDialogItem (dialogPtr, IDC_TableTitle);
 			HideDialogItem (dialogPtr, IDC_UserSpecified);
 			channelsPtr[0] = -1;
@@ -10714,30 +10587,7 @@ void MinMaxEnhancementDialogOK (
 	minMaxValuesPtr[3] = greenMaxValue;
 	minMaxValuesPtr[4] = blueMinValue;
 	minMaxValuesPtr[5] = blueMaxValue;
-	/*
-	if (histogramSummaryPtr != NULL)			
-		{
-		minMaxValuesIndexPtr[0] = GetBinIndexForDataValue (
-											redMinValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[0]-1]);
-		minMaxValuesIndexPtr[1] = GetBinIndexForDataValue (
-											redMaxValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[0]-1]);
-		minMaxValuesIndexPtr[2] = GetBinIndexForDataValue (
-											greenMinValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[1]-1]);
-		minMaxValuesIndexPtr[3] = GetBinIndexForDataValue (
-											greenMaxValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[1]-1]);
-		minMaxValuesIndexPtr[4] = GetBinIndexForDataValue (
-											blueMinValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[2]-1]);
-		minMaxValuesIndexPtr[5] = GetBinIndexForDataValue (
-											blueMaxValue + gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channelsPtr[2]-1]);
 
-		}		// end "if (histogramSummaryPtr != NULL)"
-	*/
 	*minMaxSelectionPtr = localMinMaxCode;
 
 	*percentTailsClippedPtr = percentTailsClipped;
@@ -10753,6 +10603,7 @@ Boolean MinMaxEnhancementDialogOnMinMaxCode (
 				SInt16								percentTailsClipped,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				Boolean								histogramAvailableFlag)
+
 {
 	Boolean								updateMinMaxFlag = FALSE;
 
@@ -10824,6 +10675,7 @@ void MinMaxEnhancementDialogSetSelection (
 				DialogPtr							dialogPtr,
 				SInt16								lastMinMaxCode,
 				SInt16								newMinMaxCode)
+
 {
 	SInt16								selectedItem = 0;
 
@@ -10844,7 +10696,7 @@ void MinMaxEnhancementDialogSetSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10859,7 +10711,7 @@ void MinMaxEnhancementDialogSetSelection (
 //
 // Value Returned:	None				
 // 
-//	Called By:			DisplayMultispectralImage in displayMultispectral.c
+//	Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Ravi Budruk 			Date: 07/11/1988
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -10868,6 +10720,7 @@ void SetImageWTitle (
 				WindowPtr							theWindow,
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							fileInfoPtr)
+
 {
 	GetImageWindowName (displaySpecsPtr,
 								fileInfoPtr,
@@ -10890,10 +10743,8 @@ void SetImageWTitle (
 								&gTextString[0]);
 	#endif	// defined multispec_win	
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxString ntitle = wxString::FromUTF8 ((char*)&gTextString[1]);
-		//(gActiveImageViewCPtr->m_frame)->SetTitle (wxT("Test"));
-		//(gActiveImageViewCPtr->m_frame)->SetTitle (ntitle);
 		(theWindow->m_frame)->SetTitle (ntitle);
 	#endif
 
@@ -10902,7 +10753,7 @@ void SetImageWTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10918,15 +10769,16 @@ void SetImageWTitle (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayMultispectralImage in SDisMulc.cpp
+// Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2006
-//	Revised By:			Larry L. Biehl			Date: 06/29/2018
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 
 void SaveDisplayStructureSettings (
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							imageFileInfoPtr,
 				WindowInfoPtr						imageWindowInfoPtr)
+
 {
 			// Currently the settings saved are for thematic type displays.
 
@@ -10976,8 +10828,8 @@ void SaveDisplayStructureSettings (
 		}	// end "if (displaySpecsPtr->displayType == k1_ChannelGrayLevelDisplayType)"
 
 	else if (displaySpecsPtr->displayType == k3_ChannelDisplayType ||
-			displaySpecsPtr->displayType == k3_2_ChannelDisplayType ||
-			gDisplaySpecsDefault.lastDisplayType == k2_ChannelDisplayType) 
+				displaySpecsPtr->displayType == k3_2_ChannelDisplayType) // ||
+			//gDisplaySpecsDefault.lastDisplayType == k2_ChannelDisplayType)
 		{
 		gDisplaySpecsDefault.redChannelNumber = displaySpecsPtr->redChannelNumber;
 		gDisplaySpecsDefault.greenChannelNumber = displaySpecsPtr->greenChannelNumber;
@@ -10993,7 +10845,7 @@ void SaveDisplayStructureSettings (
 
 		}	// end "if (displaySpecsPtr->displayType == k3_ChannelDisplayType || ..."
 
-	else // 
+	else	// 
 		gDisplaySpecsDefault.structureLoadedFlag = FALSE;
 
 }	// end "SaveDisplayStructureSettings"
@@ -11001,7 +10853,7 @@ void SaveDisplayStructureSettings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11019,11 +10871,12 @@ void SaveDisplayStructureSettings (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2006
-//	Revised By:			Larry L. Biehl			Date: 01/29/2016
+//	Revised By:			Larry L. Biehl			Date: 01/03/2020
 
 void SetUpMinMaxPopUpMenu (
 				DialogPtr							dialogPtr,
 				SInt16								displayType)
+
 {
 	#if defined multispec_mac
 		EnableMenuItem (gPopUpMinMaxMenu, kPerChannelMinMaxNoClip);
@@ -11033,12 +10886,14 @@ void SetUpMinMaxPopUpMenu (
 
 		if (displayType == k1_ChannelThematicDisplayType)
 			EnableMenuItem (gPopUpMinMaxMenu, kThematicDefault);
-		else // displayType != k1_ChannelThematicDisplayType
+	
+		else	// displayType != k1_ChannelThematicDisplayType
 			DisableMenuItem (gPopUpMinMaxMenu, kThematicDefault);
 	#endif	// defined multispec_mac 
 
 	#if defined multispec_win
-		CComboBox* comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem (ID3C_MinMaxValues));
+		CComboBox* comboBoxPtr =
+								(CComboBox*)(dialogPtr->GetDlgItem (ID3C_MinMaxValues));
 
 		if (comboBoxPtr != NULL) 
 			{
@@ -11047,12 +10902,19 @@ void SetUpMinMaxPopUpMenu (
 			if (displayType == k1_ChannelThematicDisplayType)
 				comboBoxPtr->InsertString (4, (LPCTSTR)_T("Thematic Default"));
 
-			} // end "if (comboBoxPtr != NULL)"
+			}	// end "if (comboBoxPtr != NULL)"
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
-		wxComboBox* comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
-
+	#if defined multispec_wx
+		#if defined multispec_wxlin
+			wxComboBox* comboBoxPtr =
+								(wxComboBox*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
+		#endif
+		#if defined multispec_wxmac
+			wxChoice* comboBoxPtr =
+								(wxChoice*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
+		#endif
+	
 		if (comboBoxPtr != NULL) 
 			{
 			if (comboBoxPtr->GetCount () > 4)
@@ -11061,8 +10923,8 @@ void SetUpMinMaxPopUpMenu (
 			if (displayType == k1_ChannelThematicDisplayType)
 				comboBoxPtr->Insert (wxT("Thematic Default"), 4);
 
-			} // end "if (comboBoxPtr != NULL)"
-	#endif	// defined multispec_lin 
+			}	// end "if (comboBoxPtr != NULL)"
+	#endif	// defined multispec_wx 
 
 }	// end Routine "SetUpMinMaxPopUpMenu" 
 
@@ -11070,7 +10932,7 @@ void SetUpMinMaxPopUpMenu (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11097,6 +10959,7 @@ void UnSetDialogItemDrawRoutine (
 				UserItemUPP							userItemProcPtr,
 				SInt16								appearanceItemNumber,
 				MenuHandle							inputPopupMenuHandle)
+
 {
 	ControlHandle						theControl;
 	MenuHandle							nullPopupMenuHandle = NULL,
@@ -11136,7 +10999,7 @@ void UnSetDialogItemDrawRoutine (
 
 		}	// end "if (gAppearanceManagerFlag)"
 
-	else // !gAppearanceManagerFlag
+	else	// !gAppearanceManagerFlag
 		{
 		if (userItemProcPtr != NULL)
 			DisposeUserItemUPP (userItemProcPtr);
@@ -11149,7 +11012,7 @@ void UnSetDialogItemDrawRoutine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11167,18 +11030,16 @@ void UnSetDialogItemDrawRoutine (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/24/1993
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016	
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 
 void UpdateDialogChannelItems (
 				DialogPtr							dialogPtr,
 				//SInt16								displayTypeSelection,
 				SInt16								rgbColors,
 				SInt16								displayType)
+
 {
-	//SInt16								hiliteItem;
-
-
-			// text fields for channels to be displayed								
+			// text fields for channels to be displayed
 
 			// Side by side channel display.	
 	#if defined multispec_mac				
@@ -11195,7 +11056,8 @@ void UpdateDialogChannelItems (
 		else	// !gAppearanceManagerFlag)
 	#endif	// defined multispec_mac	
 	  
-	ShowHideDialogItem (dialogPtr, ID3C_Channels, (displayType == kSideSideChannelDisplayType));
+	ShowHideDialogItem (
+				dialogPtr, ID3C_Channels, (displayType == kSideSideChannelDisplayType));
 
 	switch (displayType) 
 		{
@@ -11231,7 +11093,7 @@ void UpdateDialogChannelItems (
 			HideDialogItem (dialogPtr, IDC_LegendFactor);
 			break;
 
-		case k2_ChannelDisplayType:
+		//case k2_ChannelDisplayType:
 		case k3_ChannelDisplayType:
 		case k3_2_ChannelDisplayType:
 			HideDialogItem (dialogPtr, ID3C_GrayChannel);
@@ -11280,28 +11142,13 @@ void UpdateDialogChannelItems (
 			// Set default text selection.
 
 	DisplayMultispectralDialogSetDefaultSelection (dialogPtr, rgbColors, displayType);
-	/*	
-	if (displayType == kSideSideChannelDisplayType)
-		hiliteItem = ID3C_LineStart;
 
-	else	// displayType != kSideSideChannelDisplayType 
-		{
-		hiliteItem = ID3C_GrayChannel;
-		if (rgbColors & 4)
-			hiliteItem = ID3C_RedChannel;
+}	// end "UpdateDialogChannelItems"
 
-		else if (rgbColors & 2)
-			hiliteItem = ID3C_GreenChannel;
-
-		}	// end "else displayType != kSideSideChannelDisplayType" 
-
-	SelectDialogItemText (dialogPtr, hiliteItem, 0, INT16_MAX);
-	*/
-}	// end "UpdateDialogChannelItems" 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11331,6 +11178,7 @@ void UpdateEnhancementMinMaxes (
 				double*								minMaxValuesPtr,
 				SInt16*								channelsPtr,
 				Boolean								updateUserSpecifiedFlag)
+
 {
 	double								blueMaxDataValue,
 											blueMinDataValue,
@@ -11505,10 +11353,6 @@ void UpdateEnhancementMinMaxes (
 
 			loadRedChannelLimitsFlag = TRUE;
 
-					// Indicate that any offset has been taken into account.
-
-			//signedValueOffset = 0;
-
 			}	// end "else if (localMinMaxCode == kThematicDefault)" 
 
 				// Min and max data values for Red Channel
@@ -11546,7 +11390,7 @@ void UpdateEnhancementMinMaxes (
 
 		}	// end "if (histogramSummaryPtr != NULL)"
 
-	else // histogramSummaryPtr == NULL 
+	else	// histogramSummaryPtr == NULL 
 		{
 		if (localMinMaxCode == kEntireDataRange) 
 			{
@@ -11654,7 +11498,7 @@ void UpdateEnhancementMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11682,6 +11526,7 @@ void UpdateMinMaxValueIndices (
 				SInt16								numberChannels,
 				UInt16*								channelsPtr,
 				SInt32								signedValueOffset)
+
 {
 	UInt32								index;
 
@@ -11737,7 +11582,7 @@ void UpdateMinMaxValueIndices (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11762,6 +11607,7 @@ void UpdateMinMaxValueIndices (
 void UpdatePopUpDisplayTypeMenu (
 				UInt16								totalNumberChannels,
 				SInt16								maxSystemPixelSize)
+
 {
 	#if defined multispec_mac
 		EnableMenuItem (gPopUpDisplayTypeMenu, 1);
@@ -11798,7 +11644,44 @@ void UpdatePopUpDisplayTypeMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 Update8_16_24BitsOfColorIndex
+//
+//	Software purpose:	The purpose of this routine is to update the bits of color index
+//							for the multispec image display.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None		
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 10/02/2006
+//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+
+SInt16 Update8_16_24BitsOfColorIndex (
+				SInt16 								menuBitsOfColorIndex)
+
+{
+    // Get index into 8, 16, 24 bits of color vector.
+
+    SInt16 bitsOfColorIndex = menuBitsOfColorIndex;
+    if (bitsOfColorIndex == 1)
+        bitsOfColorIndex = 2;
+
+    return (bitsOfColorIndex);
+
+}	// end "Update8_16_24BitsOfColorIndex"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11824,6 +11707,7 @@ void UpdateThematicTypeMinMaxes (
 				SInt16								channelNumber,
 				double*								minValuePtr,
 				double*								maxValuePtr)
+				
 {
 	double								classBinWidth,
 											difference,
@@ -11878,7 +11762,7 @@ void UpdateThematicTypeMinMaxes (
 
 				}	// end "if (numberClassBins <= 2)"
 
-			else // numberClassBins > 2
+			else	// numberClassBins > 2
 				{
 				classBinWidth = (histogramSummaryPtr->maxNonSatValue - minValue) / 
 																					(numberClassBins - 2);
@@ -11896,7 +11780,7 @@ void UpdateThematicTypeMinMaxes (
 				if (difference / maxValue < .15)
 					maxValue = newMaxValue;
 
-				else // ratio is > .15
+				else	// ratio is > .15
 					{
 							// Now try half of the power number ... .5, 5, 50, etc.
 
@@ -11905,7 +11789,7 @@ void UpdateThematicTypeMinMaxes (
 					if (difference / maxValue < .15)
 						maxValue = newMaxValue;
 
-					} // else "else ratio is > .15"
+					}	// else "else ratio is > .15"
 
 				classBinWidth = (maxValue - minValue) / (numberClassBins - 2);
 

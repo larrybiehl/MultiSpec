@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,17 +20,6 @@
 //	Brief description:	This file contains routines that outline training
 //								and/or test fields in the project image window.
 //
-//	Functions in file: 	void 					ForceFieldOutlineUpdate
-//								void 					OutlineClassFields
-//								void				 	OutlineField
-//								void 					OutlineFieldsControl
-//								void					OutlineFieldsInProjectBaseWindows
-//								void 					OutlineFieldsInProjectWindows
-//								void 					OutlineProjectFields
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 /*
 			int numberChars = sprintf ((char*)gTextString3,
 					" SOutlineFields: (): %d%s",
@@ -45,11 +34,9 @@
 	#include "WImageView.h"
 #endif	// defined multispec_win 
 
-#if defined multispec_lin   
-	#include "LImageView.h"
-#endif	// defined multispec_lin  
-
-//#include "SExtGlob.h" 
+#if defined multispec_wx   
+	#include "xImageView.h"
+#endif	// defined multispec_wx 
 
 
 
@@ -88,7 +75,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -158,7 +145,7 @@ void ForceFieldOutlineUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -200,7 +187,7 @@ double GetAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -244,7 +231,7 @@ double GetHalfAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -448,7 +435,8 @@ void GetPolygonLabelPoint (
 						
 					else	// labelPointIndex >= 0
 						{
-						if (fieldPointsPtr[pointIndex].line < fieldPointsPtr[sLabelPointIndex].line)
+						if (fieldPointsPtr[pointIndex].line <
+																fieldPointsPtr[sLabelPointIndex].line)
 							sLabelPointIndex = pointIndex;
 						
 						}	// end "else labelPointIndex >= 0"
@@ -471,8 +459,8 @@ void GetPolygonLabelPoint (
 		
 		}	// end "while (pointIndex <= endIndex)" 
 		
-			// We now have an upper left type of a vertex. Now adjust the label point down
-			// if the next point to the right is lower.
+			// We now have an upper left type of a vertex. Now adjust the label point
+			// down if the next point to the right is lower.
 	
 	if (pLabelPointIndex < 0)
 		pLabelPointIndex = sLabelPointIndex;
@@ -556,7 +544,7 @@ void GetPolygonLabelPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -572,13 +560,13 @@ void GetPolygonLabelPoint (
 //
 // Value Returned:	None
 // 
-// Called By:			UndoCutClass in editStatistics.c
-//							OpenProjectFile in project.c
-//							FieldListStatMode in statistics.c
-//							AddFieldToProject in statistics.c
-//							NewFieldStatMode in statistics.c
-//							ClassListStatMode in statistics.c
-//							StatisticsDialog in statistics.c
+// Called By:			UndoCutClass in SEditStatistics.cpp
+//							OpenProjectFile in SProject.cpp
+//							FieldListStatMode in SStatistics.cpp
+//							AddFieldToProject in SStatistics.cpp
+//							NewFieldStatMode in SStatistics.cpp
+//							ClassListStatMode in SStatistics.cpp
+//							StatisticsDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1990
 //	Revised By:			Larry L. Biehl			Date: 04/09/2019
@@ -624,14 +612,14 @@ void OutlineFieldsInProjectWindows (
 					InvalidateWindow (windowPtr, kImageArea, FALSE);
 				#endif	// defined multispec_win                        
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (clearFieldAreaFlag)
 						{
 						InvalidateWindow (windowPtr, kImageArea, FALSE);
                	//(windowPtr->m_Canvas)->Update ();
 						
                	}	// end "if (clearFieldAreaFlag)"
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 				      
 				}	// end "if (windowInfoPtr->projectWindowFlag)"
 				                  
@@ -647,7 +635,7 @@ void OutlineFieldsInProjectWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -662,7 +650,7 @@ void OutlineFieldsInProjectWindows (
 //
 // Value Returned:	None
 // 
-// Called By:			ChangeProjectBaseImage in project.c
+// Called By:			ChangeProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
 //	Revised By:			Larry L. Biehl			Date: 10/09/2015	
@@ -702,9 +690,9 @@ void OutlineFieldsInProjectBaseWindows (
 													1);
 				#endif	// defined multispec_mac 
 						             
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					InvalidateWindow (windowPtr, kImageArea, FALSE);
-				#endif	// defined multispec_win || defined multispec_lin                           
+				#endif	// defined multispec_win || defined multispec_wx                           
 				
 			windowListIndex++;
 			windowCount++;
@@ -718,7 +706,7 @@ void OutlineFieldsInProjectBaseWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -737,12 +725,12 @@ void OutlineFieldsInProjectBaseWindows (
 //
 // Value Returned:	None	
 // 
-// Called By:			CopyOffScreenImage in multiSpec.c
-//							PrintImageWindow in print.c
-//							DisplayMultispectralImage in SDisMult.cpp
-//							OutlineFieldsInProjectWindows in SOutFlds.cpp
-//							OutlineFieldsInProjectBaseWindows in SOutFlds.cpp
-//							ChangeProjectAssociatedImageItem in SProjUtl.cpp
+// Called By:			CopyOffScreenImage in xUtilities.cpp
+//							PrintImageWindow in MacOS routines
+//							DisplayMultispectralImage in SDisplayMultispectral.cpp
+//							OutlineFieldsInProjectWindows in SSelectionUtility.cpp
+//							OutlineFieldsInProjectBaseWindows in SOutlineFields.cpp
+//							ChangeProjectAssociatedImageItem in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
 //	Revised By:			Larry L. Biehl			Date: 04/11/2019
@@ -772,7 +760,7 @@ void OutlineFieldsControl (
 		PenState								penState; 
 	#endif	// defined multispec_mac       
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		double								xScale,
 												yScale;
 	
@@ -797,13 +785,13 @@ void OutlineFieldsControl (
 																								return; 
 	#endif	// defined multispec_mac                                   
 
-	#if defined multispec_lin		
+	#if defined multispec_wx		
 		if (gCDCPointer == NULL)
 																								return;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-								windowInfoHandle, &windowHandleStatus, kNoMoveHi);
+								windowInfoHandle, &windowHandleStatus);
 			
 	continueFlag = (windowInfoPtr != NULL); 
 	
@@ -827,7 +815,7 @@ void OutlineFieldsControl (
 				
 		outlineFieldType = gProjectInfoPtr->outlineFieldType;
 		if (outlineFieldType >= kTrainingType && outlineFieldType <= kBothFieldTypes &&
-												windowInfoPtr->projectWindowFlag)
+																	windowInfoPtr->projectWindowFlag)
 			{
 			classNumber = gProjectInfoPtr->currentClass;
 			fieldNumber = gProjectInfoPtr->currentField;
@@ -975,7 +963,7 @@ void OutlineFieldsControl (
 			
 	      if (continueFlag)
 	      	{
-				#if defined multispec_lin
+				#if defined multispec_wx
 					GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
 					if (gProjectInfoPtr->outlineColorCode == 1)
 						{
@@ -994,12 +982,15 @@ void OutlineFieldsControl (
 					gCDCPointer->SetPen (*overlayPenPtr);
 					gCDCPointer->SetBrush (*wxTRANSPARENT_BRUSH);
 				
-					wxFont font (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+					wxFont font (gFontSize,
+										wxFONTFAMILY_MODERN,
+										wxFONTSTYLE_NORMAL,
+										wxFONTWEIGHT_NORMAL);
 					gCDCPointer->SetFont (font);
 				
 					gCDCPointer->GetUserScale (&xScale, &yScale);
 					gCDCPointer->SetUserScale (1, 1);
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 						// Set the global variables needed to convert from 					
 						// line-column units to window units.										
@@ -1011,11 +1002,11 @@ void OutlineFieldsControl (
 														TRUE,
 														&lcToWindowUnitsVariables);		
 														
-				#ifdef multispec_lin
+				#ifdef multispec_wx
 							// Magnification is not need for linux. It is already take into
 							// account.
 					//lcToWindowUnitsVariables.magnification = 1;
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 						// Set parameters to properly copy offscreen to destination window.
 						
@@ -1095,7 +1086,7 @@ void OutlineFieldsControl (
 					gMFC_Rgn.DeleteObject ();              
 				#endif	// defined multispec_win
 			
-				#if defined multispec_lin
+				#if defined multispec_wx
 					gCDCPointer->SetUserScale (xScale, yScale);
 				#endif
 					
@@ -1115,13 +1106,13 @@ void OutlineFieldsControl (
 				
 			}	// end "if (outlineFieldMode >= kTrainingType && ...)"
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//displaydc.SelectObject (wxNullBitmap);
 			//gCDCPointer = oldgCDCpt;
          gCDCPointer->DestroyClippingRegion ();
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;      
-		#endif	// multispec_lin
+		#endif	// multispec_wx
 
 		}	// end "if (continueFlag)"
 		
@@ -1132,7 +1123,7 @@ void OutlineFieldsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1183,7 +1174,7 @@ void OutlineProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1256,7 +1247,7 @@ void OutlineClassFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1272,8 +1263,8 @@ void OutlineClassFields (
 //
 // Value Returned:	None
 // 
-// Called By:			OutlineFieldControl.c 	in outlineFields.c
-//							OutlineClassFields.c		in outlineFields.c
+// Called By:			OutlineFieldControl.c 	in SOutlineFields.cpp
+//							OutlineClassFields.c		in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
 //	Revised By:			Larry L. Biehl			Date: 04/07/2019
@@ -1294,14 +1285,14 @@ void OutlineField (
 												
 	LongPoint							drawPoint,
 											startPoint; 
-	#if !defined multispec_lin
+	#if !defined multispec_wx
       LongPoint							nextPoint;
-	#endif // !defined multispec_lin
+	#endif // !defined multispec_wx
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       LongPoint							windowPoint;
       wxPoint 								scrollOffset;
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 												
 	LongRect								fieldRect,
 											tFieldRect; 
@@ -1389,7 +1380,7 @@ void OutlineField (
 		*/		
 		if (continueFlag)
 			{	
-			#if defined multispec_lin
+			#if defined multispec_wx
 						// Need to reset it again before drawing rectangles in linux, 
 						// since the setting will be changed after drawing polygons.
 						
@@ -1397,7 +1388,7 @@ void OutlineField (
 													 kToImageWindow,
 													 FALSE,
 													 lcToWindowUnitsVariablesPtr);
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 			
 			ConvertLCRectToWinRect (LCRectPtr, 
 												&fieldRect, 
@@ -1423,7 +1414,7 @@ void OutlineField (
 				clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
 			#endif	// defined multispec_win 
 			
-			#if multispec_lin	              
+			#if defined multispec_wx	              
 				clipRect.left = (int)MAX (0, displayImageLeft);
 				clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
 
@@ -1431,7 +1422,7 @@ void OutlineField (
 				clipRect.bottom += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
 				clipRect.left += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset; 
 				clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
-			#endif	// multispec_lin 
+			#endif	// multispec_wx 
 			
 					// If field is to the left of the displayed image, then move the
 					// field and clip window to the next channel to the right if a 
@@ -1449,7 +1440,7 @@ void OutlineField (
 													displayImageRight+gChannelWindowInterval);
 				#endif	// define multispec_mac 
 							
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					clipRect.left = (int)MAX (0, 
 													displayImageLeft+gChannelWindowInterval);
 					clipRect.right = (int)MIN (gViewRect.right, 
@@ -1457,7 +1448,7 @@ void OutlineField (
 
 					clipRect.left += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset; 
 					clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
 				
 				}	// end "if (tFieldRect.right < clipRect.left && changeClipFlag)"					
 			
@@ -1501,15 +1492,15 @@ void OutlineField (
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);                      
 							if (windowCode != kToPrintWindow)
 								ClipRect (&clipRect);
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
 
-						#if defined multispec_lin
+						#if defined multispec_wx
 							clipRect.left = (int)MAX (0, displayImageLeft);
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
 							gCDCPointer->DestroyClippingRegion ();
 							if (windowCode != kToPrintWindow)
 								ClipRect (&clipRect);
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
 						
 						}	// end "if (changeClipFlag)" 
 						
@@ -1534,12 +1525,12 @@ void OutlineField (
 														(int)fieldRect.bottom);
 					#endif	// defined multispec_win 
 						
-					#if defined multispec_lin  
+					#if defined multispec_wx  
 						gCDCPointer->DrawRectangle (
 											wxPoint	((int)fieldRect.left, (int)fieldRect.top),
 											wxSize ((int)(fieldRect.right-fieldRect.left),
 											(int)(fieldRect.bottom-fieldRect.top)));
-					#endif	// defined multispec_lin 
+					#endif	// defined multispec_wx 
 					
 					}	// end "if (displayImageRight >= gViewRect.left)" 
 				                                        
@@ -1588,7 +1579,7 @@ void OutlineField (
 											
 			savedChannelWindowOffset = lcToWindowUnitsVariablesPtr->channelWindowOffset;
 			
-			#ifndef multispec_lin	
+			#ifndef multispec_wx	
 				for (channel=gStartChannel; channel<gSideBySideChannels; channel++)
 					{				
 					if (changeClipFlag)
@@ -1619,10 +1610,10 @@ void OutlineField (
 						gCDCPointer->MoveTo ((int)startPoint.h, (int)startPoint.v);
 					#endif	// defined multispec_win
 
-					#if defined multispec_lin              
+					#if defined multispec_wx              
 								// wxWidgets does not have MoveTo; only DrawLine.
 						lastPoint = startPoint;
-					#endif	// defined multispec_lin	
+					#endif	// defined multispec_wx	
 					
 					while (pointCount > 1)
 						{
@@ -1638,10 +1629,13 @@ void OutlineField (
 							gCDCPointer->LineTo ((int)nextPoint.h, (int)nextPoint.v); 
 						#endif	// defined multispec_win
 						
-						#if defined multispec_lin
-							gCDCPointer->DrawLine ((int)lastPoint.h, (int)lastPoint.v, (int)nextPoint.h, (int)nextPoint.v);
+						#if defined multispec_wx
+							gCDCPointer->DrawLine ((int)lastPoint.h,
+															(int)lastPoint.v,
+															(int)nextPoint.h,
+															(int)nextPoint.v);
 							lastPoint = nextPoint;
-						#endif	// defined multispec_lin
+						#endif	// defined multispec_wx
 									
 						pointCount--;
 						
@@ -1655,19 +1649,18 @@ void OutlineField (
 						gCDCPointer->LineTo ((int)startPoint.h, (int)startPoint.v);
 					#endif	// defined multispec_win
 						
-					#if defined multispec_lin
+					#if defined multispec_wx
 						gCDCPointer->DrawLine ((int)lastPoint.h,
 														(int)lastPoint.v,
 														(int)startPoint.h,
 														(int)startPoint.v);
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 
 					if (gSideBySideChannels > 1)
 						{
 						startPoint.h += gChannelWindowInterval;
 						displayImageLeft += gChannelWindowInterval;
 						displayImageRight += gChannelWindowInterval;
-						//gChannelWindowOffset += gChannelWindowInterval;
 						lcToWindowUnitsVariablesPtr->channelWindowOffset +=
 																				gChannelWindowInterval;
 						
@@ -1677,9 +1670,9 @@ void OutlineField (
 						break;
 					
 					}	// end "for (channel=gStartChannel; channel<..." 
-			#endif	// ifndef multispec_lin
+			#endif	// ifndef multispec_wx
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 						// Draw polygon
 			
 				CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
@@ -1696,7 +1689,6 @@ void OutlineField (
 				
 				pointCount = fieldIdentPtr[fieldNumber].numberOfPolygonPoints;  
 				wxPoint* pointlist = new wxPoint[pointCount];
-				//scrollOffset = gProjectSelectionWindow->m_Canvas->GetScrollPosition ();
 				scrollOffset = imageViewCPtr->m_Canvas->GetScrollPosition ();
 			
 						// The x scroll offset needs to be relative to the first displayed
@@ -1736,7 +1728,7 @@ void OutlineField (
 							lcToWindowUnitsVariablesPtr->channelWindowOffset +=
 																					gChannelWindowInterval;
 							
-							} // end "if (gSideBySideChannels > 1)"
+							}	// end "if (gSideBySideChannels > 1)"
 										
 						if (displayImageLeft > gViewRect.right)
 							break;
@@ -1746,7 +1738,7 @@ void OutlineField (
 					}  // end "for (SInt32 channel=gStartChannel; ..."
 			
 				delete[] pointlist;
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 		
 			//gChannelWindowOffset = savedChannelWindowOffset;
 			lcToWindowUnitsVariablesPtr->channelWindowOffset = savedChannelWindowOffset;
@@ -1783,15 +1775,15 @@ void OutlineField (
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
 							if (windowCode != kToPrintWindow)
 								ClipRect (&clipRect);
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
 
-						#if defined multispec_lin
+						#if defined multispec_wx
 							clipRect.left = (int)MAX (0, displayImageLeft);
 							clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
                      gCDCPointer->DestroyClippingRegion ();
 							if (windowCode != kToPrintWindow)
 								ClipRect (&clipRect);
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
 
 						}	// end "if (changeClipFlag)"
 						
@@ -1837,10 +1829,10 @@ void OutlineField (
 							gCDCPointer->MoveTo ((int)drawHPoint, (int)drawVPoint); 
 						
 							gCDCPointer->TextOut (
-										0,
-										0,
-										(LPCTSTR)A2T((char*)&classNamesPtr[classStorage].name[1]), 
-										(int)classNamesPtr[classStorage].name[0]);
+									0,
+									0,
+									(LPCTSTR)A2T((char*)&classNamesPtr[classStorage].name[1]),
+									(int)classNamesPtr[classStorage].name[0]);
 							
 							drawVPoint += textMetric.tmHeight;
 							
@@ -1866,7 +1858,7 @@ void OutlineField (
 										(int)fieldIdentPtr[fieldNumber].name[0]);
 					#endif	// defined multispec_win
 						
-					#if defined multispec_lin 
+					#if defined multispec_wx 
 						drawHPoint = drawPoint.h + 1 ;//+ scrollOffset.x;
 						drawVPoint = drawPoint.v + 1 ;//+ scrollOffset.y;
 						
@@ -1894,7 +1886,7 @@ void OutlineField (
 						if (gProjectInfoPtr->labelFieldCode & 0x0002)
 							gCDCPointer->DrawText ((char*)&fieldIdentPtr[fieldNumber].name[1], 
 															wxPoint (drawHPoint, drawVPoint));
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 					
 					}	// end "if (displayImageRight >= gViewRect.left)" 
 				
@@ -1913,7 +1905,7 @@ void OutlineField (
 				
 			}	// end "if (gProjectInfoPtr->printLabelFlag)" 
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			gCDCPointer->DestroyClippingRegion ();
 		#endif
 		

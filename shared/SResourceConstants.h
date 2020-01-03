@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -387,7 +387,7 @@
 	
 			// 	Classify Processor strings													
 			
-	#define	IDS_Classify1					1		// Writing ERDAS .TRL disk file.
+	#define	IDS_Support_trl				1		// Writing ERDAS .TRL disk file.
 	#define	IDS_Classify2					2
 	#define	IDS_Classify3					3
 	#define	IDS_Classify4					4
@@ -1192,7 +1192,7 @@
 	#define	IDC_Status22				22
 #endif	// defined multispec_mac
 
-#if defined multispec_lin || defined multispec_win
+#if defined multispec_wx || defined multispec_win
 	
 			// resource IDs of modal dialogs 													
 		                                             
@@ -1202,7 +1202,7 @@
 	
 			// resource IDs of alerts	
 																	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#define	kErrorAlertID							wxOK
 		#define	kErrorAlert2ID							wxOK
 		#define	kMemoryAlertID							wxOK
@@ -1220,7 +1220,7 @@
 		#define	kSaveDontSaveAlertID					wxYES_NO|wxCANCEL
 		#define	kYesNoAlertID							wxOK|wxCANCEL
 		#define	kContinueStopAlertID					wxYES_NO|wxCANCEL
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	#if defined multispec_win
 		#define	kErrorAlertID							MB_OK
@@ -1330,5 +1330,5 @@
 			
 	#define	kSQD32DisplayColumnLimit			308  
 	
-#endif  // defined multispec_lin || defined multispec_win 
+#endif  // defined multispec_wx || defined multispec_win 
 #endif // end of SRCONST

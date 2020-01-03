@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -17,26 +17,19 @@
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
 //
-//	Brief description:	The routines in this file handle displaying 2 and 3 channel in 16 
-//								and 24 bit color
+//	Brief description:	The routines in this file handle displaying 2 and 3 channel
+//								in 16 and 24 bit color
 //
-//	Functions in file:	void 		Display2C16BImage
-//								void 		Display2C24BImage
-//								void 		Display3C1624BImage
-//								void		UpdatePaletteFor16and24BImage	 
-//
-//      Linux Note: wxImage constructor always requires image data in rgb raster format
-//      This is similar to mac
+//      wxWidgets Note: wxImage constructor always requires image data in rgb raster
+//								format
+//      						This is similar to mac
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif	
-
-//#include "SExtGlob.h"
 
 			// Prototypes for file routines that are only called from other 		
 			// routines in this file.
@@ -44,7 +37,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -60,7 +53,7 @@
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/2001
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -95,7 +88,7 @@ void Display1Channel16BitLine (
 				
 			dataValue = dataDisplayPtr[dataValue];
             
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 						// Red bits.															
 						
 				*offScreen2BytePtr = (SInt16)(dataValue << 10);
@@ -112,17 +105,17 @@ void Display1Channel16BitLine (
 					{
 					if (backgroundValueCode == 1) 
 						*offScreen2BytePtr = 0x0000;
-					else		// backgroundValueCode == 2
+					else	// backgroundValueCode == 2
 						*offScreen2BytePtr = 0x7fff;
 						
-					}		// end "if (backgroundValueCode && !backgroundValue)"
+					}	// end "if (backgroundValueCode && !backgroundValue)"
 
 				#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 					Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
 				#endif		// TARGET_CPU_X86 ... else 
 					
 				offScreen2BytePtr++;
-			#else	// defined multispec_lin
+			#else	// defined multispec_wx
 						// First define a pointer of size byte
 						
             HUCharPtr imageptr;
@@ -181,7 +174,7 @@ void Display1Channel16BitLine (
 				#endif
 					
             offScreen2BytePtr = (HUInt16Ptr)imageptr;
-			#endif	// !defined multispec_lin, else
+			#endif	// !defined multispec_wx, else
 
 			}	// end "for (j=0; ..."
 			
@@ -191,8 +184,10 @@ void Display1Channel16BitLine (
 
 
 
+/*
+		Option removed in 11/2019
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -208,7 +203,7 @@ void Display1Channel16BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -232,7 +227,8 @@ void Display2Channel16BitLine (
 	UInt32								backgroundValue,
 											dataValue,
 											j;
-							
+	
+	
 	HUCharPtr imageptr;
    imageptr = (HUCharPtr)offScreen2BytePtr;
 	switch (rgbColors)
@@ -246,7 +242,7 @@ void Display2Channel16BitLine (
 					*offScreen2BytePtr = 0;
 				#endif	// defined multispec_mac ||
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 							// Set Red bits to zero
 							
 					if (backgroundValueCode == 2)
@@ -271,7 +267,7 @@ void Display2Channel16BitLine (
 					dataValue = 0;
 					
 				backgroundValue = dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -306,7 +302,7 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -334,7 +330,7 @@ void Display2Channel16BitLine (
 					#endif
 						
 					offScreen2BytePtr = (HUInt16Ptr)imageptr;
-				#else	// !defined multispec_lin
+				#else	// !defined multispec_wx
 					*offScreen2BytePtr = 
 								*offScreen2BytePtr | (dataDisplay1Ptr[dataValue]);
 
@@ -342,7 +338,7 @@ void Display2Channel16BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen2BytePtr = 0x0000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							*offScreen2BytePtr = 0x7fff;
 						
 						}	// end "if (backgroundValueCode && !backgroundValue)"
@@ -373,7 +369,7 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin2)  
 					dataValue = 0;
 				backgroundValue = dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -398,7 +394,7 @@ void Display2Channel16BitLine (
 					*offScreen2BytePtr = (dataDisplay2Ptr[dataValue] << 10);
 				#endif
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 							// Set Green bits to zero
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -421,7 +417,7 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -457,7 +453,7 @@ void Display2Channel16BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen2BytePtr = 0x0000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							*offScreen2BytePtr = 0x7fff;
 							
 						}	// end "if (backgroundValueCode && !backgroundValue)"
@@ -488,7 +484,7 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin2)  
 					dataValue = 0;
 				backgroundValue = dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -504,14 +500,14 @@ void Display2Channel16BitLine (
 							}
 						}
 						
-					else		// !zeroAsBackgroundFlag || backgroundValue
+					else	// !zeroAsBackgroundFlag || backgroundValue
 						{
 						*imageptr = (Byte)dataDisplay2Ptr[dataValue];
 						imageptr++;
 						}
-				#else	// !defined multispec_lin
+				#else	// !defined multispec_wx
 					*offScreen2BytePtr = (dataDisplay2Ptr[dataValue] << 10);
-				#endif	// defined multispec_lin, else
+				#endif	// defined multispec_wx, else
 				
 						// Green bits.															
 				
@@ -521,7 +517,7 @@ void Display2Channel16BitLine (
 				if (dataValue > maxBin1)  
 					dataValue = 0;
 				backgroundValue += dataValue;
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (backgroundValueCode && !backgroundValue)
 						{
 						if (backgroundValueCode == 2)
@@ -542,7 +538,7 @@ void Display2Channel16BitLine (
 						imageptr++;
 						}
                 
-				#else	// !defined multispec_lin
+				#else	// !defined multispec_wx
 					*offScreen2BytePtr = 
 							*offScreen2BytePtr | (dataDisplay1Ptr[dataValue] << 5);
 
@@ -550,7 +546,7 @@ void Display2Channel16BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen2BytePtr = 0x0000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							*offScreen2BytePtr = 0x7fff;
 							
 						}	// end "if (backgroundValueCode && !backgroundValue)"
@@ -560,10 +556,10 @@ void Display2Channel16BitLine (
 					#endif	// TARGET_CPU_X86 ... else 
 					
 					offScreen2BytePtr++;
-				#endif	// defined multispec_lin, else
+				#endif	// defined multispec_wx, else
 				
 						// Blue bits
-				#if defined multispec_lin
+				#if defined multispec_wx
 						// Set Blue bits to zero
 					if (backgroundValueCode && !backgroundValue)
 						{
@@ -598,11 +594,12 @@ void Display2Channel16BitLine (
 		}	// end "switch (displayPalette.rgbColors)" 
 	
 }	// end "Display2Channel16BitLine"
+*/
 
-
-
+/*
+		Option removed in 11/2019
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -618,7 +615,7 @@ void Display2Channel16BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -689,10 +686,10 @@ void Display2Channel24BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+							#else	// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
 							#endif		// TARGET_CPU_X86 ... else
 							
@@ -743,7 +740,7 @@ void Display2Channel24BitLine (
 							
 							}	//  end "if (backgroundValueCode == 1)"
 							
-						else		// backgroundValueCode == 2 
+						else	// backgroundValueCode == 2 
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -758,7 +755,7 @@ void Display2Channel24BitLine (
 						}	// end "if (backgroundValueCode && ...)"
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					#if defined multispec_wxmac_alpha
 								// Leave high order (alpha) byte blank.
 						offScreenPtr++;
@@ -822,7 +819,7 @@ void Display2Channel24BitLine (
 							}	//  end "else backgroundValueCode == 2"
 						
 						}	// end "if (backgroundValueCode && !backgroundValue)"
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 				}	// end "for (j=0; ..."
 			
@@ -867,10 +864,10 @@ void Display2Channel24BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+							#else	// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
 							#endif		// TARGET_CPU_X86 ... else
 							
@@ -919,9 +916,9 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0x00;
 							offScreenPtr++;
 							
-							}		//  end "if (backgroundValueCode == 1)"
+							}	//  end "if (backgroundValueCode == 1)"
 							
-						else		// backgroundValueCode == 2 
+						else	// backgroundValueCode == 2 
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -931,12 +928,12 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0xff;
 							offScreenPtr++;
 							
-							}		//  end "else backgroundValueCode == 2"
+							}	//  end "else backgroundValueCode == 2"
 						
-						}		// end "if (backgroundValueCode && ...)"
+						}	// end "if (backgroundValueCode && ...)"
 					#endif	// defined multispec_win
 				
-					#if defined multispec_lin
+					#if defined multispec_wx
 						#if defined multispec_wxmac_alpha
 									// Leave high order (alpha) byte blank.
 							offScreenPtr++;
@@ -1000,7 +997,7 @@ void Display2Channel24BitLine (
 							}	//  end "else backgroundValueCode == 2"
 						
 						}	// end "if (backgroundValueCode && ...)"
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 				}	// end "for (j=0; ..."
 			
 			break;
@@ -1044,10 +1041,10 @@ void Display2Channel24BitLine (
 						{
 						if (backgroundValueCode == 1) 
 							*offScreen4BytePtr = 0x00000000;
-						else		// backgroundValueCode == 2
+						else	// backgroundValueCode == 2
 							#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 								*offScreen4BytePtr = 0xffffff00;
-							#else		// !TARGET_CPU_X86
+							#else	// !TARGET_CPU_X86
 								*offScreen4BytePtr = 0x00ffffff;
 							#endif		// TARGET_CPU_X86 ... else
 							
@@ -1113,7 +1110,7 @@ void Display2Channel24BitLine (
 						}	// end "if (backgroundValueCode && ...)"
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					#if defined multispec_wxmac_alpha
 								// Leave high order (alpha) byte blank.
 						offScreenPtr++;
@@ -1162,9 +1159,9 @@ void Display2Channel24BitLine (
 							*offScreenPtr = (UInt8)0x00;
 							offScreenPtr++;
 							
-							}		//  end "if (backgroundValueCode == 1)"
+							}	//  end "if (backgroundValueCode == 1)"
 							
-						else		// backgroundValueCode == 2 
+						else	// backgroundValueCode == 2 
 							{
 							offScreenPtr -= 3;
 							*offScreenPtr = (UInt8)0xff;
@@ -1178,7 +1175,7 @@ void Display2Channel24BitLine (
 						
 						}	// end "if (backgroundValueCode && ...)"
 					
-				#endif// defined multispec_lin
+				#endif// defined multispec_wx
 				}	// end "for (j=0; ..."
 			
 			break;
@@ -1186,11 +1183,11 @@ void Display2Channel24BitLine (
 		}	// end "switch (rgbColors)"
 	
 }	// end "Display2Channel24BitLine"
-
+*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1206,7 +1203,7 @@ void Display2Channel24BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -1278,10 +1275,10 @@ void Display3Channel16BitLine (
 				{
 				if (backgroundValueCode == 1) 
 					*offScreen2BytePtr = 0x0000;
-				else		// backgroundValueCode == 2
+				else	// backgroundValueCode == 2
 					*offScreen2BytePtr = 0x7fff;
 					
-				}		// end "if (backgroundValueCode && !backgroundValue)"
+				}	// end "if (backgroundValueCode && !backgroundValue)"
 
 			#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 				Swap2Bytes ((HUInt16Ptr)offScreen2BytePtr, 1);
@@ -1290,7 +1287,7 @@ void Display3Channel16BitLine (
 			offScreen2BytePtr++;
 		#endif	// defined multispec_mac || defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			#if defined multispec_wxmac_alpha
 						// Leave high order (alpha) byte blank.
 				offScreenPtr++;
@@ -1369,7 +1366,7 @@ void Display3Channel16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1385,7 +1382,7 @@ void Display3Channel16BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -1461,10 +1458,10 @@ void Display3Channel24BitLine (
 				{
 				if (backgroundValueCode == 1) 
 					*offScreen4BytePtr = 0x00000000;
-				else		// backgroundValueCode == 2
+				else	// backgroundValueCode == 2
 					#if TARGET_CPU_X86 || TARGET_CPU_X86_64
 						*offScreen4BytePtr = 0xffffff00;
-					#else		// !TARGET_CPU_X86
+					#else	// !TARGET_CPU_X86
 						*offScreen4BytePtr = 0x00ffffff;
 					#endif		// TARGET_CPU_X86 ... else
 					
@@ -1535,7 +1532,7 @@ void Display3Channel24BitLine (
 				}	// end "if (backgroundValueCode && ...)"
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			#if defined multispec_wxmac_alpha
 						// Leave high order (alpha) byte blank.
 				offScreenPtr++;
@@ -1587,7 +1584,7 @@ void Display3Channel24BitLine (
 					
 					}	//  end "if (backgroundValueCode == 1)"
 					
-				else		// backgroundValueCode == 2 
+				else	// backgroundValueCode == 2 
 					{
 					offScreenPtr -= 3;
 					*offScreenPtr = (UInt8)0xff;
@@ -1606,7 +1603,7 @@ void Display3Channel24BitLine (
 				offScreenPtr++;
 			#endif
 			
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		}	// end "for (j=0; ..."
 	
 }	// end "Display3Channel24BitLine"
@@ -1615,7 +1612,7 @@ void Display3Channel24BitLine (
  
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1632,7 +1629,7 @@ void Display3Channel24BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/1992
 //	Revised By:			Larry L. Biehl			Date: 10/21/1999
@@ -1767,7 +1764,7 @@ void UpdatePaletteFor16and24BImage (void)
 				gImageWindowInfoPtr->offScreenMapHandle = 
 										(Handle)GetPortPixMap (gImageWindowInfoPtr->offscreenGWorld);
 							
-			else		// gImageWindowInfoPtr->offscreenGWorld == NULL
+			else	// gImageWindowInfoPtr->offscreenGWorld == NULL
 				gImageWindowInfoPtr->offScreenMapHandle = NULL;
 										
 			NSetPalette	(gActiveImageWindow, thePictInfo.thePalette, pmAllUpdates);
@@ -1779,7 +1776,7 @@ void UpdatePaletteFor16and24BImage (void)
 	   
 	   gUpdatePaletteMenuItemsFlag = TRUE;
 		
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 		
 	CheckAndUnlockHandle (displaySpecsHandle);
 		

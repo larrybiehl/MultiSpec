@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -22,7 +22,7 @@
 //	
 //------------------------------------------------------------------------------------
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include <stdio.h>
 	#include "SDefines.h"
 #endif         
@@ -44,7 +44,7 @@ double log_lik_ratio (
 Boolean malloc_epix (
 				EchoClassifierVar* 				echo_info);
 								
-SInt16 setup_basic_echo_information (		
+SInt16 setup_basic_echo_information (
 				common_classifier_information *c_info,
 				EchoClassifierVar 				*echo_info);
 		

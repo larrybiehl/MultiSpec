@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/15/2019
+//	Revision date:			09/13/2019
 //
 //	Language:				C
 //
@@ -20,62 +20,19 @@
 //	Brief description:	This file contains functions that compute field and 
 //								class statistics.
 //
-//	Functions in file:	void 					AddToClassChannelStatistics
-//								Boolean 				CheckIfClassMaskStatsUpToDate
-//								Boolean 				CheckIfMaskStatsUpToDate
-//								Boolean 				CheckIfProjectMaskStatsUpToDate
-//								void 					ClearClassStatisticsMemory
-//								void 					ClearFieldStatisticsMemory
-//								void 					ClearProjectStatisticsMemory
-//								void 					CombineFieldChannelStatistics
-//								void 					CombineFieldStatistics
-//								void 					ComputeCorrelationFromCovMatrix
-//								void 					ComputeVarianceVector
-//								Boolean 				FinishClassStatsUpdate
-// 							void 					FinishProjectStatsUpdate
-//								void 					FinishClassMaskStatsUpdate
-//								void 					FinishFieldMaskStatsUpdate
-// 							void 					FinishProjectMaskStatsUpdate
-//								Boolean				GetClassChannelStatistics
-//								void 					GetClassCovarianceMatrix
-//								void 					GetClassMeanVector
-//								Boolean 				GetClassSumsSquares
-//								Boolean 				GetCommonCovariance
-//								Boolean 				GetEigenStatisticsFeatures
-//								UInt32 				GetNumberOfPixelsLoadedInClass
-//								void 					GetTransformedClassCovarianceMatrix
-//								void					InitializeChannelMaximums
-//								void					InitializeChannelMinimums
-//								void 					ReduceChanStatsVector
-//								void 					ReduceStdDevVector
-//								void 					ResetZeroVariances
-//								void 					SetClassCovarianceStatsToUse
-//								void					SetProjectCovarianceStatsToUse
-//								Boolean 				SetupModifiedStatsMemory
-//								Boolean 				SetupStatsMemory
-//								SInt16	 			UpdateClassAreaStats
-//								SInt16	 			UpdateFieldAreaStats
-//								SInt16	 			UpdateProjectAreaStats
-//								SInt16	 			UpdateStatsControl
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h" 
+#include "SMultiSpec.h"
+#include "Ssvm.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
   
 #if defined multispec_mac
 #endif	// defined multispec_mac  
   	
 #if defined multispec_win
-#endif	// defined multispec_win    
-
-//#include "SExtGlob.h"		
+#endif	// defined multispec_win
 
 extern Boolean ResetForAllVariancesEqual (
 				HCovarianceStatisticsPtr		covariancePtr,
@@ -191,7 +148,7 @@ SInt16 	UpdateProjectMaskStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -206,7 +163,7 @@ SInt16 	UpdateProjectMaskStats (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassChannelStatistics in statCompute.c
+// Called By:			GetClassChannelStatistics in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/07/1992
 //	Revised By:			Larry L. Biehl			Date: 02/07/1992	
@@ -290,7 +247,7 @@ void AddToClassChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -372,7 +329,7 @@ Boolean CheckIfClassMaskStatsUpToDate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -434,7 +391,7 @@ Boolean CheckIfMaskStatsUpToDate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -492,7 +449,7 @@ Boolean CheckIfProjectMaskStatsUpToDate ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -510,7 +467,7 @@ Boolean CheckIfProjectMaskStatsUpToDate ()
 // Value Returned:	None	
 // 
 // Called By:			GetTransformedClassCovarianceMatrix
-//							GetTransformedCommonCovariance in SClassfy.cpp
+//							GetTransformedCommonCovariance in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/21/2003
 //	Revised By:			Larry L. Biehl			Date: 07/13/2009	
@@ -605,7 +562,7 @@ Boolean CheckMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -709,7 +666,7 @@ void ClearClassStatisticsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -783,7 +740,7 @@ void ClearFieldStatisticsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -837,7 +794,7 @@ void ClearProjectStatisticsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -853,7 +810,7 @@ void ClearProjectStatisticsMemory (
 //
 // Value Returned:	None
 //
-// Called By:			GetClassChannelStatistics in statCompute.c
+// Called By:			GetClassChannelStatistics in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1993
 //	Revised By:			Larry L. Biehl			Date: 03/18/1993	
@@ -945,7 +902,7 @@ void CombineFieldChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -961,7 +918,7 @@ void CombineFieldChannelStatistics (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassSumsSquares in statCompute.c
+// Called By:			GetClassSumsSquares in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/19/1993
 //	Revised By:			Larry L. Biehl			Date: 03/19/1993	
@@ -1052,7 +1009,7 @@ void CombineFieldStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1068,7 +1025,7 @@ void CombineFieldStatistics (
 //
 // Value Returned:	None
 // 
-// Called By:			ListStatistics in statList.c
+// Called By:			ListStatistics in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1993
 //	Revised By:			Larry L. Biehl			Date: 10/09/1997	
@@ -1188,7 +1145,7 @@ void ComputeCorrelationFromCovMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1203,7 +1160,7 @@ void ComputeCorrelationFromCovMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassCovarianceMatrix in statCompute.c
+// Called By:			GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/30/1992
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
@@ -1275,7 +1232,7 @@ void ComputeVarianceVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1292,8 +1249,8 @@ void ComputeVarianceVector (
 //
 // Value Returned:	None
 // 
-// Called By:			CheckClassStats in SProjUtl.cpp
-//							ListClassInformation in SStatLst.cpp
+// Called By:			CheckClassStats in SProjectUtilities.cpp
+//							ListClassInformation in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1997
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -1345,7 +1302,7 @@ Boolean DetermineIfSpecifiedStatisticsExist (
 						existFlag = TRUE;
 						
 						if (classNamesPtr->looCovarianceValue > 1 &&
-												gProjectInfoPtr->numberCommonCovarianceClasses == 0)
+											gProjectInfoPtr->numberCommonCovarianceClasses == 0)
 							*computeCommonCovarianceFlagPtr = TRUE;
 						
 						}	// end "if (classNamesPtr->looCovarianceValue >= 0)"
@@ -1371,7 +1328,7 @@ Boolean DetermineIfSpecifiedStatisticsExist (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1455,7 +1412,7 @@ Boolean FinishClassStatsUpdate (
 					// Compute the first order statistics for the class stats only case.
 			
 			if (gProjectInfoPtr->keepClassStatsOnlyFlag &&
-													gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
+											gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
 				{
 				GetProjectStatisticsPointers (kClassStatsOnly,
 														classStorage,
@@ -1465,12 +1422,12 @@ Boolean FinishClassStatsUpdate (
 														NULL);
 				
 				ComputeMeanStdDevVector (
-										classChanPtr,
-										classSumSquaresPtr,
-										gProjectInfoPtr->numberStatisticsChannels,
-										(UInt32)classNamesPtr[classStorage].numberStatisticsPixels,
-										gProjectInfoPtr->statisticsCode,
-										kTriangleInputMatrix);
+									classChanPtr,
+									classSumSquaresPtr,
+									gProjectInfoPtr->numberStatisticsChannels,
+									(UInt32)classNamesPtr[classStorage].numberStatisticsPixels,
+									gProjectInfoPtr->statisticsCode,
+									kTriangleInputMatrix);
 				
 				}	// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag && ..."
 			
@@ -1487,7 +1444,7 @@ Boolean FinishClassStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1542,7 +1499,7 @@ void FinishProjectStatsUpdate ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1625,7 +1582,7 @@ void FinishClassMaskStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1714,7 +1671,7 @@ void FinishFieldMaskStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1760,7 +1717,7 @@ void FinishProjectMaskStatsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1776,9 +1733,9 @@ void FinishProjectMaskStatsUpdate (
 //
 // Value Returned:	None
 // 
-// Called By:			GetGAIAClassMeans in SGaiaUtl.cpp
-//							GetClassCovarianceMatrix in SStatCom.cpp
-//							GetClassMeanVector in SStatCom.cpp
+// Called By:			GetGAIAClassMeans in SGAIARoutines.cpp
+//							GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							GetClassMeanVector in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/07/1992
 //	Revised By:			Larry L. Biehl			Date: 01/23/1998	
@@ -1864,7 +1821,7 @@ Boolean GetClassChannelStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1884,13 +1841,14 @@ Boolean GetClassChannelStatistics (
 //
 // Value Returned:	None
 // 
-// Called By:			UpdateClassLOOStats in SLOOCov.cpp
+// Called By:			UpdateClassLOOStats in SLOOCovariance.cpp
 //							CreateFalseColorPalette in SPalette.cpp
-//							Preprocess in SProjPur.cpp
-//							GetCommonCovariance in SStatCom.cpp
-//							GetTransformedClassCovarianceMatrix in SStatCom.cpp
-//							ListClassStats in SStatLst.cpp
-//							LoadStatEnhanceClassStatistics in statisticsEnhancement.c
+//							Preprocess in SProjectionPursuit.cpp
+//							GetCommonCovariance in SProjectComputeStatistics.cpp
+//							GetTransformedClassCovarianceMatrix in
+//																		SProjectComputeStatistics.cpp
+//							ListClassStats in SProjectListStatistics.cpp
+//							LoadStatEnhanceClassStatistics in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/07/1992
 //	Revised By:			Larry L. Biehl			Date: 05/04/2017	
@@ -2010,18 +1968,19 @@ void GetClassCovarianceMatrix (
 							// Get pointer to memory (already defined) to store the common 
 							// covariance in.
 							// Handle is already locked.
-					inputCommonCovariancePtr = (HCovarianceStatisticsPtr)GetHandlePointer (
-														gProjectInfoPtr->commonCovarianceStatsHandle);
+					inputCommonCovariancePtr =
+										(HCovarianceStatisticsPtr)GetHandlePointer (
+													gProjectInfoPtr->commonCovarianceStatsHandle);
 					
 					if (inputCommonCovariancePtr != NULL)							
-						commonCovariancePtr = 
-								&inputCommonCovariancePtr[gProjectInfoPtr->numberCovarianceEntries];
+						commonCovariancePtr = &inputCommonCovariancePtr[
+														gProjectInfoPtr->numberCovarianceEntries];
 												
 							// Reduce the common covariance to just the channels that are 
 							// being used.
 							
 					if (gProjectInfoPtr->useCommonCovarianceInLOOCFlag && 
-														!gProjectInfoPtr->localCommonCovarianceLoadedFlag)
+											!gProjectInfoPtr->localCommonCovarianceLoadedFlag)
 						{
 						ReduceInputMatrix (numberOutputChannels,
 													commonCovariancePtr,
@@ -2036,7 +1995,7 @@ void GetClassCovarianceMatrix (
 												
 					if (inputCommonCovariancePtr != NULL &&
 									(!gProjectInfoPtr->useCommonCovarianceInLOOCFlag ||
-													gProjectInfoPtr->numberCommonCovarianceClasses > 0))
+											gProjectInfoPtr->numberCommonCovarianceClasses > 0))
 								// Get the leave-one-out covariance
 						GetLOOCovariance (classNamesPtr->mixingParameterCode,
 												classNamesPtr->looCovarianceValue,
@@ -2091,7 +2050,7 @@ void GetClassCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2138,7 +2097,7 @@ void GetClassMaximumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2153,7 +2112,7 @@ void GetClassMaximumVector (
 //
 // Value Returned:	None
 // 
-// Called By:			L12ClsfierControl in classify.c
+// Called By:			L12ClsfierControl in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/03/1996
 //	Revised By:			Larry L. Biehl			Date: 07/03/1996	
@@ -2185,7 +2144,7 @@ void GetClassMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2232,7 +2191,7 @@ void GetClassMinimumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2247,7 +2206,7 @@ void GetClassMinimumVector (
 //
 // Value Returned:	None
 // 
-// Called By:			L12ClsfierControl in classify.c
+// Called By:			L12ClsfierControl in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/2012
 //	Revised By:			Larry L. Biehl			Date: 03/30/2012	
@@ -2279,7 +2238,7 @@ void GetClassStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2295,8 +2254,8 @@ void GetClassStdDevVector (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassCovarianceMatrix in statCompute.c
-//							ListClassStats in statList.c
+// Called By:			GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							ListClassStats in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/07/1992
 //	Revised By:			Larry L. Biehl			Date: 10/21/1994	
@@ -2323,7 +2282,7 @@ Boolean GetClassSumsSquares (
 			!classChannelStatsPtr || 
 				numberOutputChannels <= 0 ||
 					!classSumSquaresPtr)
-																					return (FALSE);
+																						return (FALSE);
 			
 	classNamesPtr = gProjectInfoPtr->classNamesPtr;
 	
@@ -2387,7 +2346,7 @@ Boolean GetClassSumsSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2403,9 +2362,9 @@ Boolean GetClassSumsSquares (
 //
 // Value Returned:	None			
 // 
-// Called By:			GetTransformedCommonCovariance in SClassfy.cpp
-//							SetupClsfierStats in SEClssfy.cpp
-//							UpdateProjectLOOStats in SLooCov.cpp
+// Called By:			GetTransformedCommonCovariance in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							UpdateProjectLOOStats in SLOOCovariance.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/1997
 //	Revised By:			Larry L. Biehl			Date: 11/24/1999
@@ -2546,7 +2505,7 @@ Boolean GetCommonCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2651,7 +2610,7 @@ Boolean GetEigenStatisticsFeatures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2668,8 +2627,9 @@ Boolean GetEigenStatisticsFeatures (
 //
 // Value Returned:	None
 //
-// Called By:			DetermineIfSpecifiedStatisticsExist in SStatCom.cpp
-//							UpdateClassStats in SStatCom.cpp
+// Called By:			DetermineIfSpecifiedStatisticsExist in
+//																		SProjectComputeStatistics.cpp
+//							UpdateClassStats in SProjectComputeStatistics.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 03/05/1998
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -2710,7 +2670,7 @@ SInt64 GetNumberOfPixelsLoadedInClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2725,8 +2685,9 @@ SInt64 GetNumberOfPixelsLoadedInClass (
 //
 // Value Returned:	None
 //
-// Called By:			DetermineIfSpecifiedStatisticsExist in SStatCom.cpp
-//							UpdateClassStats in SStatCom.cpp
+// Called By:			DetermineIfSpecifiedStatisticsExist in
+//																		SProjectComputeStatistics.cpp
+//							UpdateClassStats in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/27/2019
 //	Revised By:			Larry L. Biehl			Date: 05/28/2019
@@ -2771,7 +2732,7 @@ SInt64 GetNumberOfTrainPixelsInProject ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2880,7 +2841,7 @@ Boolean GetProjectChannelMinMaxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2895,11 +2856,11 @@ Boolean GetProjectChannelMinMaxes (
 //
 //	 Value Returned:	None
 // 
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							EvaluateCovariancesControl in other.c
-//							LoadSeparabilityStatistics in separability.c
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							EvaluateCovariancesControl in SOther.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1993
 //	Revised By:			Larry L. Biehl			Date: 07/13/2009	
@@ -2974,7 +2935,7 @@ void GetTransformedClassCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2991,8 +2952,8 @@ void GetTransformedClassCovarianceMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			ListClassStats in SStatLst.cpp
-//							ListFieldStats in SStatLst.cpp
+// Called By:			ListClassStats in SProjectListStatistics.cpp
+//							ListFieldStats in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/04/1999
 //	Revised By:			Larry L. Biehl			Date: 02/04/1999	
@@ -3051,7 +3012,7 @@ void GetStdDevVectorFromCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3066,7 +3027,7 @@ void GetStdDevVectorFromCovariance (
 //
 // Value Returned:	None
 // 
-// Called By:			ReadFieldStatistics in project.c
+// Called By:			ReadFieldStatistics in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1992
 //	Revised By:			Larry L. Biehl			Date: 12/20/2005	
@@ -3098,7 +3059,7 @@ void InitializeChannelMaximums (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3145,7 +3106,7 @@ void InitializeChannelMinimums (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3161,7 +3122,7 @@ void InitializeChannelMinimums (
 //
 // Value Returned: 	None
 //
-// Called By:			GetClassChannelStatistics in statCompute.c
+// Called By:			GetClassChannelStatistics in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1993
 //	Revised By:			Larry L. Biehl			Date: 12/07/1993
@@ -3196,7 +3157,7 @@ void ReduceChanStatsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3251,7 +3212,7 @@ void ReduceStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3270,10 +3231,11 @@ void ReduceStdDevVector (
 // Value Returned:	True if a zero variance was found and set to a small value.
 //							False if no zero variance was found.
 // 
-// Called By:			GetTransformedCommonCovariance in SClassfy.cpp
-//							GetClassCovarianceMatrix in SStatCom.cpp
-//							GetTransformedClassCovarianceMatrix in SStatCom.cpp
-//							behzad_ModifyStatistics in SStatEnh.cpp
+// Called By:			GetTransformedCommonCovariance in SClassify.cpp
+//							GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							GetTransformedClassCovarianceMatrix in
+//																		SProjectComputeStatistics.cpp
+//							behzad_ModifyStatistics in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/16/1993
 //	Revised By:			Larry L. Biehl			Date: 10/21/1999	
@@ -3329,7 +3291,7 @@ Boolean ResetZeroVariances (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3349,10 +3311,11 @@ Boolean ResetZeroVariances (
 // Value Returned:	True if all variances and covariances are equal.
 //							False if variances and covariance are not equal.
 // 
-// Called By:			GetTransformedCommonCovariance in SClassfy.cpp
-//							GetClassCovarianceMatrix in SStatCom.cpp
-//							GetTransformedClassCovarianceMatrix in SStatCom.cpp
-//							behzad_ModifyStatistics in SStatEnh.cpp
+// Called By:			GetTransformedCommonCovariance in SClassify.cpp
+//							GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							GetTransformedClassCovarianceMatrix in
+//																		SProjectComputeStatistics.cpp
+//							behzad_ModifyStatistics in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/21/2003
 //	Revised By:			Larry L. Biehl			Date: 02/21/2003	
@@ -3458,7 +3421,7 @@ Boolean ResetForAllVariancesEqual (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3473,7 +3436,7 @@ Boolean ResetForAllVariancesEqual (
 //
 // Value Returned:	None
 // 
-// Called By:			StatisticsWMouseDn in SStatist.cpp
+// Called By:			StatisticsWMouseDn in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1997
 //	Revised By:			Larry L. Biehl			Date: 02/24/2000	
@@ -3548,7 +3511,7 @@ void SetClassCovarianceStatsToUse (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3563,7 +3526,7 @@ void SetClassCovarianceStatsToUse (
 //
 // Value Returned:	None
 // 
-// Called By:			CalculateSeparabilityControl in SFeatSel.cpp
+// Called By:			CalculateSeparabilityControl in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/2001
 //	Revised By:			Larry L. Biehl			Date: 02/22/2001	
@@ -3596,7 +3559,7 @@ void SetClassListMessageFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3612,12 +3575,12 @@ void SetClassListMessageFlag (
 // Value Returned:	None
 // 
 // Called By:			Menus in menus.cpp
-//							AddFieldStatsToClassStats in SEdtStat.cpp
-//							CutClass in SEdtStat.cpp
-//							RemoveFieldStatsFromClassStats in SEdtStat.cpp
-//							UndoCutClass in SEdtStat.cpp
+//							AddFieldStatsToClassStats in SEditStatistics.cpp
+//							CutClass in SEditStatistics.cpp
+//							RemoveFieldStatsFromClassStats in SEditStatistics.cpp
+//							UndoCutClass in SEditStatistics.cpp
 //							ReadProjectFile in SProject.cpp
-//							CopyEnhancedStatsToProject in statisticsEnhancement
+//							CopyEnhancedStatsToProject in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/22/1997
 //	Revised By:			Larry L. Biehl			Date: 05/04/2017	
@@ -3703,7 +3666,7 @@ void SetProjectCovarianceStatsToUse (
 		else if (classNamesPtr[classStorage].covarianceStatsToUse == kLeaveOneOutStats)
 			{
 			if (classNamesPtr[classStorage].mixingParameterCode == kComputedOptimum &&
-												classNamesPtr[classStorage].looCovarianceValue < 0)
+											classNamesPtr[classStorage].looCovarianceValue < 0)
 				{
 				gProjectInfoPtr->statsUpToDate = FALSE;
 				classNamesPtr[classStorage].statsUpToDate = FALSE;
@@ -3758,7 +3721,7 @@ void SetProjectCovarianceStatsToUse (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3774,7 +3737,7 @@ void SetProjectCovarianceStatsToUse (
 //
 // Value Returned:	None
 //
-// Called By:			CopyEnhancedStatsToProject in statisticsEnhancement.c
+// Called By:			CopyEnhancedStatsToProject in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1993
 //	Revised By:			Larry L. Biehl			Date: 07/31/1997	
@@ -3799,11 +3762,11 @@ Boolean SetupModifiedStatsMemory (
 			// statistics if needed.															
 		
 	bytesNeeded = numberClasses * gProjectInfoPtr->numberCovarianceEntries *
-																	sizeof (CovarianceStatistics);
+																		sizeof (CovarianceStatistics);
 															
 	doubleBytesNeeded = (double)numberClasses * 
 									(double)gProjectInfoPtr->numberCovarianceEntries *
-																	sizeof (CovarianceStatistics);
+																		sizeof (CovarianceStatistics);
 	
 	continueFlag = (doubleBytesNeeded < LONG_MAX);
 	
@@ -3850,7 +3813,7 @@ Boolean SetupModifiedStatsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3914,22 +3877,21 @@ Boolean SetupPixelMemory (void)
 		
 		numberOfTrainPixelsInProject = GetNumberOfTrainPixelsInProject ();
 		
-		//gProjectInfoPtr->knn_distances.reserve (numberOfTrainPixelsInProject);
-		//gProjectInfoPtr->knnLabelsPtr.reserve (numberOfTrainPixelsInProject);
-		//gProjectInfoPtr->knnDataValuesPtr.reserve (numberOfTrainPixelsInProject*numberChannels);
-		
 		gProjectInfoPtr->knnDistancesPtr =
-						(knnType*)MNewPointer (numberOfTrainPixelsInProject*sizeof(knnType));
+					(knnType*)MNewPointer (numberOfTrainPixelsInProject*sizeof (knnType));
 		
 		if (gProjectInfoPtr->knnDistancesPtr != NULL)
-			gProjectInfoPtr->knnLabelsPtr = (UInt16*)MNewPointer (numberOfTrainPixelsInProject*sizeof(UInt16));
+			gProjectInfoPtr->knnLabelsPtr =
+						(UInt16*)MNewPointer (numberOfTrainPixelsInProject*sizeof (UInt16));
 		
 		if (gProjectInfoPtr->knnLabelsPtr != NULL)
 			gProjectInfoPtr->knnDataValuesPtr =
-						(double*)MNewPointer (numberOfTrainPixelsInProject*numberChannels*sizeof(double));
+						(double*)MNewPointer (
+								numberOfTrainPixelsInProject*numberChannels*sizeof (double));
 		
 		continueFlag = (gProjectInfoPtr->knnDataValuesPtr != NULL);
 		/*
+				// This needs more thought and work.
 	  	numberStorageSets = gProjectInfoPtr->numberStorageStatFields;
 	  	if (gProjectInfoPtr->keepClassStatsOnlyFlag)
 	  		numberStorageSets = 1;
@@ -3982,7 +3944,7 @@ Boolean SetupPixelMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3998,10 +3960,10 @@ Boolean SetupPixelMemory (void)
 //
 // Value Returned:	None	
 // 
-// Called By:			SaveClusterStatistics in cluster.c
-//							SaveProjectFile in project.c
-//							ReadProjectFile in project.c
-//							UpdateStatsControl in statCompute.c
+// Called By:			SaveClusterStatistics in SCluster.cpp
+//							SaveProjectFile in SProject.cpp
+//							ReadProjectFile in SProject.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
 //	Revised By:			Larry L. Biehl			Date: 01/13/2004
@@ -4210,7 +4172,7 @@ Boolean SetupStatsMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4225,8 +4187,8 @@ Boolean SetupStatsMemory (void)
 //
 // Value Returned:	None	
 // 
-// Called By:			UpdateProjectAreaStats in SStatCom.cpp
-//							UpdateStatsControl in SStatCom.cpp
+// Called By:			UpdateProjectAreaStats in SProjectComputeStatistics.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
 //	Revised By:			Larry L. Biehl			Date: 07/08/2019
@@ -4344,7 +4306,7 @@ SInt16 UpdateClassAreaStats (
 			}	// end "while (fieldNumber != -1)" 
 		
 				// Do not set this flag for now. Will allow the possibility for user
-				// to have enhanced statstistics that are not based on current
+				// to have enhanced statistics that are not based on current
 				// 'original' statistics.
 					
 		//classNamesPtr[classStorage].modifiedStatsFlag = FALSE;
@@ -4360,7 +4322,7 @@ SInt16 UpdateClassAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4375,8 +4337,8 @@ SInt16 UpdateClassAreaStats (
 //
 // Value Returned:	None	
 // 
-// Called By:			UpdateClassAreaStats in SStatCom.cpp
-//							UpdateStatsControl in SStatCom.cpp
+// Called By:			UpdateClassAreaStats in SProjectComputeStatistics.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
 //	Revised By:			Larry L. Biehl			Date: 04/26/2019
@@ -4507,7 +4469,7 @@ SInt16 UpdateFieldAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4592,7 +4554,7 @@ SInt16 UpdateProjectAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4649,7 +4611,6 @@ SInt16 UpdateProjectMaskStats (
 											
 	SInt32								classNumber,
 											fieldNumber;
-//											value;
 	
 	UInt32								classStorage,
 											channel,
@@ -4850,30 +4811,18 @@ SInt16 UpdateProjectMaskStats (
 						// Don't really need to check if the number of bits is not less
 						// than the number bits possible within the number of bytes.
 						
-				if (gImageWindowInfoPtr->numberBytes * 8 == gImageWindowInfoPtr->numberBits)
+				if (gImageWindowInfoPtr->numberBytes * 8 ==
+																	gImageWindowInfoPtr->numberBits)
 					lCheckForBadDataFlag = FALSE;
-				/*
-				if (gImageWindowInfoPtr->numberBytes == 1 && 
-																gImageWindowInfoPtr->numberBits == 8)
-					lCheckForBadDataFlag = FALSE;
-					
-				else if (gImageWindowInfoPtr->numberBytes == 2 && 
-																gImageWindowInfoPtr->numberBits == 16)
-					lCheckForBadDataFlag = FALSE;
-					
-				else if (gImageWindowInfoPtr->numberBytes == 8)
-					lCheckForBadDataFlag = FALSE;
-				*/
+
 				}	// end "else !...->noDataValueFlag"
 			
 			}	// end "if (checkForBadDataFlag)"
 	
 		if (statCode == kPixelValuesOnly)
 			{
-			//knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
-			//knnDataValuesPtr = &knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
-			knnDataValuesPtr =
-							&gProjectInfoPtr->knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+			knnDataValuesPtr = &gProjectInfoPtr->knnDataValuesPtr [
+													numberChannels * gProjectInfoPtr->knnCounter];
 			
 			}	// end "if (statCode == kPixelValuesOnly)"
 	
@@ -5023,23 +4972,12 @@ SInt16 UpdateProjectMaskStats (
 						
 							if (statCode == kPixelValuesOnly)
 								{
-										// SVM training samples
-								
-								//sample_type samp;
-								//samp.set_size (gClassifySpecsPtr->numberChannels);
-								//int sampleCount = 0;
-								
 										// KNN training samples
 
 								for (channel=0; channel<numberChannels; channel++)
 									{
-											// Move sample data of each channel to dlib variable for SVM training
-									
-									//samp(channel) = *bufferPtr;
-									
 											// KNN sample data in the training
 									
-									//gProjectInfoPtr->knnDataValuesPtr.push_back (*bufferPtr);
 									*knnDataValuesPtr = *bufferPtr;
 
 									bufferPtr++;
@@ -5049,19 +4987,10 @@ SInt16 UpdateProjectMaskStats (
 							
 										// SVM labelling in the training phase
 								
-								//gProjectInfoPtr->svm_samples.push_back (samp);
-								//gProjectInfoPtr->svm_labels.push_back (classNumber);
-								
-										// KNN labelling in the training phase
-								
-								//knnSamp.label = classNumber;
-								//knnSamp.distance = 0;
-								//knnSamp.index = gProjectInfoPtr->knnCounter;
-								
-								//gProjectInfoPtr->knn_distances.push_back (knnSamp);
-								//gProjectInfoPtr->knnLabelsPtr.push_back (classNumber+1);
-								gProjectInfoPtr->knnDistancesPtr[gProjectInfoPtr->knnCounter] = knnSamp;
-								gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber + 1;
+								gProjectInfoPtr->knnDistancesPtr[
+												gProjectInfoPtr->knnCounter] = knnSamp;
+								gProjectInfoPtr->knnLabelsPtr[
+												gProjectInfoPtr->knnCounter] = classNumber + 1;
 								gProjectInfoPtr->knnCounter++;
 								
 								}	// end "if (statCode == kPixelValuesOnly)"
@@ -5148,7 +5077,7 @@ SInt16 UpdateProjectMaskStats (
 		CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
 	
 		if (returnCode > 0 &&
-				statCode == kPixelValuesOnly &&
+					statCode == kPixelValuesOnly &&
 						//gProjectInfoPtr->knnLabelsPtr.size () > 0)
 						gProjectInfoPtr->knnCounter > 0)
 			gProjectInfoPtr->pixelDataLoadedFlag = TRUE;
@@ -5195,7 +5124,7 @@ SInt16 UpdateProjectMaskStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5216,12 +5145,12 @@ SInt16 UpdateProjectMaskStats (
 //							2: Cancel operation
 //							3: Do not update statistics
 // 
-// Called By:			VerifyProjectStatsUpToDate in SProjUtl.cpp
-//							StatisticsWControlEvent in statistics.c
-//							ListStatsControl in statPrint.c
+// Called By:			VerifyProjectStatsUpToDate in SProjectUtilities.cpp
+//							StatisticsWControlEvent in SStatistics.cpp
+//							ListStatsControl in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1988
-//	Revised By:			Larry L. Biehl			Date: 07/09/2019
+//	Revised By:			Larry L. Biehl			Date: 09/16/2019
 
 SInt16 UpdateStatsControl (
 				SInt16								statsWindowMode, 
@@ -5477,7 +5406,8 @@ SInt16 UpdateStatsControl (
 																	fileInfoPtr->noDataValueFlag, 
 																	gProjectInfoPtr->statisticsCode);
 											
-							if (returnCode == 1 && gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
+							if (returnCode == 1 &&
+											gProjectInfoPtr->statisticsCode != kPixelValuesOnly)
 								FinishProjectStatsUpdate ();
 							break;
 							
@@ -5612,26 +5542,7 @@ SInt16 UpdateStatsControl (
 		MInitCursor ();
 			
 		}	// end "if (statsWindowMode >= 2 && statsWindowMode <= 4)"
-	/*
-	if (gClassifySpecsPtr->mode == kSVMMode)
-      {
-         		// get SVM training weight
-	 
-		gProjectInfoPtr->svm_weights = train_three_class_classifier(
-																		  gProjectInfoPtr->svm_samples,
-																		  gProjectInfoPtr->svm_labels,
-																		  gProjectInfoPtr->convergence_rate);
-
-		//std::cout << "KNN SAMSIZE:" << gProjectInfoPtr->knn_samples.size();
-		std::cout << ",SVM WeigetSize:" << gProjectInfoPtr->svm_weights.size();
-		std::cout << ",SVM SampleSize:" << gProjectInfoPtr->svm_samples[0].size();
-		std::cout << ",SVM SampleNum:" <<gProjectInfoPtr->svm_samples.size()<< std::endl;
-
-		gProjectInfoPtr->svm_samples.clear ();
-		gProjectInfoPtr->svm_labels.clear ();
-		
-		}
-	*/
+	
 	return (returnCode);
 
 }	// end "UpdateStatsControl"

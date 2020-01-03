@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/15/2019
+//	Revision date:			12/11/2019
 //
 //	Language:				C
 //
@@ -20,36 +20,6 @@
 //	Brief description:	This file contains functions that do classification
 //								processes.
 //
-//	Functions in file:	SInt16 					CEMClassifier
-//								void 						CEMClsfierControl
-//								void						CheckAndUnlockCEMParameterHandles
-//								Boolean					CheckClassifyTextWindowSpaceNeeded
-//								Boolean 					ClassifyArea
-//								void 						ClassifyAreasControl
-//								void 						ClassifyControl
-//								SInt16 					ClassifyPerPointArea
-//								Boolean 					ClassifyTrainTestFields
-//								SInt16 					CorrelationClassifier
-//								void 						CorrelationClsfierControl
-//								Boolean 					CreateChiSquareThresholdTable
-//								Boolean 					CreateCorrelationThresholdTable
-//								Boolean 					CreateThresholdTables
-//								Boolean 					CreateTrailerFiles
-//								Boolean 					GetClassifyDataBuffers
-//								SInt16 					GetThresholdClass
-//								Boolean 					GetThresholdTableMemory
-//								SInt16 					ListTrainTestSummary
-//								void 						LoadClassifySpecs
-//								Boolean 					LoadProbabilityTable
-//								Boolean 					LoadThresholdTable
-//								void 						L1Classifier
-//								void 						L2Classifier
-//								void 						L12ClsfierControl
-//								void	 					MaxLikeClsfierControl
-//								SInt16 					MaximumLikelihoodClassifier
-//								Boolean 					SetupClsfierMemory
-//								SInt16 					WriteClassificationResults
-//
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
 //		ClassifyControl
@@ -57,20 +27,20 @@
 //			LoadClassifySpecs*
 //
 //			ClassifyDialog
-//				SetDLogControl (in SDlgUtil.cpp)
-//				SetDLogControlHilite (in SDlgUtil.cpp)
-//				LoadDItemValue (in SDlgUtil.cpp)
-//				CheckSomeEvents (in multiSpec.c & CStubs.cpp)
+//				SetDLogControl (in SDialogUtilities.cpp)
+//				SetDLogControlHilite (in SDialogUtilities.cpp)
+//				LoadDItemValue (in SDialogUtilities.cpp)
+//				CheckSomeEvents (in MMultiSpec.c & SStubs.cpp)
 //				HiliteOKButton (in dialogUtilities.c)
 //				ProcessorDialogFilter
-//				StandardPopUpMenu (in multiSpecUtilities.c)
-//				ChannelsDialog (in multiSpecUtilities.c)
-//				ClassDialog (in multiSpecUtilities.c)
-//				NumberErrorAlert (in SDlgUtil.cpp)
-//				LoadFeatureVector (in multiSpecUtilities.c)
-//				LoadTrainClassVector (in multiSpecUtilities.c)
-//				GetDLogControl (in multiSpecUtilities.c)
-//				ChangeDLogCheckBox (in multiSpecUtilities.c)
+//				StandardPopUpMenu (MacOS routine)
+//				ChannelsDialog (MacOS routine)
+//				ClassDialog (MacOS routine)
+//				NumberErrorAlert (in SDialogUtilities.cpp)
+//				LoadFeatureVector (in SUtilities.cpp)
+//				LoadTrainClassVector (in SUtilities.cpp)
+//				GetDLogControl (MacOS routine)
+//				ChangeDLogCheckBox (MacOS routine)
 //
 //			VerifyProjectStatsUpToDate (in SProjectUtilities.cpp)*
 //			CheckClassifyTextWindowSpaceNeeded*
@@ -79,13 +49,13 @@
 //			InitializeAreaDescription (in SUtilities.cpp)*
 //			CreateResultsDiskFiles (in SUtilities.cpp)*
 //			GetProjectFieldsBoundingArea (in SProjectUtilities.cpp)*
-//			GetStatusDialog (in SDlgUtil.cpp)
+//			GetStatusDialog (in SDialogUtilities.cpp)
 //			MSetCursor (in SUtility.cpp)
 //			ForceTextToEnd (in SStrings.cpp)
 //			ListClassifyInputParameters
 //			CheckNumberOfPixelsInClass (in SProjectUtilities.cpp)
 //			ListSpecifiedStringNumber (in SStrings.cpp)
-//			DisplayAlert (in SDlgUtil.cpp)
+//			DisplayAlert (in SDialogUtilities.cpp)
 //			ListSpecifiedStringNumber (in SStrings.cpp)
 //			CreateResultsDiskFiles (in SUtilities.cpp)
 //			InitializeGlobalAlertVariables (in SProjectUtilities.cpp)
@@ -93,21 +63,21 @@
 //			MaxLikeClsfierControl
 //				InitializeClassifierVarStructure
 //				SetupClsfierMemory
-//				GetStatisticsFeatureVector (in statCompute.c)
-//				GetTransformedClassCovarianceMatrix (in statCompute.c)
-//				ReduceMeanVector (in statCompute.c)
-//				InvertSymmetricMatrix  (SPMatUtl.cpp)
-//				MatrixMultiply  (in SMatUtil.cpp)
-//				SquareToTriangularMatrix (in projectUtilities.c)
+//				GetStatisticsFeatureVector (in SProjectComputeStatistics.cpp)
+//				GetTransformedClassCovarianceMatrix (in SProjectComputeStatistics.cpp)
+//				ReduceMeanVector (in SProjectComputeStatistics.cpp)
+//				InvertSymmetricMatrix  (SProjectMatrixUtilities.cpp)
+//				MatrixMultiply  (in SMatrixUtilities.cpp)
+//				SquareToTriangularMatrix (in SProjectUtilities.cpp)
 //				CreateThresholdTables
 //				ClassifyAreasControl
-//					GetListResultsStringBuffer (in SLstRslt.cpp)
-//					LoadDItemString (in SDlgUtil.cpp)
-//					CheckSomeEvents (in multiSpec.c or CStubs.cpp)
+//					GetListResultsStringBuffer (in SListResults.cpp)
+//					LoadDItemString (in SDialogUtilities.cpp)
+//					CheckSomeEvents (in MMultiSpec.c or SStubs.cpp)
 //					OutputString (in SStrings.cpp)
 //						ListString (in SStrings.cpp)
 //					ClassifyTrainTestFields
-//						LoadDItemValue (in SDlgUtil.cpp)
+//						LoadDItemValue (in SDialogUtilities.cpp)
 //						OutputString (in SStrings.cpp)
 //							ListString (in SStrings.cpp)
 //						GetFieldBoundary (in SProjectUtilities.cpp)
@@ -126,52 +96,52 @@
 //								CloseUpFileIOInstructions (in SFileIO.cpp)
 //								ListTrainTestSummary
 //
-//							EchoClassifier (in SEchoSpc.cpp)
+//							EchoClassifier (in SClassifyEcho.cpp)
 //
 //					ClassifyArea
 //						"see above"
 //
-//					ListClassificationSummary (in listResults.c)
+//					ListClassificationSummary (in )
 //
 //			FisherClsfierControl
 //				SetupClsfierMemory
-//				ReduceMeanVector (in multiSpecUtilities.c)
+//				ReduceMeanVector (in SUtilities.cpp)
 //				ClassifyAreasControl
 //					"See above"
 //
 //			EuclideanClsfierControl
 //
-//			EchoClsfierControl (in SEClssfy.cpp)
+//			EchoClsfierControl (in SClassifyEchoControl.cpp)
 //				InitializeClassifierVarStructure
 //				initialize_common_info (in SEMemory.cpp)
-//				Interface (in SEClssfy.cpp)
-//				SetupClsfierStats (in SEClssfy.cpp)
+//				Interface (in SClassifyEchoControl.cpp)
+//				SetupClsfierStats (in SClassifyEchoControl.cpp)
 //				setup_basic_echo_information (in SAuxEcho.cpp)
 //				CreateThresholdTables
 //				ClassifyAreasControl
 //					"See above"
 //					...
-//					EchoClassifier (in SEchoSpc.cpp)
+//					EchoClassifier (in SClassifyEcho.cpp)
 //						setup_echo_image_selection (in SAuxEcho.cpp)
 //						malloc_epix (in SAuxEcho.cpp)
 //						free_epix (in SAuxEcho.cpp)
 //						SetUpFileIOInstructions (in SFileIO.cpp)
-//						ShowStatusDialogItemSet (in SDlgUtil.cpp)
-//						phase1 (in SEPhase.cpp)
+//						ShowStatusDialogItemSet (in SDialogUtilities.cpp)
+//						phase1 (in SClassifyEchoPhase.cpp)
 //							read_lines_of_data1 (in SAuxSpec.cpp)
-//							loglik_echo (in SEPhase.cpp)
+//							loglik_echo (in SClassifyEchoPhase.cpp)
 //							log_lik_ratio (in SAuxEcho.cpp)
-//							BlockMoveData (in CStubs.cpp)
+//							BlockMoveData (in SStubs.cpp)
 //							stuffing (SAuxEcho.cpp)
-//							CheckSomeEvents (in multispec.c or CStubs.cpp)
+//							CheckSomeEvents (in MMultiSpec.c or SStubs.cpp)
 //							subtract_log_lik (in SAuxEcho.cpp)
-//							ClassifyNonHomogeneousCells (in SEPhase.cpp)
-//								classify_pixel_using_ML (in SEPhase.cpp)
-//							SaveProbabilityInformation (in SEchoSpc.cpp)
+//							ClassifyNonHomogeneousCells (in SClassifyEchoPhase.cpp)
+//								classify_pixel_using_ML (in SClassifyEchoPhase.cpp)
+//							SaveProbabilityInformation (in SClassifyEcho.cpp)
 //							
-//						Write_Homogeneous_Fields_File (in SEchoSpc.cpp)
-//						Write_Classified_Fields_File (in SEchoSpc.cpp)
-//						PostEchoClassifier (in SEClssfy.cpp)
+//						Write_Homogeneous_Fields_File (in SClassifyEcho.cpp)
+//						Write_Classified_Fields_File (in SClassifyEcho.cpp)
+//						PostEchoClassifier (in SClassifyEchoControl.cpp)
 //						free_epix (in SAuxEcho.cpp)
 //
 //				free_class_stat (in SEMemory.cpp)
@@ -184,19 +154,19 @@
 //				GetIOBufferPointers
 //				DrawDialog
 //				GetTotalSumSquares
-//				DisposeIOBufferPointers (in SMemUtil.cpp)
+//				DisposeIOBufferPointers (in SMemoryUtilities.cpp)
 //				GetTotalTime
 //				SetupClsfierMemory
 //				ComputeCorrelationMatrix
 //				SetupFeatureTransformationMemory
-//				TransformSymmetricMatrix (in SMatUtil.cpp)
-//				InvertSymmetricMatrix (SPMatUtl.cpp)
-//				MatrixMultiply (in SMatUtil.cpp)
-//				MatrixMultiply (in SMatUtil.cpp)
+//				TransformSymmetricMatrix (in SMatrixUtilities.cpp)
+//				InvertSymmetricMatrix (SProjectMatrixUtilities.cpp)
+//				MatrixMultiply (in SMatrixUtilities.cpp)
+//				MatrixMultiply (in SMatrixUtilities.cpp)
 //				GetStatisticsFeatureVector
 //				GetClassMeanVector
-//				MatrixMultiply (in SMatUtil.cpp)
-//				MatrixMultiply (in SMatUtil.cpp)
+//				MatrixMultiply (in SMatrixUtilities.cpp)
+//				MatrixMultiply (in SMatrixUtilities.cpp)
 //				ReleaseMatrixInversionMemory
 //				ReleaseFeatureTransformationMemory
 //				ClassifyAreasControl
@@ -206,16 +176,16 @@
 //						CheckSomeEvents
 //
 //			ClearGlobalAlertVariables (in SProjectUtilities.cpp)
-//			UpdateOverlayControl (in controls.c and)
+//			UpdateOverlayControl (in MControls.c and)
 //			UnlockImageOverlayInfoHandle (in SImageOverlays.cpp)
 //			ListSpecifiedStringNumber (in SStrings.cpp)
 //			ListCPUTimeInformation (in SStrings.cpp)
-//			UpdateOutputWScrolls (in controls.c and)
+//			UpdateOutputWScrolls (in MControls.c and)
 //			UnlockImageInformationHandles (in SUtility.cpp)
 //			CloseResultsFiles (in SUtility.cpp)
-//			CloseStatusDialog (in SDlgUtil.cpp)
+//			CloseStatusDialog (in SDialogUtilities.cpp)
 //			MInitCursor (in SUtility.cpp)
-//			CheckAndUnlockHandle (in SMemUtil.cpp)
+//			CheckAndUnlockHandle (in SMemoryUtilities.cpp)
 //			UnlockProjectWindowInfoHandles (in SProject.cpp)
 //
 //	Include files:			"MultiSpecHeaders"
@@ -224,12 +194,11 @@
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
+#include	"Ssvm.h"
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "SMultiSpec.h"
-	#include "LImageView.h"
-
-	#undef include_SVM_Classifier
+	#include "xImageView.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -241,309 +210,317 @@
   
 #if defined multispec_win  
 	#include "WImageView.h"
-
-	#undef include_SVM_Classifier
 #endif	// defined multispec_win  
 
 #define	kDoNotIncludeTab						0
 
-#if defined include_SVM_Classifier
-#include "dlib/svm_threaded.h"
+
+/*
+bool Question1 (
+				int 											column,
+				double 										value,
+				double*										data)
+
+{
+	if (data[column] >= value)
+		return true;
+    
+	else
+		return false;
+ 
+}	// end "Question1"
 
 
-//typedef dlib::matrix<double,0,1> column_vector;
-//typedef dlib::matrix<double,0,1> sample_type;         // Can be anything you want.
-//vector.
 
-int predict_label (
-                   const column_vector& weights,
-                   const sample_type& sample
-                   )
+void classify (
+				double*										data,
+				RFNode*										root,
+				int 											col,
+				double*										label)
 
-			// requires
-			// - weights.size() == 9
-			// - sample.size() == 3
-			// ensures
-			// - Given the 9-dimensional weight vector which defines a 3 class classifier, this
-			// function predicts the class of the given 3-dimensional sample vector.
-			// Therefore, the output of this function is either 0, 1, or 2 (i.e. one of the
-			// three possible labels).
-
-	{
-   // Our 3-class classifier model can be thought of as containing 3 separate linear
-   // classifiers.  So to predict the class of a sample vector we evaluate each of these
-   // three classifiers and then whatever classifier has the largest output "wins" and
-   // predicts the label of the sample.  This is the popular one-vs-all multi-class
-   // classifier model.
-   //
-   // Keeping this in mind, the code below simply pulls the three separate weight vectors
-   // out of weights and then evaluates each against sample.  The individual classifier
-   // scores are stored in scores and the highest scoring index is returned as the label.
-   column_vector w0, w1, w2;
-   //w0 = rowm(weights, dlib::range(0,2));
-   //w1 = rowm(weights, dlib::range(3,5));
-   //w2 = rowm(weights, dlib::range(6,8));
-   
-   //column_vector scores(3);
-   //scores = dot(w0, sample), dot(w1, sample), dot(w2, sample);
-   long labelSize = weights.size()/sample.size();
-   column_vector scores;
-   scores.set_size(labelSize);
-  
-   for(long i = 0; i < labelSize; i++)
-   	{
-      int startIdx = i*sample.size();
-      int endIdx = (i+1)*sample.size()-1;
-      w0 = rowm(weights, dlib::range(startIdx,endIdx));
-      scores(i) = dot(w0, sample);
+{
+	if (root != NULL)
+		{
+		col --;
+		if (Question1 (col, root->data, data))
+			{
+					// reach leaf node
+			if (root->left == NULL)
+				{
+				//std::cout << "left:" << root->data << "," << col << "," << data[col] << std::endl;
+				*label = root->data;
+				//return root->data;
+ 
+				}
+ 
+			classify (data, root->left, col, label);
+ 
+	  		}
+		else
+	  		{
+			if (root->right == NULL)
+				{
+				//std::cout << "right:" << root->data << "," << col <<"," << data[col] << std::endl;
+				*label = root->data;
+				//return root->data;
+				
+				}
+			
+			classify(data, root->right, col, label);
+	  		
+			}
+		
 		}
-   
-   return index_of_max(scores);
-}
-#endif	// include_SVM_Classifier
+ 
+}	// end "classify"
+*/
+
+
+extern void	ListString (
+				const char*							textBuffer);
+
+
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 			
-void						CheckAndUnlockCEMParameterHandles (void);	
+void CheckAndUnlockCEMParameterHandles (void);
 								
-SInt16 					CEMClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
-			
-void 						CEMClsfierControl (
-								FileInfoPtr							fileInfoPtr);							
+SInt16 CEMClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
+
+void CEMClsfierControl (
+				FileInfoPtr							fileInfoPtr);
 	
-Boolean					CheckClassifyTextWindowSpaceNeeded (void);
+Boolean CheckClassifyTextWindowSpaceNeeded (void);
 		
-SInt16 					ClassifyArea (
-								SInt16								classPointer, 
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HSInt64Ptr							countVectorPtr);
-		
-SInt16 					ClassifyPerPointArea (
-								SInt16								classPointer, 
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HSInt64Ptr							countVectorPtr);
+SInt16 ClassifyArea (
+				SInt16								classPointer,
+				AreaDescriptionPtr				areaDescriptionPtr, 
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HSInt64Ptr							countVectorPtr);
 
-SInt16 					ClassifyTrainTestFields (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								SInt16								fieldType);
+SInt16 ClassifyPerPointArea (
+				SInt16								classPointer,
+				AreaDescriptionPtr				areaDescriptionPtr, 
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HSInt64Ptr							countVectorPtr);
 
-Boolean 					CreateCorrelationThresholdTable (
-								double*								thresholdTablePtr);
+SInt16 ClassifyTrainTestFields (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				SInt16								fieldType);
+
+Boolean CreateCorrelationThresholdTable (
+				double*								thresholdTablePtr);
 									
-SInt16 					CorrelationClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
-								
-void 						CorrelationClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+SInt16 CorrelationClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
 
-UInt32 					CorrelationThresholdClass (
-								double								dValue,
-								double*								thresholdTablePtr);
+void CorrelationClsfierControl (
+				FileInfoPtr							fileInfoPtr);
+
+UInt32 CorrelationThresholdClass (
+				double								dValue,
+				double*								thresholdTablePtr);
 										
-Boolean 					CreateChiSquareThresholdTable (
-								SInt32 								degreesOfFreedom, 
-								double* 								thresholdTablePtr);
+Boolean CreateChiSquareThresholdTable (
+				SInt32 								degreesOfFreedom,
+				double* 								thresholdTablePtr);
 
-Boolean 					CreateTrailerFiles (
-								ClassifierVarPtr 					clsfyVariablePtr,
-								SInt16 								numberClasses, 
-								SInt16* 								classPtr,
-								SInt16								numberListClasses);
+Boolean CreateSupportVectorMachineModel (
+				ClassifySpecsPtr					classifySpecsPtr);
 
-SInt16 					FisherClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
+Boolean CreateTrailerFiles (
+				ClassifierVarPtr 					clsfyVariablePtr,
+				SInt16 								numberClasses, 
+				SInt16* 								classPtr,
+				SInt16								numberListClasses);
 
-void 						FisherClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+SInt16 FisherClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
 
-Boolean 					GetClassifyDataBuffers (
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								WindowInfoPtr						windowInfoPtr,
-								LayerInfoPtr						layerInfoPtr, 
-								FileInfoPtr							fileInfoPtr, 
-								EchoClassifierVarPtr 			echoClassifierVarPtr,
-								FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr);
-											
-Boolean 					GetThresholdTableMemory (void);
+void FisherClsfierControl (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean 					GetTransformedCommonCovariance (
-								UInt16								numberOutputChannels,
-								HChannelStatisticsPtr			classChannelStatsPtr,
-								HDoublePtr							covariancePtr,
-								UInt16*								channelListPtr,
-								UInt16*								classPtr,  
-								UInt32								numberClasses,
-								Boolean								squareOutputMatrixFlag,
-								HDoublePtr							eigenVectorPtr,
-								HDoublePtr							tempMatrixPtr,
-								UInt16								numberFeatureChannels);
-								
-Boolean 					GetTtInvTransformedCommonCovarianceT (
-								UInt16								numberOutputChannels,
-								HChannelStatisticsPtr			classChannelStatsPtr,
-								HDoublePtr							covariancePtr,
-								UInt16*								channelListPtr,
-								UInt16*								classPtr,  
-								UInt32								numberClasses,
-								Boolean								squareOutputMatrixFlag,
-								HDoublePtr							eigenVectorPtr,
-								HDoublePtr							tempMatrixPtr,
-								UInt16								numberFeatures,
-								double*								logDeterminantPtr,
-								Boolean*								determinantOKFlagPtr);
-								
-Boolean 					GetTtInvTransformedCovarianceT (
-								UInt16								numberOutputChannels,
-								HChannelStatisticsPtr			classChannelStatsPtr,
-								HDoublePtr							covariancePtr,
-								UInt16*								channelListPtr, 
-								UInt16								statClassNumber,
-								Boolean								squareOutputMatrixFlag, 
-								SInt16								outputStatisticsCode,
-								HDoublePtr							eigenVectorPtr,
-								HDoublePtr							tempMatrixPtr,
-								UInt16								numberFeatures,
-								double*								logDeterminantPtr,
-								Boolean*								determinantOKFlagPtr);
+Boolean  GetClassifyDataBuffers (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr, 
+				FileInfoPtr							fileInfoPtr, 
+				EchoClassifierVarPtr 			echoClassifierVarPtr,
+				FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr);
 
-Boolean 					LoadClassifySpecs (
-								FileInfoPtr							fileInfoPtr);
+Boolean GetThresholdTableMemory (void);
 
-Boolean 					LoadProbabilityTable (void);
+Boolean GetTransformedCommonCovariance (
+				UInt16								numberOutputChannels,
+				HChannelStatisticsPtr			classChannelStatsPtr,
+				HDoublePtr							covariancePtr,
+				UInt16*								channelListPtr,
+				UInt16*								classPtr,  
+				UInt32								numberClasses,
+				Boolean								squareOutputMatrixFlag,
+				HDoublePtr							eigenVectorPtr,
+				HDoublePtr							tempMatrixPtr,
+				UInt16								numberFeatureChannels);
 
-Boolean 					LoadThresholdTable (
-								SInt16 								numberDegreesOfFreedom,
-								SInt16 								tableCode);
-								
-SInt16 					EuclideanClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
-																				
-void 						EuclideanClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+Boolean  GetTtInvTransformedCommonCovarianceT (
+				UInt16								numberOutputChannels,
+				HChannelStatisticsPtr			classChannelStatsPtr,
+				HDoublePtr							covariancePtr,
+				UInt16*								channelListPtr,
+				UInt16*								classPtr,  
+				UInt32								numberClasses,
+				Boolean								squareOutputMatrixFlag,
+				HDoublePtr							eigenVectorPtr,
+				HDoublePtr							tempMatrixPtr,
+				UInt16								numberFeatures,
+				double*								logDeterminantPtr,
+				Boolean*								determinantOKFlagPtr);
 
-void 						KNearestNeighborClassifierControl (
-								FileInfoPtr							fileInfoPtr);
+Boolean GetTtInvTransformedCovarianceT (
+				UInt16								numberOutputChannels,
+				HChannelStatisticsPtr			classChannelStatsPtr,
+				HDoublePtr							covariancePtr,
+				UInt16*								channelListPtr, 
+				UInt16								statClassNumber,
+				Boolean								squareOutputMatrixFlag, 
+				SInt16								outputStatisticsCode,
+				HDoublePtr							eigenVectorPtr,
+				HDoublePtr							tempMatrixPtr,
+				UInt16								numberFeatures,
+				double*								logDeterminantPtr,
+				Boolean*								determinantOKFlagPtr);
 
-SInt16               KNNClassifier (
-								AreaDescriptionPtr            areaDescriptionPtr,
-								FileInfoPtr                   fileInfoPtr,
-								ClassifierVarPtr              clsfyVariablePtr,
-								HUCharPtr                     outputBuffer1Ptr,
-								HUCharPtr                     thresholdBufferPtr,
-								HSInt64Ptr                    countVectorPtr,
-								Point                         point);
+Boolean LoadClassifySpecs (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean 					ListClassifyInputParameters (
-								FileInfoPtr							fileInfoPtr,
-								CMFileStream*						resultsFileStreamPtr);
+Boolean LoadProbabilityTable (void);
 
-Boolean 					ListNumberOfSameDistanceSamples (
-								CMFileStream*						resultsFileStreamPtr,
-								SInt64								totalSameDistanceSamples);
+Boolean LoadThresholdTable (
+				SInt16 								numberDegreesOfFreedom,
+				SInt16 								tableCode);
 
-void	 					MahalanobisClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+SInt16 EuclideanClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
 
-SInt16 					MahalanobisClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
+void EuclideanClsfierControl (
+				FileInfoPtr							fileInfoPtr);
 
-void	 					MaxLikeClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+void KNearestNeighborClassifierControl (
+				FileInfoPtr							fileInfoPtr);
 
-SInt16 					MaximumLikelihoodClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
+SInt16 KNNClassifier (
+				AreaDescriptionPtr            areaDescriptionPtr,
+				FileInfoPtr                   fileInfoPtr,
+				ClassifierVarPtr              clsfyVariablePtr,
+				HUCharPtr                     outputBuffer1Ptr,
+				HUCharPtr                     thresholdBufferPtr,
+				HSInt64Ptr                    countVectorPtr,
+				Point                         point);
 
-SInt16					ParallelPipedClassifier (
-								AreaDescriptionPtr				areaDescriptionPtr, 
-								FileInfoPtr							fileInfoPtr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HUCharPtr							outputBuffer1Ptr, 
-								HUCharPtr							probabilityBufferPtr, 
-								HSInt64Ptr							countVectorPtr, 
-								Point									point);
+Boolean ListClassifyInputParameters (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						resultsFileStreamPtr);
 
-void						ParallelPipedClsfierControl (
-								FileInfoPtr							fileInfoPtr);
+Boolean ListClassifySVMInputParameters (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						resultsFileStreamPtr);
+
+Boolean ListNumberOfSameDistanceSamples (
+				CMFileStream*						resultsFileStreamPtr,
+				SInt64								totalSameDistanceSamples);
+
+void MaxLikeClsfierControl (
+				FileInfoPtr							fileInfoPtr);
+
+SInt16 MaximumLikelihoodClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
+
+SInt16 ParallelPipedClassifier (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HUCharPtr							outputBuffer1Ptr, 
+				HUCharPtr							probabilityBufferPtr, 
+				HSInt64Ptr							countVectorPtr, 
+				Point									point);
+
+void ParallelPipedClsfierControl (
+				FileInfoPtr							fileInfoPtr);
 													
-Boolean 					SetupClsfierMemory (
-								HDoublePtr*							channelMeanPtr, 
-								HDoublePtr*							covariancePtr, 
-								double**								classConstantPtr,
-								double**								classConstantLOO1PtrPtr,
-								double**								classConstantLOO2PtrPtr,
-								double**								classConstantLOO3PtrPtr,
-								double**								classConstantLOO4PtrPtr,
-								double**								classConstantLOO5PtrPtr,
-								HChannelStatisticsPtr*			classChannelStatsPtr, 
-								HDoublePtr*							inverseCovPtr, 
-								HDoublePtr*							pivotPtr, 
-								SInt16**								indexRowPtr, 
-								SInt16**								indexColPtr, 
-								SInt16**								ipvotPtr);
+Boolean SetupClsfierMemory (
+				HDoublePtr*							channelMeanPtr,
+				HDoublePtr*							covariancePtr, 
+				double**								classConstantPtr,
+				double**								classConstantLOO1PtrPtr,
+				double**								classConstantLOO2PtrPtr,
+				double**								classConstantLOO3PtrPtr,
+				double**								classConstantLOO4PtrPtr,
+				double**								classConstantLOO5PtrPtr,
+				HChannelStatisticsPtr*			classChannelStatsPtr, 
+				HDoublePtr*							inverseCovPtr, 
+				HDoublePtr*							pivotPtr, 
+				SInt16**								indexRowPtr, 
+				SInt16**								indexColPtr, 
+				SInt16**								ipvotPtr);
 
-SInt16               SVMClassifier (
-                        AreaDescriptionPtr            areaDescriptionPtr,
-                        FileInfoPtr                   fileInfoPtr,
-                        ClassifierVarPtr              clsfyVariablePtr,
-                        HUCharPtr                     outputBuffer1Ptr,
-                        HUCharPtr                     probabilityBufferPtr,
-                        HSInt64Ptr                    countVectorPtr,
-                        Point                         point);
+SInt16 SupportVectorMachineClassifier (
+				AreaDescriptionPtr            areaDescriptionPtr,
+				FileInfoPtr                   fileInfoPtr,
+				ClassifierVarPtr              clsfyVariablePtr,
+				HUCharPtr                     outputBuffer1Ptr,
+				HUCharPtr                     probabilityBufferPtr,
+				HSInt64Ptr                    countVectorPtr,
+				Point                         point);
+
+void SupportVectorMachineClassifierControl (
+				FileInfoPtr							fileInfoPtr);
 									
-void 						WriteProbabilityGrouping (
-								SInt16								classificationMode);
+void WriteProbabilityGrouping (
+				SInt16								classificationMode);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -753,23 +730,23 @@ void CEMClsfierControl (
 				 		
 		if (continueFlag)	
 			continueFlag = GetIOBufferPointers (
-										&gFileIOInstructions[0],
-										gImageWindowInfoPtr,
-										gImageLayerInfoPtr,
-										gImageFileInfoPtr,
-										&gInputBufferPtr, 
-										&gOutputBufferPtr,
-										1,
-					 					gImageWindowInfoPtr->maxNumberColumns,
-					 					1,
-					 					numberCorrelationMatrixChannels,
-										(HUInt16Ptr)correlationMatrixChannelsPtr,
-										kPackData,
-										kForceBISFormat,
-										kForceReal8Bytes,
-										kDoNotAllowForThreadedIO,
-										&fileIOInstructionsPtr);
-				
+													&gFileIOInstructions[0],
+													gImageWindowInfoPtr,
+													gImageLayerInfoPtr,
+													gImageFileInfoPtr,
+													&gInputBufferPtr, 
+													&gOutputBufferPtr,
+													1,
+													gImageWindowInfoPtr->maxNumberColumns,
+													1,
+													numberCorrelationMatrixChannels,
+													(HUInt16Ptr)correlationMatrixChannelsPtr,
+													kPackData,
+													kForceBISFormat,
+													kForceReal8Bytes,
+													kDoNotAllowForThreadedIO,
+													&fileIOInstructionsPtr);
+			
 				// Get the sums of squares					
 				// Get the start time.															
 						
@@ -1107,7 +1084,7 @@ void CEMClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1311,7 +1288,7 @@ SInt16 CEMClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1346,7 +1323,7 @@ void CheckAndUnlockCEMParameterHandles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1465,7 +1442,7 @@ Boolean CheckClassifyTextWindowSpaceNeeded (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1498,7 +1475,7 @@ SInt16 ClassifyArea (
 				HSInt64Ptr							countVectorPtr)
 					
 {		
-	SInt16					returnCode;
+	SInt16								returnCode;
 	
 	
 			// Initialize gTempDoubleVariable1;  it is used in determining the	
@@ -1544,7 +1521,7 @@ SInt16 ClassifyArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1563,7 +1540,7 @@ SInt16 ClassifyArea (
 // Called By:			MaxLikeClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 07/08/2019
+//	Revised By:			Larry L. Biehl			Date: 12/11/2019
 
 void ClassifyAreasControl (
 				FileInfoPtr							fileInfoPtr, 
@@ -1580,7 +1557,7 @@ void ClassifyAreasControl (
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
 	HUInt16Ptr							ioBuffer2Ptr;
 	
-	Handle								activeImageWindowInfoHandle,
+	Handle								overlayImageWindowInfoHandle,
 											countVectorHandle = NULL;
 	
 	SInt64								ipixels,
@@ -1791,11 +1768,10 @@ void ClassifyAreasControl (
 				
 			}	// end "if (continueFlag)"
 	
-		
 				// Set some variables for use when drawing image overlays.
-		
-		activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
-		SetLCToWindowUnitVariables (activeImageWindowInfoHandle,
+
+		overlayImageWindowInfoHandle = gProjectInfoPtr->overlayImageWindowInfoHandle;
+		SetLCToWindowUnitVariables (overlayImageWindowInfoHandle,
 												kToImageWindow,
 												FALSE,
 												&lcToWindowUnitsVariables);
@@ -1811,11 +1787,11 @@ void ClassifyAreasControl (
 															NULL);
 			
 			WindowInfoPtr imageWindowInfoPtr =
-			(WindowInfoPtr)			GetHandlePointer (activeImageWindowInfoHandle);
+							(WindowInfoPtr)GetHandlePointer (overlayImageWindowInfoHandle);
 			imageWindowInfoPtr->drawBaseImageFlag = FALSE;
 			if (imageOverlayInfoPtr->drawBaseImageCode != 15)
 				{
-				WindowPtr windowPtr = GetWindowPtr (activeImageWindowInfoHandle);
+				WindowPtr windowPtr = GetWindowPtr (overlayImageWindowInfoHandle);
 				imageWindowInfoPtr->drawBaseImageFlag = TRUE;
 				InvalidateWindow (windowPtr, kImageFrameArea, FALSE);
 				
@@ -1848,7 +1824,8 @@ void ClassifyAreasControl (
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTrainingCode & (kFieldSummary+kClassSummary));
 				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
+				if (gClassifySpecsPtr->mode != kSupportVectorMachineMode)
+					clsfyVariablePtr->totalSameDistanceSamples = 0;
 	
 				returnCode = ClassifyTrainTestFields (&gAreaDescription, 
 																	fileIOInstructionsPtr,
@@ -1862,8 +1839,8 @@ void ClassifyAreasControl (
 			
 			if (continueFlag)
 				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
+													resultsFileStreamPtr,
+													clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->trainingFldsResubstitutionFlag)" 
 			
@@ -1892,7 +1869,8 @@ void ClassifyAreasControl (
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTrainingCode & (kFieldSummary+kClassSummary));
 				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
+				if (gClassifySpecsPtr->mode != kSupportVectorMachineMode)
+					clsfyVariablePtr->totalSameDistanceSamples = 0;
 								
 				clsfyVariablePtr->useLeaveOneOutMethodFlag = TRUE;
 				
@@ -1916,8 +1894,8 @@ void ClassifyAreasControl (
 			
 			if (continueFlag)
 				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
+													resultsFileStreamPtr,
+													clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->trainingFldsLOOFlag && ..." 
 					
@@ -1957,7 +1935,8 @@ void ClassifyAreasControl (
 				clsfyVariablePtr->summaryCode = (gProjectInfoPtr->
 								listResultsTestCode & (kFieldSummary+kClassSummary));
 				
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
+				if (gClassifySpecsPtr->mode != kSupportVectorMachineMode)
+					clsfyVariablePtr->totalSameDistanceSamples = 0;
 								
 						// Intialize the nextTime variable to indicate when the next check	
 						// should occur for a command-.
@@ -1977,8 +1956,8 @@ void ClassifyAreasControl (
 			
 			if (continueFlag)
 				continueFlag = ListNumberOfSameDistanceSamples (
-															resultsFileStreamPtr,
-															clsfyVariablePtr->totalSameDistanceSamples);
+													resultsFileStreamPtr,
+													clsfyVariablePtr->totalSameDistanceSamples);
 			
 			}	// end "if (gClassifySpecsPtr->testingFlds && ...)" 
 		
@@ -2017,6 +1996,7 @@ void ClassifyAreasControl (
 			CMFileStream* resultsFileStreamPtr = GetResultsFileStreamPtr (0);
 		
 			if (resultsFileStreamPtr == NULL)
+						// List "Area classification not saved to disk"
 				continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
 																		IDS_Classify62,
 																		(unsigned char*)gTextString, 
@@ -2026,13 +2006,31 @@ void ClassifyAreasControl (
 										
 			else	// resultsFileStreamPtr != NULL
 				{
-				CharPtr fileNamePtr = 
-							(char*)GetFileNameCPointerFromFileStream (resultsFileStreamPtr);
+						// List "Area classification was saved to disk"
+				CharPtr filePathPtr =
+							(char*)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 				continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
 																		IDS_Classify61, 
 																		resultsFileStreamPtr, 
 																		gOutputForce1Code,
-																		fileNamePtr, 
+																		&filePathPtr[1],
+																		continueFlag,
+																		kUTF8CharString);
+				
+				}	// end "else resultsFileStreamPtr != NULL"
+			
+					// List information on area probability map if it was saved to disk
+			
+			CMFileStream* probabilityFileStreamPtr = GetResultsFileStreamPtr (1);
+			if (probabilityFileStreamPtr != NULL)
+				{
+				CharPtr filePathPtr =
+						(char*)GetFilePathPPointerFromFileStream (probabilityFileStreamPtr);
+				continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
+																		IDS_Classify98,
+																		resultsFileStreamPtr,
+																		gOutputForce1Code,
+																		&filePathPtr[1],
 																		continueFlag,
 																		kUTF8CharString);
 				
@@ -2055,7 +2053,7 @@ void ClassifyAreasControl (
 													continueFlag);
 	
 					// List the line and column number of area being classified.
-					// "  Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld.%s"
+					// "  Lines %ld to %ld by %ld.  Columns %ld to %ld by %ld"
 					
 			continueFlag = ListLineColumnIntervalString (
 																	resultsFileStreamPtr, 
@@ -2095,7 +2093,8 @@ void ClassifyAreasControl (
 			
 			if (continueFlag)
 				{
-				clsfyVariablePtr->totalSameDistanceSamples = 0;
+				if (gClassifySpecsPtr->mode != kSupportVectorMachineMode)
+					clsfyVariablePtr->totalSameDistanceSamples = 0;
 				
 						// Intialize the nextTime variable to indicate when the next check	
 						// should occur for a command-.
@@ -2118,14 +2117,15 @@ void ClassifyAreasControl (
 				ipixels 		= echoClassifierVarPtr->ipixels;
 				cell_width 	= echoClassifierVarPtr->cell_width;
 				cell_size 	= echoClassifierVarPtr->cell_size;
-				number_of_homogeneous_cells 
-					= echoClassifierVarPtr->number_of_homogeneous_cells;
+				number_of_homogeneous_cells =
+												echoClassifierVarPtr->number_of_homogeneous_cells;
 					
 				percent = (double)number_of_homogeneous_cells * cell_size * 100 / ipixels;
 				
+						// List homogeneous cell information
+						
 				strLength = sprintf ((char*)gTextString, 
-											"%s%s    ",
-											gEndOfLine,
+											"%s    ",
 											gEndOfLine);
 				
 				strLength = ListCountValue ((char*)gTextString,
@@ -2163,26 +2163,15 @@ void ClassifyAreasControl (
 												percent,
 												gEndOfLine);
 				strLength += numberChars;
-				/*
-				sprintf ((char*)gTextString, 
-					"%s%s    %ld homogeneous cells (%hd by %hd) "
-					"%ld / %lld pixels (%.2f %%)%s",
-					gEndOfLine,
-					gEndOfLine,
-					number_of_homogeneous_cells,
-					cell_width,
-					cell_width,
-					number_of_homogeneous_cells * cell_size,
-					echoClassifierVarPtr->ipixels,
-					percent,
-					gEndOfLine);
-				*/					
-				continueFlag = OutputString (resultsFileStreamPtr, 
+
+				continueFlag = OutputString (resultsFileStreamPtr,
 														(char*)gTextString, 
 														strLength, 
 														gOutputForce1Code,
 														continueFlag);
-				 
+				
+						// List homogeneous field information
+				
 				percent = 0;
 				
 				if (echoClassifierVarPtr->number_of_fields > 0) 
@@ -2226,21 +2215,66 @@ void ClassifyAreasControl (
 												" pixels per merged field.%s",
 												gEndOfLine);
 				strLength += numberChars;
-				/*
-			   sprintf (
-					(char*)gTextString, 
-					"    %ld homogenous fields. %ld homogeneous fields after merging. Average %ld pixels per merged field.%s",
-					echoClassifierVarPtr->number_of_fields,
-					(UInt32)percent,
-					gEndOfLine);
-				*/					
-				continueFlag = OutputString (resultsFileStreamPtr, 
+
+				continueFlag = OutputString (resultsFileStreamPtr,
 														(char*)gTextString, 
 														strLength, 
 														gOutputForce1Code,
 														continueFlag);
-													
-				}	//	"if ((returnCode != 1) && ... == kEchoMode)"	
+				
+						// List Homogeneous Fields image file name if one was created.
+				
+				FileInfoPtr homogeneousFieldsFileInfoPtr = GetResultsFilePtr (2);
+				if (homogeneousFieldsFileInfoPtr != NULL)
+					{
+					CharPtr filePathPtr = (char*)GetFilePathPPointerFromFileInfo (
+																		homogeneousFieldsFileInfoPtr);
+					
+					continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
+																			IDS_Classify96,
+																			resultsFileStreamPtr,
+																			gOutputForce1Code,
+																			&filePathPtr[1],
+																			continueFlag,
+																			kUTF8CharString);
+					
+					}	// end "homogeneousFieldsFileInfoPtr != NULL"
+				
+						// List Homogeneous Fields image file name if one was created.
+				
+				FileInfoPtr classifiedFieldsFileInfoPtr = GetResultsFilePtr (3);
+				if (classifiedFieldsFileInfoPtr != NULL)
+					{
+					CharPtr filePathPtr = (char*)GetFilePathPPointerFromFileInfo (
+																		classifiedFieldsFileInfoPtr);
+					
+					continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
+																			IDS_Classify97,
+																			resultsFileStreamPtr,
+																			gOutputForce1Code,
+																			&filePathPtr[1],
+																			continueFlag,
+																			kUTF8CharString);
+					
+					}	// end "classifiedFieldsFileInfoPtr != NULL"
+				
+				if (echoClassifierVarPtr->tempDiskFileWasUsedFlag)
+					{
+					strLength = sprintf (
+								(char*)gTextString,
+								"    Temporary disk file was used for the classification.%s%s",
+								gEndOfLine,
+								gEndOfLine);
+					
+					continueFlag = OutputString (resultsFileStreamPtr,
+														  (char*)gTextString,
+														  strLength,
+														  gOutputForce1Code,
+														  continueFlag);
+					
+					}	// end "if (echoClassifierVarPtr->tempDiskFileWasUsedFlag)"
+
+				}	//	"if (continueFlag && ... == kEchoMode)"	
 				
 			HideStatusDialogItemSet (kStatusTitle2);
 			HideStatusDialogItemSet (kStatusLine);
@@ -2259,23 +2293,6 @@ void ClassifyAreasControl (
 				continueFlag = ListNumberOfSameDistanceSamples (
 														resultsFileStreamPtr,
 														clsfyVariablePtr->totalSameDistanceSamples);
-			
-			if (gClassifySpecsPtr->mode == kEchoMode &&
-												echoClassifierVarPtr->tempDiskFileWasUsedFlag)
-				{
-				strLength = sprintf (
-							(char*)gTextString, 
-							"    Temporary disk file was used for the classification.%s%s",
-							gEndOfLine,
-							gEndOfLine);
-				
-				continueFlag = OutputString (resultsFileStreamPtr, 
-													  (char*)gTextString, 
-													  strLength, 
-													  gOutputForce1Code,
-													  continueFlag);
-				
-				}	// end "if (echoClassifierVarPtr->tempDiskFileWasUsedFlag)"
 			
 					// Write probability grouping to end of probability file if
 					// one is being created.
@@ -2314,7 +2331,7 @@ void ClassifyAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2330,10 +2347,10 @@ void ClassifyAreasControl (
 //
 // Value Returned:	None	
 // 
-// Called By:			Menus in menus.c
+// Called By:			OnProcClassify in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 08/13/2019
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 void ClassifyControl (void)
 
@@ -2386,9 +2403,9 @@ void ClassifyControl (void)
 				gOutputCode = gClassifySpecsPtr->outputStorageType;
 				gOutputForce1Code = (gOutputCode | 0x0001);
 				
-						// Note that statistics are not needed for the Support Vector Machine
-						// or the K-Nearest Neighbor classifiers. The training data values
-						// are used.
+						// Note that statistics are not needed for the Support Vector
+						// Machine or the K-Nearest Neighbor classifiers. The training
+						// data values are used.
 				
 				if (gClassifySpecsPtr->mode == kSupportVectorMachineMode ||
 												gClassifySpecsPtr->mode == kKNearestNeighborMode)
@@ -2401,7 +2418,8 @@ void ClassifyControl (void)
 					continueFlag = VerifyProjectTrainingPixelsLoaded (
 															&gClassifySpecsPtr->numberClasses,
 															gClassifySpecsPtr->classPtr,
-															2, 
+															//2,
+															1,
 															kSetupGlobalInfoPointers,
 															&minimumNumberTrainPixels);
 					gProjectInfoPtr->statisticsCode = savedStatisticsCode;
@@ -2413,6 +2431,11 @@ void ClassifyControl (void)
 																			gProjectInfoPtr->knnCounter)
 						gClassifySpecsPtr->nearestNeighborKValue =
 																			gProjectInfoPtr->knnCounter;
+					
+					//if (continueFlag &&
+					//		gClassifySpecsPtr->mode == kSupportVectorMachineMode &&
+					//			!gClassifySpecsPtr->supportVectorMachineModelAvailableFlag)
+					//	continueFlag = CreateSupportVectorMachineModel (gClassifySpecsPtr);
 					
 					}	// end "if (...->mode == kSupportVectorMachineMode || ..."
 					
@@ -2580,6 +2603,11 @@ void ClassifyControl (void)
 					continueFlag = ListClassifyInputParameters (fileInfoPtr,
 																				resultsFileStreamPtr);
 					
+					if (continueFlag &&
+							gClassifySpecsPtr->mode == kSupportVectorMachineMode &&
+								!gClassifySpecsPtr->supportVectorMachineModelAvailableFlag)
+						continueFlag = CreateSupportVectorMachineModel (gClassifySpecsPtr);
+					
 					Boolean checkNumberOfPixelsFlag = FALSE;
 					if (gClassifySpecsPtr->mode == kMaxLikeMode || 
 														gClassifySpecsPtr->mode == kMahalanobisMode)
@@ -2649,7 +2677,7 @@ void ClassifyControl (void)
 						
 						}	// end "if (continueFlag && minimumNumberTrainPixels < 3 && ..."
 						
-							// Create the ERDAS output file now if it is being requested.
+							// Create the output files now if they are being requested.
 														
 					if (continueFlag && 
 								!(gClassifySpecsPtr->outputStorageType & kAsciiFormatCode)	)
@@ -2688,11 +2716,11 @@ void ClassifyControl (void)
 							case kEchoMode:			// Echo
 	      					EchoClsfierControl (fileInfoPtr);
 								break;
-							/*
-							case kSupportVectorMachineMode:	// Decision Tree
-								DecisionTreeControl (fileInfoPtr);
+							
+							case kSupportVectorMachineMode:	// Support Vector Machine
+								SupportVectorMachineClassifierControl (fileInfoPtr);
 								break;
-							*/
+							
                      case kKNearestNeighborMode:
                         KNearestNeighborClassifierControl (fileInfoPtr);
                         break;
@@ -2716,7 +2744,7 @@ void ClassifyControl (void)
 							}	// end "switch (classifyMode)" 
 												
 								// Reset the cancel operation globals.	
-																	
+						
 						ClearGlobalAlertVariables ();
 							
 						if (gOutputCode & kCreateImageOverlayCode)
@@ -2725,12 +2753,13 @@ void ClassifyControl (void)
 							
 								// Set drawBaseImageFlag to proper setting for general updates.
 						
-						Handle activeImageWindowInfoHandle = FindProjectBaseImageWindowInfoHandle ();
-						WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-																	activeImageWindowInfoHandle);
+						Handle activeImageWindowInfoHandle =
+														FindProjectBaseImageWindowInfoHandle ();
+						WindowInfoPtr imageWindowInfoPtr =
+								(WindowInfoPtr)GetHandlePointer (activeImageWindowInfoHandle);
 						if (imageWindowInfoPtr != NULL)
 							imageWindowInfoPtr->drawBaseImageFlag = GetDrawBaseImageFlag (
-																	gClassifySpecsPtr->imageOverlayIndex);
+																gClassifySpecsPtr->imageOverlayIndex);
 	
 								// Make sure that any image overlay handle is unlocked.
 								
@@ -2846,7 +2875,7 @@ void ClassifyControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3011,7 +3040,8 @@ SInt16 ClassifyPerPointArea (
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
 	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
-	nextStatusAtLeastLine = areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
+	nextStatusAtLeastLine =
+							areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
 		
 			// The purpose of skipCount is to only allow updates in drawing the
 			// image overlay every 2 cycles of gNextTime.
@@ -3054,16 +3084,8 @@ SInt16 ClassifyPerPointArea (
 														skipCount >= 2)
 				{
 				sourceRect.bottom = lineCount;
-				/*
-				int numberChars = sprintf ((char*)gTextString3,
-												"%s SClassify.cpp:ClassifyPerPointArea (top, bottom): %d, %d%s",
-												gEndOfLine,
-												sourceRect.top,
-												sourceRect.bottom,
-												gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-				*/
-				InvalidateImageSegment (gImageWindowInfoPtr,
+
+				InvalidateImageSegment (imageWindowInfoPtr,
 												//displaySpecsPtr,
 												lcToWindowUnitsVariablesPtr,
 												&sourceRect,
@@ -3145,15 +3167,13 @@ SInt16 ClassifyPerPointArea (
 					break;
             
 				case kSupportVectorMachineMode:
-					#if defined include_SVM_Classifier
-					returnCode = SVMClassifier (areaDescriptionPtr,
-														 fileInfoPtr,
-														 clsfyVariablePtr,
-														 outputBufferPtr,
-														 probabilityBufferPtr,
-														 countVectorPtr,
-														 point);
-					#endif
+					returnCode = SupportVectorMachineClassifier (areaDescriptionPtr,
+																				 fileInfoPtr,
+																				 clsfyVariablePtr,
+																				 outputBufferPtr,
+																				 probabilityBufferPtr,
+																				 countVectorPtr,
+																				 point);
                break;
 					
 				case kKNearestNeighborMode:
@@ -3258,7 +3278,7 @@ SInt16 ClassifyPerPointArea (
 				stringPtr = (char*)CtoPstring (gTextString, gTextString);
 				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					CheckSomeEvents (osMask+updateMask);
 				#endif
 					
@@ -3294,16 +3314,8 @@ SInt16 ClassifyPerPointArea (
 	if (gOutputCode & kCreateImageOverlayCode)
 		{
 		sourceRect.bottom = displayBottomMax;
-		/*
-		int numberChars2 = sprintf ((char*)gTextString3,
-										"%s SClassify.cpp:ClassifyPerPointArea (top, bottom): %d, %d%s",
-										gEndOfLine,
-										sourceRect.top,
-										sourceRect.bottom,
-										gEndOfLine);
-		ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-		*/
-		InvalidateImageSegment (gImageWindowInfoPtr,
+
+		InvalidateImageSegment (imageWindowInfoPtr,
 										lcToWindowUnitsVariablesPtr,
 										&sourceRect,
 										displayBottomMax);
@@ -3362,7 +3374,7 @@ SInt16 ClassifyPerPointArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3453,13 +3465,7 @@ SInt16 ClassifyTrainTestFields (
 				classIndex++)
 		clsfyVariablePtr->countClassIndexPtr[classIndex] = -1;
 		
-			// Set line and column intervals to 1.											
-	/*
-	areaDescriptionPtr->lineInterval = 1;
-	areaDescriptionPtr->columnInterval = 1;
-	ClearAreaDescriptionOffsetVariables (areaDescriptionPtr);
-	*/
-			// Set up status dialog.  Load in number of classes.						
+			// Set up status dialog.  Load in number of classes.
 				
 	LoadDItemValue (
 			gStatusDialogPtr, IDC_Status5, (SInt32)gClassifySpecsPtr->numberClassAreas);
@@ -3665,7 +3671,7 @@ SInt16 ClassifyTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3958,7 +3964,7 @@ SInt16 CorrelationClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4386,7 +4392,7 @@ void CorrelationClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4453,7 +4459,7 @@ UInt32 CorrelationThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4469,8 +4475,8 @@ UInt32 CorrelationThresholdClass (
 //
 // Value Returned: 		
 //
-// Called By:			threshold in aux_mspec.c
-//							LoadThresholdTable in classify.c
+// Called By:			LoadThresholdTable in SClassify.cpp
+//							LoadThresholdTable in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/17/1990
 //	Revised By:			Larry L. Biehl			Date: 12/21/2016	
@@ -4599,7 +4605,7 @@ Boolean CreateChiSquareThresholdTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4615,8 +4621,8 @@ Boolean CreateChiSquareThresholdTable (
 //
 // Value Returned: 		
 //
-// Called By:			threshold in aux_mspec.c
-//							LoadThresholdTable in classify.c
+// Called By:			CreateThresholdTable
+//							LoadThresholdTable
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1998
 //	Revised By:			Larry L. Biehl			Date: 01/13/1998
@@ -4643,12 +4649,306 @@ Boolean CreateCorrelationThresholdTable (
 		
 	return (TRUE);
 			
-}	// end "CreateCorrelationThresholdTable" 
+}	// end "CreateCorrelationThresholdTable"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean CreateSupportVectorMachineModel
+//
+//	Software purpose:	The purpose of this routine is to create any needed
+//							trailer files that are associated with the output
+//							classification files.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:
+//
+// Called By:			ClassifyAreasControl in SClassify.cpp
+//
+//	Coded By:			Tsung Tai Yeh			Date: 09/??/2019
+//	Revised By:			Larry L. Biehl			Date: 09/20/2019
+
+Boolean CreateSupportVectorMachineModel (
+				ClassifySpecsPtr					classifySpecsPtr)
+
+{
+	struct svm_node*					x_space;
+	struct svm_parameter 			param;
+	struct svm_problem 				prob;
+	
+	double*								inputDataVectorPtr;
+	
+	double								totalProbability;
+	
+   SInt16                        *channelsPtr,
+   										*classVectorPtr;
+	
+	UInt32								baseIndex,
+											feat,
+											index,
+											numberChannels,
+											numberClasses,
+											numberPixels,
+											numberProjectChannels,
+											pixelCount;
+	
+	Boolean								continueFlag = TRUE,
+											returnFlag = TRUE;
+	
+	
+			// Set SVM training weight parameters
+
+	param.svm_type = classifySpecsPtr->svm_type;
+	param.kernel_type = classifySpecsPtr->svm_kernel_type;
+	param.degree = classifySpecsPtr->svm_degree;
+	
+			// Recommendation for gamma is 1/numberChannels which does cause nearly
+			// perfect training but not very good test. Currently 0.0001 is used.
+	param.gamma = classifySpecsPtr->svm_gamma;
+	
+	param.coef0 = classifySpecsPtr->svm_coef0;	// 0;
+	param.nu = classifySpecsPtr->svm_nu;	// 0.5;
+	param.cache_size = classifySpecsPtr->svm_cache_size;	//100;
+	param.C = classifySpecsPtr->svm_cost;
+	param.eps = classifySpecsPtr->svm_eps;	// 0.1;
+	param.p = classifySpecsPtr->svm_p;	// 0.0001;
+	param.shrinking = classifySpecsPtr->svm_shrinking;	// 1;
+	param.probability = classifySpecsPtr->svm_probability;	// 0;
+
+			// Initialize class weight parameters.
+	
+	param.nr_weight = 0;
+	param.weight_label = NULL;
+	param.weight = NULL;
+
+	numberPixels = gProjectInfoPtr->knnCounter;
+	numberChannels = classifySpecsPtr->numberChannels;
+	channelsPtr = (SInt16*)GetHandlePointer (classifySpecsPtr->featureHandle);
+   numberProjectChannels = gProjectInfoPtr->numberStatisticsChannels;
+   classVectorPtr = classifySpecsPtr->classVectorPtr;
+   numberClasses = classifySpecsPtr->numberClasses;
+	
+	if (gProjectInfoPtr->svmModel != NULL)
+		{
+		svm_free_and_destroy_model (&gProjectInfoPtr->svmModel);
+		gProjectInfoPtr->svmModel = NULL;
+		
+		}	// end "if (gProjectInfoPtr->svmModel != NULL)"
+	
+	if (gProjectInfoPtr->svm_x != NULL)
+		{
+		free (gProjectInfoPtr->svm_x);
+		gProjectInfoPtr->svm_x = NULL;
+		
+		}	// end "if (gProjectInfoPtr->svm_x != NULL)"
+	
+	prob.x = NULL;
+	prob.y = NULL;
+	x_space = NULL;
+	
+	prob.y = (double*)malloc (numberPixels * sizeof (double));
+	
+	if (prob.y != NULL)
+		prob.x = (struct svm_node**)malloc (numberPixels * sizeof (struct svm_node*));
+	
+	if (prob.x != NULL)
+		x_space = (struct svm_node*)malloc (
+								numberPixels * (numberChannels+1) * sizeof (struct svm_node));
+		 
+	returnFlag = (x_space != NULL);
+	
+	if (returnFlag)
+		{
+				// Set up class weights if this is for the C-SVC model and the weights are
+				// not equal
+		
+		if (classifySpecsPtr->svm_type == 0 &&
+					gProjectInfoPtr->classWeightSet == kUnequalWeights)
+			{
+			param.nr_weight = numberClasses;
+			param.weight_label =
+							(int*)malloc (numberClasses * sizeof (int));
+			
+			if (param.weight_label != NULL)
+				param.weight =
+						(double*)malloc (numberClasses * sizeof (double));
+			
+			returnFlag = (param.weight != NULL);
+			
+			if (returnFlag)
+				{
+						// Load weight vectors
+				
+				totalProbability = GetTotalProbability (
+														(UInt16*)classifySpecsPtr->classPtr,
+														(SInt16)numberClasses,
+														0);	// code for unequal weights
+				
+				for (int i=0; i<numberClasses; i++)
+					{
+					param.weight_label[i] = classifySpecsPtr->classPtr[i];
+					
+					param.weight[i] = GetClassWeightValue (
+														(SInt16)classifySpecsPtr->classPtr[i]-1,
+														0,	// code for unequal weights
+														totalProbability);
+				
+					}	// end "for (int i=0; i<numberClasses; i++)"
+				
+				}	// end "if (returnFlag)"
+			
+			}	// end "if (classifySpecsPtr->svm_type == 0 && ..."
+		
+		}	// end "if (returnFlag)"
+	
+	if (returnFlag)
+		{
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify95,
+														(unsigned char*)gTextString,
+														NULL,
+														gOutputForce1Code,
+														continueFlag);
+		
+				// Present info in status dialog box indicating that SVM model is being
+				// created
+
+		if (gStatusDialogPtr != NULL)
+			{
+					// Load "Creating SVM model" in the status dialog
+			
+			int stringNumber = IDS_Project91;
+			LoadDItemStringNumber (kProjectStrID,
+											stringNumber,
+											gStatusDialogPtr,
+											IDC_Status11,
+											(Str255*)gTextString);
+			
+			//HideStatusDialogItemSet (kStatusField);
+			//HideStatusDialogItemSet (kStatusLine);
+			//HideStatusDialogItemSet (kStatusCommand);
+			//HideStatusDialogItemSet (kStatusClassA);
+			
+			//ShowDialogWindow (gStatusDialogPtr,
+			//						kUpdateStatsInfoID,
+			//						kDoNotSetUpDFilterTable);
+			CheckSomeEvents (updateMask + activMask);
+			
+			}	// end "if (gStatusDialogPtr != NULL)"
+		
+				// Set print string routine for SVM routines.
+		
+		svm_set_print_string_function (&ListString);
+		
+				// Copy the labels
+		
+		int jj = 0;
+		baseIndex = 0;
+		pixelCount = 0;
+		inputDataVectorPtr = gProjectInfoPtr->knnDataValuesPtr;
+		for (int i=0; i<numberPixels; i++)
+			{
+			if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[i]])
+				{
+				prob.y[pixelCount] = (double)(gProjectInfoPtr->knnLabelsPtr[i]);
+				prob.x[pixelCount] = &x_space[jj];
+				for (int j=0; j<numberChannels; j++)
+					{
+							// Copy index and value of features in each channel
+					
+					index = baseIndex + channelsPtr[j];
+					x_space[jj].index = j + 1;
+					x_space[jj].value = inputDataVectorPtr[index];
+					++jj;
+					//inputDataVectorPtr++;
+					
+					}	// end "for (int j=0; j<numberChannels; j++)"
+				
+				x_space[jj++].index = -1;
+				
+				pixelCount++;
+				
+				}	// end "if (classVectorPtr[gProjectInfoPtr->knnLabelsPtr[i]])"
+				
+			baseIndex += numberProjectChannels;
+			
+			}	// end "for (int i=0; i<numberPixels; i++))"
+		
+				// SVM training
+		
+		prob.l = pixelCount;
+		gProjectInfoPtr->svmModel = svm_train (&prob, &param);
+		returnFlag = (gProjectInfoPtr->svmModel != NULL);
+	
+				// Insert a blank line after the SVM training output.
+		
+		continueFlag = OutputString (NULL,
+												gEndOfLine,
+												gNumberOfEndOfLineCharacters,
+												gOutputForce1Code,
+												continueFlag);
+		
+		}	// end "if (returnFlag)"
+
+			// Get memory to use for classification
+	
+	if (returnFlag)
+		{
+		gProjectInfoPtr->svm_x =
+				(struct svm_node*)malloc ((numberChannels+1)* sizeof (struct svm_node));
+		returnFlag = (gProjectInfoPtr->svm_x != NULL);
+	
+		if (returnFlag)
+			{
+					// Only need to load these values one time.
+			
+			for (feat=0; feat<numberChannels; feat++)
+				gProjectInfoPtr->svm_x[feat].index = feat + 1;
+		
+					// the end index of one channel = -1
+		
+			gProjectInfoPtr->svm_x[numberChannels].index = -1;
+			
+			}	// end "if (returnFlag)"
+	
+		}	// end "if (returnFlag)"
+
+	classifySpecsPtr->supportVectorMachineModelAvailableFlag = returnFlag;
+	
+			// Free some local vectors.
+	
+	free (prob.x);
+	free (prob.y);
+	if (param.weight_label != NULL)
+		free (param.weight_label);
+	if (param.weight != NULL)
+		free (param.weight);
+	
+			// Free memory if needed
+	
+	if (!returnFlag)
+		{
+		if (gProjectInfoPtr->svm_x)
+			free (gProjectInfoPtr->svm_x);
+		
+		}	// end "if (!returnFlag)"
+	
+	return (returnFlag);
+	
+}	// end "CreateSupportVectorMachineModel"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4664,9 +4964,9 @@ Boolean CreateCorrelationThresholdTable (
 // Value Returned:  	TRUE if tables were set up okay
 //							FALSE if not.
 //
-// Called By:			FisherClsfierControl in SClassfy.cpp
-//							MaxLikeClsfierControl in SClassfy.cpp
-//							EchoLikeClsfierControl in SEClssfy.cpp
+// Called By:			FisherClsfierControl
+//							MaxLikeClsfierControl
+//							EchoLikeClsfierControl in SClassifyEchoControl.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/27/1993
 //	Revised By:			Larry L. Biehl			Date: 01/13/1998
@@ -4716,7 +5016,7 @@ Boolean CreateThresholdTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4732,7 +5032,7 @@ Boolean CreateThresholdTables (
 //
 // Value Returned:		
 //
-// Called By:			ClassifyAreasControl in classify.c
+// Called By:			ClassifyAreasControl
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1992
 //	Revised By:			Larry L. Biehl			Date: 06/28/2019
@@ -4886,12 +5186,12 @@ Boolean CreateTrailerFiles (
 		
 	return (continueFlag);
 		
-}	// end "CreateTrailerFiles" 
+}	// end "CreateTrailerFiles"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5065,7 +5365,7 @@ SInt16 EuclideanClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5201,7 +5501,7 @@ void EuclideanClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5431,7 +5731,7 @@ SInt16 FisherClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5736,7 +6036,7 @@ void FisherClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5939,7 +6239,7 @@ Boolean GetClassifyDataBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5982,7 +6282,7 @@ Handle GetTargetOverlayImageWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6008,7 +6308,6 @@ UInt16 GetThresholdClass (
 				double*								thresholdTablePtr)
 	
 {							
-//	SInt16								offset[7] = {54, 27, 14, 7, 3, 2, 1}; for 109 set 
 	UInt16								offsetChiSquared[7] = {60, 30, 15, 8, 4, 2, 1};
 	
 	UInt16*								offsetPtr;
@@ -6053,7 +6352,7 @@ UInt16 GetThresholdClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6115,7 +6414,7 @@ Boolean GetThresholdTableMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6201,7 +6500,7 @@ Boolean GetTransformedCommonCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6222,8 +6521,8 @@ Boolean GetTransformedCommonCovariance (
 //
 // Value Returned:	None			
 // 
-// Called By:			CorrelationClsfierControl in SClassfy.cpp
-//							FisherClsfierControl in SClassfy.cpp
+// Called By:			CorrelationClsfierControl
+//							FisherClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 09/02/1997
 //	Revised By:			Larry L. Biehl			Date: 09/02/1997
@@ -6311,7 +6610,7 @@ Boolean GetTtInvTransformedCommonCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6331,8 +6630,8 @@ Boolean GetTtInvTransformedCommonCovarianceT (
 //
 // Value Returned:	None			
 // 
-// Called By:			CorrelationClsfierControl in SClassfy.cpp
-//							MaxLikeClsfierControl in SClassfy.cpp
+// Called By:			CorrelationClsfierControl
+//							MaxLikeClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 09/02/1997
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006
@@ -6420,7 +6719,7 @@ Boolean GetTtInvTransformedCovarianceT (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6493,7 +6792,7 @@ void InitializeClassifierVarStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6632,9 +6931,9 @@ SInt16 KNNClassifier (
 			
 					// Find the topK points with min distance
 					// Note that iterators do not work in Windows version. Suspect the
-					// reason is that the knn_distances vector was not loaded using push, etc.
+					// reason is that the knn_distances vector was not loaded using
+					// push, etc.
 
-         //std::vector<knnType>::iterator it;
          knnType it;
          for (int i=0; i<kValue; i++)
          	{
@@ -6667,47 +6966,16 @@ SInt16 KNNClassifier (
 				gProjectInfoPtr->knnDistancesPtr[minTempIndex].distance = DBL_MAX;
 				
          	}	// end "for (int i=0; i<kValue; i++)"
-			/*
-         		// Sort the Points by distance from p
-			
-         sort (gProjectInfoPtr->knn_distances.begin (),
-					gProjectInfoPtr->knn_distances.end (),
-					comparison);
-			*/
+
          		// Find the first class which has the topK closest distances to the
 					// pixel being classified.
 			
 			for (int i=0; i<kValue; i++)
 				{
-				//labelIndex = gProjectInfoPtr->knn_distances[i].index;
-            //topK[gProjectInfoPtr->knnLabelsPtr[labelIndex]]++;
             topK[topKTemp[i]]++;
 				
 				}	// end "for (int i=0; i<kValue; i++)"
-			/*
-			for (int i=kValue; i<knnPixelSize; i++)
-				{
-						// Check if we have found the class with the topK closest pixels.
-				
-				for (int j=1; j<=numberClasses; j++)
-					{
-					if (topK[j] >= kValue)
-						{
-						maxClass = j;
-						break;
-						
-						}	// end "if (topK[i] >= kValue)"
-						
-					}	// end "for (j=1; j<=numberClasses; j++)"
-				
-				if (maxClass == 0)
-					topK[gProjectInfoPtr->knn_labels[i].label]++;
-				
-				else	// maxClass > 0
-					break;
-				
-				}	// end "for (int i=kValue; i<knnPixelSize; i++)"
-			*/
+
 					// Find the label with the maximum count
 			
          int max = 0;
@@ -6728,8 +6996,6 @@ SInt16 KNNClassifier (
 				
          	}	// end "for (int i=0; i<=numberClasses; i++)"
 			
-          //countVectorPtr[classPtr[maxClass]]++;
-         //*outputBuffer1Ptr = (UInt8)classPtr[maxClass];
          countVectorPtr[maxClass]++;
          *outputBuffer1Ptr = (UInt8)maxClass;
 	
@@ -6791,7 +7057,7 @@ SInt16 KNNClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6865,7 +7131,7 @@ void KNearestNeighborClassifierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6880,8 +7146,8 @@ void KNearestNeighborClassifierControl (
 //
 // Value Returned:	
 //
-// Called By:			ListTrainTestSummary in SClassfy.cpp
-//							ListClassificationSummary in SLstRslt.cpp
+// Called By:			ListTrainTestSummary
+//							ListClassificationSummary in SListResults.cpp
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 09/03/1997
@@ -6940,14 +7206,14 @@ Boolean ListAverageDiscriminantValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean ListClassifyInputParameters
 //
 //	Software purpose:	The purpose of this routine is to list the input parameters for
-//							the classify parameters.
+//							the respective classifier.
 //
 //	Parameters in:			
 //
@@ -6955,11 +7221,11 @@ Boolean ListAverageDiscriminantValue (
 //
 // Value Returned:	
 //
-// Called By:			ClassifyControl in SClassfy.cpp
+// Called By:			ClassifyControl
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/2000
-//	Revised By:			Larry L. Biehl			Date: 05/04/2019
+//	Revised By:			Larry L. Biehl			Date: 09/20/2019
 
 Boolean ListClassifyInputParameters (
 				FileInfoPtr							fileInfoPtr,
@@ -7100,6 +7366,14 @@ Boolean ListClassifyInputParameters (
 														continueFlag);
 		
 		}	// end "if (... && gClassifySpecsPtr->mode == kEchoMode)"
+
+	if (continueFlag && gClassifySpecsPtr->mode == kSupportVectorMachineMode)
+		{
+				// List the SVM parameters used for the classification.
+		
+		continueFlag = ListClassifySVMInputParameters (fileInfoPtr, resultsFileStreamPtr);
+		
+		}	// end "if (... && gClassifySpecsPtr->mode == kSupportVectorMachineMode)"
 
 	if (continueFlag && gClassifySpecsPtr->mode == kKNearestNeighborMode)
 		{
@@ -7291,10 +7565,29 @@ Boolean ListClassifyInputParameters (
 				
 		localWeightsIndex = -1;
 		if (gClassifySpecsPtr->mode == kMaxLikeMode || 
-					gClassifySpecsPtr->mode == kMahalanobisMode ||
-								gClassifySpecsPtr->mode == kEchoMode || 
-											gClassifySpecsPtr->mode == kFisherMode)
+				gClassifySpecsPtr->mode == kMahalanobisMode ||
+					gClassifySpecsPtr->mode == kEchoMode ||
+						gClassifySpecsPtr->mode == kFisherMode ||
+							(gClassifySpecsPtr->mode == kSupportVectorMachineMode &&
+									gClassifySpecsPtr->svm_type == 0))
+			{
 			localWeightsIndex = GetProjectClassWeightsIndex ();
+			
+					// Weights will only be listed for SVM classifier when
+					// they are unequal. If so the list will not be the set
+					// for enhanced statistics.
+			
+			if (gClassifySpecsPtr->mode == kSupportVectorMachineMode)
+				{
+				if (localWeightsIndex == 2)
+					localWeightsIndex = -1;
+				
+				else if (localWeightsIndex == 1)
+					localWeightsIndex = 0;
+				
+				}	// end "if (gClassifySpecsPtr->mode == kSupportVectorMachineMode)"
+			
+			}	// end "if (gClassifySpecsPtr->mode == kMaxLikeMode || ..."
 			
 				// The symbols will be included in the list only when they are used.
 		
@@ -7335,7 +7628,159 @@ Boolean ListClassifyInputParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean ListClassifySVMInputParameters
+//
+//	Software purpose:	The purpose of this routine is to list the input parameters for
+//							the Support Vector Machine classifier.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:
+//
+// Called By:			ClassifyControl in SClassify.cpp
+//
+//
+//	Coded By:			Larry L. Biehl			Date: 09/19/2019
+//	Revised By:			Larry L. Biehl			Date: 09/21/2019
+
+Boolean ListClassifySVMInputParameters (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						resultsFileStreamPtr)
+
+{
+	Boolean								continueFlag = TRUE;
+	
+	
+			// List the SVM parameters used for the classification.
+
+	continueFlag = ListSpecifiedStringNumber (
+													kClassifyStrID,
+													IDS_Classify75+gClassifySpecsPtr->svm_type,
+													(unsigned char*)gTextString,
+													resultsFileStreamPtr,
+													gOutputForce1Code,
+													continueFlag);
+
+	continueFlag = ListSpecifiedStringNumber (
+												kClassifyStrID,
+												IDS_Classify80+gClassifySpecsPtr->svm_kernel_type,
+												(unsigned char*)gTextString,
+												resultsFileStreamPtr,
+												gOutputForce1Code,
+												continueFlag);
+	
+	if (gClassifySpecsPtr->svm_kernel_type == kPolynomialKernel)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify84,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														(SInt32)gClassifySpecsPtr->svm_degree,
+														continueFlag);
+	
+	if (gClassifySpecsPtr->svm_kernel_type == kPolynomialKernel ||
+				gClassifySpecsPtr->svm_kernel_type == kRBFKernel ||
+						gClassifySpecsPtr->svm_kernel_type == kSigmoidKernel)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify85,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														gClassifySpecsPtr->svm_gamma,
+														continueFlag);
+	
+	if (gClassifySpecsPtr->svm_kernel_type == kPolynomialKernel ||
+						gClassifySpecsPtr->svm_kernel_type == kSigmoidKernel)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify86,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														gClassifySpecsPtr->svm_coef0,
+														continueFlag);
+
+	continueFlag = ListSpecifiedStringNumber (
+													kClassifyStrID,
+													IDS_Classify87,
+													resultsFileStreamPtr,
+													gOutputForce1Code,
+													gClassifySpecsPtr->svm_cache_size,
+													continueFlag);
+
+	continueFlag = ListSpecifiedStringNumber (
+													kClassifyStrID,
+													IDS_Classify88,
+													resultsFileStreamPtr,
+													gOutputForce1Code,
+													gClassifySpecsPtr->svm_eps,
+													continueFlag);
+	
+	if (gClassifySpecsPtr->svm_type == kC_SVC_Type ||
+				gClassifySpecsPtr->svm_type == kEpsilon_SVR_Type ||
+						gClassifySpecsPtr->svm_type == kNU_SVR_Type)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify89,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														gClassifySpecsPtr->svm_cost,
+														continueFlag);
+	
+	if (gClassifySpecsPtr->svm_type == kNU_SVC_Type ||
+				gClassifySpecsPtr->svm_type == kOne_Class_Type ||
+						gClassifySpecsPtr->svm_type == kNU_SVR_Type)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify91,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														gClassifySpecsPtr->svm_nu,
+														continueFlag);
+	
+	if (gClassifySpecsPtr->svm_type == kEpsilon_SVR_Type)
+		continueFlag = ListSpecifiedStringNumber (
+														kClassifyStrID,
+														IDS_Classify92,
+														resultsFileStreamPtr,
+														gOutputForce1Code,
+														gClassifySpecsPtr->svm_p,
+														continueFlag);
+	
+	continueFlag = ListSpecifiedStringNumber (
+													kClassifyStrID,
+													IDS_Classify93,
+													resultsFileStreamPtr,
+													gOutputForce1Code,
+													(SInt32)gClassifySpecsPtr->svm_shrinking,
+													continueFlag);
+	
+	
+	if (gClassifySpecsPtr->svm_type == kC_SVC_Type ||
+			gClassifySpecsPtr->svm_type == kNU_SVC_Type ||
+				gClassifySpecsPtr->svm_type == kEpsilon_SVR_Type ||
+					gClassifySpecsPtr->svm_type == kNU_SVR_Type)
+		continueFlag = ListSpecifiedStringNumber (
+													kClassifyStrID,
+													IDS_Classify94,
+													resultsFileStreamPtr,
+													gOutputForce1Code,
+													(SInt32)gClassifySpecsPtr->svm_probability,
+													continueFlag);
+
+	return (continueFlag);
+	
+}	// end "ListClassifySVMInputParameters"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7397,7 +7842,7 @@ Boolean ListNumberOfSameDistanceSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7412,8 +7857,8 @@ Boolean ListNumberOfSameDistanceSamples (
 //
 // Value Returned:	
 //
-// Called By:			ClassifyPerPointArea in SClassfy.cpp
-//							PostEchoClassifier in SEClssfy.cpp
+// Called By:			ClassifyPerPointArea in SClassify.cpp
+//							PostEchoClassifier in SClassifyEchoControl.cpp
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 04/08/1992
@@ -7505,7 +7950,7 @@ SInt16 ListTrainTestSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7526,7 +7971,7 @@ SInt16 ListTrainTestSummary (
 // Called By:			ClassifyControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1988
-//	Revised By:			Larry L. Biehl			Date: 08/13/2019
+//	Revised By:			Larry L. Biehl			Date: 09/19/2019
 
 Boolean LoadClassifySpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -7584,6 +8029,8 @@ Boolean LoadClassifySpecs (
 			gClassifySpecsPtr->symbolsPtr = NULL;
 			gClassifySpecsPtr->imageAreaFlag = TRUE;
 			
+			gClassifySpecsPtr->supportVectorMachineModelAvailableFlag = FALSE;
+			
 			gClassifySpecsPtr->testFldsFlag = FALSE;
 			if (gProjectInfoPtr->numberStatTestFields > 0)
 				gClassifySpecsPtr->testFldsFlag = TRUE;
@@ -7626,6 +8073,20 @@ Boolean LoadClassifySpecs (
 				
 			gClassifySpecsPtr->outputStorageType = 0;
 			gClassifySpecsPtr->correlationCovarianceCode = kNoCovarianceUsed;
+
+			gClassifySpecsPtr->svm_type = 0;
+			gClassifySpecsPtr->svm_kernel_type = 2;
+			gClassifySpecsPtr->svm_degree = 3;
+			gClassifySpecsPtr->svm_gamma = 0.0001;
+			gClassifySpecsPtr->svm_coef0 = 0;
+			gClassifySpecsPtr->svm_nu = 0.5;
+			gClassifySpecsPtr->svm_cache_size = 100;
+			gClassifySpecsPtr->svm_cost = 10;
+			gClassifySpecsPtr->svm_eps = 0.1;
+			gClassifySpecsPtr->svm_p = 0.0001;
+			gClassifySpecsPtr->svm_shrinking = 1;
+			gClassifySpecsPtr->svm_probability = 0;
+			//gClassifySpecsPtr->svm_nr_weight = 0;
 			
 			gClassifySpecsPtr->nearestNeighborKValue = 5;
 			gClassifySpecsPtr->knnThreshold = 2;
@@ -7715,7 +8176,7 @@ Boolean LoadClassifySpecs (
 		
 		if (gClassifySpecsPtr->classPtr != NULL)
 			gClassifySpecsPtr->classVectorPtr =
-							&gClassifySpecsPtr->classPtr[gProjectInfoPtr->numberStatisticsClasses];
+					&gClassifySpecsPtr->classPtr[gProjectInfoPtr->numberStatisticsClasses];
 
 		if (changedFlag)
 			gClassifySpecsPtr->classSet = kAllMenuItem;
@@ -7837,7 +8298,7 @@ Boolean LoadClassifySpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7853,7 +8314,7 @@ Boolean LoadClassifySpecs (
 //
 // Value Returned: 
 //
-// Called By:			CreateThresholdTables in classify.c
+// Called By:			CreateThresholdTables in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/17/1992
 //	Revised By:			Larry L. Biehl			Date: 03/29/1994	
@@ -7915,7 +8376,7 @@ Boolean LoadProbabilityTable (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7931,7 +8392,7 @@ Boolean LoadProbabilityTable (void)
 //
 // Value Returned:  	None
 //
-// Called By:			CreateThresholdTables in classify.c
+// Called By:			CreateThresholdTables in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/17/1992
 //	Revised By:			Larry L. Biehl			Date: 01/13/1998	
@@ -7997,706 +8458,9 @@ Boolean LoadThresholdTable (
 }	// end "LoadThresholdTable"
 
 
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void MahalanobisClassifier
-//
-//	Software purpose:	The purpose of this routine is to classify the
-//							input line of data using the per-point Mahalanobis Classifer.
-//
-//	Parameters in:		Pointer to area description structure
-//							Pointer to image file information structure
-//							Pointer to temporary classification variable structure
-//							Pointer to buffer to be used to store the classification
-//								results in for a line.
-//							Pointer to a buffer to be used to store the probability
-//								of correct classification information in for a line.
-//							Pointer to a vector to be used to store the count of the
-//								number of pixels classified into each class
-//							A structure which defines the start line and column values
-//								that the classification will begin at.	
-//
-//	Parameters out:	None
-//
-// Value Returned:	None		
-// 
-// Called By:			ClassifyPerPointArea
-//
-//	Coded By:			Larry L. Biehl			Date: 01/20/2016
-//	Revised By:			Larry L. Biehl			Date: 01/20/2016
-
-SInt16 MahalanobisClassifier (
-				AreaDescriptionPtr				areaDescriptionPtr, 
-				FileInfoPtr							fileInfoPtr,
-				ClassifierVarPtr					clsfyVariablePtr, 
-				HUCharPtr							outputBuffer1Ptr, 
-				HUCharPtr							probabilityBufferPtr, 
-				HSInt64Ptr							countVectorPtr, 
-				Point									point)
-
-{
-	Boolean								polygonField,
-											continueFlag,
-											createProbabilities;
-	RgnHandle							rgnHandle;
-	
-	double								*classConstantPtr,
-											*thresholdTablePtr,
-						 					*workVectorPtr;
-	
-	double								discriminantMax,
-											dValue1,
-											dValue2,
-											neg_rrDivide2,
-											neg_rrDivide2Max;
-	
-	SInt16	 							*classPtr,
-											*thresholdProbabilityPtr; 
-												            
-	HDoublePtr 							chanMeanPtr, 
-											covariancePtr,
-											ioBufferReal8Ptr,
-											savedBufferReal8Ptr;
-												 
-	double*		 						meanDiffPtr;
-	
-	UInt32								classIndex,
-											feat1,
-											feat2,
-											maxClass,
-											numberChannels,
-											numberClasses,
-											numberSamplesPerChan,
-											sameDistanceCount,
-											sample;
- 
-											
-			// For Quiong special case
-			
-	AreaDescription					projectAreaDescription;
-	double								*workVector2Ptr;
-	
-	
-			// Initialize local variables.														
-	
-	numberChannels = 			gClassifySpecsPtr->numberChannels;
-	numberClasses = 			gClassifySpecsPtr->numberClasses;
-	numberSamplesPerChan = 	(UInt32)areaDescriptionPtr->numSamplesPerChan;
-	polygonField =				areaDescriptionPtr->polygonFieldFlag;
-	rgnHandle = 				areaDescriptionPtr->rgnHandle;
-	classPtr = 					gClassifySpecsPtr->classPtr;
-	savedBufferReal8Ptr = 	(HDoublePtr)outputBuffer1Ptr;
-	maxClass = 					0;
-	
-	createProbabilities = 	gClassifySpecsPtr->createThresholdTableFlag;
-	
-	classConstantPtr = 		clsfyVariablePtr->classConstantPtr;
-	workVectorPtr = 			clsfyVariablePtr->workVectorPtr;
-	thresholdTablePtr =	 	gClassifySpecsPtr->thresholdTablePtr;
-	thresholdProbabilityPtr = gClassifySpecsPtr->thresholdProbabilityPtr;
-	
-	continueFlag = TRUE;
-	
-  	if (gTestFlag)
-  		{
-				// For special case for Quiong
-				
-		workVector2Ptr = clsfyVariablePtr->workVector2Ptr;
-		
-				// Initialize project area description in case it is needed.
-			
-		InitializeAreaDescription (&projectAreaDescription, 
-												1, 
-												1, 
-												1, 
-												1, 
-												1, 
-												1,
-												1,
-												1,
-												0);
-												
-		}	// end "if (gTestFlag)"
-		
-			// Loop through the number of samples in the line of data				
-	
-	for (sample=0; sample<numberSamplesPerChan; sample++)
-		{
-		if (!polygonField || PtInRgn (point, rgnHandle))
-			{
-					// Loop through the classes and get the discriminant value for	
-					// each class.																	
-		
-			discriminantMax = -1e200;
-			covariancePtr = clsfyVariablePtr->covariancePtr;
-			chanMeanPtr = clsfyVariablePtr->chanMeanPtr;
-			
-			for (classIndex=0; classIndex<numberClasses; classIndex++)
-				{
-						// Loop through the channels (features) and get the vector  
-						// of data values with the class means subtracted out.		
-						
-				ioBufferReal8Ptr = savedBufferReal8Ptr;
-				meanDiffPtr = workVectorPtr;
-				for (feat1=0; feat1<numberChannels; feat1++)
-					{
-					*meanDiffPtr = *ioBufferReal8Ptr - *chanMeanPtr;
-					
-					ioBufferReal8Ptr++;
-					chanMeanPtr++;
-					meanDiffPtr++;
-					
-					}	// end "for (feature=0; feature<..." 
-					
-						// Compute discriminant value for class "statClassNumber"		
-				
-				dValue1 = 0.;
-				
-				for (feat1=0; feat1<numberChannels; feat1++)
-					{
-					meanDiffPtr = workVectorPtr;
-					dValue2 = 0.;					
-					for (feat2=0; feat2<feat1; feat2++)
-						{
-						dValue2 -= *covariancePtr * *meanDiffPtr;
-						covariancePtr++;
-						meanDiffPtr++;	
-					
-						}	// end "for (feat2=0; feat2<..." 
-						
-					dValue2 += dValue2;
-					dValue1 += *meanDiffPtr * (dValue2 - *covariancePtr * *meanDiffPtr);
-					covariancePtr++;
-					
-					}	// end "for (feat1=0; feat1<..." 
-					
-				neg_rrDivide2 = dValue1/2;
-				dValue2 = classConstantPtr[classIndex];
-				
-				if (clsfyVariablePtr->useLeaveOneOutMethodFlag && 
-										classPtr[classIndex] == areaDescriptionPtr->classNumber)
-					{
-					dValue1 = -dValue1;
-					
-					dValue2 = clsfyVariablePtr->classConstantLOO1Ptr[classIndex]*dValue1 +
-						clsfyVariablePtr->classConstantLOO5Ptr[classIndex] * dValue1*dValue1;
-											
-					dValue2 /= 2 * (clsfyVariablePtr->classConstantLOO2Ptr[classIndex] -
-								clsfyVariablePtr->classConstantLOO5Ptr[classIndex] * dValue1);
-					
-					neg_rrDivide2 -= dValue2;
-					
-					dValue2 = classConstantPtr[classIndex];
-											
-					dValue2 -= 
-							.5 * log (1 - clsfyVariablePtr->classConstantLOO3Ptr[classIndex] *
-												dValue1);
-											
-					dValue2 -= .5 * clsfyVariablePtr->classConstantLOO4Ptr[classIndex];
-					
-					}	// end "if (clsfyVariablePtr->useLeaveOneOutMethodFlag)"
-					
-				dValue2 += neg_rrDivide2;
-				
-						// Check if discriminant value for this class is largest.  If	
-						// so, save the value and the class number.							
-						
-				if (dValue2 > discriminantMax)
-					{
-					discriminantMax = dValue2;
-					neg_rrDivide2Max = neg_rrDivide2;
-					maxClass = classIndex;
-					sameDistanceCount = 0;
-					
-					}	// end "if (dValue1 > discriminantMax)"
-					
-				else if (dValue2 == discriminantMax)
-					sameDistanceCount++;
-				
-				//if (gTestFlag)
-				//	workVector2Ptr[classIndex] = dValue2;
-	
-				}	// end "for (classIndex=0; classIndex<..."
- 
-		#ifdef testOutputFlag
-         if (gTestFlag)
-         	{	
-				if (IsProjectData (&clsfyVariablePtr->maskAreaDescription,
-											&projectAreaDescription,
-											areaDescriptionPtr->line, 
-											(UInt32)point.h))
-					dValue1 = 1.;
-					
-				else	// !IsProjectData (...
-					{										
-		          		// Adjust the gaussian exponent values down so that the likelihood
-		          		// value can be computed with the fewest numeric problems.
-	         	
-	         	dValue2 = 0.;		
-		         for (classIndex=0; classIndex<numberClasses; classIndex++) 
-		         	{	
-						workVector2Ptr[classIndex] -= discriminantMax;
-						
-						dValue2 += exp (0.5 * workVector2Ptr[classIndex]);
-						
-		          	}	// end "for (classIndex=0; classIndex<..."
-		          	
-					dValue1 = 1./dValue2;
-		          	
-		        	}	// end "else !IsProjectData (..."
-	          	
-	         		// Get the ratio of the likelihood value.
-		
-				sprintf ((char*)gTextString, 
-					"%10.8f%s", 
-					dValue1, 
-					gEndOfLine);
-								
-				continueFlag = OutputString (NULL, 
-														(char*)gTextString, 
-														0, 
-														gOutputForce1Code, 
-														continueFlag);
-	          	
-	          }	// end "if (gTestFlag)"
-			#endif	
- 
-			classIndex = classPtr[maxClass];
-		   countVectorPtr[classIndex]++;
-		   *outputBuffer1Ptr = (UInt8)classIndex;
-		   
-		   		// Get distance measure if requested.									
-		   		// dValue1 is the variable for the probability.						
-		   
-		   if (createProbabilities)
-		   	{
-		   			// Get the threshold table index.									
-					
-				classIndex = GetThresholdClass (-neg_rrDivide2Max, thresholdTablePtr);
-				
-				*probabilityBufferPtr = (UInt8)classIndex;
-				probabilityBufferPtr++;
-				
-				gTempDoubleVariable1 += thresholdProbabilityPtr[classIndex];
-				
-				}	// end "if (createProbabilities)" 
-		   
-		   }	// end "if (!polygonField || PtInRgn (point, rgnHandle))" 
-		   
-		else	// polygonField && !PtInRgn (point, rgnHandle) 
-			{
-			*outputBuffer1Ptr = 0;
-		   if (createProbabilities)
-		   	{
-				*probabilityBufferPtr = 0;
-				probabilityBufferPtr++;
-				
-				}	// end "if (createProbabilities)" 
-				
-			sameDistanceCount = 0;
-			
-			}	// end "else polygonField && !PtInRgn (point, rgnHandle)" 
-			
-		point.h++;
-		savedBufferReal8Ptr += numberChannels;
-		outputBuffer1Ptr++;
-		
-		clsfyVariablePtr->totalSameDistanceSamples += sameDistanceCount;
-			
-				// Exit routine if user selects "cancel" or "command period".		
-		
-		if (TickCount () >= gNextTime)
-			{
-			if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
-																						return (3);
-				
-			}	// end "if (TickCount () >= gNextTime)" 
-				
-		}	// end "for (sample=0; sample<..." 
-	
-			// Write carriage return and null character to classification record	
-			
-   *outputBuffer1Ptr = kCarriageReturn;
-   outputBuffer1Ptr++;  
-                      
-	#if defined multispec_win
-   	*outputBuffer1Ptr = kLineFeed;
-  		outputBuffer1Ptr++;
-	#endif	// defined multispec_win  
-	
-   *outputBuffer1Ptr = kNullTerminator;
-   
-   return (0);
-
-}	// end "MahalanobisClassifier" 
-
-
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		void MahalanobisClsfierControl
-//
-//	Software purpose:	The purpose of this routine is to classify the
-//							specified data using the per point maximum likelihood 
-//							classifer.
-//
-//	Parameters in:		Pointer to image file information structure
-//
-//	Parameters out:	None
-//
-// Value Returned:	Flag indicating whether output to text window
-//								can still be generated.
-// 
-// Called By:			ClassifyControl
-//
-//	Coded By:			Larry L. Biehl			Date: 01/20/2016
-//	Revised By:			Larry L. Biehl			Date: 01/20/2016
-
-void MahalanobisClsfierControl (
-				FileInfoPtr							fileInfoPtr)
-
-{
-	ClassifierVar						classifierVar;
-	
-	double								clsfierConstant,
-											logDeterminant,
-											weightValue;
-	
-	CMFileStream*						resultsFileStreamPtr;
-	
-	double								*classConstantLOO1Ptr,
-											*classConstantLOO2Ptr,
-											*classConstantLOO3Ptr,
-											*classConstantLOO4Ptr,
-											*classConstantLOO5Ptr,
-											*classConstantPtr;
-												
-	HChannelStatisticsPtr			classChannelStatsPtr;
-												
-	HDoublePtr							classifyChanMeanPtr,
-											classifyCovPtr,
-											inverseCovPtr;
-	
-	float									totalProbability;
-	
-	SInt16*								statFeaturePtr;
-	
-	UInt32								clsfyCovStart,
-											clsfyChanMeanStart,
-											numberClsfyCovEntries;
-												
-	SInt16								weightsIndex;
-	
-	UInt16								numberFeatureChannels,
-											numberFeatures;
-	
-	UInt16								classIndex;
-	UInt16								statClassNumber;
-	
-	Boolean								continueClassifyFlag,
-											continueFlag,
-											determinantOKFlag;
-		
-		
-			// Initialize local variables														
-	
-	continueFlag = TRUE;
-	numberFeatureChannels = gClassifySpecsPtr->numberChannels;
-	numberFeatures = gClassifySpecsPtr->numberFeatures;
- 	resultsFileStreamPtr = GetResultsFileStreamPtr (0);
-	
-			// Put description in the status dialog.										
-					
-	LoadDItemStringNumber (kClassifyStrID, 
-									IDS_Classify20, 
-									gStatusDialogPtr, 
-									IDC_Status11, 
-									(Str255*)gTextString);
-		
-	InitializeClassifierVarStructure (&classifierVar);
-	
-			// Get the memory for the mean vectors and covariance matrices			
-			// for the classes and channels to be used in the classification.		
-				 
-	continueFlag = SetupClsfierMemory (&classifyChanMeanPtr,
-													&classifyCovPtr,
-													&classConstantPtr,
-													&classConstantLOO1Ptr,
-													&classConstantLOO2Ptr,
-													&classConstantLOO3Ptr,
-													&classConstantLOO4Ptr,
-													&classConstantLOO5Ptr, 
-													&classChannelStatsPtr, 
-													&gInverseMatrixMemory.inversePtr,
-													&gInverseMatrixMemory.pivotPtr, 
-													&gInverseMatrixMemory.indexRowPtr, 
-													&gInverseMatrixMemory.indexColPtr, 
-													&gInverseMatrixMemory.ipvotPtr);
-	inverseCovPtr = gInverseMatrixMemory.inversePtr;
-											
-	UInt16* featurePtr = (UInt16*)GetHandlePointer (gClassifySpecsPtr->featureHandle);
-		
-	if (continueFlag)			
-		continueFlag = SetupFeatureTransformationMemory (
-													gClassifySpecsPtr->featureTransformationFlag,
-													numberFeatures, 
-													numberFeatureChannels, 
-													&gTransformationMatrix.eigenVectorPtr, 
-													&gTransformationMatrix.tempMatrixPtr,
-													NULL, 
-													&gTransformationMatrix.eigenFeaturePtr,
-													kLoadMatricesVectors,
-													featurePtr);
- 
-			// Continue with classification, if memory is not full.					
-	
-	if (continueFlag)
-		{
-				// Normalize a priori probabilities.										
-				
-		weightsIndex = GetProjectClassWeightsIndex ();
-				
-		totalProbability = (float)GetTotalProbability (
-														(UInt16*)gClassifySpecsPtr->classPtr,
-														(SInt16)gClassifySpecsPtr->numberClasses,
-														weightsIndex);
- 
-				// Get the constant for the classification, i.e.						
-				// (number-of-features/2 * log (2pi))										
-				
-		clsfierConstant = (double)numberFeatures/2 * log (kTWO_PI);
-		
-				// Loop through the classes and for classes to be used in 			
-				// classification get the:														
-				//		mean vector for class.													
-				//		covariance matrix for class.											
-				//		determinant of covariance matrix	for class.						
-				//		inverse of covariance matrix for class.							
-				//		discriminant constant for class.										
-		
-		clsfyChanMeanStart = 0;
-		clsfyCovStart = 0;
-											
-		numberClsfyCovEntries = (UInt32)numberFeatureChannels * 
-																		(numberFeatureChannels+1)/2;
-		
-		statFeaturePtr = (SInt16*)GetStatisticsFeatureVector (
-													gClassifySpecsPtr->featureTransformationFlag,
-													featurePtr);
-		
-		determinantOKFlag = TRUE;
-		continueClassifyFlag = TRUE;
-		for (classIndex=0; 
-				classIndex<gClassifySpecsPtr->numberClasses; 
-					classIndex++)
-			{
-			statClassNumber = gClassifySpecsPtr->classPtr[classIndex] - 1;
-			
-					// Get InvCov or Tt_InvTCov_T	
-
-			continueFlag = GetTtInvTransformedCovarianceT (
-																numberFeatureChannels,
-																classChannelStatsPtr, 
-																inverseCovPtr,
-																(UInt16*)statFeaturePtr, 
-																statClassNumber,
-																kSquareOutputMatrix,
-																kMeanCovariance,
-																gTransformationMatrix.eigenVectorPtr,
-																gTransformationMatrix.tempMatrixPtr,
-																numberFeatures,
-																&logDeterminant,
-																&determinantOKFlag);
- 
-			if (!continueFlag)
-				break;
-				
-					// Get the class mean vector												
-			
-			ReduceMeanVector (classChannelStatsPtr, 
-									&classifyChanMeanPtr[clsfyChanMeanStart],
-									numberFeatureChannels,
-									NULL);
-									
-			clsfyChanMeanStart += numberFeatureChannels;
-			
-			if (determinantOKFlag)
-				{							
-						// Copy the full form (square) matrix back to triangular		
-						// form storage. This takes less space and makes the 			
-						// classification algorithm a little easier to implement 	
-						// and quicker.															
-				
-				clsfyCovStart = classIndex * numberClsfyCovEntries;
-				SquareToTriangularMatrix (inverseCovPtr,
-													&classifyCovPtr[clsfyCovStart], 
-													numberFeatureChannels);
-							
-						// Get the constant for the class									
-						
-				weightValue = GetClassWeightValue (
-												statClassNumber, weightsIndex, totalProbability);
-						
-				classConstantPtr [classIndex] =
-										log (weightValue) - clsfierConstant - logDeterminant/2;
-		
-						// Variables to use in case the leave-one-out method is used to
-						// compute the training statistics.
-											
-				UInt16 classStorage = gProjectInfoPtr->storageClass[statClassNumber];
-				SInt64 numberTrainPixels = 
-						gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
-							
-				if (numberTrainPixels >= 3)
-					{
-					classConstantLOO1Ptr[classIndex] = (double)(
-							(numberTrainPixels*numberTrainPixels - 3*numberTrainPixels + 1))/
-																					(numberTrainPixels-1);
-					classConstantLOO2Ptr[classIndex] = 
-											(double)(numberTrainPixels-1) * (numberTrainPixels-1);
-												
-					classConstantLOO3Ptr[classIndex] = numberTrainPixels/
-																	classConstantLOO2Ptr[classIndex];
-																	
-					classConstantLOO4Ptr[classIndex] = 
-									numberFeatures * log (1 + (double)1/(numberTrainPixels-2));
-					
-					}	// end "if (numberTrainPixels >= 3)"
-					
-				else	// numberTrainPixels < 3
-					{
-					classConstantLOO1Ptr[classIndex] = 0;
-					classConstantLOO2Ptr[classIndex] = 0;
-					classConstantLOO3Ptr[classIndex] = 0;
-					classConstantLOO4Ptr[classIndex] = 0;
-					
-					}	// end "else numberTrainPixels < 3"
-					
-				classConstantLOO5Ptr[classIndex] = (double)numberTrainPixels;
-							
-				}	// end "if (determinantOKFlag)" 
-				
-			else	// !determinantOKFlag 
-				{
-						// List message that covariance matrix for this class 		
-						// could not be inverted.												
-					
-				continueFlag = ListClassInformationMessage (kProjectStrID,
-																			IDS_Project31,
-																			resultsFileStreamPtr, 
-																			gOutputForce1Code,
-																			statClassNumber, 
-																			continueFlag);
- 
-				continueClassifyFlag = FALSE;
-				
-				}	// end "else !determinantOKFlag" 
-				
-			}	// end "for (class=0; class<Classify..." 
-			
-		}	// end "if (continueFlag)" 
-			
-			// Release memory for the matrix inversion work areas.					
-		
-	gInverseMatrixMemory.indexRowPtr = 
-										CheckAndDisposePtr (gInverseMatrixMemory.indexRowPtr);
-	gInverseMatrixMemory.indexColPtr = 
-										CheckAndDisposePtr (gInverseMatrixMemory.indexColPtr);
-	gInverseMatrixMemory.inversePtr = 
-										CheckAndDisposePtr (gInverseMatrixMemory.inversePtr);
-	gInverseMatrixMemory.ipvotPtr = CheckAndDisposePtr (gInverseMatrixMemory.ipvotPtr);
-	
-			// Release memory for the classify channels statistics.					
-			
-	classChannelStatsPtr = 
-					(HChannelStatisticsPtr)CheckAndDisposePtr ((Ptr)classChannelStatsPtr);
-	
-			// Release memory for transformation matrix information.					
-			
-	ReleaseFeatureTransformationMemory ();
-					
-			// Get memory for test likelihood ratio if needed.
-	
-	if (gTestFlag)		
-		classifierVar.workVector2Ptr = (HDoublePtr)MNewPointer (
-											gClassifySpecsPtr->numberClasses * sizeof (double));
-	
-	if (continueFlag)
-		{
-		
-				// Classify the requested areas.	First load the maximum				
-				// likelihood variable structure with need pointers					
-		
-		classifierVar.chanMeanPtr = 			classifyChanMeanPtr;
-		classifierVar.covariancePtr = 		classifyCovPtr;
-		classifierVar.classConstantPtr = 	classConstantPtr;
-		classifierVar.classConstantLOO1Ptr = classConstantLOO1Ptr;
-		classifierVar.classConstantLOO2Ptr = classConstantLOO2Ptr;
-		classifierVar.classConstantLOO3Ptr = classConstantLOO3Ptr;
-		classifierVar.classConstantLOO4Ptr = classConstantLOO4Ptr;
-		classifierVar.classConstantLOO5Ptr = classConstantLOO5Ptr;
-		classifierVar.workVectorPtr = 		gInverseMatrixMemory.pivotPtr;
-		
-		if (continueClassifyFlag)
-			{
-					// If thresholding is to be used, get table of threshold 		
-					// values corresponding to fractions rejected from 0.1 to 		
-					// 1.0 percent by 0.1 percent increments and from 1.0 to 		
-					// 99 percent by 1.0 percent increments.								
-
-			if (gClassifySpecsPtr->createThresholdTableFlag)
-				continueFlag = CreateThresholdTables (numberFeatures, 0);
-			
-			if (continueFlag)
-				ClassifyAreasControl (fileInfoPtr, &classifierVar);
-			
-			}	// end "continueClassifyFlag" 
-				
-		else	// !continueClassifyFlag 
-			{
-					// List message indicating that classification was cancelled	
-					// because covariance matrix for at least one class could not	
-					// be inverted.																
-		
-			continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
-																	IDS_Classify4,
-																	(unsigned char*)gTextString, 
-																	resultsFileStreamPtr, 
-																	gOutputForce1Code,
-																	continueFlag);
- 
-			SysBeep (10);
-			
-			}	// else !continueClassifyFlag 
-			
-		}	// end "if (continueFlag)" 
-			
-			// Release memory for class mean vectors, class covariance				
-			// matrices, matrix inversion work areas, and class constants.										
-			
-	CheckAndDisposePtr (classifyChanMeanPtr);
-	CheckAndDisposePtr (classifyCovPtr);
-	CheckAndDisposePtr (classConstantPtr);
-	CheckAndDisposePtr (classConstantLOO1Ptr);
-	
-	ReleaseMatrixInversionMemory ();
-	
-	if (gTestFlag)	
-		classifierVar.workVector2Ptr = CheckAndDisposePtr (classifierVar.workVector2Ptr);
-
-}	// end "MahalanobisClsfierControl" 
-*/
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9033,7 +8797,7 @@ SInt16 MaximumLikelihoodClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9395,7 +9159,7 @@ void MaxLikeClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9564,7 +9328,7 @@ SInt16 ParallelPipedClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9750,7 +9514,7 @@ void ParallelPipedClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9765,11 +9529,11 @@ void ParallelPipedClsfierControl (
 //
 // Value Returned:	
 // 
-// Called By:			CEMClsfierControl in SClassfy.cpp
-//							CorrelationClsfierControl in SClassfy.cpp
-//							EuclideanClsfierControl in SClassfy.cpp
-//							FisherClsfierControl in SClassfy.cpp
-//							MaxLikeClsfierControl in SClassfy.cpp
+// Called By:			CEMClsfierControl in SClassify.cpp
+//							CorrelationClsfierControl in SClassify.cpp
+//							EuclideanClsfierControl in SClassify.cpp
+//							FisherClsfierControl in SClassify.cpp
+//							MaxLikeClsfierControl in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/13/1988
 //	Revised By:			Larry L. Biehl			Date: 08/27/1997	
@@ -9959,128 +9723,223 @@ Boolean SetupClsfierMemory (
 }	// end "SetupClsfierMemory"
 
 
-#if defined include_SVM_Classifier
-SInt16 SVMClassifier (
-                            AreaDescriptionPtr            areaDescriptionPtr,
-                            FileInfoPtr                     fileInfoPtr,
-                            ClassifierVarPtr               clsfyVariablePtr,
-                            HUCharPtr                     outputBuffer1Ptr,
-                            HUCharPtr                     probabilityBufferPtr,
-                            HSInt64Ptr                     countVectorPtr,
-                            Point                           point)
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		SInt16 SupportVectorMachineClassifier
+//
+//	Software purpose:	The purpose of this routine is to classify the input line of
+//							data using the per-point support vector machine classifer.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:	0: completed with no error
+//
+// Called By:			ClassifyPerPointArea
+//
+//	Coded By:			Tsung Tai Yeh			Date: 08/??/2019
+//	Revised By:			Larry L. Biehl			Date: 09/30/2019
+
+SInt16 SupportVectorMachineClassifier (
+				AreaDescriptionPtr 				areaDescriptionPtr,
+				FileInfoPtr                   fileInfoPtr,
+				ClassifierVarPtr              clsfyVariablePtr,
+				HUCharPtr                     outputBuffer1Ptr,
+				HUCharPtr                     probabilityBufferPtr,
+				HSInt64Ptr                    countVectorPtr,
+				Point                         point)
 
 {
-   
-   RgnHandle                     rgnHandle;
-   
-   HDoublePtr                     ioBufferReal8Ptr,
-   savedChanMeanPtr,
-   savedBufferReal8Ptr;
-   
-   double                        *chanMeanPtr;
-   
+	RgnHandle                     rgnHandle;
+	
+   HDoublePtr                    ioBufferReal8Ptr,
+											savedBufferReal8Ptr;
+	
+   int									maxClass;
+	
    SInt16                        *classPtr;
-   
+	
    UInt32                        feat,
-   maxClass,
-   numberChannels,
-   numberClasses,
-   numberSamplesPerChan,
-   sample;
-   
-   Boolean                        polygonField;
-   
-   
-   // Initialize local variables.
-   
-   numberChannels =          gClassifySpecsPtr->numberChannels;
-   numberClasses =          gClassifySpecsPtr->numberClasses;
-   numberSamplesPerChan =    (UInt32)areaDescriptionPtr->numSamplesPerChan;
-   rgnHandle =             areaDescriptionPtr->rgnHandle;
-   polygonField =            areaDescriptionPtr->polygonFieldFlag;
-   classPtr = gClassifySpecsPtr->classPtr;
-   chanMeanPtr = clsfyVariablePtr->chanMeanPtr;
-   savedChanMeanPtr = chanMeanPtr;
+											numberChannels,
+											numberClasses,
+											numberProjectClasses,
+											numberSamplesPerChan,
+											sample;
+	
+   Boolean                       polygonField;
+	
+	
+   		// Initialize local variables.
+	
+   numberChannels = 			gClassifySpecsPtr->numberChannels;
+   numberClasses =			gClassifySpecsPtr->numberClasses;
+   numberSamplesPerChan =	(UInt32)areaDescriptionPtr->numSamplesPerChan;
+   rgnHandle = 				areaDescriptionPtr->rgnHandle;
+   polygonField = 			areaDescriptionPtr->polygonFieldFlag;
+   numberProjectClasses =	gProjectInfoPtr->numberStatisticsClasses;
+   classPtr = 					gClassifySpecsPtr->classPtr;
    savedBufferReal8Ptr = (HDoublePtr)outputBuffer1Ptr;
-   
-   // Loop through the number of samples in the line of data
-   
+	
+   		// Loop through the number of samples in the line of data
+	
    maxClass = 0;
 
    for (sample=0; sample<numberSamplesPerChan; sample++)
-   {
+   	{
       if (!polygonField || PtInRgn (point, rgnHandle))
-      {
-         // Loop through the classes and get the discriminant value for
-         // each class.
-         
-         //discriminantMax = -DBL_MAX;
-         //chanMeanPtr = savedChanMeanPtr;
-         sample_type svm_samp;
-         svm_samp.set_size(numberChannels);
+      	{
+         		// Loop through the classes and get the discriminant value for
+         		// each class.
+			
          ioBufferReal8Ptr = savedBufferReal8Ptr;
-         
+		
          for (feat=0; feat<numberChannels; feat++)
-         {
-            svm_samp(feat) = *ioBufferReal8Ptr;
+         	{
+            gProjectInfoPtr->svm_x[feat].value = *ioBufferReal8Ptr;
             ioBufferReal8Ptr++;
-         }
-         maxClass = predict_label(gProjectInfoPtr->svm_weights, svm_samp)-1;
-         countVectorPtr[classPtr[maxClass]]++;
-         *outputBuffer1Ptr = (UInt8)classPtr[maxClass];
-         // *outputBuffer1Ptr = predict_label(gProjectInfoPtr->weights, svm_samp);
-         //std::cout << "out:" << classPtr[maxClass];
-         //std::cout << ",svm:" <<predict_label(gProjectInfoPtr->weights, svm_samp);
-         //std::cout <<",class:"<< areaDescriptionPtr->classNumber << std::endl;
-         
-      }   // end "if (!polygonField || PtInRgn (point, rgnHandle))"
-      
+				
+         	}	// end "for (feat=0; feat<numberChannels; feat++)"
+			
+         		// the end index of one channel = -1
+			
+         //gProjectInfoPtr->svm_x[numberChannels].index = -1;
+			
+         		// SVM classifies data
+			
+         maxClass = (int)(svm_predict (gProjectInfoPtr->svmModel, gProjectInfoPtr->svm_x));
+         if (maxClass > 0 && maxClass <= numberProjectClasses)
+         	{
+         	countVectorPtr[maxClass]++;
+         	*outputBuffer1Ptr = (UInt8)maxClass;
+				
+				}	// end "if (maxClass > 0 && maxClass <= numberProjectClasses)"
+			
+			else	// maxClass <= 0 || maxClass > numberClasses)
+         	*outputBuffer1Ptr = 0;
+			
+      	}   // end "if (!polygonField || PtInRgn (point, rgnHandle))"
+	
       else   // polygonField && !PtInRgn (point, rgnHandle)
-      {
+      	{
          *outputBuffer1Ptr = 0;
-         //sameDistanceCount = 0;
-         
-      }   // end "else polygonField && !PtInRgn (point, rgnHandle)"
-      
-      //std::cout << "out2:" << predict_label(gProjectInfoPtr->weights, svm_samp) << std::endl;
+		
+      	}   // end "else polygonField && !PtInRgn (point, rgnHandle)"
+	
       point.h++;
       outputBuffer1Ptr++;
       savedBufferReal8Ptr += numberChannels;
-      
-      //clsfyVariablePtr->totalSameDistanceSamples += sameDistanceCount;
-      
-      // Exit routine if user selects "cancel" or "command period".
-      
+	
+      		// Exit routine if user selects "cancel" or "command period".
+	
       if (TickCount () >= gNextTime)
-      {
+      	{
          if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
             return (3);
-         
-      }   // end "if (TickCount () >= gNextTime)"
-      
-   }   // end "for (sample=0; sample<..."
-   
-   // Write carriage return and null character to classification record
-   
+		
+      	}   // end "if (TickCount () >= gNextTime)"
+	
+   	}   // end "for (sample=0; sample<..."
+	
+   		// Write carriage return and null character to classification record
+	
    *outputBuffer1Ptr = kCarriageReturn;
    outputBuffer1Ptr++;
-   
+	
 	#if defined multispec_win
 		*outputBuffer1Ptr = kLineFeed;
 		outputBuffer1Ptr++;
 	#endif   // defined multispec_win
-   
+	
    *outputBuffer1Ptr = kNullTerminator;
 
    return (0);
-   
-} 	// end "SVMClassifier"
-#endif
+	
+}   // end "SupportVectorMachineClassifier"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void SupportVectorMachineClassifierControl
+//
+//	Software purpose:	The purpose of this routine is to control the classification of
+//							the specified data using the point support vector machine
+//							classifier.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:			ClassifyPerPointArea
+//
+//	Coded By:			Larry L. Biehl			Date: 09/13/2019
+//	Revised By:			Larry L. Biehl			Date: 09/13/2019
+
+void SupportVectorMachineClassifierControl (
+				FileInfoPtr							fileInfoPtr)
+
+{
+	ClassifierVar						classifierVar;
+	
+	UInt32								numberClsfyChannels;
+	
+	Boolean								continueFlag;
+	
+	
+			// Initialize local variables
+	
+	numberClsfyChannels = gClassifySpecsPtr->numberChannels;
+	
+	InitializeClassifierVarStructure (&classifierVar);
+	
+			// Get the memory for the mean vectors and covariance matrices
+			// for the classes and channels to be used in the classification.
+	
+	continueFlag = SetupClsfierMemory (NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL,
+													NULL);
+	
+			// Continue with classification, if memory is not full.
+	
+	if (continueFlag)
+		{
+				// Classify the requested areas.	First load the maximum
+				// likelihood variable structure with need pointers
+		
+		classifierVar.chanMeanPtr = NULL;
+		classifierVar.classConstantLOO1Ptr = NULL;
+		
+		ClassifyAreasControl (fileInfoPtr, &classifierVar);
+		
+		}	// end "if (continueFlag)"
+
+}	// end "SupportVectorMachineClassifierControl"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10095,7 +9954,7 @@ SInt16 SVMClassifier (
 //
 // Value Returned:
 //
-// Called By:			ClassifyPerPointArea in classify.c
+// Called By:			ClassifyPerPointArea in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/08/1992
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010	
@@ -10247,7 +10106,7 @@ SInt16 WriteClassificationResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10263,7 +10122,7 @@ SInt16 WriteClassificationResults (
 //
 // Value Returned:	None
 //
-// Called By:			in SClassfy.cpp
+// Called By:			in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1996
 //	Revised By:			Larry L. Biehl			Date: 01/22/2016	

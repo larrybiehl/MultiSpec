@@ -1,6 +1,6 @@
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8,7 +8,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/30/2018
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -17,17 +17,15 @@
 //	Brief description:	The purpose of the routines in this file is to
 //								provide routines to support the MFileInfo structure.
 //
-//	Functions in file:	CMFileStream* 	GetFileStreamPointer
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include	"SFileStream_class.h"
  
-#if defined multispec_lin
-	#include "CFileStream.h"
-	#define FALSE false
-	#define TRUE true
-   #if defined multispec_lin
+#if defined multispec_wx
+	//#define FALSE false
+	//#define TRUE true
+   #if defined multispec_wx
 		#if defined NetBeansProject
 				// The size of a 'unsigned long', as computed by sizeof.
 			#define SIZEOF_UNSIGNED_LONG 8
@@ -35,12 +33,10 @@
 			#define SIZEOF_VOIDP 8
 		#endif
 	#endif
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
-#if defined multispec_win 
-	#include	"CFileStream.h"
-	#include	"CImageWindow.h"
-	#include "SExternalGlobals.h"
+#if defined multispec_win
+	#include	"SImageWindow_class.h"
 #endif	// defined multispec_win 
 
 #if include_gdal_capability
@@ -50,7 +46,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -73,6 +69,7 @@
 
 void CloseControlPointVectorPointers (
 				Handle								controlPointHandle)
+
 {  
 	ControlPointsPtr					controlPointsPtr;
 	
@@ -96,7 +93,7 @@ void CloseControlPointVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -113,10 +110,9 @@ void CloseControlPointVectorPointers (
 //
 //	Value Returned:	None
 //
-// Called By:			DeactivateProject in project.c
-//							ChangeProjectBaseImage in project.c
-//							AppendFile in refomat.c
-//							CloseImageWindow in window.c
+// Called By:			DeactivateProject in SProject.cpp
+//							ChangeProjectBaseImage in SProject.cpp
+//							AppendFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
 //	Revised By:			Larry L. Biehl			Date: 06/04/1996
@@ -145,7 +141,7 @@ void CloseImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -162,10 +158,9 @@ void CloseImageFile (
 //
 //	Value Returned:	None
 //
-// Called By:			DeactivateProject in project.c
-//							ChangeProjectBaseImage in project.c
-//							AppendFile in refomat.c
-//							CloseImageWindow in window.c
+// Called By:			DeactivateProject in SProject.cpp
+//							ChangeProjectBaseImage in SProject.cpp
+//							AppendFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/01/1995
 //	Revised By:			Larry L. Biehl			Date: 07/30/2018
@@ -237,7 +232,7 @@ void CloseImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -285,7 +280,7 @@ void DisposeFileInfoHandle (
 						
 			CloseImageFile (localFileInfoPtr);
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (localFileInfoPtr->fileStreamCPtr != NULL)
 					delete localFileInfoPtr->fileStreamCPtr;
 			#endif	// defined multispec_win 
@@ -306,7 +301,7 @@ void DisposeFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -344,7 +339,7 @@ UInt32 GetActiveNumberClasses (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -385,7 +380,7 @@ SInt16 GetBandInterleave (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -402,8 +397,8 @@ SInt16 GetBandInterleave (
 //
 // Value Returned:	None				
 // 
-// Called By:			FileSpecificationDialogInitialize in SOpenDlg.cpp
-//							FileSpecificationDialogOK in SOpenDlg.cpp
+// Called By:			FileSpecificationDialogInitialize in SOpenFileDialog.cpp
+//							FileSpecificationDialogOK in SOpenFileDialog.cpp
 //							ListDescriptionInformation in SOther.cp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
@@ -463,7 +458,7 @@ void GetBlockInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -492,7 +487,7 @@ SInt16* GetClassToGroupPointer (
 	
 	
 	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
-							imageFileInfoHandle, &handleStatus, kNoMoveHi);
+																	imageFileInfoHandle, &handleStatus);
 							
 	SInt16* classToGroupPtr = GetClassToGroupPointer (fileInfoPtr);
 		
@@ -516,8 +511,7 @@ SInt16* GetClassToGroupPointer (
 	if (imageFileInfoPtr != NULL)
 		classToGroupPtr = (SInt16*)GetHandlePointer (
 															imageFileInfoPtr->groupTablesHandle, 
-															kLock, 
-															kNoMoveHi);
+															kLock);
 
 	if (classToGroupPtr != NULL)
 		{
@@ -534,7 +528,7 @@ SInt16* GetClassToGroupPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -574,7 +568,7 @@ Handle GetChannelDescriptionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -614,7 +608,7 @@ Handle GetClassDescriptionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -655,7 +649,7 @@ Handle GetControlPointsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -678,6 +672,7 @@ Handle GetControlPointsHandle (
 ControlPointsPtr GetControlPointVectorPointers (
 				Handle								controlPointHandle,
 				Boolean								lockHandleFlag)
+
 {  
 	ControlPointsPtr					controlPointsPtr;
 	
@@ -711,7 +706,7 @@ ControlPointsPtr GetControlPointVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -733,6 +728,7 @@ ControlPointsPtr GetControlPointVectorPointers (
 
 CMFileStream* GetFileStreamPointer (
 				FileInfoPtr							fileInfoPtr)
+				
 {  
 	CMFileStream*						fileStreamPtr = NULL;
 	
@@ -742,7 +738,7 @@ CMFileStream* GetFileStreamPointer (
 			fileStreamPtr = &fileInfoPtr->fileStream;
 		#endif	// defined multispec_mac
 				
-		#if defined multispec_win | defined multispec_lin		
+		#if defined multispec_win | defined multispec_wx		
 			fileStreamPtr = fileInfoPtr->fileStreamCPtr;
 		#endif	// defined multispec_win | lin		
 		}	// end "if (fileInfoPtr != NULL)"
@@ -754,7 +750,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -795,7 +791,7 @@ SInt16 GetFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -812,7 +808,7 @@ SInt16 GetFileFormat (
 //
 // Value Returned:	None				
 // 
-// Called By:			GetDefaultSupportFile in SOpnImag.cpp
+// Called By:			GetDefaultSupportFile in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
 //	Revised By:			Larry L. Biehl			Date: 01/10/2013	
@@ -833,7 +829,7 @@ SInt16 GetFileFormatFromWindowHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -890,7 +886,7 @@ Handle GetFileMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -952,7 +948,7 @@ SInt16* GetGroupToPalettePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -990,15 +986,15 @@ SInt16 GetHdfDataSetSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetHDF_FilePointers
 //
-//	Software purpose:	This routine locks the channel to hdf data set index vector handle 
-//							and sets the pointers to those structures in the input file info
-//							stucture(s).
+//	Software purpose:	This routine locks the channel to hdf data set index vector
+//							handle and sets the pointers to those structures in the input
+//							file info stucture(s).
 //
 //	Parameters in:				
 //
@@ -1006,7 +1002,7 @@ SInt16 GetHdfDataSetSelection (
 //
 // Value Returned:	None
 // 
-// Called By:			menus in menus.c
+// Called By:			SetUpGeneralFileIOInstructions in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/2007
 //	Revised By:			Larry L. Biehl			Date: 11/26/2007	
@@ -1044,12 +1040,12 @@ void GetHDF_FilePointers (
 			
 		}	// end "if (fileInfoPtr != NULL)"
 	
-}	// end "GetHierarchalFilePointers"
+}	// end "GetHDF_FilePointers"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1065,7 +1061,8 @@ void GetHDF_FilePointers (
 //
 // Value Returned:	None
 // 
-// Called By:			menus in menus.c
+// Called By:			SetUpGeneralFileIOInstructions in SFileIO.cpp
+//							AppendFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1999
 //	Revised By:			Larry L. Biehl			Date: 02/07/2007	
@@ -1111,7 +1108,7 @@ void GetHierarchalFilePointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1151,7 +1148,7 @@ UInt32 GetNumberClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1194,7 +1191,7 @@ UInt32 GetNumberControlPoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1233,7 +1230,7 @@ Boolean GetThematicType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1248,14 +1245,15 @@ Boolean GetThematicType (
 //
 // Value Returned:	None
 // 
-// Called By:			OpenImageFile in menus.c
-//							GetSpecifiedImageFile in project.c
-//							ChangeProjectBaseImage in project.c
-//							LoadAreasToThematicSpecs in fieldsToThematicFile.c
-//							CreateOutputWindow in initialize.c
-//							CreateResultsDiskFile in multiSpecUtilities.c
-//							CreateERDAS_TRLFile in projectUtilities.c
-//							ChangeImageFileFormat in reformat.c
+// Called By:			OpenImageFile in SOpenFileDialog.cpp
+//							GetSpecifiedImageFile in SProject.cpp
+//							ChangeProjectBaseImage in SProject.cpp
+//							CreateResultsDiskFile in SUtilities.cpp
+//							CreateERDAS_TRLFile in SProjectUtilities.cpp
+//							ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
+//							GetProbabilityFile in SCluster.cpp
+//							GetMaskFile in SMask.cpp
+//							... and many others
 //
 //	Coded By:			Larry L. Biehl			Date: 03/05/1991
 //	Revised By:			Larry L. Biehl			Date: 07/10/2018
@@ -1274,12 +1272,12 @@ Handle InitializeFileInfoStructure (
 		fileInfoHandle = MNewHandle (sizeof (MFileInfo));
 		inputPtrFlag = FALSE;
 		 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 														
 			if (fileInfoPtr != NULL)
 				fileInfoPtr->fileStreamCPtr = NULL;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (fileInfoHandle == NULL)"
 	
@@ -1293,7 +1291,7 @@ Handle InitializeFileInfoStructure (
 				fileInfoPtr->fileStreamCPtr = NULL;
 			#endif	// defined multispec_win
 
-         #if defined multispec_lin
+         #if defined multispec_wx
             fileInfoPtr->fileStreamCPtr = NULL;
          #endif
 
@@ -1310,7 +1308,7 @@ Handle InitializeFileInfoStructure (
 			InitializeFileStream (&fileInfoPtr->fileStream);
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			fileInfoPtr->fileStreamCPtr = 
 		    						InitializeFileStream (fileInfoPtr->fileStreamCPtr);
 		    						
@@ -1320,7 +1318,7 @@ Handle InitializeFileInfoStructure (
 		   																			return (NULL);
 		   	
 		   	}
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 										
 		fileInfoPtr->hfaPtr = NULL;
 		fileInfoPtr->blockFormatPtr = NULL;
@@ -1431,7 +1429,7 @@ Handle InitializeFileInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1534,7 +1532,7 @@ Handle InitializeHierarchalFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1567,7 +1565,7 @@ void SetFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1604,7 +1602,7 @@ void SetFileInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1641,7 +1639,7 @@ void SetFileMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1691,7 +1689,7 @@ void UnlockGroupTablesHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1707,7 +1705,7 @@ void UnlockGroupTablesHandle (
 //
 // Value Returned:	None
 // 
-// Called By:			menus in menus.c
+// Called By:			CloseUpGeneralFileIOInstructions
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/2007
 //	Revised By:			Larry L. Biehl			Date: 11/27/2007	
@@ -1748,7 +1746,7 @@ void UnlockHDF_FileHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1764,7 +1762,7 @@ void UnlockHDF_FileHandles (
 //
 // Value Returned:	None
 // 
-// Called By:			menus in menus.c
+// Called By:			CloseUpGeneralFileIOInstructions
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1999
 //	Revised By:			Larry L. Biehl			Date: 02/07/2007	

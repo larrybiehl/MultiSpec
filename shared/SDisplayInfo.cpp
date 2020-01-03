@@ -1,6 +1,6 @@
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8,7 +8,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -17,26 +17,22 @@
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide routines to support the Display Specs structure.
-//	Functions in file:	CMFileStream* 	GetFileStreamPointer
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
   
 #if defined multispec_win
-	#include "CDisplay.h"
-#endif	// defined multispec_win    
-
-//#include "SExtGlob.h"
+	#include "SDisplay_class.h"
+#endif	// defined multispec_win   
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -105,7 +101,7 @@ void ReleaseDisplayPaletteMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -145,7 +141,7 @@ void ReleaseDisplaySupportMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -153,11 +149,7 @@ void ReleaseDisplaySupportMemory (
 //
 //	Software purpose:	The purpose of this routine is to dispose of the display
 //							support memory - handles for:
-//								symbol to palette vector
 //								channels vector
-//								display class to group vector
-//								class color table structure
-//								group color table structure
 //
 //	Parameters in:			
 //
@@ -183,41 +175,10 @@ void ReleaseDisplaySupportMemory (
 	if (displaySpecsPtr != NULL)
 		{  
 		ReleaseDisplayPaletteMemory (displaySpecsPtr);
-		
-		//displaySpecsPtr->symbolToPaletteEntryH = 
-		//			UnlockAndDispose (displaySpecsPtr->symbolToPaletteEntryH); 
 							
 		displaySpecsPtr->channelsHandle =
 					UnlockAndDispose (displaySpecsPtr->channelsHandle);
-		
-		//displaySpecsPtr->displayClassGroupsHandle =
-		//			UnlockAndDispose (displaySpecsPtr->displayClassGroupsHandle);
-		
-		//displaySpecsPtr->savedClassCTableHandle = (CTabHandle)
-		//			UnlockAndDispose ((Handle)displaySpecsPtr->savedClassCTableHandle);
-		
-		//displaySpecsPtr->savedGroupCTableHandle = (CTabHandle)                           
-		//			UnlockAndDispose ((Handle)displaySpecsPtr->savedGroupCTableHandle);
-		
-		//displaySpecsPtr->localGroupNameHandle =
-		//			UnlockAndDispose (displaySpecsPtr->localGroupNameHandle);
-		/*
-		#if defined multispec_win 
-			if (displaySpecsPtr->paletteObject != NULL)
-				{ 
-				delete displaySpecsPtr->paletteObject;
-				displaySpecsPtr->paletteObject = NULL;
-				
-				}	// end "if (displaySpecsPtr->paletteObject != NULL)"     
 			
-			if (displaySpecsPtr->backgroundPaletteObject != NULL)
-				{ 
-				delete displaySpecsPtr->backgroundPaletteObject;
-				displaySpecsPtr->backgroundPaletteObject = NULL;
-				
-				}	// end "if (displaySpecsPtr->backgroundPaletteObject != NULL)" 
-		#endif	// defined multispec_win 
-		*/								                
 		displaySpecsPtr->initializeStructureFlag = TRUE;
 		displaySpecsPtr->numberDisplayClasses = 0;
 		displaySpecsPtr->numberDisplayGroups = 0;

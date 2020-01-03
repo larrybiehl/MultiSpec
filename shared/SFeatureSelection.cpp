@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2019
+//	Revision date:			11/14/2019
 //
 //	Language:				C
 //
@@ -20,44 +20,13 @@
 //	Brief description:	This file contains the routines dealing with separability
 //								measures of the class statistics.
 //
-//	Functions in file:	void					CalculateSeparabilityControl
-//								Boolean 				ChannelCombinationsDialog
-//								SInt16				ComputeSeparabilityForAllChannelCombinations
-//								SInt16				ComputeSeparabilityForStepChannelCombinations
-//								SInt16				ComputeSeparabilityForAllClassCombinations
-//								double 				Divergence
-//								pascal void			DrawChannelCombinationsPopUp
-//								double 				EFBhattacharyya
-//								SInt16				GetCombinationLimit
-//								UInt32	 			GetMaxCombinationSelected
-//								Boolean 				GetNextCombination
-//								Boolean 				GetNextStepCombination
-//								double				GetProductVectorValues
-//								Boolean				InvertVectorValues
-//								SInt16				ListSeparabilityMeasurements
-//								Boolean 				ListSeparabilityTitleLine
-//								SInt32	 			LoadAllChannelCombinationsVector
-//								Boolean				LoadSeparabilitySpecs
-//								SInt16				LoadSeparabilityStatistics
-//								double 				NonCovarianceBhattacharyya
-//								void 					SeparabilityControl
-//								Boolean				SeparabilityDialog
-//								void 					SeparabilityDialogUpdateChannelFeatureGroupText
-//								void					SeparabilityListDialog
-//								Boolean				SetupSeparabilityDistanceMemory
-//								Boolean		 		SetupSeparabilityStatMemory
-//								double 				TransformedDivergence
-//								SInt16				UpdateSeparabilityLists
-//
-//	Include files:			"MultiSpecHeaders"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"      
 
-#if defined multispec_lin        
-	#include "LFeatureSelectionDialog.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx        
+	#include "xFeatureSelectionDialog.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_ListTitle						7
@@ -143,190 +112,190 @@ typedef struct SepDistancesSummary
 		// Function prototypes for routines that are only called by other			
 		// routines in this file.	
 								
-void					CalculateSeparabilityControl (void);
+void CalculateSeparabilityControl (void);
 
-Boolean 				ChannelCombinationsDialog (
-							UInt16*								numberOutputChannelCombinationsPtr, 
-							UInt16*								channelCombinationsPtr, 
-							UInt32								numberInputChannelCombinations, 
-							UInt16*								allChanCombinationsPtr,
-							UInt32								contiguousChannelsPerGroup,
-							Boolean								featureTransformationFlag);
-													
-SInt16	 			ComputeSeparabilityForAllChannelCombinations (
-							UInt32								numberChannelGroupCombinations, 
-							UInt32								numberClassCombinations, 
-							SInt16								numberSeparabilityChannels);
-								
-SInt16	 			ComputeSeparabilityForAllClassCombinations (
-							SepDistancesSummaryPtr			distancesSummaryPtr, 
-							UInt32								numberClassCombinations, 
-							UInt32								numberClasses, 
-							SInt16								numberSeparabilityChannels);
-																			
-SInt16	 			ComputeSeparabilityForStepChannelCombinations (
-							UInt32								numberChannelGroupCombinations, 
-							UInt32								numberClassCombinations, 
-							SInt16								numberSeparabilityChannels);
+Boolean ChannelCombinationsDialog (
+				UInt16*								numberOutputChannelCombinationsPtr,
+				UInt16*								channelCombinationsPtr,
+				UInt32								numberInputChannelCombinations, 
+				UInt16*								allChanCombinationsPtr,
+				UInt32								contiguousChannelsPerGroup,
+				Boolean								featureTransformationFlag);
 
-double 				CovarianceBhattacharyya (
-							HDoublePtr							cov1Ptr, 			 
-							HDoublePtr							cov2Ptr,				
-							double								logDeterminant1,
-							double								logDeterminant2,
-							SInt16								numberFeatures);
-								
-double 				Divergence (
-							HDoublePtr							mean1Ptr,
-							HDoublePtr							mean2Ptr,
-							HDoublePtr							cov1Ptr,
-							HDoublePtr							cov2Ptr,
-							HDoublePtr							inv1Ptr,
-							HDoublePtr							inv2Ptr,
-							HDoublePtr							meanDifPtr,
-							SInt16								numberFeatures);
-	
-PascalVoid			DrawChannelCombinationsPopUp (
-							DialogPtr							dialogPtr, 
-							SInt16								itemNumber);
+SInt16 ComputeSeparabilityForAllChannelCombinations (
+				UInt32								numberChannelGroupCombinations,
+				UInt32								numberClassCombinations, 
+				SInt16								numberSeparabilityChannels);
 
-double 				EFBhattacharyya (
-							HDoublePtr							mean1Ptr,
-							HDoublePtr							mean2Ptr,
-							HDoublePtr							cov1Ptr,
-							HDoublePtr							cov2Ptr,
-							double								logDeterminant1,
-							double								logDeterminant2,
-							HDoublePtr							meanDifPtr,
-							SInt16								numberFeatures);
+SInt16 ComputeSeparabilityForAllClassCombinations (
+				SepDistancesSummaryPtr			distancesSummaryPtr,
+				UInt32								numberClassCombinations, 
+				UInt32								numberClasses, 
+				SInt16								numberSeparabilityChannels);
 
-SInt32	 			GetCombinationLimit (
-							SInt32								total, 
-							SInt32								numberContiguousPerGroup, 
-							Boolean								stepSearchFlag);
+SInt16 ComputeSeparabilityForStepChannelCombinations (
+				UInt32								numberChannelGroupCombinations,
+				UInt32								numberClassCombinations, 
+				SInt16								numberSeparabilityChannels);
 
-UInt32	 			GetMaxCombinationSelected (
-							SInt32								numberSubsets, 
-							SInt16*								subsetPtr, 
-							SInt32								total, 
-							SInt32								numberContiguousPerGroup, 
-							Boolean								stepSearchFlag,
-							SInt16*								numberCombinationReturnCode);
+double CovarianceBhattacharyya (
+				HDoublePtr							cov1Ptr,
+				HDoublePtr							cov2Ptr,				
+				double								logDeterminant1,
+				double								logDeterminant2,
+				SInt16								numberFeatures);
 
-Boolean 				GetNextCombination (
-							SInt16*								listPtr, 
-							SInt32								subsetNumber, 
-							SInt32								totalNumber, 
-							SInt32								numberContiguousPerGroup);
+double Divergence (
+				HDoublePtr							mean1Ptr,
+				HDoublePtr							mean2Ptr,
+				HDoublePtr							cov1Ptr,
+				HDoublePtr							cov2Ptr,
+				HDoublePtr							inv1Ptr,
+				HDoublePtr							inv2Ptr,
+				HDoublePtr							meanDifPtr,
+				SInt16								numberFeatures);
 
-Boolean 				GetNextStepCombination (
-							SInt16*								listPtr, 
-							SInt16*								listUsedPtr,
-							SInt16*								nextChannelPtr, 
-							SInt16								totalNumber, 
-							SInt16								numberContiguousPerGroup);
+PascalVoid DrawChannelCombinationsPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
+
+double EFBhattacharyya (
+				HDoublePtr							mean1Ptr,
+				HDoublePtr							mean2Ptr,
+				HDoublePtr							cov1Ptr,
+				HDoublePtr							cov2Ptr,
+				double								logDeterminant1,
+				double								logDeterminant2,
+				HDoublePtr							meanDifPtr,
+				SInt16								numberFeatures);
+
+SInt32 GetCombinationLimit (
+				SInt32								total,
+				SInt32								numberContiguousPerGroup, 
+				Boolean								stepSearchFlag);
+
+UInt32 GetMaxCombinationSelected (
+				SInt32								numberSubsets,
+				SInt16*								subsetPtr, 
+				SInt32								total, 
+				SInt32								numberContiguousPerGroup, 
+				Boolean								stepSearchFlag,
+				SInt16*								numberCombinationReturnCode);
+
+Boolean GetNextCombination (
+				SInt16*								listPtr,
+				SInt32								subsetNumber, 
+				SInt32								totalNumber, 
+				SInt32								numberContiguousPerGroup);
+
+Boolean GetNextStepCombination (
+				SInt16*								listPtr,
+				SInt16*								listUsedPtr,
+				SInt16*								nextChannelPtr, 
+				SInt16								totalNumber, 
+				SInt16								numberContiguousPerGroup);
 /*
-double				GetProductVectorValues (
-							HDoublePtr							vectorPtr, 
-							UInt32								numberFeatures); 
+double GetProductVectorValues (
+				HDoublePtr							vectorPtr,
+				UInt32								numberFeatures); 
 */
-Boolean				InvertVectorValues (
-							HDoublePtr							inputVectorPtr, 
-							HDoublePtr							outputVectorPtr, 
-							UInt32								numberFeatures);
+Boolean InvertVectorValues (
+				HDoublePtr							inputVectorPtr,
+				HDoublePtr							outputVectorPtr, 
+				UInt32								numberFeatures);
 
-Boolean 				ListSeparabilityTitleLine (
-							CMFileStream*						resultsFileStreamPtr, 
-							UInt32								numberClassCombinations, 
-							SInt16								numberSeparabilityChannels);
+Boolean ListSeparabilityTitleLine (
+				CMFileStream*						resultsFileStreamPtr,
+				UInt32								numberClassCombinations, 
+				SInt16								numberSeparabilityChannels);
 
-SInt16		 		ListSeparabilityMeasurements (
-							UInt32								numberChannelGroupCombinations, 
-							UInt32								numberClassCombinations, 
-							SInt16								numberSeparabilityChannels);
+SInt16 ListSeparabilityMeasurements (
+				UInt32								numberChannelGroupCombinations,
+				UInt32								numberClassCombinations, 
+				SInt16								numberSeparabilityChannels);
 
-SInt32	 			LoadAllChannelCombinationsVector (
-							SInt16								totalNumberChannels, 
-							UInt16*								combinationPtr, 
-							SInt32*								maxNumberCombinationsPtr,
-							SInt16								numberContiguousPerGroup, 
-							Boolean								stepSearchFlag);
+SInt32 LoadAllChannelCombinationsVector (
+				SInt16								totalNumberChannels,
+				UInt16*								combinationPtr, 
+				SInt32*								maxNumberCombinationsPtr,
+				SInt16								numberContiguousPerGroup, 
+				Boolean								stepSearchFlag);
 
-void 					LoadChannelCombinationsVector (
-							SeparabilitySpecsPtr				separabilitySpecsPtr,
-							UInt16*								channelCombinationsPtr, 
-							UInt16*								allChanCombinationsPtr,
-							UInt16*								numberChannelGroupCombinationsPtr, 
-							UInt32*								maxNumberFeatureCombinationsPtr);
+void LoadChannelCombinationsVector (
+				SeparabilitySpecsPtr				separabilitySpecsPtr,
+				UInt16*								channelCombinationsPtr, 
+				UInt16*								allChanCombinationsPtr,
+				UInt16*								numberChannelGroupCombinationsPtr, 
+				UInt32*								maxNumberFeatureCombinationsPtr);
 
-Boolean				LoadSeparabilitySpecs (void);
+Boolean LoadSeparabilitySpecs (void);
 
-SInt16	  			LoadSeparabilityStatistics (
-							SInt16*								featurePtr, 
-							SInt16								numberFeatures);
+SInt16 LoadSeparabilityStatistics (
+				SInt16*								featurePtr,
+				SInt16								numberFeatures);
 
-double 				MeanBhattacharyya (
-							HDoublePtr							mean1Ptr,
-							HDoublePtr							mean2Ptr,
-							HDoublePtr							cov1Ptr, 
-							HDoublePtr							cov2Ptr,
-							HDoublePtr							meanDifPtr,	
-							SInt16								numberFeatures);
+double MeanBhattacharyya (
+				HDoublePtr							mean1Ptr,
+				HDoublePtr							mean2Ptr,
+				HDoublePtr							cov1Ptr, 
+				HDoublePtr							cov2Ptr,
+				HDoublePtr							meanDifPtr,	
+				SInt16								numberFeatures);
 
-double 				NonCovarianceBhattacharyya (
-							HDoublePtr							mean1Ptr,
-							HDoublePtr							mean2Ptr,
-							HDoublePtr							cov1Ptr,
-							HDoublePtr							cov2Ptr,
-							HDoublePtr							meanDifPtr,
-							UInt32								numberFeatures);
+double NonCovarianceBhattacharyya (
+				HDoublePtr							mean1Ptr,
+				HDoublePtr							mean2Ptr,
+				HDoublePtr							cov1Ptr,
+				HDoublePtr							cov2Ptr,
+				HDoublePtr							meanDifPtr,
+				UInt32								numberFeatures);
 
-Boolean				SeparabilityDialog (
-							FileInfoPtr							fileInfoPtr);
+Boolean SeparabilityDialog (
+				FileInfoPtr							fileInfoPtr);
 
-void 					SeparabilityDialogUpdateMaxChannelsPerGroup (
-							UInt16								numberFeatures,
-							UInt16*								channelCombinationsPtr,
-							UInt16*								numberChannelGroupCombinationsPtr,
-							SInt32*								maxContiguousChannelsPerGroupPtr); 
+void SeparabilityDialogUpdateMaxChannelsPerGroup (
+				UInt16								numberFeatures,
+				UInt16*								channelCombinationsPtr,
+				UInt16*								numberChannelGroupCombinationsPtr,
+				SInt32*								maxContiguousChannelsPerGroupPtr); 
 
-Boolean				SetupSeparabilityDistanceMemory (
-							SInt16								numberSeparabilityChannels, 
-							SInt16*								featurePtr, 
-							SInt16								numberFeatures, 
-							UInt32								numberClassCombinations, 
-							UInt32								numberChannelGroupCombinations);
+Boolean SetupSeparabilityDistanceMemory (
+				SInt16								numberSeparabilityChannels,
+				SInt16*								featurePtr, 
+				SInt16								numberFeatures, 
+				UInt32								numberClassCombinations, 
+				UInt32								numberChannelGroupCombinations);
 
-Boolean		 		SetupSeparabilityStatMemory (
-							HDoublePtr* 						meanPtr, 
-							HDoublePtr* 						covariancePtr, 
-							HDoublePtr* 						inverseCovPtr, 
-							HDoublePtr*							logDeterminantPtr, 
-							HChannelStatisticsPtr*			classChannelStatsPtr, 
-							SInt16								numberFeatures,
-							Boolean								covarianceFlag);
-											
-double 				TransformedDivergence (
-							HDoublePtr							mean1Ptr, 
-							HDoublePtr							mean2Ptr, 
-							HDoublePtr							cov1Ptr, 
-							HDoublePtr							cov2Ptr, 
-							HDoublePtr							inv1Ptr, 
-							HDoublePtr							inv2Ptr, 
-							HDoublePtr							meanDifPtr, 
-							SInt16								numberFeatures);
+Boolean SetupSeparabilityStatMemory (
+				HDoublePtr* 						meanPtr,
+				HDoublePtr* 						covariancePtr, 
+				HDoublePtr* 						inverseCovPtr, 
+				HDoublePtr*							logDeterminantPtr, 
+				HChannelStatisticsPtr*			classChannelStatsPtr, 
+				SInt16								numberFeatures,
+				Boolean								covarianceFlag);
 
-SInt16	 			UpdateSeparabilityLists (
-							SepDistancesSummaryPtr 			distancesSummaryPtr, 
-							SInt32	 							combinationIndex, 
-							UInt32				 				channelCombination, 
-							SInt32* 								freeIndex, 
-							Boolean 								firstTimeFlag);
+double TransformedDivergence (
+				HDoublePtr							mean1Ptr,
+				HDoublePtr							mean2Ptr, 
+				HDoublePtr							cov1Ptr, 
+				HDoublePtr							cov2Ptr, 
+				HDoublePtr							inv1Ptr, 
+				HDoublePtr							inv2Ptr, 
+				HDoublePtr							meanDifPtr, 
+				SInt16								numberFeatures);
+
+SInt16 UpdateSeparabilityLists (
+				SepDistancesSummaryPtr 			distancesSummaryPtr,
+				SInt32	 							combinationIndex, 
+				UInt32				 				channelCombination, 
+				SInt32* 								freeIndex, 
+				Boolean 								firstTimeFlag);
 
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -395,7 +364,7 @@ double EFBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -470,7 +439,7 @@ void CalculateSeparabilityControl (void)
 										gOutputForce1Code,
 										continueFlag);
 									
-																							return;
+																								return;
 			
 		}	// end "if (numberClassCombinations == 0)" 
 		
@@ -593,9 +562,9 @@ void CalculateSeparabilityControl (void)
 		gTextString2[7] = kNullTerminator;
 		
 		sprintf ((char*)gTextString, 
-			"    There are %lu %s combination(s) for %hd group(s) of %hd"
+			"    There are %u %s combination(s) for %hd group(s) of %hd"
 			" contiguous %s(s).%s",
-			maxNumberOfListCombinations,
+			(int)maxNumberOfListCombinations,
 			&gTextString2[gSeparabilitySpecsPtr->featureTransformationFlag*8],
 			channelCombinationsPtr[channelCombinationSet],
 			gSeparabilitySpecsPtr->numberContiguousPerGroup,
@@ -699,7 +668,7 @@ void CalculateSeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -717,7 +686,7 @@ void CalculateSeparabilityControl (void)
 //
 // Value Returned:	None
 //
-// Called By:			SeparabilityDialog   in separability.c
+// Called By:			SeparabilityDialog   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1989
 //	Revised By:			Larry L. Biehl			Date: 02/23/2018
@@ -900,15 +869,15 @@ void ChannelCombinationsDialogInitialize (
 	LoadDItemStringNumber (kFeatureSelectionStrID, 
 									IDS_FeatureSelection10, 
 									dialogPtr, 
-									IDC_ListTitle,		// 7, 
+									IDC_ListTitle,
 									(Str255*)gTextString);
 	
 			// Initialize the channel combinations range text edit items.								
 			
-	LoadDItemValue (dialogPtr, IDC_First, (SInt32)1);		// 9
-	LoadDItemValue (dialogPtr, IDC_Last, (SInt32)numberInputChannelCombinations);		// 11
-	LoadDItemValue (dialogPtr, IDC_Interval, (SInt32)1);		// 13
-	SetDLogControlHilite (dialogPtr, IDC_EnterNewRange, 0);		// 14
+	LoadDItemValue (dialogPtr, IDC_First, (SInt32)1);
+	LoadDItemValue (dialogPtr, IDC_Last, (SInt32)numberInputChannelCombinations);
+	LoadDItemValue (dialogPtr, IDC_Interval, (SInt32)1);
+	SetDLogControlHilite (dialogPtr, IDC_EnterNewRange, 0);
 	
 }	// end "ChannelCombinationsDialogInitialize"   
 
@@ -948,7 +917,7 @@ void ChannelCombinationsDialogOK (
 
 Boolean ChannelCombinationsDialogLoadList (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							dialogListHandle,
 				#else
 					ListHandle							dialogListHandle,
@@ -1041,7 +1010,7 @@ Boolean ChannelCombinationsDialogLoadList (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1058,7 +1027,7 @@ Boolean ChannelCombinationsDialogLoadList (
 //
 // Value Returned:	None	
 // 
-// Called By:			CalculateSeparabilityControl in SFeatSel.cpp
+// Called By:			CalculateSeparabilityControl in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1989
 //	Revised By:			Larry L. Biehl			Date: 05/17/1990	
@@ -1297,7 +1266,7 @@ SInt16 ComputeSeparabilityForAllChannelCombinations (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1631,7 +1600,7 @@ SInt16 ComputeSeparabilityForStepChannelCombinations (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1647,7 +1616,7 @@ SInt16 ComputeSeparabilityForStepChannelCombinations (
 //
 // Value Returned:	None	
 // 
-// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatSel.cpp
+// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatureSelection.cpp
 //							ComputeSeparabilityForStepChannelCombinations in SFEatSel.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1989
@@ -1843,7 +1812,7 @@ SInt16 ComputeSeparabilityForAllClassCombinations (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1948,7 +1917,7 @@ double CovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2064,7 +2033,7 @@ double Divergence (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2106,7 +2075,7 @@ pascal void DrawChannelCombinationsPopUp (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2129,7 +2098,7 @@ pascal void DrawChannelCombinationsPopUp (
 //
 // Value Returned:	None			
 // 
-// Called By:			LoadAllChannelCombinationsVector in separability.c
+// Called By:			LoadAllChannelCombinationsVector in SFeatureSelection.cpp
 //
 //	Coded By:			C.H. Lee					Date: 11/10/1989
 //	Revised By:			Larry L. Biehl			Date: 04/24/1998	
@@ -2212,7 +2181,7 @@ SInt32 GetCombinationLimit (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2230,7 +2199,7 @@ SInt32 GetCombinationLimit (
 //
 // Value Returned:	None			
 // 
-// Called By:			SeparabilityDialog in separability.c
+// Called By:			SeparabilityDialog in SFeatureSelection.cpp
 //
 //	Coded By:			C.H. Lee					Date: 11/10/1989
 //	Revised By:			Larry L. Biehl			Date: 10/08/1998	
@@ -2317,7 +2286,7 @@ UInt32 GetMaxCombinationSelected (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2384,7 +2353,7 @@ Boolean GetNextCombination (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2478,7 +2447,7 @@ Boolean GetNextStepCombination (
 
 /*                                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2493,7 +2462,7 @@ Boolean GetNextStepCombination (
 //
 // Value Returned:	None
 // 
-// Called By:			LoadSeparabilityStatistics in separability.c
+// Called By:			LoadSeparabilityStatistics in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/30/1992
 //	Revised By:			Larry L. Biehl			Date: 07/30/1992	
@@ -2532,7 +2501,7 @@ double GetProductVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2547,7 +2516,7 @@ double GetProductVectorValues (
 //
 // Value Returned:	None
 // 
-// Called By:			LoadSeparabilityStatistics in separability.c
+// Called By:			LoadSeparabilityStatistics in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/30/1992
 //	Revised By:			Larry L. Biehl			Date: 05/24/1993	
@@ -2590,7 +2559,7 @@ Boolean InvertVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2798,7 +2767,7 @@ SInt16 ListSeparabilityMeasurements (
 					// List channel set number listed.										
 			
 			stringPtr1 = gCharBufferPtr1;
-			sprintf (stringPtr1, "    %3ld.\t", channelCombination);
+			sprintf (stringPtr1, "    %3d.\t", (int)channelCombination);
 			stringPtr1 += 9;
 		
 					// List channels used.														
@@ -2962,7 +2931,7 @@ SInt16 ListSeparabilityMeasurements (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3149,7 +3118,7 @@ Boolean ListSeparabilityTitleLine (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3167,7 +3136,7 @@ Boolean ListSeparabilityTitleLine (
 //
 // Value Returned: 		
 //
-// Called By:			LoadSeparabilitySpecs in separability.c
+// Called By:			LoadSeparabilitySpecs in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/1989
 //	Revised By:			Larry L. Biehl			Date: 05/01/1998
@@ -3198,10 +3167,10 @@ SInt32 LoadAllChannelCombinationsVector (
 					totalNumberChannels, numberContiguousPerGroup, stepSearchFlag);
 	
 	*maxNumberCombinationsPtr = GetNumberOfCombinations (totalNumberChannels, 
-																				limit, 
-																				numberContiguousPerGroup, 
-																				stepSearchFlag,
-																				&numberCombinationReturnCode);
+																			limit,
+																			numberContiguousPerGroup, 
+																			stepSearchFlag,
+																			&numberCombinationReturnCode);
 			
 	middleNumberChannels = totalNumberChannels/(numberContiguousPerGroup+1);
 	
@@ -3235,7 +3204,7 @@ SInt32 LoadAllChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3251,7 +3220,7 @@ SInt32 LoadAllChannelCombinationsVector (
 //
 // Value Returned: 		
 //
-// Called By:			LoadSeparabilitySpecs in separability.c
+// Called By:			LoadSeparabilitySpecs in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/27/1998
 //	Revised By:			Larry L. Biehl			Date: 04/28/1998
@@ -3285,7 +3254,7 @@ void LoadChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3454,11 +3423,10 @@ Boolean LoadSeparabilitySpecs (void)
 		{
 		bytesNeeded =
 			(SInt32)gProjectInfoPtr->numberStatisticsChannels * sizeof (SInt16);
-		featurePtr = (SInt16*)CheckHandleSize (
-									&gSeparabilitySpecsPtr->featureHandle, 
-									&continueFlag,   
-									&changedFlag, 
-									bytesNeeded);
+		featurePtr = (SInt16*)CheckHandleSize (&gSeparabilitySpecsPtr->featureHandle,
+															&continueFlag,   
+															&changedFlag, 
+															bytesNeeded);
 		if (changedFlag)
 			gSeparabilitySpecsPtr->channelSet = kAllMenuItem;
 			
@@ -3468,32 +3436,31 @@ Boolean LoadSeparabilitySpecs (void)
 			// channels vector.																	
 
 	if (continueFlag)
-		channelsPtr = (SInt16*)CheckHandleSize (
-									&gSeparabilitySpecsPtr->channelsHandle,
-									&continueFlag,    
-									&changedFlag, 
-									bytesNeeded);
-			
+		channelsPtr = (SInt16*)CheckHandleSize( &gSeparabilitySpecsPtr->channelsHandle,
+																&continueFlag,    
+																&changedFlag, 
+																bytesNeeded);
+	
 			// If memory is not full, set up memory for separability					
 			// channel combinations vector.													
 
 	if (continueFlag)
 		channelCombinationsPtr = (UInt16*)CheckHandleSize (
-									&gSeparabilitySpecsPtr->channelCombinationsHandle, 
-									&continueFlag,    
-									&changedFlag, 
-									bytesNeeded);
-			
+											&gSeparabilitySpecsPtr->channelCombinationsHandle,
+											&continueFlag,    
+											&changedFlag, 
+											bytesNeeded);
+	
 			// If memory is not full, set up memory for separability					
 			// vector for all possible channels combinations.							
 
 	if (continueFlag)
 		allChanCombinationsPtr = (UInt16*)CheckHandleSize (
-									&gSeparabilitySpecsPtr->allChanCombinationsHandle,
-									&continueFlag,    
-									&changedFlag, 
-									bytesNeeded);
-			
+											&gSeparabilitySpecsPtr->allChanCombinationsHandle,
+											&continueFlag,    
+											&changedFlag, 
+											bytesNeeded);
+	
 			// If memory is not full, set up memory for class symbols				
 			// vector.																				
 
@@ -3501,11 +3468,10 @@ Boolean LoadSeparabilitySpecs (void)
 		{						
 		bytesNeeded = (SInt32)(gProjectInfoPtr->numberStatisticsClasses+1)
 																			* sizeof (char);
-		symbolsPtr = (UCharPtr)CheckHandleSize (
-									&gSeparabilitySpecsPtr->symbolsHandle,
-									&continueFlag,     
-									&changedFlag, 
-									bytesNeeded);
+		symbolsPtr = (UCharPtr)CheckHandleSize (&gSeparabilitySpecsPtr->symbolsHandle,
+																&continueFlag,     
+																&changedFlag, 
+																bytesNeeded);
 		if (changedFlag)
 			gSeparabilitySpecsPtr->symbolSet = kDefaultMenuItem;
 			
@@ -3524,12 +3490,11 @@ Boolean LoadSeparabilitySpecs (void)
 														&numberPairReturnCode);
 														
 		bytesNeeded = gProjectInfoPtr->numberProjectClassPairs * sizeof (SInt16);
-		weightsPtr = (SInt16*)CheckHandleSize (
-									&gProjectInfoPtr->classPairWeightsHandle,
-									&continueFlag,     
-									&changedFlag, 
-									bytesNeeded);
-			
+		weightsPtr = (SInt16*)CheckHandleSize (&gProjectInfoPtr->classPairWeightsHandle,
+															&continueFlag,     
+															&changedFlag, 
+															bytesNeeded);
+		
 		}	// end "if (continueFlag)"
 	
 			//	Make sure that classPairWeightsListHandle is locked if it exists.
@@ -3610,7 +3575,7 @@ Boolean LoadSeparabilitySpecs (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3629,7 +3594,7 @@ Boolean LoadSeparabilitySpecs (void)
 // Value Returned:	-1 if statistics loading is not okay.
 //							1 if statistics is okay.
 // 
-// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatSel.cpp
+// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/03/1989
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006
@@ -3864,7 +3829,7 @@ SInt16  LoadSeparabilityStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3901,7 +3866,6 @@ double MeanBhattacharyya (
 {
 	double								bhattacharyya1,
 											bhattacharyya2,
-//											determinant,
 											logDeterminant,
 											meanDifValue;
 	
@@ -3997,7 +3961,8 @@ double MeanBhattacharyya (
 			
 			// Get the i!=j component items of the mean part of the 				
 			// Bhattacharyya distance.		
-			// Note that the i!=j component is double the value computed for bhattacharyya2.
+			// Note that the i!=j component is double the value computed for
+			// bhattacharyya2.
 			// This is taken care of by dividing by 2 instead of 4 at the end of the
 			// computation.																	
 	
@@ -4032,7 +3997,7 @@ double MeanBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4148,7 +4113,7 @@ double NonCovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4193,7 +4158,7 @@ void SeparabilityControl (void)
 			// routine.																			
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																								return;
 																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
@@ -4287,22 +4252,21 @@ void SeparabilityControl (void)
 					
 					if (gSeparabilitySpecsPtr->outputStorageType & 0x0002)
 						{
-						InitializeAreaDescription (
-													&gAreaDescription, 
-													1, 
-													16000, 
-													1, 
-													8, 
-													1, 
-													1,
-													1,
-													1,
-													0);
-													
+						InitializeAreaDescription (&gAreaDescription,
+															1, 
+															16000, 
+															1, 
+															8, 
+															1, 
+															1,
+															1,
+															1,
+															0);
+						
 						continueFlag = CreateResultsDiskFiles (
-											gSeparabilitySpecsPtr->outputStorageType, 
-											0,
-											0);
+														gSeparabilitySpecsPtr->outputStorageType,
+														0,
+														0);
 											
 						}	// end "if (...->outputStorageType & 0x0002)" 
 											
@@ -4337,8 +4301,8 @@ void SeparabilityControl (void)
 					if (continueFlag && 
 									gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats)
 						continueFlag = CheckClassEnhancedStats (
-												gSeparabilitySpecsPtr->numberClasses,
-												classPtr);
+															gSeparabilitySpecsPtr->numberClasses,
+															classPtr);
 														
 							// List the separability specifications.
 							//   First list the algorithm to be used.														
@@ -4386,44 +4350,44 @@ void SeparabilityControl (void)
 							// " List best %ld combinations\r"								
 							
 					continueFlag = ListSpecifiedStringNumber (
-										kFeatureSelectionStrID, 
-										IDS_FeatureSelection18,
-										resultsFileStreamPtr, 
-										gOutputForce1Code, 
-										gSeparabilitySpecsPtr->numberCombinationsToList, 
-										continueFlag);
-														
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection18,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												gSeparabilitySpecsPtr->numberCombinationsToList, 
+												continueFlag);
+					
 							// " Minimum value to be listed: %g\r"							
 				
 					continueFlag = ListSpecifiedStringNumber (
-										kFeatureSelectionStrID, 
-										IDS_FeatureSelection19,
-										resultsFileStreamPtr, 
-										gOutputForce1Code, 
-										gSeparabilitySpecsPtr->minDistanceRangeToList, 
-										continueFlag);
-														
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection19,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												gSeparabilitySpecsPtr->minDistanceRangeToList, 
+												continueFlag);
+					
 							// " Maximum value to be listed: %g\r"							
 				
 					continueFlag = ListSpecifiedStringNumber (
-										kFeatureSelectionStrID, 
-										IDS_FeatureSelection20,
-										resultsFileStreamPtr, 
-										gOutputForce1Code, 
-										gSeparabilitySpecsPtr->maxDistanceRangeToList, 
-										continueFlag);
-														
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection20,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												gSeparabilitySpecsPtr->maxDistanceRangeToList, 
+												continueFlag);
+					
 					if (gSeparabilitySpecsPtr->tablesToList & 0x0001)
 						{								
 								// " List separability table.\r"	
 				
 						continueFlag = ListSpecifiedStringNumber (
-											kFeatureSelectionStrID, 
-											IDS_FeatureSelection21, 
-											(unsigned char*)gTextString,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											continueFlag);
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection21, 
+												(unsigned char*)gTextString,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												continueFlag);
 						
 						}	// end "if (gSeparabilitySpecsPtr->tablesToList)"
 														
@@ -4432,12 +4396,12 @@ void SeparabilityControl (void)
 								// " List table of class pairs with distance less than %g\r"
 				
 						continueFlag = ListSpecifiedStringNumber (
-											kFeatureSelectionStrID, 
-											IDS_FeatureSelection22,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gSeparabilitySpecsPtr->distancesLessThanToList, 
-											continueFlag);
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection22,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												gSeparabilitySpecsPtr->distancesLessThanToList, 
+												continueFlag);
 						
 						}	// end "if (gSeparabilitySpecsPtr->tablesToList)"
 														
@@ -4446,12 +4410,12 @@ void SeparabilityControl (void)
 								// " List grouping table with a threshold of %g\r"
 								
 						continueFlag = ListSpecifiedStringNumber (
-											kFeatureSelectionStrID, 
-											IDS_FeatureSelection23,
-											resultsFileStreamPtr, 
-											gOutputForce1Code, 
-											gSeparabilitySpecsPtr->distancesLessThanToGroup, 
-											continueFlag);
+												kFeatureSelectionStrID,
+												IDS_FeatureSelection23,
+												resultsFileStreamPtr, 
+												gOutputForce1Code, 
+												gSeparabilitySpecsPtr->distancesLessThanToGroup, 
+												continueFlag);
 						
 						}	// end "if (gSeparabilitySpecsPtr->tablesToList)"
 					
@@ -4459,12 +4423,12 @@ void SeparabilityControl (void)
 							// " %hd contiguous channels in each channel combination group\r"
 
 					continueFlag = ListSpecifiedStringNumber (
-								kFeatureSelectionStrID, 
-								IDS_FeatureSelection24,
-								resultsFileStreamPtr, 
-								gOutputForce1Code, 
-								(SInt32)gSeparabilitySpecsPtr->numberContiguousPerGroup, 
-								continueFlag);
+									kFeatureSelectionStrID,
+									IDS_FeatureSelection24,
+									resultsFileStreamPtr, 
+									gOutputForce1Code, 
+									(SInt32)gSeparabilitySpecsPtr->numberContiguousPerGroup, 
+									continueFlag);
 					
 							// List the search algorithm to be used.	
 							// " All possible channel combinations will be searched\r");
@@ -4475,40 +4439,40 @@ void SeparabilityControl (void)
 					if (gSeparabilitySpecsPtr->featureSearchCode == 2)
 						index	= IDS_FeatureSelection26;
 						
-					continueFlag = ListSpecifiedStringNumber (
-								kFeatureSelectionStrID, 
-								index, 
-								(unsigned char*)gTextString,
-								resultsFileStreamPtr, 
-								gOutputForce1Code,
-								continueFlag);
+					continueFlag = ListSpecifiedStringNumber (kFeatureSelectionStrID,
+																			index, 
+																			(unsigned char*)gTextString,
+																			resultsFileStreamPtr, 
+																			gOutputForce1Code,
+																			continueFlag);
 		
 							// Insert a blank line
 						
 					continueFlag = OutputString (resultsFileStreamPtr, 
-														(char*)gEndOfLine, 
-														0, 
-														gOutputForce1Code,
-														continueFlag); 
+															(char*)gEndOfLine,
+															0,
+															gOutputForce1Code,
+															continueFlag);
 						
 							// List the channels used.											
 					
 					if (continueFlag)
 						{
 						SInt16* featurePtr = (SInt16*)GetHandlePointer (
-												gSeparabilitySpecsPtr->featureHandle);
+															gSeparabilitySpecsPtr->featureHandle);
 												
 						SInt16* channelsPtr = (SInt16*)GetHandlePointer (
-												gSeparabilitySpecsPtr->channelsHandle);
+															gSeparabilitySpecsPtr->channelsHandle);
 												
-						continueFlag = ListChannelsUsed (fileInfoPtr,
-										featurePtr,
-										channelsPtr,
-										gSeparabilitySpecsPtr->numberFeatures, 
-										resultsFileStreamPtr, 
-										&gOutputForce1Code,
-										gSeparabilitySpecsPtr->featureTransformationFlag);
-										
+						continueFlag = ListChannelsUsed (
+												fileInfoPtr,
+												featurePtr,
+												channelsPtr,
+												gSeparabilitySpecsPtr->numberFeatures, 
+												resultsFileStreamPtr, 
+												&gOutputForce1Code,
+												gSeparabilitySpecsPtr->featureTransformationFlag);
+						
 						}	// end "if (continueFlag)"
 								
 							// List the classes used.											
@@ -4516,28 +4480,29 @@ void SeparabilityControl (void)
 					if (continueFlag)
 						{
 						UCharPtr symbolsPtr = (UCharPtr)GetHandlePointer (
-												gSeparabilitySpecsPtr->symbolsHandle);
+															gSeparabilitySpecsPtr->symbolsHandle);
 												
-						continueFlag =  ListClassesUsed (NULL,
-									fileInfoPtr, 
-									classPtr, 
-									symbolsPtr,
-									kListNoWeights,
-									gSeparabilitySpecsPtr->numberClasses, 
-									resultsFileStreamPtr, 
-									&gOutputForce1Code,
-									FALSE);
-									
+						continueFlag =  ListClassesUsed (
+															NULL,
+															fileInfoPtr,
+															classPtr, 
+															symbolsPtr,
+															kListNoWeights,
+															gSeparabilitySpecsPtr->numberClasses, 
+															resultsFileStreamPtr, 
+															&gOutputForce1Code,
+															FALSE);
+						
 						}	// end "if (continueFlag)"
 										
 							// List "  Output Information:"
 							
 					continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
-																				IDS_Shared8, 
-																				(unsigned char*)gTextString, 
-																				resultsFileStreamPtr, 
-																				gOutputForce1Code, 
-																				continueFlag);
+																			IDS_Shared8,
+																			(unsigned char*)gTextString,
+																			resultsFileStreamPtr,
+																			gOutputForce1Code,
+																			continueFlag);
 						
 							// Get dialog box to display separability status.			
 					
@@ -4547,17 +4512,17 @@ void SeparabilityControl (void)
 					continueFlag = (gStatusDialogPtr != NULL);
 							
 					LoadDItemStringNumber (kFeatureSelectionStrID, 
-								IDS_FeatureSelection29,	// "\pSet"
-								gStatusDialogPtr, 
-								IDC_Status2, 
-								(Str255*)gTextString);
-							
+													IDS_FeatureSelection29,	// "\pSet"
+													gStatusDialogPtr, 
+													IDC_Status2, 
+													(Str255*)gTextString);
+					
 					LoadDItemStringNumber (kFeatureSelectionStrID, 
-								IDS_FeatureSelection30,	// "\pCombination"
-								gStatusDialogPtr, 
-								IDC_Status7, 
-								(Str255*)gTextString);
-											
+													IDS_FeatureSelection30,	// "\pCombination"
+													gStatusDialogPtr, 
+													IDC_Status7, 
+													(Str255*)gTextString);
+					
 					ShowStatusDialogItemSet (kStatusClassB);
 					ShowStatusDialogItemSet (kStatusField);
 					ShowStatusDialogItemSet (kStatusCommand);
@@ -4582,7 +4547,8 @@ void SeparabilityControl (void)
 							
 						CalculateSeparabilityControl ();
 						
-								// List message if memory was not available to complete the process
+								// List message if memory was not available to complete
+								// the process
 								
 						ListMemoryMessage (resultsFileStreamPtr);
 
@@ -4595,7 +4561,7 @@ void SeparabilityControl (void)
 							// List the CPU time taken for the separability.			
 							
 					continueFlag = ListCPUTimeInformation (
-												resultsFileStreamPtr, continueFlag, startTime);
+													resultsFileStreamPtr, continueFlag, startTime);
 												
 							// Reset the cancel operation globals.
 												
@@ -4655,7 +4621,7 @@ void SeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4672,7 +4638,7 @@ void SeparabilityControl (void)
 // Value Returned:  	TRUE if user clicked OK.
 //							FALSE if user clicked Cancel.
 //
-// Called By:			SeparabilityControl   in separability.c
+// Called By:			SeparabilityControl   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1989
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
@@ -5386,7 +5352,7 @@ Boolean SeparabilityDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win   
 
-	#if defined multispec_lin   
+	#if defined multispec_wx   
 		CMFeatureSelectionDialog* dialogPtr = NULL;
 
 		try 
@@ -5500,15 +5466,16 @@ void SeparabilityDialogInitialize (
 		comboBoxPtr->SetItemData (6, kDivergence);
 	#endif	// defined multispec_win  		 				                 
 
-	#if defined multispec_lin                                           
-		wxComboBox* comboBoxPtr =(wxComboBox*) dialogPtr->FindWindow (IDC_DistanceMeasureCombo);
-		comboBoxPtr->SetClientData (0, (void*)kBhattacharyya);
-		comboBoxPtr->SetClientData (1, (void*)kEFBhattacharyya);
-		comboBoxPtr->SetClientData (2, (void*)kMeanBhattacharyya);
-		comboBoxPtr->SetClientData (3, (void*)kCovarianceBhattacharyya);
-		comboBoxPtr->SetClientData (4, (void*)kNonCovarianceBhattacharyya);
-		comboBoxPtr->SetClientData (5, (void*)kTransformedDivergence);
-		comboBoxPtr->SetClientData (6, (void*)kDivergence);
+	#if defined multispec_wx                                           
+		wxChoice* distanceMeasureCtrl =
+								(wxChoice*)dialogPtr->FindWindow (IDC_DistanceMeasureCombo);
+		distanceMeasureCtrl->SetClientData (0, (void*)kBhattacharyya);
+		distanceMeasureCtrl->SetClientData (1, (void*)kEFBhattacharyya);
+		distanceMeasureCtrl->SetClientData (2, (void*)kMeanBhattacharyya);
+		distanceMeasureCtrl->SetClientData (3, (void*)kCovarianceBhattacharyya);
+		distanceMeasureCtrl->SetClientData (4, (void*)kNonCovarianceBhattacharyya);
+		distanceMeasureCtrl->SetClientData (5, (void*)kTransformedDivergence);
+		distanceMeasureCtrl->SetClientData (6, (void*)kDivergence);
 	#endif		                 
 	
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance) 
@@ -5531,13 +5498,13 @@ void SeparabilityDialogInitialize (
 			comboBoxPtr->DeleteString (kBhattacharyya-1);
 		#endif	// defined multispec_win  
 
-		#if defined multispec_lin
-			comboBoxPtr->Delete (kDivergence - 1);
-			comboBoxPtr->Delete (kTransformedDivergence - 1);
-			comboBoxPtr->Delete (kCovarianceBhattacharyya - 1);
-			comboBoxPtr->Delete (kMeanBhattacharyya - 1);
-			comboBoxPtr->Delete (kEFBhattacharyya - 1);
-			comboBoxPtr->Delete (kBhattacharyya - 1);
+		#if defined multispec_wx
+			distanceMeasureCtrl->Delete (kDivergence - 1);
+			distanceMeasureCtrl->Delete (kTransformedDivergence - 1);
+			distanceMeasureCtrl->Delete (kCovarianceBhattacharyya - 1);
+			distanceMeasureCtrl->Delete (kMeanBhattacharyya - 1);
+			distanceMeasureCtrl->Delete (kEFBhattacharyya - 1);
+			distanceMeasureCtrl->Delete (kBhattacharyya - 1);
 		#endif	
 		
 		}	// end "if (...->statisticsCode != kMeanCovariance)" 
@@ -5699,30 +5666,30 @@ void SeparabilityDialogOK (
 			// Class symbols	
 			
 	LoadProcessorVectorsFromDialogLocalVectors (
-									channelSelection,
-									featureTransformationFlag,
-									gProjectInfoPtr->numberStatisticsChannels,
-									localNumberFeatures,
-									localFeaturesPtr,
-									&separabilitySpecsPtr->channelSet,
-									(UInt16*)&separabilitySpecsPtr->numberFeatures,
-									separabilitySpecsPtr->featureHandle,
-									&separabilitySpecsPtr->numberChannels,
-									separabilitySpecsPtr->channelsHandle,
-									classSelection,
-									localNumberClasses,
-									localClassPtr,
-									&separabilitySpecsPtr->classSet,
-									&separabilitySpecsPtr->numberClasses,
-									separabilitySpecsPtr->classHandle,
-									symbolSelection,
-									localSymbolsPtr,
-									&separabilitySpecsPtr->symbolSet,
-									separabilitySpecsPtr->symbolsHandle,
-									interClassWeightsSelection,
-									localClassPairWeightsListPtr,
-									&gProjectInfoPtr->classPairWeightSet);
-									
+											channelSelection,
+											featureTransformationFlag,
+											gProjectInfoPtr->numberStatisticsChannels,
+											localNumberFeatures,
+											localFeaturesPtr,
+											&separabilitySpecsPtr->channelSet,
+											(UInt16*)&separabilitySpecsPtr->numberFeatures,
+											separabilitySpecsPtr->featureHandle,
+											&separabilitySpecsPtr->numberChannels,
+											separabilitySpecsPtr->channelsHandle,
+											classSelection,
+											localNumberClasses,
+											localClassPtr,
+											&separabilitySpecsPtr->classSet,
+											&separabilitySpecsPtr->numberClasses,
+											separabilitySpecsPtr->classHandle,
+											symbolSelection,
+											localSymbolsPtr,
+											&separabilitySpecsPtr->symbolSet,
+											separabilitySpecsPtr->symbolsHandle,
+											interClassWeightsSelection,
+											localClassPairWeightsListPtr,
+											&gProjectInfoPtr->classPairWeightSet);
+	
 			// Channel combinations.													
 
 	separabilitySpecsPtr->channelCombinationSet = channelCombinationSelection;	
@@ -5856,12 +5823,11 @@ void SeparabilityDialogUpdateChannelCombinationItems (
 							(double)separabilitySpecsPtr->maxNumberFeatureCombinations,
 							0);
 		
-	SeparabilityDialogUpdateMaxChannelsPerGroup (
-														numberFeatures,
-														channelCombinationsPtr,
-														numberChannelGroupCombinationsPtr,
-														maxContiguousChannelsPerGroupPtr);
-		
+	SeparabilityDialogUpdateMaxChannelsPerGroup (numberFeatures,
+																channelCombinationsPtr,
+																numberChannelGroupCombinationsPtr,
+																maxContiguousChannelsPerGroupPtr);
+	
 }	// end "SeparabilityDialogUpdateChannelCombinationItems"
 
  
@@ -5888,7 +5854,7 @@ void SeparabilityDialogUpdateMaxChannelsPerGroup (
 
                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5993,12 +5959,11 @@ void SeparabilityDialogCheckFeatureTransformation (
 				UInt16*								localTransformFeaturesPtr)
 				
 {  
-	CheckFeatureTransformationDialog (
-												dialogPtr, 
-												featureTransformAllowedFlag,
-												featureTransformItem, 
-												channelFeatureItem, 
-												featureTransformationFlagPtr); 
+	CheckFeatureTransformationDialog (dialogPtr,
+													featureTransformAllowedFlag,
+													featureTransformItem, 
+													channelFeatureItem, 
+													featureTransformationFlagPtr); 
 
 	*channelSelectionPtr = UpdateDialogFeatureParameters (
 												*featureTransformationFlagPtr, 
@@ -6016,7 +5981,7 @@ void SeparabilityDialogCheckFeatureTransformation (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6032,7 +5997,7 @@ void SeparabilityDialogCheckFeatureTransformation (
 //
 // Value Returned:  	None
 //
-// Called By:			SeparabilityDialog   in separability.c
+// Called By:			SeparabilityDialog   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1989
 //	Revised By:			Larry L. Biehl			Date: 05/06/1998
@@ -6362,7 +6327,7 @@ void SeparabilityListDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin   
+	#if defined multispec_wx   
 		CMFeatureSelectionListDialog* dialogPtr = NULL;
 
 		try 
@@ -6575,7 +6540,7 @@ void SeparabilityListDialogOK (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6809,7 +6774,7 @@ Boolean SetupSeparabilityDistanceMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6957,7 +6922,7 @@ Boolean SetupSeparabilityStatMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7022,7 +6987,7 @@ double TransformedDivergence (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7040,8 +7005,8 @@ double TransformedDivergence (
 //
 // Value Returned:	None	
 // 
-// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatSel.cpp
-//							ComputeSeparabilityForStepChannelCombinations in SFeatSel.cpp
+// Called By:			ComputeSeparabilityForAllChannelCombinations in SFeatureSelection.cpp
+//							ComputeSeparabilityForStepChannelCombinations in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1992
 //	Revised By:			Larry L. Biehl			Date: 12/10/1992	

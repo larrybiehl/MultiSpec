@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/22/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -20,12 +20,6 @@
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
 //
-//	Functions in file:
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 /*	Template for debugging.
 	int numberChars = sprintf ((char*)gTextString3,
 										" SHDF5: (filePathPtr hDS): %s %ld%s", 
@@ -38,16 +32,15 @@
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 	#include "errno.h"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 	
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "CFileStream.h"
+	#include "SFileStream_class.h"
 #endif	// defined multispec_win
 
 #if include_gdal_capability
@@ -68,7 +61,7 @@
 #define	kUseUpperLeftLowerRightCorners	2
 #define	kUseFourCorners						4
 
-#ifdef multispec_lin
+#ifdef multispec_wx
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 
@@ -295,7 +288,7 @@ SInt16	ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -309,7 +302,7 @@ SInt16	ReadDataSetString2 (
 //
 //	Value Returned:	none.
 //
-// Called By:			CloseImageFile in SDatFile.cpp
+// Called By:			CloseImageFile in SFileInfo.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2012
 //	Revised By:			Larry L. Biehl			Date: 04/16/2013
@@ -336,7 +329,8 @@ void CloseHDF5DataSetInfo (
 				{
 				GDALClose ((GDALDatasetH)hdfDataSetsPtr[dataSet].sdid);
 				
-				if (fileInfoPtr->gdalDataSetH == (GDALDatasetH)hdfDataSetsPtr[dataSet].sdid)
+				if (fileInfoPtr->gdalDataSetH ==
+														(GDALDatasetH)hdfDataSetsPtr[dataSet].sdid)
 					fileInfoPtr->gdalDataSetH = 0;
 				
 				}	// end "if (hdfDataSetsPtr[dataSet].sdid != 0)"
@@ -354,7 +348,7 @@ void CloseHDF5DataSetInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -397,7 +391,7 @@ herr_t file_info (
 	hsize_t								dims[4],
 											maxDims[4];
 											
-	int									spaces;			// number of white spaces to repend to output
+	int									spaces;	// number of white spaces to apend to output
 	SInt32								numberDimensions;
 	size_t								maxStringLength;
 	
@@ -573,7 +567,7 @@ herr_t file_info (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -641,7 +635,7 @@ SInt16 GetHDF5CompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -816,25 +810,26 @@ SInt16 GetHDF5ProjectionInformation (
 		{
 				// Get the projection information for the specified epsg code.
 		
-		mapInfoFlag = GDALSetReferenceSystemFromEPSGCode (epsgCode,
-																			epsgName,
-																			datumName,
-																			ellipsoidName,
-																			&mapUnitsCode,
-																			&mapProjectionCode,
-																			&projectionParameters[4],	// longitude of central meridian
-																			&projectionParameters[5],	// latitude of origin
-																			&projectionParameters[2],	// scaleFactorOfCentralMeridian,
-																			&projectionParameters[6],	// false easting
-																			&projectionParameters[7],	// false northing
-																			&projectionParameters[8],	// standard parallel1
-																			&projectionParameters[9],	// standard parallel2
-																			&projectionParameters[10],	// falseOriginLongitude,
-																			&projectionParameters[11],	// falseOriginLatitude,
-																			&projectionParameters[12],	// falseOriginEasting,
-																			&projectionParameters[13],	// falseOriginNorthing,
-																			&projectionParameters[0],	// equatorial radius; semiMajorAxis
-																			&projectionParameters[1]);	// polar radius; semiMinorAxis
+		mapInfoFlag = GDALSetReferenceSystemFromEPSGCode (
+								epsgCode,
+								epsgName,
+								datumName,
+								ellipsoidName,
+								&mapUnitsCode,
+								&mapProjectionCode,
+								&projectionParameters[4],	// longitude of central meridian
+								&projectionParameters[5],	// latitude of origin
+								&projectionParameters[2],	// scaleFactorOfCentralMeridian,
+								&projectionParameters[6],	// false easting
+								&projectionParameters[7],	// false northing
+								&projectionParameters[8],	// standard parallel1
+								&projectionParameters[9],	// standard parallel2
+								&projectionParameters[10],	// falseOriginLongitude,
+								&projectionParameters[11],	// falseOriginLatitude,
+								&projectionParameters[12],	// falseOriginEasting,
+								&projectionParameters[13],	// falseOriginNorthing,
+								&projectionParameters[0],	// equatorial radius; semiMajorAxis
+								&projectionParameters[1]);	// polar radius; semiMinorAxis
 		}
 																																
 	if (mapInfoFlag)
@@ -894,36 +889,40 @@ SInt16 GetHDF5ProjectionInformation (
 			}	// end "if (epsgCode > 0)"
 																		
 		if (mapProjectionCode == kPolarStereographicCode)
-			SetPolarStereographicParameters (mapProjectionInfoPtr,
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[4],	// centralMeridian
-															projectionParameters[5],	// latitudeOrigin
-															projectionParameters[6],	// falseEasting
-															projectionParameters[7]);	// falseNorthing
+			SetPolarStereographicParameters (
+													mapProjectionInfoPtr,
+													projectionParameters[0],	// radiusSpheroid
+													projectionParameters[0],	// radiusSpheroid
+													projectionParameters[4],	// centralMeridian
+													projectionParameters[5],	// latitudeOrigin
+													projectionParameters[6],	// falseEasting
+													projectionParameters[7]);	// falseNorthing
 																																					
 		else if (mapProjectionCode == kMercatorCode)
-			SetMercatorParameters (mapProjectionInfoPtr,
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[4],	// longitudeCentralMeridian
-															projectionParameters[5],	// latitudeOrigin
-															projectionParameters[6],	// falseEasting
-															projectionParameters[7]);	// falseNorthing		
+			SetMercatorParameters (
+										mapProjectionInfoPtr,
+										projectionParameters[0],	// radiusSpheroid
+										projectionParameters[0],	// radiusSpheroid
+										projectionParameters[4],	// longitudeCentralMeridian
+										projectionParameters[5],	// latitudeOrigin
+										projectionParameters[6],	// falseEasting
+										projectionParameters[7]);	// falseNorthing
 																				
 		else if (mapProjectionCode == kEquirectangularCode)
-			SetEquirectangularParameters (mapProjectionInfoPtr,
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[4],	// longitudeCentralMeridian
-															projectionParameters[5]);	// standard parallel
+			SetEquirectangularParameters (
+										mapProjectionInfoPtr,
+										projectionParameters[0],	// radiusSpheroid
+										projectionParameters[4],	// longitudeCentralMeridian
+										projectionParameters[5]);	// standard parallel
 		
 		else if (mapProjectionCode == kCylindricalEqualAreaCode)
-			SetCylindricalEqualAreaParameters (mapProjectionInfoPtr,
-															projectionParameters[0],	// radiusSpheroid
-															projectionParameters[4],	// centralMeridian
-															projectionParameters[8],	// standardParallel1
-															projectionParameters[6],	// falseEasting
-															projectionParameters[7]);	// falseNorthing
+			SetCylindricalEqualAreaParameters (
+												mapProjectionInfoPtr,
+												projectionParameters[0],	// radiusSpheroid
+												projectionParameters[4],	// centralMeridian
+												projectionParameters[8],	// standardParallel1
+												projectionParameters[6],	// falseEasting
+												projectionParameters[7]);	// falseNorthing
 						
 		MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 			
@@ -945,7 +944,7 @@ SInt16 GetHDF5ProjectionInformation (
 					// calculated.
 				
 					// Find an approximation for the pixel size based on the image map 
-					// horizontal size using the number of corners specified. I hope end the 
+					// horizontal size using the number of corners specified. I hope in the
 					// end there is a better way than this.
 			
 			if (convertFromLatLongToMapCode >= kUseUpperLeftLowerRightCorners)
@@ -1022,14 +1021,14 @@ SInt16 GetHDF5ProjectionInformation (
 		if (adjustUpperLeftOffsetFlag)
 			{
 			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize/2;
+								mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize/2;
 			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-							 		mapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
+								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
 													  
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin =    
-									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+								mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin =    
-									mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+								mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 			
 			}	// end "if (adjustUpperLeftOffsetFlag)"
 		
@@ -1042,7 +1041,7 @@ SInt16 GetHDF5ProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1098,7 +1097,7 @@ SInt16 GetInstumentCodeFromHDF5File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1318,7 +1317,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1406,7 +1405,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1688,7 +1687,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1700,8 +1699,8 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 //								- Cylindrical Equal Area projection
 //								- Stardard latitude 1: 30 degrees
 //								- WGS 84 Datum
-//							The location of the center of the upper left pixel and the width/height
-//							of each pixel is in the metadata.
+//							The location of the center of the upper left pixel and the
+//							width/height of each pixel is in the metadata.
 //
 //	Parameters in:
 //
@@ -1793,7 +1792,7 @@ Boolean GetMapInfoFromHDF5_EASE2_Global_Geophysical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1888,7 +1887,7 @@ SInt16 GetDataProductCodeFromHDF5File (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1977,7 +1976,7 @@ Boolean ListHDF5DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +2022,7 @@ SInt32 group_check (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2109,7 +2108,7 @@ Boolean ListHDF5FileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2266,7 +2265,8 @@ SInt32 LoadHdf5DataSetNames (
 						ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusText, TRUE);
 						ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusValue, TRUE);
 						MGetString (gTextString, kAlertStrID, IDS_Alert62);
-						LoadDItemString (gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
+						LoadDItemString (
+								gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
 						LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)2);
 						ShowStatusDialogWindow (kShortStatusInfoID);
 						
@@ -2274,7 +2274,7 @@ SInt32 LoadHdf5DataSetNames (
 						
 						}	// end "if (gStatusDialogPtr != NULL)"
 					
-					}	// end "if (TickCount () - startTime * numberDataSet > 3 * gTimeOffset)"
+					}	// end "if (TickCount () - startTime * numberDataSet > ..."
 				
 				}	// end "if (dataSet == 2 && gStatusDialogPtr == NULL)"
 				
@@ -2294,7 +2294,6 @@ SInt32 LoadHdf5DataSetNames (
 				
 				}	// end "if (gStatusDialogPtr != NULL)"
 
-			//if (gStatusDialogPtr == NULL)
 			if (dataSet >= 1)
 				{
 				hDS = GDALOpen (pszSubdatasetName, GA_ReadOnly);
@@ -2330,7 +2329,7 @@ SInt32 LoadHdf5DataSetNames (
 				
 				}	// end "if (gStatusDialogPtr == NULL)"
 				
-			else // gStatusDialogPtr != NULL
+			else	// gStatusDialogPtr != NULL
 				{
 				hdfDataSetsPtr[index].name[1] = ' ';
 				hDS = 0;
@@ -2400,14 +2399,18 @@ SInt32 LoadHdf5DataSetNames (
 						
 				else if (format == kHDF4Type2)
 					{
-					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", (int)dataSet);
+					snprintf (szKeyName,
+									sizeof (szKeyName),
+									"SUBDATASET_%d_DESC",
+									(int)dataSet);
 					szKeyName[sizeof (szKeyName) - 1] = '\0';
-					pszHDF4SubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
+					pszHDF4SubdatasetName = CPLStrdup (
+															CSLFetchNameValue (metadata, szKeyName));
 
 					if (pszHDF4SubdatasetName[0] != 0)
 						{
-								// Use the characters after the last ':' character for the data set
-								// identifier name.
+								// Use the characters after the last ':' character for the
+								//	data set identifier name.
 								
 						dataSetNamePtr = strchr (pszHDF4SubdatasetName, ']');
 
@@ -2440,9 +2443,13 @@ SInt32 LoadHdf5DataSetNames (
 					
 				else	// format == kNITFType
 					{
-					snprintf (szKeyName, sizeof (szKeyName), "SUBDATASET_%d_DESC", (int)dataSet);
+					snprintf (szKeyName,
+									sizeof (szKeyName),
+									"SUBDATASET_%d_DESC",
+									(int)dataSet);
 					szKeyName[sizeof (szKeyName) - 1] = '\0';
-					pszHDF4SubdatasetName = CPLStrdup (CSLFetchNameValue (metadata, szKeyName));
+					pszHDF4SubdatasetName = CPLStrdup (
+														CSLFetchNameValue (metadata, szKeyName));
 
 					if (pszHDF4SubdatasetName[0] != 0)
 						{
@@ -2514,7 +2521,8 @@ SInt32 LoadHdf5DataSetNames (
 						// cases.
 						
 			if (setNumberForGroup > 0 && 
-							hdfDataSetsPtr[index].name[1] != '_' && hdfDataSetsPtr[index].name[1] != ' ')
+							hdfDataSetsPtr[index].name[1] != '_' &&
+										hdfDataSetsPtr[index].name[1] != ' ')
 				{
 						// Verify that first 'numberCompareCharacters' characters of the 
 						// last section of the data set name are the same as that for the 
@@ -2560,10 +2568,10 @@ SInt32 LoadHdf5DataSetNames (
 							{
 							groupNumber++;
 						
-							hdfDataSetsPtr[numberDataSets+groupNumber].name[0] = 
-								sprintf ((char*)&hdfDataSetsPtr[numberDataSets+groupNumber].name[1], 
-												" %s",
-												groupName);
+							hdfDataSetsPtr[numberDataSets+groupNumber].name[0] = sprintf (
+									(char*)&hdfDataSetsPtr[numberDataSets+groupNumber].name[1],
+									" %s",
+									groupName);
 												
 							hdfDataSetsPtr[numberDataSets+groupNumber].vRefNum = 0;
 							hdfDataSetsPtr[numberDataSets+groupNumber].dirID = 0;
@@ -2571,7 +2579,8 @@ SInt32 LoadHdf5DataSetNames (
 							hdfDataSetsPtr[numberDataSets+groupNumber].dataSet = 
 																				(SInt16)(set0DataSet);
 							hdfDataSetsPtr[numberDataSets+groupNumber].dataSetType = 0;
-							hdfDataSetsPtr[numberDataSets+groupNumber].instrumentChannelNumber = 0;
+							hdfDataSetsPtr[numberDataSets+groupNumber].
+																			instrumentChannelNumber = 0;
 							
 							hdfDataSetsPtr[set0DataSet+1].groupedNumber = 
 																				(SInt16)groupNumber;
@@ -2584,7 +2593,8 @@ SInt32 LoadHdf5DataSetNames (
 							}	// end "if (setNumberForGroup == 1)"
 						
 						setNumberForGroup++;
-						hdfDataSetsPtr[numberDataSets+groupNumber].groupedNumber = (SInt16)setNumberForGroup;
+						hdfDataSetsPtr[numberDataSets+groupNumber].groupedNumber =
+																				(SInt16)setNumberForGroup;
 							
 						hdfDataSetsPtr[index].groupedNumber = (SInt16)groupNumber;
 						
@@ -2710,7 +2720,7 @@ SInt32 LoadHdf5DataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2725,7 +2735,7 @@ SInt32 LoadHdf5DataSetNames (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialogSetHDFValues in SOpenDlg.cpp
+// Called By:			FileSpecificationDialogSetHDFValues in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/21/2012
 //	Revised By:			Larry L. Biehl			Date: 07/13/2016
@@ -2780,7 +2790,7 @@ SInt16 LoadHDF5HeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2808,17 +2818,7 @@ SInt16 ReadDataSetNumerical (
 {	
 	
 	hid_t									dataset_id;
-											//pid,
-											//sid,
-											//type_class,
-											//type_id;
-											
-	//hsize_t							size;
-	//hssize_t							ssiz;
-	//size_t								tsiz;
 	
-	//float								value;
- 	
  	SInt16								returnCode = 0;
 	
 
@@ -2829,26 +2829,13 @@ SInt16 ReadDataSetNumerical (
 			{
 					// The data set was found
 					
-			//size = H5Dget_storage_size (dataset_id);
-			//pid = H5Dget_create_plist (dataset_id);
-			//sid = H5Dget_space (dataset_id);
-			//type_id = H5Dget_type (dataset_id);
-			//type_class = H5Tget_class (type_id);
-			//if (type_class == H5T_FLOAT)
-			//	{
-			if (H5Dread (dataset_id, 
+			if (H5Dread (dataset_id,
 								H5T_NATIVE_DOUBLE, 
 								H5S_ALL, 
 								H5S_ALL, 
 								H5P_DEFAULT, 
 								returnValuePtr) >= 0)
 					returnCode = 1;					
-				
-			//	}	// end "if (type_class == H5T_FLOAT)"
-			
-			//H5Sclose (sid);
-			//H5Pclose (pid);
-			//H5Tclose (type_id);
 			
 			}	// end "if (dataset > 0)"
 		
@@ -2863,7 +2850,7 @@ SInt16 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2947,7 +2934,7 @@ UInt32 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3007,7 +2994,7 @@ SInt16 ReadDataSetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3096,7 +3083,6 @@ SInt16 ReadDataSetString2 (
 			
 			}	// end "if (dataSpaceSize > maxStringLength)"
 		
-		//if (type_class == H5T_STRING && type_size * dataSpaceSize <= maxStringLength)
 		if (type_class == H5T_STRING && space_id >= 0)
 			{
 			if (variableLengthReturn)
@@ -3204,7 +3190,7 @@ SInt16 ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3296,7 +3282,7 @@ SInt16 GetDataSetValueAsNumericalValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3466,7 +3452,7 @@ SInt16 GetDataSetValueAsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3530,6 +3516,5 @@ SInt16 SetUpHDF5_FileInformation (
 	return (returnCode);
     
 }	// end "SetUpHDF5_FileInformation"
-																		
 #endif	// include_hdf5_capability						
 #endif	// include_gdal_capability

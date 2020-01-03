@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //								   All rights reserved.
 //
@@ -21,28 +21,15 @@
 //	Brief description:	This file contains functions that do echo classification
 //								processes.
 //
-//	Functions in file:	SInt16				free_class_stat
-//								void 					free_common_classifier_info
-//								void					free_pixel_info
-//								void					initialize_common_info
-//								void					initialize_parameter_info
-//								void					initialize_pixel_info
-//								void					initialize_stat_info
-//								void					initialize_summary_info
-//								SInt16				malloc_common_classifier_info
-//								SInt16				malloc_class_stat
-//
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
 
-#if defined multispec_lin  
-	#include	"SMultiSpec.h"
+#if defined multispec_wx  
 #endif
 
 #include	"SEcho.h"
 
-//#include "SExtGlob.h"
 
 
 
@@ -51,7 +38,7 @@
 // Purpose  : Free Memory allocated to "Class Statistics" and set it NULL
 // Globals  : none
 // Returns  : error_code
-// Called by: EchoClsfierControl ()	in echo_classify.c (Multispec)
+// Called by: EchoClsfierControl ()	in SClassifyEchoControl.cpp (Multispec)
 // 		xlik_to_siginicance_level ()	in aux_mtp.c
 // Coded by : Byeungwoo Jeon	at	01/01/91
 //=========================================================================
@@ -61,7 +48,7 @@ SInt16 free_class_stat (
 				statistics**						class_stat)
 				
 {
-   SInt16								error_code;
+	SInt16								error_code;
    HDoublePtr							temp_ptr;
    
 
@@ -81,7 +68,7 @@ SInt16 free_class_stat (
    
    	error_code = 0;
    
-   }	// end "if (stat_info != NULL)"
+   	}	// end "if (stat_info != NULL)"
    
    return (error_code);
    
@@ -227,7 +214,7 @@ Boolean malloc_class_stat (
 // Purpose  : Release memory assigned to Gloval Arrays
 // Returns  : none
 // Globals  : none
-// Called by: EchoClsfierControl ()	in echo_classifiy.c (Multispec)
+// Called by: EchoClsfierControl ()	in SClassifyEchoControl.cpp (Multispec)
 // Coded by : Byeungwoo Jeon	Date : 10/01/1991
 //=====================================================================
 

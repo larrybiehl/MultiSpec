@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,22 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/21/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
-//
-//	Functions in file:	Boolean 				GetCentersFromEigenvectorVolume
-//								Boolean 				GetClassMeanClusterCenters
-//								Boolean				GetEigenvectorClusterCenters
-//								ClusterType* 		GetMemoryForClusters
-//								Boolean 				InitializeClusterCenters
-//								short int 			ISODATACluster
-//								void 					ISODATAClusterControl
-//								Boolean 				ISODATAClusterDialog
-//								short int 			ISODATAClusterPass
-//								Boolean		 		UpdateClusterMeans
 //
 //	Brief description:	This file contains routines that will cluster image data
 //								using the ISODATA algorithm that was implemented in the
@@ -41,35 +30,35 @@
 //			ProcessorDialogFilter
 //
 //		ISODATAClusterControl
-//			InitializeClusterMemory (in cluster.c)
+//			InitializeClusterMemory (in SCluster.cpp)
 //
 //			InitializeClusterCenters
 //				GetMemoryForClusters
 //
 //				GetEigenvectorClusterCenters
-//					GetTotalSumSquares (in matrixUtilities.c)
-//					ComputeCovarianceMatrix (in matrixUtilities.c)
-//					ComputeCorrelationCoefficientMatrix (in matrixUtilities.c)
-//					ComputeEigenvectors (in matrixUtilities.c)
+//					GetTotalSumSquares (in SMatrixUtilities.cpp)
+//					ComputeCovarianceMatrix (in SMatrixUtilities.cpp)
+//					ComputeCorrelationCoefficientMatrix (in SMatrixUtilities.cpp)
+//					ComputeEigenvectors (in SMatrixUtilities.cpp)
 //					GetCentersFromEigenvectorVolume
 //
-//				GetOnePassClusterCenters (in clusterSinglePass.c)
+//				GetOnePassClusterCenters (in SClusterSinglePass.cpp)
 //
-//			ListClusterStatistics (in cluster.c)
+//			ListClusterStatistics (in SCluster.cpp)
 //
 //			ISODATACluster
 //				ISODATAClusterPass
 //				UpdateClusterMeans
 //
-//			UpdateClusterStdDeviations (in cluster.c)
+//			UpdateClusterStdDeviations (in SCluster.cpp)
 //
-//			ListClusterStatistics (in cluster.c)
+//			ListClusterStatistics (in SCluster.cpp)
 //
-//			SetUpClassToFinalClassPtr (in cluster.c)
+//			SetUpClassToFinalClassPtr (in SCluster.cpp)
 //
-//			ClusterClassification (in cluster.c)
+//			ClusterClassification (in SCluster.cpp)
 //
-//			SaveClusterStatistics (in cluster.c)
+//			SaveClusterStatistics (in SCluster.cpp)
 //
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
@@ -78,10 +67,10 @@
 
 #include	"SMultiSpec.h"     
 
-#if defined multispec_lin  
-	#include "LClusterIsodataDialog.h"  
-	#include "LImageView.h"
-#endif	// defined multispec_lin 
+#if defined multispec_wx  
+	#include "xClusterIsodataDialog.h"  
+	#include "xImageView.h"
+#endif	// defined multispec_wx 
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ProjectClassMeans				8
@@ -104,8 +93,6 @@
 	#include "WImageView.h"
 	#include "WClusterIsodataDialog.h" 
 #endif	// defined multispec_win  
-
-//#include "SExtGlob.h" 
 
 
 
@@ -257,46 +244,46 @@
 			// routines in this file.															
 
 
-Boolean						DetermineIfCheckToBeMadeForFillData (
-									Handle								windowInfoHandle, 
-									UInt16*								channelsPtr, 
-									UInt16								numberChannels,
-									UInt32								numberClusters);
+Boolean DetermineIfCheckToBeMadeForFillData (
+				Handle								windowInfoHandle,
+				UInt16*								channelsPtr, 
+				UInt16								numberChannels,
+				UInt32								numberClusters);
 
-Boolean 						GetCentersFromEigenvectorVolume (
-									HDoublePtr							eigenVectorPtr, 
-									HChannelStatisticsPtr			totalChanStatsPtr);
+Boolean GetCentersFromEigenvectorVolume (
+				HDoublePtr							eigenVectorPtr,
+				HChannelStatisticsPtr			totalChanStatsPtr);
 									
-Boolean 						GetClassMeanClusterCenters (
-									FileInfoPtr							fileInfoPtr);
+Boolean GetClassMeanClusterCenters (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean						GetEigenvectorClusterCenters (
-									FileIOInstructionsPtr			fileIOInstructionsPtr);
+Boolean GetEigenvectorClusterCenters (
+				FileIOInstructionsPtr			fileIOInstructionsPtr);
 
-ClusterType* 				GetMemoryForClusters (
-									SInt16								numberClusters);
+ClusterType* GetMemoryForClusters (
+				SInt16								numberClusters);
 
-Boolean 						InitializeClusterCenters (
-									FileIOInstructionsPtr			fileIOInstructionsPtr);
+Boolean InitializeClusterCenters (
+				FileIOInstructionsPtr			fileIOInstructionsPtr);
 
-SInt16						ISODATACluster (
-									FileIOInstructionsPtr			fileIOInstructionsPtr);
+SInt16 ISODATACluster (
+				FileIOInstructionsPtr			fileIOInstructionsPtr);
 
-SInt16	 					ISODATAClusterPass (
-									FileIOInstructionsPtr			fileIOInstructionsPtr,
-									LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
-									Ptr*									clusterAddressesPtr, 
-									SInt64*								numberClassChanges, 
-									Boolean								firstPassFlag);
-										
-Boolean		 				UpdateClusterMeans (
-									ClusterType*						newCluster,
-									SInt32*								activeNumberClustersPtr);
+SInt16 ISODATAClusterPass (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				LCToWindowUnitsVariables* 		lcToWindowUnitsVariablesPtr,
+				Ptr*									clusterAddressesPtr, 
+				SInt64*								numberClassChanges, 
+				Boolean								firstPassFlag);
+
+Boolean UpdateClusterMeans (
+				ClusterType*						newCluster,
+				SInt32*								activeNumberClustersPtr);
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -382,7 +369,7 @@ Boolean DetermineIfCheckToBeMadeForFillData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -681,9 +668,6 @@ Boolean GetCentersFromEigenvectorVolume (
 			
 			}	// end "for (cluster=1; cluster<=numberClusters; ..." 
 		
-//		eigenVector1Ptr += numberChannels;
-//		eigenVector2Ptr += numberChannels;
-//		eigenVector3Ptr += numberChannels;
 		eigenVector1Ptr++;
 		eigenVector2Ptr++;
 		eigenVector3Ptr++;
@@ -697,7 +681,7 @@ Boolean GetCentersFromEigenvectorVolume (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -792,17 +776,7 @@ Boolean GetClassMeanClusterCenters (
 				// mean information in.
 				
 		projectClassCluster = gClusterSpecsPtr->clusterHead;
-		      		
-//		currentCluster = gClusterSpecsPtr->clusterHead;
-//	   while (currentCluster != NULL && 
-//	   		currentCluster->clusterNumber != gClusterSpecsPtr->maxNumberClusters)
-//	   	{
-//	      currentCluster = currentCluster->next;
-//	      
-//	  		}	// end " while (currentCluster != NULL)"
-//	  		
-//	  	projectClassCluster = currentCluster->next;
-  	
+		
 		for (cluster=0; cluster<numberProjectClassClusters; cluster++)
 			{	
 			UInt16 statClassNumber = initializationClassPtr[cluster] - 1;
@@ -894,7 +868,7 @@ Boolean GetClassMeanClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -909,7 +883,7 @@ Boolean GetClassMeanClusterCenters (
 //
 // Value Returned:	None				
 // 
-// Called By:			InitializeClusterCenters in SClustID.cpp
+// Called By:			InitializeClusterCenters in SClusterIsodata.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/07/1990
 //	Revised By:			Larry L. Biehl			Date: 02/01/2012	
@@ -937,7 +911,7 @@ Boolean GetEigenvectorClusterCenters (
 			// Check input variables.															
 	
 	if (gClusterSpecsPtr == NULL || gClusterSpecsPtr->clusterHead == NULL)
-																				return (FALSE);
+																					return (FALSE);
 	
 			// Initialize local variables.													
 			
@@ -975,7 +949,7 @@ Boolean GetEigenvectorClusterCenters (
 												gClusterSpecsPtr->clusterClassHandle);
 									
 	checkForFillDataFlag = DetermineIfCheckToBeMadeForFillData (
-											GetActiveImageWindowInfoHandle (), 
+											FindProjectBaseImageWindowInfoHandle (),
 											channelsPtr, 
 											gClusterSpecsPtr->numberChannels, 
 											gClusterSpecsPtr->numberClusters);
@@ -1135,7 +1109,7 @@ Boolean GetEigenvectorClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1188,7 +1162,7 @@ ClusterType* GetMemoryForClusters (
 	clusterHead = (ClusterType*)MNewPointer (
 										(size_t)sizeof (ClusterType) * numberClusters);
 	if (clusterHead == NULL)
-																				return (NULL);
+																					return (NULL);
 																				
 			// Get memory for cluster means.													
 			
@@ -1215,7 +1189,7 @@ ClusterType* GetMemoryForClusters (
 		{
 		clusterHead = (ClusterType*)CheckAndDisposePtr ((Ptr)clusterHead);
 		meanPtr = (HCMeanTypePtr)CheckAndDisposePtr ((Ptr)meanPtr);
-																				return (NULL);
+																					return (NULL);
 		
 		}	// end "if (sumPtr == NULL)" 
 																	
@@ -1258,7 +1232,7 @@ ClusterType* GetMemoryForClusters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1307,7 +1281,7 @@ Boolean InitializeClusterCenters (
 					gClusterSpecsPtr->clusterMemoryHead =
 									GetMemoryForClusters (gClusterSpecsPtr->numberClusters);
 			if (gClusterSpecsPtr->clusterHead == NULL)
-																				return (FALSE);
+																					return (FALSE);
 			
 					// Get the cluster to start loading the eigenvector cluster
 					// centers at. We will load any project class means at the 
@@ -1316,7 +1290,8 @@ Boolean InitializeClusterCenters (
 			gClusterSpecsPtr->clusterEigenCenterHead = gClusterSpecsPtr->clusterHead;
 			if (gClusterSpecsPtr->projectClassMeansCode == 1)
 				{	
-				numberProjectClassClusters = gClusterSpecsPtr->numberInitializationClasses;
+				numberProjectClassClusters =
+													gClusterSpecsPtr->numberInitializationClasses;
 				
 				currentCluster = gClusterSpecsPtr->clusterHead;
 	  			while (currentCluster != NULL && 
@@ -1353,7 +1328,7 @@ Boolean InitializeClusterCenters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1392,8 +1367,6 @@ SInt16 ISODATACluster (
 	
 	SInt64								changeThreshold,
 											numberChanges;
-											//savedNumberChanges;
-											//stepDifference;
    		
 	ClusterType							*currentCluster;	// Cluster currently working on.	
 									
@@ -1545,7 +1518,8 @@ SInt16 ISODATACluster (
 			
 			}	// end "if (strcmp (percentNotChangedString, ..."
 
-		LoadDItemString (gStatusDialogPtr, IDC_Status16, (Str255*)percentNotChangedString);
+		LoadDItemString (
+						gStatusDialogPtr, IDC_Status16, (Str255*)percentNotChangedString);
 
 		strcpy (savedPercentNotChangedString, percentNotChangedString);
 		
@@ -1619,7 +1593,7 @@ SInt16 ISODATACluster (
       
   		}	// end "if (...->numberFinalClusters < ...->numberClusters)" 
    																	
-	if (	(gClusterSpecsPtr->numberFinalClusters > kMaxNumberStatClasses-1) && 
+	if ((gClusterSpecsPtr->numberFinalClusters > kMaxNumberStatClasses-1) && 
 			(gClusterSpecsPtr->saveStatisticsCode > 0 || 
 											gClusterSpecsPtr->classificationArea != 0))
 		{
@@ -1650,7 +1624,7 @@ SInt16 ISODATACluster (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1897,7 +1871,7 @@ Boolean ISODATAClusterControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1913,7 +1887,7 @@ Boolean ISODATAClusterControl (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016	
@@ -1926,7 +1900,6 @@ Boolean ISODATAClusterDialog (
 	Boolean								returnFlag;	
 			
 #if defined multispec_mac
-								
 	DialogSelectArea					dialogSelectArea;
 	
 	Rect									theBox;
@@ -2400,16 +2373,15 @@ Boolean ISODATAClusterDialog (
 		END_CATCH_ALL    
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin                  
+	#if defined multispec_wx                  
 		CMISODATAClusterDialog* dialogPtr = NULL;
 
-		//dialogPtr = new CMISODATAClusterDialog (wxTheApp->GetTopWindow ());
 		dialogPtr = new CMISODATAClusterDialog (parentDialogPtr);
 
 		returnFlag = dialogPtr->DoDialog ();
 
 		delete dialogPtr;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (returnFlag);
 	
@@ -2418,7 +2390,7 @@ Boolean ISODATAClusterDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2433,7 +2405,7 @@ Boolean ISODATAClusterDialog (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1999
 //	Revised By:			Larry L. Biehl			Date: 09/05/2012	
@@ -2646,7 +2618,7 @@ void ISODATAClusterDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2701,7 +2673,7 @@ SInt16 ISODATAClusterDialogCheckNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2716,7 +2688,7 @@ SInt16 ISODATAClusterDialogCheckNumberPixels (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/1999
 //	Revised By:			Larry L. Biehl			Date: 03/24/1999	
@@ -2817,7 +2789,7 @@ void ISODATAClusterDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2833,7 +2805,7 @@ void ISODATAClusterDialogOK (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/1999
 //	Revised By:			Larry L. Biehl			Date: 03/24/1999	
@@ -2863,17 +2835,17 @@ void ISODATAClusterDialogOnImageArea (
 			ShowDialogItem (dialogPtr, 16); 
 	#endif	// defined multispec_mac
 									
-	#if defined multispec_win || defined multispec_lin         
+	#if defined multispec_win || defined multispec_wx         
 		HideDialogItem (dialogPtr, IDC_ClassPrompt); 
 		HideDialogItem (dialogPtr, IDC_ClassCombo);
-	#endif	// defined multispec_win || defined multispec_lin      
+	#endif	// defined multispec_win || defined multispec_wx      
 		
 }	// end "ISODATAClusterDialogOnImageArea" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2889,7 +2861,7 @@ void ISODATAClusterDialogOnImageArea (
 //
 // Value Returned:	None
 //
-// Called By:			ClusterDialog   in cluster.c
+// Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/1999
 //	Revised By:			Larry L. Biehl			Date: 03/01/2002	
@@ -2926,20 +2898,20 @@ void ISODATAClusterDialogOnTrainingAreas (
 		HideDialogItem (dialogPtr, 36);
 	#endif	// defined multispec_mac
 									
-	#if defined multispec_win || defined multispec_lin       
+	#if defined multispec_win || defined multispec_wx       
 		ShowDialogItem (dialogPtr, IDC_ClassPrompt); 
 		ShowDialogItem (dialogPtr, IDC_ClassCombo);
 		
 		HideDialogItem (dialogPtr, IDEntireImage);
 		HideDialogItem (dialogPtr, IDSelectedImage);
-	#endif	// defined multispec_win || defined multispec_lin           
+	#endif	// defined multispec_win || defined multispec_wx           
 	
 }	// end "ISODATAClusterDialogOnTrainingAreas" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2958,7 +2930,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 04/21/2019
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 SInt16 ISODATAClusterPass (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -3101,7 +3073,7 @@ SInt16 ISODATAClusterPass (
 			// which is currently every 1 second.
 	
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
-	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
 		
 			// Loop by number of cluster areas.												
@@ -3121,14 +3093,13 @@ SInt16 ISODATAClusterPass (
 				// Get information for next cluster area.									
 				
 		if (!GetNextClusterArea (gProjectInfoPtr, 
-										channelsPtr, 
-										numberChannels, 
-										areaNumber, 
-										&gNextMinutesLeftTime, 
-										&lastClassIndex, 
-										&lastFieldIndex, 
-										&linesLeft))
-//										&BILSpecialFlag))
+											channelsPtr,
+											numberChannels, 
+											areaNumber, 
+											&gNextMinutesLeftTime, 
+											&lastClassIndex, 
+											&lastFieldIndex, 
+											&linesLeft))
 																							return (-1);
 			
 		lineStart = gAreaDescription.lineStart;
@@ -3197,17 +3168,7 @@ SInt16 ISODATAClusterPass (
 															skipCount >= 2)
 					{
 					sourceRect.bottom = lineCount;
-					/*
-					int numberChars = sprintf ((char*)gTextString3,
-													"%s SClusterIsodata.cpp:ISODATAClusterPass (top, bottom): %d, %d, %d%s",
-													gEndOfLine,
-													skipCount,
-													sourceRect.top,
-													sourceRect.bottom,
-													gEndOfLine);
-					ListString ((char*)gTextString3, numberChars, gOutputTextH);
-					*/
-					InvalidateImageSegment (gImageWindowInfoPtr,
+					InvalidateImageSegment (imageWindowInfoPtr,
 													//displaySpecsPtr,
 													lcToWindowUnitsVariablesPtr,
 													&sourceRect,
@@ -3280,7 +3241,8 @@ SInt16 ISODATAClusterPass (
 					numberSamples = fileIOInstructionsPtr->numberOutputBufferSamples;
 					
 				else	// pointType != kMaskType
-					numberSamples = (columnEnd - firstColumn + columnInterval)/columnInterval;
+					numberSamples =
+								(columnEnd - firstColumn + columnInterval)/columnInterval;
 		   		
 		   	for (sample=1; sample<=numberSamples; sample++)
 					{									
@@ -3410,16 +3372,7 @@ SInt16 ISODATAClusterPass (
 		if ((gOutputCode & kCreateImageOverlayCode) && !polygonFieldFlag)
 			{
 			sourceRect.bottom = displayBottomMax;
-			/*
-			int numberChars2 = sprintf ((char*)gTextString3,
-											"%s SClusterIsodata.cpp:ISODATAClusterPass (top, bottom): %d, %d%s",
-											gEndOfLine,
-											sourceRect.top,
-											sourceRect.bottom,
-											gEndOfLine);
-			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-			*/
-			InvalidateImageSegment (gImageWindowInfoPtr,
+			InvalidateImageSegment (imageWindowInfoPtr,
 											lcToWindowUnitsVariablesPtr,
 											&sourceRect,
 											displayBottomMax);
@@ -3476,7 +3429,7 @@ SInt16 ISODATAClusterPass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3492,7 +3445,7 @@ SInt16 ISODATAClusterPass (
 //
 // Value Returned:	None		
 // 
-// Called By:			ISODATACluster in SClustID.cpp
+// Called By:			ISODATACluster in SClusterIsodata.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/10/1990
 //	Revised By:			Larry L. Biehl			Date: 10/05/2000	

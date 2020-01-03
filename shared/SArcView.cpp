@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/23/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -21,15 +21,10 @@
 //								various Esri ArcView type disk files including .bil, .bsq,
 //								.bip, and shape files.
 //
-//	Functions in file:
-//
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //		.
 //		.
 //		etc. (
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
@@ -40,12 +35,12 @@
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include "SFileStream_class.h"
 #include "locale.h"
    
-#if defined multispec_lin
-	#include "CFileStream.h"  
-	#include "LImageView.h"
-   #include "LOverlayParametersDialog.h"
+#if defined multispec_wx
+	#include "xImageView.h"
+   #include "xOverlayParametersDialog.h"
 	//#define include_gdal_capability 0
 #endif
 	
@@ -68,7 +63,6 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CFileStream.h"
 	#include "WOverlayParametersDialog.h"
 
 	void SetPenCharacteristics (
@@ -82,10 +76,8 @@
 
 #include "errno.h"
 
-//#include "SExtGlob.h"
-
 #if include_gdal_capability
-//#ifndef multispec_lin
+//#ifndef multispec_wx
 //		#include "ogr_spatialref.h"
 //		#include "dbfopen.h"
 //#else
@@ -93,7 +85,7 @@
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#if defined NetBeansProject
 				// The size of a 'unsigned long', as computed by sizeof.
 			#define SIZEOF_UNSIGNED_LONG 8
@@ -104,7 +96,7 @@
 
 	#include "ogr_spatialref.h"
 /*
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		#include "dbfopen.h"
 	#endif
 	#ifdef multispec_mac
@@ -129,25 +121,22 @@
 
 
 	 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack(4)
-#endif	// defined multispec_win || defined multispec_lin
+#endif	// defined multispec_win || defined multispec_wx
 
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	//#pragma options align=mac68k
 	#pragma pack(2)
 #endif
 
-//#if PRAGMA_STRUCT_PACK
-//	#pragma pack(4)
-//#endif
-	
+
+
 typedef struct ArcViewMultiPoint
 	{
 	UInt32						recordNumber;
 	UInt32						recordLength;
 	UInt32						shapeType;
-	//SDoubleRect					box;
 	DoubleRect					box;
 	UInt32						numPoints; 
 	ArcViewDoublePoint		points[1];
@@ -170,7 +159,6 @@ typedef struct ArcViewPolyLine
 	UInt32						recordNumber;
 	UInt32						recordLength;
 	UInt32						shapeType;
-	//SDoubleRect					box;
 	DoubleRect					box;
 	UInt32						numParts;
 	UInt32						numPoints; 
@@ -187,111 +175,98 @@ typedef struct ArcViewRecordHeader
 	
 	} ArcViewRecordHeader, *ArcViewRecordHeaderPtr;
 	
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	#pragma options align=reset
 #endif
 	 
-//#if PRAGMA_STRUCT_PACK
-//	#pragma pack()
-//#endif	// PRAGMA_STRUCT_PACK
-	 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack()
-#endif	// defined multispec_win || defined multispec_lin
+#endif	// defined multispec_win || defined multispec_wx
 							
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 
-SInt16 						AddToWindowOverlayList (
-									WindowPtr							windowPtr,
-									//SDoubleRect*						boundingRectPtr,
-									DoubleRect*							boundingRectPtr,
-									SInt32								overlayNumber,
-									Boolean								mapUnitsFlag);
+SInt16 AddToWindowOverlayList (
+				WindowPtr							windowPtr,
+				DoubleRect*							boundingRectPtr,
+				SInt32								overlayNumber,
+				Boolean								mapUnitsFlag);
 
-SInt16 						CheckIfOverlayFileLoaded (
-									CMFileStream*						fileStreamPointer,
-									//SDoubleRect*						boundingRectPtr,
-									DoubleRect*							boundingRectPtr,
-									SInt16*								overlayNumberPtr,
-									UInt16*								versionNumberLoadedPtr);
+SInt16 CheckIfOverlayFileLoaded (
+				CMFileStream*						fileStreamPointer,
+				DoubleRect*							boundingRectPtr,
+				SInt16*								overlayNumberPtr,
+				UInt16*								versionNumberLoadedPtr);
 
-Boolean 						CheckIfOverlayMayBeLatLong (
-									CMFileStream						*shapeFileStreamPtr,
-									DoubleRect*							boundingOverlayRectPtr);
+Boolean CheckIfOverlayMayBeLatLong (
+				CMFileStream						*shapeFileStreamPtr,
+				DoubleRect*							boundingOverlayRectPtr);
 
-SInt16 						CheckIfOverlayNeedsReloaded (
-									WindowPtr							newWindow,
-									SInt16								overlayNumber,
-									//SDoubleRect*		 				boundingRectPtr);	
-									DoubleRect*							boundingRectPtr);	
+SInt16 CheckIfOverlayNeedsReloaded (
+				WindowPtr							newWindow,
+				SInt16								overlayNumber,
+				DoubleRect*							boundingRectPtr);	
 
 #if include_gdal_capability
-	SInt16						CheckIfprjFileDefinesLatLong (
-										CMFileStream						*shapeFileStreamPtr);
+	SInt16 CheckIfprjFileDefinesLatLong (
+					CMFileStream						*shapeFileStreamPtr);
 #endif	// include_gdal_capability
 
-void 							ConvertLatLongPointToMapPoint (
-									MapProjectionInfoPtr				mapProjectionInfoPtr,
-									ArcViewDoublePointPtr			sdoubleCoordinatePointPtr);
+void ConvertLatLongPointToMapPoint (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				ArcViewDoublePointPtr			sdoubleCoordinatePointPtr);
 
-//Boolean						ConvertLatLongRectToMapRect (
-//									MapProjectionInfoPtr				mapProjectionInfoPtr,
-//									SDoubleRect*						sdoubleCoordinateRectanglePtr);
+void DisplayNoIntersectionAlert (
+				SInt16								stringNumber);
 
-void 							DisplayNoIntersectionAlert (
-									SInt16								stringNumber);
+PascalVoid DrawColorBoxInDialogWindow (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-PascalVoid 					DrawColorBoxInDialogWindow (
-									DialogPtr							dialogPtr, 
-									SInt16								itemNumber);
+CMFileStream* GetFileStreamPointer (
+				ShapeInfoPtr						shapeInfoPtr);
 
-CMFileStream* 				GetFileStreamPointer (
-									ShapeInfoPtr						shapeInfoPtr);
+Boolean GetArcViewMapInformation (
+				FileInfoPtr							fileInfoPtr,
+				char*									headerRecordPtr,
+				Boolean*								geoSpotHeaderFlagPtr);
 
-Boolean 						GetArcViewMapInformation (
-									FileInfoPtr							fileInfoPtr,
-									char*									headerRecordPtr,
-									Boolean*								geoSpotHeaderFlagPtr);
+void GetLastVectorColorAndWidth (
+				SInt32								overlayNumber,
+				RGBColor*							lastLineColorPtr,
+				UInt16*								lastLineThicknessPtr);
 
-void 							GetLastVectorColorAndWidth (
-									SInt32								overlayNumber,
-									RGBColor*							lastLineColorPtr,
-									UInt16*								lastLineThicknessPtr);
-									
-Boolean 						GetMemoryForVectorData (
-									ShapeInfoPtr		 				shapeInfoPtr);
+Boolean GetMemoryForVectorData (
+				ShapeInfoPtr		 				shapeInfoPtr);
 
-void 							InitializeOverlay (
-									WindowInfoPtr		 				windowInfoPtr, 
-									SInt32								overlayNumber);
+void InitializeOverlay (
+				WindowInfoPtr		 				windowInfoPtr,
+				SInt32								overlayNumber);
 
-void 							ReleaseShapeFileMemory (
-									Handle*								shapeHandlePtr,
-									SInt16								overlayIndex,
-									SInt16								memoryReleaseCode);
+void  ReleaseShapeFileMemory (
+				Handle*								shapeHandlePtr,
+				SInt16								overlayIndex,
+				SInt16								memoryReleaseCode);
 
-void 							SetLastVectorColorAndWidth (
-									SInt32								overlayNumber,
-									RGBColor*							lastLineColorPtr,
-									UInt16								lastLineThickness);
+void SetLastVectorColorAndWidth (
+				SInt32								overlayNumber,
+				RGBColor*							lastLineColorPtr,
+				UInt16								lastLineThickness);
 
-Boolean 						ShapeAndWindowAreasIntersect (
-									SInt16								overlayNumber,
-									//SDoubleRect*		 				boundingRectPtr);
-									DoubleRect*							boundingRectPtr);
+Boolean ShapeAndWindowAreasIntersect (
+				SInt16								overlayNumber,
+				DoubleRect*							boundingRectPtr);
 
-Boolean 						WindowBoundingAreaAndRectIntersect (
-									WindowPtr							windowPtr,
-									//SDoubleRect*		 				boundingRectPtr,
-									DoubleRect*							boundingRectPtr,
-									Boolean								inputIsMapTypeFlag);
-									
+Boolean WindowBoundingAreaAndRectIntersect (
+				WindowPtr							windowPtr,
+				DoubleRect*							boundingRectPtr,
+				Boolean								inputIsMapTypeFlag);
+
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -336,13 +311,13 @@ void AddCurrentVectorOverlaysToImageWindow (
 			// Verify that shape files do exist.
 			
 	if (gNumberShapeFiles <= 0)
-																						return;
+																							return;
 	
 			// If there is no valid map information for the image, then no
 			// shape files will intersect with the image.
 			
 	if (!FindIfMapInformationExists (windowInfoPtr))
-																						return;
+																							return;
 	
 	windowPtr = GetWindowPtr (windowInfoPtr);
 		
@@ -361,9 +336,8 @@ void AddCurrentVectorOverlaysToImageWindow (
 	
 		for (index=0; index<gShapeHandleListLength; index++)
 			{
-			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-															shapeHandlePtr[index],
-															kLock);
+			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeHandlePtr[index],
+																			kLock);
 															
 			if (shapeInfoPtr != NULL)
 				{										
@@ -390,7 +364,8 @@ void AddCurrentVectorOverlaysToImageWindow (
 						// File - Open Image/Shape file menu operation.
 				
 				if (shapeInfoPtr->conversionCode == 0 && 
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode != kGeographicRSCode)
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode !=
+																						kGeographicRSCode)
 					convertedFlag = FALSE;
 					
 						// Also check for case where the shape file has been converted
@@ -399,7 +374,8 @@ void AddCurrentVectorOverlaysToImageWindow (
 						// a separate File - Open Image/Shape file menu operation.
 				
 				if (shapeInfoPtr->conversionCode == 2 && 
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode)
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																						kGeographicRSCode)
 					convertedFlag = FALSE;
 				
 				overlayNumber = (SInt16)(index + 1);		
@@ -429,18 +405,18 @@ void AddCurrentVectorOverlaysToImageWindow (
 							// Vector overlay does intersect with the window.
 							
 					overlayCheckReturn = CheckIfOverlayNeedsReloaded (
-														windowPtr,
-														overlayNumber,
-										 				&shapeInfoPtr->boundingXYBox);
-																				
+																	windowPtr,
+																	overlayNumber,
+																	&shapeInfoPtr->boundingXYBox);
+					
 					if (overlayCheckReturn == 0)
 						{
 								// Release memory for current shape information and set up
 								// to reload it.
 								
 						ReleaseShapeFileMemory (shapeHandlePtr, 
-															(SInt16)(overlayNumber-1),
-															kVectorMemoryOnly);
+														(SInt16)(overlayNumber-1),
+														kVectorMemoryOnly);
 						
 						if (!GetMemoryForVectorData (shapeInfoPtr))
 							break;
@@ -476,7 +452,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -562,7 +538,7 @@ SInt16 AddToWindowOverlayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -623,7 +599,8 @@ SInt16 CheckIfOverlayFileLoaded (
 	conversionCode = 0;
 	mapUnitsFlag = TRUE;		
 	
-	newOverlayFileNamePPointer = (FileStringPtr)GetFileNamePPointerFromFileStream (fileStreamPointer);
+	newOverlayFileNamePPointer =
+					(FileStringPtr)GetFileNamePPointerFromFileStream (fileStreamPointer);
 
 	mayBeLatLongUnitsFlag = CheckIfOverlayMayBeLatLong (fileStreamPointer, 
 																			boundingRectPtr);
@@ -637,8 +614,8 @@ SInt16 CheckIfOverlayFileLoaded (
 			
 		mapProjectionHandle = GetFileMapProjectionHandle2 (gActiveImageWindowInfoH);											
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																	mapProjectionHandle,
-																	kLock);	
+																				mapProjectionHandle,
+																				kLock);
 																	
 		referenceSystemCode = mapProjectionInfoPtr->gridCoordinate.referenceSystemCode;
 																	
@@ -649,12 +626,13 @@ SInt16 CheckIfOverlayFileLoaded (
 		for (index=0; index<gShapeHandleListLength; index++)
 			{
 			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (
-															shapeHandlePtr[index],
-															kLock);
+																	shapeHandlePtr[index],
+																	kLock);
 															
 			if (shapeInfoPtr != NULL)
 				{										
-				fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
+				fileNamePPointer =
+							(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
 			
 				if (StringCompare (&newOverlayFileNamePPointer[1],
 												 &fileNamePPointer[1]) == 0)
@@ -783,8 +761,8 @@ SInt16 CheckIfOverlayFileLoaded (
 				// Verify that shape file intersects with the active image window.
 				
 		if (!WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
-																	boundingRectPtr,
-																	mapUnitsFlag))
+																boundingRectPtr,
+																mapUnitsFlag))
 			overlayCheckReturn = 5;
 			
 		else	// WindowBoundingAreaAndRectIntersect (...
@@ -828,7 +806,7 @@ SInt16 CheckIfOverlayFileLoaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -873,13 +851,13 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 			// Verify that shape files do exist.
 			
 	if (gNumberShapeFiles <= 0)
-																			return (FALSE);
+																					return (FALSE);
 	
 			// If there is no valid map information for the image, then no
 			// shape files will intersect with the image.
 			
 	if (!FindIfMapInformationExists (windowInfoPtr))
-																			return (FALSE);
+																					return (FALSE);
 	
 	vectorOverlayIntersectsFlag = FALSE;
 	conversionCode = 0;
@@ -968,7 +946,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1031,10 +1009,9 @@ Boolean CheckIfOverlayMayBeLatLong (
 }	// end "CheckIfOverlayMayBeLatLong"
 
 
-
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1083,7 +1060,8 @@ SInt16 CheckIfprjFileDefinesLatLong (
 			
 	prjFileStreamPtr = &prjFileStream;		
 	InitializeFileStream (prjFileStreamPtr, shapeFileStreamPtr);
-	prjFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
+	prjFileNamePtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
 	
 			// Remove the '.shp' suffix at the end of the file name
 			// and then look for a corresponding '.prj' file.
@@ -1121,7 +1099,9 @@ SInt16 CheckIfprjFileDefinesLatLong (
 				if (projcsCode == 1)
 					latLongCode = 0;
 					
-				else if (projcsCode == 0 && geogcsCode == 1 && unitsCode == kAVDecimalDegreesCode)
+				else if (projcsCode == 0 &&
+								geogcsCode == 1 &&
+										unitsCode == kAVDecimalDegreesCode)
 					latLongCode = 1;
 					
 				}	// end "if (ReadPRJFileInformation (..."
@@ -1136,9 +1116,8 @@ SInt16 CheckIfprjFileDefinesLatLong (
 #endif	// include_gdal_capability
 
 
-
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1219,15 +1198,19 @@ SInt16 CheckIfOverlayNeedsReloaded (
 							// image window.
 										
 					if (newMapRectangle.left < windowInfoPtr->boundingMapRectangle.left &&
-								boundingRectPtr->left < windowInfoPtr->boundingMapRectangle.left)
+							boundingRectPtr->left < windowInfoPtr->boundingMapRectangle.left)
 						needToLoadFlag = TRUE;
 						
-					else if (newMapRectangle.top < windowInfoPtr->boundingMapRectangle.top &&
-								boundingRectPtr->top < windowInfoPtr->boundingMapRectangle.top)
+					else if (newMapRectangle.top <
+												windowInfoPtr->boundingMapRectangle.top &&
+								boundingRectPtr->top <
+												windowInfoPtr->boundingMapRectangle.top)
 						needToLoadFlag = TRUE;
 						
-					else if (newMapRectangle.right > windowInfoPtr->boundingMapRectangle.right &&
-								boundingRectPtr->right > windowInfoPtr->boundingMapRectangle.right)
+					else if (newMapRectangle.right >
+												windowInfoPtr->boundingMapRectangle.right &&
+									boundingRectPtr->right >
+												windowInfoPtr->boundingMapRectangle.right)
 						needToLoadFlag = TRUE;
 						
 					else if (newMapRectangle.bottom > windowInfoPtr->boundingMapRectangle.bottom &&
@@ -1295,7 +1278,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1338,7 +1321,7 @@ void CloseAllVectorOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1355,7 +1338,7 @@ void CloseAllVectorOverlayFiles (void)
 //	Value Returned:	True, if file was read in okay
 //							Fale, if file was not read in okay
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/2001
 //	Revised By:			Larry L. Biehl			Date: 01/20/2003
@@ -1461,7 +1444,7 @@ void CloseOverlayFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1572,7 +1555,7 @@ void ConvertLatLongPointToMapPoint (
 // This routine is now left out since code is now not being generated for pre-powerpc
 // processors
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1718,8 +1701,8 @@ Boolean CreateCLRSupportFile (
 				{
 						// Only list those classes which are included in the class symbol
 						// list. These are the ones that are actually included in the file.
-						// Take into account if this is actually a ascii symbol classification
-						// file.
+						// Take into account if this is actually a ascii symbol
+						// classification file.
 						
 				classValue = (SInt16)classNumber;
 				if (asciiSymbolsFlag)
@@ -1737,22 +1720,23 @@ Boolean CreateCLRSupportFile (
 							localGroupNamePtr = &groupNamePtr[groupNumber*32];
 							BlockMoveData (&localGroupNamePtr[1], 
 													groupName, localGroupNamePtr[0]);
-							groupName[localGroupNamePtr[0]] = 0;
+							groupName[(int)localGroupNamePtr[0]] = 0;
 							
-							stringLength = sprintf ((char*)ioTempBufferPtr, 
-															"%d %3d %3d %3d n:%s~ g:%d %3d %3d %3d %s~%s",
-															classValue,
-															classColorTablePtr->red,
-															classColorTablePtr->green,
-															classColorTablePtr->blue,
-															classNameTablePtr,
-															groupNumber,
-															groupColorTablePtr[groupNumber].red,
-															groupColorTablePtr[groupNumber].green,
-															groupColorTablePtr[groupNumber].blue,
-															groupName,
-															gEndOfLine);
-															
+							stringLength = sprintf (
+												(char*)ioTempBufferPtr,
+												"%d %3d %3d %3d n:%s~ g:%d %3d %3d %3d %s~%s",
+												classValue,
+												classColorTablePtr->red,
+												classColorTablePtr->green,
+												classColorTablePtr->blue,
+												classNameTablePtr,
+												groupNumber,
+												groupColorTablePtr[groupNumber].red,
+												groupColorTablePtr[groupNumber].green,
+												groupColorTablePtr[groupNumber].blue,
+												groupName,
+												gEndOfLine);
+							
 							}	// end "if (listAllGroupInfoPtr[classNumber])"
 						
 						else	// !listAllGroupInfoPtr[classNumber]
@@ -1811,7 +1795,7 @@ Boolean CreateCLRSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1876,7 +1860,7 @@ void DisplayNoIntersectionAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1891,7 +1875,7 @@ void DisplayNoIntersectionAlert (
 //
 //	Value Returned:	Error code for file operations. 
 //
-// Called By:			OverlayControlEvent in controls.c
+// Called By:			OnToolBarOverlaySelection in xMainFrame.cpp & WMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/2001
 //	Revised By:			Larry L. Biehl			Date: 04/20/2019
@@ -1996,9 +1980,9 @@ void DoShowOverlaySelection (
 					invalidateFlag = TRUE;         
 			#endif	// defined multispec_mac
 				
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				invalidateFlag = TRUE;          
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			}	// end "else if (selection == 2)"
 			
@@ -2027,10 +2011,6 @@ void DoShowOverlaySelection (
 														-1 * imageOverlayListPtr[index].index;
 				
 					invalidateFlag = TRUE;
-					//#if defined multispec_mac
-					//	if (imageOverlayListPtr[index].index > 0)
-					//		invalidateFlag = FALSE;         
-					//#endif	// defined multispec_mac
 					
 					callFlag = TRUE;
 					
@@ -2113,7 +2093,7 @@ void DoShowOverlaySelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2128,10 +2108,10 @@ void DoShowOverlaySelection (
 //
 //	Value Returned:	Error code for file operations. 
 //
-// Called By:			CopyOffScreenImage in multiSpec.c
+// Called By:			CopyOffScreenImage in xUtilities.cpp and WUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 04/11/2019
+//	Revised By:			Larry L. Biehl			Date: 10/12/2019
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2146,7 +2126,7 @@ void DrawArcViewShapes (
 		CPen*									overlayPenPtr = NULL;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxPen									overlayPen;
 		wxPen*								overlayPenPtr = NULL;
 	
@@ -2206,10 +2186,10 @@ void DrawArcViewShapes (
 																								return; 
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (gCDCPointer == NULL)
 																								return;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	shapeHandlePtr = NULL;
 	SetChannelWindowVariables (windowCode, windowInfoHandle, kNotCoreGraphics);
@@ -2220,11 +2200,11 @@ void DrawArcViewShapes (
 		Boolean				continueFlag = TRUE;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
-		wxPen* 				pOldPen = NULL;
+	#if defined multispec_wx
+		//wxPen* 				pOldPen = NULL;
 		
-		Boolean				continueFlag = TRUE;
-	#endif	// defined multispec_lin
+		//Boolean				continueFlag = TRUE;
+	#endif	// defined multispec_wx
 	
 	windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 														windowInfoHandle, &windowHandleStatus);
@@ -2296,7 +2276,7 @@ void DrawArcViewShapes (
 				gCGContextBeginPathPtr (context);
 		#endif	// defined multispec_mac
       
-		#if defined multispec_lin
+		#if defined multispec_wx
 					// Initialize pen to white 
          GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
 			//inputBoundingRectPtr = &gViewRect;
@@ -2342,13 +2322,13 @@ void DrawArcViewShapes (
 				ClipRect (&clipRect);
 			#endif	// multispec_mac
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				clipRect.left = (int)MAX (0, gStartChannelWindow);
 				clipRect.right = (int)MIN (gViewRect.right, 
 														gStartChannelWindow + gChannelWindowWidth);
 				if (windowCode != kToPrintWindow)
 					ClipRect (&clipRect);
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			}	// end "if (gSideBySideChannels > 1)"     
 
@@ -2389,8 +2369,9 @@ void DrawArcViewShapes (
 				
 					else	// context != NULL
 						{
-						gCGContextSetLineWidthPtr (context, 
-														(float)windowInfoPtr->overlayList[overlayIndex].lineThickness);
+						gCGContextSetLineWidthPtr (
+							context,
+							(float)windowInfoPtr->overlayList[overlayIndex].lineThickness);
 					
 						}	// end "else context != NULL"
 				#endif	// defined multispec_mac
@@ -2410,14 +2391,17 @@ void DrawArcViewShapes (
 						winUseOriginFlag = TRUE;
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (overlayPenPtr != NULL)
 						delete overlayPenPtr;
 					
 					RGBColor pcolor = windowInfoPtr->overlayList[overlayIndex].overlayColor;
-					wxColour pwxcolor ((unsigned char)pcolor.red, (unsigned char)pcolor.green, (unsigned char)pcolor.blue);
+					wxColour pwxcolor ((unsigned char)pcolor.red,
+												(unsigned char)pcolor.green,
+												(unsigned char)pcolor.blue);
 
-               int pthick = (int)windowInfoPtr->overlayList[overlayIndex].lineThickness;
+               int pthick =
+								(int)windowInfoPtr->overlayList[overlayIndex].lineThickness;
 					
 							// Now make sure pthick is thick enough when zoomed out
 
@@ -2427,7 +2411,7 @@ void DrawArcViewShapes (
 
 					if (windowCode == kToPrintWindow || windowCode == kToClipboardWindow)
 						winUseOriginFlag = TRUE;
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 							
 				thicknessOffset = 
 									windowInfoPtr->overlayList[overlayIndex].lineThickness/2;
@@ -2476,24 +2460,31 @@ void DrawArcViewShapes (
 									gCDCPointer->LineTo ((int)nextPoint.h, (int)nextPoint.v+4);
 								#endif	// defined multispec_win
 								
-								#if defined multispec_lin
-									gCDCPointer->DrawLine ((int)nextPoint.h-3, (int)nextPoint.v, (int)nextPoint.h+4, (int)nextPoint.v);
+								#if defined multispec_wx
+									gCDCPointer->DrawLine ((int)nextPoint.h-3,
+																	(int)nextPoint.v,
+																	(int)nextPoint.h+4,
+																	(int)nextPoint.v);
 									
-									gCDCPointer->DrawLine ((int)nextPoint.h, (int)nextPoint.v-3, (int)nextPoint.h, (int)nextPoint.v+4);
-								#endif	// defined multispec_lin
+									gCDCPointer->DrawLine ((int)nextPoint.h,
+																	(int)nextPoint.v-3,
+																	(int)nextPoint.h,
+																	(int)nextPoint.v+4);
+								#endif	// defined multispec_wx
 								
 								}	// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
 		      			break;
 		      			
 		      		case 3:	// PolyLine shape	
 		      		case 5:	// Polygon shape
+		      		case 15:	// PolygonZ shape
 		      			arcViewPolyLinePtr = (ArcViewPolyLinePtr)arcViewRecordHeaderPtr;
 		      			if (AreasIntersect (&boundingWindowBox,
 		      										&arcViewPolyLinePtr->box))
 		      				{
 		      				pointIndex = 0;
 		      				arcViewDoublePointPtr = (ArcViewDoublePoint*)
-		      							&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
+									&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
 		      				
 		      				for (partIndex=0; 
 		      							partIndex<arcViewPolyLinePtr->numParts; 
@@ -2522,9 +2513,9 @@ void DrawArcViewShapes (
 																		(int)nextPoint.v); 
 									#endif	// defined multispec_win
 									
-									#if defined multispec_lin
+									#if defined multispec_wx
 											// wxWidgets does not have Move command; only line.
-									#endif	// defined multispec_lin
+									#endif	// defined multispec_wx
 									
 									lastPoint = nextPoint;
 									
@@ -2537,14 +2528,17 @@ void DrawArcViewShapes (
 		      					else	// partIndex+1 == areaViewPolyLinePtr->numParts
 		      						pointStop = arcViewPolyLinePtr->numPoints;
 				
-		      					for (pointIndex=pointStart; pointIndex<pointStop; pointIndex++)
+		      					for (pointIndex=pointStart;
+													pointIndex<pointStop;
+																pointIndex++)
 		      						{
 										withInLimitsFlag = ConvertMapPointToWinPoint (
 																			arcViewDoublePointPtr, 
 																			&nextPoint, 
 																			&mapToWindowUnitsVariables);
 										
-										if (nextPoint.h != lastPoint.h || nextPoint.v != lastPoint.v)
+										if (nextPoint.h != lastPoint.h ||
+																		nextPoint.v != lastPoint.v)
 											{							
 											#if defined multispec_mac
 												if (withInLimitsFlag)
@@ -2553,26 +2547,28 @@ void DrawArcViewShapes (
 													nextPoint.v -= thicknessOffset;
 										
 													if (context == NULL)
-														LineTo ((SInt16)nextPoint.h, (SInt16)nextPoint.v);
+														LineTo ((SInt16)nextPoint.h,
+																	(SInt16)nextPoint.v);
 													
 													else	// context != NULL
-														gCGContextAddLineToPointPtr (context,
-																								(float)nextPoint.h,
-																								(float)nextPoint.v);
+														gCGContextAddLineToPointPtr (
+																					context,
+																					(float)nextPoint.h,
+																					(float)nextPoint.v);
 													}	// end "if (withInLimitsFlag)"
 											#endif	// defined multispec_mac
 											
 											#if defined multispec_win
 												gCDCPointer->LineTo ((int)nextPoint.h, 
-																				(int)nextPoint.v); 
+																			(int)nextPoint.v);
 											#endif	// defined multispec_win
 											
-											#if defined multispec_lin
+											#if defined multispec_wx
 												gCDCPointer->DrawLine ((int)lastPoint.h, 
 																				(int)lastPoint.v, 
 																				(int)nextPoint.h, 
 																				(int)nextPoint.v);       	
-											#endif	// defined multispec_lin
+											#endif	// defined multispec_wx
 									
 											lastPoint = nextPoint;
 											
@@ -2598,7 +2594,7 @@ void DrawArcViewShapes (
 							
 					#if defined multispec_mac
 						if (gProcessorCode != kZoomButtonControl && 
-																	TickCount () >= gNextTime)
+																		TickCount () >= gNextTime)
 							{
 							if (!CheckSomeEvents (keyDownMask))
 								break;
@@ -2650,13 +2646,13 @@ void DrawArcViewShapes (
 				gCGContextStrokePathPtr (context);
 		#endif	// defined multispec_mac
 					
-		#if defined multispec_lin
+		#if defined multispec_wx
 			gCDCPointer->SetUserScale (xScale, yScale);
 			gCDCPointer->DestroyClippingRegion ();
          
 			if (overlayPenPtr != NULL)
 				delete overlayPenPtr;
-		#endif	// multispec_lin
+		#endif	// multispec_wx
 		
 		ForeColor (blackColor);
 				
@@ -2673,7 +2669,7 @@ void DrawArcViewShapes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2705,7 +2701,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2748,7 +2744,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2770,6 +2766,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 CMFileStream* GetFileStreamPointer (
 				ShapeInfoPtr						shapeInfoPtr)
+				
 {  
 	CMFileStream*						fileStreamPtr = NULL;
 	
@@ -2779,9 +2776,9 @@ CMFileStream* GetFileStreamPointer (
 			fileStreamPtr = &shapeInfoPtr->fileStream;
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			fileStreamPtr = shapeInfoPtr->fileStreamCPtr;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (shapeInfoPtr != NULL)"
 		
@@ -2792,7 +2789,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2850,7 +2847,7 @@ void GetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3088,7 +3085,8 @@ Boolean GetArcViewMapInformation (
 			mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = mapUnitsCode;
 			
 			mapProjectionInfoPtr->geodetic.datumCode = datumCode;
-			mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = referenceSystemCode;
+			mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					referenceSystemCode;
 			mapProjectionInfoPtr->gridCoordinate.projectionCode = projectionCode;
 			
 			mapProjectionInfoPtr->gridCoordinate.gridZone = gridZone;
@@ -3106,7 +3104,7 @@ Boolean GetArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3122,7 +3120,7 @@ Boolean GetArcViewMapInformation (
 //	Value Returned:	TRUE: if memory allocated okay
 //							FALSE: if memory not able to be allocated
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/2006
 //	Revised By:			Larry L. Biehl			Date: 08/25/2010
@@ -3145,7 +3143,7 @@ Boolean GetMemoryForVectorData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3214,7 +3212,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3231,7 +3229,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 //	Value Returned:	0 - if ArcView header record parameters make sense
 //							1 - if ArcView header record paramters do not make sense.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/25/2001
 //	Revised By:			Larry L. Biehl			Date: 05/25/2001
@@ -3259,7 +3257,7 @@ void InitializeOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3280,7 +3278,7 @@ void InitializeOverlay (
 //	Value Returned:	0 - if ArcView header record parameters make sense
 //							1 - if ArcView header record paramters do not make sense.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/2001
 //	Revised By:			Larry L. Biehl			Date: 04/03/2001
@@ -3446,7 +3444,7 @@ void ListNonIntersectionMessage (
 //
 // Value Returned:	None
 //
-// Called By:			in controls.c
+// Called By:			OnToolBarOverlaySelection in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/2001
 //	Revised By:			Larry L. Biehl			Date: 01/28/2019
@@ -3624,7 +3622,7 @@ Boolean OverlayControlDialog (
 					
 				}	// end "else if (itemHit > 0)" 
 					
-			} while (!modalDone);
+			}	while (!modalDone);
 			
 		DisposeUserItemUPP (drawOverlayColorBoxPtr);
 			
@@ -3652,7 +3650,7 @@ Boolean OverlayControlDialog (
 		END_CATCH_ALL 
 	#endif // defined multispec_win 
 
-   #if defined multispec_lin                         
+   #if defined multispec_wx                         
 		CMOverlayParameterDlg*		dialogPtr = NULL;
 		
 		//dialogPtr = new CMOverlayParameterDlg (wxTheApp->GetTopWindow ());
@@ -3663,7 +3661,7 @@ Boolean OverlayControlDialog (
 														overlayIndex); 
 			
 		delete dialogPtr;
-	#endif // defined multispec_lin 
+	#endif // defined multispec_wx 
 		
 	MHSetState (windowInfoHandle, windowHandleStatus);
 	
@@ -3674,7 +3672,7 @@ Boolean OverlayControlDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3758,7 +3756,7 @@ void OverlayDialogInitialize (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			DoDialog in xOverlayParametersDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/2001
 //	Revised By:			Larry L. Biehl			Date: 04/23/2019
@@ -3829,8 +3827,8 @@ void OverlayDialogOK (
 //
 //	Value Returned:	None				
 // 
-// Called By:			LoadClassNameDescriptions in SOpnImag.cpp
-//							LoadThematicClasses in SSaveWrt.cpp
+// Called By:			LoadClassNameDescriptions in SOpenImage.cpp
+//							LoadThematicClasses in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
 //	Revised By:			Larry L. Biehl			Date: 02/28/2018
@@ -3880,12 +3878,12 @@ Boolean ReadArcViewClassNames (
 											continueFlag,
 											returnFlag;
 						
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win
 		UCharPtr								endOfLinePtr;
 		UInt8									savedCharacter;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win
 	
-		//	#if defined multispec_lin
+		//	#if defined multispec_wx
 		//		HPtr									savedptr;
 		//	#endif
 	
@@ -3944,8 +3942,8 @@ Boolean ReadArcViewClassNames (
 				// Now load the class names into the appropriate locations. Allow
 				// for classes to be skipped. Skip the palette information in the file.
 				// The class (or legend) name will start with "N:" after the palette
-				// entries. Note that the way the code is written the first character in the
-				// line has to be a number or the line will be skipped. This is per
+				// entries. Note that the way the code is written the first character in
+				// the line has to be a number or the line will be skipped. This is per
 				// the ArcView .clr specification. Note though that the ArcView .clr
 				// specification does not define anything for class name. The class
 				// name is something that has been set up for MultiSpec.
@@ -3958,11 +3956,13 @@ Boolean ReadArcViewClassNames (
 			{
 			if (whileLoopCount > fileInfoPtr->numberBins)
 				{
-					// This check is included to catch problem files which may cause an infinite loop.
+					// This check is included to catch problem files which may cause
+					// an infinite loop.
 				
-				int numberChars = sprintf ((char*)gTextString3,
-												" There is a problem reading the .clr file; default class names will be used.%s",
-												gEndOfLine);
+				int numberChars = sprintf (
+								(char*)gTextString3,
+								" There is a problem reading the .clr file; default class names will be used.%s",
+								gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 				errCode = eofErr;
@@ -3979,19 +3979,21 @@ Boolean ReadArcViewClassNames (
 
 			if (errCode == noErr && inputStringPtr[0] >= '0' && inputStringPtr[0] <= '9')
 				{
-				#if defined multispec_win //|| defined multispec_lin
-							// For windows version, we need to add a null terminator at the end
-							// end of the line in place of the carriage return so that those cases
-							// with no class names or group information is handled properly. Otherwise
-							// sscanf reads beyond the carriage return if parameter like class name,
-							// or group information do not exist.
-							// Find the carriage return and replace it with null terminator. One
-							// needs to replace this character when done reading so that the next
-							// line is found correctly.
+				#if defined multispec_win
+							// For windows version, we need to add a null terminator at the
+							// end of the line in place of the carriage return so that those
+							// cases with no class names or group information is handled
+							// properly. Otherwise sscanf reads beyond the carriage return
+							// if parameter like class name, or group information do not
+							// exist.
+							// Find the carriage return and replace it with null terminator.
+							// One needs to replace this character when done reading so that
+							// the next line is found correctly.
 				
 					endOfLinePtr = SkipToNextCarriageReturn (inputStringPtr);
 				
-					//CheckSomeEvents (osMask + keyDownMask + updateMask + mDownMask + mUpMask);
+					//CheckSomeEvents (
+					//				osMask + keyDownMask + updateMask + mDownMask + mUpMask);
 					if (endOfLinePtr != NULL)
 						{
 						endOfLinePtr--;
@@ -3999,24 +4001,19 @@ Boolean ReadArcViewClassNames (
 						*endOfLinePtr = 0;
 
 						}	// end "if (endOfLinePtr != NULL)"
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win
 
 					// Get the data, red, green & blue values.
 					// To allow for bad text files force a null line at location 254 in the
-					// input string so that textString is not overrun. Save the character at the location
-					// and put back in before continuing. Note that the buffer for reading the data into is
-					// 300 bytes longer than what is being used to allow for this occurring near the end of
-					// the buffer.
+					// input string so that textString is not overrun. Save the character
+					// at the location and put back in before continuing. Note that the
+					// buffer for reading the data into is 300 bytes longer than what is
+					// being used to allow for this occurring near the end of the buffer.
 				
 				savedChar = inputStringPtr[254];
 				inputStringPtr[254] = 0;
 				
-					//				#if defined multispec_lin
-					//							// This fixes problem with sscanf in which inputStringPtr is corrupted after call to sscanf
-					//					savedptr = inputStringPtr;
-					//				#endif
-
-				tReturnCode = sscanf ((char*)inputStringPtr, 
+				tReturnCode = sscanf ((char*)inputStringPtr,
 											 (char*)"%d%hd%hd%hd%s\r",
 											 &classNumber,
 											 &red,
@@ -4024,26 +4021,25 @@ Boolean ReadArcViewClassNames (
 											 &blue,
 											 (char*)textString);
 											 
-					//				#if defined multispec_lin
-					//					inputStringPtr = savedptr;
-					//				#endif
-				
 				inputStringPtr[254] = savedChar;
 				
 						// Verify parameters make sense and that this is the start of a 
-						//	class name. The characters "n:" should be at the start. Otherwise 
-						// the assumption is that this is just a comment.
+						//	class name. The characters "n:" should be at the start.
+						// Otherwise the assumption is that this is just a comment.
 				
 				continueFlag = FALSE;
-				if (tReturnCode == 5 && classNumber >= 0 && classNumber <= gClassListLimit &&
-								textString[0] == 'n' && textString[1] == ':')													
+				if (tReturnCode == 5 &&
+							classNumber >= 0 &&
+									classNumber <= gClassListLimit &&
+											textString[0] == 'n' &&
+													textString[1] == ':')
 					{
 							// Now determine if this is a class to be used.
 					
 					if (classSymbolPtr[classSymbolIndex] != classNumber)
 						{
 						while (classSymbolPtr[classSymbolIndex] < (UInt16)classNumber && 
-														classSymbolIndex < (SInt32)(numberClasses-1))
+													classSymbolIndex < (SInt32)(numberClasses-1))
 							classSymbolIndex++;
 							
 						if (classSymbolPtr[classSymbolIndex] == classNumber)
@@ -4071,13 +4067,14 @@ Boolean ReadArcViewClassNames (
 					{	
 							// Get the class name.
 							
-							// Find the start and end of the class name. textString cannot be 
-							// used because only the first word of a multiple word class name
-							// will be read.					
+							// Find the start and end of the class name. textString cannot
+							// be used because only the first word of a multiple word class
+							// name will be read.
 					
 					startClassNamePtr = (UCharPtr)strstr ((char*)inputStringPtr, "n:");
 					
-					endClassNamePtr = (UCharPtr)strchr ((char*)inputStringPtr, (int)tildeCharacter);
+					endClassNamePtr = (UCharPtr)strchr (
+													(char*)inputStringPtr, (int)tildeCharacter);
 					
 							// Determine the number of characters in the class name.		
 					
@@ -4119,13 +4116,13 @@ Boolean ReadArcViewClassNames (
 			
 					}	// end "if (continueFlag)"
 
-				#if defined multispec_win //|| defined multispec_lin
+				#if defined multispec_win
 							// Set the end of line character back to the original value.
 					
 					if (endOfLinePtr != NULL)
 						*endOfLinePtr = savedCharacter;
 					endOfLinePtr = NULL;  	 
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win
 
 				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
@@ -4175,12 +4172,12 @@ Boolean ReadArcViewClassNames (
 //	Revised By:			Larry L. Biehl			Date: 02/28/2018
 
 Boolean ReadArcViewColorPalette (
-									 ColorSpec*							colorSpecPtr, 
-									 FileInfoPtr						imageFileInfoPtr,
-									 CMFileStream*						paletteFileStreamPtr,
-									 DisplaySpecsPtr					displaySpecsPtr, 
-									 UInt16*								classSymbolPtr, 
-									 UInt16*								paletteCodePtr)
+				ColorSpec*							colorSpecPtr,
+				FileInfoPtr							imageFileInfoPtr,
+				CMFileStream*						paletteFileStreamPtr,
+				DisplaySpecsPtr					displaySpecsPtr, 
+				UInt16*								classSymbolPtr, 
+				UInt16*								paletteCodePtr)
 
 {
 	UInt8									buffer[5300];
@@ -4229,7 +4226,8 @@ Boolean ReadArcViewColorPalette (
 			// Get memory for the color vectors.
 			
 	maxNumberClrTableClasses = MAX (256, imageFileInfoPtr->maxClassNumberValue + 1);
-	vectorBluePtr = (UInt16*)MNewPointer (3 * maxNumberClrTableClasses * sizeof (UInt16));
+	vectorBluePtr = (UInt16*)MNewPointer (
+												3 * maxNumberClrTableClasses * sizeof (UInt16));
 	if (vectorBluePtr == NULL)
 																						return (FALSE);
 																						
@@ -4290,11 +4288,13 @@ Boolean ReadArcViewColorPalette (
 			{
 			if (whileLoopCount > imageFileInfoPtr->numberBins)
 				{
-					// This check is included to catch problem files which may cause an infinite loop.
+					// This check is included to catch problem files which may cause an
+					// infinite loop.
 				
-				int numberChars = sprintf ((char*)gTextString3,
-													" There is a problem reading the .clr file; default palette will be used.%s",
-													gEndOfLine);
+				int numberChars = sprintf (
+							(char*)gTextString3,
+							" There is a problem reading the .clr file; default palette will be used.%s",
+							gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 					//cancelWhileLoopFlag = TRUE;
@@ -4311,35 +4311,29 @@ Boolean ReadArcViewColorPalette (
 				{
 					// Get the data, red, green & blue values.
 				
-					//				#if defined multispec_lin
-					//					HPtr savedptr = inputStringPtr;
-					//				#endif
-
-				tReturnCode = sscanf ((char*)inputStringPtr, 
+					tReturnCode = sscanf ((char*)inputStringPtr,
 											 "%d%hd%hd%hd\r",
 											 &classNumber,
 											 &red,
 											 &green,
 											 &blue);
 											 
-					//				#if defined multispec_lin
-					//					inputStringPtr = savedptr;
-					//				#endif
-				
-				if (tReturnCode == 4 && classNumber >= 0 && (UInt32)classNumber < maxNumberClrTableClasses)
+				if (tReturnCode == 4 &&
+							classNumber >= 0 &&
+									(UInt32)classNumber < maxNumberClrTableClasses)
 					{	
-					#ifndef multispec_lin
+					#ifndef multispec_wx
 						vectorRedPtr[classNumber] = red * 256;
 						vectorGreenPtr[classNumber] = green * 256;
 						vectorBluePtr[classNumber] =  blue * 256;	
 					#endif
 					
-					#if defined multispec_lin	
+					#if defined multispec_wx	
 						vectorRedPtr[classNumber] = red;
 						vectorGreenPtr[classNumber] = green;
 						vectorBluePtr[classNumber] =  blue;		
 					#endif		
-					}	// end "if (tReturnCode == 4 && classNumber >= 0 && classNumber <= 255)"
+					}	// end "if (tReturnCode == 4 && classNumber >= 0 && ..."
 				
 				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
@@ -4389,8 +4383,8 @@ Boolean ReadArcViewColorPalette (
 //							outputFileInfoPtr - structure for the thematic image file that
 //														the group information is for
 //							displaySpecsPtr - pointer to the dispay specification structure
-//														which which controls how the group information
-//														will be displayed
+//														which which controls how the group
+//														information will be displayed
 //							windowInfoHandle - handle to the window information structure
 //														for the active image window.
 //
@@ -4398,7 +4392,7 @@ Boolean ReadArcViewColorPalette (
 //
 //	Value Returned:	None				
 // 
-// Called By:			LoadThematicDisplaySpecs in SDisThem.cpp
+// Called By:			LoadThematicDisplaySpecs in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
 //	Revised By:			Larry L. Biehl			Date: 02/28/2018
@@ -4475,7 +4469,7 @@ Boolean ReadArcViewGroups (
 											notDoneFlag,
 											returnFlag = FALSE;
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		UCharPtr								endOfLinePtr;
 		UInt8									savedCharacter;
 	#endif
@@ -4503,7 +4497,6 @@ Boolean ReadArcViewGroups (
 	cTableHandle = NULL;
 	groupNameHandle = NULL;
 	groupTablesHandle = NULL;
-	//maxNumberClasses = MAX (256, inputFileInfoPtr->numberClasses);
 	maxNumberClasses = MAX (256, inputFileInfoPtr->maxClassNumberValue+1);
 			
 			// If the support file is not open, then open a path to the file 		
@@ -4600,11 +4593,13 @@ Boolean ReadArcViewGroups (
 													gEndOfLine);
 				ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 
-					// This check is included to catch problem files which may cause an infinite loop.
+					// This check is included to catch problem files which may cause an
+					// infinite loop.
 				
-				int numberChars = sprintf ((char*)gTextString3,
-													" There is a problem reading the .clr file; default group names will be used.%s",
-													gEndOfLine);
+				int numberChars = sprintf (
+							(char*)gTextString3,
+							" There is a problem reading the .clr file; default group names will be used.%s",
+							gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
 					//cancelWhileLoopFlag = TRUE;
@@ -4622,15 +4617,16 @@ Boolean ReadArcViewGroups (
 			
 			if (errCode == noErr && inputStringPtr[0] >= '0' && inputStringPtr[0] <= '9')
 				{
-				#if defined multispec_win || defined multispec_lin
-							// For windows version, we need to add a null terminator at the end
-							// end of the line in place of the carriage return so that those cases
-							// with no class names or group information is handled properly. Otherwise
-							// sscanf reads beyond the carriage return if parameter like class name,
-							// or group information do not exist.
-							// Find the carriage return and replace it with null terminator. One
-							// needs to replace this character when done reading so that the next
-							// line is found correctly.
+				#if defined multispec_win || defined multispec_wx
+							// For windows version, we need to add a null terminator at the
+							// end of the line in place of the carriage return so that those
+							// cases with no class names or group information is handled
+							// properly. Otherwise sscanf reads beyond the carriage return
+							// if parameter like class name, or group information do not
+							// exist.
+							// Find the carriage return and replace it with null terminator.
+							// One needs to replace this character when done reading so that
+							// the next line is found correctly.
 					
 					endOfLinePtr = SkipToNextCarriageReturn (inputStringPtr);
 					if (endOfLinePtr != NULL)
@@ -4640,14 +4636,15 @@ Boolean ReadArcViewGroups (
 						*endOfLinePtr = 0;
 						
 						}	// end "if (endOfLinePtr != NULL)"	 
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
 
 						// Get the data, red, green & blue values.
-						// To allow for bad text files force a carriage return at location 254 in the
-						// input string so that textString is not overrun. Save the character at the location
-						// and put back in before continuing. Note that the buffer for reading the data into is
-						// 300 bytes longer than what is being used to allow for this occurring near the end of
-						// the buffer.
+						// To allow for bad text files force a carriage return at location
+						// 254 in the input string so that textString is not overrun. Save
+						// the character at the location and put back in before continuing.
+						// Note that the buffer for reading the data into is 300 bytes
+						// longer than what is being used to allow for this occurring near
+						// the end of the buffer.
 					
 				savedChar = inputStringPtr[254];
 				inputStringPtr[254] = 0;
@@ -4663,15 +4660,19 @@ Boolean ReadArcViewGroups (
 				inputStringPtr[254] = savedChar;
 				
 						// Verify parameters make sense and that this is the start of a 
-						//	class name. The characters "n:" should be at the start. Otherwise 
-						// the assumption is that this is just a comment.
+						//	class name. The characters "n:" should be at the start.
+						// Otherwise the assumption is that this is just a comment.
 				
-				if (tReturnCode == 5 && classNumber >= 0 && classNumber < maxNumberClasses &&
-								textString[0] == 'n' && textString[1] == ':')
+				if (tReturnCode == 5 &&
+						classNumber >= 0 &&
+							classNumber < maxNumberClasses &&
+								textString[0] == 'n' &&
+									textString[1] == ':')
 					{
 							// Now see if group information exists after the class name
 					
-					endClassNamePtr = (char*)strchr ((char*)inputStringPtr, (int)tildeCharacter);
+					endClassNamePtr = (char*)strchr (
+													(char*)inputStringPtr, (int)tildeCharacter);
 					
 					startGroupInfoPtr = NULL;
 					if (endClassNamePtr != NULL)
@@ -4691,14 +4692,16 @@ Boolean ReadArcViewGroups (
 													 &blue,
 													 (char*)&textString);
 													 
-						if (tReturnCode >= 1 && groupNumber >= 0 && groupNumber < maxNumberClasses)
+						if (tReturnCode >= 1 &&
+									groupNumber >= 0 &&
+											groupNumber < maxNumberClasses)
 							{						
 									// Get the group name.
 									
-									// Find the start and end of the group name. textString cannot be 
-									// used because only the first word of a multiple word group name
-									// will be read. Only the first occurrance for the group name
-									// will be used for a group.
+									// Find the start and end of the group name. textString
+									// cannot be used because only the first word of a
+									// multiple word group name will be read. Only the first
+									// occurrance for the group name will be used for a group.
 								
 							if (groupToPalettePtr[groupNumber] == -1)
 								groupToPalettePtr[groupNumber] = (SInt16)groupToPaletteValue;
@@ -4707,15 +4710,18 @@ Boolean ReadArcViewGroups (
 								{
 										// Get the group name
 													
-								startGroupNamePtr = (char*)strstr (startGroupInfoPtr, (CharPtr)textString);					
-								endGroupNamePtr = (char*)strchr (startGroupInfoPtr, (int)tildeCharacter);									
+								startGroupNamePtr = (char*)strstr (
+															startGroupInfoPtr, (CharPtr)textString);
+								endGroupNamePtr = (char*)strchr (
+															startGroupInfoPtr, (int)tildeCharacter);
 								
 										// Determine the number of characters in the group name.		
 								
 								numberCharacters = 0;					
 								if (startGroupNamePtr != NULL && endGroupNamePtr != NULL)
 									{
-									numberCharacters = (SInt32)(endGroupNamePtr - startGroupNamePtr);
+									numberCharacters =
+													(SInt32)(endGroupNamePtr - startGroupNamePtr);
 									if (numberCharacters < 0 || numberCharacters > 31)
 										numberCharacters = 31;
 										
@@ -4728,7 +4734,8 @@ Boolean ReadArcViewGroups (
 									{
 									localGroupNamePtr = &groupNamePtr[groupNumber*32];
 									BlockMoveData (startGroupNamePtr, 
-																	&localGroupNamePtr[1], numberCharacters);
+														&localGroupNamePtr[1],
+														numberCharacters);
 									localGroupNamePtr[0] = (UInt8)numberCharacters;
 									if (numberCharacters < 31)
 										localGroupNamePtr[numberCharacters+1] = kNullTerminator;
@@ -4737,13 +4744,13 @@ Boolean ReadArcViewGroups (
 								
 										// Get the color
 								
-								#ifndef multispec_lin
+								#ifndef multispec_wx
 									colorSpecPtr[groupToPaletteValue].rgb.red = red * 256;
 									colorSpecPtr[groupToPaletteValue].rgb.green = green * 256;
 									colorSpecPtr[groupToPaletteValue].rgb.blue = blue * 256;
 								#endif
 					
-								#if defined multispec_lin	
+								#if defined multispec_wx	
 									colorSpecPtr[groupToPaletteValue].rgb.red = red;
 									colorSpecPtr[groupToPaletteValue].rgb.green = green;
 									colorSpecPtr[groupToPaletteValue].rgb.blue = blue;
@@ -4771,13 +4778,13 @@ Boolean ReadArcViewGroups (
 						
 					}	// end "if (tReturnCode == 5 && dataValue >= 0 && ..."
 
-				#if defined multispec_win || multispec_lin //09.10.2015
+				#if defined multispec_win || multispec_wx //09.10.2015
 							// Set the end of line character back to the original value.
 					
 					if (endOfLinePtr != NULL)
 						*endOfLinePtr = savedCharacter;
 					endOfLinePtr = NULL;  	 
-				#endif	// defined multispec_win || multispec_lin
+				#endif	// defined multispec_win || multispec_wx
 				
 				}	// end "if (errCode == noErr && inputStringPtr[0] >= '0' && ..."
 			
@@ -4799,7 +4806,8 @@ Boolean ReadArcViewGroups (
 				{
 				groupToPaletteValue = classNumber % 256;
 				firstGroupClassNumber = groupToPalettePtr[groupNumber];					
-				colorSpecPtr[groupToPaletteValue].rgb = colorSpecPtr[firstGroupClassNumber].rgb;
+				colorSpecPtr[groupToPaletteValue].rgb =
+															colorSpecPtr[firstGroupClassNumber].rgb;
 				
 				}	// end "if (classToGroupPtr[classNumber] >= 0)"
 						
@@ -4813,17 +4821,20 @@ Boolean ReadArcViewGroups (
 				// in the data (or at least in the classSymbol vector.
 				// And remove unneeded palette entries.
 			
-				// Only do the when the number of classes is less than or equal to 256. Otherwise
-				// the palette may be needed for when group numbers that have wrapped around.
+				// Only do the when the number of classes is less than or equal to 256.
+				// Otherwise the palette may be needed for when group numbers that have
+				// wrapped around.
 			
 		numberClasses = inputFileInfoPtr->numberClasses;
 		if (numberClasses <= 256)
 			{
-			classNamePtr = (CharPtr)GetHandlePointer (inputFileInfoPtr->classDescriptionH);
+			classNamePtr =
+							(CharPtr)GetHandlePointer (inputFileInfoPtr->classDescriptionH);
 			classSymbolPtr = (UInt16*)&classNamePtr[numberClasses*sizeof (Str31)];
 			for (classNumber=0; classNumber<(SInt32)numberClasses; classNumber++)
 				{
-				classToGroupPtr[classNumber] = classToGroupPtr[classSymbolPtr[classNumber]];
+				classToGroupPtr[classNumber] =
+							classToGroupPtr[classSymbolPtr[classNumber]];
 				paletteIndex = classSymbolPtr[classNumber];
 				if (paletteIndex >= 256)
 					paletteIndex = paletteIndex % 256;
@@ -4873,16 +4884,16 @@ Boolean ReadArcViewGroups (
 						
 						}	// end "if (classToGroupPtr[classNumber] == groupNumber)"
 					
-					}	// end "for (classNumber=0; classNumber<numberclasses; classNumber++)"
+					}	// end "for (classNumber=0; classNumber<numberclasses; ..."
 					
 				if (!groupExistsFlag)
 					UpdateGroupTables ((SInt16)groupNumber,
-											classToGroupPtr,
-											groupToPalettePtr,
-											(SInt16)numberClasses,
-											&numberGroups,
-											groupNameHandle);
-											
+												classToGroupPtr,
+												groupToPalettePtr,
+												(SInt16)numberClasses,
+												&numberGroups,
+												groupNameHandle);
+				
 				else	// groupExistsFlag
 					groupNumber++;
 					
@@ -4914,13 +4925,12 @@ Boolean ReadArcViewGroups (
 						
 						}	// end "if (classToGroupPtr[classNumber] < 0)"
 									
-					}			// end "for (classNumber=0; classNumber<numberClasses; classNumber++)"
+					}			// end "for (classNumber=0; classNumber<numberClasses; ..."
 					
 						// Add the name for the group
 						
 				localGroupNamePtr = &groupNamePtr[groupNumber*32];
-				BlockMoveData ("No group assignment", 
-												&localGroupNamePtr[1], 19);
+				BlockMoveData ("No group assignment", &localGroupNamePtr[1], 19);
 				localGroupNamePtr[0] = (UInt8)19;
 				
 				}	// end "if (addGroupFlag)"
@@ -4928,7 +4938,7 @@ Boolean ReadArcViewGroups (
 			}	// end "if (numberGroups > 0 && numberGroups <= 256)"
 			
 				// Indicate that groups have been created.				
-		//numberGroups = groupCount + 1;
+
 		if (numberGroups > 0 && numberGroups <= 256)
 			{
 			returnFlag = TRUE;
@@ -4936,7 +4946,7 @@ Boolean ReadArcViewGroups (
 			/*
 					// Now need to move the classToGroupPtr information to the memory location
 					// that it is expected to be in.
-					// Do not need to do this now. It is in the correction location.
+					// Do not need to do this now. It is in the correct location.
 			
 			if (numberClasses < (UInt32)maxNumberClasses)
 				{
@@ -5005,7 +5015,7 @@ Boolean ReadArcViewGroups (
 			
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5022,7 +5032,7 @@ Boolean ReadArcViewGroups (
 //	Value Returned:	0 - if ArcView header record parameters make sense
 //							1 - if ArcView header record paramters do not make sense.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2000
 //	Revised By:			Larry L. Biehl			Date: 01/17/2019
@@ -5102,7 +5112,7 @@ SInt16 ReadArcViewHeader (
 			{
 			fileInfoPtr->format = fileType;
 			fileInfoPtr->thematicType = FALSE;
-																			return (noErr);
+																					return (noErr);
 																								
 			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
@@ -5180,7 +5190,8 @@ SInt16 ReadArcViewHeader (
 					
 			headerFileStreamPtr = &headerFileStream;		
 			InitializeFileStream (headerFileStreamPtr, fileStreamPtr);
-			headerFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (headerFileStreamPtr);
+			headerFileNamePtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (headerFileStreamPtr);
 			
 					// Remove the ".bil", ".bsq", ".bip" at the end.
 					
@@ -5295,7 +5306,6 @@ SInt16 ReadArcViewHeader (
 								
 			if (tReturnCode == 0)
 				{
-				//if (value >= 8 && value <= 32)
 				if (value >= 8 && value <= 64)
 					{
 					fileInfoPtr->numberBits = 8;
@@ -5322,9 +5332,6 @@ SInt16 ReadArcViewHeader (
 						
 						}	// end "else if (value == 32)"
 							
-//					fileInfoPtr->numberBins = 
-//										(UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
-					
 					}	// end "if (tReturnCode == 0)"
 					
 				else	// value < 8 || value > 64
@@ -5460,7 +5467,7 @@ SInt16 ReadArcViewHeader (
 								
 			if (tReturnCode == 0 && 
 					value > 0 && 
-						value > (SInt32)(fileInfoPtr->numberColumns*fileInfoPtr->numberBytes))
+					value > (SInt32)(fileInfoPtr->numberColumns*fileInfoPtr->numberBytes))
 				fileInfoPtr->numberPostChannelBytes = value - 
 										fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
 			
@@ -5563,7 +5570,8 @@ SInt16 ReadArcViewHeader (
 						
 				fileInfoPtr->format = kArcViewType;
 				
-						// For now the ancillary informaton will come from the ERDAS .trl file.
+						// For now the ancillary informaton will come from the ERDAS .trl
+						// file.
 				
 				fileInfoPtr->ancillaryInfoformat = kErdas74Type;
 				
@@ -5578,7 +5586,7 @@ SInt16 ReadArcViewHeader (
 					
 						// Get map information from a world file if it exists. It will 
 						// override any that has already been loaded.
-						// now being read later
+						// Now being read later
 				
 				//ReadArcViewWorldFile (fileInfoPtr);
 				
@@ -5622,7 +5630,7 @@ SInt16 ReadArcViewHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5639,7 +5647,7 @@ SInt16 ReadArcViewHeader (
 //	Value Returned:	true - if ArcView blw file found and read.
 //							false - if ArcView blw file not found and read.
 //
-// Called By:			ReadArcViewHeader in SOpnImag.cpp
+// Called By:			ReadArcViewHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2000
 //	Revised By:			Larry L. Biehl			Date: 04/03/2019
@@ -5692,7 +5700,8 @@ Boolean ReadArcViewWorldFile (
 				// an image file then we don't need it for now and need to look for
 				// the ArcView header file.
 			
-		imageFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
+		imageFileNamePtr =
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 				// The suffix for the planar map information file consists of the
 				// 1st and 3rd characters in the image file suffix plus w as the third
@@ -5705,7 +5714,8 @@ Boolean ReadArcViewWorldFile (
 					
 		blwFileStreamPtr = &blwFileStream;		
 		InitializeFileStream (blwFileStreamPtr, fileStreamPtr);
-		blwFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (blwFileStreamPtr);
+		blwFileNamePtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (blwFileStreamPtr);
 		
 		numberCharacters = blwFileNamePtr[0];
 		suffix[0] = 4;	
@@ -5731,8 +5741,7 @@ Boolean ReadArcViewWorldFile (
 			RemoveCharsNoCase ((char*)"\0.???\0", blwFileNamePtr);
 			
 			}	// end "else suffix is not .tiff"
-				
-		//ConcatFilenameSuffix (blwFileNamePtr, (StringPtr)T2A(suffix));
+		
 		ConcatFilenameSuffix (blwFileNamePtr, suffix);
 		
 				// Force the multibyte and unicode versions of the file name to be remade.
@@ -5750,12 +5759,10 @@ Boolean ReadArcViewWorldFile (
 
 			suffix[4] = 'W';
 			RemoveCharsNoCase ((char*)"\0.???\0", blwFileNamePtr);
-			//ConcatFilenameSuffix (blwFileNamePtr, (StringPtr)T2A(suffix));
 			ConcatFilenameSuffix (blwFileNamePtr, suffix);
 		
-					// Force the multibyte and unicode versions of the file name to be remade.
-				
-			//SetFileDoesNotExist (blwFileStreamPtr, kKeepUTF8CharName);
+					// Force the multibyte and unicode versions of the file name to
+					// be remade.
 
 			errCode = OpenFileReadOnly (blwFileStreamPtr, 
 												kResolveAliasChains, 
@@ -5794,7 +5801,7 @@ Boolean ReadArcViewWorldFile (
 			{
 					// Get the horizontal (column) interval.	
 					
-			#if defined multispec_lin
+			#if defined multispec_wx
             CharPtr savedcharptr = blwRecordPtr;
 			#endif
 			
@@ -5813,15 +5820,7 @@ Boolean ReadArcViewWorldFile (
 				
 				}	// end "if (commaPtr != NULL)"
 			
-			/*
-			char		*old_locale,
-						*saved_locale;
-			
-			old_locale = setlocale (LC_NUMERIC, NULL);
-			saved_locale = strdup (old_locale);
-			setlocale (LC_NUMERIC, "de-DE");
-			*/
-			returnCode = sscanf (blwRecordPtr, 
+			returnCode = sscanf (blwRecordPtr,
 										"%lf %lf %lf %lf %lf %lf",
 										&dataValue1,
 										&dataValue2,
@@ -5832,7 +5831,7 @@ Boolean ReadArcViewWorldFile (
 			
 			//setlocale (LC_NUMERIC, saved_locale);
 									
-			#if defined multispec_lin
+			#if defined multispec_wx
 				blwRecordPtr = savedcharptr;
 			#endif
 								
@@ -5844,7 +5843,7 @@ Boolean ReadArcViewWorldFile (
 				if (fileInfoPtr->mapProjectionHandle != NULL)
 					{ 								
 					mapProjectionInfoPtr = (MapProjectionInfoPtr)
-												GetHandlePointer (fileInfoPtr->mapProjectionHandle);
+											GetHandlePointer (fileInfoPtr->mapProjectionHandle);
 															
 					LoadPlanarCoordinates (mapProjectionInfoPtr,
 													dataValue1,
@@ -5853,24 +5852,7 @@ Boolean ReadArcViewWorldFile (
 													dataValue4,
 													dataValue5,
 													dataValue6);
-					/*										
-					if (dataValue2 == 0 && dataValue3 == 0)
-						{
-								// This is non rotated or skewed image
-							
-						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 0;
-						                                                              
-						mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = dataValue1;
-						mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = -dataValue4; 
-	                                                                               
-						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = dataValue5;
-						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = dataValue6; 
-                                                                      
-						mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = dataValue5;
-						mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = dataValue6;
 						
-						}	// end "if (dataValue2 == 0 && dataValue3 == 0)"
-					*/					
 					}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
 				
 				}	// end "if (returnCode == 6)"
@@ -5891,7 +5873,7 @@ Boolean ReadArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5908,7 +5890,7 @@ Boolean ReadArcViewWorldFile (
 //							=5, shape file does not intersect with window
 //							=6, shape file may be corrupted
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/2000
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -6006,8 +5988,8 @@ SInt16 ReadArcViewShapeFile (
 			
 		mapProjectionHandle = GetFileMapProjectionHandle2 (gActiveImageWindowInfoH);											
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																	mapProjectionHandle,
-																	kLock);	
+																				mapProjectionHandle,
+																				kLock);
 																	
 				// Open the shape file.
 							
@@ -6020,7 +6002,8 @@ SInt16 ReadArcViewShapeFile (
 		
 		posOff = 100;
 		if (errCode == noErr)
-			errCode = MSetMarker (shapeFileStreamPtr, fsFromStart, posOff, kErrorMessages);
+			errCode = MSetMarker (
+									shapeFileStreamPtr, fsFromStart, posOff, kErrorMessages);
 		
 				// Read the shape file records.
 		
@@ -6072,9 +6055,10 @@ SInt16 ReadArcViewShapeFile (
 				notDoneFlag = FALSE;
 					
 			if (gStatusProgressControlHandle != NULL)		
-				MSetControlValue ((WindowPtr)gStatusDialogPtr,
-										gStatusProgressControlHandle, 
-										(SInt32)((double)totalCount/shapeInfoPtr->fileLength*100));
+				MSetControlValue (
+								(WindowPtr)gStatusDialogPtr,
+								gStatusProgressControlHandle,
+								(SInt32)((double)totalCount/shapeInfoPtr->fileLength*100));
 										
 			if (!CheckSomeEvents (osMask+keyDownMask+mDownMask+mUpMask))
 				{
@@ -6136,7 +6120,8 @@ SInt16 ReadArcViewShapeFile (
 				      
 				      if (convertToMapUnitsFlag)
 					      includeFlag = 
-					      	ConvertLatLongRectToMapRect (mapProjectionInfoPtr, &boundingBox);
+					      	ConvertLatLongRectToMapRect (mapProjectionInfoPtr,
+																		&boundingBox);
 				      
 				      if (includeFlag)
 				      	includeFlag = ShapeAndWindowAreasIntersect (
@@ -6169,8 +6154,9 @@ SInt16 ReadArcViewShapeFile (
 				      
 				      if (convertToMapUnitsFlag)
 							{
-									// Note that one needs to check all four corners to be sure that
-									// the bounding box does include all four corners.
+									// Note that one needs to check all four corners to be
+									// sure that the bounding box does include all four
+									// corners.
 									
 							boundingBox2 = boundingBox;
 							boundingBox3 = boundingBox;
@@ -6179,11 +6165,13 @@ SInt16 ReadArcViewShapeFile (
 							boundingBox2.bottom = boundingBox.top;
 									
 					      includeFlag = 
-					      		ConvertLatLongRectToMapRect (mapProjectionInfoPtr, &boundingBox);
+					      		ConvertLatLongRectToMapRect (mapProjectionInfoPtr,
+																			&boundingBox);
 									
 							if (includeFlag)
 								includeFlag = 
-					      		ConvertLatLongRectToMapRect (mapProjectionInfoPtr, &boundingBox2);
+					      		ConvertLatLongRectToMapRect (mapProjectionInfoPtr,
+																			&boundingBox2);
 									
 							if (includeFlag)
 								{
@@ -6194,19 +6182,24 @@ SInt16 ReadArcViewShapeFile (
 								
 								}	// end "if (includeFlag)"
 								
-									// Also need to allow for central meridian if within the bounding
-									// box. The lowest point in map units may not be the corners.
+									// Also need to allow for central meridian if within the
+									// bounding box. The lowest point in map units may not be
+									// the corners.
 							
-							longitudeCentralMeridian = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
+							longitudeCentralMeridian =
+								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
 							if (longitudeCentralMeridian == 0)
-								longitudeCentralMeridian = mapProjectionInfoPtr->gridCoordinate.falseOriginLongitude;
+								longitudeCentralMeridian =
+									mapProjectionInfoPtr->gridCoordinate.falseOriginLongitude;
 								
-							if (includeFlag && longitudeCentralMeridian < boundingBox3.right &&
-																					longitudeCentralMeridian > boundingBox3.left)
+							if (includeFlag &&
+									longitudeCentralMeridian < boundingBox3.right &&
+										longitudeCentralMeridian > boundingBox3.left)
 								{
 								doublePoint.h = longitudeCentralMeridian; 
 								doublePoint.v = MIN (boundingBox3.bottom, boundingBox3.top);
-								includeFlag = ConvertLatLongPointToMapPoint (mapProjectionInfoPtr, &doublePoint);
+								includeFlag = ConvertLatLongPointToMapPoint (
+																mapProjectionInfoPtr, &doublePoint);
 								
 								if (includeFlag)
 									boundingBox.top = MIN (boundingBox.top, doublePoint.v);
@@ -6217,7 +6210,8 @@ SInt16 ReadArcViewShapeFile (
 							}	// end "if (convertToMapUnitsFlag)"
 				      
 				      if (includeFlag)
-				      	includeFlag = ShapeAndWindowAreasIntersect (overlayNumber, &boundingBox);
+				      	includeFlag = ShapeAndWindowAreasIntersect (
+																		overlayNumber, &boundingBox);
 		      		break;
 		      	
 		      	}	// end "switch (shapeType)"
@@ -6245,13 +6239,27 @@ SInt16 ReadArcViewShapeFile (
 		      			
 		      		case 3:	// PolyLine shape
 		      		case 5:	// Polygon shape
-							numberParts = GetLongIntValue ((char*)&bufferPtr[bufferStart+44]);
-							numberPoints = GetLongIntValue ((char*)&bufferPtr[bufferStart+48]);
-		      			doubleNumberBytes = (double)44 + numberParts * 4 + numberPoints * 16;	
+		      		case 15:	// PolygonZ shape
+							numberParts =
+										GetLongIntValue ((char*)&bufferPtr[bufferStart+44]);
+							numberPoints =
+										GetLongIntValue ((char*)&bufferPtr[bufferStart+48]);
+		      			doubleNumberBytes =
+										(double)44 + numberParts * 4 + numberPoints * 16;
+		      			if (shapeType == 15)
+		      				{
+		      				doubleNumberBytes += (double)16 + numberPoints * 8;
+								
+		      				if (doubleNumberBytes < recordLength)
+											// M information may be available. Add that.
+		      					doubleNumberBytes += (double)16 + numberPoints * 8;
+									
+		      				}	// end "if (shapeType == 15)"
 		      																
 		      			if (doubleNumberBytes == (double)recordLength)
 		      				{
-			      			arcViewPolyLinePtr = (ArcViewPolyLinePtr)arcViewRecordHeaderPtr;
+			      			arcViewPolyLinePtr =
+													(ArcViewPolyLinePtr)arcViewRecordHeaderPtr;
 			      			arcViewPolyLinePtr->box = boundingBox;
 			      			arcViewPolyLinePtr->numParts = numberParts;
 			      			arcViewPolyLinePtr->numPoints = numberPoints;
@@ -6260,7 +6268,7 @@ SInt16 ReadArcViewShapeFile (
 			      			for (index=0; index<numberParts; index++)
 			      				{
 			      				arcViewPolyLinePtr->parts[index] = 
-			      											GetLongIntValue ((char*)&bufferPtr[bufferIndex]);
+												GetLongIntValue ((char*)&bufferPtr[bufferIndex]);
 			      				bufferIndex += 4;
 			      				
 			      				}	// end "for (index=0; index<..."
@@ -6282,12 +6290,12 @@ SInt16 ReadArcViewShapeFile (
 			      			if (convertToMapUnitsFlag)
 				      			{	
 				      			doublePtr = (SDouble*)&arcViewPolyLinePtr->parts[
-				      													arcViewPolyLinePtr->numParts];
+																		arcViewPolyLinePtr->numParts];
 			      											
 				      			for (index=0; index<numberPoints; index++)
 				      				{
 										ConvertLatLongPointToMapPoint (mapProjectionInfoPtr, 
-																					(ArcViewDoublePointPtr)doublePtr);
+																	(ArcViewDoublePointPtr)doublePtr);
 				      				doublePtr += 2;
 				      
 				      				}	// end "for (index=0; index<count; index++)"
@@ -6334,10 +6342,13 @@ SInt16 ReadArcViewShapeFile (
 				      			{	
 			      				doublePtr = (SDouble*)&arcViewMultiPointPtr->points[0];
 			      											
-				      			for (index=0; index<arcViewMultiPointPtr->numPoints; index++)
+				      			for (index=0;
+											index<arcViewMultiPointPtr->numPoints;
+												index++)
 				      				{
-										ConvertLatLongPointToMapPoint (mapProjectionInfoPtr, 
-																					(ArcViewDoublePointPtr)doublePtr);
+										ConvertLatLongPointToMapPoint (
+																	mapProjectionInfoPtr,
+																	(ArcViewDoublePointPtr)doublePtr);
 				      				doublePtr += 2;
 				      
 				      				}	// end "for (index=0; index<count; index++)"
@@ -6437,26 +6448,8 @@ SInt16 ReadArcViewShapeFile (
 				
 				if (MSetHandleSize (&shapeInfoPtr->vectorDataHandle, outputIndex))
 					returnCode = 0;
-				/*
-				numberChars = sprintf ((char*)gTextString3,
-															" returnCode: %3ld%s", 
-															returnCode,
-															gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-	
-				numberChars = sprintf ((char*)gTextString3,
-															" numberRecords: %3ld%s", 
-															numberRecords,
-															gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-	
-				numberChars = sprintf ((char*)gTextString3,
-															" outputIndex: %3ld%s", 
-															outputIndex,
-															gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-				*/			
-						// Make sure that the windows are updated before the shape file 
+
+						// Make sure that the windows are updated before the shape file
 						// is drawn.
 						// Don't do this now since change in CopyOffscreen routine in 8/2013
 									
@@ -6488,7 +6481,7 @@ SInt16 ReadArcViewShapeFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6512,17 +6505,17 @@ SInt16 ReadArcViewShapeFile (
 //									opened yet.
 //							5 - This is a shape file but it does not intersect with the 
 //									active image window.
-//							6 - no map information has been defined for the active image window. 
-//									The shape file cannot be loaded.
+//							6 - no map information has been defined for the active image
+//									window. The shape file cannot be loaded.
 //							7 - This is a shape file in a multiple selection list. The shape
 //									file will be ignored.
 //						  10 - Overlay does not exist yet in the overlay list.  It needs
 //										to be load but converted from lat-long to map units.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2000
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 10/12/2019
 
 SInt16 ReadArcViewShapeHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -6595,8 +6588,8 @@ SInt16 ReadArcViewShapeHeader (
 			// Now check if this is an Arc View Index file (suffix of '.shx')
 			// or a dBASE file (suffix of '.dbf'). If so, then look for a 
 			// corresponding Arc View Shape file (suffix of '.shp').
-	//wxBell ();
-	FileStringPtr		filePathPtr;		
+
+	FileStringPtr		filePathPtr;
 	UInt16				numSuffixChars;
 	SInt16				fileNameCode = 0;
 	
@@ -6628,7 +6621,6 @@ SInt16 ReadArcViewShapeHeader (
 	if (fileNameCode != 0)
 		{
 		if (formatOnlyCode == kShapeFiles)
-		//if (formatOnlyCode != kLoadHeader)
 			{
 					// This is for just searching for shape files. We will ignore
 					// any files with .shx, .dgf, .sbx & .sbn suffixes.
@@ -6646,11 +6638,6 @@ SInt16 ReadArcViewShapeHeader (
 		InitializeFileStream (shapeFileStreamPtr, fileStreamPtr);
 		shapeFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (shapeFileStreamPtr);
 		
-				// Close the input file. It is a header file and it has already
-				// been ready. We don't need it any more.
-				
-		//CloseFile (fileStreamPtr);
-	
 				// Remove the '.shx', '.dbf' or '.sbx' suffix at the end of the file name
 				// and then look for a corresponding '.shp' file.
 			
@@ -6815,13 +6802,14 @@ SInt16 ReadArcViewShapeHeader (
       	case 5:	// Polygon shape
       	case 8:	// MultiPoint shape
       	case 11:	// PointZ shape
+      	case 15:	// PolygonZ shape
       				// MultiSpec can read these shape files.
       				
       		string = 0;
       		break;
       		
       	case 13:	// PolyLineZ shape
-      	case 15:	// PolygonZ shape
+      	//case 15:	// PolygonZ shape
       	case 18:	// MultiPointZ shape
       		string = IDS_Alert76;
       		break;
@@ -6918,7 +6906,8 @@ SInt16 ReadArcViewShapeHeader (
 			
 		}	// end "fileType == kArcViewShapeType && overlayCheckReturn == 0"
 		
-	if (fileType == kArcViewShapeType && (overlayCheckReturn == 0 || overlayCheckReturn == 10))
+	if (fileType == kArcViewShapeType &&
+									(overlayCheckReturn == 0 || overlayCheckReturn == 10))
 		{
 				// Load the shape file structure.
 		
@@ -6955,7 +6944,7 @@ SInt16 ReadArcViewShapeHeader (
 			
 			continueFlag = (shapeInfoPtr != NULL);
 	
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (continueFlag)
 					{
 					shapeInfoPtr->fileStreamCPtr = new CMFileStream;
@@ -6964,7 +6953,7 @@ SInt16 ReadArcViewShapeHeader (
 						continueFlag = FALSE;
 						
 					}	// end "if (continueFlag)"
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			}	// end "if (continueFlag)"
 						
@@ -6972,13 +6961,7 @@ SInt16 ReadArcViewShapeHeader (
 			{		
 					// Get the info for the dbf if it is available.
 					
-//			char			fieldName[32];
-//			SInt32		numberRecords;
-//			SInt32		numberFields;
-//			int			fieldWidth, numberDecimals;
-//			DBFFieldType		fieldType;
-											
-			#if include_gdal_capability		
+			#if include_gdal_capability
 				returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
 																filePathString,
 																510,
@@ -6988,22 +6971,7 @@ SInt16 ReadArcViewShapeHeader (
 				if (returnCode == noErr)
 					dbfHandle = DBFOpen ((char*)filePathPtr, "rb");
 			#endif	// include_gdal_capability
-			/*
-			if (dbfHandle != NULL)
-				{
-				numberRecords = DBFGetRecordCount (dbfHandle);				
-				numberFields = DBFGetFieldCount (dbfHandle);
-				
-				fieldType = DBFGetFieldInfo (dbfHandle, 1, fieldName, &fieldWidth, &numberDecimals);
-				
-				//int DBFReadIntegerAttribute (dbfHandle, 1, 1);
-				
-				//DBFReadAttribute (dbfHandle, int hEntity, 1, char chReqType);
-				
-				//int DBFLoadRecord (dbfHandle, 2);
-			
-				}	// end "if (dbfHandle != NULL)"
-			*/			
+
 					// Copy file stream parameters to shape file structure.
 			
 			shapeFileStreamPtr = GetFileStreamPointer (shapeInfoPtr);			
@@ -7014,7 +6982,7 @@ SInt16 ReadArcViewShapeHeader (
 					// the vector is in (or being converted to) map units.
 			
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																						mapProjectionHandle);		
+																					mapProjectionHandle);
 			shapeInfoPtr->geodetic = mapProjectionInfoPtr->geodetic;
 			shapeInfoPtr->gridCoordinate = mapProjectionInfoPtr->gridCoordinate;
 			
@@ -7105,31 +7073,6 @@ SInt16 ReadArcViewShapeHeader (
 				gNumberShapeFiles++;
 				returnCode = 0;
 				
-						// Now load the list for the active image window.
-				/*							
-				windowCount = 0;
-				windowListIndex = kImageWindowStart;
-				do
-					{
-					windowPtr = gWindowList[windowListIndex];         
-					windowInfoHandle = GetWindowInfoHandle (windowPtr);
-					windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-					
-					if (AreasIntersect (&windowInfoPtr->boundingMapRectangle, 
-													&boundingBox))
-						{				
-						windowInfoPtr->overlayList[windowInfoPtr->numberOverlays].index = 
-																				(SInt8)(*shapeFileIndexPtr + 1);	
-																								
-						windowInfoPtr->numberOverlays++;
-						
-						}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
-					
-					windowListIndex++;
-					windowCount++;
-																
-					}	while (windowCount<gNumberOfIWindows);
-				*/				
 						// If this is a new shape file and not a reloaded shape file, add it
 						// to the active image window list.
 						
@@ -7182,7 +7125,7 @@ SInt16 ReadArcViewShapeHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7200,7 +7143,7 @@ SInt16 ReadArcViewShapeHeader (
 //	Value Returned:	0 - if projection information was read.
 //							1 - if projection information was not read.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/2009
 //	Revised By:			Larry L. Biehl			Date: 01/17/2019
@@ -7242,7 +7185,8 @@ void ReadGTOPO30PrjFile (
 			
 	prjFileStreamPtr = &prjFileStream;		
 	InitializeFileStream (prjFileStreamPtr, fileStreamPtr);
-	prjFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
+	prjFileNamePtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (prjFileStreamPtr);
 			
 			// Remove the ".bil", ".bsq", ".bip" at the end.
 					
@@ -7340,13 +7284,17 @@ void ReadGTOPO30PrjFile (
 					// Get the projection name
 			
 			if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"GEOGRAPHIC", 10) == 0)
-				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
+				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kGeographicRSCode;
 						
-			else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"ORTHOGRAPH", 10) == 0)
+			else if (CompareStringsNoCase (
+											&gTextString[1], (UCharPtr)"ORTHOGRAPH", 10) == 0)
 				mapProjectionInfoPtr->gridCoordinate.projectionCode = kOrthographicCode;
 				
-			else if (CompareStringsNoCase (&gTextString[1], (UCharPtr)"LAMBERT_AZ", 10) == 0)
-				mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertAzimuthalEqualAreaCode;
+			else if (CompareStringsNoCase (
+											&gTextString[1], (UCharPtr)"LAMBERT_AZ", 10) == 0)
+				mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																	kLambertAzimuthalEqualAreaCode;
 				
 			}	// end "if (tReturnCode == 0)"
 			
@@ -7495,8 +7443,8 @@ void ReadGTOPO30PrjFile (
 		if (errCode == noErr)
 			{
 					// Find "Parameters" in the buffer.	
-					// Will not use this for now until there is an example file that includes
-					// PARAMETERS to test with.		
+					// Will not use this for now until there is an example file that
+					// includes PARAMETERS to test with.
 									
 			strPtr = prjBufferPtr;					
 			tReturnCode = GetFileHeaderString (kFileIOStrID, 
@@ -7511,10 +7459,10 @@ void ReadGTOPO30PrjFile (
 								
 			if (tReturnCode == 0)
 				{
-						// The projection info line was found.  Now read the 15 strings that 
-						// should be in this line that are separated by commas.
+						// The projection info line was found.  Now read the 15 strings
+						//	that should be in this line that are separated by commas.
 						
-				#if defined multispec_lin
+				#if defined multispec_wx
 					CharPtr savedcharptr = strPtr;
 				#endif
 						
@@ -7523,20 +7471,18 @@ void ReadGTOPO30PrjFile (
 											&realValues[0], 
 											(char*)gTextString);
 											
-				#if defined multispec_lin
+				#if defined multispec_wx
 					strPtr = savedcharptr;
 				#endif
 										
-					//			if (returnCode >= 8)
-					//				SetProjectionParameters (mapProjectionInfoPtr, realValues, kPackedDegrees, kDegrees);
-				
 				}	// end "if (tReturnCode == 0)"
 			
 			}	// end "if (errCode == noErr)" 	
 			
 				// Adjust the upper left map location if needed.
 				
-		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode)
+		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																						kGeographicRSCode)
 			{
 			if (mapUnitsCode == kAVDecimalSecondsCode)
 				{
@@ -7570,7 +7516,7 @@ void ReadGTOPO30PrjFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7622,10 +7568,10 @@ void ReleaseShapeFileMemory (
 			fileStreamPtr = GetFileStreamPointer (shapeInfoPtr);
 			CloseFile (fileStreamPtr);
 	
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (shapeInfoPtr->fileStreamCPtr != NULL)
 					delete shapeInfoPtr->fileStreamCPtr;
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 		
 			UnlockAndDispose (shapeHandlePtr[overlayIndex]);
 			shapeHandlePtr[overlayIndex] = NULL;
@@ -7646,7 +7592,7 @@ void ReleaseShapeFileMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7699,7 +7645,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7722,12 +7668,10 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 Boolean WindowBoundingAreaAndRectIntersect (
 				WindowPtr							windowPtr,
-//				SDoubleRect*		 				boundingRectPtr,
 				DoubleRect*							boundingRectPtr,
 				Boolean								inputIsMapTypeFlag)
 
 {
-//	DoubleRect*							boundingRectanglePtr;
 	WindowInfoPtr						windowInfoPtr;
 	Handle								windowInfoHandle;
 	Boolean								areasIntersectFlag = FALSE;
@@ -7742,19 +7686,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 														windowInfoPtr,
 										 				boundingRectPtr,
 														inputIsMapTypeFlag);
-	/*
-	if (windowInfoPtr != NULL)
-		{
-		boundingRectanglePtr = &windowInfoPtr->boundingMapRectangle;
-		if (!inputIsMapTypeFlag)
-			boundingRectanglePtr = &windowInfoPtr->boundingLatLongRectangle;
-		
-		if (AreasIntersect (boundingRectanglePtr, 
-									boundingRectPtr))
-			areasIntersectFlag = TRUE;
-			
-		}	// end "if (windowInfoPtr != NULL)"
-	*/		
+
 	return (areasIntersectFlag);
 	
 }	// end "WindowBoundingAreaAndRectIntersect"
@@ -7762,7 +7694,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7778,7 +7710,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 //
 //	Value Returned:	
 //
-// Called By:			OverlayDialogOK
+// Called By:			OverlayDialogOK in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/2006
 //	Revised By:			Larry L. Biehl			Date: 07/08/2011
@@ -7814,7 +7746,7 @@ void SetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7831,7 +7763,7 @@ void SetLastVectorColorAndWidth (
 //	Value Returned:	True, if file was read in okay
 //							Fale, if file was not read in okay
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
 //	Revised By:			Larry L. Biehl			Date: 04/29/2012

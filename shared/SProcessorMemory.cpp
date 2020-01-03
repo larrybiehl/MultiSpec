@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,29 +20,17 @@
 //	Brief description:	This file contains routines that release memory assigned to 
 //								the structure related to the various non-project processors.
 //
-//	Functions in file:	void			ReleaseClusterSpecsMemory
-//								void			ReleaseListDataSpecsMemory
-//								void			ReleaseListResultsSpecsMemory
-//								void 			ReleaseNonProjProcessorStructures
-//								void			ReleasePrincipalCompSpecsMemory
-//								void 			ReleaseReformatSpecsMemory
-//								void			ReleaseStatisticsImageSpecsMemory
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
            
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -58,7 +46,7 @@
 //
 // Value Returned:	
 //
-// Called By:			DisposeFileInfoHandle in SDatFile.cpp
+// Called By:			DisposeFileInfoHandle in SFileInfo.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/2013
 //	Revised By:			Larry L. Biehl			Date: 10/01/2013
@@ -98,7 +86,7 @@ void ClearNonProjProcessorFileInfoHandleReferences (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -190,7 +178,7 @@ void ClearNonProjProcessorWindowInfoHandleReferences (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -206,8 +194,8 @@ void ClearNonProjProcessorWindowInfoHandleReferences (
 //
 // Value Returned:	None			
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							LoadBiPlotDataSpecs in biPlotData.c
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							LoadBiPlotDataSpecs in SBiPlotData.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/1994
 //	Revised By:			Larry L. Biehl			Date: 12/06/1995
@@ -248,7 +236,7 @@ void ReleaseBiPlotDataSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -264,7 +252,7 @@ void ReleaseBiPlotDataSpecsMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:			CloseProjectStructure in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1989
 //	Revised By:			Larry L. Biehl			Date: 07/23/1997
@@ -320,7 +308,7 @@ void ReleaseClusterSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -336,7 +324,7 @@ void ReleaseClusterSpecsMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:						LoadEvaluateCovariancesSpecs in other.c
+// Called By:			LoadEvaluateCovariancesSpecs in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1990
 //	Revised By:			Larry L. Biehl			Date: 05/13/1998
@@ -380,7 +368,7 @@ void ReleaseEvalCovarianceHandleMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -396,7 +384,7 @@ void ReleaseEvalCovarianceHandleMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:						LoadEvaluateCovariancesSpecs in other.c
+// Called By:			LoadEvaluateCovariancesSpecs in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1990
 //	Revised By:			Larry L. Biehl			Date: 05/13/1998
@@ -413,7 +401,7 @@ void ReleaseEvalTransformHandleMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -429,8 +417,8 @@ void ReleaseEvalTransformHandleMemory (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListDataControl in listData.c
-//							LoadListDataSpecs in listData.c
+// Called By:			ListDataControl in SListData.cpp
+//							LoadListDataSpecs in SListData.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/25/1990
 //	Revised By:			Larry L. Biehl			Date: 03/01/1991
@@ -475,7 +463,7 @@ void ReleaseListDataSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -530,7 +518,7 @@ void ReleaseListResultsSpecsMemory (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -547,7 +535,7 @@ void ReleaseListResultsSpecsMemory (
 //
 // Value Returned:	
 //
-// Called By:			ExitMultiSpec in multiSpec.c
+// Called By:			ExitMultiSpec in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 02/20/1991
 //	Revised By:			Larry L. Biehl			Date: 01/31/2013
@@ -605,7 +593,7 @@ void ReleaseNonProjProcessorStructures (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -621,8 +609,8 @@ void ReleaseNonProjProcessorStructures (void)
 //
 // Value Returned:	None			
 // 
-// Called By:			PrincipalComponentControl in principalComponent.c
-//							LoadPrincipalComponentSpecs in principalComponent.c
+// Called By:			PrincipalComponentControl in SPrincipalComponents.cpp
+//							LoadPrincipalComponentSpecs in SPrincipalComponents.cpp
 //
 //	Global Data:
 //
@@ -674,7 +662,7 @@ void ReleasePrincipalCompSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -690,8 +678,8 @@ void ReleasePrincipalCompSpecsMemory (
 //
 // Value Returned:	None			
 // 
-// Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
-//							LoadAreasToThematicSpecs in fieldsToThematicFile.c
+// Called By:			AreasToThematicFileControl in SFieldsToThematicFile.cpp
+//							LoadAreasToThematicSpecs in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
 //	Revised By:			Larry L. Biehl			Date: 04/10/2013
@@ -723,34 +711,24 @@ void ReleaseReformatSpecsMemory (
 				// Release memory for reformat feature pointer vector if it has been 
 				// allocated.											
 				
-		//reformatOptionsPtr->channelPtr = CheckAndDisposePtr (
-		//															reformatOptionsPtr->channelPtr);
 		UnlockAndDispose (reformatOptionsPtr->channelHandle);
 				
 				// Release memory for transform coeffiecents vector if it has been 
 				// allocated.														
 				
-		//reformatOptionsPtr->coefficientsPtr = CheckAndDisposePtr (
-		//													reformatOptionsPtr->coefficientsPtr);
 		UnlockAndDispose (reformatOptionsPtr->coefficientsHandle);
 				
 				// Release memory for reformat principal component pointer vector if it 
 				// has been allocated.											
 				
-		//reformatOptionsPtr->pcChannelPtr = CheckAndDisposePtr (
-		//													reformatOptionsPtr->pcChannelPtr);
 		UnlockAndDispose (reformatOptionsPtr->pcChannelHandle);
 				
 				// Release memory for transform channels vector if it has been allocated.														
 				
-		//reformatOptionsPtr->transformChannelPtr = CheckAndDisposePtr (
-		//												reformatOptionsPtr->transformChannelPtr);
 		UnlockAndDispose (reformatOptionsPtr->transformChannelHandle);
 				
 				// Release memory for transform channels vector if it has been allocated.														
 				
-		//reformatOptionsPtr->transformOperatorPtr = CheckAndDisposePtr (
-		//												reformatOptionsPtr->transformOperatorPtr);
 		UnlockAndDispose (reformatOptionsPtr->transformOperatorHandle);
 			
 				// Release memory for reformat classes vector if it has been allocated.															
@@ -762,13 +740,14 @@ void ReleaseReformatSpecsMemory (
 				// allocated.																		
 				
 		reformatOptionsPtr->ioOutBufferPtr = (HUCharPtr)CheckAndDisposePtr (
-											(Ptr)reformatOptionsPtr->ioOutBufferPtr);
+														(Ptr)reformatOptionsPtr->ioOutBufferPtr);
 		reformatOptionsPtr->ioOutAdjustBufferPtr = NULL;
 		/*									
 				// If the input file information pointer is given make sure that
 				// the channel description handle or class description handle 
-				// is not disposed of if it is that same as that for the input
+				// is not disposed of if it is the same as that for the input
 				// file information structure.
+				// This is now handled differently.
 				
 		if (inputFileInfoPtr != NULL)
 			{										
@@ -803,7 +782,7 @@ void ReleaseReformatSpecsMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -819,8 +798,8 @@ void ReleaseReformatSpecsMemory (
 //
 // Value Returned:	None				
 // 
-// Called By:			StatisticsImageControl in statisticsImage.c
-//							LoadStatisticsImageSpecs in statisticsImage.c
+// Called By:			StatisticsImageControl in SStatisticsImage.cpp
+//							LoadStatisticsImageSpecs in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1991
 //	Revised By:			Larry L. Biehl			Date: 11/19/1991

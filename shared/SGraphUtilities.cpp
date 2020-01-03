@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,32 +21,6 @@
 //	Brief description:	The routines in this file are used to handle Graph
 //								windows in MultiSpec.
 //
-//	Functions in file:	Boolean 				CheckGraphVectorsSize
-//								Boolean 				CheckSomeGraphWindowEvents
-//								void 					CopyGraphYVector
-//								Boolean				CreateGraph
-//								CMGraphView* 		CreateGraphWindow
-//								void 					DisposeOfGraphRecordMemory
-//								void 					DoGraphWActivateEvent
-//								void 					DoGraphWMouseDnContent
-//								Boolean 				DoGraphWiCheckSomeGraphWindowEventsndowEdit
-//								void					DoGraphWindowGrow
-//								void 					DoGraphWUpdateEvent
-//								Boolean				DrawGraph
-//								void					DrawGraphGrowIcon
-//								void					DrawGraphLabels
-//								void					DrawGraphTitle
-//								void					ForceGraphCodeResourceLoad
-//								GraphPtr				GetGraphRecordPtr
-//								void					GetGraphLabels
-//								void					GetGraphTitle
-//								Handle 				GetGraphRecordHandle
-//								void 					LoadGraphSupportArrays
-//								Boolean				LoadGraphXVector
-//								void					LoadGraphYVector
-//								void					LoadGraphYVector2
-//								void 					SetGraphWindowTitle
-//								void 					UpdateGraphControls
 /*
 	int numberChars = sprintf ((char*)gTextString3,
 			" SGraphUtilities:LoadGraphXVector (xDataMin, xDataMax): %f, %f%s",
@@ -59,16 +33,15 @@
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin  
-	#include	"LGraphDoc.h" 
-	#include	"LGraphFrame.h"
-	#include	"LGraphView.h"  
-	#include "LMultiSpec.h" 
+#if defined multispec_wx  
+	#include	"xGraphDoc.h" 
+	#include	"xGraphFrame.h"
+	#include	"xGraphView.h"  
+	#include "xMultiSpec.h" 
    #include "SGraphic.h"
-   //#include "SProtype.h"
    #include "wx/evtloop.h"
    #include "SPrototypes.h"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#include	"MGraphView.h"
@@ -82,8 +55,6 @@
 	#include	"WGraphFrame.h"	 
 #endif	// defined multispec_win
 
-//#include	"SExtGlob.h"
-
 #define	kXAxis			1
 #define	kYAxis			2
 #define	kBothXYAxes		3	
@@ -95,52 +66,52 @@
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 
-void			DrawGraphLabels (
-					GraphPtr								graphRecPtr);		
+void	DrawGraphLabels (
+				GraphPtr								graphRecPtr);
 
-void 			DrawGraphLegend (
-					GraphPtr								graphRecPtr);
+void	DrawGraphLegend (
+				GraphPtr								graphRecPtr);
 
-void			DrawGraphTitle (
-					GraphPtr								graphRecPtr);
+void	DrawGraphTitle (
+				GraphPtr								graphRecPtr);
 
-void			GetGraphTitle (
-					GraphPtr								graphRecordPtr, 
-					SInt32								lineStart, 
-					SInt32								columnStart, 
-					SInt32								lineEnd, 
-					SInt32								columnEnd);
+void	GetGraphTitle (
+				GraphPtr								graphRecordPtr,
+				SInt32								lineStart,
+				SInt32								columnStart,
+				SInt32								lineEnd,
+				SInt32								columnEnd);
 
-void	 		GetLikeWindowMinMax (
-					WindowPtr							imageWindowPtr,
-					double*								minPtr,
-					double*								maxPtr);	
+void	GetLikeWindowMinMax (
+				WindowPtr							imageWindowPtr,
+				double*								minPtr,
+				double*								maxPtr);
 					
-double 		GetUserHistogramBinWidth (
-					GraphPtr								graphRecordPtr,
-					double*								histogramBinWidthPtr,
-					double								xMin,
-					double								xMax);
+double	GetUserHistogramBinWidth (
+				GraphPtr								graphRecordPtr,
+				double*								histogramBinWidthPtr,
+				double								xMin,
+				double								xMax);
 					
-void 			SetLikeWindowMinMax (
-					WindowPtr							imageWindowPtr,
-					double								min,
-					double								max,
-					double								interval);
+void	SetLikeWindowMinMax (
+				WindowPtr							imageWindowPtr,
+				double								min,
+				double								max,
+				double								interval);
 
-void 			SetXGraphScale (
-					GraphPtr								graphRecordPtr);		
+void	SetXGraphScale (
+				GraphPtr								graphRecordPtr);
 
-void 			SetYGraphScale (
-					GraphPtr								graphRecordPtr);
+void 	SetYGraphScale (
+				GraphPtr								graphRecordPtr);
 
-void			UpdateSelectionGraphXAxisMinMax (
-					GraphPtr								graphPtr);
+void	UpdateSelectionGraphXAxisMinMax (
+				GraphPtr								graphPtr);
  
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -350,7 +321,7 @@ Boolean CheckGraphVectorsSize (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -367,7 +338,7 @@ Boolean CheckGraphVectorsSize (
 //
 // Value Returned:	None
 // 
-// Called By:			ListFieldData in listData.c
+// Called By:			ListFieldData in SListData.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1991
 //	Revised By:			Larry L. Biehl			Date: 04/06/2019
@@ -437,7 +408,7 @@ Boolean CheckSomeGraphWindowEvents (
 							
 						case inGoAway:
 							if (TrackGoAway (window, gEventRecord.where)) 
-																							return (FALSE);
+																						return (FALSE);
 							break;
 							
 						case inGrow:
@@ -476,7 +447,7 @@ Boolean CheckSomeGraphWindowEvents (
 						continueFlag = DoGraphWindowEdit (kCopy);
 							
 						if (!continueFlag)
-																					return (FALSE);
+																							return (FALSE);
 							
 						}
 					
@@ -613,7 +584,7 @@ Boolean CheckSomeGraphWindowEvents (
  	return (returnFlag); 
 #endif	// defined multispec_win 
    
-#ifdef multispec_lin
+#ifdef multispec_wx
    Boolean	quitFlag = FALSE;
    Boolean returnFlag = FALSE;
 	
@@ -651,7 +622,7 @@ Boolean CheckSomeGraphWindowEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -667,7 +638,7 @@ Boolean CheckSomeGraphWindowEvents (
 //
 // Value Returned:	None
 // 
-// Called By:			ShowGraphWindowSelection in selectionGraph.c
+// Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/31/1992
 //	Revised By:			Larry L. Biehl			Date: 07/31/1992			
@@ -726,7 +697,7 @@ void CopyGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -742,10 +713,10 @@ void CopyGraphYVector (
 // Value Returned:	True: if graph was successfully created.
 //							False: if graph was not successfully created.
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							ListFieldData in SLstData.cpp
-//							ShowGraphWindowSelection in SSelGraf.cpp
-//							HistogramStatsControl in statHistogram.c
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							ListFieldData in SListData.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
+//							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1991
 //	Revised By:			Larry L. Biehl			Date: 02/21/2019
@@ -799,7 +770,7 @@ Boolean CreateGraph	(
 					graphRecordPtr->graphViewCPtr->Invalidate ();	 
 			#endif	// defined multispec_win
 
-			#if defined multispec_lin
+			#if defined multispec_wx
             if (graphRecordPtr->graphViewCPtr != NULL)
 					{
 					//graphRecordPtr->graphViewCPtr->Invalidate ();
@@ -827,7 +798,7 @@ Boolean CreateGraph	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -877,7 +848,7 @@ void DisposeOfGraphRecordMemory (
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -961,7 +932,7 @@ void DoNextOrPreviousChannel	(
                             
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1025,13 +996,13 @@ Boolean DrawGraph	(
 				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 28);	// + 19
 			#endif	// defined multispec_win
 				
-			#if defined multispec_lin 
+			#if defined multispec_wx 
 				#if defined multispec_wxmac
 					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 10);	// 60
 				#else
 					bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19);
 				#endif
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 
 			}	// end "if (graphRecPtr->processorCode == kHistogramStatsProcessor)"
 
@@ -1045,9 +1016,9 @@ Boolean DrawGraph	(
 				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 15);
 			#endif	// defined multispec_win
 				
-			#if defined multispec_lin 
+			#if defined multispec_wx 
 				bottomInset = (SInt16)(graphRecPtr->textSize * 3.2 + 3*graphRecPtr->textScaling + 19);
-			#endif	// defined multispec_lin
+			#endif	// defined multispec_wx
 
 			}	// end "else graphRecPtr->processorCode != kHistogramStatsProcessor"
 			
@@ -1114,7 +1085,7 @@ Boolean DrawGraph	(
 					graphRecPtr->pDC->SelectObject (oldPenPtr);
 				#endif	// defined multispec_win	
 
-            #if defined multispec_lin
+            #if defined multispec_wx
                //graphRecPtr->pDC->SetPen (CMGraphView::s_ltGrayPen); 
                wxPen oldPenPtr = graphRecPtr->pDC->GetPen ();
                wxColour gray;
@@ -1135,7 +1106,7 @@ Boolean DrawGraph	(
 										&error); 
                
                graphRecPtr->pDC->SetPen (oldPenPtr);
-            #endif	// defined multispec_lin
+            #endif	// defined multispec_wx
 
 				}	// end "if (graphRecPtr->attrb & NU_GRID)" 
 				                       
@@ -1152,7 +1123,7 @@ Boolean DrawGraph	(
 									&error);
 			#endif	// defined multispec_win
 	            
-         #if defined multispec_lin
+         #if defined multispec_wx
             wxPen oldPenPtr = graphRecPtr->pDC->GetPen ();
             wxColour gray;
             gray.Set (wxT("#d4d4d4"));
@@ -1165,7 +1136,7 @@ Boolean DrawGraph	(
 									&error);
 				*/
             graphRecPtr->pDC->SetPen (oldPenPtr);
-         #endif // defined multispec_lin
+         #endif // defined multispec_wx
 			
 			SetBackgroundColor (graphRecPtr->pDC, 192);
 
@@ -1232,7 +1203,7 @@ Boolean DrawGraph	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1246,8 +1217,8 @@ Boolean DrawGraph	(
 //
 // Value Returned:	None
 // 
-// Called By:			DoGraphWindowGrow in SGraUtil.cpp
-//							DrawGraph in SGraUtil.cpp
+// Called By:			DoGraphWindowGrow in SGraphUtilities.cpp
+//							DrawGraph in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1999
 //	Revised By:			Larry L. Biehl			Date: 04/06/2019
@@ -1436,7 +1407,7 @@ void DrawGraphControls (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1506,7 +1477,7 @@ void DrawGraphLabels (
 												graphRecPtr->xLabel[0]);
 		#endif	// defined multispec_win 
 
-      #if defined multispec_lin
+      #if defined multispec_wx
          yPos = clientRectPtr->bottom - graphRecPtr->bottomInset + 
 												(SInt16)(3.5 * graphRecPtr->textSize);                                                
 
@@ -1528,11 +1499,11 @@ void DrawGraphLabels (
 							
 		xPos = clientRectPtr->left + 3 + kLeftEdgeSpace;
 		
-		#if defined multispec_lin			
+		#if defined multispec_wx			
 			yPos = clientRectPtr->top + (SInt16)(1.8* graphRecPtr->textSize); 
 		#endif
 		
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			yPos = clientRectPtr->top + (SInt16)(2.7* graphRecPtr->textSize);
 		#endif
       
@@ -1550,7 +1521,7 @@ void DrawGraphLabels (
 												graphRecPtr->yLabel[0]);
 		#endif	// defined multispec_win 
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          wxString yLabelPtr = wxString::FromAscii (&graphRecPtr->yLabel[1]);
          graphRecPtr->pDC->DrawText (yLabelPtr, xPos, yPos);
       #endif
@@ -1562,7 +1533,7 @@ void DrawGraphLabels (
                            
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1643,17 +1614,20 @@ void DrawGraphLegend (
 		xPos = MAX (xPos, clientRectPtr->left + graphRecPtr->leftInset);
 		                                               
 		#if defined multispec_mac
-			yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset + 1.3*graphRecPtr->textSize);
+			yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset +
+																			1.3*graphRecPtr->textSize);
 			lineHeight = (SInt16)(1.2 * graphRecPtr->textSize);
 		#endif	// defined multispec_mac                    
 					                                                         
 		#if defined multispec_win  
-			yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset + 1.4*graphRecPtr->textSize);
+			yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset +
+																			1.4*graphRecPtr->textSize);
 			lineHeight = (SInt16)(1.5 * graphRecPtr->textSize); 
 		#endif	// defined multispec_win  
 		
-      #if defined multispec_lin
-         yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset + 1.4*graphRecPtr->textSize);
+      #if defined multispec_wx
+         yPos = (SInt16)(clientRectPtr->top + graphRecPtr->topInset +
+         																1.4*graphRecPtr->textSize);
 			lineHeight = (SInt16)(1.5 * graphRecPtr->textSize); 
       #endif
 		
@@ -1677,7 +1651,7 @@ void DrawGraphLegend (
 														stringPtr[0]);
 				#endif	// defined multispec_win
 				
-            #if defined multispec_lin
+            #if defined multispec_wx
                wxColour color;
                color.Set (vectorPaletteColorPtr[line]);
                graphRecPtr->pDC->SetTextForeground (color);
@@ -1707,7 +1681,7 @@ void DrawGraphLegend (
 
                             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1752,18 +1726,18 @@ void DrawGraphTitle (
 										graphRecPtr->title[0]);
 						
 		graphWidth = (clientRectPtr->right - clientRectPtr->left) -
-								graphRecPtr->rightInset - graphRecPtr->leftInset;
+											graphRecPtr->rightInset - graphRecPtr->leftInset;
 						
 		xPos = clientRectPtr->left + graphRecPtr->leftInset + 
 															graphWidth/2 - textWidth/2;
 													
 		xPos = MAX (xPos, clientRectPtr->left);
 		
-		#ifdef multispec_lin
+		#ifdef multispec_wx
 			yPos = clientRectPtr->top + (SInt16)(0.5 * graphRecPtr->textSize);
 		#endif
 		
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			yPos = clientRectPtr->top + (SInt16)(1.5 * graphRecPtr->textSize);
 		#endif
 		
@@ -1781,7 +1755,7 @@ void DrawGraphTitle (
 												graphRecPtr->title[0]);
 		#endif	// defined multispec_win
 
-      #if defined multispec_lin
+      #if defined multispec_wx
          graphRecPtr->pDC->DrawText ((CharPtr)&graphRecPtr->title[1], xPos, yPos);
       #endif
          
@@ -1797,11 +1771,11 @@ void DrawGraphTitle (
 														
 			xPos = MAX (xPos, clientRectPtr->left);
 
-			#ifdef multispec_lin
+			#ifdef multispec_wx
 				yPos = clientRectPtr->top + (SInt16)(1.7 * graphRecPtr->textSize);
 			#endif
 		
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				yPos = clientRectPtr->top + (SInt16)(2.7 * graphRecPtr->textSize);
 			#endif
 
@@ -1821,8 +1795,9 @@ void DrawGraphTitle (
 														graphRecPtr->title2[0]);
 				#endif	// defined multispec_win 
 
-            #if defined multispec_lin
-               graphRecPtr->pDC->DrawText ((CharPtr)&graphRecPtr->title2[1], xPos, yPos);
+            #if defined multispec_wx
+               graphRecPtr->pDC->DrawText (
+               								(CharPtr)&graphRecPtr->title2[1], xPos, yPos);
             #endif
 				
 				}	// end "if (graphRecPtr->flag == NU_HISTOGRAM_PLOT)"
@@ -1885,7 +1860,7 @@ void DrawGraphTitle (
 					graphRecPtr->pDC->SetTextAlign (savedTextAlign);
 				#endif	// defined multispec_win 
 
-            #if defined multispec_lin 
+            #if defined multispec_wx 
                wxColour color;
 					//graphRecPtr->pDC->MoveTo (xPos, yPos);
    
@@ -1914,28 +1889,7 @@ void DrawGraphTitle (
                graphRecPtr->pDC->SetTextForeground (color);
                graphRecPtr->pDC->DrawText (title2Ptr[28], xPos + (6*33),
                                           yPos);
-					/* test for linux
-               color.Set (RGB (255, 0, 0));
-               //graphRecPtr->pDC->SetTextForeground (color);
-					wxString title2Ptr1 = wxString::FromAscii (&graphRecPtr->title2[2]);
-               //graphRecPtr->pDC->DrawText (wxT((CharPtr)&graphRecPtr->title2[2]), xPos, yPos);
-               graphRecPtr->pDC->DrawText (title2Ptr1, xPos, yPos);
-
-               color.Set (RGB (0, 128, 0));
-					title2Ptr = wxString::FromAscii (&graphRecPtr->title2[10]);
-               //graphRecPtr->pDC->DrawText (wxT((CharPtr)&graphRecPtr->title2[10]), xPos, yPos);
-               graphRecPtr->pDC->DrawText (title2Ptr, xPos, yPos);
-               color.Set (RGB (0, 0, 255));
-					title2Ptr = wxString::FromAscii (&graphRecPtr->title2[21]);
-               //graphRecPtr->pDC->DrawText (wxT((CharPtr)&graphRecPtr->title2[21]), xPos, yPos);
-               graphRecPtr->pDC->DrawText (title2Ptr, xPos, yPos);
-               color.Set (RGB (0, 0, 0));
-					title2Ptr = wxString::FromAscii (&graphRecPtr->title2[29]);
-               //graphRecPtr->pDC->DrawText (wxT((CharPtr)&graphRecPtr->title2[29]), xPos, yPos);
-               graphRecPtr->pDC->DrawText (title2Ptr, xPos, yPos);
-					//graphRecPtr->pDC->SetTextAlign (TA_BASELINE);
-					*/
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 				
 				}	// end "else graphRecPtr->flag != NU_HISTOGRAM_PLOT"
 			
@@ -1948,7 +1902,7 @@ void DrawGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1989,7 +1943,7 @@ void ForceGraphCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2030,7 +1984,7 @@ Handle GetGraphRecordHandle (
 			graphRecordHandle = ((CMGraphView*)windowPtr)->GetGraphRecordHandle ();
 	#endif		// defined multispec_win
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
       if (windowPtr != NULL)                         	
 			graphRecordHandle = ((CMGraphView*)windowPtr)->GetGraphRecordHandle ();
    #endif
@@ -2079,7 +2033,7 @@ Handle GetGraphRecordHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2121,7 +2075,7 @@ GraphPtr GetGraphRecordPtr (
 			*handleStatusPtr = MHGetState (*graphRecHandlePtr);
 				                   
 			graphRecordPtr = (GraphPtr)GetHandlePointer (
-															*graphRecHandlePtr, kLock, kMoveHi);	
+																*graphRecHandlePtr, kLock, kMoveHi);
 				
 			}	// end "if (*graphRecHandlePtr != NULL)"
 			
@@ -2134,7 +2088,7 @@ GraphPtr GetGraphRecordPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2179,7 +2133,7 @@ void GetGraphLabels (
 		switch (graphRecordPtr->processorCode)
 			{
 			case kListDataProcessor:
-				#if defined multispec_lin	
+				#if defined multispec_wx	
 					if (graphRecordPtr->imageViewCPtr != NULL)
 						{
 						if (hasWavelengthValuesFlag &&
@@ -2187,7 +2141,7 @@ void GetGraphLabels (
 							graphRecordPtr->graphViewCPtr->m_frame->m_comboXlabel->Show ();
 							
 						}	// end "if (graphRecordPtr->imageViewCPtr != NULL)"
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 			
 			case kSelectionGraphProcessor:
 				if (hasWavelengthValuesFlag)
@@ -2196,12 +2150,12 @@ void GetGraphLabels (
 					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
 																"");
 					
-					#if defined multispec_lin
-						wxComboBox* xAxisComboBoxPtr =
-										(wxComboBox*)graphRecordPtr->xAxisPopupControlHandle;
+					#if defined multispec_wx
+						wxChoice* xAxisComboBoxPtr =
+										(wxChoice*)graphRecordPtr->xAxisPopupControlHandle;
 						if (xAxisComboBoxPtr != NULL)
 							xAxisComboBoxPtr->Show ();
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 
 					#if defined multispec_mac
 						ShowControl (graphRecordPtr->xAxisPopupControlHandle);
@@ -2218,12 +2172,12 @@ void GetGraphLabels (
 					{
 					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
 																"Channel Number");
-					#if defined multispec_lin
-						wxComboBox* xAxisComboBoxPtr =
-										(wxComboBox*)graphRecordPtr->xAxisPopupControlHandle;
+					#if defined multispec_wx
+						wxChoice* xAxisComboBoxPtr =
+										(wxChoice*)graphRecordPtr->xAxisPopupControlHandle;
 						if (xAxisComboBoxPtr != NULL)
 							xAxisComboBoxPtr->Hide ();
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 
 					#if defined multispec_mac
 						HideControl (graphRecordPtr->xAxisPopupControlHandle);
@@ -2239,14 +2193,16 @@ void GetGraphLabels (
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-													"Feature %d",
-													(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
+					xLabelStringPtr[0] = sprintf (
+												(char*)&xLabelStringPtr[1],
+												"Feature %d",
+												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 									
 				else	// !...->featureTransformationFlag 
-					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
-													"Channel %d",
-													(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
+					xLabelStringPtr[0] = sprintf (
+												(char*)&xLabelStringPtr[1],
+												"Channel %d",
+												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 		
 				graphRecordPtr->xESignificantDigits = 0; 
 				graphRecordPtr->xFSignificantDigits = 0;  
@@ -2273,14 +2229,16 @@ void GetGraphLabels (
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-					yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
-															"Feature %d",
-															(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
+					yLabelStringPtr[0] = sprintf (
+												(char*)&yLabelStringPtr[1],
+												"Feature %d",
+												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 									
 				else	// !...->featureTransformationFlag 
-					yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
-															"Channel %d",
-															(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
+					yLabelStringPtr[0] = sprintf (
+												(char*)&yLabelStringPtr[1],
+												"Channel %d",
+												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 														
 				graphRecordPtr->yESignificantDigits = 0;
 				graphRecordPtr->yFSignificantDigits = 0;
@@ -2300,7 +2258,7 @@ void GetGraphLabels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2316,7 +2274,7 @@ void GetGraphLabels (
 //
 // Value Returned:	None
 // 
-// Called By:			CreateGraph in SGraUtil.cpp
+// Called By:			CreateGraph
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1991
 //	Revised By:			Larry L. Biehl			Date: 01/23/1999			
@@ -2345,10 +2303,10 @@ void GetGraphTitle (
 				if (columnEnd <= columnStart && lineEnd <= lineStart)
 					{
 					sprintf ((char*)&graphRecordPtr->title[1],
-										"%sLine %ld - Column %ld Data Value",
+										"%sLine %d - Column %d Data Value",
 										tempString,
-										lineStart,
-										columnStart);
+										(int)lineStart,
+										(int)columnStart);
 										
 					graphRecordPtr->title2[1] = 0;
 					
@@ -2357,20 +2315,22 @@ void GetGraphTitle (
 				else	// columnEnd > columnStart || lineEnd > lineStart)  
 					{
 					sprintf ((char*)&graphRecordPtr->title[1],
-										"%sLines %ld-%ld, Columns %ld-%ld Data Values",
+										"%sLines %d-%d, Columns %d-%d Data Values",
 										tempString,
-										lineStart,
-										lineEnd,
-										columnStart,
-										columnEnd);
+										(int)lineStart,
+										(int)lineEnd,
+										(int)columnStart,
+										(int)columnEnd);
 										
 					sprintf ((char*)&graphRecordPtr->title2[1],
 										"(Average, +-Std Dev, Min-Max)");
 										
 					}	// end "else columnEnd > columnStart || ..." 
 										
-				graphRecordPtr->title[0] = (UInt8)strlen ((char*)&graphRecordPtr->title[1]);
-				graphRecordPtr->title2[0] = (UInt8)strlen ((char*)&graphRecordPtr->title2[1]);
+				graphRecordPtr->title[0] =
+											(UInt8)strlen ((char*)&graphRecordPtr->title[1]);
+				graphRecordPtr->title2[0] =
+											(UInt8)strlen ((char*)&graphRecordPtr->title2[1]);
 				break;
 
 			case kBiPlotDataProcessor:
@@ -2390,7 +2350,7 @@ void GetGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2435,7 +2395,7 @@ void GetGraphWindowLocation (
 	#endif	// defined multispec_mac                      
 	
 	#if defined multispec_win 			                               
-		CFrameWnd* pMainFrame = (CFrameWnd*)AfxGetApp ()->m_pMainWnd;
+		CFrameWnd* pMainFrame = (CFrameWnd*)AfxGetApp()->m_pMainWnd;
 		pMainFrame->GetClientRect ((tagRECT*)&rect);
 		
 				// Take the status bar into account.
@@ -2471,7 +2431,7 @@ void GetGraphWindowLocation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2542,7 +2502,7 @@ double GetUserHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2608,7 +2568,7 @@ void GetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2653,7 +2613,7 @@ WindowPtr GetSelectionGraphImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2686,7 +2646,7 @@ void InvalidateGraphWindow (
 		((CMGraphView*)windowPtr)->Invalidate ();	 
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       //((CMGraphView*)windowPtr)->Close (true);
       //(windowPtr->m_Canvas)->Refresh ();
       ((CMGraphView*)windowPtr)->m_frame->Refresh ();
@@ -2697,7 +2657,7 @@ void InvalidateGraphWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2795,7 +2755,7 @@ void ListBinWidthValue (
 		graphRecordPtr->pDC->SetTextAlign (savedTextAlign);
 	#endif	// defined multispec_win
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		left = 105 + 6*kLegendScrollWidth + 25;
 		top  = graphRecordPtr->clientRect.bottom - 
 													graphRecordPtr->clientRect.top - 3;
@@ -2808,14 +2768,14 @@ void ListBinWidthValue (
       graphRecordPtr->pDC->SetTextBackground (color);
       color.Set (RGB (0,0,0));
       graphRecordPtr->pDC->SetTextForeground (color);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 }	// end "ListBinWidthValue" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2949,9 +2909,10 @@ void LoadGraphSupportArrays (
 																graphRecordPtr->vectorLabelHandle, 
 																kLock);
 						
-			LoadListOfClassFieldNames (stringPtr,
-													gProjectInfoPtr->statsWindowMode,
-													gProjectInfoPtr->histogramClassFlag);
+			LoadListOfClassFieldNames (
+							stringPtr,
+							gProjectInfoPtr->statsWindowMode,
+							(gProjectInfoPtr->histogramClassFieldCode == kHistogramClass));
 			
 			CheckAndUnlockHandle (graphRecordPtr->vectorLabelHandle);
 			
@@ -3115,7 +3076,7 @@ void LoadGraphSupportArrays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3300,7 +3261,7 @@ Boolean LoadGraphXVector (
 												localFileInfoPtr->channelValuesHandle, kLock);
 						channelWidthsPtr = &channelValuePtr[localFileInfoPtr->numberChannels];
 						//channelWavelengthOrderPtr =
-						//			(UInt16*)&channelWidthsPtr[localFileInfoPtr->numberChannels];
+						//		(UInt16*)&channelWidthsPtr[localFileInfoPtr->numberChannels];
 												
                   }	// end "if (fileInfoPtr != NULL && fileInfoPtr->...)" 
 						
@@ -3350,7 +3311,7 @@ Boolean LoadGraphXVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3469,7 +3430,7 @@ void LoadGraphYVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3714,7 +3675,7 @@ void LoadGraphYVector2 (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3748,7 +3709,7 @@ void MSetGraphWindowTitle (
 							&titleStringPtr[0]);
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       wxString ntitle =  wxString::FromUTF8 ((char*)&titleStringPtr[1]);
       (graphViewCPtr->m_frame)->SetTitle (ntitle);
 	#endif
@@ -3758,7 +3719,7 @@ void MSetGraphWindowTitle (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3792,7 +3753,7 @@ void ReloadXAxis (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3846,17 +3807,19 @@ void SetGraphWindowTitle (
 					
 		else	// !newWindowFlag 
 			{
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				GetWindowTitle (graphViewCPtr->GetWindowPtr (), (UCharPtr)gTextString2);
 			#endif
 			
-			#ifdef multispec_lin
+			#ifdef multispec_wx
 				GetGraphWindowTitle (graphViewCPtr->GetWindowPtr (), (UCharPtr)gTextString2);
 			#endif
 
 			charPtr = (UCharPtr)strchr ((char*)&gTextString2[1], ':');			
 			
-			if (charPtr == NULL || graphRecordPtr == NULL || (graphRecordPtr->drawGraphCode & 0x8000))
+			if (charPtr == NULL ||
+						graphRecordPtr == NULL ||
+								(graphRecordPtr->drawGraphCode & 0x8000))
 				sprintf ((char*)gTextString, 
 							"Graph Window %hd",
 							graphViewCPtr->GetGraphWindowNumber ());
@@ -3974,7 +3937,7 @@ void SetGraphWindowTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4240,7 +4203,7 @@ void SetGraphMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4308,7 +4271,7 @@ void SetLikeWindowMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4323,8 +4286,8 @@ void SetLikeWindowMinMax (
 //
 // Value Returned:	None	
 // 
-// Called By:			CreateGraph in SGraUtil.cpp
-//							GraphWControlEvent in SGraUtil.cpp
+// Called By:			CreateGraph in SGraphUtilities.cpp
+//							GraphWControlEvent in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/2002
 //	Revised By:			Larry L. Biehl			Date: 12/11/2002		
@@ -4391,7 +4354,7 @@ Boolean SetHistogramBinWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4406,8 +4369,8 @@ Boolean SetHistogramBinWidth (
 //
 // Value Returned:	None	
 // 
-// Called By:			CreateGraph in SGraUtil.cpp
-//							GraphWControlEvent in SGraUtil.cpp
+// Called By:			CreateGraph in SGraphUtilities.cpp
+//							GraphWControlEvent in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/05/1999
 //	Revised By:			Larry L. Biehl			Date: 01/21/2003		
@@ -4454,7 +4417,7 @@ void SetOverlayDisplayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4469,7 +4432,7 @@ void SetOverlayDisplayList (
 //
 // Value Returned:	None
 // 
-// Called By:			GetGraphTitle in graphicsUtilities.c
+// Called By:			GetGraphTitle in SGraphiUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1999
 //	Revised By:			Larry L. Biehl			Date: 01/23/1999			
@@ -4517,7 +4480,7 @@ void SetStatHistogramGraphTitle2 (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4672,7 +4635,7 @@ void SetUpBinWidthPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4772,7 +4735,7 @@ void SetUpOverlayPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4859,8 +4822,8 @@ void SetUpVectorPopUpMenu (
 		
 			#if defined multispec_win
 				selectVectorsPopupMenuPtr->AppendMenu (MF_STRING, 
-																		popupMenuIndex+index, 
-																		(LPCTSTR)A2T((char*)&stringPtr[1]));
+																	popupMenuIndex+index,
+																	(LPCTSTR)A2T((char*)&stringPtr[1]));
 
 				checkCode = MF_BYPOSITION | MF_UNCHECKED;
 				if (vectorDisplayPtr[index])
@@ -4898,7 +4861,7 @@ void SetUpVectorPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4937,8 +4900,8 @@ SInt16 SetUpXAxisPopUpMenu (
 
 	Boolean								useDisabledMenuItemFlag = TRUE;
 
-	#if defined multispec_lin
-		wxComboBox*							xLabelComboBoxPtr = (wxComboBox*)popUpMenuHandle;
+	#if defined multispec_wx
+		wxChoice*							xLabelComboBoxPtr = (wxChoice*)popUpMenuHandle;
 	
 		//int									currentSelection;
 	
@@ -4980,7 +4943,7 @@ SInt16 SetUpXAxisPopUpMenu (
 			for (index=numberMenuItems; index>1; index--)
 				DeleteMenuItem (popUpMenuHandle, index);
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				xLabelComboBoxPtr->SetClientData (0, (void*)kChannels);
 			#endif
 
@@ -4995,15 +4958,15 @@ SInt16 SetUpXAxisPopUpMenu (
 			if (descriptionCode & kBothReflectiveThermalData)
 				{
 						// Either Reflective and/or thermal wavelength data exists.											
-						// An AppendMenu and then SetMenuItemText is used so that no characters
-						// will be interpreted as "metacharacters" by AppendMenu.
+						// An AppendMenu and then SetMenuItemText is used so that no
+						// characters will be interpreted as "metacharacters" by AppendMenu.
 				
 				length = sprintf (&xAxisLabel[1], "Wavelength (%s", wavelengthUnits);
 				xAxisLabel[0] = length;
          
 				MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
    
-            #if defined multispec_lin
+            #if defined multispec_wx
 					xLabelComboBoxPtr->SetClientData (index, (void*)kWavelengths);
 				#endif
 				#if defined multispec_win
@@ -5027,7 +4990,7 @@ SInt16 SetUpXAxisPopUpMenu (
               
 						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
       
-						#if defined multispec_lin
+						#if defined multispec_wx
 							xLabelComboBoxPtr->SetClientData (index, (void*)kBandWidths);
 						#endif
 						#if defined multispec_win
@@ -5046,7 +5009,8 @@ SInt16 SetUpXAxisPopUpMenu (
 				
 					if (descriptionCode & kReflectiveData && descriptionCode & kThermalData)
 						{
-						if (useDisabledMenuItemFlag && !(descriptionCode & kBandWidthInfoExists))
+						if (useDisabledMenuItemFlag &&
+														!(descriptionCode & kBandWidthInfoExists))
 							DisableMenuItem (popUpMenuHandle, kBandWidths);
 						
 								// Both Reflective and Thermal data exists, allow the ability
@@ -5059,8 +5023,9 @@ SInt16 SetUpXAxisPopUpMenu (
              
 						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
          
-                  #if defined multispec_lin
-							xLabelComboBoxPtr->SetClientData (index, (void*)kReflectiveWavelengths);
+                  #if defined multispec_wx
+							xLabelComboBoxPtr->SetClientData (
+																index, (void*)kReflectiveWavelengths);
 						#endif
 						#if defined multispec_win
 							xLabelComboBoxPtr->SetItemData (index, kReflectiveWavelengths);
@@ -5075,13 +5040,15 @@ SInt16 SetUpXAxisPopUpMenu (
 												wavelengthUnits);
 						xAxisLabel[0] = length;
 						
-						if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
+						if (useDisabledMenuItemFlag ||
+														(descriptionCode & kBandWidthInfoExists))
 							{
                     
 							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
                  
-                     #if defined multispec_lin
-								xLabelComboBoxPtr->SetClientData (index, (void*)kReflectiveBandWidths);
+                     #if defined multispec_wx
+								xLabelComboBoxPtr->SetClientData (
+																index, (void*)kReflectiveBandWidths);
 							#endif
 							#if defined multispec_win
 								xLabelComboBoxPtr->SetItemData (index, kReflectiveBandWidths);
@@ -5107,8 +5074,9 @@ SInt16 SetUpXAxisPopUpMenu (
                 
 						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
         
-                  #if defined multispec_lin
-							xLabelComboBoxPtr->SetClientData (index, (void*)kThermalWavelengths);
+                  #if defined multispec_wx
+							xLabelComboBoxPtr->SetClientData (
+																	index, (void*)kThermalWavelengths);
 						#endif
 						#if defined multispec_win
 							xLabelComboBoxPtr->SetItemData (index, kThermalWavelengths);
@@ -5123,13 +5091,15 @@ SInt16 SetUpXAxisPopUpMenu (
 												wavelengthUnits);
 						xAxisLabel[0] = length;
 
-						if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
+						if (useDisabledMenuItemFlag ||
+															(descriptionCode & kBandWidthInfoExists))
 							{
-                    
-							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+							MAppendMenuItemText (
+													(MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
                 
-                     #if defined multispec_lin
-								xLabelComboBoxPtr->SetClientData (index, (void*)kThermalBandWidths);
+                     #if defined multispec_wx
+								xLabelComboBoxPtr->SetClientData (
+																	index, (void*)kThermalBandWidths);
 							#endif
 							#if defined multispec_win
 								xLabelComboBoxPtr->SetItemData (index, kThermalBandWidths);
@@ -5159,8 +5129,8 @@ SInt16 SetUpXAxisPopUpMenu (
 							{
 							newSelection = kWavelengths;
 							if ((xAxisCode == kReflectiveBandWidths || 
-																	xAxisCode == kThermalBandWidths) &&
-																descriptionCode & kBandWidthInfoExists)
+												xAxisCode == kThermalBandWidths) &&
+															descriptionCode & kBandWidthInfoExists)
 								newSelection = kBandWidths;
 								
 							}	// end "if (xAxisCode > kBandWidths)"
@@ -5176,13 +5146,11 @@ SInt16 SetUpXAxisPopUpMenu (
 		
 			if (xAxisCode != newSelection)
 				{
-				#if defined multispec_lin
+				#if defined multispec_wx
 					xLabelComboBoxPtr->SetSelection (newSelection-1);
 				#endif
 
 				#if defined multispec_win
-					//CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
-					//CComboBox* comboBoxPtr = (CComboBox*)graphViewCPtr->GetDlgItem (IDC_xAxis);
 					xLabelComboBoxPtr->SetCurSel (newSelection-1);
 				#endif
 
@@ -5196,7 +5164,7 @@ SInt16 SetUpXAxisPopUpMenu (
 				
 				}	// end "if (xAxisCode != newSelection)"
  
-			#if defined multispec_lin
+			#if defined multispec_wx
 				xLabelComboBoxPtr->SetSelection (newSelection-1);
 			#endif
 
@@ -5212,7 +5180,7 @@ SInt16 SetUpXAxisPopUpMenu (
 		//#endif	// defined multispec_mac || defined multispec_win
 		}	// end "if (graphRecordPtr != NULL)"
 					
-	#if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 				// Make the return value 0 based.
 		newSelection--;
 	#endif
@@ -5224,7 +5192,7 @@ SInt16 SetUpXAxisPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5239,8 +5207,8 @@ SInt16 SetUpXAxisPopUpMenu (
 //
 // Value Returned:	None	
 // 
-// Called By:			CreateGraph in SGraUtil.cpp
-//							GraphWControlEvent in SGraUtil.cpp
+// Called By:			CreateGraph in SGraphUtilities.cpp
+//							GraphWControlEvent in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/27/1999
 //	Revised By:			Larry L. Biehl			Date: 11/27/2002		
@@ -5270,7 +5238,7 @@ void SetVectorDisplayList (
 	vectorDisplayPtr = (UCharPtr)GetHandlePointer (
 															graphRecordPtr->vectorDisplayHandle);
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if ((UInt32)vectorSelection == numberVectors+1)
 			{
 					// Make sure that all vectors are selected.
@@ -5297,7 +5265,7 @@ void SetVectorDisplayList (
 			}	// end "else if (vectorSelection >= 0)"
 	#endif
 
-	#ifndef multispec_lin
+	#ifndef multispec_wx
 		if ((UInt32)vectorSelection >= numberVectors+1)
 			{
 					// Make sure that all vectors are selected.
@@ -5330,7 +5298,7 @@ void SetVectorDisplayList (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5375,7 +5343,7 @@ void SetXAxisDescriptionInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5413,8 +5381,6 @@ void SetXGraphScale (
 											screen_width,
 											ticLabelWidth;
 	
-	//Boolean								hasWavelengthValuesFlag;
-	
 	
 			// Get the size of the graph window.
 	
@@ -5427,23 +5393,13 @@ void SetXGraphScale (
 		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       CMGraphView* graphViewCPtr = graphRecordPtr->graphViewCPtr;
 		graphViewCPtr->GetGraphWindowClientRect (&graphRecordPtr->clientRect);
-
-      //graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
-		//graphRecordPtr->clientRect.bottom = ((wxRect*)graphViewCPtr)->GetWidth ();
-		//printf ("clientRect:%d\n", graphRecordPtr->clientRect.bottom);
-      //graphRecordPtr->clientRect.top = clientRectPtr->top;
-      //graphRecordPtr->clientRect.bottom = clientRectPtr->bottom;
-      //graphRecordPtr->clientRect.left = clientRectPtr->left;
-      //graphRecordPtr->clientRect.right = clientRectPtr->right;
 	#endif
 			// Get length of max x tic label string.
 	
-	//hasWavelengthValuesFlag = GetHasWavelengthValuesFlag (graphRecordPtr->imageWindow);
-
-	graphRecordPtr->xESignificantDigits = 0;
+		graphRecordPtr->xESignificantDigits = 0;
 	graphRecordPtr->xFSignificantDigits = 0;
 	interval = 1;
 	if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
@@ -5463,23 +5419,8 @@ void SetXGraphScale (
 		graphRecordPtr->xFSignificantDigits -= 1;
 	
 	graphRecordPtr->xScaleMax = graphRecordPtr->xMax;
-	/*
-	hasWavelengthValuesFlag = GetHasWavelengthValuesFlag (graphRecordPtr->imageWindow);
-	
-	xFSigfigs = 0;
-	if (hasWavelengthValuesFlag && graphRecordPtr->xAxisCode > kChannels)
-		{
-				// If the difference between the min and max x value is less than 20,
-				// assume 2 decimal digits. Otherwise assume labels can be integer
-				// values. Less than 20 implies units are um and much larger infers
-				// units are nm. But there may be other units at times.
-		
-		if ((graphRecordPtr->xMax - graphRecordPtr->xMin) < 20)
-			xFSigfigs = 2;
 
-		}	// end "if (hasWavelengthValuesFlag && graphRecordPtr->xAxisCode ...)"
-   */
-	FormatR (number, 
+	FormatR (number,
 					&graphRecordPtr->xScaleMax, 
 					graphRecordPtr->xESignificantDigits, 
 					graphRecordPtr->xFSignificantDigits, 
@@ -5548,13 +5489,6 @@ void SetXGraphScale (
 		{
 		if (graphRecordPtr->flag & NU_HISTOGRAM_PLOT)
 			{
-			/*
-			if (graphRecordPtr->xScaleMin == graphRecordPtr->xMin)
-				graphRecordPtr->xScaleMin -= interval;
-				
-			if (graphRecordPtr->xScaleMax == graphRecordPtr->xMax)
-				graphRecordPtr->xScaleMax += interval;
-			*/
 			graphRecordPtr->xScaleMin =
 								floor ((graphRecordPtr->xMin-interval/2)/interval)*interval;
 		
@@ -5579,7 +5513,8 @@ void SetXGraphScale (
 					// the tick less than xScaleMax
 			
 			if (graphRecordPtr->xScaleMax - interval > graphRecordPtr->xScaleMin &&
-			 		graphRecordPtr->xMax - (graphRecordPtr->xScaleMax - interval) < .01 * interval)
+			 		graphRecordPtr->xMax - (graphRecordPtr->xScaleMax - interval) <
+			 																				.01 * interval)
 				graphRecordPtr->xScaleMax -= interval;
 			
 			}	// end "else !(graphRecordPtr->flag & NU_HISTOGRAM_PLOT)"
@@ -5615,7 +5550,7 @@ void SetXGraphScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5665,7 +5600,7 @@ void SetYGraphScale (
 		graphViewCPtr->GetClientRect ((RECT*)&graphRecordPtr->clientRect);
 	#endif	// defined multispec_win
 			
-				// Now determine the y-axis min, max and interval.\
+				// Now determine the y-axis min, max and interval.
 														
 	interval = (graphRecordPtr->yMax - graphRecordPtr->yMin)/5;
 	
@@ -5676,7 +5611,7 @@ void SetYGraphScale (
 			
 		integerInterval = (UInt32)(interval + 0.5);
 	
-		numberDigits = sprintf (number, "%ld", integerInterval) - 2;
+		numberDigits = sprintf (number, "%u", (unsigned int)integerInterval) - 2;
 		if (numberDigits >= 1)
 			{
 			additional = (UInt32)pow ((double)10,(double)numberDigits);
@@ -5753,8 +5688,8 @@ void SetYGraphScale (
 		if (graphRecordPtr->yFSignificantDigits == 0 && 
 													numberDigits > numberIntervalDigits)
 			{
-			graphRecordPtr->yFSignificantDigits = (UInt16)(numberDigits - numberIntervalDigits);
-//			numberDecimalPlaces = MIN (6, numberDecimalPlaces);
+			graphRecordPtr->yFSignificantDigits =
+													(UInt16)(numberDigits - numberIntervalDigits);
 			
 			}	// end "if (graphRecordPtr->yFSignificantDigits == 0)"
 		
@@ -5831,7 +5766,7 @@ void SetYGraphScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5846,8 +5781,8 @@ void SetYGraphScale (
 //
 // Value Returned:	None	
 // 
-// Called By:			DoGraphWActivateEvent in SGraUtil.cpp
-//							GraphWControlEvent in SGraUtil.cpp
+// Called By:			DoGraphWActivateEvent in SGraphUtilities.cpp
+//							GraphWControlEvent in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/30/2003
 //	Revised By:			Larry L. Biehl			Date: 04/30/2003		
@@ -5885,7 +5820,7 @@ void UpdateGraphScales (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6078,7 +6013,7 @@ void UpdateSelectionGraphXAxisMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

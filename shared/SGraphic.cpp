@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 // 								Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,8 +20,6 @@
 //	Brief description:	This file contains functions from the Nicus library
 //								for creation of graphs
 //
-//	Functions in file:	
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -35,9 +33,9 @@
 	#include "WImageView.h"
 #endif	// defined multispec_win   
                             
-#if defined multispec_lin
-	#include "LGraphView.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+	#include "xGraphView.h"
+#endif	// defined multispec_wx
 
 #include	"SGraphic.h"
 
@@ -55,7 +53,7 @@ static void	LabelLinAxis_TrimString (
 //						is a structure containing the size of the vector
 //						and a pointer to the data.
 //
-//	AllocateV(v0, size, error)
+//	AllocateV (v0, size, error)
 //
 //	where:	v0		Pointer to returned vector
 //				size	Number of elements to allocate space for
@@ -103,7 +101,7 @@ void AllocateV (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -196,7 +194,7 @@ void DeallocateV (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -255,11 +253,11 @@ void	DensityFunctionPlotV (
 											x_point, 
 											y_point;
 	
-	#ifndef multispec_lin	
+	#ifndef multispec_wx	
 		CDC* pDC = graphPtr->pDC;
 	#endif
 	
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		wxDC* pDC = graphPtr->pDC;
 	#endif   
 	
@@ -341,8 +339,8 @@ void	DensityFunctionPlotV (
 			x_val = mean - x_increment;
 			x_max = mean + x_increment;
 					
-			x_val = MAX(graphPtr->xScaleMin, x_val);
-			x_max = MIN(graphPtr->xScaleMax, x_max);
+			x_val = MAX (graphPtr->xScaleMin, x_val);
+			x_max = MIN (graphPtr->xScaleMax, x_max);
 			
 					// Set the increment to allow about 40 points to define the curve.
 					
@@ -369,14 +367,14 @@ void	DensityFunctionPlotV (
 			
 			x_val += x_increment;
      
-         #if defined multispec_lin
+         #if defined multispec_wx
 				int b_size;
 				b_size = (int)((x_max- x_val)/x_increment)+2;
 				wxPoint splines[b_size];
 				int i = 0;
 				splines[i].x = x_point;
 				splines[i].y = y_point;
-         #endif	// defined multispec_lin
+         #endif	// defined multispec_wx
 			
 			while (x_val <= x_max) 
 				{
@@ -398,18 +396,18 @@ void	DensityFunctionPlotV (
 			
 				x_val += x_increment;
 				
-            #if defined multispec_lin
+            #if defined multispec_wx
 					i++;
 					splines[i].x = x_point;
 					splines[i].y = y_point;
-            #endif	// defined multispec_lin
+            #endif	// defined multispec_wx
 				}	// end "while (x_val<=x_max)"
          
          
-         #if defined multispec_lin
+         #if defined multispec_wx
             pDC->DrawSpline (i, splines);
             i = 0;
-         #endif // defined multispec_lin
+         #endif // defined multispec_wx
          
 			}	// end "if (vectorDisplayPtr [lines] > 0)"
 		   
@@ -491,7 +489,7 @@ void	DrawAxis (
 											(CBrush*)graphPtr->backgroundPatternPtr);
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       wxColour grayColor;
       //grayColor.Set (wxT("#d4d4d4"));
       grayColor.Set (wxT("#ffffff"));
@@ -582,7 +580,7 @@ void	DrawAxis (
 		pDC->SelectObject (oldPenPtr);
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
     
    #endif
    
@@ -601,7 +599,9 @@ void	DrawAxis (
 	y_offset = graphPtr->yScaleMin * y_scale + screen_height + 
 														graphPtr->topInset + clientRectPtr->top;
 	
-	if ((graphPtr->yScaleMin < 0) && (graphPtr->yScaleMax > 0) && (!(graphPtr->attrb & NU_YLOG)))
+	if ((graphPtr->yScaleMin < 0) &&
+				(graphPtr->yScaleMax > 0) &&
+						(!(graphPtr->attrb & NU_YLOG)))
 		{
 		x_point = (SInt16)(floor (graphPtr->xScaleMin * x_scale) - x_offset);
 		y_point = (SInt16)y_offset;   
@@ -618,7 +618,7 @@ void	DrawAxis (
 			pDC->LineTo (x_point, y_point);
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          SInt16 m_x_point;
          m_x_point = (SInt16)(graphPtr->xScaleMax * x_scale) - (SInt16)x_offset;
          //pDC->DrawLine (x_point, y_point, m_x_point, y_point);
@@ -626,7 +626,9 @@ void	DrawAxis (
 		
 		}
 		
-	if ((graphPtr->xScaleMin < 0) && (graphPtr->xScaleMax > 0) && (!(graphPtr->attrb & NU_XLOG))) 
+	if ((graphPtr->xScaleMin < 0) &&
+				(graphPtr->xScaleMax > 0) &&
+						(!(graphPtr->attrb & NU_XLOG)))
 		{
 		x_point = (SInt16)-x_offset;
 		y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMin * y_scale));
@@ -643,7 +645,7 @@ void	DrawAxis (
 			pDC->LineTo (x_point, y_point);
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
         SInt16 m_y_point;
         m_y_point = (SInt16)(y_offset - floor (graphPtr->yScaleMax * y_scale));
         //pDC->DrawLine (x_point, y_point, x_point, m_y_point); 
@@ -709,7 +711,7 @@ void	DrawLinTicks (
 	#if defined multispec_win
 		CDC* pDC = graph->pDC;
 	#endif	// defined multispec_win
-   #if defined multispec_lin
+   #if defined multispec_wx
       wxDC* pDC = graph->pDC;
    #endif
 	
@@ -740,7 +742,7 @@ void	DrawLinTicks (
 			pos1 = (SInt16)(-size - x_offset);
 			pos2 =  (SInt16)(size - x_offset);
          
-         #if defined multispec_lin
+         #if defined multispec_wx
 				if (pos1 < 0)
 					{
 					pos1 = clientRectPtr->left + graph->leftInset;
@@ -764,7 +766,7 @@ void	DrawLinTicks (
 					pDC->LineTo (pos2, position);
 				#endif	// defined multispec_win
 				
-            #if defined multispec_lin
+            #if defined multispec_wx
 							// Draw the line in feature selection
                if (graph->setCode != 1 && graph->numberSets > 0 && interval != 1)
 						{
@@ -801,7 +803,7 @@ void	DrawLinTicks (
 					pDC->LineTo (pos2, position);
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
  					pDC->DrawLine ((int)pos1, (int)position, (int)pos2, (int)position);
             #endif
 				
@@ -817,7 +819,7 @@ void	DrawLinTicks (
 						pDC->LineTo (pos4, position);
 					#endif	// defined multispec_win
 					
-					#if defined multispec_lin
+					#if defined multispec_wx
 						pDC->DrawLine ((int)pos3, (int)position, (int)pos4, (int)position);
                #endif
 
@@ -854,10 +856,10 @@ void	DrawLinTicks (
 					pDC->LineTo (position, pos2);
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
                //pDC->DrawLine ((int)pos1, (int)position, (int)pos2, (int)position);
             #endif
-				}	// end "for (	x_pos = ceil (graph->xScaleMin / ..."
+				}	// end "for (x_pos = ceil (graph->xScaleMin / ..."
 				
 			}	// end "if ((graph->yScaleMin < 0) && (graph->yScaleMax > 0))"
 			
@@ -868,7 +870,7 @@ void	DrawLinTicks (
 			pos3 = clientRectPtr->bottom - graph->bottomInset;
 			pos4 = pos3 - size;  
 			                 
-			pos2 = MIN(pos2,pos3);
+			pos2 = MIN (pos2,pos3);
 			 
 			for (x_pos = ceil (graph->xScaleMin / interval) * interval;
 					x_pos <= graph->xScaleMax; 
@@ -886,7 +888,7 @@ void	DrawLinTicks (
 					pDC->LineTo (position, pos2);
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
                pDC->DrawLine ((int)position, (int)pos1, (int)position, (int)pos2);
             #endif
 				
@@ -902,7 +904,7 @@ void	DrawLinTicks (
 						pDC->LineTo (position, pos4);
 					#endif	// defined multispec_win
 					
-					#if defined multispec_lin
+					#if defined multispec_wx
                   pDC->DrawLine ((int)position, (int)pos3, (int)position, (int)pos4);
                #endif
 					}	// end "if (pos2 < pos3)"
@@ -1022,9 +1024,9 @@ void	FindMaxMinV (
 				{
 				dataIndex = vectorDataPtr[vectorIndex];
 					
-				*minPtr = MIN(*minPtr, baseDataPtr[dataIndex]);
+				*minPtr = MIN (*minPtr, baseDataPtr[dataIndex]);
 			
-				*maxPtr = MAX(*maxPtr, baseDataPtr[dataIndex+size-1]);
+				*maxPtr = MAX (*maxPtr, baseDataPtr[dataIndex+size-1]);
 				
 				}	// end "if (size > 0)"
 				
@@ -1037,7 +1039,7 @@ void	FindMaxMinV (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1127,7 +1129,7 @@ void	FindMaxV (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1270,13 +1272,13 @@ void	FindMaxBinV (
 
 
 
-// ===================================================================================
+//====================================================================================
 //			(C) Copyright 1989. Nicus, Inc.  All rights reserved.
 //
 //	FlaggedPlotV:	This routine draws the requested plot depending on
 //						the value for the flag.
 //
-//	FlaggedPlotV(graph, x, y, flag, symb, width, error)
+//	FlaggedPlotV (graph, x, y, flag, symb, width, error)
 //
 //	where:	graph	Pointer to graph record (not graph port)
 //				x		Pointer to x vector
@@ -1291,7 +1293,7 @@ void	FindMaxBinV (
 //	Revised By:			Larry L. Biehl			Date: 02/15/1993
 //	Revised By:			Larry L. Biehl			Date: 01/21/1998
 //
-//========================================================================
+//====================================================================================
 
 void	FlaggedPlotV (
 				GraphPtr								graphRecPtr, 
@@ -1321,7 +1323,7 @@ void	FlaggedPlotV (
 		/*		
 		else if (flag & NU_BAR_PLOT) 
 			{
-			BarPlotV(graph, x, y, width, error);
+			BarPlotV (graph, x, y, width, error);
 			if (*error)
 				ErrorMessage (*error, "In Bar Plot", ABORT_ITEM, stopIcon);
 				
@@ -1343,7 +1345,7 @@ void	FlaggedPlotV (
 //	FormatR:	This routine formats a double number and places it
 //						into a string
 //
-//	FormatR(buffer, number, sigfigs, error)
+//	FormatR (buffer, number, sigfigs, error)
 //
 //	where	buffer			Pointer to returned string.
 //			number			Number to format.
@@ -1459,7 +1461,7 @@ void	FormatR (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1536,11 +1538,11 @@ void	HistogramPlotV (
 		LOGBRUSH								logBrush;
 	#endif	// defined multispec_mac 
 	
-	#ifndef multispec_lin	
+	#ifndef multispec_wx	
 		CDC* pDC = graph->pDC;
 	#endif
 	
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		wxDC* pDC = graph->pDC;
 	#endif 
 
@@ -1581,7 +1583,7 @@ void	HistogramPlotV (
 																
 	//penWidth = (SInt16)(x_scale * binWidth * .75);
 	doublePenWidth = x_scale * binWidth;
-	penWidth = (SInt16)MAX(doublePenWidth * .75, doublePenWidth - 6);						
+	penWidth = (SInt16)MAX (doublePenWidth * .75, doublePenWidth - 6);						
 	penWidth = MAX (1, penWidth);
 	
 	#if defined multispec_mac
@@ -1626,7 +1628,7 @@ void	HistogramPlotV (
 		                  
 			MForeColor (pDC, vectorPaletteColorPtr[line]);
          
-         #if defined multispec_lin
+         #if defined multispec_wx
             wxBrush    *newPenPtr = NULL;
             wxBrush    *oldPenPtr = NULL;
             wxBrush    brush;
@@ -1681,7 +1683,7 @@ void	HistogramPlotV (
             
             pDC->SetBrush (*oldPenPtr);
             pDC->SetPen (pen);
-         #endif	// defined multispec_lin
+         #endif	// defined multispec_wx
 	
 			#if defined multispec_win
 						// Set Pen width.
@@ -1716,9 +1718,9 @@ void	HistogramPlotV (
 					}	// end "if (penWidth != 1)"
 			#endif	// defined multispec_win
          
-         #if defined multispec_lin
+         #if defined multispec_wx
             
-         #endif	// defined multispec_lin
+         #endif	// defined multispec_wx
 			
 			xValuePtr = &xPtr->basePtr[dataIndex];
 			yValuePtr = &yPtr->basePtr[dataIndex];
@@ -1729,15 +1731,15 @@ void	HistogramPlotV (
 			y_val = 0;
 			plotFlag = FALSE;
          
-         #if defined multispec_lin
+         #if defined multispec_wx
             SInt16 xx_point, yy_point;
             SInt16 x_prev = 0, x_next;
             x_prev = (SInt16)(
 								floor (lastXGraphValue * binWidth * x_scale) - x_offset);
-            x_next = (SInt16)(
-								floor (floor ((*(xValuePtr+1)+halfBinWidth)/binWidth) * binWidth * x_scale) 
+            x_next = (SInt16)(floor (floor (
+            				(*(xValuePtr+1)+halfBinWidth)/binWidth) * binWidth * x_scale)
                - x_offset);
-         #endif	// defined multispec_lin
+         #endif	// defined multispec_wx
 			  
 			for (point=0; point<=numberPoints; point++) 
 				{
@@ -1776,10 +1778,10 @@ void	HistogramPlotV (
 						pDC->MoveTo (x_point, y_point);
 					#endif	// defined multispec_win
 
-               #if defined multispec_lin
+               #if defined multispec_wx
                   xx_point = x_point;
                   yy_point = y_point;
-               #endif	// defined multispec_lin
+               #endif	// defined multispec_wx
 					
 					y_point = (SInt16)(y_offset - floor (y_val * y_scale));
 					
@@ -1790,8 +1792,11 @@ void	HistogramPlotV (
 					#if defined multispec_win
 						pDC->LineTo (x_point, y_point);
 					#endif	// defined multispec_win
-               #if defined multispec_lin
-                  pDC->DrawRectangle (x_point-(penWidth/2), y_point, penWidth , yy_point-y_point);
+               #if defined multispec_wx
+                  pDC->DrawRectangle (x_point-(penWidth/2),
+                  							y_point,
+                  							penWidth,
+                  							yy_point-y_point);
                #endif
 					
 					lastXGraphValue = xGraphValue; 
@@ -1816,7 +1821,7 @@ void	HistogramPlotV (
 		}	// end "for (line=0; line<numberVectors; line++)"
 		
 	#if defined multispec_mac
-		PenSize (1,1);
+		PenSize (1, 1);
 	#endif	// defined multispec_mac 
 		
 	MForeColor (pDC, blackColor);
@@ -1833,7 +1838,7 @@ void	HistogramPlotV (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1926,12 +1931,13 @@ void	HistogramPlotV2 (
 	xScaleMin = graph->xScaleMin;
 													
 	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
-	//x_offset = (SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
+	//x_offset =
+	//	(SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
 	x_offset = (SInt32)(-graph->leftInset - clientRectPtr->left);
 		
 	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	y_offset = (SInt32)(graph->yScaleMin * y_scale + screen_height + 
-																graph->topInset + clientRectPtr->top);
+															graph->topInset + clientRectPtr->top);
 	
 			// Allow for width of data value bin.
 			
@@ -2229,9 +2235,12 @@ void	LabelLinAxis (
 		CDC* pDC = graph->pDC;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       wxDC* pDC = graph->pDC;
-      wxFont ffont (gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+      wxFont ffont (gFontSize,
+      					wxFONTFAMILY_MODERN,
+      					wxFONTSTYLE_NORMAL,
+      					wxFONTWEIGHT_NORMAL);
       pDC->SetFont (ffont);
    #endif
 	
@@ -2244,7 +2253,7 @@ void	LabelLinAxis (
 	clientRectPtr = &graph->clientRect;
 	
 	screen_width = (clientRectPtr->right - clientRectPtr->left) -
-														graph->rightInset - graph->leftInset;
+															graph->rightInset - graph->leftInset;
 	screen_height = (clientRectPtr->bottom - clientRectPtr->top) -
 														graph->bottomInset - graph->topInset;
    
@@ -2284,11 +2293,11 @@ void	LabelLinAxis (
 			LabelLinAxis_TrimString (number);
 			
 			width = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
-         #if defined multispec_lin
+         #if defined multispec_wx
 				line = (SInt16)(y_offset - floor (y_pos * y_scale) - height);
          #endif
 			
-         #ifndef multispec_lin
+         #ifndef multispec_wx
 				line = (SInt16)(y_offset - floor (y_pos * y_scale) + height);
          #endif
 
@@ -2298,10 +2307,13 @@ void	LabelLinAxis (
 			#endif	// defined multispec_mac 
 			 
 			#if defined multispec_win
-				pDC->TextOut (offset - width, line, (LPCTSTR)A2T(number), (SInt16)strlen (number));
+				pDC->TextOut (offset - width,
+									line,
+									(LPCTSTR)A2T(number),
+									(SInt16)strlen (number));
 			#endif	// defined multispec_win
 			
-         #if defined multispec_lin
+         #if defined multispec_wx
             pDC->DrawText ((wxString)(number), offset - width , line);
          #endif
 			
@@ -2311,7 +2323,7 @@ void	LabelLinAxis (
 		
 			// Then if x axis is not log scaled, label it
 	/*
-	#if defined multispec_lin || defined multispec_mac
+	#if defined multispec_wx || defined multispec_mac
 				// Find the optimal xint 
 				
       if (xint == floor (xint)) 
@@ -2333,7 +2345,7 @@ void	LabelLinAxis (
          xint = (graph->xScaleMax - graph->xScaleMin)/float (step);
 			
 			}	// end "if (xFSigfigs || graph->textWidth > (x_scale*xint)/2.0)"
-   #endif	// defined multispec_lin || ...
+   #endif	// defined multispec_wx || ...
 	*/
 	if ((!(graph->attrb & NU_XLOG)) && ((x_scale*xint) > 10)) 
 		{
@@ -2347,9 +2359,9 @@ void	LabelLinAxis (
 			bevelInset = (SInt16)(5 * graph->textScaling);
 		#endif	// defined multispec_win 
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          bevelInset = (SInt16)(2 * graph->textScaling);
-      #endif // defined multispec_lin
+      #endif // defined multispec_wx
 		
 		offset = clientRectPtr->bottom + size + 
 						(SInt16)(height*2.2) - graph->bottomInset + bevelInset;
@@ -2380,7 +2392,7 @@ void	LabelLinAxis (
 				pDC->TextOut (line, offset, (LPCTSTR)A2T(number), (SInt16)strlen (number));
 			#endif	// defined multispec_win 
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
             pDC->DrawText ((wxString)(number), line, offset - 10);
 			#endif
 			}	// end "for (x_pos = ceil (..."
@@ -2463,7 +2475,7 @@ void LinePlotV (
 											
 	char									sym;
 											
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		char									symbolString[2];
 		wxString								wx_sym;
 		symbolString[0] = 0;
@@ -2486,11 +2498,11 @@ void LinePlotV (
 	
 	numberVectors = graph->numberVectors;
 	
-	#ifndef multispec_lin	
+	#ifndef multispec_wx	
 		CDC* pDC = graph->pDC;
 	#endif
 	
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		wxDC* pDC = graph->pDC;
 	#endif 
 
@@ -2498,7 +2510,7 @@ void LinePlotV (
 	if (x->numberPoints * numberVectors != y->numberPoints) 
 		{
 		*error = NU_NOTSAMESIZEG;
-																										return;
+																								return;
 		
 		}	// end "if (x->numberPoints != y->numberPoints)"
 		
@@ -2544,8 +2556,7 @@ void LinePlotV (
 											graph->vectorDisplayHandle,
 											kLock);
 		
- 	//hasWavelengthValuesFlag = GetHasWavelengthValuesFlag (graph->imageWindow);
-	hasWavelengthValuesFlag = (graph->descriptionCode & kBothReflectiveThermalData);
+ 	hasWavelengthValuesFlag = (graph->descriptionCode & kBothReflectiveThermalData);
 	
 	yValuePtr = y->basePtr;
 	if	(hasWavelengthValuesFlag && graph->xAxisCode > kChannels)
@@ -2607,7 +2618,8 @@ void LinePlotV (
 				
 					if (xWidthPtr != NULL)
 						{
-						x_pointStart = (SInt16)(floor ((x_val-x_width) * x_scale) - x_offset);
+						x_pointStart =
+										(SInt16)(floor ((x_val-x_width) * x_scale) - x_offset);
 						x_pointEnd = (SInt16)(floor ((x_val+x_width) * x_scale) - x_offset);
 						y_pointStart = y_pointEnd;
 						
@@ -2633,10 +2645,10 @@ void LinePlotV (
 							{
 									// This is a draw from the last point
 							/*
-							#if defined multispec_lin
+							#if defined multispec_wx
 								x_pointStart = savedXPoint;
 								y_pointStart = savedYPoint;
-							#endif	// defined multispec_lin
+							#endif	// defined multispec_wx
 							*/
 							}	// end "else !moveFirstFlag"
 					
@@ -2656,11 +2668,11 @@ void LinePlotV (
 						
 						}	// end "if (moveFirstFlag)"
 					
-					#if defined multispec_lin
+					#if defined multispec_wx
 						pDC->DrawLine (x_pointStart, y_pointStart, x_pointEnd, y_pointEnd);
 						x_pointStart = x_pointEnd;
 						y_pointStart = y_pointEnd;
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 
 					#if defined multispec_mac
 						LineTo (x_pointEnd, y_pointEnd);
@@ -2685,7 +2697,7 @@ void LinePlotV (
 						// There was only one point in vector to plot. Need to do
 						// a scatter type plot so the value will show on the graph.
 												 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxColour color;
 					color.Set (vectorPaletteColorPtr[lines]);
 					pDC->SetTextForeground (color);
@@ -2701,7 +2713,7 @@ void LinePlotV (
 				x_pointEnd = (SInt16)(floor (x_val * x_scale) - x_offsetChar);
 				y_pointEnd = (SInt16)(y_offsetChar - floor (y_val * y_scale));
 			
-				#if defined multispec_lin
+				#if defined multispec_wx
 					pDC->DrawText (wx_sym, x_pointEnd, y_pointEnd);
 				#endif
 			
@@ -2821,11 +2833,11 @@ GraphPtr	NewGraph (
 	if (bars)
 		{
 		graph->bottomInset = 16;
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			graph->rightInset = 16;
 		#endif
 		
-		#ifdef multispec_lin
+		#ifdef multispec_wx
 			graph->rightInset = 6;
 		#endif
 		
@@ -2857,7 +2869,7 @@ GraphPtr	NewGraph (
 //
 //
 //
-//	ScatterPlotV(graph, x, y, symbol, error)
+//	ScatterPlotV (graph, x, y, symbol, error)
 //
 //	where:	graph		Pointer to graph record (not graph port)
 //				x			Pointer to x vector
@@ -2911,7 +2923,7 @@ void	ScatterPlotV (
 											x_point, 
 											y_point;
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		char									symbolString[2];
 		wxString								wx_sym;
 		symbolString[0] = 0;
@@ -2937,7 +2949,7 @@ void	ScatterPlotV (
 		pDC->SetBkMode (TRANSPARENT);
 	#endif
 
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		wxDC* pDC = graph->pDC;
 	#endif 
 		
@@ -2956,7 +2968,7 @@ void	ScatterPlotV (
 	else
 		height = (height+1)/2;
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		height = -height;
 	#endif
 		
@@ -2993,7 +3005,7 @@ void	ScatterPlotV (
 		{
 		if (vectorDisplayPtr[lines] > 0)
 			{
-			#if defined multispec_lin
+			#if defined multispec_wx
 				wxColour color;
 				color.Set (vectorPaletteColorPtr[lines]);
 				pDC->SetTextForeground (color);
@@ -3012,7 +3024,7 @@ void	ScatterPlotV (
 			points = vectorLengthsPtr[lines];
 			sym = vectorSymbolPtr[lines];	
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				symbolString[0] = sym;
 				wx_sym = wxString::FromAscii (symbolString);
 			#endif
@@ -3022,7 +3034,7 @@ void	ScatterPlotV (
 			
 			width = CharWidth (sym) / 2;            
 			x_offset = graph->xScaleMin * x_scale + width - 
-																graph->leftInset - clientRectPtr->left;
+															graph->leftInset - clientRectPtr->left;
 			
 			for (loop=0; loop<points; loop++) 
 				{
@@ -3044,7 +3056,7 @@ void	ScatterPlotV (
 					pDC->TextOut (x_point, y_point, A2T(symbolString), 1);
 				#endif	// defined multispec_win
 			
-				#if defined multispec_lin
+				#if defined multispec_wx
 					pDC->DrawText (wx_sym, x_point, y_point);
 				#endif
 				
@@ -3059,7 +3071,7 @@ void	ScatterPlotV (
 		
 	MForeColor (pDC, blackColor);
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxColour color;
 		color.Set (blackColor);
 		pDC->SetTextForeground (color);
@@ -3082,8 +3094,8 @@ void	ScatterPlotV (
 		
 		
 		
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3097,7 +3109,7 @@ void	ScatterPlotV (
 //
 // Value Returned:	None
 // 
-// Called By:			main
+// Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 09/01/1995
 //	Revised By:			Larry L. Biehl			Date: 10/17/2015			
@@ -3115,9 +3127,9 @@ void SetBackgroundColor (
 		pDC->SetBkColor (RGB (level, level, level));
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		//wxColour color;
-		//color.Set (RGB(level, level, level));
+		//color.Set (RGB (level, level, level));
 		//pDC->SetBackgroundColour (color);
 	#endif   
 
@@ -3163,11 +3175,11 @@ void	SetGraphClip (
 	right	= clientRectPtr->right - graph->rightInset;
 	bottom	= clientRectPtr->bottom - graph->bottomInset;
 	
-   #ifndef multispec_lin
+   #ifndef multispec_wx
 		SetRect ((tagRECT*)&tempRect, left, top, right, bottom);
    #endif
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
 		tempRect.bottom = bottom;
 		tempRect.right = right;
 		tempRect.top = top;

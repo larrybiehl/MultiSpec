@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -21,29 +21,14 @@
 //								description, evaluating the covariance matrices and 
 //								evaluating the transformation matrix.
 //
-//	Functions in file:	void 					EvaluateCovariancesControl
-//								Boolean 				EvaluateCovariancesDialog 
-//								void					EvaluateCovariancesDialogOK
-//								void 					EvaluateTransformationControl
-//								void 					EvaluateTransformationDialog
-//								void 					ListCovarianceMatrix
-//								void 					ListDescriptionInformation
-//								void					ListLARSYSMISTHeaderInformation
-//								Boolean				LoadEvaluateCovariancesSpecs
-//								Boolean				LoadEvaluateTransformationSpecs
-//								void 					ReleaseUtilityHandleMemory
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-   #include "LEvaluateCovariancesDialog.h"
-   #include "LEvaluateTransformationDialog.h"
-#endif // defined multispec_lin
+#if defined multispec_wx
+   #include "xEvaluateCovariancesDialog.h"
+   #include "xEvaluateTransformationDialog.h"
+#endif // defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ListEigenvalues		4
@@ -56,29 +41,10 @@
 	#include "WImageView.h"
 	#include "WEvaluateCovarianceDialog.h"
 	#include "WEvaluateTransformationDialog.h"
-#endif	// defined multispec_win
-
-//#include "SExtGlob.h" 	
+#endif	// defined multispec_win	
 
 #define	kDoNotIncludeUTM						0
 #define	kIncludeUTM								1
-
-
-
-extern void EvaluateTransformationInitialize (
-				DialogPtr							dialogPtr,
-				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
-				Boolean*								listEigenvaluesFlagPtr,
-				Boolean*								listOriginalMatrixFlagPtr,
-				Boolean*								checkTransformationFlagPtr,
-				Boolean*								listOriginalXInvertedMatrixFlagPtr);
-							
-extern void EvaluateTransformationOK (
-				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
-				Boolean								listEigenvaluesFlag,
-				Boolean								listOriginalMatrixFlag,
-				Boolean								checkTransformationFlag,
-				Boolean								listOriginalXInvertedMatrixFlag);
 
 
 
@@ -91,14 +57,6 @@ Boolean EvaluateCovariancesDialog (
 
 Boolean EvaluateTransformationDialog (
 				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr);
-
-void EvaluateCovariancesDialogOK (
-				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr,
-				Boolean								listOriginalMatrixFlag,
-				Boolean								listInvertedMatrixFlag,
-				Boolean								listOriginalXInvertedMatrixFlag,
-				Boolean								listInvertedInvertedMatrixFlag,
-				Boolean								featureTransformationFlag);
 
 void ListCovarianceMatrix (
 				HDoublePtr 							covariancePtr, 
@@ -126,7 +84,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 
 
 //------------------------------------------------------------------------------------
-//										Copyright (1988-2019)
+//										Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -141,7 +99,7 @@ Boolean LoadEvaluateTransformationSpecs (void);
 //
 // Value Returned:	None		
 // 
-// Called By:			Menus in menus.c
+// Called By:			OnProcUtilCheckCovariances in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1988
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -259,13 +217,13 @@ void EvaluateCovariancesControl (void)
 					// Update statistics for project if needed.	
 						
 			continueFlag = VerifyProjectStatsUpToDate (
-									&evaluateCovarianceSpecsPtr->numberClasses,
-									evaluateCovarianceSpecsPtr->classPtr,
-									1,
-									gProjectInfoPtr->statisticsCode,
-									kNoStatisticsUsed, 
-									kSetupGlobalInfoPointersIfCan,
-									NULL);
+													&evaluateCovarianceSpecsPtr->numberClasses,
+													evaluateCovarianceSpecsPtr->classPtr,
+													1,
+													gProjectInfoPtr->statisticsCode,
+													kNoStatisticsUsed,
+													kSetupGlobalInfoPointersIfCan,
+													NULL);
 									
 			}	// end "if (continueFlag)" 
 										
@@ -616,8 +574,8 @@ void EvaluateCovariancesControl (void)
 						// second.																	
 				
 				sprintf ((char*)gTextString, 
-							"     %ld CPU seconds for matrix inversion.%s",
-							(UInt32)(endTime-startTime),
+							"     %u CPU seconds for matrix inversion.%s",
+							(unsigned int)(endTime-startTime),
 							gEndOfLine);
 							
 				if (continueFlag)
@@ -767,8 +725,8 @@ void EvaluateCovariancesControl (void)
 							// nearest second.													
 														
 					sprintf ((char*)gTextString, 
-									"     %ld CPU seconds for matrix inversion.%s",
-									(UInt32)(endTime-startTime),
+									"     %u CPU seconds for matrix inversion.%s",
+									(unsigned int)(endTime-startTime),
 									gEndOfLine);
 								
 					if (continueFlag)
@@ -899,7 +857,8 @@ void EvaluateCovariancesControl (void)
 				
 							// List the inversion statistics.									
 		
-					sprintf ((char*)gTextString,
+					sprintf (
+							(char*)gTextString,
 							"%s    Inverted Covariance Matrix using Eigenvector Analysis.%s"
 							"     Det = %14.9e%s  Log Det = %14.9g%s", 
 							gEndOfLine,
@@ -928,8 +887,8 @@ void EvaluateCovariancesControl (void)
 							// second.																	
 														
 					sprintf ((char*)gTextString, 
-								"     %ld CPU seconds for matrix inversion.%s",
-								(UInt32)(endTime-startTime),
+								"     %u CPU seconds for matrix inversion.%s",
+								(unsigned int)(endTime-startTime),
 								gEndOfLine);
 								
 					if (continueFlag)
@@ -1009,8 +968,8 @@ void EvaluateCovariancesControl (void)
 							
 						if (continueFlag)
 							continueFlag = ListString ((char*)gTextString,
-																	(UInt32)strlen ((char*)gTextString),  
-																	gOutputTextH);
+																(UInt32)strlen ((char*)gTextString),
+																gOutputTextH);
 						
 						outputMatrixPtr = savedOutputMatrixPtr;
 						if (continueFlag && 
@@ -1147,7 +1106,7 @@ void EvaluateCovariancesControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1163,7 +1122,7 @@ void EvaluateCovariancesControl (void)
 //
 // Value Returned:	None
 //
-// Called By:			EvaluateCovariancesControl   in other.c
+// Called By:			EvaluateCovariancesControl   in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1990
 //	Revised By:			Larry L. Biehl			Date: 06/10/1998	
@@ -1176,7 +1135,6 @@ Boolean EvaluateCovariancesDialog (
 	Boolean								returnFlag;
 	
 #if defined multispec_mac
-	
 	Rect									theBox;
 	
 	DialogPtr							dialogPtr;
@@ -1201,7 +1159,7 @@ Boolean EvaluateCovariancesDialog (
 	dialogPtr = LoadRequestedDialog (
 							kEvaluateCovarianceSpecificationID, kCopyScrap, 1, 2);
 	if (dialogPtr == NULL)											
-																				return (FALSE);
+																						return (FALSE);
 		
 			// Intialize local user item proc pointers.									
 
@@ -1226,15 +1184,17 @@ Boolean EvaluateCovariancesDialog (
 			// Set flag for listing the original covariance matrix		
 			//          multiplied by the inverted matrix, i.e. identity matrix.	
 			
-	SetDLogControl (dialogPtr, 
-							6, 
-							(SInt16)evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag);
+	SetDLogControl (
+					dialogPtr,
+					6,
+					(SInt16)evaluateCovarianceSpecsPtr->listOriginalXInvertedMatrixFlag);
 	
 			// Set flag for listing the inverted-inverted covariance matrix.																	
 			
-	SetDLogControl (dialogPtr, 
-							7, 
-							(SInt16)evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag);
+	SetDLogControl (
+					dialogPtr,
+					7,
+					(SInt16)evaluateCovarianceSpecsPtr->listInvertedInvertedMatrixFlag);
 		
 			// Set the check box for the feature transformation option.				
 			
@@ -1248,7 +1208,8 @@ Boolean EvaluateCovariancesDialog (
 		}	// end "if (numberEigenvectors <= 0)" 
 		
 	else	// numberEigenvectors > 0 
-		featureTransformationFlag = evaluateCovarianceSpecsPtr->featureTransformationFlag;
+		featureTransformationFlag =
+										evaluateCovarianceSpecsPtr->featureTransformationFlag;
 									
 	CheckFeatureTransformationDialog (dialogPtr, 
 													featureTransformAllowedFlag,
@@ -1438,14 +1399,13 @@ Boolean EvaluateCovariancesDialog (
 		END_CATCH_ALL  	
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
    	CMEvalCovarianceDialog*		dialogPtr = NULL;  
    
       dialogPtr = new CMEvalCovarianceDialog (); 
 				
 		returnFlag = dialogPtr->DoDialog (evaluateCovarianceSpecsPtr); 
-      //returnFlag = TRUE;
-			                       
+	
 		delete dialogPtr;
 	#endif
 	
@@ -1456,7 +1416,7 @@ Boolean EvaluateCovariancesDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1473,7 +1433,8 @@ Boolean EvaluateCovariancesDialog (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			DoDialog in xEvaluateCovariancesDialog.cpp
+//							EvaluateCovariancesDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 04/26/1996
 //	Revised By:			Larry L. Biehl			Date: 05/13/1998	
@@ -1535,7 +1496,7 @@ void EvaluateCovariancesDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1829,7 +1790,7 @@ void EvaluateTransformationControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1845,7 +1806,7 @@ void EvaluateTransformationControl (void)
 //
 // Value Returned:	None
 //
-// Called By:			EvaluateTransformationControl   in other.c
+// Called By:			EvaluateTransformationControl   in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/27/1994
 //	Revised By:			Larry L. Biehl			Date: 05/13/1998	
@@ -1993,7 +1954,7 @@ Boolean EvaluateTransformationDialog (
 		END_CATCH_ALL      	
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
    	CMEvalTransformDialog*		dialogPtr = NULL;
       
    	dialogPtr = new CMEvalTransformDialog (); 
@@ -2090,7 +2051,7 @@ void EvaluateTransformationOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2154,9 +2115,9 @@ void ListCovarianceMatrix (
 			else	// channelsPtr == NULL && featurePtr == NULL
 				channelNumber = channel + 1;
 					
-			#if defined multispec_mac || defined multispec_lin                                          
-				sprintf (stringPtr,  "\t%11ld", channelNumber); 
-			#endif	// defined multispec_mac || defined multispec_lin 
+			#if defined multispec_mac || defined multispec_wx                                          
+				sprintf (stringPtr,  "\t%11u", (unsigned int)channelNumber);
+			#endif	// defined multispec_mac || defined multispec_wx 
 					
 			#if defined multispec_win                                                  
 				sprintf (stringPtr,  "\t%12ld", channelNumber);   
@@ -2185,7 +2146,7 @@ void ListCovarianceMatrix (
 				else	// channelsPtr == NULL && featurePtr == NULL
 					channelNumber = channel + 1;
 				
-				sprintf (gCharBufferPtr1, "    %7ld", channelNumber);
+				sprintf (gCharBufferPtr1, "    %7u", (unsigned int)channelNumber);
 		        
 				numCovChannels = channel;	
 				if (matrixType == 1)
@@ -2195,9 +2156,9 @@ void ListCovarianceMatrix (
 					{
 					stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
 					
-					#if defined multispec_mac || defined multispec_lin
+					#if defined multispec_mac || defined multispec_wx
 						sprintf ((char*)stringPtr, "\t%11.4e", covariancePtr[covIndex]);
-					#endif	// defined multispec_mac || defined multispec_lin
+					#endif	// defined multispec_mac || defined multispec_wx
 					
 					#if defined multispec_win   
 						sprintf ((char*)stringPtr, "\t%12.4e", covariancePtr[covIndex]);  
@@ -2208,7 +2169,7 @@ void ListCovarianceMatrix (
 					}	// end "for (covChan=0; ..." 
 					
 				stringPtr = (Ptr)&gCharBufferPtr1[strlen (gCharBufferPtr1)];
-				sprintf ((char*)stringPtr, gEndOfLine);
+				sprintf ((char*)stringPtr, "%s", gEndOfLine);
 				continueFlag = ListString ((char*)gCharBufferPtr1, 
 													(UInt32)strlen (gCharBufferPtr1), 
 													gOutputTextH);
@@ -2225,7 +2186,7 @@ void ListCovarianceMatrix (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2287,9 +2248,9 @@ void ListDescriptionInformation (void)
 		if (GetKeyState (VK_SHIFT) & 0x8000)
 	#endif	// defined multispec_win 
 		
-	#if defined multispec_lin                                  
+	#if defined multispec_wx                                  
 		if (wxGetKeyState (WXK_SHIFT))
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 			listAllInformationFlag = TRUE; 
 	
 	continueFlag = SetUpActiveImageInformationGlobals (
@@ -2340,8 +2301,8 @@ void ListDescriptionInformation (void)
 					// List the number of lines in the linked image.				
 					
 			sprintf ((char*)gTextString,
-						"  Number of lines in linked image:     %6ld%s", 
-						gImageWindowInfoPtr->maxNumberLines,
+						"  Number of lines in linked image:     %6u%s",
+						(unsigned int)gImageWindowInfoPtr->maxNumberLines,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2354,8 +2315,8 @@ void ListDescriptionInformation (void)
 					// List the number of columns in the linked image.				
 					
 			sprintf ((char*)gTextString,
-						"  Number of columns in linked image:   %6ld%s", 
-						gImageWindowInfoPtr->maxNumberColumns,
+						"  Number of columns in linked image:   %6u%s",
+						(unsigned int)gImageWindowInfoPtr->maxNumberColumns,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,  
 												(UInt32)strlen ((char*)gTextString),  
@@ -2518,7 +2479,7 @@ void ListDescriptionInformation (void)
 																		formatName, 
 																		listAllInformationFlag);
 																
-				}	// end "if (continueFlag && (...->format == kHDF4Type || == kNETCDFType))"
+				}	// end "if (continueFlag && (...->format == kHDF4Type || ..."
 		#endif		// include_hdf_capability
 		
 		#if include_gdal_capability
@@ -2558,7 +2519,7 @@ void ListDescriptionInformation (void)
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2612,7 +2573,7 @@ Boolean ListDescriptionInformationForFile (
 					format = 1;
 				#endif	// defined multispec_mac
 
-				#if defined multispec_win || defined multispec_lin 
+				#if defined multispec_win || defined multispec_wx 
 					format = IDS_FileType01;
 				#endif	// defined multispec_win || ...
 
@@ -2715,7 +2676,7 @@ Boolean ListDescriptionInformationForFile (
 				format += 1;
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win | defined multispec_lin
+			#if defined multispec_win | defined multispec_wx
 				format += IDS_BandInterleave01;
 			#endif	// defined multispec_win	
 
@@ -2730,7 +2691,7 @@ Boolean ListDescriptionInformationForFile (
 					format = 1;
 				#endif	// defined multispec_mac
 
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					format = IDS_BandInterleave01;
 				#endif	// defined multispec_win || ...
 
@@ -2837,8 +2798,8 @@ Boolean ListDescriptionInformationForFile (
 					// List the number of lines in the image file.					
 					
 			sprintf ((char*)gTextString,
-						"    Number of lines:              %10ld%s",
-						fileInfoPtr->numberLines,
+						"    Number of lines:              %10u%s",
+						(unsigned int)fileInfoPtr->numberLines,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2851,8 +2812,8 @@ Boolean ListDescriptionInformationForFile (
 					// List the number of columns in the image file.				
 					
 			sprintf ((char*)gTextString,
-						"    Number of columns:            %10ld%s", 
-						fileInfoPtr->numberColumns,
+						"    Number of columns:            %10u%s",
+						(unsigned int)fileInfoPtr->numberColumns,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2866,8 +2827,8 @@ Boolean ListDescriptionInformationForFile (
 			
 			if (fileInfoPtr->thematicType)	
 				sprintf ((char*)gTextString,
-							"    Number of classes:            %10ld%s",
-							fileInfoPtr->numberClasses,
+							"    Number of classes:            %10u%s",
+							(unsigned int)fileInfoPtr->numberClasses,
 							gEndOfLine);
 			else	// !fileInfoPtr->thematicType 		
 				sprintf ((char*)gTextString,
@@ -2917,8 +2878,8 @@ Boolean ListDescriptionInformationForFile (
 						// List the number of header bytes in the image file.	
 						
 			sprintf ((char*)gTextString,
-						"    Number of header bytes:       %10ld%s", 
-						fileInfoPtr->numberHeaderBytes,
+						"    Number of header bytes:       %10u%s",
+						(unsigned int)fileInfoPtr->numberHeaderBytes,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2935,11 +2896,11 @@ Boolean ListDescriptionInformationForFile (
 						// List the number of pre-line bytes in the image file.	
 						
 			sprintf ((char*)gTextString,
-						"    Number of pre-line bytes:     %10ld%s" 
-						"    Number of post-line bytes:    %10ld%s", 
-						fileInfoPtr->numberPreLineBytes,
+						"    Number of pre-line bytes:     %10u%s"
+						"    Number of post-line bytes:    %10u%s",
+						(unsigned int)fileInfoPtr->numberPreLineBytes,
 						gEndOfLine, 
-						fileInfoPtr->numberPostLineBytes,
+						(unsigned int)fileInfoPtr->numberPostLineBytes,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,  
 												(UInt32)strlen ((char*)gTextString),  
@@ -2953,11 +2914,11 @@ Boolean ListDescriptionInformationForFile (
 											fileInfoPtr->bandInterleave == kBNonSQ))
 				{			
 				sprintf ((char*)gTextString,
-							"    Number of pre-channel bytes:  %10ld%s"
-							"    Number of post-channel bytes: %10ld%s", 
-							fileInfoPtr->numberPreChannelBytes,
+							"    Number of pre-channel bytes:  %10u%s"
+							"    Number of post-channel bytes: %10u%s",
+							(unsigned int)fileInfoPtr->numberPreChannelBytes,
 							gEndOfLine, 
-							fileInfoPtr->numberPostChannelBytes,
+							(unsigned int)fileInfoPtr->numberPostChannelBytes,
 							gEndOfLine);
 				continueFlag = ListString ((char*)gTextString,
 													(UInt32)strlen ((char*)gTextString),
@@ -2979,10 +2940,10 @@ Boolean ListDescriptionInformationForFile (
 										&blockOffset);
 						
 			sprintf ((char*)gTextString,
-						"    Block height:                 %10ld%s" 
-						"    Block width:                  %10ld%s",
-						blockHeight, gEndOfLine, 
-						blockWidth, gEndOfLine);
+						"    Block height:                 %10u%s"
+						"    Block width:                  %10u%s",
+						(unsigned int)blockHeight, gEndOfLine,
+						(unsigned int)blockWidth, gEndOfLine);
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
 												gOutputTextH);
@@ -2990,10 +2951,10 @@ Boolean ListDescriptionInformationForFile (
 			if (fileInfoPtr->blockedFlag)
 				{
 				sprintf ((char*)gTextString,
-							"    Block size:                   %10ld%s" 
-							"    Block offset:                 %10ld%s",
-							blockSize, gEndOfLine, 
-							blockOffset, gEndOfLine);
+							"    Block size:                   %10u%s"
+							"    Block offset:                 %10u%s",
+							(unsigned int)blockSize, gEndOfLine,
+							(unsigned int)blockOffset, gEndOfLine);
 				continueFlag = ListString ((char*)gTextString,
 													(UInt32)strlen ((char*)gTextString),
 													gOutputTextH);
@@ -3005,11 +2966,11 @@ Boolean ListDescriptionInformationForFile (
 		if (continueFlag)
 			{			
 			sprintf ((char*)gTextString,
-						"    Line start:                   %10ld%s"
-						"    Column start:                 %10ld%s", 
-						fileInfoPtr->startLine,
+						"    Line start:                   %10u%s"
+						"    Column start:                 %10u%s",
+						(unsigned int)fileInfoPtr->startLine,
 						gEndOfLine,
-						fileInfoPtr->startColumn,
+						(unsigned int)fileInfoPtr->startColumn,
 						gEndOfLine);
 			continueFlag = ListString ((char*)gTextString, 
 												(UInt32)strlen ((char*)gTextString),
@@ -3034,8 +2995,8 @@ Boolean ListDescriptionInformationForFile (
 		if (continueFlag && fileInfoPtr->treatLinesAsBottomToTopFlag)
 			{
 			sprintf ((char*)gTextString,
-							"    Lines stored from bottom to top (rather than top to bottom)%s", 
-							gEndOfLine);
+						"    Lines stored from bottom to top (rather than top to bottom)%s",
+						gEndOfLine);
 				
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -3052,7 +3013,7 @@ Boolean ListDescriptionInformationForFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3108,7 +3069,7 @@ void ListInstrumentName (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3190,9 +3151,9 @@ Boolean ListLARSYSMISTHeaderInformation (
 		Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[2], 1);
 																				
 	sprintf ((char*)gTextString,
-				"%s    LARSYS Run Number:    %8ld%s",
+				"%s    LARSYS Run Number:    %8u%s",
 				gEndOfLine,  
-				headerRecordPtr[2],
+				(unsigned int)headerRecordPtr[2],
 				gEndOfLine);
 	continueFlag = ListString ((char*)gTextString,
 										(UInt32)strlen ((char*)gTextString), 
@@ -3235,10 +3196,10 @@ Boolean ListLARSYSMISTHeaderInformation (
 			}	// end "if (gSwapBytesFlag)"
 		
 		sprintf ((char*)gTextString,
-					"    Date data collected:  %2ld-%2ld-%ld%s", 
-					headerRecordPtr[10],
-					headerRecordPtr[11],
-					headerRecordPtr[12],
+					"    Date data collected:  %2u-%2u-%u%s",
+					(unsigned int)headerRecordPtr[10],
+					(unsigned int)headerRecordPtr[11],
+					(unsigned int)headerRecordPtr[12],
 					gEndOfLine);
 		continueFlag = ListString ((char*)gTextString, 
 											(UInt32)strlen ((char*)gTextString), 
@@ -3278,8 +3239,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[14], 1);
 			
 		sprintf ((char*)gTextString,
-					"    Altitude of platform: %ld%s", 
-					headerRecordPtr[14],
+					"    Altitude of platform: %u%s",
+					(unsigned int)headerRecordPtr[14],
 					gEndOfLine);
 		continueFlag = ListString ((char*)gTextString, 
 											(UInt32)strlen ((char*)gTextString), 
@@ -3295,8 +3256,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[15], 1);
 			
 		sprintf ((char*)gTextString,
-					"    Ground heading:       %ld%s", 
-					headerRecordPtr[15],
+					"    Ground heading:       %u%s",
+					(unsigned int)headerRecordPtr[15],
 					gEndOfLine);
 		continueFlag = ListString ((char*)gTextString, 
 											(UInt32)strlen ((char*)gTextString), 
@@ -3336,8 +3297,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[0], 1);
 			
 		sprintf ((char*)gTextString,
-					"    LARSYS Tape Number:   %ld%s", 
-					headerRecordPtr[0],
+					"    LARSYS Tape Number:   %u%s",
+					(unsigned int)headerRecordPtr[0],
 					gEndOfLine);
 		continueFlag = ListString ((char*)gTextString,
 											(UInt32)strlen ((char*)gTextString), 
@@ -3353,8 +3314,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[1], 1);
 			
 		sprintf ((char*)gTextString,
-					"    LARSYS File Number:   %ld%s%s", 
-					headerRecordPtr[1],
+					"    LARSYS File Number:   %u%s%s",
+					(unsigned int)headerRecordPtr[1],
 					gEndOfLine,
 					gEndOfLine);
 		continueFlag = ListString ((char*)gTextString,
@@ -3376,7 +3337,7 @@ Boolean ListLARSYSMISTHeaderInformation (
 																
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3559,7 +3520,7 @@ Boolean ListMapParameters (
 			gTextString2[gTextString2[0]+1] = 0;
 		#endif	// defined multispec_mac   
                           
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			MGetString (
 					gTextString2,
 					0,
@@ -3587,7 +3548,7 @@ Boolean ListMapParameters (
 				gTextString2[gTextString2[0]+1] = 0;
 			#endif	// defined multispec_mac   
 									  
-			#if defined multispec_win | defined multispec_lin
+			#if defined multispec_win | defined multispec_wx
 				MGetString (
 						gTextString2,
 						0,
@@ -3612,7 +3573,8 @@ Boolean ListMapParameters (
 			{
 			sprintf ((char*)gTextString,
 						"      map orientation angle:       %10.7f%s",
-						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle*kRadiansToDegrees,
+						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle *
+																						kRadiansToDegrees,
 						gEndOfLine);
 					
 			if (continueFlag)	
@@ -3633,9 +3595,9 @@ Boolean ListMapParameters (
 			if (controlPointsPtr->count <= 20 || listAllInformationFlag)
 				{
 				sprintf ((char*)gTextString,
-							"%s      Control Points:  %ld%s          Column       Line         MapX          MapY%s",
+							"%s      Control Points:  %u%s          Column       Line         MapX          MapY%s",
 							gEndOfLine,
-							controlPointsPtr->count,
+							(unsigned int)controlPointsPtr->count,
 							gEndOfLine,
 							gEndOfLine);
 						
@@ -3666,9 +3628,9 @@ Boolean ListMapParameters (
 			else if (controlPointsPtr->count > 20)
 				{
 				sprintf ((char*)gTextString,
-							"%s      There are %ld control points. Use shift key with List Image Description... to force them to be listed.%s",
+							"%s      There are %u control points. Use shift key with List Image Description... to force them to be listed.%s",
 							gEndOfLine,
-							controlPointsPtr->count,
+							(unsigned int)controlPointsPtr->count,
 							gEndOfLine);
 						
 				if (continueFlag)	
@@ -4076,7 +4038,7 @@ Boolean ListMapParameters (
 						gTextString2[gTextString2[0]+1] = 0;
 					#endif	// defined multispec_mac   
 										  
-					#if defined multispec_win | defined multispec_lin
+					#if defined multispec_win | defined multispec_wx
 						MGetString (gTextString2,
 								0,
 							IDS_Datum00+mapProjectionInfoPtr->geodetic.datumCode);
@@ -4113,7 +4075,7 @@ Boolean ListMapParameters (
 						gTextString2[gTextString2[0]+1] = 0;
 					#endif	// defined multispec_mac   
 										  
-					#if defined multispec_win || defined multispec_lin
+					#if defined multispec_win || defined multispec_wx
 						MGetString (
 								gTextString2,
 								0,
@@ -4191,7 +4153,7 @@ Boolean ListMapParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4375,7 +4337,7 @@ Boolean LoadEvaluateCovariancesSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

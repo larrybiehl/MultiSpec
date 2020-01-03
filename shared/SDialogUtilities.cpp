@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,37 +19,6 @@
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec.
-//
-//	Functions in file:	SInt32 					AddChannelsToDialogList
-//								Boolean 					CheckFeatureTransformationDialog
-//								void 						CloseStatusDialog
-//								SInt16	  				DisplayAlert
-//								pascal void 			DrawGraphicsBox
-//								void 						DupClassFieldNameAlert
-//								Boolean 					GetDialogLocalVectors
-//								SInt64					GetNumberOfSelectedPixels
-//								DialogPtr 				GetStatusDialog
-//								void 						HideStatusDialogItemSet
-//								void 						InitializeDialogFeatureParameters
-//								void 						InitializeDialogSelectArea
-//								void 						LoadDialogLocalVectors
-//								void						LoadDItemRealValue
-//								void 						LoadDItemString
-//								void 						LoadDItemStringNumber
-//								void 						LoadDItemValue
-//								void 						LoadProcessorVectorsFromDialogLocalVectors
-//								void 						LoadSubsetList
-//								void 						MHideDialogItem
-//								void 						NumberErrorAlert
-//								void 						PositionDialogWindow
-//								void 						ReleaseDialogLocalVectors
-//								void 						SaveSubsetList
-//								void						SetDLogControl
-//								void						SetDLogControlHilite
-//								void 						SetDLogControlTitle
-//								void						ShowHideDialogItem
-//								void 						ShowStatusDialogItemSet
-//								SInt16	 				UpdateOneColListSelections
 /*
 	Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
@@ -61,13 +30,13 @@
                 
 #include "SMultiSpec.h"  
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/wx.h"
 	#include "wx/msgdlg.h"
 	#include "wx/string.h"
 	#include "wx/colour.h"
-	#include "LMultiSpec.h"
-	#include "LStatusDialog.h"
+	#include "xMultiSpec.h"
+	#include "xStatusDialog.h"
 #endif
 
 #if defined multispec_mac  
@@ -75,11 +44,9 @@
 #endif	// defined multispec_mac
 
 #if defined multispec_win     
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WStatusDialog.h"
 #endif	// defined multispec_win
-
-//#include "SExtGlob.h"		
 
 //GetDialogItem (dialog, itemIndex, &itemType, &itemHandle, &itemRect);
 //itemType |= itemDisable;
@@ -93,15 +60,10 @@
 //  kItemDisableBit               = 128
 
 
-void LoadDItemString (
-				DialogPtr							dialogPtr,
-				SInt16								itemNumber,
-				CharPtr								theStringPtr);
-
 
 /*                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -158,7 +120,7 @@ void ActivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								 Purdue Research Foundation
 //									All rights reserved.
 //
@@ -173,17 +135,18 @@ void ActivateDialogItem (
 //
 // Value Returned:	None	
 // 
-// Called By:			ChannelsDialog 			in dialogUtilities.c
+// Called By:			OnInitDialog in xChannelsDialog.cpp
+//							OnInitDialog in xFalseColorDialog.cpp
 //							FalseColorPaletteDialog in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
 
 SInt32 AddChannelsToDialogList (
-			#ifdef multispec_lin
+			#ifdef multispec_wx
 				wxListBox*							listHandle,
 			#endif
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				ListHandle							listHandle,
 			#endif
 				SInt16*								numberOutputFeatures, 
@@ -355,204 +318,13 @@ SInt32 AddChannelsToDialogList (
 		}	// end "if (listHandle != NULL)"
 		
 	return (index);
-//#endif //ifndef multispec_lin
-}	// end "AddChannelsToDialogList"
-
-/*
-#if defined multispec_lin
-SInt32 AddChannelsToDialogList (
-				wxListBox*							listHandle,
-				SInt16*								numberOutputFeatures, 
-				SInt16* 								selectedFeaturePtr, 
-				LayerInfoPtr						layerInfoPtr,
-				FileInfoPtr							fileInfoPtr,
-				SInt16								listType, 
-				SInt16* 								availableFeaturePtr, 
-				SInt32								numberInputChannels,
-				SInt16								currentSelection)
-
-{
-    
-	Cell									cell;
-	ChannelDescriptionPtr			channelDescriptionPtr;
-	
-	char									*spacer = ": ";
-	
-	FileInfoPtr							localFileInfoPtr;
-	
-	SInt32								estimatedLengthListDescription;
-
-	SInt16								channel,
-											channelNum,
-											fileChanNum,
-											fileInfoIndex,
-											index,
-											row,
-											startString;
-											
-	Boolean								highLightSelectionOKFlag;
-									
-									
-			// Initialize local variables.													
-			
-	channelDescriptionPtr = NULL;
-	fileInfoIndex = -1;
-	localFileInfoPtr = NULL;
-	
-			// Get estimate of the length of the description in the list.			
-			// Use 22 for the description list - 4 for channel number and 18 		
-			// for the channel description.													
-		
-	estimatedLengthListDescription = (SInt32)numberInputChannels * 22;
-									
-	if (listHandle != NULL)
-		{
-		#if defined multispec_mac
-					// If list type is 2 or 3, change the select specification.			
-			
-			if (listType == kItemsListOnly || listType == kSelectedItemsListOnly)
-				(*listHandle)->selFlags = lOnlyOne;
-		#endif	// defined multispec_mac
-		
-				// Put the channels into the list.											
-		#ifndef multispec_lin		
-			LSetDrawingMode (FALSE, listHandle);
-		#endif
-		
-		highLightSelectionOKFlag = TRUE;
-		#if defined multispec_lin
-			if (numberInputChannels > 1000)
-				highLightSelectionOKFlag = FALSE;
-		#endif	// defined multispec_lin
-		
-		if (numberInputChannels > 0)
-			{
-			#if defined multispec_mac
-				row = LAddRow ((SInt16)numberInputChannels, 0, listHandle);
-			#endif	// defined multispec_mac
-			 
-			index = 0;
-			cell.h = 0;
-			for (channel=0; channel<numberInputChannels; channel++)
-				{																
-						// Add channel number and description to the channel list.	
-							
-				cell.v = channel;
-				
-						// Get channel number from available feature list if it 		
-						// exists.  Otherwise assume all channels.						
-						
-				if (availableFeaturePtr != NULL)
-					channelNum = availableFeaturePtr[channel];
-					
-				else	// availableFeaturePtr == NULL
-					channelNum = channel;
-				
-				channelNum++;		
-				NumToString ((SInt32)channelNum, gTextString);
-				
-						// If description for channel exists, add the description	
-						// the cell.																
-						// First get a pointer to the channel descriptions if 		
-						// they exist.																
-				
-				if (fileInfoPtr != NULL && layerInfoPtr != NULL &&
-							fileInfoIndex != (SInt16)layerInfoPtr[channelNum].fileInfoIndex)
-					{
-					if (fileInfoIndex != -1)	
-						CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
-						
-					fileInfoIndex = layerInfoPtr[channelNum].fileInfoIndex;
-					localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
-		
-					channelDescriptionPtr = NULL;
-					if (localFileInfoPtr->channelDescriptionH != NULL && 
-											estimatedLengthListDescription < SInt16_MAX)
-						{
-						channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
-													localFileInfoPtr->channelDescriptionH, 
-													kLock);
-						
-						}	// end "if (fileInfoPtr != NULL && fileInfoPtr->...)" 
-						
-					}	// end "if (fileInfoPtr != NULL && ..." 
-						
-				if (channelDescriptionPtr != NULL)
-					{
-					startString = gTextString[0] + 1;
-					BlockMoveData (spacer, &gTextString[startString], 2);
-																
-					startString += 2;
-					fileChanNum = layerInfoPtr[channelNum].fileChannelNumber;
-					BlockMoveData (&channelDescriptionPtr[fileChanNum-1],
-																&gTextString[startString], 16);
-					gTextString[0] += 18;
-					gTextString[gTextString[0]+1] = 0;
-					
-					}	// end "if (channelDescriptionPtr != NULL)" 
-					
-						// Load the string into the cell.									
-						
-				LSetCell ((char*)&gTextString[1],
-								(short int)gTextString[0],
-								cell,
-								listHandle);
-			
-						// Make certain that we didn't have a memory with the last	
-						// setting of the list for the cell.								
-						
-				if (gMemoryError != noErr)
-					break;
-				
-						// Select the cell if the channel is in the selected 			
-						// channel list and the list type is 1, 3 or 4.					
-				
-				Boolean tempFlag = FALSE;
-				if (listType == kSelectItemsList || 
-									listType == kSelectedItemsListOnly ||
-													listType == kSelectPCList)
-					{
-					if (currentSelection == kAllMenuItem || 
-							(index<*numberOutputFeatures &&
-													selectedFeaturePtr[index] == (SInt16)channel))
-						tempFlag = TRUE;
-						
-					}	// end "if (listType == kSelectItemsList || ..."
-					
-				if (highLightSelectionOKFlag)
-					LSetSelect (tempFlag, cell, listHandle);
-						
-				if (tempFlag)
-					index++; 
-				
-				}	// end "for (channel=0; ... 
-				
-			}	// end "if (numberInputChannels > 0)" 
-	
-		#ifndef multispec_lin		
-					// Scroll to the hilited list item.												
-		                  		
-			LAutoScroll (listHandle);
-			
-					// Turn list drawing mode back on.											
-	  				
-			LSetDrawingMode (TRUE, listHandle);
-		#endif
-	
-		if (localFileInfoPtr != NULL)
-			CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
-		
-		}	// end "if (listHandle != NULL)"
-		
-	return (index);
 
 }	// end "AddChannelsToDialogList"
-#endif	// defined multispec_lin
-*/
+
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -595,14 +367,13 @@ SInt16 CheckMaxValue (
 			{
 			SetDLogControlHilite (dialogPtr, 1, 255);
 			
-			if (LoadSpecifiedStringNumberLongP (
-												kAlertStrID, 
-												IDS_Alert91, 
-												(char*)gTextString,
-												(char*)gTextString2,
-												TRUE,
-												(SInt32)minValue,
-												(SInt32)maxValue))
+			if (LoadSpecifiedStringNumberLongP (kAlertStrID,
+															IDS_Alert91, 
+															(char*)gTextString,
+															(char*)gTextString2,
+															TRUE,
+															(SInt32)minValue,
+															(SInt32)maxValue))
 				{
 				DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
 					
@@ -634,7 +405,7 @@ SInt16 CheckMaxValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -678,7 +449,7 @@ SInt16 CheckDialogRealValue (
 		theRealValue = GetDItemRealValue (dialogPtr, itemNumber);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		//wxTextCtrl* textctrl = (wxTextCtrl*)dialogPtr->FindWindow (itemNumber);
       wxString stringValue;
       wxTextCtrl* textctrl = wxDynamicCast (
@@ -698,7 +469,7 @@ SInt16 CheckDialogRealValue (
 			}	// end "else textctrl == NULL"
       
       theRealValue = wxAtof (stringValue);
-	#endif   // defined multispec_lin
+	#endif   // defined multispec_wx
 	
 	if (minValueAllowedFlag)
 		errorFlag = (theRealValue < minValue);
@@ -781,8 +552,9 @@ SInt16 CheckDialogRealValue (
 }	// end "CheckDialogRealValue" 
 
 
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -808,7 +580,6 @@ Boolean CheckFeatureTransformationDialog (
 				SInt16								featureTransformItem, 
 				SInt16								channelFeatureItem, 
 				Boolean*								featureTransformationFlagPtr)
-
 
 {	
 	SInt16								stringNumber;
@@ -843,7 +614,7 @@ Boolean CheckFeatureTransformationDialog (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -881,10 +652,10 @@ void CloseStatusDialog (
 			//delete gStatusDialogPtr;	  
 		#endif	// defined multispec_win 
 
-      #if defined multispec_lin
+      #if defined multispec_wx
          gStatusDialogPtr->Show (false);
          gStatusDialogPtr->Destroy ();
-      #endif	// defined multispec_lin
+      #endif	// defined multispec_wx
 		
 		}	// end "if (gStatusDialogPtr != NULL)"
 		
@@ -895,9 +666,10 @@ void CloseStatusDialog (
 	
 }	// end "CloseStatusDialog" 
 
+
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -978,7 +750,7 @@ SInt16 CreateUnicodeStaticTextControl (
  
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1035,7 +807,7 @@ void DeactivateDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1082,7 +854,7 @@ SInt16 DisplayAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1490,7 +1262,7 @@ SInt16 DisplayAlert (
 			}	// end "switch (itemHit)"	
 	#endif // defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		unsigned char	textptr[256];
 		wxString			message;
 		long				style;
@@ -1558,7 +1330,7 @@ SInt16 DisplayAlert (
 				break;
 
 			}	// end "switch (itemHit)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	return (itemHit);
 
@@ -1567,7 +1339,7 @@ SInt16 DisplayAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1583,9 +1355,9 @@ SInt16 DisplayAlert (
 //
 // Value Returned:	None	
 // 
-// Called By:			EditGroupNameDialog in classToGroup.c
-//							EditClassFieldDialog in editStatistics.c
-//							NewClassFieldDialog in statistics.c
+// Called By:			EditGroupClassDialog in SThematicWindow.cpp
+//							EditClassFieldDialog in SEditStatistics.cpp
+//							NewClassFieldDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/20/1989
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017	
@@ -1626,7 +1398,7 @@ void DupClassFieldNameAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1642,9 +1414,9 @@ void DupClassFieldNameAlert (
 //
 // Value Returned:	None	
 // 
-// Called By:			EditGroupNameDialog in classToGroup.c
-//							EditClassFieldDialog in editStatistics.c
-//							NewClassFieldDialog in statistics.c
+// Called By:			EditGroupClassDialog in SThematicWindow.cpp
+//							EditClassFieldDialog in SEditStatistics.cpp
+//							NewClassFieldDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/01/1998
 //	Revised By:			Larry L. Biehl			Date: 10/13/2015	
@@ -1805,15 +1577,13 @@ Boolean GetDialogLocalVectors (
 		}	// end "if (continueFlag && ..." 
 		
 	return (continueFlag);
-//#else
-//    return FALSE;
-//#endif
-}	// end "GetDialogLocalVectors"	
+
+}	// end "GetDialogLocalVectors"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1878,19 +1648,19 @@ SInt32 GetDItemValue (
 		return (dialogPtr->GetDialogItemValue (itemNumber));
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
       wxTextCtrl* textctrl = (wxTextCtrl*)dialogPtr->FindWindow (itemNumber);
       wxString strval;
       strval = textctrl->GetValue ();
       return (wxAtoi (strval));
-	#endif   // defined multispec_lin
+	#endif   // defined multispec_wx
 																	
 }	// end "GetDItemValue"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1945,7 +1715,7 @@ void GetMultiSpecDialogItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1991,7 +1761,7 @@ SInt64 GetNumberOfSelectedPixels (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2221,10 +1991,9 @@ DialogPtr GetStatusDialog (
 			}	// end "if (statusDialogPtr != NULL)"	
 	#endif	// defined multispec_win
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CShortStatusDlg* statusDialogPtr2 = new CShortStatusDlg (
 																		statusInfoID,
-																		//(wxWindow*)GetMainFrame ());
 																		NULL);
  
 		if (statusDialogPtr2 != NULL)
@@ -2330,7 +2099,7 @@ DialogPtr GetStatusDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2470,7 +2239,7 @@ void HideStatusDialogItemSet (
 			}	// end "switch (setNumber)" 
 	#endif	// defined multispec_win 
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		switch (setNumber)
 			{
 			case kStatusTitle1: // Title1
@@ -2524,14 +2293,14 @@ void HideStatusDialogItemSet (
             break;
 
 			}	// end "switch (setNumber)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 }	// end "HideStatusDialogItemSet"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2546,7 +2315,7 @@ void HideStatusDialogItemSet (
 //
 // Value Returned: 	None
 //
-// Called By:			StatisticsDialog   in statistics.c
+// Called By:			StatisticsDialog   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/04/1998
 //	Revised By:			Larry L. Biehl			Date: 01/28/2003
@@ -2591,7 +2360,7 @@ void InitializeDialogFeatureParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2606,7 +2375,7 @@ void InitializeDialogFeatureParameters (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialogInitialize  in SClasfy2.cpp
+// Called By:			ClassifyDialogInitialize  in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/19/1999
 //	Revised By:			Larry L. Biehl			Date: 03/19/1999
@@ -2644,7 +2413,7 @@ void InitializeDialogSelectArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2695,7 +2464,7 @@ void InvalDialogItemRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2710,7 +2479,7 @@ void InvalDialogItemRect (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/13/1998
 //	Revised By:			Larry L. Biehl			Date: 04/01/2000
@@ -2808,7 +2577,7 @@ void LoadDialogLocalVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2825,7 +2594,7 @@ void LoadDialogLocalVectors (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
 //	Revised By:			Larry L. Biehl			Date: 04/21/2006
@@ -2848,7 +2617,7 @@ void LoadDItemRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2870,7 +2639,7 @@ void LoadDItemRealValue (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
 //	Revised By:			Larry L. Biehl			Date: 03/16/2012
@@ -2974,10 +2743,10 @@ void LoadDItemRealValue (
 		   dialogPtr->LoadDItemString ((UInt16)itemNumber, (Str255*)gTextString);
 		#endif // defined multispec_win 
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
         dialogPtr->LoadDItemString ((UInt16) itemNumber, (Str255*)gTextString);
         dialogPtr->Fit ();
-      #endif // defined multispec_lin
+      #endif // defined multispec_wx
 
 		}	// end "if (dialogPtr != NULL && itemNumber > 0)" 
 	
@@ -2986,7 +2755,7 @@ void LoadDItemRealValue (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3003,7 +2772,7 @@ void LoadDItemRealValue (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2017
 //	Revised By:			Larry L. Biehl			Date: 09/04/2017
@@ -3024,7 +2793,7 @@ void LoadDItemString (
 
                                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3040,7 +2809,7 @@ void LoadDItemString (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1989
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
@@ -3118,7 +2887,7 @@ void LoadDItemString (
 					
 							// Using CFallocatorDeallocate causes system to crash later.
 							// Not sure when one should use it and not use it.
-					//CFAllocatorDeallocate (kCFAllocatorDefault, (void*)cfStringRef);
+
 					CFRelease (cfStringRef);
 					
 					}	// end "if (cfStringRef != NULL)"
@@ -3148,10 +2917,10 @@ void LoadDItemString (
 			END_CATCH_ALL         
 		#endif	// defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 					// No error handling for now
          dialogPtr->LoadDItemString ((UInt16)itemNumber, theStringPtr);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		
 		}	// end "if (dialogPtr != NULL && itemNumber > 0)" 
 						  
@@ -3171,9 +2940,9 @@ void LoadDItemString (
 			LoadDItemString (dialogPtr, itemNumber, (Str255*)theStringPtr);
 		#endif	// defined multispec_mac
 	
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 		   dialogPtr->LoadDItemString ((UInt16)itemNumber, theStringPtr); 
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 					
 		}	// end "if (dialogPtr != NULL && itemNumber > 0)" 
 						  
@@ -3182,7 +2951,7 @@ void LoadDItemString (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3198,7 +2967,7 @@ void LoadDItemString (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1993
 //	Revised By:			Larry L. Biehl			Date: 05/01/2015
@@ -3217,7 +2986,7 @@ void LoadDItemStringNumber (
 			{
 			LoadDItemString (dialogPtr, itemNumber, stringPtr);
 		
-			#ifdef multispec_lin
+			#ifdef multispec_wx
 				dialogPtr->Fit ();
 			#endif
 			
@@ -3230,7 +2999,7 @@ void LoadDItemStringNumber (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3246,7 +3015,7 @@ void LoadDItemStringNumber (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1988
 //	Revised By:			Larry L. Biehl			Date: 01/20/2016
@@ -3259,10 +3028,10 @@ void LoadDItemValue (
 {   
 	if (dialogPtr != NULL && itemNumber > 0)
 		{   
-		#if defined multispec_lin
+		#if defined multispec_wx
 	   	dialogPtr->LoadDItemValue (itemNumber, (SInt32)theNum);
 			dialogPtr->Fit ();
-		#endif // defined multispec_lin
+		#endif // defined multispec_wx
 		
 		#if defined multispec_mac
 			Handle					theHandle;
@@ -3285,7 +3054,7 @@ void LoadDItemValue (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3301,7 +3070,7 @@ void LoadDItemValue (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/27/2010
 //	Revised By:			Larry L. Biehl			Date: 01/20/2016
@@ -3336,10 +3105,10 @@ void LoadDItemValueWithCommas (
 	   	dialogPtr->LoadDItemString (itemNumber, (char*)&pixelCountString[1]);
 		#endif // defined multispec_win
 
-      #if defined multispec_lin
+      #if defined multispec_wx
 	   	dialogPtr->LoadDItemString (itemNumber, (char*)&pixelCountString[1]);
 			dialogPtr->Fit ();
-		#endif // defined multispec_lin
+		#endif // defined multispec_wx
 		
 		}	// end "if (dialogPtr != NULL && itemNumber > 0)" 
 	
@@ -3348,7 +3117,7 @@ void LoadDItemValueWithCommas (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3487,7 +3256,7 @@ void LoadLineColumnItems (
 									dialogSelectAreaPtr->columnInterval);
 	#endif	// defined multispec_mac  	
 			
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		if (dialogSelectAreaPtr->imageWindowInfoPtr != NULL)
 			dialogPtr->SetMaxNumberLinesAndColumns (
 									dialogSelectAreaPtr->imageWindowInfoPtr->maxNumberLines,
@@ -3582,14 +3351,14 @@ void LoadLineColumnItems (
 				}	// end "if (lineColumnSetNumber == 3)"
 				
 			}	// end "if (initializeLineColumnValuesFlag)"
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 				
 }	// end "LoadLineColumnItems" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3755,7 +3524,7 @@ void LoadProcessorVectorsFromDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3859,7 +3628,7 @@ void LoadSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3874,7 +3643,7 @@ void LoadSubsetList (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1995
 //	Revised By:			Larry L. Biehl			Date: 11/14/1995
@@ -3890,9 +3659,9 @@ void MHideDialogItem (
 			HideDialogItem (dialogPtr, itemNumber);
 		#endif	// defined multispec_mac
 
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 	   	dialogPtr->MHideDialogItem (dialogPtr, itemNumber);
-		#endif // defined multispec_win || defined multispec_lin
+		#endif // defined multispec_win || defined multispec_wx
 		
 		}	// end "if (dialogPtr != NULL && itemNumber > 0)" 
 	
@@ -3901,7 +3670,7 @@ void MHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3941,7 +3710,7 @@ void NumberErrorAlert (
                                                 
 #if defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4005,7 +3774,7 @@ void PositionDialogWindow (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4050,7 +3819,7 @@ void ReleaseDialogLocalVectors (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4142,7 +3911,7 @@ void SaveSubsetList (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4169,10 +3938,10 @@ void SetDialogItemToEditText (
 {   
 	if (dialogPtr != NULL && itemNumber > 0)
 		{   
-		#if defined multispec_lin
+		#if defined multispec_wx
 			wxTextCtrl* text = (wxTextCtrl*) (dialogPtr->FindWindow (itemNumber));
 			text->Enable (true);
-		#endif // defined multispec_lin
+		#endif // defined multispec_wx
 
 		#if defined multispec_mac
 			Handle					theHandle;
@@ -4201,7 +3970,7 @@ void SetDialogItemToEditText (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4228,7 +3997,7 @@ void SetDialogItemToStaticText (
 {   
 	if (dialogPtr != NULL && itemNumber > 0)
 		{   
-		#if defined multispec_lin
+		#if defined multispec_wx
 			wxTextCtrl* text = (wxTextCtrl*)(dialogPtr->FindWindow (itemNumber));
 			//text->SetEditable (false);
 			//text->Disable ();
@@ -4262,7 +4031,7 @@ void SetDialogItemToStaticText (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4277,7 +4046,7 @@ void SetDialogItemToStaticText (
 //
 // Value Returned: 	None
 //
-// Called By:			StatisticsDialog   in statistics.c
+// Called By:			StatisticsDialog   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/30/1989
 //	Revised By:			Larry L. Biehl			Date: 03/01/1996
@@ -4288,7 +4057,7 @@ void SetDLogControl (
 				SInt16								setting)
 
 {
-   #if defined multispec_lin
+   #if defined multispec_wx
 		wxCheckBox* buttonPtr = wxDynamicCast (
 											dialogPtr->FindWindow (itemNumber), wxCheckBox);
 	
@@ -4313,7 +4082,7 @@ void SetDLogControl (
             return;
 				}
 			}
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 
 	#if defined multispec_mac
 		Handle							theHandle;
@@ -4344,7 +4113,7 @@ void SetDLogControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4359,7 +4128,7 @@ void SetDLogControl (
 //
 // Value Returned: 	None
 //
-// Called By:			ControlDialog   in control.c
+// Called By:			Many dialogs
 //
 //	Coded By:			Larry L. Biehl			Date: 01/30/1989
 //	Revised By:			Larry L. Biehl			Date: 07/22/2015
@@ -4370,7 +4139,7 @@ void SetDLogControlHilite (
 				SInt16								setting)
 
 {		
-   #if defined multispec_lin
+   #if defined multispec_wx
 		if (itemNumber == 1)
 			itemNumber = wxID_OK;
 		wxWindow* dialogItemWindowPtr = dialogPtr->FindWindow (itemNumber);
@@ -4417,7 +4186,7 @@ void SetDLogControlHilite (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4432,11 +4201,11 @@ void SetDLogControlHilite (
 //
 // Value Returned: 	None
 //
-// Called By:			ControlDialog   in control.c
+// Called By:			Many dialogs
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/1997
 //	Revised By:			Larry L. Biehl			Date: 03/20/2017
-// TODO: For Linux
+
 void SetDLogControlTitle (
 				DialogPtr							dialogPtr, 
 				SInt16								itemNumber, 
@@ -4444,11 +4213,10 @@ void SetDLogControlTitle (
 				UInt16								inputStringFormatCode)
 
 {		
-	#if defined multispec_lin
+	#if defined multispec_wx
 	   if (dialogPtr != NULL)
 			{
-			//dialogPtr->SetDlgItemText (itemNumber, &theStringPtr[1]);
-         wxCheckBox* checkbox = (wxCheckBox*)dialogPtr->FindWindow (itemNumber);
+			wxCheckBox* checkbox = (wxCheckBox*)dialogPtr->FindWindow (itemNumber);
          wxString mystring (&theStringPtr[1], wxConvUTF8);
          checkbox->SetLabel (mystring);
 			}       
@@ -4491,7 +4259,7 @@ void SetDLogControlTitle (
 
                      
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4535,7 +4303,7 @@ void SetDLogControlTitleNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4562,7 +4330,7 @@ void ShowHideDialogItem (
 				Boolean								showFlag)
 				
 {
-   #if defined multispec_lin
+   #if defined multispec_wx
 		wxWindow* dialogItemWindowPtr = dialogPtr->FindWindow (itemNumber);
 
 		if (dialogItemWindowPtr != NULL) 
@@ -4570,11 +4338,11 @@ void ShowHideDialogItem (
 			if (showFlag)
 				dialogItemWindowPtr->Show (true);
 
-			else // !showFlag
+			else	// !showFlag
 				dialogItemWindowPtr->Show (false);
 
 			}	// end "if (dialogItemWindowPtr != NULL)"
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 
 	#if defined multispec_mac
 		if (showFlag)	
@@ -4603,7 +4371,7 @@ void ShowHideDialogItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4706,7 +4474,7 @@ void ShowStatusDialogItemSet (
 		ShowDialogItems (gStatusDialogPtr, startItem, endItem);
 	#endif	// defined multispec_mac
 	
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		switch (setNumber)
 			{
 			case kStatusTitle1:	// Title1 
@@ -4764,27 +4532,28 @@ void ShowStatusDialogItemSet (
 				#if defined multispec_win
 					gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDCANCEL);
 				#endif
-				#if defined multispec_lin
+				#if defined multispec_wx
 	   			gStatusDialogPtr->MShowDialogItem (gStatusDialogPtr, IDC_CancelOperation);
 				#endif
 				break;               
 				
 			}	// end "switch (setNumber)"
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			gStatusDialogPtr->Fit ();
 		#endif
+		
 		#if defined multispec_win
 			gStatusDialogPtr->UpdateWindow ();
 		#endif
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 }	// end "ShowStatusDialogItemSet" 
 
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4849,7 +4618,7 @@ SInt16 UpdateDialogFeatureParameters (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

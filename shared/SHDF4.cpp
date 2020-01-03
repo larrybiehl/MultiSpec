@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,13 +19,6 @@
 //
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
-//
-//	Functions in file:	
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*	Template for debugging for MultiSpec Online on mygeohub.
 	int numberChars = sprintf ((char*)gTextString3,
@@ -43,24 +36,20 @@
 	#define	kFileTypeStrID				175
 	#define	IDS_FileType01				1		
 #endif	// defined multispec_mac    
-
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+/*
+#if defined multispec_wx
 	#define TRUE true
 	#define FALSE false
 #endif
-
+*/
 #if defined multispec_win
-	#include "SMultiSpec.h"
 #endif	// defined multispec_win
-
-//#include "SExtGlob.h"
 
 #if include_gdal_capability
 	// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 	// which are not defined in cpl_config.h
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#if defined NetBeansProject
 			/* The size of a 'unsigned long', as computed by sizeof. */
 			#define SIZEOF_UNSIGNED_LONG 8
@@ -73,18 +62,14 @@
 	#include "cpl_error.h"
 #endif	// include_gdal_capability
 
-#if include_hdf_capability
-	extern void				SetHDF4HasHFSPlusAPISetting (
-									Boolean								hasHFSPlusAPIsFlag);
-#endif	// 
 
-Boolean						CheckIfHDF5FormattedFile (
-									FileInfoPtr 						fileInfoPtr);
+Boolean	CheckIfHDF5FormattedFile (
+				FileInfoPtr 						fileInfoPtr);
 
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -153,7 +138,7 @@ Boolean CheckIfHDF5FormattedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -193,7 +178,7 @@ void AppendGroupIndicater (
 			// Group number is limited to 2 digits.  Should never come close to this.
 			
 	groupNumber = MIN (groupNumber, 99);
-	numChars = sprintf (&namePtr[charIndex], "_G%ld", groupNumber);
+	numChars = sprintf (&namePtr[charIndex], "_G%u", (unsigned int)groupNumber);
 	namePtr[0] += (UInt8)numChars;
 	charIndex = namePtr[0];
 	namePtr[charIndex+1] = 0;
@@ -203,7 +188,7 @@ void AppendGroupIndicater (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -212,9 +197,9 @@ void AppendGroupIndicater (
 //	Software purpose:	This routine creates the data set identifier name based on the
 //							file name and the data set name.  The total length of this 
 //							string cannot be more than 73 characters to allow for data set
-//							prefix number (* or _), group indicator (_Gxx), pascal string length
-//							and c-string terminator. Use '_' as space between file name and
-//							data set name.
+//							prefix number (* or _), group indicator (_Gxx), pascal string
+//							length and c-string terminator. Use '_' as space between file
+//							name and data set name.
 //
 //	Parameters in:					
 //
@@ -290,7 +275,7 @@ void CreateFullDataSetIdentifierName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -349,7 +334,7 @@ Boolean DetermineIfHDFProjectPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -428,12 +413,12 @@ SInt16 DisplayHDFAlerts (
 											kFileTypeStrID, format, formatName, TRUE);
 						
 			continueFlag = LoadSpecifiedStringNumberStringP (
-											kAlertStrID, 
-											(SInt16)(IDS_Alert95 + alertCode - 1), 
-											(char*)gTextString,
-											(char*)gTextString2,
-											continueFlag,
-											(char*)&formatName[1]);
+																kAlertStrID,
+																(SInt16)(IDS_Alert95 + alertCode - 1),
+																(char*)gTextString,
+																(char*)gTextString2,
+																continueFlag,
+																(char*)&formatName[1]);
 				
 			if (continueFlag)
 				DisplayAlert (kErrorAlertID, 
@@ -442,13 +427,6 @@ SInt16 DisplayHDFAlerts (
 									0,
 									0, 
 									gTextString);
-											
-//			DisplayAlert (kErrorAlertID, 
-//								kStopAlert, 
-//								kAlertStrID, 
-//								IDS_Alert95 + alertCode - 1,
-//								0, 
-//								NULL);
 								
 			}	// end "else alertCode != 8"
 							
@@ -463,7 +441,7 @@ SInt16 DisplayHDFAlerts (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -514,7 +492,8 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 		//hdfDataSetIndex = fileInfoPtr->hdfDataSetSelection;
 		hdfDataSetIndex = channelToHdfDataSetPtr[fileChannelNumber-1];
 		
-		instrumentChannelNumber = hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber;
+		instrumentChannelNumber =
+									hdfDataSetsPtr[hdfDataSetIndex].instrumentChannelNumber;
 		/*
 				// Now determine if this is part of a group of hdf data sets.
 						
@@ -554,7 +533,7 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -569,8 +548,8 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 //
 //	Value Returned:	
 //
-// Called By:			HistogramDialogInitialize in SHistgrm.cpp
-//							GetDefaultSupportFileName in SOpnImag.cpp
+// Called By:			HistogramDialogInitialize in SHistogram.cpp
+//							GetDefaultSupportFileName in SOpenImage.cpp
 //							ListDescriptionInformation in SOther.cpp
 //							GetImageWindowName in SStrings.cpp
 //							ListProcessorTitleLine in SStrings.cpp
@@ -630,7 +609,7 @@ void GetHdfDataSetName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -701,7 +680,7 @@ SInt16 GetHDFFilePathCPointer (
 			}	// end "if (fileStreamPtr->fSRefFlag)"
 	#endif	// defined multispec_mac	
 
-	#if defined multispec_lin || defined multispec_win
+	#if defined multispec_wx || defined multispec_win
 		if (libraryCode == kGDAL_Library)
 			{
 			FileStringPtr								filePathCPtr;
@@ -716,7 +695,7 @@ SInt16 GetHDFFilePathCPointer (
 			*filePathCPtrPtr = filePathCPtr;
 
 			}	// end "if (libraryCode == kGDAL_Library)"
-	#endif		// defined multispec_lin || defined multispec_win
+	#endif		// defined multispec_wx || defined multispec_win
 
 return (0);
     
@@ -725,7 +704,7 @@ return (0);
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -778,7 +757,7 @@ void GetHdfHeaderFileName (
 
 #if include_hdf_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -984,7 +963,7 @@ SInt16 ReadHDFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1024,121 +1003,117 @@ SInt16 SetUpHDF_FileInformation (
 											returnCode = noErr;
 	
 	
-//	if (fileInfoPtr->callGetHDFLineFlag)
-//		{
-		if (hdfDataSetsPtr == NULL)
-																								return (1);
-			
-				// Get vectors for the sdids.
-				// Get new handle if for channel to hdf data set structure if needed
+	if (hdfDataSetsPtr == NULL)
+																							return (1);
 	
-		fileInfoPtr->channelToHdfDataSetHandle = MNewHandle (
-												fileInfoPtr->numberChannels * sizeof (UInt16));
-		if (fileInfoPtr->channelToHdfDataSetHandle == NULL)
-																								return (1);
+			// Get vectors for the sdids.
+			// Get new handle if for channel to hdf data set structure if needed
+
+	fileInfoPtr->channelToHdfDataSetHandle = MNewHandle (
+											fileInfoPtr->numberChannels * sizeof (UInt16));
+	if (fileInfoPtr->channelToHdfDataSetHandle == NULL)
+																							return (1);
+	
+	channelToHdfDataSetPtr = (UInt16*)GetHandlePointer (
+														fileInfoPtr->channelToHdfDataSetHandle);
+	
+			// Get the group number for the data set.
+	
+	groupedNumber = 0;
+	if (useGroupedDataSetsFlag)
+		groupedNumber = hdfDataSetsPtr[hdfDataSetSelection].groupedNumber;
+	
+	if (groupedNumber > 0)
+		{
+		if (fileInfoPtr->instrumentCode == kASTER &&
+					fileInfoPtr->dataCompressionCode == kNoCompression &&
+							fileInfoPtr->format == kHDF4Type)
+			fileInfoPtr->callGetHDFLineFlag = FALSE;
 		
-		channelToHdfDataSetPtr = (UInt16*)GetHandlePointer (
-															fileInfoPtr->channelToHdfDataSetHandle);
-		
-				// Get the group number for the data set.
-		
-		groupedNumber = 0;
-		if (useGroupedDataSetsFlag)
-			groupedNumber = hdfDataSetsPtr[hdfDataSetSelection].groupedNumber;
-		
-		if (groupedNumber > 0)
-			{
-			if (fileInfoPtr->instrumentCode == kASTER &&
-						fileInfoPtr->dataCompressionCode == kNoCompression &&
-								fileInfoPtr->format == kHDF4Type)
-				fileInfoPtr->callGetHDFLineFlag = FALSE;
-				
 				// Now find the data sets for each of the channels in the group.
 				// Note that 'hdfDataSetSelection' may not point to the first channel
 				// in the group so go through the entire list of data sets.
-			
-			channelIndex = 0;
-			for (dataSetIndex=1; 
-						dataSetIndex<=fileInfoPtr->numberHdfDataSets; 
-								dataSetIndex++) 
-				{
-				if (groupedNumber == hdfDataSetsPtr[dataSetIndex].groupedNumber)
-					{
-							// Verify that we have a valid sdid for the data set.
-						
-					if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
-						{
-						savedChannelIndex = channelIndex;
-						if (fileInfoPtr->instrumentCode == kASTER &&
-								groupedNumber == 1 &&
-									fileInfoPtr->numberChannels == 3)
-							{
-									// Need to handle case for L1T data in which the VNIR
-									// channels may be out of order
-							
-							if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
-											"ImageData1_G1") == 0)
-								channelIndex = 0;
-							
-							else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
-											"ImageData2_G1") == 0)
-								channelIndex = 1;
-							
-							else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
-											"ImageData3N_G1") == 0)
-								channelIndex = 2;
-							
-							if (channelIndex != savedChannelIndex)
-								fileInfoPtr->callGetHDFLineFlag = TRUE;
-							
-							}	// end "if (fileInfoPtr->instrumentCode == kASTER)
-						
-						channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
-						
-						channelIndex = savedChannelIndex;
-						
-						}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)"
-					
-					else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
-						{
-						returnCode = 1;
-						break;
-							
-						}	// end "else hdfDataSetsPtr[dataSetIndex].sdid <= 0"
-						
-					channelIndex++;
-					
-					}	// end "if (groupedNumber == hdfDataSetsPtr[dataSetIndex]...."
-					
-				if (groupedNumber < hdfDataSetsPtr[dataSetIndex].groupedNumber)
-							// No reason to continue checking; 
-							// last data set for group was found.
-					break;
-				
-				}	// end "for (dataSetIndex=1; dataSetIndex<=...->numberHdfDataSets; ..."
-				
-			}	// end "if (groupedNumber > 0)"
-			
-		else	// groupedNumber = 0
+		
+		channelIndex = 0;
+		for (dataSetIndex=1;
+					dataSetIndex<=fileInfoPtr->numberHdfDataSets;
+							dataSetIndex++)
 			{
-			dataSetIndex = hdfDataSetSelection;
-			if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
+			if (groupedNumber == hdfDataSetsPtr[dataSetIndex].groupedNumber)
 				{
-						// All channels belong to the same data set (and therefore sdid)
+						// Verify that we have a valid sdid for the data set.
+				
+				if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
+					{
+					savedChannelIndex = channelIndex;
+					if (fileInfoPtr->instrumentCode == kASTER &&
+							groupedNumber == 1 &&
+								fileInfoPtr->numberChannels == 3)
+						{
+								// Need to handle case for L1T data in which the VNIR
+								// channels may be out of order
 						
-				for (channelIndex=0; 
-							channelIndex<fileInfoPtr->numberChannels; 
-									channelIndex++) 
+						if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+										"ImageData1_G1") == 0)
+							channelIndex = 0;
+						
+						else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+										"ImageData2_G1") == 0)
+							channelIndex = 1;
+						
+						else if (strcmp ((char*)&hdfDataSetsPtr[dataSetIndex].name[2],
+										"ImageData3N_G1") == 0)
+							channelIndex = 2;
+						
+						if (channelIndex != savedChannelIndex)
+							fileInfoPtr->callGetHDFLineFlag = TRUE;
+						
+						}	// end "if (fileInfoPtr->instrumentCode == kASTER)
+					
 					channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
+					
+					channelIndex = savedChannelIndex;
+					
+					}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)"
 				
-				}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL))"
+				else	// hdfDataSetsPtr[dataSetIndex].sdid <= 0
+					{
+					returnCode = 1;
+					break;
+					
+					}	// end "else hdfDataSetsPtr[dataSetIndex].sdid <= 0"
 				
-			else	// hdfDataSetsPtr[dataSetIndex].sdid == NULL)
-				returnCode = 7;
+				channelIndex++;
+				
+				}	// end "if (groupedNumber == hdfDataSetsPtr[dataSetIndex]...."
 			
-			}	// end "else groupedNumber = 0"
+			if (groupedNumber < hdfDataSetsPtr[dataSetIndex].groupedNumber)
+						// No reason to continue checking;
+						// last data set for group was found.
+				break;
 			
-//		}	// end "if (fileInfoPtr->callGetHDFLineFlag)"
+			}	// end "for (dataSetIndex=1; dataSetIndex<=...->numberHdfDataSets; ..."
+		
+		}	// end "if (groupedNumber > 0)"
+	
+	else	// groupedNumber = 0
+		{
+		dataSetIndex = hdfDataSetSelection;
+		if (hdfDataSetsPtr[dataSetIndex].sdid != NULL)
+			{
+					// All channels belong to the same data set (and therefore sdid)
+			
+			for (channelIndex=0;
+						channelIndex<fileInfoPtr->numberChannels;
+								channelIndex++)
+				channelToHdfDataSetPtr[channelIndex] = (UInt16)dataSetIndex;
+			
+			}	// end "if (hdfDataSetsPtr[dataSetIndex].sdid != NULL))"
+		
+		else	// hdfDataSetsPtr[dataSetIndex].sdid == NULL)
+			returnCode = 7;
+		
+		}	// end "else groupedNumber = 0"
 		
 	return (returnCode);
     

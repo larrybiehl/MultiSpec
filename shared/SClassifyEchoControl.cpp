@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/23/2019
 //
 //	Language:				C
 //
@@ -19,15 +19,6 @@
 //
 //	Brief description:	This file contains functions that controls echo classification
 //								processes.
-//
-//	Functions in file:	void 							EchoClsfierControl
-//								SInt16 						GetLinesOfData
-//								Boolean 						interface
-//								Boolean 						SetupClsfierStats
-//								SInt16 						PostEchoClassifier
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
@@ -38,30 +29,29 @@
 	#include "WImageView.h"
 #endif	// defined multispec_win 
   
-#if defined multispec_lin
-	#include "LImageView.h"
-#endif	// defined multispec_lin    
+#if defined multispec_wx
+	#include "xImageView.h"
+#endif	// defined multispec_wx    
 
-//#include "SExtGlob.h"
 #include "SEcho.h"
 
 
-// External variables defined in this file 
+		// External variables defined in this file
 
 common_classifier_informationPtr		gCommon_InfoVariablePtr;
-// char											*gError_message;
+
 
 		// Function Prototypes
 
-Boolean			Interface (
-						FileInfoPtr 						fileInfoPtr);
+Boolean Interface (
+				FileInfoPtr 						fileInfoPtr);
 				
-Boolean			SetupClsfierStats (void);
+Boolean SetupClsfierStats (void);
 						
 
 					
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -75,7 +65,7 @@ Boolean			SetupClsfierStats (void);
 //
 // Value Returned:	
 // 
-//	Called by: 			ClassifyControl in classify.c
+//	Called by: 			ClassifyControl in SClassifyDialogs.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 //	Revised By:			Byeungwoo Jeon			Date: 06/20/1991	
@@ -110,10 +100,10 @@ void EchoClsfierControl (
 			// Put description in the status dialog.
 				
 	LoadDItemStringNumber (kClassifyStrID,		// \pSetting up Statistics in ECHO"
-										IDS_Classify46,
-										gStatusDialogPtr,
-										IDC_Status11,
-										(Str255*)gTextString);
+									IDS_Classify46,
+									gStatusDialogPtr,
+									IDC_Status11,
+									(Str255*)gTextString);
 
 	InitializeClassifierVarStructure (&classifierVar);
    
@@ -202,7 +192,7 @@ void EchoClsfierControl (
 		cellDegreesOfFreedomEcho *= cellDegreesOfFreedomEcho;
 		cellDegreesOfFreedomEcho *= gEchoClassifierVariablePtr->nfeature;
 		
-		continueFlag = CreateThresholdTables (	gEchoClassifierVariablePtr->nfeature, 
+		continueFlag = CreateThresholdTables (gEchoClassifierVariablePtr->nfeature, 
 															cellDegreesOfFreedomEcho);
 				
 		}	// end "if (...->createThresholdTable)"
@@ -242,7 +232,7 @@ void EchoClsfierControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -309,7 +299,7 @@ SInt16 GetLinesOfData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -324,7 +314,7 @@ SInt16 GetLinesOfData (
 //
 // Value Returned:	Error_code (0 : no error)
 // 
-//	Called by: 			EchoClsfierControl in	echo_classifiy.c
+//	Called by: 			EchoClsfierControl in SClassifyEchoControl.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 //	Revised By:			Byeungwoo Jeon			Date: 11/01/1991
@@ -369,7 +359,7 @@ Boolean Interface (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -384,10 +374,10 @@ Boolean Interface (
 //
 // Value Returned:	
 // 
-//	Called by: 			ClassifyArea in SClassfy.cpp
+//	Called by: 			ClassifyArea in SClassify.cpp
 //
 // Coded by				Byeungwoo Jeon			Date: 01/01/1989
-// Revised by			Larry L. Biehl			Date: 04/23/2019
+// Revised by			Larry L. Biehl			Date: 11/23/2019
 
 SInt16 PostEchoClassifier (
 				SInt16								classPointer, 
@@ -536,9 +526,10 @@ SInt16 PostEchoClassifier (
 			// which is currently every 1 second.
 	
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
-	nextStatusAtLeastLineIncrement = (10 * lineInterval) / magnification;
+	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
-	nextStatusAtLeastLine = areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
+	nextStatusAtLeastLine =
+							areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
 		
 			// The purpose of skipCount is to only allow updates in drawing the
 			// image overlay every 2 cycles of gNextTime.
@@ -569,16 +560,8 @@ SInt16 PostEchoClassifier (
 															skipCount >= 2)
 				{
 				sourceRect.bottom = lineCount;
-				/*
-				int numberChars = sprintf ((char*)gTextString3,
-												"%s SClassifyEchoControl.cpp:PostEchoClassifier (top, bottom): %d, %d%s",
-												gEndOfLine,
-												sourceRect.top,
-												sourceRect.bottom,
-												gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-				*/
-				InvalidateImageSegment (gImageWindowInfoPtr,
+
+				InvalidateImageSegment (imageWindowInfoPtr,
 												//displaySpecsPtr,
 												lcToWindowUnitsVariablesPtr,
 												&sourceRect,
@@ -712,16 +695,8 @@ SInt16 PostEchoClassifier (
 	if (gOutputCode & kCreateImageOverlayCode)
 		{
 		sourceRect.bottom = displayBottomMax;
-		/*
-		int numberChars = sprintf ((char*)gTextString3,
-										"%s SClassifyEchoControl.cpp:PostEchoClassifier (top, bottom): %d, %d%s",
-										gEndOfLine,
-										sourceRect.top,
-										sourceRect.bottom,
-										gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		*/
-		InvalidateImageSegment (gImageWindowInfoPtr,
+
+		InvalidateImageSegment (imageWindowInfoPtr,
 										lcToWindowUnitsVariablesPtr,
 										&sourceRect,
 										displayBottomMax);
@@ -732,16 +707,7 @@ SInt16 PostEchoClassifier (
 		}	// end "if (gOutputCode & kCreateImageOverlayCode)"
 	
   	UnlockImageOverlayOffscreenBuffer (imageOverlayInfoPtr);
-	/*
-	if (!gOSXCoreGraphicsFlag)
-		{
-		WindowInfoPtr imageWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-												gProjectInfoPtr->overlayImageWindowInfoHandle);	
-		if (imageWindowInfoPtr != NULL)
-			imageWindowInfoPtr->drawBaseImageFlag = TRUE;
-		
-		}	// end "if (!gOSXCoreGraphicsFlag)"
-	*/
+
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, (SInt32)lineCount);
 	
 	if (probFormatFlag)
@@ -767,7 +733,7 @@ SInt16 PostEchoClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -786,7 +752,7 @@ SInt16 PostEchoClassifier (
 //			err_code = 1	:	Memory Allocation error
 //			err_code = 2	:	Non-positive determinant error
 //
-// Called by			EchoLikeClsfierControl () in echo_classify.c
+// Called by			EchoLikeClsfierControl in SClassifyEchoControl.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 06/10/1991
 // Modified by			Larry L. Biehl			Date: 01/21/2016
@@ -1110,22 +1076,7 @@ Boolean SetupClsfierStats (void)
 												kMat1ByMat2);
 						
 						}	// end "if (...->featureTransformationFlag)"	
-					/*					
-		       	MatrixMultiply (vmean, covinv, vprd, 1, nband, nband, 1);
-					symtrix (vmean, covinv, sprd, nband);
-					
-					*sprd	*= cellSize;
-					
-		   	 			// Class constant for maximum likelihood classifier.
-		   	 			
-		   	 	sta_ptr->classConstantML = 
-		   	 								*log_prior - clsfierConstant - *Log_determinant/2;
-		   	 	
-		   	 			// Class constant for echo classifier - includes priors 
-		   	 			// and -n*log (2pi)/2.
-		   	 	
-		   	 	*classConstantPtr  = (double)cellSize * sta_ptr->classConstantML;
-					*/
+
 	  				}	// end "if (determinantOKFlag"
 
 	  			}	// end "if (classIndex == 0 || ...->algorithmCode != kFisherMode)" 
@@ -1164,7 +1115,7 @@ Boolean SetupClsfierStats (void)
 	   	 			// Class constant for echo classifier - includes priors 
 	   	 			// and -n*log (2pi)/2.
 	   	 	
-	   	 	*classConstantPtr  = (double)cellSize * sta_ptr->classConstantML;
+	   	 	*classConstantPtr = (double)cellSize * sta_ptr->classConstantML;
 	   	 	
 	   	 	}	// end "if (determinantOKFlag)"
 	  			

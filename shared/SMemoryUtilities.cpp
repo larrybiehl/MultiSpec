@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/22/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -19,21 +19,6 @@
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								provide utility type functions in MultiSpec.
-//
-//	Functions in file:	void 						CheckAndDisposePtr
-//								void 						CheckAndUnlockHandle
-//								Boolean 					CheckHandleSize
-//								Boolean 					CheckMemoryForColorPicker
-//								Boolean 					CheckPointerSize
-//								void 						CheckSizeAndUnlockHandle
-//								Boolean 					GetIOBufferPointers
-//								SignedByte 				MHGetState
-//								void 						MHSetState
-//								Handle 					MNewHandle
-//								Ptr 						MNewPointer
-//								Ptr 						MoveHiAndLock
-//								void						ReleaseSpareMemoryForWarningMessage
-//								void						UnlockAndDispose
 //
 /*
 	int numberChars = sprintf ((char*)gTextString3,
@@ -45,9 +30,7 @@
 
 #include "SMultiSpec.h"  
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-	
+#if defined multispec_wx
 			// Temporary definitions
 	#include <stdlib.h>
 	#include "wx/filefn.h"
@@ -71,31 +54,29 @@
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 #endif	// defined multispec_win
 
-//#include "SExtGlob.h" 
-
-#if defined multispec_lin
+#if defined multispec_wx
 			// Prototypes for linux routines
 	void freememory (void* ptr);
-	void *memorycopy (void *output, void *input);
-	void *memallocate (UInt32 bytesneeded);
-	void *memreallocate (UInt32 bytesneeded, void *handle);
+	void* memorycopy (void* output, void* input);
+	void* memallocate (UInt32 bytesneeded);
+	void* memreallocate (UInt32 bytesneeded, void* handle);
 #endif
 
 
 
-Boolean			CheckIfBytesRequestedAreWithinLimit (
-						SInt64								bytesRequested);
+Boolean CheckIfBytesRequestedAreWithinLimit (
+				SInt64								bytesRequested);
 
-void				OSXMemoryMessage (
-						SInt64								bytesRequested);
+void OSXMemoryMessage (
+				SInt64								bytesRequested);
 						
 						
 #if defined multispec_mac_swift
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -120,6 +101,7 @@ void BlockMoveData (
 				const void*							inStringPtr,
 				void*									outStringPtr,
 				UInt32								numberBytes)
+				
 {
 	if (inStringPtr != NULL && outStringPtr != NULL) 
 		memmove (outStringPtr, inStringPtr, numberBytes);
@@ -130,7 +112,7 @@ void BlockMoveData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -165,10 +147,10 @@ Ptr CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -192,10 +174,10 @@ float* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -219,10 +201,10 @@ double* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -246,10 +228,10 @@ UInt8* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -273,10 +255,10 @@ SInt16* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -300,10 +282,10 @@ UInt16* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -326,10 +308,10 @@ SInt32* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -352,10 +334,10 @@ UInt32* CheckAndDisposePtr (
 			GlobalFreePtr (pointer);
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//delete[] pointer;
-			freememory ((void *)pointer);
-		#endif // defined multispec_lin
+			freememory ((void*)pointer);
+		#endif // defined multispec_wx
 
 		}	// end "if (pointer != NULL)"
 		
@@ -366,7 +348,7 @@ UInt32* CheckAndDisposePtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -409,7 +391,7 @@ void CheckAndUnlockHandle (
 			//int lockCount = (flags & GMEM_LOCKCOUNT);
 		#endif	// defined multispec_win
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			// Do nothing
 		#endif
 
@@ -420,7 +402,7 @@ void CheckAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -453,7 +435,6 @@ Ptr CheckHandleSize (
 {
 	Ptr									outputPtr;
 	Handle								handle;
-	SInt32								sizeHandle;
 	Boolean								returnFlag;
 	
 	
@@ -464,7 +445,9 @@ Ptr CheckHandleSize (
 	if (CheckIfBytesRequestedAreWithinLimit (bytesNeeded))
 		{						
 		handle = *inputHandlePtr;
-		#ifndef multispec_lin	
+		#ifndef multispec_wx
+			SInt32								sizeHandle;
+			
 			if (handle != NULL)
 				{
 						// Get size of handle														
@@ -503,10 +486,10 @@ Ptr CheckHandleSize (
 					// Get handle pointer if memory not too full and handle is not NULL 	
 			
 			if (returnFlag && handle != NULL)
-				outputPtr = GetHandlePointer (handle, kLock, kNoMoveHi);
-		#endif // if not define multispec_lin
+				outputPtr = GetHandlePointer (handle, kLock);
+		#endif // if not define multispec_wx
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			Handle	newHandle;
 			
 			if (handle != NULL)
@@ -529,7 +512,7 @@ Ptr CheckHandleSize (
 				
 				}	// end "if (handle != NULL)"
 				
-			else //handle == NULL
+			else	//handle == NULL
 				{
 				newHandle = MNewHandle (bytesNeeded);
 				*changedFlagPtr = TRUE;
@@ -541,7 +524,7 @@ Ptr CheckHandleSize (
 			returnFlag = (newHandle != NULL);
 			*inputHandlePtr = newHandle;
 			outputPtr = (Ptr)newHandle;
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
     
 		}	// end "if (CheckIfBytesRequestedAreWithinLimit (bytesNeeded))"
 	
@@ -554,7 +537,7 @@ Ptr CheckHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -582,7 +565,7 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 {
 	Boolean								memoryRequestFlag = TRUE;
 	
-	#if defined multispec_mac || defined multispec_lin
+	#if defined multispec_mac || defined multispec_wx
 		if (bytesRequested > SInt32_MAX)
 	#endif
 	#if defined multispec_win
@@ -602,13 +585,12 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 	
 	return (memoryRequestFlag);
 
-
 }	// end "CheckIfBytesRequestedAreWithinLimit"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -640,7 +622,7 @@ Boolean CheckIfMemoryAvailable (
 	
 			// Make certain that there is a minimum amount of memory left.
 					
-   #if defined multispec_lin
+   #if defined multispec_wx
 		Boolean								success;
 		
 		testHandle = malloc (memoryRequest+memsize);
@@ -666,7 +648,7 @@ Boolean CheckIfMemoryAvailable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -734,7 +716,7 @@ Boolean CheckMemoryForColorPicker (
 		return (TRUE);
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		 return (TRUE);
 	#endif
 	
@@ -743,7 +725,7 @@ Boolean CheckMemoryForColorPicker (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -776,7 +758,6 @@ Boolean CheckPointerSize (
 
 {
 	Ptr									pointer;
-	SInt32								sizePointer;
 	Boolean								returnFlag;
 	
 	
@@ -786,7 +767,8 @@ Boolean CheckPointerSize (
 	
 	if (CheckIfBytesRequestedAreWithinLimit (bytesNeeded))
 		{
-      #ifndef multispec_lin
+      #ifndef multispec_wx
+			SInt32								sizePointer;
 			if (pointer != NULL)
 				{
 						// Get size of pointer.														
@@ -848,7 +830,7 @@ Boolean CheckPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -902,7 +884,7 @@ void CheckSizeAndUnlockHandle (
 		CheckAndUnlockHandle (handle);
 	#endif	// defined multispec_win 
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		 // Do nothing
 	#endif
 
@@ -911,7 +893,7 @@ void CheckSizeAndUnlockHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -946,7 +928,7 @@ SInt16 CopyHandleToHandle (
 {                            
 	SInt16								returnCode = 1;
 	
-   #ifndef multispec_lin
+   #ifndef multispec_wx
 		if (inputHandle != NULL && outputHandle != NULL)
 			{             
 			SInt32			sizeInputHandle,
@@ -971,9 +953,9 @@ SInt16 CopyHandleToHandle (
 				}	// end "if (sizeInputHandle == sizeOutputHandle)"
 			
 			}	// end "if (inputHandle != NULL && outputHandle != NULL)"
-	#endif	// ifndef multispec_lin
+	#endif	// ifndef multispec_wx
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (inputHandle != NULL && outputHandle != NULL)
 			{
          if (getsize (inputHandle) == getsize (outputHandle))
@@ -988,7 +970,7 @@ SInt16 CopyHandleToHandle (
 				}	// end "if (sizeInputHandle == sizeOutputHandle)"
 
 			}	// end "if (inputHandle != NULL && outputHandle != NULL)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (returnCode);
 
@@ -997,7 +979,7 @@ SInt16 CopyHandleToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1015,7 +997,7 @@ SInt16 CopyHandleToHandle (
 //
 // Value Returned:	None				
 // 
-// Called By:			LoadDialogLocalVectors in SDlgUtil.cpp
+// Called By:			LoadDialogLocalVectors in SDialogUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1999
 //	Revised By:			Larry L. Biehl			Date: 02/15/2000 
@@ -1024,18 +1006,17 @@ SInt16 CopyHandleToPointer (
 				Handle								inputHandle,
 				Ptr*									ptrPtr)
 				
-{  
-	Ptr 									inputPointer; 
-	                     
-	SInt32								sizeInputHandle;
-							    
+{
 	SInt16								returnCode = 1;
 	
 	Boolean								changedFlag,
 											continueFlag;
 	
 	
-   #ifndef multispec_lin
+   #ifndef multispec_wx
+		Ptr 									inputPointer;
+		SInt32								sizeInputHandle;
+	
 		sizeInputHandle = ::MGetHandleSize (inputHandle);
 		
 		if (sizeInputHandle > 0)
@@ -1054,10 +1035,10 @@ SInt16 CopyHandleToPointer (
 				}	// end "if (continueFlag)"
 			
 			}	// end "if (sizeInputHandle > 0)"
-    #endif	// ifndef multispec_lin
+    #endif	// ifndef multispec_wx
 	
-    #if defined multispec_lin
-		void *outputHandle = (void *)(*ptrPtr);
+    #if defined multispec_wx
+		void* outputHandle = (void*)(*ptrPtr);
 		if (getsize (inputHandle) > 0)
 			{
 			continueFlag = CheckPointerSize (ptrPtr, getsize (inputHandle), &changedFlag);
@@ -1070,7 +1051,7 @@ SInt16 CopyHandleToPointer (
 				}	// end "if (inputHandle != NULL && outputHandle != NULL)"
 			
 			}	// end "if (getsize (inputHandle) > 0)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (returnCode);
 
@@ -1079,7 +1060,7 @@ SInt16 CopyHandleToPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1115,10 +1096,10 @@ SInt16 CopyPointerToHandle (
 	
 	Boolean								continueFlag;
 	
-   #ifndef multispec_lin
+   #ifndef multispec_wx
 		sizeInputPointer = ::MGetPointerSize (inputPointer);
 	#else
-		sizeInputPointer = getsize ((void *)inputPointer);
+		sizeInputPointer = getsize ((void*)inputPointer);
    #endif
    
 	if (sizeInputPointer > 0)
@@ -1136,7 +1117,7 @@ SInt16 CopyPointerToHandle (
 		
 		else	// *outputHandlePtr != NULL
 			{
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				continueFlag = ::MSetHandleSize (outputHandlePtr, sizeInputPointer);
 			#else
 				continueFlag = MSetHandleSize (outputHandlePtr,sizeInputPointer);
@@ -1147,7 +1128,7 @@ SInt16 CopyPointerToHandle (
 			{ 
 			outputPointer = GetHandlePointer (*outputHandlePtr);
 			
-         #ifndef multispec_lin
+         #ifndef multispec_wx
 				memcpy (outputPointer, inputPointer, (size_t)sizeInputPointer);
          #else
 				memorycopy (outputPointer, inputPointer);
@@ -1165,7 +1146,7 @@ SInt16 CopyPointerToHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1203,7 +1184,7 @@ void DisposeIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1303,7 +1284,7 @@ Handle GetCountVectorTableMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1335,7 +1316,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1368,7 +1349,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1437,7 +1418,7 @@ Ptr GetHandlePointer (
 				::GlobalUnlock (handle);
 		#endif	// defined multispec_win
 				
-		#if defined multispec_lin
+		#if defined multispec_wx
 			outputPtr = (Ptr)handle;
 		#endif
 		}	// end "if (handle != NULL)"
@@ -1449,7 +1430,7 @@ Ptr GetHandlePointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1483,7 +1464,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1533,7 +1514,7 @@ Ptr GetHandleStatusAndPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1554,12 +1535,12 @@ Ptr GetHandleStatusAndPointer (
 //
 //	Value Returned:	None	
 // 
-// Called By:			InitializeClusterMemory in cluster.c
-//							ListDataControl in listData.c
-//							PrincipalComponentAnalysis in principalComponent.c
-//							ChangeImageFileFormat in reformat.c
-//							UpdateStatsControl in statCompute.c
-//							HistogramStatsControl in statHistogram.c
+// Called By:			InitializeClusterMemory in SCluster.cpp
+//							ListDataControl in SListData.cpp
+//							PrincipalComponentAnalysis in SPrincipalComponents.cpp
+//							ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
+//							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1989
 //	Revised By:			Larry L. Biehl			Date: 02/01/2006	
@@ -1873,7 +1854,7 @@ Boolean GetIOBufferPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1888,11 +1869,11 @@ Boolean GetIOBufferPointers (
 //
 // Value Returned:	number of bytes required for the block or tiled io buffer.
 // 
-// Called By:			GetClassifyDataBuffers in SClassfy.cpp
-//							DisplayColorThematicImage in SDisThem.cpp
+// Called By:			GetClassifyDataBuffers in SClassify.cpp
+//							DisplayColorThematicImage in SDisplayThematic.cpp
 //							SetUpGeneralFileIOInstructions in SFileIO.cpp
-//							GetIOBufferPointers in SMemUtil.cpp
-//							ShowGraphWindowSelection in SSelGraf.cpp
+//							GetIOBufferPointers in SMemoryUtilities.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1999
 //	Revised By:			Larry L. Biehl			Date: 09/06/2017	
@@ -1992,7 +1973,7 @@ UInt32 GetSetTiledIOBufferBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2011,7 +1992,8 @@ UInt32 GetSetTiledIOBufferBytes (
 //
 // Value Returned:	None
 // 
-// Called By:			menus in menus.c
+// Called By:			CheckMemoryForColorPicker in SMemoryUtilities.cpp
+//							StatisticsWControlEvent in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/08/1989
 //	Revised By:			Larry L. Biehl			Date: 03/22/2019
@@ -2079,9 +2061,9 @@ void GetSpareMemory (void)
 
 
 	      
-#if defined multispec_lin || defined multispec_win
+#if defined multispec_wx || defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2180,7 +2162,7 @@ void MemoryMessage (
 		returnFlag = MSetHandleSize (&gSpareWarnMemoryH, gSpareWarnSize);                
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		UInt32 bytesNeeded;
 		
 		Boolean returnFlag;
@@ -2197,8 +2179,8 @@ void MemoryMessage (
 				bytesNeeded = numberBytes;
 
 				sprintf ((CharPtr)gTextString,
-							"%lu more bytes of memory are needed. You can trying closing some image windows or other applications that are not needed.",
-							bytesNeeded);
+							"%u more bytes of memory are needed. You can trying closing some image windows or other applications that are not needed.",
+							(unsigned int)bytesNeeded);
 					break;
 
 			case kObjectMessage:
@@ -2218,15 +2200,15 @@ void MemoryMessage (
 				// Get the spare memory back again if we can.
 
 		returnFlag = MSetHandleSize (&gSpareWarnMemoryH, gSpareWarnSize);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 		
 }	// end "MemoryMessage"
-#endif	// defined multispec_lin || defined multispec_win
+#endif	// defined multispec_wx || defined multispec_win
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2349,7 +2331,7 @@ SInt64 MGetFreeMemory (
 		return (freeMemory);
 	#endif	// defined multispec_win 
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxMemorySize wx_freeMemory;
 	
 		wx_freeMemory = wxGetFreeMemory ();
@@ -2450,17 +2432,14 @@ SInt64 MGetFreeMemory (
 			
 			}	// end "else wxWidgets cannot get"
 	
-	//wxString cpath = wxGetCwd ();
-	//wxGetDiskSpace (&cpath, NULL, &freememory);
-	
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 }	// end "MGetFreeMemory" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2499,7 +2478,7 @@ SInt32 MGetHandleSize (
 			sizeHandle = (SInt32)::GlobalSize (handle);
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
 			sizeHandle = getsize (handle);
       #endif 
 					
@@ -2512,7 +2491,7 @@ SInt32 MGetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2555,7 +2534,7 @@ SInt32 MGetPointerSize (
 			sizePointer = (SInt32)::GlobalSize (handle);
 		#endif	// defined multispec_win 
 				
-      #if defined multispec_lin
+      #if defined multispec_wx
 			sizePointer = getsize ((void*)pointer);
       #endif
 		
@@ -2568,7 +2547,7 @@ SInt32 MGetPointerSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2624,7 +2603,7 @@ SignedByte MHGetState (
 		return (returnValue);
 	#endif	// defined multispec_win
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		return 1;
 	#endif
 
@@ -2633,7 +2612,7 @@ SignedByte MHGetState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2669,7 +2648,7 @@ void MHLock (
 			::GlobalLock (handle); 
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
 			// Do nothing
       #endif
 		
@@ -2680,7 +2659,7 @@ void MHLock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2718,16 +2697,16 @@ void MHSetState (
 			CheckAndUnlockHandle (handle);
 	#endif	// defined multispec_win
 			
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// Do nothing
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 }	// end "MHSetState"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2771,7 +2750,7 @@ Handle MNewHandle (
 				MemoryMessage ((UInt32)numberBytes, kMemoryMessage);
 		#endif	// defined multispec_win
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          handle = memallocate (numberBytes);
          if (handle == NULL)   
 				MemoryMessage ((UInt32)numberBytes, kMemoryMessage);
@@ -2786,7 +2765,7 @@ Handle MNewHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2843,7 +2822,7 @@ Handle MNewHandleClear (
 				}	// end "else handle == NULL" 
 		#endif	// defined multispec_win
 			
-      #if defined multispec_lin
+      #if defined multispec_wx
 			handle = memallocate (numberBytes);
          memset (handle,0,getsize (handle));
       #endif
@@ -2857,7 +2836,7 @@ Handle MNewHandleClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2901,7 +2880,7 @@ Ptr MNewPointer (
 				MemoryMessage ((UInt32)numberBytes, kMemoryMessage);
 		#endif	// defined multispec_win 
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
          ptr = (Ptr)memallocate (numberBytes);
          if (ptr == NULL)      
 				MemoryMessage ((UInt32)numberBytes, kMemoryMessage);
@@ -2916,7 +2895,7 @@ Ptr MNewPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2968,7 +2947,7 @@ Ptr MNewPointerClear (
 				MemoryMessage ((UInt32)numberBytes, kMemoryMessage);
 		#endif	// defined multispec_win
 
-      #if defined multispec_lin
+      #if defined multispec_wx
 			Handle	handle;
 			
          handle = memallocate (numberBytes);
@@ -2992,7 +2971,7 @@ Ptr MNewPointerClear (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3062,7 +3041,7 @@ Boolean MSetHandleSize (
 				}	// end "if (*handlePtr != NULL)"
 		#endif	// defined multispec_win 
 			
-      #if defined multispec_lin
+      #if defined multispec_wx
 			if (*handlePtr != NULL) 
 				{
 				Handle newHandle = memreallocate (bytesNeeded, *handlePtr);
@@ -3089,7 +3068,7 @@ Boolean MSetHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3106,8 +3085,8 @@ Boolean MSetHandleSize (
 // Value Returned:	TRUE if memory is okay
 //							FALSE if memory is full			
 // 
-// Called By:			FeatureExtraction in SFeatExt.cpp
-//							CheckPointerSize in SMemUtil.cpp
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
+//							CheckPointerSize in SMemoryUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1995
 //	Revised By:			Larry L. Biehl			Date: 03/12/2018
@@ -3164,7 +3143,7 @@ Boolean MSetPointerSize (
 				}	// end "if (*pointerPtr != NULL)"
 		#endif	// defined multispec_win 
 
-      #if defined multispec_lin
+      #if defined multispec_wx
          if (*pointerPtr != NULL)
 				{
 				Ptr newHandle = (Ptr)memreallocate (bytesNeeded, *pointerPtr);
@@ -3191,7 +3170,7 @@ Boolean MSetPointerSize (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3261,7 +3240,7 @@ void OSXMemoryMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3285,10 +3264,10 @@ void OSXMemoryMessage (
 void ReleaseSpareMemoryForWarningMessage (void)
 
 
-{    
-	UInt32								sizeSpare = 0;
+{
 	
-	#if defined multispec_mac 
+	#if defined multispec_mac
+		UInt32								sizeSpare = 0;
 		if (gSpareWarnMemoryH)
 			sizeSpare = ::GetHandleSize (gSpareWarnMemoryH);
 			
@@ -3296,7 +3275,8 @@ void ReleaseSpareMemoryForWarningMessage (void)
 			::SetHandleSize (gSpareWarnMemoryH, (Size)0);  
 	#endif	// defined multispec_mac    
 
-	#if defined multispec_win 
+	#if defined multispec_win
+		UInt32								sizeSpare = 0;
 		if (gSpareWarnMemoryH != NULL)
 			sizeSpare = (UInt32)::GlobalSize (gSpareWarnMemoryH);
 			
@@ -3304,7 +3284,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 			::GlobalReAlloc (gSpareWarnMemoryH, 0L, GMEM_MOVEABLE); 
 	#endif	// defined multispec_win 
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// See what needs to be done for linux
 	#endif
 
@@ -3313,7 +3293,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3328,7 +3308,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 //
 // Value Returned:	None
 // 
-// Called By:			Mac OS Memory Manager
+// Called By:			Many routines
 //
 //	Coded By:			Larry L. Biehl			Date: 10/07/1988
 //	Revised By:			Larry L. Biehl			Date: 10/16/1995			
@@ -3368,7 +3348,7 @@ Handle UnlockAndDispose (
 			handle = GlobalFree (handle);
 		#endif	// defined multispec_win 
 		
-      #if defined multispec_lin
+      #if defined multispec_wx
 			freememory (handle);
       #endif
 		
@@ -3387,7 +3367,7 @@ Handle UnlockAndDispose (
  * TODO: Recheck code keeping in mind Ptr is a pointer so Ptr * needs to be
  * changed to *ptr before use
  */
-#if defined multispec_lin
+#if defined multispec_wx
 int getsize (
 				void*									ptr)
 				
@@ -3426,7 +3406,8 @@ void* memallocate (
 	UInt32								*ptr3;
 	
 	
-			// Make total size with bytes needed and size count to be no less than 256 bytes
+			// Make total size with bytes needed and size count to be no less than
+			// 256 bytes
 	
 	bytesneeded = MAX (256-memsize, bytesneeded);
 	
@@ -3451,7 +3432,7 @@ void* memallocate (
 
 
 
-void *memreallocate (
+void* memreallocate (
 				UInt32								bytesneeded, 
 				void*									handle)
 				
@@ -3463,7 +3444,8 @@ void *memreallocate (
 											*ptr3;
 											
 	
-			// Make total size with bytes needed and size count to be no less than 256 bytes
+			// Make total size with bytes needed and size count to be no less than
+			// 256 bytes
 	
 	bytesneeded = MAX (256-memsize, bytesneeded);
 	
@@ -3487,7 +3469,7 @@ void *memreallocate (
 
 
 
-void *memorycopy (
+void* memorycopy (
 				void*									output, 
 				void*									input)
 				
@@ -3496,6 +3478,8 @@ void *memorycopy (
 	memcpy ((void*)((onebyte*)output-memsize), 
 				(void*)((onebyte*)input-memsize), 
 				(size_t)(input_memsize+memsize));
+	
+	return (output);
 				
-}
+}	// end "memorycopy"
 #endif

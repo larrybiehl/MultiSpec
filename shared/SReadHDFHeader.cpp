@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2019)
+//									Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/09/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -20,22 +20,18 @@
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
 //
-//	Functions in file:
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 /* Template for debugging
-				int numberChars = sprintf ((char*)gTextString3,
-											" SReadHDFHeader::GetHDFProjectionInformation (utmZoneCode: %d%s",
-											utmZoneCode,
-											gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
+	int numberChars = sprintf (
+					(char*)gTextString3,
+					" SReadHDFHeader::GetHDFProjectionInformation (utmZoneCode: %d%s",
+					utmZoneCode,
+					gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
+#include "SFileStream_class.h"
 
 #if include_hdf_capability
 	
@@ -43,14 +39,9 @@
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "SMultiSpec.h"
-	#include "CFileStream.h"
 #endif	// defined multispec_win  
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-	#include "CFileStream.h"
-	
+#if defined multispec_wx
 	#ifndef HDF
 		#define HDF 
 	#endif
@@ -59,14 +50,12 @@
 	#include "local_nc.h"
 	#include "mfhdf.h"
 
-	//#if !defined multispec_wxmac
-		extern intn SDgetoffset (
+	extern intn SDgetoffset (
 					int32  sdsid, int32 *dataSetOffset);
 	
-		extern intn SDgetspecialinfo (
+	extern intn SDgetspecialinfo (
 					int32 sdsid, sp_info_block_t* info_blockPtr);
-	//#endif
-	
+
 	extern int32 hdf_get_vp_aid (
 					NC *handle, NC_var *vp);
 	
@@ -78,24 +67,24 @@
 	
 	extern int32 SDIfreevarAID (
 					NC * handle, int32 index);
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
  
 #include 	"dfsd.h"
 #include 	"hfile.h"
 #include 	"mfhdf.h"
 #include 	"dfrig.h"
-//#include 	"local_nc.h"	
+//#include 	"local_nc.h"
+
+
     
 //extern void ncFree_cdfs (void);
+
+
 
 intn SDgetspecialinfo (
 				int32									sdsid, 
 				sp_info_block_t*					info_blockPtr);
 
-extern void SetHDF4HasHFSPlusAPISetting (
-				Boolean								hasHFSPlusAPIsFlag);
-							
-							
 void CloseHDFGlobals (void);
 
 double FindClosestValue (
@@ -306,7 +295,7 @@ SInt32 gNumberHDFFilesOpen	= 0;
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -356,7 +345,7 @@ void AppendGroupIndicater (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -421,7 +410,7 @@ void CloseHDF4File (
 				// Close hdf globals
 		
 		//if (SDget_numopenfiles () == 0)
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			if (gNumberHDFFilesOpen <= 0)
 				CloseHDFGlobals ();
 		#endif
@@ -433,7 +422,7 @@ void CloseHDF4File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -455,7 +444,7 @@ void CloseHDF4File (
 void CloseHDFGlobals (void)
 				
 {
-	HPend();
+	HPend ();
 	/*
 	ncFree_cdfs ();	
 		
@@ -473,7 +462,7 @@ void CloseHDFGlobals (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -534,7 +523,7 @@ double FindClosestValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -629,7 +618,7 @@ UCharPtr GetAttributeBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -727,7 +716,7 @@ Boolean GetBottomToTopFlag (
 				
 			}	// end "if (nglobals > 0)"
 			
-		}	// end "if (file_id != FAIL && SDfileinfo (file_id, &numDataSets, &nglobals) == noErr)"
+		}	// end "if (file_id != FAIL && SDfileinfo (file_id, &numDataSets, ..."
 	
 		// Get data set metadata if there is any.
 			
@@ -790,7 +779,7 @@ Boolean GetBottomToTopFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -895,7 +884,7 @@ Boolean GetFillDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1247,9 +1236,9 @@ intn GetHDFDataSetInformation (
 				
 		else if (rank == 4)
 			{
-					// This is a test for now. Assume band sequential and assume that the number
-					// of channels is dim 0 * dim 1. Will assume dim 2 is number channels;
-					// dim 3 is number lines and dim 4 is number columns.
+					// This is a test for now. Assume band sequential and assume that the
+					// number of channels is dim 0 * dim 1. Will assume dim 2 is number
+					// channels; dim 3 is number lines and dim 4 is number columns.
 			
 			*bandInterleaveFormatPtr = kBSQ;
 			*numberChannelsPtr = (UInt16)(dims[0] * dims[1]);
@@ -1421,7 +1410,7 @@ intn GetHDFDataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1436,7 +1425,7 @@ intn GetHDFDataSetInformation (
 //
 //	Value Returned:	
 //
-// Called By:			SetHDFDataSetFileInformation in SOpenDlg.cpp
+// Called By:			SetHDFDataSetFileInformation in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
 //	Revised By:			Larry L. Biehl			Date: 01/05/2018
@@ -1470,7 +1459,6 @@ SInt16 GetHDFDataSetSpecialInfo (
 		
 		if (file_id != FAIL) 
 			{
-			//sdid = (SInt32)hdfDataSetsPtr[dataSetIndex].sdid;
 			sdid = GetSdidValue (&hdfDataSetsPtr[dataSetIndex]);
 						
 			if (sdid != FAIL)
@@ -1479,7 +1467,7 @@ SInt16 GetHDFDataSetSpecialInfo (
 				info_block.path = NULL;
 				info_block.cdims = NULL;
 				
-				#if defined multispec_mac || multispec_win
+				#if defined multispec_mac || defined multispec_win
 					SDgetspecialinfo (sdid, &info_block);
 					//HDget_special_info (sdid, &info_block);
 
@@ -1545,7 +1533,7 @@ SInt16 GetHDFDataSetSpecialInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1565,13 +1553,13 @@ SInt16 GetHDFDataSetSpecialInfo (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2005
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt16 GetHDFInstrumentCode (
 				SInt32		 						id)
 				
 {	
-	UCharPtr								bufferPtr;
+	UCharPtr								bufferPtr = NULL;
 											
 	intn 									hdfReturn;
 	
@@ -1651,7 +1639,7 @@ SInt16 GetHDFInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1780,7 +1768,7 @@ SInt16 GetHDF4Line (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1913,7 +1901,8 @@ intn GetHDFProjectionInformation (
 			
 		if (bufferPtr != NULL)
 			{
-					// Get the spatial resolution of the data.  This will be for Level 1 data.
+					// Get the spatial resolution of the data.  This will be for Level 1
+					// data.
 			
 			returnCode = GetSpecificNumericAttributeInformation (
 																		id,
@@ -2290,7 +2279,8 @@ intn GetHDFProjectionInformation (
 																					NULL);
 				if (returnCode > 0)
 					{
-					if (CompareStringsNoCase (projectionMethodString, (UCharPtr)"UTM", 3) == 0)
+					if (CompareStringsNoCase (
+												projectionMethodString, (UCharPtr)"UTM", 3) == 0)
 						{
 						*mapReferenceSystemCodePtr = kUTM_WGS84RSCode;
 						*returnCodePtr = noErr;
@@ -2840,7 +2830,7 @@ intn GetHDFProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3183,7 +3173,7 @@ void GetMapInfoFromGridStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3553,7 +3543,7 @@ void GetMapInfoFromNetCDF_HRLDAS_Structure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3795,7 +3785,7 @@ void GetMapInfoFromNetCDF_LIS_Structure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4232,11 +4222,6 @@ void GetMapInfoFromSeaSpaceStructure (
 			projOriginLongitude == -87 &&
 				projOriginLatitude == 0)
 		{
-				// This is probably actually UTM projection
-					
-		//*mapProjectionCodePtr = kUTMCode;
-		//*gridZonePtr = (SInt16)((projOriginLongitude + 183)/6);
-		
 		*mapProjectionEllipsoidCodePtr = kSphereEllipsoidCode;
 		*mapProjectionDatumCodePtr = kSphereDatumCode;
 		
@@ -4393,7 +4378,7 @@ void GetMapInfoFromSeaSpaceStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4464,7 +4449,7 @@ Boolean GetNewHDF4FileReferences (
 			sdid = SDselect (file_id, dataSet);
 			
 			if (sdid != FAIL)
-				hdfDataSetsPtr[index].sdid = (void*)sdid;
+				hdfDataSetsPtr[index].sdid = (void*)(SInt64)sdid;
 				//hdfDataSetsPtr[index].sdid = sdid;
 			
 			else	// sdid == FAIL
@@ -4491,7 +4476,7 @@ Boolean GetNewHDF4FileReferences (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4510,7 +4495,7 @@ Boolean GetNewHDF4FileReferences (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 07/28/2015
-//	Revised By:			Larry L. Biehl			Date: 07/28/2015
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt32 GetSdidValue (
 				HdfDataSets*		 				hdfDataSetsPtr)
@@ -4518,11 +4503,11 @@ SInt32 GetSdidValue (
 {	
 	SInt32								sdidValue;
 	
-	#if defined multispec_mac || multispec_win
+	#if defined multispec_mac || defined multispec_win
 		sdidValue = (SInt32)hdfDataSetsPtr->sdid;
 	#endif
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt64 sdid64 = (SInt64)hdfDataSetsPtr->sdid;
 		sdidValue = (SInt32)sdid64;
 	#endif
@@ -4534,7 +4519,7 @@ SInt32 GetSdidValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4645,7 +4630,8 @@ SInt16 GetSpecificTextAttributeInformation (
 						length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 						bufferIndex += length;
 						attributeSize -= length;			
-						stringPtr = (UCharPtr)strstr ((char*)&bufferPtr[bufferIndex], (char*)objectString);
+						stringPtr = (UCharPtr)strstr ((char*)&bufferPtr[bufferIndex],
+																(char*)objectString);
 						continueFlag = (stringPtr != NULL);
 						
 						}	// end "if (continueFlag && lengthObjectString > 0)"
@@ -4835,7 +4821,7 @@ SInt16 GetSpecificTextAttributeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5013,9 +4999,9 @@ SInt16 GetSpecificNumericAttributeInformation (
 								bufferIndex += length;
 								attributeSize -= length;
 								
-										// If NUMVAL field is not used, then we need to determine whether
-										// there is just one value or multiple values (implied by existance
-										// of '('.
+										// If NUMVAL field is not used, then we need to
+										// determine whether there is just one value or
+										// multiple values (implied by existance of '('.
 								
 								if (!numValFieldUsedFlag)
 									{
@@ -5048,7 +5034,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 											// Now get the parameters for the object
 											
 									returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
-																"= (%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", 
+																"= (%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",
 																&valuesPtr[0], 
 																&valuesPtr[1], 
 																&valuesPtr[2], 
@@ -5194,7 +5180,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5263,7 +5249,7 @@ SInt32 GetNumberOfValidDataSets (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5281,7 +5267,7 @@ SInt32 GetNumberOfValidDataSets (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/2002
-//	Revised By:			Larry L. Biehl			Date: 03/01/2019
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean ListAttributeInformation (
 				SInt32		 						id,
@@ -5553,13 +5539,13 @@ Boolean ListAttributeInformation (
 						break;
 						
 					case DFNT_INT32:
-						length = sprintf (stringBuffer, " %ld", (int)*int32Ptr);
+						length = sprintf (stringBuffer, " %d", (int)*int32Ptr);
 						
 						for (valueIndex=1; valueIndex<attributeSize; valueIndex++)
 							{
 							length += sprintf (&stringBuffer[length], 
-														", %ld", 
-														int32Ptr[valueIndex]);
+														", %d",
+														(int)int32Ptr[valueIndex]);
 							
 							if (length > maxLength)
 								{
@@ -5572,13 +5558,13 @@ Boolean ListAttributeInformation (
 						break;
 						
 					case DFNT_UINT32:
-						length = sprintf (stringBuffer, " %lu", (unsigned int)*uint32Ptr);
+						length = sprintf (stringBuffer, " %u", (unsigned int)*uint32Ptr);
 						
 						for (valueIndex=1; valueIndex<attributeSize; valueIndex++)
 							{
 							length += sprintf (&stringBuffer[length], 
-														", %lu", 
-														uint32Ptr[valueIndex]);
+														", %u",
+														(unsigned int)uint32Ptr[valueIndex]);
 							
 							if (length > maxLength)
 								{
@@ -5683,7 +5669,7 @@ Boolean ListAttributeInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5700,7 +5686,7 @@ Boolean ListAttributeInformation (
 // Called By:			ListDescriptionInformation in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2002
-//	Revised By:			Larry L. Biehl			Date: 01/05/2018
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean ListHDF4DataSetAttributes (
 				FileInfoPtr 						fileInfoPtr,
@@ -5827,9 +5813,9 @@ Boolean ListHDF4DataSetAttributes (
 			if (nattrs > 0)
 				{
 				length = sprintf ((char*)&gTextString, 
-											"    %s data set attributes for data set %ld%s",
+											"    %s data set attributes for data set %u%s",
 											&formatNamePtr[1],
-											dataSet,
+											(unsigned int)dataSet,
 											gEndOfLine);
 				if (continueFlag)
 					continueFlag = ListString ((char*)&gTextString, length, gOutputTextH);
@@ -5842,9 +5828,9 @@ Boolean ListHDF4DataSetAttributes (
 			else	// nattrs <= 0
 				{
 				length = sprintf ((char*)&gTextString, 
-											"    No %s data set attributes for data set%ld%s",
+											"    No %s data set attributes for data set%u%s",
 											&formatNamePtr[1],
-											dataSet,
+											(unsigned int)dataSet,
 											gEndOfLine);
 				
 				if (continueFlag)
@@ -5870,7 +5856,7 @@ Boolean ListHDF4DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5956,7 +5942,7 @@ Boolean LoadNonBSQOffsetBytesInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6198,7 +6184,7 @@ SInt32 LoadHdfDataSetNames (
 				*/
 				hdfDataSetsPtr[index].vRefNum = hdfDataSetsPtr[0].vRefNum;
 				hdfDataSetsPtr[index].dirID = hdfDataSetsPtr[0].dirID;
-				hdfDataSetsPtr[index].sdid = (void*)sdid;
+				hdfDataSetsPtr[index].sdid = (void*)(SInt64)sdid;
 				
 				hdfDataSetsPtr[index].dataSetOffsetBytes = dataSetOffsetBytes;
 				
@@ -6270,8 +6256,8 @@ SInt32 LoadHdfDataSetNames (
 								if ((numDataSets-dataSet) >= 3)
 									{
 									hdfDataSetsPtr[numDataSets+1].name[0] = 
-											sprintf ((char*)&hdfDataSetsPtr[numDataSets+1].name[1],
-											" VNIR");
+										sprintf ((char*)&hdfDataSetsPtr[numDataSets+1].name[1],
+													" VNIR");
 									
 									//hdfDataSetsPtr[numDataSets+1].name[0] =
 									//		CreateDataSetIdentifierName (
@@ -6493,8 +6479,8 @@ SInt32 LoadHdfDataSetNames (
 									*/
 									hdfDataSetsPtr[numDataSets+groupNumber].vRefNum = 0;
 									hdfDataSetsPtr[numDataSets+groupNumber].dirID = 0;
-									hdfDataSetsPtr[numDataSets+groupNumber].dataSetOffsetBytes = 
-																												0;
+									hdfDataSetsPtr[numDataSets+groupNumber].
+																				dataSetOffsetBytes = 0;
 									hdfDataSetsPtr[numDataSets+groupNumber].dataSet = 
 																					(SInt16)(set0DataSet);
 									hdfDataSetsPtr[numDataSets+groupNumber].dataSetType = 0;
@@ -6598,7 +6584,7 @@ SInt32 LoadHdfDataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6634,7 +6620,7 @@ SInt32 LoadHdfDataSetNames (
 //							= 3, Image data set was found but it is 4-byte integer.
 //							= 4, There are no more image data sets in the file.
 //
-// Called By:			FileSpecificationDialogSetHDFValues in SOpenDlg.cpp
+// Called By:			FileSpecificationDialogSetHDFValues in SOpenFileDialog.cpp
 //							LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/1995
@@ -7124,7 +7110,7 @@ SInt16 LoadHDF4DataSetInformation (
 									&mapProjectionInfoPtr->gridCoordinate.falseEasting,
 									&mapProjectionInfoPtr->gridCoordinate.falseNorthing);
 							*/			
-							}	// end "if (!SetProjectionParametersFromReferenceSystem (mapProjectionInfoPtr))"
+							}	// end "if (!SetProjectionParametersFromReferenceSystem (..."
 						
 								// Make sure the map units code is set correctly
 						
@@ -7134,20 +7120,20 @@ SInt16 LoadHDF4DataSetInformation (
 																							kNotDefinedCode)
 							{										
 							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																					kStatePlaneNAD27RSCode)
+																				kStatePlaneNAD27RSCode)
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
 																									kFeetCode;
 								
 							else if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode
-																						== kGeographicRSCode)
+																					== kGeographicRSCode)
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
-																						kDecimalDegreesCode;
+																					kDecimalDegreesCode;
 										
-							else	// ...->gridCoordinate.code != kStatePlaneCode && ...
+							else	// ...referenceSystemCode != kStatePlaneNAD27RSCode && ...
 								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
 																								kMetersCode;
 								
-							}	// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode && ..."
+							}	// end "if (...->planarCoordinate.mapUnitsCode == ..."
 						
 						MHSetState (fileInfoPtr->mapProjectionHandle, handleStatus);
 							
@@ -7232,7 +7218,7 @@ SInt16 LoadHDF4DataSetInformation (
 									&mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11, 
 									&mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);
 									
-								}	// end "else if (... projectionCode == kUTMCode)"
+								}	// end "else if (...referenceSystemCode == ..."
 								
 							else if (mapProjectionInfoPtr->gridCoordinate.projectionCode == 
 																							kOrthographicCode)
@@ -7339,7 +7325,7 @@ SInt16 LoadHDF4DataSetInformation (
 									
 									}	// end "if (horizontalPixelSize <= 0 || verticalPixelSize <= 0)"
 								
-								}	// end "if (mapProjectionInfoPtr->gridCoordinate.code == kUTMCode)"
+								}	// end "if (...referenceSystemCode >= kUTM_NAD27RSCode ..."
 							
 							}	// end "if (convertUpperLeftFromLatLongToMapFlag)"
 						  
@@ -7381,7 +7367,7 @@ SInt16 LoadHDF4DataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7622,7 +7608,7 @@ SInt16 LoadHDF4Information (
 														&imageOffset);
 				#endif
 			
-				#if defined multispec_lin && !defined multispec_wxmac
+				#if defined multispec_wxlin
 					hdfReturn = DFR8getdims ((char*)filePathPtr, 
 														&numberColumns, 
 														&numberLines, 
@@ -7716,7 +7702,7 @@ SInt16 LoadHDF4Information (
 													&imageOffset);
 				#endif
 			
-				#if defined multispec_lin && !defined multispec_wxmac
+				#if defined multispec_wxlin
 					hdfReturn = DF24getdims ((char*)filePathPtr, 
 													&numberColumns, 
 													&numberLines, 
@@ -7908,7 +7894,7 @@ SInt16 LoadHDF4Information (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7958,7 +7944,7 @@ void RemoveTrailingCharacters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7990,7 +7976,7 @@ void SetHDF4HasHFSPlusAPISetting (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8112,7 +8098,7 @@ SInt16 SetUpHDF_FileInformation (
 
 
 
-#if defined multispec_lin && !defined multispec_wxmac
+#if defined multispec_wxlin
 // Note that these files are not defined in the linux hdf library
 /******************************************************************************
  NAME
@@ -8136,6 +8122,7 @@ intn SDgetoffset (
 				int32  								sdsid,   
 						// OUT: starting offset for the dataset
 				int32*								dataSetOffsetPtr)
+
 {
 	NC*     								handle = NULL;
 	NC_var* 								var = NULL;
@@ -8232,6 +8219,7 @@ intn SDgetoffset (
 ******************************************************************************/
 NC* SDIhandle_from_id (int32 id, /* IN: an object (file, dim, dataset) ID */
                   intn  typ /* IN: IN: the type of ID this is */)
+
 {
     int32 tmp;
     NC   *ret_value = NULL;
@@ -8246,7 +8234,7 @@ NC* SDIhandle_from_id (int32 id, /* IN: an object (file, dim, dataset) ID */
 
     /* get the file from top 8 bits*/
     tmp = (id >> 20) & 0xfff;
-    ret_value = NC_check_id((int)tmp);
+    ret_value = NC_check_id ((int)tmp);
 
 done:
     if (ret_value == NULL)
@@ -8366,6 +8354,6 @@ done:
 
     return ret_value;    
 }	/* SDIfreevarAID */
-#endif	// defined multispec_lin && !defined multispec_wxmac
+#endif	// defined multispec_wxlin
 
-#endif
+#endif	// include_hdf_capability

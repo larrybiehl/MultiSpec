@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/27/2019
+//	Revision date:			11/26/2019
 //
 //	Language:				C
 //
@@ -20,77 +20,55 @@
 //	Brief description:	The purpose of the routines in this file is to provide utility 
 //								mask functions in MultiSpec.
 //
-//	Functions in file:	SInt16 				CheckCurrentMaskFields
-//								Boolean 				CheckMaskFileInfo
-//								void 					CloseFile
-//								void 					CloseMaskStructure
-//								UInt32 				ConvertFieldNumberToMaskValue
-//								Boolean 				DetermineIfMaskDataInLine
-//								Boolean 				DetermineIfClassesSameAsProjectClassNames
-//								UInt32 				GetFirstMaskLine
-//								Boolean 				GetMaskArea
-//								Handle 				GetMaskFile
-//								CMFileStream* 		GetMaskFileStreamPointer
-//								CharPtr 				GetMaskFileNamePPointer
-//								MaskInfoPtr 		GetMaskInfoPointer
-//								UInt32 				GetNumberPixelsInMaskArea
-//								void 					InitializeMaskStructure
-//								SInt16 				LoadMask
-//								Boolean 				LoadNewMaskFields 
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"   
 
-#if defined multispec_lin
-	#include "CFileStream.h"
+#if defined multispec_wx
+	#include "SFileStream_class.h"
+	#include "SImageWindow_class.h"
 #endif
   
 #if defined multispec_win
-	#include "CImageWindow.h"
-#endif	// defined multispec_win    
+	#include "SImageWindow_class.h"
+#endif	// defined multispec_win
 
-//#include "SExtGlob.h" 
-
-
-extern Handle LoadMaskFileInfo (
-							CMFileStream*						maskFileStreamPtr);
 
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
 
-SInt16 				CheckCurrentMaskFields (
-							SInt16								maskSetCode,
-							MaskInfoPtr							maskInfoPtr,
-							HUInt32Ptr							maskValueCountVector,
-							HUInt16Ptr							maskValueToFieldPtr,
-							UInt32								maxMaskValue);
+SInt16 CheckCurrentMaskFields (
+				SInt16								maskSetCode,
+				MaskInfoPtr							maskInfoPtr,
+				HUInt32Ptr							maskValueCountVector,
+				HUInt16Ptr							maskValueToFieldPtr,
+				UInt32								maxMaskValue);
 
-Boolean 				CheckMaskFileInfo (
-							Handle								fileInfoHandle,
-							SInt16*								errCodePtr);
-			
-Boolean 				LoadNewMaskFields (
-							SInt16								maskSetCode,
-							MaskInfoPtr							maskInfoPtr,
-							HUInt32Ptr							maskValueCountVector,
-							HUInt16Ptr							maskValueToFieldPtr,
-							UInt32								maxMaskValue,
-							Handle								maskWindowInfoHandle);
+Boolean CheckMaskFileInfo (
+				Handle								fileInfoHandle,
+				SInt16*								errCodePtr);
 
-Boolean 				DetermineIfClassesSameAsProjectClassNames (
-							HUCharPtr							classNamePtr, 
-							UInt32								numberClasses);
+Boolean LoadNewMaskFields (
+				SInt16								maskSetCode,
+				MaskInfoPtr							maskInfoPtr,
+				HUInt32Ptr							maskValueCountVector,
+				HUInt16Ptr							maskValueToFieldPtr,
+				UInt32								maxMaskValue,
+				Handle								maskWindowInfoHandle);
 
-Boolean 				UserLocateProjectMaskImage (
-							Handle								fileInfoHandle, 
-							SInt16								promptStringNumber);
+Boolean DetermineIfClassesSameAsProjectClassNames (
+				HUCharPtr							classNamePtr,
+				UInt32								numberClasses);
+
+Boolean UserLocateProjectMaskImage (
+				Handle								fileInfoHandle,
+				SInt16								promptStringNumber);
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -185,7 +163,8 @@ SInt16 CheckCurrentMaskFields (
 					
 					if (maskValue <= maxMaskValue)
 						{
-						if (fieldIdentPtr->numberPixels != (SInt64)maskValueCountVector[maskValue])
+						if (fieldIdentPtr->numberPixels !=
+															(SInt64)maskValueCountVector[maskValue])
 							{
 							fieldIdentPtr->numberPixels = maskValueCountVector[maskValue];
 							
@@ -194,48 +173,48 @@ SInt16 CheckCurrentMaskFields (
 								fieldIdentPtr->statsUpToDate = FALSE;
 								maskStatsChangedFlag = TRUE;
 								
-								}		// end "if (fieldType == kTrainingType)"
+								}	// end "if (fieldType == kTrainingType)"
 							
-							}		// end "if (fieldIdentPtr->numberPixels != ..."
+							}	// end "if (fieldIdentPtr->numberPixels != ..."
 						
 						maskValueToFieldPtr[maskValue] = (UInt16)fieldNumber;
 						
-						}		// end "if (maskValue <= maxMaskValue)"
+						}	// end "if (maskValue <= maxMaskValue)"
 						
-					else		// maskValue > maxMaskValue
+					else	// maskValue > maxMaskValue
 						{
 						returnCode += 1;
 						break;
 						
-						}		// end "else maskValue > maxMaskValue"
+						}	// end "else maskValue > maxMaskValue"
 									
-					}		// end "if (fieldIdentPtrr->field..." 
+					}	// end "if (fieldIdentPtrr->field..." 
 					
 				fieldNumber = fieldIdentPtr->nextField;
 				
-				}		// end "while (fieldNumber != -1)" 
+				}	// end "while (fieldNumber != -1)" 
 				
 			if (returnCode != 0)
 				break;
 			
-			}		// end "for (classNumber=0; ... 
+			}	// end "for (classNumber=0; ... 
 			
-		}		// end "if (numberClasses > 0)"
+		}	// end "if (numberClasses > 0)"
 		
 	if (maskStatsChangedFlag && returnCode == 0)
 		{
 		returnCode = 2;
 		
-		}		// end "if (maskStatsChangedFlag && returnCode == 0)"
+		}	// end "if (maskStatsChangedFlag && returnCode == 0)"
 		
 	return (returnCode);
 	
-}		// end "CheckCurrentMaskFields"  
+}	// end "CheckCurrentMaskFields"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -307,21 +286,21 @@ Boolean CheckMaskFileInfo (
 			SysBeep (10);
 			CloseFile (fileStreamPtr);
 		
-			}		// end "if (!sizeOKFlag)"
+			}	// end "if (!sizeOKFlag)"
 			
-		else		// sizeOKFlag
+		else	// sizeOKFlag
 			returnFlag = TRUE;
 			
-		}		// end "if (fileInfoLoadedFlag)"
+		}	// end "if (fileInfoLoadedFlag)"
 		
 	return (returnFlag);
 	
-}		// end "CheckMaskFileInfo" 
+}	// end "CheckMaskFileInfo" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -350,16 +329,16 @@ void CloseFile (
 	#endif	// defined multispec_mac 
 
               
-#if defined multispec_win || defined multispec_lin	
+#if defined multispec_win || defined multispec_wx	
 		CloseFile (maskInfoPtr->fileStreamPtr);
 	#endif	// defined multispec_win || lin
 	
-}		// end "CloseFile" 
+}	// end "CloseFile" 
 
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -369,6 +348,7 @@ void CloseFile (
 //							number to the mask value that represents that field number
 //							using the mask value to field vector which is stored in the
 //							input mask information structure.
+//								This routine is not used now.
 //
 //	Parameters in:		
 //
@@ -376,8 +356,8 @@ void CloseFile (
 //
 // Value Returned:	
 // 
-// Called By:			GetFieldBoundary in SProjUtl.cpp
-//							IsProjectData in statisticsEnhancement.c
+// Called By:			GetFieldBoundary in SProjectUtilities.cpp
+//							IsProjectData in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1998
 //	Revised By:			Larry L. Biehl			Date: 12/21/1998	
@@ -403,17 +383,17 @@ UInt32 ConvertFieldNumberToMaskValue (
 		if (fieldNumber == maskValueToFieldPtr[index])
 																							return (index);
 																							
-		}		// end "for (index=1; index<=maxMaskValue; index++)"
+		}	// end "for (index=1; index<=maxMaskValue; index++)"
 		
 	return (0);
 	
-}		// end "ConvertFieldNumberToMaskValue" 
+}	// end "ConvertFieldNumberToMaskValue" 
 */
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -442,7 +422,7 @@ void CloseMaskStructure (
 		CloseFile (maskInfoPtr->fileStreamHandle);
 		UnlockAndDispose (maskInfoPtr->fileStreamHandle); 
 		
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			if (maskInfoPtr->fileStreamPtr != NULL)
 				delete maskInfoPtr->fileStreamPtr;				
 		#endif	// defined multispec_win || lin
@@ -452,13 +432,13 @@ void CloseMaskStructure (
 									
 		InitializeMaskStructure (maskInfoPtr);
 		
-		}		// end "if (maskInfoPtr != NULL)"
+		}	// end "if (maskInfoPtr != NULL)"
 	
-}		// end "CloseMaskStructure" 
+}	// end "CloseMaskStructure" 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -510,11 +490,11 @@ Boolean DetermineIfMaskDataInLine (
 				
 			maskBufferPtr += columnInterval;
 				
-			}		// end "for (sample=0; sample<numberSamples; sample+=columnInterval)"
+			}	// end "for (sample=0; sample<numberSamples; sample+=columnInterval)"
 			
-		}		// end "if (maskValueRequest == 0)"
+		}	// end "if (maskValueRequest == 0)"
 		
-	else		// maskValueRequest != 0
+	else	// maskValueRequest != 0
 		{
 				// Only a specific mask value will be used.
 														
@@ -525,18 +505,18 @@ Boolean DetermineIfMaskDataInLine (
 				
 			maskBufferPtr += columnInterval;
 				
-			}		// end "for (sample=0; sample<numberSamples; sample+=columnInterval)"
+			}	// end "for (sample=0; sample<numberSamples; sample+=columnInterval)"
 			
-		}		// end "else maskValueRequest != 0"
+		}	// end "else maskValueRequest != 0"
 		
 	return (FALSE);
 	      
-}		// end "DetermineIfMaskDataInLine"  
+}	// end "DetermineIfMaskDataInLine"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -559,13 +539,12 @@ Boolean DetermineIfMaskDataInLine (
 //
 //	Coded By:			Larry L. Biehl			Date: 02/15/2000
 //	Revised By:			Larry L. Biehl			Date: 02/15/2000
-// TODO: Checkforduplicate... is not yet declared
+
 Boolean DetermineIfClassesSameAsProjectClassNames (
 				HUCharPtr							classNamePtr, 
 				UInt32								numberClasses)
 
 { 
-#ifndef multispec_lin
 	UInt32								index;
 
 	Boolean								nameIsSameFlag = FALSE;
@@ -578,22 +557,20 @@ Boolean DetermineIfClassesSameAsProjectClassNames (
 			nameIsSameFlag = TRUE;
 			break;
 			
-			}		// end "if (CheckForDuplicateClassName (..."
+			}	// end "if (CheckForDuplicateClassName (..."
 			
 		classNamePtr += 32;
 		
-		}		// end "for (index=0; index<numberClasses; index++)"
+		}	// end "for (index=0; index<numberClasses; index++)"
 		
 	return (nameIsSameFlag);
-#else
-    return false;
-#endif
-}		// end "DetermineIfClassesSameAsProjectClassNames" 
+
+}	// end "DetermineIfClassesSameAsProjectClassNames"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -682,29 +659,29 @@ UInt32 GetFirstMaskLine (
 					maskExistsInLine = line;
 					break;
 					
-					}		// end "if (maskBufferPtr[column] == maskValueRequest)"
+					}	// end "if (maskBufferPtr[column] == maskValueRequest)"
 					
-				}		// end "for (column=localColumnStart; column<=columnEnd; ..."
+				}	// end "for (column=localColumnStart; column<=columnEnd; ..."
 					
 			maskBufferPtr += numberMaskColumns;
 			
 			if (maskExistsInLine > 0)
 				break;
 				
-			}		// end "for (line=lineStart; line<=lineEnd; line+=localLineInterval)"
+			}	// end "for (line=lineStart; line<=lineEnd; line+=localLineInterval)"
 
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	CheckAndUnlockHandle (maskInfoPtr->maskHandle);
 		
 	return (maskExistsInLine);
 	
-}		// end "GetFirstMaskLine"
+}	// end "GetFirstMaskLine"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -723,8 +700,8 @@ UInt32 GetFirstMaskLine (
 // Value Returned:	
 // 
 // Called By:			LoadMask in SMask.cpp
-//							GetFieldBoundary in SProjUtl.cpp
-//							UpdateProjectMaskStats in SStatCom.cpp
+//							GetFieldBoundary in SProjectUtilities.cpp
+//							UpdateProjectMaskStats in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1998
 //	Revised By:			Larry L. Biehl			Date: 01/15/1999	
@@ -799,7 +776,7 @@ Boolean GetMaskArea (
 	if (imageLineEnd > 0)
 		imageLineEnd = MIN (imageLineEnd, maskLineEnd);
 		
-	else		// *imageLineEndPtr = 0
+	else	// *imageLineEndPtr = 0
 		imageLineEnd = maskLineEnd;
 	
 	imageColumnStart = MAX (imageColumnStart, maskColumnStart);
@@ -807,7 +784,7 @@ Boolean GetMaskArea (
 	if (imageColumnEnd > 0)
 		imageColumnEnd = MIN (imageColumnEnd, maskColumnEnd);
 		
-	else		// *imageLineEndPtr = 0
+	else	// *imageLineEndPtr = 0
 		imageColumnEnd = maskColumnEnd;
 	
 			// Take into account the interval requests.
@@ -829,7 +806,7 @@ Boolean GetMaskArea (
 	if (maskLineStart > maskLineEnd || maskColumnStart > maskColumnEnd)
 																						return (FALSE);
 		
-	else		// maskLineStart <= maskLineEnd && ... 
+	else	// maskLineStart <= maskLineEnd && ... 
 		{
 		*imageLineStartPtr = (UInt32)imageLineStart;
 		*imageLineEndPtr = (UInt32)imageLineEnd;
@@ -846,14 +823,14 @@ Boolean GetMaskArea (
 	
 		return (TRUE);
 		
-		}		// end "else maskLineStart <= maskLineEnd && ..."
+		}	// end "else maskLineStart <= maskLineEnd && ..."
 
-}		// end "GetMaskArea"
+}	// end "GetMaskArea"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -954,11 +931,11 @@ Handle GetMaskFile (
 				doneFlag = CheckMaskFileInfo (fileInfoHandle, &errCode);
 				continueFlag = (errCode == noErr);
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)" 
 			
 			}		while (continueFlag & !doneFlag);
 
-		}		// end "if (fileInfoHandle != NULL)"
+		}	// end "if (fileInfoHandle != NULL)"
 
 	else		
 		continueFlag = FALSE;
@@ -966,21 +943,21 @@ Handle GetMaskFile (
 	if (continueFlag)
 		DisposeFileInfoHandle (inputFileInfoHandle);
  	    		
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 		DisposeFileInfoHandle (fileInfoHandle);
 		fileInfoHandle = inputFileInfoHandle;
 		
-		}		// end "else !continueFlag"
+		}	// end "else !continueFlag"
   	
 	return (fileInfoHandle);
 	
-}		// end "GetMaskFile"  
+}	// end "GetMaskFile"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -996,7 +973,7 @@ Handle GetMaskFile (
 // Value Returned:  	pointer to the support file stream pointer.
 //							NULL if not available.
 //
-// Called By:			StatisticsDialog in SStatist.cpp
+// Called By:			StatisticsDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	12/08/1998
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -1013,12 +990,12 @@ FileStringPtr GetMaskFileNamePPointer (
 		
 	return ((FileStringPtr)GetFileNamePPointerFromFileStream (maskFileStreamPtr));
 												
-}		// end "GetMaskFileNamePPointer"
+}	// end "GetMaskFileNamePPointer"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1054,24 +1031,23 @@ CMFileStream* GetMaskFileStreamPointer (
 		#if defined multispec_mac
 			maskFileStreamPtr = (CMFileStream*)GetHandleStatusAndPointer (
 								maskInfoPtr->fileStreamHandle, 
-								handleStatusPtr,
-								kNoMoveHi);	
+								handleStatusPtr);	
 		#endif	// defined multispec_mac
 	              
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			maskFileStreamPtr = maskInfoPtr->fileStreamPtr;	 
 		#endif	// defined multispec_win || lin
 														
-		}		// end "if (maskInfoPtr != NULL)"                    
+		}	// end "if (maskInfoPtr != NULL)"                    
 		
 	return (maskFileStreamPtr);
 												
-}		// end "GetMaskFileStreamPointer"
+}	// end "GetMaskFileStreamPointer"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1126,16 +1102,16 @@ MaskInfoPtr GetMaskInfoPointer (
 				maskInfoPtr = &windowInfoPtr->mask;
    		break;
 		
-		}		// end "switch (maskSetCode)"
+		}	// end "switch (maskSetCode)"
 		
 	return (maskInfoPtr);
 	
-}		// end "GetMaskInfoPointer"
+}	// end "GetMaskInfoPointer"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1233,7 +1209,7 @@ SInt64 GetNumberPixelsInMaskArea (
 			
 			singlePassClusterFlag = TRUE;
 			
-			}		// end "if (algorithmCode & kSPClusterCase)"
+			}	// end "if (algorithmCode & kSPClusterCase)"
 			
 		firstColumnSkip = 0;
 									
@@ -1241,16 +1217,15 @@ SInt64 GetNumberPixelsInMaskArea (
 			{
 			localColumnStart = columnStart + firstColumnSkip;
 				
-			for (column=localColumnStart; column<=(UInt32)columnEnd; column+=localColumnInterval)
+			for (column=localColumnStart;
+						column<=(UInt32)columnEnd;
+								column+=localColumnInterval)
 				{
 				if (maskBufferPtr[column] == maskValueRequest)
 					pixelCount++;
 					
-				}		// end "for (column=localColumnStart; column<=columnEnd; ..."
+				}	// end "for (column=localColumnStart; column<=columnEnd; ..."
   				
-//			if (algorithmCode != 0)
-//				firstColumnSkip = column - columnEnd - 1;
-					
 			maskBufferPtr += numberMaskColumns;
 				
 			if (singlePassClusterFlag && pixelCount > 0)
@@ -1264,22 +1239,22 @@ SInt64 GetNumberPixelsInMaskArea (
 				
 				singlePassClusterFlag = FALSE;
 				
-				}		// end "if (singlePassClusterFlag && pixelCount > 0)"
+				}	// end "if (singlePassClusterFlag && pixelCount > 0)"
 				
-			}		// end "for (line=lineStart; line<=lineEnd; line+=localLineInterval)"
+			}	// end "for (line=lineStart; line<=lineEnd; line+=localLineInterval)"
 
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 	CheckAndUnlockHandle (maskInfoPtr->maskHandle);
 		
 	return (pixelCount);
 	
-}		// end "GetNumberPixelsInMaskArea"
+}	// end "GetNumberPixelsInMaskArea"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1296,7 +1271,7 @@ SInt64 GetNumberPixelsInMaskArea (
 //
 // Value Returned:	
 //
-// Called By:			ReadProjectFile in SProjFIO.cpp
+// Called By:			ReadProjectFile in SProjectFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -1375,7 +1350,7 @@ Boolean GetSpecifiedMaskFile (
 			if (!fileFoundFlag)
 				CloseFile (fileInfoPtr);
 				
-			}		// end "if (errCode == noErr)" 
+			}	// end "if (errCode == noErr)" 
 			
 				// If file not found at this point, allow user to locate the		
 				// image file.																		
@@ -1389,9 +1364,9 @@ Boolean GetSpecifiedMaskFile (
 			fileFoundFlag = UserLocateProjectMaskImage (maskFileInfoHandle, 
 																		promptStringNumber);
 			
-			}		// end "if (!fileFoundFlag && userPrompt)"
+			}	// end "if (!fileFoundFlag && userPrompt)"
 		
-		}		// end "if (fileNamePtr && ...)" 
+		}	// end "if (fileNamePtr && ...)" 
 	
 	if (fileFoundFlag)
 		{	
@@ -1418,7 +1393,7 @@ Boolean GetSpecifiedMaskFile (
 		returnCode = DisplayAlert (
 				kErrorAlertID, kCautionAlert, kAlertStrID, promptStringNumber, 0, NULL);
 							
-		}		// end "else !fileFoundFlag"
+		}	// end "else !fileFoundFlag"
 		
 			// Dispose of temporary handle for mask file structures if needed.
 			
@@ -1426,12 +1401,12 @@ Boolean GetSpecifiedMaskFile (
 		
 	return (fileFoundFlag);
 
-}		// end "GetSpecifiedMaskFile" 
+}	// end "GetSpecifiedMaskFile" 
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1473,14 +1448,14 @@ void InitializeMaskStructure (
 		maskInfoPtr->startColumn = 0;
 		maskInfoPtr->startLine = 0;
 		
-		}		// end "if (maskInfoPtr != NULL)"
+		}	// end "if (maskInfoPtr != NULL)"
 	
-}		// end "InitializeMaskStructure"
+}	// end "InitializeMaskStructure"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1497,7 +1472,7 @@ void InitializeMaskStructure (
 //							1: Indicates that Mask was loaded in
 //
 // Called By:			GetSpecifiedMaskFile in SMask.cpp
-//							StatisticsDialogMaskCheck in SStatist.cpp
+//							StatisticsDialogMaskCheck in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1998
 //	Revised By:			Larry L. Biehl			Date: 04/28/2017
@@ -1512,10 +1487,6 @@ SInt16 LoadMask (
 {
 	MaskInfo								maskInfo;  
 	 
-#	if defined multispec_win || defined multispec_lin
-		CMImageWindow* 					maskWindowCPtr = NULL;
-#	endif	// defined multispec_win || lin
-	
 	FileInfoPtr							maskFileInfoPtr;
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
 	HUCharPtr							inputbufferPtr;
@@ -1560,7 +1531,7 @@ SInt16 LoadMask (
 	maskFileInfoPtr = (FileInfoPtr)GetHandlePointer (maskFileInfoHandle);
 											
 	if (maskFileInfoPtr == NULL)
-																					return (0);
+																						return (0);
 	
 			// Initialize local variables.
 																							
@@ -1578,7 +1549,7 @@ SInt16 LoadMask (
 																	fileImageType);
 	
 	if (maskWindowInfoHandle == NULL)
-																					return (0);
+																						return (0);
 																						
 			// Initialize local variables.
 	
@@ -1597,7 +1568,7 @@ SInt16 LoadMask (
 										&maskFileInfoPtr);
 		
 	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-														gProjectInfoPtr->windowInfoHandle);
+																gProjectInfoPtr->windowInfoHandle);
 	
 	imageLineStart = 1;
 	imageLineEnd = projectWindowInfoPtr->maxNumberLines;
@@ -1611,22 +1582,21 @@ SInt16 LoadMask (
 	maskInfo.startColumn = maskFileInfoPtr->startColumn;
 	maskInfo.startLine = maskFileInfoPtr->startLine;
 	
-	continueFlag = GetMaskArea (
-								&maskInfo,
-								0,
-								NULL,
-								NULL,
-								gProjectInfoPtr->startLine,
-								gProjectInfoPtr->startColumn, 
-								1, 
-								1, 
-								&imageLineStart, 
-								&imageLineEnd, 
-								&imageColumnStart, 
-								&imageColumnEnd, 
-								&maskLineStart, 
-								&maskColumnStart);
-								
+	continueFlag = GetMaskArea (&maskInfo,
+											0,
+											NULL,
+											NULL,
+											gProjectInfoPtr->startLine,
+											gProjectInfoPtr->startColumn, 
+											1, 
+											1, 
+											&imageLineStart, 
+											&imageLineEnd, 
+											&imageColumnStart, 
+											&imageColumnEnd, 
+											&maskLineStart, 
+											&maskColumnStart);
+	
 	if (continueFlag)
 		{
 		maskNumberColumns = imageColumnEnd - imageColumnStart + 1;
@@ -1645,7 +1615,7 @@ SInt16 LoadMask (
 			
 		continueFlag = (maskPointer != NULL);
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 	if (continueFlag)
 		{
@@ -1655,25 +1625,24 @@ SInt16 LoadMask (
 		
 				// Get buffers to read data from image file into.					
 			 				
-		continueFlag = GetIOBufferPointers (
-										&gFileIOInstructions[0],
-										maskWindowInfoPtr,
-										maskLayerInfoPtr,
-										maskFileInfoPtr,
-										&gInputBufferPtr, 
-										&gOutputBufferPtr,
-										maskColumnStart,
-				 						maskColumnEnd,
-				 						1,
-				 						1,
-										&channel,
-										kDoNotPackData,
-										kDoNotForceBISFormat,
-										kForce2Bytes,
-										kDoNotAllowForThreadedIO,
-										&fileIOInstructionsPtr);
-							
-		}		// end "if (continueFlag)"
+		continueFlag = GetIOBufferPointers (&gFileIOInstructions[0],
+														maskWindowInfoPtr,
+														maskLayerInfoPtr,
+														maskFileInfoPtr,
+														&gInputBufferPtr, 
+														&gOutputBufferPtr,
+														maskColumnStart,
+														maskColumnEnd,
+														1,
+														1,
+														&channel,
+														kDoNotPackData,
+														kDoNotForceBISFormat,
+														kForce2Bytes,
+														kDoNotAllowForThreadedIO,
+														&fileIOInstructionsPtr);
+		
+		}	// end "if (continueFlag)"
 		
 	if (continueFlag)
 		{
@@ -1722,9 +1691,9 @@ SInt16 LoadMask (
 				continueFlag = FALSE;														
 				break;
 				
-				}		// end "if (errCode != noErr)"
+				}	// end "if (errCode != noErr)"
 				 
-			else		// errCode == noErr
+			else	// errCode == noErr
 				{
 						// Check if there are any mask values in this line and get the
 						// maximum mask value. The maximum mask value will be used to 
@@ -1739,9 +1708,9 @@ SInt16 LoadMask (
 						maxMaskValue = MAX (maxMaskValue, maskPointer[j]);
 						maskPointer[0] = 1;
 						
-						}		// end "if (maskPointer[j] > 0)"
+						}	// end "if (maskPointer[j] > 0)"
 						
-					}		// end "for (j=0;..." 
+					}	// end "for (j=0;..." 
 					
 				maskPointer += maskNumberColumns + 1;
 				
@@ -1754,15 +1723,15 @@ SInt16 LoadMask (
 						continueFlag = FALSE;
 						break;
 						
-						}		// end "if (!CheckSomeEvents (..."
+						}	// end "if (!CheckSomeEvents (..."
 						
-					}		// end "if (TickCount () >= gNextTime)" 
+					}	// end "if (TickCount () >= gNextTime)" 
 					
-				}		// end "else errCode == noErr"
+				}	// end "else errCode == noErr"
 				
-			}		// end "for (line=1; line<=fileInfoPtr->numberLines; line++)"
+			}	// end "for (line=1; line<=fileInfoPtr->numberLines; line++)"
 
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 		
 			// Close up any File IO Instructions structure that pertain to the 
 			// specific area used.
@@ -1786,9 +1755,9 @@ SInt16 LoadMask (
 			
 			continueFlag = (maskValueToFieldHandle != NULL);
 			
-			}		// end "if (maskSetCode != kMaskSet)"
+			}	// end "if (maskSetCode != kMaskSet)"
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 	if (continueFlag)
 		{
@@ -1801,9 +1770,9 @@ SInt16 LoadMask (
 			
 			continueFlag = (maskValueCountVector != NULL);
 			
-			}		// end "if (maskSetCode != kMaskSet)"
+			}	// end "if (maskSetCode != kMaskSet)"
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 	if (continueFlag)
 		{
@@ -1829,29 +1798,29 @@ SInt16 LoadMask (
 						if (maskPointer[j] > 0)
 							maskValueCountVector[maskPointer[j]]++;
 							
-						}		// end "for (j=0;..." 
+						}	// end "for (j=0;..." 
 					
-					}		// end "if (maskPointer[0] > 0)"
+					}	// end "if (maskPointer[0] > 0)"
 						
 				maskPointer += maskNumberColumns + 1;
 				
-				}		// end "for (line=1; line<=maskNumberLines; line++)"
+				}	// end "for (line=1; line<=maskNumberLines; line++)"
 			
 			if (loadTypeCode == kNewMaskFields)
 				continueFlag = LoadNewMaskFields (maskSetCode,
-															maskInfoPtr,
-															maskValueCountVector,
-															maskValueToFieldPtr,
-															maxMaskValue,
-															maskWindowInfoHandle);
+																maskInfoPtr,
+																maskValueCountVector,
+																maskValueToFieldPtr,
+																maxMaskValue,
+																maskWindowInfoHandle);
 															
 			else if (loadTypeCode == kCheckCurrentFields)
 				{
 				returnCode = CheckCurrentMaskFields (maskSetCode,
-																		maskInfoPtr,
-																		maskValueCountVector,
-																		maskValueToFieldPtr,
-																		maxMaskValue);
+																	maskInfoPtr,
+																	maskValueCountVector,
+																	maskValueToFieldPtr,
+																	maxMaskValue);
 				
 				if (returnCode == 1)
 					continueFlag = FALSE;
@@ -1864,25 +1833,26 @@ SInt16 LoadMask (
 		
 					ClearProjectMaskStatistics ();
 																		
-				}		// end "else if (loadTypeCode == kCheckCurrentFields)"
+				}	// end "else if (loadTypeCode == kCheckCurrentFields)"
 				
-			}		// end "if (maskSetCode != kMaskSet)"
+			}	// end "if (maskSetCode != kMaskSet)"
 			
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
 			// Dispose of the window structures for the mask file.
 	
-#	if defined multispec_mac
+	#if defined multispec_mac
 		UnlockAndDispose (maskWindowInfoPtr->layerInfoHandle);
 		UnlockAndDispose (maskWindowInfoHandle); 
-#	endif	// defined multispec_mac 
+	#endif	// defined multispec_mac
 		
-#	if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 				// Make sure that the file information handle is not deleted yet.
 				
 		maskWindowInfoPtr->fileInfoHandle = NULL;
-		delete GetWindowClassPointer (maskWindowInfoHandle);
-#	endif	// defined multispec_win || lin
+		CMImageWindow* imageWindowCPtr = GetWindowClassPointer (maskWindowInfoHandle);
+		delete imageWindowCPtr;
+	#endif	// defined multispec_win || lin
 		
 	if (continueFlag)
 		{
@@ -1922,14 +1892,14 @@ SInt16 LoadMask (
 		maskInfoPtr->startLine = 
 								maskFileInfoPtr->startLine + maskLineStart - 1;
 		
-		}		// end "if (continueFlag)"
+		}	// end "if (continueFlag)"
 	
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 		UnlockAndDispose (maskHandle);
 		UnlockAndDispose (maskValueToFieldHandle);
 		
-		}		// end "else !continueFlag"
+		}	// end "else !continueFlag"
 		
 	CheckAndDisposePtr (maskValueCountVector);
 	
@@ -1940,16 +1910,16 @@ SInt16 LoadMask (
 		if (!continueFlag || errCode != noErr)
 			returnCode = 0;
 			
-		}		// end "if (loadTypeCode == kNewMaskFields)"
+		}	// end "if (loadTypeCode == kNewMaskFields)"
   	
 	return (returnCode);
 	
-}		// end "LoadMask"  
+}	// end "LoadMask"  
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2014,7 +1984,7 @@ Handle LoadMaskFileInfo (
 			if (!fileFoundFlag)
 				CloseFile (fileInfoPtr);
 				
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
 		if (!fileFoundFlag)
 			DisposeFileInfoHandle (fileInfoHandle);
@@ -2023,12 +1993,12 @@ Handle LoadMaskFileInfo (
 		
 	return (fileInfoHandle);
 	
-}		// end "LoadMask" 
+}	// end "LoadMask" 
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2116,9 +2086,9 @@ Boolean LoadNewMaskFields (
 			classNamePtr += 32;
 			numberClasses--;
 			
-			}		// end "if (*classSymbolPtr == 0)"
+			}	// end "if (*classSymbolPtr == 0)"
 			
-		}		// end "if (classNamePtr != NULL)"
+		}	// end "if (classNamePtr != NULL)"
 	
 			// Determine if any of the thematic class names are the same as any of
 			// the project class names. If so then, the thematic class fields will
@@ -2126,8 +2096,8 @@ Boolean LoadNewMaskFields (
 			// will be assigned to a new project class.
 				
 	namesSameAsProjectNamesFlag = DetermineIfClassesSameAsProjectClassNames (
-														classNamePtr, 
-														numberClasses);
+																							classNamePtr,
+																							numberClasses);
 	
 			// Set the current field and class values.
 			
@@ -2156,12 +2126,12 @@ Boolean LoadNewMaskFields (
 		{
 		if (maskValueCountVector[j] > 0)
 			{
-//			if (currentClass > gProjectInfoPtr->numberStatisticsClasses + 1)
-//				{
-//				continueFlag = FALSE;
-//				break;
+			//if (currentClass > gProjectInfoPtr->numberStatisticsClasses + 1)
+			//	{
+			//	continueFlag = FALSE;
+			//	break;
 				
-//				}		// end "if (currentClass > numberClasses)"
+			//	}	// end "if (currentClass > numberClasses)"
 				
 			if (namesSameAsProjectNamesFlag)
 				{
@@ -2170,7 +2140,7 @@ Boolean LoadNewMaskFields (
 				if (classNumber > 0)
 					matchingClassFoundFlag = TRUE;
 				
-				else		// classNumber <= 0
+				else	// classNumber <= 0
 					{
 							// This class name is different than all of the other project
 							// class names. Assign this mask field to a new project class.
@@ -2178,11 +2148,11 @@ Boolean LoadNewMaskFields (
 					classNumber = currentClass;
 					matchingClassFoundFlag = FALSE;
 					
-					}		// end "else classNumber <= 0"
+					}	// end "else classNumber <= 0"
 				
-				}		// end "if (namesSameAsProjectNamesFlag)"
+				}	// end "if (namesSameAsProjectNamesFlag)"
 				
-			else		// !namesSameAsProjectNamesFlag
+			else	// !namesSameAsProjectNamesFlag
 				classNumber = currentClass;
 				
 			if (classNumber > gProjectInfoPtr->numberStatisticsClasses)
@@ -2196,19 +2166,19 @@ Boolean LoadNewMaskFields (
 													FALSE,
 													(char*)NULL);
 													
-				else		// classNamePtr != NULL
+				else	// classNamePtr != NULL
 					{
 					BlockMoveData (classNamePtr, 
 											(Ptr)gTextString, 
 											classNamePtr[0]+1);
 											
-					}		// end "else classNamePtr != NULL"
+					}	// end "else classNamePtr != NULL"
 									
 				continueFlag = AddClassToProject (gTextString);
 				
-				}		// end "if (currentClass > gProjectInfoPtr->numberStatisticsClasses)"
+				}	// end "if (currentClass > gProjectInfoPtr->numberStatisticsClasses)"
 				
-			else		// currentClass <= gProjectInfoPtr->numberStatisticsClasses
+			else	// currentClass <= gProjectInfoPtr->numberStatisticsClasses
 				gProjectInfoPtr->currentClass = classNumber - 1;
 			
 			if (continueFlag)
@@ -2219,9 +2189,9 @@ Boolean LoadNewMaskFields (
 							
 					gTextString3[0] = 8; 
 					
-					}		// end "if (classNamePtr == NULL)"
+					}	// end "if (classNamePtr == NULL)"
 					
-				else		// classNamePtr != NULL
+				else	// classNamePtr != NULL
 					{	
 					BlockMoveData (classNamePtr, 
 											(Ptr)gTextString3, 
@@ -2234,7 +2204,7 @@ Boolean LoadNewMaskFields (
 					
 					gTextString3[0] = MIN (gTextString3[0], 30);
 					
-					}		// end "else classNamePtr != NULL"
+					}	// end "else classNamePtr != NULL"
 											
 				GetUniqueFieldName (j,
 											(UCharPtr)gTextString3,
@@ -2245,7 +2215,7 @@ Boolean LoadNewMaskFields (
 																maskSetCode,
 																gTextString3);
 											
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 				
 			if (continueFlag)
 				{
@@ -2267,7 +2237,7 @@ Boolean LoadNewMaskFields (
 																				
 				gProjectInfoPtr->moveMemoryFlag = TRUE;
 											
-				}		// end "if (continueFlag)"
+				}	// end "if (continueFlag)"
 		
 			maskValueToFieldPtr[j] = currentField;
 			
@@ -2279,19 +2249,19 @@ Boolean LoadNewMaskFields (
 			if (classNamePtr != NULL)
 				classNamePtr += 32;
 			
-			}		// end "if (maskValueCountVector[j] > 0)"
+			}	// end "if (maskValueCountVector[j] > 0)"
 			
-		else		// maskValueCountVector[j] == 0
+		else	// maskValueCountVector[j] == 0
 			{
 			if (classNamePtr != NULL && numberClasses >= maxMaskValue)
 				classNamePtr += 32;
 			
-			}		// end "else maskValueCountVector[j] == 0"
+			}	// end "else maskValueCountVector[j] == 0"
 			
 		if (!continueFlag)
 			break;
 			
-		}		// end "for (j=1; j<=maxMaskValue; j++)"
+		}	// end "for (j=1; j<=maxMaskValue; j++)"
 		
 	CheckAndUnlockHandle (classNameHandle);
 	
@@ -2299,12 +2269,12 @@ Boolean LoadNewMaskFields (
 		
 	return (continueFlag);
 	
-}		// end "LoadNewMaskFields"
+}	// end "LoadNewMaskFields"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2360,20 +2330,20 @@ void SetUpMaskAreaDescriptionParameters (
 					// the area represented by the mask.
 			
 			definedAreaFlag = GetMaskArea (
-												NULL,
-												kTrainingType,
-												gProjectInfoPtr,
-												NULL,
-												gProjectInfoPtr->startLine,
-												gProjectInfoPtr->startColumn,
-												1, 
-												1, 
-												(UInt32*)&maskAreaDescriptionPtr->lineStart, 
-												(UInt32*)&maskAreaDescriptionPtr->lineEnd, 
-												(UInt32*)&maskAreaDescriptionPtr->columnStart, 
-												(UInt32*)&maskAreaDescriptionPtr->columnEnd, 
-												(UInt32*)&maskAreaDescriptionPtr->maskLineStart, 
-												(UInt32*)&maskAreaDescriptionPtr->maskColumnStart);
+											NULL,
+											kTrainingType,
+											gProjectInfoPtr,
+											NULL,
+											gProjectInfoPtr->startLine,
+											gProjectInfoPtr->startColumn,
+											1, 
+											1, 
+											(UInt32*)&maskAreaDescriptionPtr->lineStart, 
+											(UInt32*)&maskAreaDescriptionPtr->lineEnd, 
+											(UInt32*)&maskAreaDescriptionPtr->columnStart, 
+											(UInt32*)&maskAreaDescriptionPtr->columnEnd, 
+											(UInt32*)&maskAreaDescriptionPtr->maskLineStart, 
+											(UInt32*)&maskAreaDescriptionPtr->maskColumnStart);
 												
 					// Get the mask buffer and value-to-field vector if needed.
 			
@@ -2394,18 +2364,18 @@ void SetUpMaskAreaDescriptionParameters (
 						(maskAreaDescriptionPtr->maskLineStart - 1) * 
 									(maskAreaDescriptionPtr->maskInfoPtr->numberColumns + 1);
 																	
-				}		// end "if (definedAreaFlag)"
+				}	// end "if (definedAreaFlag)"
 			
-			}		// end "if (gProjectInfoPtr->trainingMask.maskHandle != NULL)"
+			}	// end "if (gProjectInfoPtr->trainingMask.maskHandle != NULL)"
 			
-		}		// end "if (maskAreaDescriptionPtr != NULL)"
+		}	// end "if (maskAreaDescriptionPtr != NULL)"
 	
-}		// end "SetUpMaskAreaDescriptionParameters"
+}	// end "SetUpMaskAreaDescriptionParameters"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2496,5 +2466,5 @@ Boolean UserLocateProjectMaskImage (
 		
 	return (fileFoundFlag);
 
-}		// end "UserLocateProjectMaskImage" 
+}	// end "UserLocateProjectMaskImage" 
 

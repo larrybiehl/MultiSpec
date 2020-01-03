@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,13 +20,6 @@
 //	Brief description:	This file contains routines which are used to access
 //								gdal library routines to read the header information in 
 //								selected image files.
-//
-//	Functions in file:
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*	Template for debugging.
 	int numberChars = sprintf ((char*)gTextString3,
@@ -48,8 +41,7 @@
 	#define	IDS_Dialog31			31
 #endif	// defined multispec_mac  
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_win
@@ -60,14 +52,14 @@
 
 			// oul: added definition of SIZE_UNSIGNED_LONG and SIZEOF_VOIDP
 			// which are not defined in cpl_config.h
-	#if defined multispec_lin
+	#if defined multispec_wx
 		#if defined NetBeansProject
 				// The size of a 'unsigned long', as computed by sizeof.
 			#define SIZEOF_UNSIGNED_LONG 8
 				// The size of a 'void p', as computed by sizeof.
 			#define SIZEOF_VOIDP 8
 		#endif	// end "defined NetBeansProject"
-	#endif	// end "defined multispec_lin"
+	#endif	// end "defined multispec_wx"
 
 #include "gdal.h"
 #include "gdal_frmts.h"
@@ -85,7 +77,6 @@
 	#include "H5Zpublic.h"
 #endif	// include_hdf5_capability
 */
-//#include "SExtGlob.h"
 
 #define	kAVDecimalDegreesCode						1
 #define	kAVDecimalMinutesCode						2
@@ -113,12 +104,12 @@ typedef struct
 										
 /*
 #ifndef EQUAL
-	#if defined(WIN32) || defined(WIN32CE)
-		#define EQUALN(a,b,n)           (strnicmp(a,b,n)==0)
-		#define EQUAL(a,b)              (stricmp(a,b)==0)
+	#if defined (WIN32) || defined (WIN32CE)
+		#define EQUALN (a,b,n)           (strnicmp (a,b,n)==0)
+		#define EQUAL (a,b)              (stricmp (a,b)==0)
 	#else
-		#define EQUALN(a,b,n)           (strncasecmp(a,b,n)==0)
-		#define EQUAL(a,b)              (strcasecmp(a,b)==0)
+		#define EQUALN (a,b,n)           (strncasecmp (a,b,n)==0)
+		#define EQUAL (a,b)              (strcasecmp (a,b)==0)
 	#endif
 #endif
 */
@@ -286,7 +277,7 @@ void		VerifyEPSG_CSVFolderExits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -326,7 +317,7 @@ void AdjustUpperLeftPixelLocationToCenter (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -464,7 +455,7 @@ Boolean CheckForGDALHandledHeaders (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -501,7 +492,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -557,7 +548,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -591,7 +582,7 @@ void CloseGDALInterface (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -608,7 +599,7 @@ void CloseGDALInterface (void)
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogSetParametersFromEPSGCode in SMapTran.cpp
+// Called By:			CoordinateDialogSetParametersFromEPSGCode in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -719,7 +710,7 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
       
 #if include_gdal_capability             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -823,7 +814,7 @@ Boolean GDALSetStatePlaneParametersFromZone (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -865,7 +856,7 @@ UInt32 GetDataSetGroupNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1001,7 +992,7 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1127,7 +1118,7 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1210,16 +1201,17 @@ GDALDatasetH GetGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetGDALSpecificNumericMetadataInformation
 //
 //	Software purpose:	This routine reads the requested numeric information in the gdal
-//							metadata string. This routine is currently tuned for the attributes
-//							in the hdf5 format files for HRLDAS output data. It may need to be
-//							made more general if other data sets use this type of structure.
+//							metadata string. This routine is currently tuned for the
+// 						attributes in the hdf5 format files for HRLDAS output data. It
+//							may need to be made more general if other data sets use this
+//							type of structure.
 //
 //	Parameters in:					
 //
@@ -1282,7 +1274,7 @@ SInt16 GetGDALSpecificNumericMetadataInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1350,7 +1342,7 @@ SInt16 GetGDALSpecificTextMetadataInformation (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1604,7 +1596,7 @@ void GetGDALTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1700,7 +1692,7 @@ Boolean GetGDALTopToBottomFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1763,7 +1755,7 @@ void GetEPSGCodeName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1844,7 +1836,7 @@ SInt16 GetMapUnitsCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1907,8 +1899,7 @@ Boolean GetNewGDALFileReference (
 		gNumberOfOpenFiles++;
 		hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (
 																fileInfoPtr->hdfHandle,
-																kLock,
-																kNoMoveHi);
+																kLock);
 																
 		if (hdfDataSetsPtr != NULL)
 			{
@@ -1951,7 +1942,7 @@ Boolean GetNewGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2098,7 +2089,7 @@ SInt16 GetProjectionCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2140,7 +2131,7 @@ SInt32 GetStatePlanePCSCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2197,7 +2188,7 @@ void GetStatePlaneZoneName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2270,7 +2261,7 @@ void HandleGDALErrorMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2465,8 +2456,8 @@ Boolean ListGDALDataSetAttributes (
 				if (descriptionStringPtr != NULL && descriptionStringPtr[0] != 0)
 					{
 					stringLength = sprintf ((char*)gTextString,
-													"    Band %ld: description = %s%s", 
-													bandIndex,
+													"    Band %u: description = %s%s",
+													(unsigned int)bandIndex,
 													descriptionStringPtr,
 													gEndOfLine);
 
@@ -2546,7 +2537,7 @@ Boolean ListGDALDataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2710,7 +2701,7 @@ SInt16 LoadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2922,7 +2913,7 @@ SInt16 LoadGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2988,11 +2979,11 @@ Boolean ReadGDALColorTable (
 			// Initialize the palette entries to all white.
 		
 	for (index=0; index<256; index++)			
-		#ifdef multispec_lin
+		#ifdef multispec_wx
 			vectorBluePtr[index] = vectorGreenPtr[index] = vectorRedPtr[index] = 0xff;
 		#endif
 			
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			vectorBluePtr[index] = vectorGreenPtr[index] = vectorRedPtr[index] = 0xff00;			
 		#endif			
 
@@ -3000,7 +2991,6 @@ Boolean ReadGDALColorTable (
 			// Get the number of colors in the table. Make sure this count is less than
 			// maximum that can be handled of 256.
 	
-	//colorTableCount = gdalColorTablePtr->GetColorEntryCount ();
 	colorTableCount = GDALGetColorEntryCount (gdalColorTableH);
 	colorTableCount = MIN (colorTableCount, 256);
 			
@@ -3008,18 +2998,17 @@ Boolean ReadGDALColorTable (
 			
 	for (index=0; index<colorTableCount; index++)
 		{
-		//gdalColorEntryPtr = (GDALColorEntry*)gdalColorTablePtr->GetColorEntry (index);
 		gdalColorEntryPtr = (GDALColorEntry*)GDALGetColorEntry (gdalColorTableH, index);
 					
 		if (gdalColorEntryPtr != NULL)
 			{	
-			#ifdef multispec_lin
+			#ifdef multispec_wx
 				vectorRedPtr[index] = gdalColorEntryPtr->c1;
 				vectorGreenPtr[index] = gdalColorEntryPtr->c2;
 				vectorBluePtr[index] =  gdalColorEntryPtr->c3;	
 			#endif
 			
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				vectorRedPtr[index] = gdalColorEntryPtr->c1 * 256;
 				vectorGreenPtr[index] = gdalColorEntryPtr->c2 * 256;
 				vectorBluePtr[index] =  gdalColorEntryPtr->c3 * 256;			
@@ -3046,8 +3035,9 @@ Boolean ReadGDALColorTable (
 }	// end "ReadGDALColorTable"
 
 
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3167,7 +3157,7 @@ UInt16 ReadGDALCompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3383,7 +3373,7 @@ SInt16 ReadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3935,7 +3925,7 @@ SInt16 ReadGDALProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4099,7 +4089,7 @@ void ReadGDALProjectionInformationFromMetadata (
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
 																						kDecimalDegreesCode;
 							
-				else	// ...->gridCoordinate.code != kStatePlaneCode && ...
+				else	// ...->referenceSystemCode != kStatePlaneNAD27RSCode && ...
 					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 					
 				}	// end "if (...->planarCoordinate.mapUnitsCode == kUnknownCode && ..."
@@ -4193,7 +4183,7 @@ void ReadGDALProjectionInformationFromMetadata (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4452,7 +4442,7 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4606,11 +4596,11 @@ SInt16 ReadHeaderWithGDALLibrary (
 				fileType = kHDF5Type;
 		#endif		// include_hdf5_capability
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			else if (CompareStringsNoCase (
 									fileFormatDescriptionPtr, (UCharPtr)"hdf4\0") == 0)
 				fileType = kHDF4Type2;
-		#endif		// defined multispec_lin
+		#endif		// defined multispec_wx
 			
 		else if (CompareStringsNoCase (
 									fileFormatDescriptionPtr, (UCharPtr)"netCDF\0") == 0)
@@ -4739,7 +4729,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4816,7 +4806,7 @@ Boolean ReadPRJFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4919,7 +4909,7 @@ void SetProjectionParametersFromGDALInformation (
 			centralMeridian = OSRGetProjParm (
 							ogrSpatialReferenceCPtr, "central_meridian", 0, &ogrErrCode);
 		
-		SetOrthographicParameters (		
+		SetOrthographicParameters (
 				mapProjectionInfoPtr,
 				mapProjectionInfoPtr->geodetic.semiMajorAxis,	// radiusSpheroid
 				centralMeridian,
@@ -4963,7 +4953,7 @@ void SetProjectionParametersFromGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5010,11 +5000,11 @@ void VerifyEPSG_CSVFolderExits (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		void ReadXMLRPCs
+//	Function name:		void ReadXMLRPCs  (This is not implemented yet.)
 //
 //	Software purpose:	This reads the RPCs in the PeruSat-1 RPC XML file. Code is from:
 // section: xmlReader
@@ -5065,25 +5055,25 @@ void ReadXMLRPCs (
 		while (ret == 1) 
 			{
 			ProcessRPCXMLNode (reader);
-			ret = xmlTextReaderRead(reader);
+			ret = xmlTextReaderRead (reader);
 			}
  
 		xmlFreeTextReader (reader);
 		if (ret != 0) 
 			{
-			fprintf(stderr, "%s : failed to parse\n", filePathPtr);
+			fprintf (stderr, "%s : failed to parse\n", filePathPtr);
 			}
 		} 
 		
 	else 
-		fprintf(stderr, "Unable to open %s\n", filePathPtr);
+		fprintf (stderr, "Unable to open %s\n", filePathPtr);
  
 }	// end "ReadXMLRPCs"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5123,13 +5113,13 @@ void ProcessRPCXMLNode (
 				xmlTextReaderHasValue (reader));
  
 	if (value == NULL)
-		printf("\n");
+		printf ("\n");
 	else 
 		{
-		if (xmlStrlen(value) > 40)
-			printf(" %.40s...\n", value);
+		if (xmlStrlen (value) > 40)
+			printf (" %.40s...\n", value);
 		else
-			printf(" %s\n", value);
+			printf (" %s\n", value);
 		}
 		
 }	// end "ProcessRPCXMLNode"
@@ -5141,29 +5131,29 @@ void ProcessRPCXMLNode (
 //
 // Dump information about the current node
 
-static void processNode(xmlTextReaderPtr reader)
+static void processNode (xmlTextReaderPtr reader)
 	{
     const xmlChar *name, *value;
 
-    name = xmlTextReaderConstName(reader);
+    name = xmlTextReaderConstName (reader);
     if (name == NULL)
 	name = BAD_CAST "--";
 
-    value = xmlTextReaderConstValue(reader);
+    value = xmlTextReaderConstValue (reader);
 
-    printf("%d %d %s %d %d", 
-	    xmlTextReaderDepth(reader),
-	    xmlTextReaderNodeType(reader),
+    printf ("%d %d %s %d %d",
+	    xmlTextReaderDepth (reader),
+	    xmlTextReaderNodeType (reader),
 	    name,
 	    xmlTextReaderIsEmptyElement(reader),
-	    xmlTextReaderHasValue(reader));
+	    xmlTextReaderHasValue (reader));
     if (value == NULL)
-	printf("\n");
+	printf ("\n");
     else {
-        if (xmlStrlen(value) > 40)
-            printf(" %.40s...\n", value);
+        if (xmlStrlen (value) > 40)
+            printf (" %.40s...\n", value);
         else
-	    printf(" %s\n", value);
+	    printf (" %s\n", value);
     }
 }
 
@@ -5172,30 +5162,30 @@ static void processNode(xmlTextReaderPtr reader)
 //
 // Parse and print information about an XML file.
 
-static void streamFile(const char *filename) {
+static void streamFile (const char *filename) {
     xmlTextReaderPtr reader;
     int ret;
 
-    reader = xmlReaderForFile(filename, NULL, 0);
+    reader = xmlReaderForFile (filename, NULL, 0);
     if (reader != NULL) {
-        ret = xmlTextReaderRead(reader);
+        ret = xmlTextReaderRead (reader);
         while (ret == 1) {
-            processNode(reader);
-            ret = xmlTextReaderRead(reader);
+            processNode (reader);
+            ret = xmlTextReaderRead (reader);
         }
-        xmlFreeTextReader(reader);
+        xmlFreeTextReade reader);
         if (ret != 0) {
-            fprintf(stderr, "%s : failed to parse\n", filename);
+            fprintf (stderr, "%s : failed to parse\n", filename);
         }
     } else {
-        fprintf(stderr, "Unable to open %s\n", filename);
+        fprintf (stderr, "Unable to open %s\n", filename);
     }
 }
 
-int main(int argc, char **argv) 
+int main (int argc, char **argv)
 	{
     if (argc != 2)
-        return(1);
+        return (1);
 
      * this initialize the library and check potential ABI mismatches
      * between the version it was compiled for and the actual shared
@@ -5207,12 +5197,12 @@ int main(int argc, char **argv)
 
      * Cleanup function for the XML library.
  
-    xmlCleanupParser();
+    xmlCleanupParser ();
 	
      * this is to debug memory for regression tests
 	
-    xmlMemoryDump();
-    return(0);
+    xmlMemoryDump ();
+    return (0);
 }
 */
 #endif	// include_gdal_capability

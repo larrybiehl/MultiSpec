@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,16 +19,14 @@
 //
 //	Brief description:	This file contains functions that do projection pursuit.
 //
-//	Functions in file:
-//
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
 //		Preprocess
 //			GetClassInfoStructure (in SProjectUtilities.cpp)
 //			AssignClassInfoMemory (in SProjectUtilities.cpp)
-//			GetClassCovarianceMatrix (in SStatCom.cpp)
-//			ReduceMeanVector (in SMatUtil.cpp)
-//			SetupMatrixInversionMemory  (in SPMatUtl.cpp)
+//			GetClassCovarianceMatrix (in SProjectComputeStatistics.cpp)
+//			ReduceMeanVector (in SMatrixUtilities.cpp)
+//			SetupMatrixInversionMemory  (in SProjectMatrixUtilities.cpp)
 //			InitializeGlobalAlertVariables (in SProjectUtilities.cpp)
 //			ProjectionPursuit
 //				ivector
@@ -36,27 +34,27 @@
 //				First_stage_matrix
 //					get_sub_matrix
 //					get_sub_matrix
-//					BlockMoveData (in CStubs.cpp)
-//					InvertSymmetricMatrix (SPMatUtl.cpp)
+//					BlockMoveData (in SStubs.cpp)
+//					InvertSymmetricMatrix (SProjectMatrixUtilities.cpp)
 //					get_sub_matrix
 //					get_sub_matrix
-//					BlockMoveData (in CStubs.cpp)
-//					InvertSymmetricMatrix (SPMatUtl.cpp)
+//					BlockMoveData (in SStubs.cpp)
+//					InvertSymmetricMatrix (SProjectMatrixUtilities.cpp)
 //					sum_matrix
-//					BlockMoveData (in CStubs.cpp)
-//					InvertSymmetricMatrix (SPMatUtl.cpp)
+//					BlockMoveData (in SStubs.cpp)
+//					InvertSymmetricMatrix (SProjectMatrixUtilities.cpp)
 //					subtract_matrix
-//						CheckSomeEvents (in multiSpec.c and CStubs.cpp)
+//						CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
 //	
-//					MatrixMultiply (in SMatUtil.cpp)
-//					CheckSomeEvents (in multiSpec.c & CStubs.cpp)
-//					ZeroMatrix (SMatUtil.cpp)
+//					MatrixMultiply (in SMatrixUtilities.cpp)
+//					CheckSomeEvents (in MMultiSpec.c & SStubs.cpp)
+//					ZeroMatrix (SMatrixUtilities.cpp)
 //					minBhatt
-//						MatrixMultiply  (in SMatUtil.cpp)
-//						TransformSymmetricMatrix (in SMatUtil.cpp)
-//						InvertLowerTriangularMatrix (in SPMatUtl.cpp)
+//						MatrixMultiply  (in SMatrixUtilities.cpp)
+//						TransformSymmetricMatrix (in SMatrixUtilities.cpp)
+//						InvertLowerTriangularMatrix (in SProjectMatrixUtilities.cpp)
 //						Bhattacharyya (in SProjectUtilities.cpp)
-//						FindMinValueInVector (in SPMatUtl.cpp)
+//						FindMinValueInVector (in SProjectMatrixUtilities.cpp)
 //					
 //				SaveTransformationToVector
 //				First_stage_matrix2TD
@@ -96,18 +94,18 @@
 //
 //					group_bands_delete
 //					First_stage_matrix
-//					FindMaxValueInVector (in SPMatUtl.cpp)
+//					FindMaxValueInVector (in SProjectMatrixUtilities.cpp)
 //					ListGroupOfBands
 //					free_imatrix
 //					free_ivector
 //					free_dvector
 //					
-//				ZeroMatrix (SMatUtil.cpp)
+//				ZeroMatrix (SMatrixUtilities.cpp)
 //				free_dmatrix
 //				free_ivector
 //				ListGroupOfBands
-//				ListTransformationInformation (in SMatUtil.cpp)
-//				ZeroMatrix (SMatUtil.cpp)
+//				ListTransformationInformation (in SMatrixUtilities.cpp)
+//				ZeroMatrix (SMatrixUtilities.cpp)
 //				Second_Stage_matrix
 //					dvector
 //					dmatrix
@@ -119,8 +117,8 @@
 //					minBhatt
 //						(See above)
 //
-//					CheckSomeEvents (in multiSpec.c & CStubs.cpp)
-//					FindMaxValueInVector (in SPMatUtl.cpp)
+//					CheckSomeEvents (in MMultiSpec.c & SStubs.cpp)
+//					FindMaxValueInVector (in SProjectMatrixUtilities.cpp)
 //					free_dvector
 //					free_dmatrix
 //					
@@ -128,35 +126,29 @@
 //				minBhatt
 //						(See above)
 //
-//				ListTransformationInformation (in SMatUtil.cpp)
-//				BlockMoveData (in CStubs.cpp)
+//				ListTransformationInformation (in SMatrixUtilities.cpp)
+//				BlockMoveData (in SStubs.cpp)
 //				free_dmatrix
 //				free_ivector
 //				free_dvector
 //				free_ivector
 //				
 //			ClearGlobalAlertVariables (in SProjectUtilities.cpp)
-//			ReleaseMatrixInversionMemory (SPMatUtl.cpp)
-//			ZeroMatrix (SMatUtil.cpp)
-//			GetTranformationFeatureMeans (in SFeatExt.cpp)
+//			ReleaseMatrixInversionMemory (SProjectMatrixUtilities.cpp)
+//			ZeroMatrix (SMatrixUtilities.cpp)
+//			GetTranformationFeatureMeans (in SFeatureExtraction.cpp)
 //			ReleaseClassInfoMemory (in SProjectUtilities.cpp)
-//
-//	Include files:			"SMultiSpec.h"
-//								"SExtGlob.h"
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
   
-#if defined multispec_win  || defined multispec_lin
+#if defined multispec_win  || defined multispec_wx
 	#define	memFullErr		-108
-#endif	// defined multispec_win ... 
-
-//#include "SExtGlob.h"
+#endif	// defined multispec_win ...
 		
 #define NR_END 1
 #define FREE_ARG char*
@@ -251,213 +243,213 @@ double*		g_powell_xit = NULL;
 
 		// Routine profiles.
 						
-double 			brent (
-						double 								ax, 
-						double 								bx, 
-						double 								cx, 
-						double 								(*f)(double), 
-						double 								tol,
-						double* 								xmin);
+double brent (
+				double 								ax,
+				double 								bx, 
+				double 								cx, 
+				double 								(*f)(double), 
+				double 								tol,
+				double* 								xmin);
 						
-double**			dmatrix (
-						SInt32 								nrl,
-						SInt32 								nrh,
-						SInt32 								ncl,
-						SInt32 								nch);
-						
-double*			dvector (
-						SInt32 								nl,
-						SInt32								nh);
+double** dmatrix (
+				SInt32 								nrl,
+				SInt32 								nrh,
+				SInt32 								ncl,
+				SInt32 								nch);
 
-Boolean 			First_stage_matrix (
-						SInt32*								group_of_bands,
-						SInt32*								last_group_of_bands,
-						SInt32 								final_num_features, 
-						SInt32 								number_of_features, 
-						SInt32 								number_of_classes,
-						SInt16 								feature_type,
-						double* 								pMAX,
-						UInt32*								pMinBIndexPtr);
-						
-Boolean 			First_stage_topDownAlgorithm (
-						SInt32								final_num_features, 
-						SInt16	 							feature_type,
-						UInt16								bothOddChoicesNumberFeatures, 
-						SInt32	 							number_of_features, 
-						SInt32	 							number_of_classes,
-						double*								mBvaluePrevPtr,
-						SInt16*								Q1Ptr,
-						SInt32*								group_of_bands,
-						SInt32*								last_group_of_bands,
-						double*								group_minBhatt, 
-						SInt32*								group_plus_one,  
-						SInt32**								GPOmatrix,
-						double 								delta_TD);
+double* dvector (
+				SInt32 								nl,
+				SInt32								nh);
 
-Boolean 			First_stage_matrix2TD (
-						SInt32 								number_of_features, 
-						SInt32 								number_of_classes,
-						double 								delta_TD, 
-						SInt16 								feature_type,
-						UInt16								bothOddChoicesNumberFeatures, 
-						SInt32*								group_of_bands,
-						SInt32*								last_group_of_bands,
-						SInt32 								max_number_features,
-						SInt32*								pfinal_num_features);
+Boolean First_stage_matrix (
+				SInt32*								group_of_bands,
+				SInt32*								last_group_of_bands,
+				SInt32 								final_num_features, 
+				SInt32 								number_of_features, 
+				SInt32 								number_of_classes,
+				SInt16 								feature_type,
+				double* 								pMAX,
+				UInt32*								pMinBIndexPtr);
 
-Boolean 			First_stage_matrix2HB (
-						SInt32								number_of_features, 
-						SInt32 								number_of_classes,
-						double 								delta_TD, 
-						double 								delta_BU, 
-						SInt16 								feature_type,
-						UInt16								bothOddChoicesNumberFeatures, 
-						SInt32*								group_of_bands,
-						SInt32*								last_group_of_bands,
-						SInt32 								max_number_features,
-						SInt32*								pfinal_num_features);
-						
-double* 			free_dvector (
-						double*								lv,
-						SInt32 								nl,
-						SInt32 								nh);
-						
-double** 		free_dmatrix (
-						double**								m,
-						SInt32 								nrl,
-						SInt32 								nrh,
-						SInt32 								ncl,
-						SInt32 								nch);
-						
-SInt32** 		free_imatrix (
-						SInt32**								m,
-						SInt32 								nrl,
-						SInt32 								nrh,
-						SInt32 								ncl,
-						SInt32 								nch);
-						
-SInt32* 			free_ivector (
-						SInt32*								lv,
-						SInt32 								nl,
-						SInt32 								nh);
-						
-double 			f1dim (
-						double 								x);
-						
-void 				get_sub_matrix (
-						double*								inputMatrixPtr,
-						double*								outputMatrixPtr, 
-						UInt32 								rowStart, 
-						UInt32 								rowEnd, 
-						UInt32 								colStart, 
-						UInt32 								colEnd,
-						UInt32								numberFeatures);
+Boolean First_stage_topDownAlgorithm (
+				SInt32								final_num_features,
+				SInt16	 							feature_type,
+				UInt16								bothOddChoicesNumberFeatures, 
+				SInt32	 							number_of_features, 
+				SInt32	 							number_of_classes,
+				double*								mBvaluePrevPtr,
+				SInt16*								Q1Ptr,
+				SInt32*								group_of_bands,
+				SInt32*								last_group_of_bands,
+				double*								group_minBhatt, 
+				SInt32*								group_plus_one,  
+				SInt32**								GPOmatrix,
+				double 								delta_TD);
 
-void 				group_bands_delete (
-						SInt32*								group_of_bands, 
-						SInt32 								final_num_features,
-						SInt32 								index_of_change, 
-						SInt32*								group_minus_one);
-						
-void 				group_bands_insert (
-						SInt32*								group_of_bands, 
-						SInt32 								final_num_features,
-						SInt32 								index_of_change, 
-						SInt32*								group_plus_one);
-						
-SInt32**			imatrix (
-						SInt32 								nrl,
-						SInt32 								nrh,
-						SInt32 								ncl,
-						SInt32 								nch);
-						
-SInt32 			imax_elm_vector (
-						SInt32*								vect, 
-						UInt32								number_of_elm);
-						
-SInt32*			ivector (
-						SInt32 								nl, 
-						SInt32 								nh);
-						
-void 				linmin (
-						double 								p[], 
-						double 								xi[], 
-						SInt32 								n, 
-						double* 								fret, 
-						double 								(*func)(double []));
-						
-Boolean 			ListGroupOfBands (
-						double								mBvalue,
-						CMFileStream*						resultsFileStreamPtr,
-						SInt32*								group_of_bands, 
-						SInt32 								final_num_features,
-						SInt32								number_of_classes,
-						UInt32								minClassIndex);
-						
-Boolean 			minBhatt (
-						double*								PA,
-						SInt32 								number_of_features, 
-						SInt32 								final_num_features, 
-						SInt32 								number_of_classes,
-						double*								minBhatPtr,
-						UInt32*								minIndexPtr);
-						
-double 			minBhatt_function (
-						double* 								a);
-						
-void 				mnbrak (
-						double*								ax, 
-						double*								bx, 
-						double*								cx, 
-						double*								fa, 
-						double*								fb, 
-						double*								fc, 
-						double 								(*func)(double));
-						
-Boolean 			powell (
-						double 								p[], 
-						double**								xi, 
-						SInt32 								n, 
-						double 								ftol, 
-						SInt32*								iter, 
-						double*								fret,
-						double 								(*func)(double []));
+Boolean First_stage_matrix2TD (
+				SInt32 								number_of_features,
+				SInt32 								number_of_classes,
+				double 								delta_TD, 
+				SInt16 								feature_type,
+				UInt16								bothOddChoicesNumberFeatures, 
+				SInt32*								group_of_bands,
+				SInt32*								last_group_of_bands,
+				SInt32 								max_number_features,
+				SInt32*								pfinal_num_features);
 
-SInt16 			PPRandom (void);
-						
-void 				SaveTransformationToVector (
-						double*								savedTransformationVector,
-						double*								maxIndexVector,
-						double**								transformationInformation,
-						SInt32*								group_bands,
-						UInt32								final_number_features);
+Boolean First_stage_matrix2HB (
+				SInt32								number_of_features,
+				SInt32 								number_of_classes,
+				double 								delta_TD, 
+				double 								delta_BU, 
+				SInt16 								feature_type,
+				UInt16								bothOddChoicesNumberFeatures, 
+				SInt32*								group_of_bands,
+				SInt32*								last_group_of_bands,
+				SInt32 								max_number_features,
+				SInt32*								pfinal_num_features);
 
-Boolean			Second_Stage_matrix (
-						double								delta_Optimization);
-						
-void 				SetupGroupingVector (
-						SInt32*								group_of_bands,
-						UInt32								numberOfInputBands,
-						UInt32								numberOfOutputFeatures);
+double* free_dvector (
+				double*								lv,
+				SInt32 								nl,
+				SInt32 								nh);
 
-void 				subtract_matrix (
-						double* 								inputMatrix1Ptr, 
-						double* 								inputMatrix2Ptr, 
-						double*								outputMatrixPtr, 
-						UInt32								numberRows, 
-						UInt32								numberColumns);
+double** free_dmatrix (
+				double**								m,
+				SInt32 								nrl,
+				SInt32 								nrh,
+				SInt32 								ncl,
+				SInt32 								nch);
+
+SInt32** free_imatrix (
+				SInt32**								m,
+				SInt32 								nrl,
+				SInt32 								nrh,
+				SInt32 								ncl,
+				SInt32 								nch);
+
+SInt32* free_ivector (
+				SInt32*								lv,
+				SInt32 								nl,
+				SInt32 								nh);
+
+double f1dim (
+				double 								x);
 						
-void 				sum_matrix (
-						double* 								inputMatrix1Ptr, 
-						double* 								inputMatrix2Ptr, 
-						double*								outputMatrixPtr, 
-						UInt32								numberRows, 
-						UInt32								numberColumns);
-        					
+void get_sub_matrix (
+				double*								inputMatrixPtr,
+				double*								outputMatrixPtr, 
+				UInt32 								rowStart, 
+				UInt32 								rowEnd, 
+				UInt32 								colStart, 
+				UInt32 								colEnd,
+				UInt32								numberFeatures);
+
+void group_bands_delete (
+				SInt32*								group_of_bands,
+				SInt32 								final_num_features,
+				SInt32 								index_of_change, 
+				SInt32*								group_minus_one);
+
+void group_bands_insert (
+				SInt32*								group_of_bands,
+				SInt32 								final_num_features,
+				SInt32 								index_of_change, 
+				SInt32*								group_plus_one);
+
+SInt32** imatrix (
+				SInt32 								nrl,
+				SInt32 								nrh,
+				SInt32 								ncl,
+				SInt32 								nch);
+
+SInt32 imax_elm_vector (
+				SInt32*								vect,
+				UInt32								number_of_elm);
+
+SInt32* ivector (
+				SInt32 								nl,
+				SInt32 								nh);
+
+void linmin (
+				double 								p[],
+				double 								xi[], 
+				SInt32 								n, 
+				double* 								fret, 
+				double 								(*func)(double []));
+
+Boolean ListGroupOfBands (
+				double								mBvalue,
+				CMFileStream*						resultsFileStreamPtr,
+				SInt32*								group_of_bands, 
+				SInt32 								final_num_features,
+				SInt32								number_of_classes,
+				UInt32								minClassIndex);
+
+Boolean minBhatt (
+				double*								PA,
+				SInt32 								number_of_features, 
+				SInt32 								final_num_features, 
+				SInt32 								number_of_classes,
+				double*								minBhatPtr,
+				UInt32*								minIndexPtr);
+
+double minBhatt_function (
+				double* 								a);
+						
+void mnbrak (
+				double*								ax,
+				double*								bx, 
+				double*								cx, 
+				double*								fa, 
+				double*								fb, 
+				double*								fc, 
+				double 								(*func)(double));
+
+Boolean powell (
+				double 								p[],
+				double**								xi, 
+				SInt32 								n, 
+				double 								ftol, 
+				SInt32*								iter, 
+				double*								fret,
+				double 								(*func)(double []));
+
+SInt16 PPRandom (void);
+						
+void SaveTransformationToVector (
+				double*								savedTransformationVector,
+				double*								maxIndexVector,
+				double**								transformationInformation,
+				SInt32*								group_bands,
+				UInt32								final_number_features);
+
+Boolean Second_Stage_matrix (
+				double								delta_Optimization);
+						
+void SetupGroupingVector (
+				SInt32*								group_of_bands,
+				UInt32								numberOfInputBands,
+				UInt32								numberOfOutputFeatures);
+
+void subtract_matrix (
+				double* 								inputMatrix1Ptr,
+				double* 								inputMatrix2Ptr, 
+				double*								outputMatrixPtr, 
+				UInt32								numberRows, 
+				UInt32								numberColumns);
+
+void sum_matrix (
+				double* 								inputMatrix1Ptr,
+				double* 								inputMatrix2Ptr, 
+				double*								outputMatrixPtr, 
+				UInt32								numberRows, 
+				UInt32								numberColumns);
+
         					
         					
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -614,7 +606,7 @@ double brent (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -693,7 +685,7 @@ double **dmatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -740,7 +732,7 @@ double *dvector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1434,7 +1426,7 @@ Boolean First_stage_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1601,11 +1593,7 @@ Boolean First_stage_matrix2HB (
 			
 		final_num_features++;
 		
-		//LoadDItemString (gStatusDialogPtr, 
-		//							IDC_Status15, 
-		//							(Str255*)"\pTD Number feature groups:");
-								
-		LoadDItemStringNumber (kFeatureExtractStrID, 
+		LoadDItemStringNumber (kFeatureExtractStrID,
 										IDS_FeatureExtract59,
 										gStatusDialogPtr, 
 										IDC_Status15, 
@@ -1791,7 +1779,7 @@ Boolean First_stage_matrix2HB (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1955,7 +1943,7 @@ Boolean First_stage_matrix2TD (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2133,7 +2121,8 @@ Boolean First_stage_topDownAlgorithm (
 			else	// (mBvalue-mBvalue1)/mBvalue1 >= delta_TD
 				Q1 = 1;
 			
-			LoadDItemRealValue (gStatusDialogPtr, IDC_Status14, portionDifference*100, 1);
+			LoadDItemRealValue (
+									gStatusDialogPtr, IDC_Status14, portionDifference*100, 1);
 				
 			*mBvaluePrevPtr = maxBValue; 
 				
@@ -2150,7 +2139,7 @@ Boolean First_stage_topDownAlgorithm (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2194,7 +2183,7 @@ double** free_dmatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2229,7 +2218,7 @@ double* free_dvector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2273,7 +2262,7 @@ SInt32** free_imatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2308,7 +2297,7 @@ SInt32* free_ivector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2347,7 +2336,7 @@ double f1dim (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2405,7 +2394,7 @@ void get_sub_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2452,7 +2441,7 @@ void group_bands_delete (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2513,7 +2502,7 @@ void group_bands_insert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2592,7 +2581,7 @@ SInt32 **imatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2631,7 +2620,7 @@ SInt32 imax_elm_vector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2673,7 +2662,7 @@ SInt32 *ivector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2744,7 +2733,7 @@ void linmin (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2824,11 +2813,11 @@ Boolean ListGroupOfBands (
 
 			// List line in Channel Decision Tree Table
 			
-	sprintf ((char*)gTextString, "    %5d       %9.4f      %3ld-%3ld   [", 
+	sprintf ((char*)gTextString, "    %5d       %9.4f      %3u-%3u   [",
 					(int)final_num_features,
 					mBvalue,
-					class1,
-					class2);
+					(unsigned int)class1,
+					(unsigned int)class2);
 	continueFlag = OutputString (resultsFileStreamPtr, 
 											(char*)gTextString, 
 											0, 
@@ -2866,7 +2855,7 @@ Boolean ListGroupOfBands (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3030,7 +3019,7 @@ Boolean minBhatt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3118,7 +3107,7 @@ double minBhatt_function (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3252,7 +3241,7 @@ void mnbrak (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3347,7 +3336,8 @@ Boolean powell (
 		fptt = (*func)(g_powell_ptt);
 		if (fptt < fp) 
 			{
-			t = 2.0*(fp-2.0*(*fret)+fptt) * DSQR (fp-(*fret)-del)-del * DSQR (fp-fptt);
+			t = 2.0*(fp-2.0*(*fret)+fptt) * DSQR (fp-(*fret)-del);
+			t -= del * DSQR (fp-fptt);
 			if (t < 0.0) 
 				{
 				linmin (p, g_powell_xit, n, fret, func);
@@ -3376,7 +3366,7 @@ Boolean powell (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3791,7 +3781,7 @@ Boolean ProjectionPursuit (
 				{
 				continueFlag = ListSpecifiedStringNumber (
 											kFeatureExtractStrID, 
-													// "%s Preprocessing Channel Transformation Matrix"
+												// "%s Preprocessing Channel Transformation Matrix"
 											IDS_FeatureExtract33, 
 											(unsigned char*)gTextString,
 											resultsFileStreamPtr, 
@@ -3820,7 +3810,7 @@ Boolean ProjectionPursuit (
 				gAlertReturnCode != 1)
 			{
 			LoadDItemStringNumber (kFeatureExtractStrID, 
-													// "\pProjection Pursuit - Numerical Optimization"
+												// "\pProjection Pursuit - Numerical Optimization"
 											IDS_FeatureExtract65, 
 											gStatusDialogPtr, 
 											IDC_Status21, 
@@ -3852,8 +3842,7 @@ Boolean ProjectionPursuit (
 													&value,
 													&minBIndex);
 									
-						// "%s After Numerical Optimization%s Minimum Bhattacharyya = %9.4f%s",
-						
+				// "%s After Numerical Optimization%s Minimum Bhattacharyya = %9.4f%s",
 				continueFlag = ListSpecifiedStringNumber (kFeatureExtractStrID, 
 																		IDS_FeatureExtract34,
 																		resultsFileStreamPtr, 
@@ -3914,7 +3903,6 @@ Boolean ProjectionPursuit (
 	gClass_log_det_OK = CheckAndDisposePtr (gClass_log_det_OK);
 				
 	gPmatrix = free_dmatrix (gPmatrix, 1, MAX+2, 1, number_of_features);
-	//last_group_of_bands = free_ivector (last_group_of_bands, 1, max_number_features);
 	last_group_of_bands = free_ivector (last_group_of_bands, 1, number_of_features);
 	
 			// Free memory used by the minBhatt routine.
@@ -3957,7 +3945,6 @@ Boolean ProjectionPursuit (
 	HideStatusDialogItemSet (kStatusCluster);
 	HideStatusDialogItemSet (kStatusMinutes);
 	
-	//group_of_bands = free_ivector (group_of_bands, 1, max_number_features);
 	group_of_bands = free_ivector (group_of_bands, 1, number_of_features);
 
 	return (continueFlag);
@@ -3967,7 +3954,7 @@ Boolean ProjectionPursuit (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4144,8 +4131,9 @@ Boolean Preprocess (void)
 					gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 		
 			projectionPursuitSpecsPtr->minimumNumberSamples = MIN (
-				projectionPursuitSpecsPtr->minimumNumberSamples,
-				(UInt32)gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels);
+							projectionPursuitSpecsPtr->minimumNumberSamples,
+							(UInt32)gProjectInfoPtr->
+											classNamesPtr[classStorage].numberStatisticsPixels);
 					
 			}	// end "for (index=0; index<numberClasses; index++)" 
 			
@@ -4239,7 +4227,7 @@ Boolean Preprocess (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4281,7 +4269,7 @@ SInt16 PPRandom (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4335,7 +4323,7 @@ void SaveTransformationToVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4566,7 +4554,7 @@ Boolean Second_Stage_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4608,7 +4596,7 @@ void SetupGroupingVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4654,7 +4642,7 @@ void subtract_matrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

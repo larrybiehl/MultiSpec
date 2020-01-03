@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,19 +21,11 @@
 //	Brief description:	This file contains functions that handle conversions
 //								between line/columns and map coordinates.
 //
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Functions in file:	Boolean				ConvertLambertAzimuthalEqualAreaToLatLong
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"   
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_mac
@@ -46,152 +38,130 @@
 	#include "ogr_spatialref.h"
 #endif
 
-//#include	"SExtGlob.h"	
-
-extern double 			msfnz (
-								double								eccent,
-								double								sinphi,
-								double								cosphi);
-								
-extern double			tsfnz (
-								double								eccent,
-								double								phi,
-								double								sinphi);			
-
-extern void				ConvertMapRectByGivenFactor (
-								double								factor,
-								DoubleRect*							coordinateRectPtr);
-
 
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 			
 			// Function to adjust longitude to -180 to 180 
-double					adjust_lon (
-								double								x); 
-
-double 					asinz (
-								double								con);				
-
-Boolean 					ConvertAlbersEqualAreaToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-Boolean 					ConvertCylindricalEqualAreaToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-SInt16 					ConvertDecimalDegreesToDMS (
-								double								decimalDegrees,
-								SInt16*								degreesPtr,
-								SInt16*								minutesPtr,
-								double*								secondsPtr,
-								Boolean*								outOfRangeFlagPtr);
-
-Boolean 					ConvertEquirectangularToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);			
-
-Boolean 					ConvertKrovakToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-Boolean 					ConvertLambertAzimuthalEqualAreaToLatLong  (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);		
-
-Boolean					ConvertLambertConformalConicToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);			
-
-Boolean 					ConvertOrthographicToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);		
-
-Boolean					ConvertPolarStereographicToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);		
-
-Boolean 					ConvertSinusoidalToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-Boolean 					ConvertTransverseMercatorToLatLong (
-								MapProjectionInfoPtr				mapProjectionInfoPtr, 
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);	
-
-Boolean 					ConvertLatLongToLambertAzimuthalEqualArea (
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);			
-
-Boolean					ConvertLatLongToLambertConformalConic (
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-Boolean 					ConvertLatLongToSinusoidal (
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr);
-
-Boolean 					ConvertLatLongToTransverseMercator (
-								double* 								xCoordinateValuePtr, 
-								double* 								yCoordinateValuePtr,
-								double								semiMajorAxis,
-								double								semiMinorAxis,
-								double								scaleFactorOfCentralMeridian,
-								double								eSquared,
-								double								longitudeCentralMeridian,
-								double								falseEasting,
-								double								falseNorthing,
-								double								M0);
-
-double 					phi1z (
-								double								eccent,
-								double								qs,
-								long*									flag);
-								
-double					phi2z (
-								double								eccent,
-								double								ts,
-								SInt32*								flagPtr);
-
-double 					qsfnz (
-								double								eccent,
-								double								sinphi,
-								double								cosphi);
-											
-int 						sign (
-								double 								x);	
-								
-								
-
-// Function to adjust longitude to -180 to 180
-// -------------------------------------------
 double adjust_lon (
-				double 			x)
+				double								x);
+
+double asinz (
+				double								con);
+
+Boolean ConvertAlbersEqualAreaToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertCylindricalEqualAreaToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertEquirectangularToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);			
+
+Boolean ConvertKrovakToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);		
+
+Boolean ConvertLambertConformalConicToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);			
+
+Boolean ConvertOrthographicToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);		
+
+Boolean ConvertPolarStereographicToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);		
+
+Boolean ConvertSinusoidalToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertTransverseMercatorToLatLong (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);	
+
+Boolean ConvertLatLongToLambertAzimuthalEqualArea (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);			
+
+Boolean ConvertLatLongToLambertConformalConic (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertLatLongToSinusoidal (
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				double* 								xCoordinateValuePtr, 
+				double* 								yCoordinateValuePtr);
+
+Boolean ConvertLatLongToTransverseMercator (
+				double* 								xCoordinateValuePtr,
+				double* 								yCoordinateValuePtr,
+				double								semiMajorAxis,
+				double								semiMinorAxis,
+				double								scaleFactorOfCentralMeridian,
+				double								eSquared,
+				double								longitudeCentralMeridian,
+				double								falseEasting,
+				double								falseNorthing,
+				double								M0);
+
+double phi1z (
+				double								eccent,
+				double								qs,
+				long*									flag);
+
+double phi2z (
+				double								eccent,
+				double								ts,
+				SInt32*								flagPtr);
+
+double qsfnz (
+				double								eccent,
+				double								sinphi,
+				double								cosphi);
+
+int sign (
+				double 								x);
+								
+								
+//------------------------------------------------------------------------------------
+//		Function to adjust longitude to -180 to 180
+
+double adjust_lon (
+				double 								x)
 								
 {
 	x = (fabs (x)<kPI)?x:(x-(sign (x)*kTWO_PI));
 	return (x);
 	
-}		// end "adjust_lon"
+}	// end "adjust_lon"
 
 
 
-// Function to eliminate roundoff errors in asin
+//------------------------------------------------------------------------------------
+// 	Function to eliminate roundoff errors in asin
 
 double asinz (
 				double								con)
@@ -208,21 +178,22 @@ double asinz (
 		
  return (asin (con));
  
-}		// end "asinz"
+}	// end "asinz"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									Allrights reserved.
 //
-//	Function name:				Boolean ConvertAlbersEqualAreaToLatLong
+//	Function name:		Boolean ConvertAlbersEqualAreaToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Albers Equal
-//									Area (AEA) meter values to latitude and longitude.  This routine 
-//									is based on code from John Snyder's Map Projections - A 
-//									Working Manual.
+//	Software purpose:	This routine handles a conversions from Albers Equal
+//							Area (AEA) meter values to latitude and longitude.  This routine
+//							is based on code from John Snyder's Map Projections - A
+//							Working Manual.					
+// 			long alberinvint (r_maj,r_min,lat1,lat2,lon0,lat0,false_east,false_north)
 //
 //	Parameters in:		xCoordinateValuePtr - input AEA horizontal meter coordinate	
 //							yCoordinateValuePtr - input AEA vertical meter coordinate	
@@ -232,7 +203,8 @@ double asinz (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2007
 //	Revised By:			Larry L. Biehl			Date: 04/26/2007			
@@ -241,39 +213,40 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 				MapProjectionInfoPtr				mapProjectionInfoPtr, 
 				double* 								xCoordinateValuePtr, 
 				double* 								yCoordinateValuePtr)
-// long alberinvint (r_maj,r_min,lat1,lat2,lon0,lat0,false_east,false_north)
 
 {
 	double								centerLongitude;
 
-	double r_major;                   // major axis 
-	double r_minor;                   // minor axis
-	double standardParallel1;                    // first standard parallel
-	double standardParallel2;                    // second standard parallel
-	double centerLatitude;
-	double falseEasting;              // x offset in meters
-	double falseNorthing;             // y offset in meters
+	double 								r_major;					// major axis
+	double 								r_minor;					// minor axis
+	double 								standardParallel1;	// first standard parallel
+	double 								standardParallel2;	// second standard parallel
+	double 								centerLatitude;
+	double 								falseEasting;			// x offset in meters
+	double 								falseNorthing;			// y offset in meters
 	
-	double c;
-	double sin_po,cos_po;		// sine and cos values
-	double con;			// temporary variable
-	double e;
-	double e2;
-	double ms1;   		        // small m 1  
-	double ms2;            		// small m 2
-	double ns0;
-	double qs0;            		// small q 0 
-	double qs1;            		// small q 1 
-	double qs2;            		// small q 2
-	double rh;
+	double 								c;
+	double 								sin_po,cos_po;			// sine and cos values
+	double 								con;						// temporary variable
+	double 								e;
+	double 								e2;
+	double 								ms1;   		        	// small m 1
+	double 								ms2;            		// small m 2
+	double 								ns0;
+	double 								qs0;            		// small q 0
+	double 								qs1;            		// small q 1
+	double 								qs2;            		// small q 2
+	double 								rh;
 	
-	double x;			// (O) X projection coordinate
-	double y;			// (O) Y projection coordinate
+	double 								x;							// (O) X projection coordinate
+	double 								y;							// (O) Y projection coordinate
 
-	double rh1;			// height above ellipsoid
-	double qs;			// function q
-	double theta;			// angle
-	long   flag;			// error flag;
+	double 								rh1;						// height above ellipsoid
+	double 								qs;						// function q
+	double 								theta;					// angle
+	
+	long   								flag;						// error flag;
+	
 
 	if (mapProjectionInfoPtr == NULL)
 																							return (FALSE);
@@ -285,10 +258,10 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 	y = *yCoordinateValuePtr;
 		
 	standardParallel1 = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
 		
 	standardParallel2 = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel2 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel2 * kDegreesToRadians;
 					
 	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
 																						kDegreesToRadians;
@@ -300,12 +273,13 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 	falseNorthing = mapProjectionInfoPtr->gridCoordinate.falseNorthing;
 
 	if ((standardParallel1 < 0 && standardParallel2 > 0) ||
-				(standardParallel1 > 0 && standardParallel2 < 0))
- 	  {
-//	  p_error ("Equal latitudes for Standard Parallels on opposite sides of equator"
-//		  ,"alber-invinit");
- 	  return																							(FALSE);
- 	  }
+								(standardParallel1 > 0 && standardParallel2 < 0))
+		{
+		//p_error ("Equal latitudes for Standard Parallels on opposite sides of equator",
+		//		  		"alber-invinit");
+																							return (FALSE);
+		
+		}	// end "if ((standardParallel1 < 0 && ..."
  	  
 	r_major = mapProjectionInfoPtr->geodetic.semiMajorAxis;
 	r_minor = mapProjectionInfoPtr->geodetic.semiMinorAxis;
@@ -341,7 +315,7 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 	if (ns0 != 0)
 		rh = r_major * sqrt (c - ns0 * qs0)/ns0;
 		
-	else		// ns0 == 0
+	else	// ns0 == 0
 		rh = r_major;
 
 			// Albers Conical Equal Area inverse equations--mapping x,y to lat/long
@@ -373,7 +347,7 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 	if (ns0 != 0)
 		qs = (c - con * con)/ns0;
 		
-	else		// ns0 == 0
+	else	// ns0 == 0
 		qs = 0;		// ??? What should it be equal to.
 	
 	if (e >= 1e-10)
@@ -397,20 +371,20 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 				
  			}
  			
-		}		// end "if (e >= 1e-10)"
+		}	// end "if (e >= 1e-10)"
 		
-	else		// e < 1e-10
+	else	// e < 1e-10
 		{
 		*yCoordinateValuePtr = phi1z (e,qs,&flag);
 		if (flag != 0)
 			return (FALSE);
 		
-		}		// end "else e < 1e-10"
+		}	// end "else e < 1e-10"
 
 	if (ns0 != 0)
 		*xCoordinateValuePtr = theta/ns0 + centerLongitude;
 		
-	else		// ns0 == 0
+	else	// ns0 == 0
 		*xCoordinateValuePtr = centerLongitude;		// What should it be equal to??
 		
 	*xCoordinateValuePtr = adjust_lon (*xCoordinateValuePtr);
@@ -418,28 +392,29 @@ Boolean ConvertAlbersEqualAreaToLatLong (
    *yCoordinateValuePtr *= kRadiansToDegrees;
    *xCoordinateValuePtr *= kRadiansToDegrees;
 	   
-//   if (*xCoordinateValuePtr < -180)
-//   	*xCoordinateValuePtr += 360;
-//   else if (*xCoordinateValuePtr > 180)
-//   	*xCoordinateValuePtr -= 360;
+	//if (*xCoordinateValuePtr < -180)
+	//	*xCoordinateValuePtr += 360;
+	
+	//else if (*xCoordinateValuePtr > 180)
+	//	*xCoordinateValuePtr -= 360;
    
    return (TRUE);
 			
-}		// end "ConvertAlbersEqualAreaToLatLong" 
+}	// end "ConvertAlbersEqualAreaToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertCylindricalEqualAreaToLatLong
+//	Function name:		Boolean ConvertCylindricalEqualAreaToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Cylindrical Equal
-//									Area (CEA) meter values to latitude and longitude.  This routine 
-//									is based on code from John Snyder's Map Projections - A 
-//									Working Manual.
+//	Software purpose:	This routine handles a conversions from Cylindrical Equal
+//							Area (CEA) meter values to latitude and longitude.  This
+//							routine is based on code from John Snyder's Map Projections - A
+//							Working Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input CEA horizontal meter coordinate	
 //							yCoordinateValuePtr - input CEA vertical meter coordinate	
@@ -449,7 +424,8 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 07/11/2006
 //	Revised By:			Larry L. Biehl			Date: 04/21/2019
@@ -473,9 +449,10 @@ Boolean ConvertCylindricalEqualAreaToLatLong (
 	if (mapProjectionInfoPtr->geodetic.spheroidCode == kSphereEllipsoidCode)
 		{
 		standardLatitude =
-						mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
-		centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
-																							kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+		centerLongitude =
+					mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 		
 		if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)
 			{
@@ -484,21 +461,21 @@ Boolean ConvertCylindricalEqualAreaToLatLong (
 				
 			cosStandardLatitude = cos (standardLatitude);
 			
-			*xCoordinateValuePtr = xDistanceCoordinate/
-					(mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude) + 
-																									centerLongitude;
+			*xCoordinateValuePtr = xDistanceCoordinate /
+				(mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude) +
+																							centerLongitude;
 												
 			*yCoordinateValuePtr = asin (yDistanceCoordinate/
 						mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardLatitude);
 				
-			}		// end "if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)"
+			}	// end "if (mapProjectionInfoPtr->geodetic.radiusSpheroid > 0)"
 											
-		else		// mapProjectionInfoPtr->geodetic.radiusSpheroid < 0
+		else	// mapProjectionInfoPtr->geodetic.radiusSpheroid < 0
 			{
 			*xCoordinateValuePtr = centerLongitude;
 			*yCoordinateValuePtr = 0;
 			
-			}		// end "else mapProjectionInfoPtr->geodetic.radiusSpheroid < 0"
+			}	// end "else mapProjectionInfoPtr->geodetic.radiusSpheroid < 0"
 		
 		*yCoordinateValuePtr *= kRadiansToDegrees;
 		*xCoordinateValuePtr *= kRadiansToDegrees;
@@ -558,21 +535,23 @@ Boolean ConvertCylindricalEqualAreaToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertEquirectangularToLatLong
+//	Function name:		Boolean ConvertEquirectangularToLatLong
 //
-//	Software purpose:			This routine handles conversions from Equirectagular meter values
-//									to latitude and longitude.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from Equirectagular meter
+//							values to latitude and longitude.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
-//	Parameters out:	xCoordinateValuePtr - input Orthographic horizontal meter coordinate	
-//							yCoordinateValuePtr - input Orthographic vertical meter coordinate
+//	Parameters in:		xCoordinateValuePtr -
+//													input Orthographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//													input Orthographic vertical meter coordinate
 //
-//	Parameters in:		xCoordinateValuePtr - output Longitude	
+//	Parameters out:	xCoordinateValuePtr - output Longitude
 //							yCoordinateValuePtr - output Latitude	
 //
 // Value Returned:	None	
@@ -609,27 +588,28 @@ Boolean ConvertEquirectangularToLatLong (
 	*xCoordinateValuePtr /= 
 						mapProjectionInfoPtr->geodetic.radiusSpheroid * cosStandardParallel;
 	*xCoordinateValuePtr *= kRadiansToDegrees;
-	*xCoordinateValuePtr += mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
+	*xCoordinateValuePtr +=
+								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
 																		
 	*yCoordinateValuePtr /= mapProjectionInfoPtr->geodetic.radiusSpheroid;
 	*yCoordinateValuePtr *= kRadiansToDegrees;
    
    return (returnFlag);
 			
-}		// end "ConvertEquirectangularToLatLong" 
+}	// end "ConvertEquirectangularToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertKrovakToLatLong
+//	Function name:		Boolean ConvertKrovakToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Krovak meter values 
-//									to latitude and longitude.  This routine is based
-//									on code from PJ_krovak.c file from GRASS-CVS
+//	Software purpose:	This routine handles a conversions from Krovak meter values
+//							to latitude and longitude.  This routine is based
+//							on code from PJ_krovak.c file from GRASS-CVS
 //
 //	Parameters in:		xCoordinateValuePtr - input Krovak horizontal meter coordinate	
 //							yCoordinateValuePtr - input Krovak vertical meter coordinate	
@@ -639,7 +619,8 @@ Boolean ConvertEquirectangularToLatLong (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2006
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
@@ -695,21 +676,21 @@ Boolean ConvertKrovakToLatLong (
 	s90 = 2 * s45;
 	fi0 = 0.863937979737193;    // Latitude of projection centre 49¡ 30'
 
-			// Ellipsoid is used as Parameter in for.c and inv.c, therefore a must 
+			// Ellipsoid is used as Parameter in for.c and inv.c, therefore must
 			// be set to 1 here.
 			// Ellipsoid Bessel 1841 a = 6377397.155m 1/f = 299.1528128,
 			// e2=0.006674372230614;
 
-//	a = 1; // 6377397.155;
+	//	a = 1; // 6377397.155;
 	a = 6377397.155;
 	
-			// e2 = P->es;      0.006674372230614;
+		// e2 = P->es;      0.006674372230614;
 			
 	e2 = 0.006674372230614;
 	e = sqrt (e2);
 
 	alfa = sqrt (1. + (e2 * pow (cos (fi0), 4)) / (1. - e2));
-	uq = 1.04216856380474;      // DU(2, 59, 42, 42.69689)
+	uq = 1.04216856380474;      // DU (2, 59, 42, 42.69689)
 	u0 = asin (sin (fi0) / alfa);
 	g = pow ((1. + e * sin (fi0)) / (1. - e * sin (fi0)) , alfa * e / 2.);
 
@@ -737,8 +718,8 @@ Boolean ConvertKrovakToLatLong (
 	u = asin (cos (ad) * sin (s) - sin (ad) * cos (s) * cos (d));
 	deltav = asin (cos (s) * sin (d) / cos (u));
 
-	l24 = 0.433423430911925;   // DU(2, 24, 50, 0.) diff of 42d 30m and 17d 40m
-//	lon17 = 0.308341501185665; // Longitude of Ferro is 17¡ 40'00" West of Greenwich
+	l24 = 0.433423430911925;   // DU (2, 24, 50, 0.) diff of 42d 30m and 17d 40m
+	//lon17 = 0.308341501185665; // Longitude of Ferro is 17¡ 40'00" West of Greenwich
 	longitudeCoordinate = l24 - deltav / alfa;
 
 			// ITERATION FOR latitude
@@ -758,42 +739,42 @@ Boolean ConvertKrovakToLatLong (
 		
 		fi1 = latitudeCoordinate;
 
-		} while (ok==0);
+		}	while (ok==0);
    
    *xCoordinateValuePtr = longitudeCoordinate * kRadiansToDegrees;
    *yCoordinateValuePtr = latitudeCoordinate * kRadiansToDegrees;
 
    return (TRUE);
 			
-}		// end "ConvertKrovakToLatLong" 
+}	// end "ConvertKrovakToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLambertAzimuthalEqualAreaToLatLong
+//	Function name:		Boolean ConvertLambertAzimuthalEqualAreaToLatLong
 //
-//	Software purpose:			This routine handles a conversions from line and column
-//									values to latitude and longitude.  This routine is based
-//									on code from Dan Steinwand on 7/10/1992.
+//	Software purpose:	This routine handles a conversions from line and column
+//							values to latitude and longitude.  This routine is based
+//							on code from Dan Steinwand on 7/10/1992.
 //
-//   								by DRS/TGS/ISS/EROS Data Center, May 1991
+//   						by DRS/TGS/ISS/EROS Data Center, May 1991
 //
-//   								Algorithm references:
+//   						Algorithm references:
 //
-//   								1.  "New Equal-Area Map Projections for Noncircular Regions", 
-//   								John P. Snyder, The American Cartographer, Vol 15, No. 4, 
-//   								October 1988, pp. 341-355.
-//   								2.  Snyder, John P., "Map Projections--A Working Manual", 
-//   								U.S. Geological Survey Professional Paper 1395 (Supersedes 
-//   								USGS Bulletin 1532), United State Government Printing 
-//   								Office, Washington D.C., 1987.
-//   								3.  "Software Documentation for GCTP General Cartographic 
-//   								Transformation Package", U.S. Geological Survey National 
-//   								Mapping Division, May 1982.
+//   						1.  "New Equal-Area Map Projections for Noncircular Regions",
+//   							John P. Snyder, The American Cartographer, Vol 15, No. 4,
+//   							October 1988, pp. 341-355.
+//   						2.  Snyder, John P., "Map Projections--A Working Manual",
+//   							U.S. Geological Survey Professional Paper 1395 (Supersedes
+//   							USGS Bulletin 1532), United State Government Printing
+//   							Office, Washington D.C., 1987.
+//   						3.  "Software Documentation for GCTP General Cartographic
+//   							Transformation Package", U.S. Geological Survey National
+//   							Mapping Division, May 1982.
 //
 //	Parameters in:					
 //
@@ -801,7 +782,8 @@ Boolean ConvertKrovakToLatLong (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Dan Steinwand			Date: 05/??/1991
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
@@ -844,7 +826,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 			
    projectionXMeters =  *xCoordinateValuePtr;
    projectionYMeters = *yCoordinateValuePtr;
-   
+	
 //   if (mapProjectionInfoPtr->geodetic.semiMajorAxis == 
 //   												mapProjectionInfoPtr->geodetic.semiMinorAxis)
 //	   {
@@ -856,7 +838,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 													projectionYMeters * projectionYMeters);
 		temp = Rh / (2 * mapProjectionInfoPtr->geodetic.radiusSpheroid);
 		if (temp > 1)
-																								return (FALSE);
+																							return (FALSE);
 																					
 		temp = 2 * asin (temp);
 		sin_z = sin (temp); 
@@ -875,9 +857,9 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 		      	longitude = adjust_lon (longitudeCenter +
 		      			atan2 (projectionXMeters*sin_z*cosLatitudeCenter,temp*Rh));
 		      						
-		      }		// end "if (fabs (temp) > kEPSLN)" 
+		      }	// end "if (fabs (temp) > kEPSLN)" 
 		      
-		   else		// fabs (temp) <= kEPSLN 
+		   else	// fabs (temp) <= kEPSLN 
 		   	{
 		   	if (latitudeCenter < 0.0) 
 		   		longitude = adjust_lon (longitudeCenter - 
@@ -886,16 +868,16 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 		   		longitude = adjust_lon (longitudeCenter + 
 		   							atan2 (projectionXMeters, -projectionYMeters));
 		   		
-		   	}		// end "else fabs (temp) <= kEPSLN" 
+		   	}	// end "else fabs (temp) <= kEPSLN" 
 		   	
-		   }		// end "if (fabs (Rh) > kEPSLN)" 
+		   }	// end "if (fabs (Rh) > kEPSLN)" 
 		   
-		else		// end "fabs (Rh) <= kEPSLN" 
+		else	// end "fabs (Rh) <= kEPSLN" 
 			latitude = latitudeCenter;
 		
-//		}		// end "if (mapProjectionInfoPtr->geodetic.semiMajorAxis == ..."
-/*		This needs a lot more work.
-	else		// this is an ellipsoid
+		//}	// end "if (mapProjectionInfoPtr->geodetic.semiMajorAxis == ..."
+	/*		This needs a lot more work.
+	else	// this is an ellipsoid
 		{
 		double cCe, sCe, q, rho, ab=0.0;
 		double t;
@@ -938,7 +920,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 				P->xmf *= P->dd;
 				break;
 				
-			}		// end "switch (P->mode)"
+			}	// end "switch (P->mode)"
 
 		switch (P->mode) 
 			{
@@ -950,7 +932,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 					lp.phi = P->phi0;
 					return (lp);
 					
-					}		// end "if ((rho = hypot (xy.x ..."
+					}	// end "if ((rho = hypot (xy.x ..."
 					
 				cCe = cos (sCe = 2. * asin (.5 * rho / P->rq));
 				xy.x *= (sCe = sin (sCe));
@@ -959,14 +941,14 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 					q = P->qp * (ab = cCe * P->sinb1 + xy.y * sCe * P->cosb1 / rho);
 					xy.y = rho * P->cosb1 * cCe - xy.y * P->sinb1 * sCe;
 					
-					}		// end "if (P->mode == OBLIQ)"
+					}	// end "if (P->mode == OBLIQ)"
 					
-				else		// P->mode != OBLIQ
+				else	// P->mode != OBLIQ
 					{
 					q = P->qp * (ab = xy.y * sCe / rho);
 					xy.y = rho * cCe;
 					
-					}		// end "else P->mode != OBLIQ"
+					}	// end "else P->mode != OBLIQ"
 				break;
 				
 			case N_POLE:
@@ -978,22 +960,22 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 					lp.phi = P->phi0;
 					return (lp);
 					
-					}		// end "if (!(q = (xy.x * xy.x + xy.y * xy.y)))"
+					}	// end "if (!(q = (xy.x * xy.x + xy.y * xy.y)))"
 				
-	//			q = P->qp - q;
+				//q = P->qp - q;
 				
 				ab = 1. - q / P->qp;
 				if (P->mode == S_POLE)
 					ab = - ab;
 				break;
 				
-			}		// end "switch (P->mode)"
+			}	// end "switch (P->mode)"
 			
 		longitude = atan2 (xy.x, xy.y);
 		latitude = pj_authlat (asin (ab), P->apa);
 		
-		}		// end "else this is an ellipsoid"
-*/   
+		}	// end "else this is an ellipsoid"
+	*/
    *xCoordinateValuePtr = longitude * kRadiansToDegrees;	
    *yCoordinateValuePtr = latitude * kRadiansToDegrees;
 	   
@@ -1004,21 +986,21 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
    
    return (TRUE);
 			
-}		// end "ConvertLambertAzimuthalEqualAreaToLatLong" 
+}	// end "ConvertLambertAzimuthalEqualAreaToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLambertConformalConicToLatLong
+//	Function name:		Boolean ConvertLambertConformalConicToLatLong
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Lambert Conformal Conic meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Lambert Conformal Conic meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input Lambert Conformal Conic horizontal meter coordinate	
 //							yCoordinateValuePtr - input Lambert Conformal Conic vertical meter coordinate	
@@ -1075,14 +1057,14 @@ Boolean ConvertLambertConformalConicToLatLong (
 		rh1 = sqrt (x * x + y * y);
 		con = 1.0;
 		
-		}		// end "if (ns > 0)"
+		}	// end "if (ns > 0)"
 		
-	else		// ns <= 0
+	else	// ns <= 0
 		{
 		rh1 = -sqrt (x * x + y * y);
 		con = -1.0;
 		
-		}		// end "else ns <= 0"
+		}	// end "else ns <= 0"
 		
 	theta = 0.0;
 	if (rh1 != 0)
@@ -1096,9 +1078,9 @@ Boolean ConvertLambertConformalConicToLatLong (
 		if (flag != 0)
 			return (FALSE);
 			
-		}		// end "if ((rh1 != 0) || (ns > 0.0))"
+		}	// end "if ((rh1 != 0) || (ns > 0.0))"
 		
-	else		// (rh1 == 0) && (...ns <= 0.0)
+	else	// (rh1 == 0) && (...ns <= 0.0)
 		*yCoordinateValuePtr = -kHALF_PI;
 	
 	*xCoordinateValuePtr = adjust_lon (theta/ns + centerLongitude);
@@ -1108,57 +1090,57 @@ Boolean ConvertLambertConformalConicToLatLong (
 	
 	return (TRUE);			
 
-/* Lambert Conformal Conic inverse equations--mapping x,y to lat/long
-  -----------------------------------------------------------------
-long lamccinv (x , y, lon, lat)
-double x;			// (O) X projection coordinate
-double y;			// (O) Y projection coordinate
-double *lon;			// (I) Longitude
-double *lat;			// (I) Latitude
+	/* Lambert Conformal Conic inverse equations--mapping x,y to lat/long
+	  -----------------------------------------------------------------
+	long lamccinv (x , y, lon, lat)
+	double x;			// (O) X projection coordinate
+	double y;			// (O) Y projection coordinate
+	double *lon;			// (I) Longitude
+	double *lat;			// (I) Latitude
 
-{
-double rh1;			// height above ellipsoid
-double con;			// sign variable
-double ts;			// small t
-double theta;			// angle
-long   flag;			// error flag
+	{
+	double rh1;			// height above ellipsoid
+	double con;			// sign variable
+	double ts;			// small t
+	double theta;			// angle
+	long   flag;			// error flag
 
-flag = 0;
-x -= false_easting;
-y = rh - y + false_northing;
- if (ns > 0)
-    {
-    rh1 = sqrt (x * x + y * y);
-    con = 1.0;
-    }
- else
-    {
-    rh1 = -sqrt (x * x + y * y);
-    con = -1.0;
-    }
- theta = 0.0;
- if (rh1 != 0)
-    theta = atan2 ((con * x),(con * y));
- if ((rh1 != 0) || (ns > 0.0))
-    {
-    con = 1.0/ns;
-    ts = pow ((rh1/(r_major * f0)),con);
-    *lat = phi2z (e,ts,&flag);
-    if (flag != 0)
-       return (flag);
-    }
- else
-    *lat = -HALF_PI;
- *lon = adjust_lon (theta/ns + center_lon);
- return (OK);
- }
-*/			
-}		// end "ConvertLambertConformalConicToLatLong" 
+	flag = 0;
+	x -= false_easting;
+	y = rh - y + false_northing;
+	 if (ns > 0)
+		 {
+		 rh1 = sqrt (x * x + y * y);
+		 con = 1.0;
+		 }
+	 else
+		 {
+		 rh1 = -sqrt (x * x + y * y);
+		 con = -1.0;
+		 }
+	 theta = 0.0;
+	 if (rh1 != 0)
+		 theta = atan2 ((con * x),(con * y));
+	 if ((rh1 != 0) || (ns > 0.0))
+		 {
+		 con = 1.0/ns;
+		 ts = pow ((rh1/(r_major * f0)),con);
+		 *lat = phi2z (e,ts,&flag);
+		 if (flag != 0)
+			 return (flag);
+		 }
+	 else
+		 *lat = -HALF_PI;
+	 *lon = adjust_lon (theta/ns + center_lon);
+	 return (OK);
+	 }
+	*/			
+}	// end "ConvertLambertConformalConicToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1187,12 +1169,12 @@ Boolean ConvertLatLongPointToMapPoint (
 														&coordinatePointPtr->h,
 														&coordinatePointPtr->v));
 
-}		// end "ConvertLatLongPointToMapPoint"
+}	// end "ConvertLatLongPointToMapPoint"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1243,7 +1225,7 @@ Boolean ConvertLatLongPointToMapPoint (
 															xCoordinateValuePtr, 
 															yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kEquirectangularCode)"
+			}	// end "else if (projectionCode == kEquirectangularCode)"
 	
 		else if (projectionCode == kOrthographicCode)
 			{
@@ -1251,7 +1233,7 @@ Boolean ConvertLatLongPointToMapPoint (
 															xCoordinateValuePtr, 
 															yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kOrthographicCode)"
+			}	// end "else if (projectionCode == kOrthographicCode)"
 	
 		else if (projectionCode == kCylindricalEqualAreaCode)
 			{
@@ -1259,7 +1241,7 @@ Boolean ConvertLatLongPointToMapPoint (
 																xCoordinateValuePtr, 
 																yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kCylindricalEqualAreaCode)"
+			}	// end "else if (projectionCode == kCylindricalEqualAreaCode)"
 	
 		else if (projectionCode == kLambertAzimuthalEqualAreaCode)
 			{
@@ -1267,7 +1249,7 @@ Boolean ConvertLatLongPointToMapPoint (
 																xCoordinateValuePtr, 
 																yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+			}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 	
 		else if (projectionCode == kLambertConformalConicCode)
 			{
@@ -1275,7 +1257,7 @@ Boolean ConvertLatLongPointToMapPoint (
 																xCoordinateValuePtr, 
 																yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kLambertConformalConicCode)"
+			}	// end "else if (projectionCode == kLambertConformalConicCode)"
 	
 		else if (projectionCode == kMercatorCode)
 			{
@@ -1283,7 +1265,7 @@ Boolean ConvertLatLongPointToMapPoint (
 																xCoordinateValuePtr, 
 																yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kMercatorCode)"
+			}	// end "else if (projectionCode == kMercatorCode)"
 	
 		else if (projectionCode == kSinusoidalCode)
 			{
@@ -1291,7 +1273,7 @@ Boolean ConvertLatLongPointToMapPoint (
 															xCoordinateValuePtr, 
 															yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kSinusoidalCode)"
+			}	// end "else if (projectionCode == kSinusoidalCode)"
 	
 		else if (projectionCode == kKrovakCode)
 			{
@@ -1299,7 +1281,7 @@ Boolean ConvertLatLongPointToMapPoint (
 															xCoordinateValuePtr, 
 															yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kKrovakCode)"
+			}	// end "else if (projectionCode == kKrovakCode)"
 	
 		else if (projectionCode == kPolarStereographicCode)
 			{
@@ -1307,7 +1289,7 @@ Boolean ConvertLatLongPointToMapPoint (
 																xCoordinateValuePtr, 
 																yCoordinateValuePtr);
 			
-			}		// end "else if (projectionCode == kPolarStereographicCode)"
+			}	// end "else if (projectionCode == kPolarStereographicCode)"
 			
 		else if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
 																						kGeographicRSCode)
@@ -1316,28 +1298,28 @@ Boolean ConvertLatLongPointToMapPoint (
 					
 			returnFlag = TRUE;
 					
-			}		// end "else if (...referenceSystemCode == kGeographicRSCode"
+			}	// end "else if (...referenceSystemCode == kGeographicRSCode"
 			
-		else		// Conversion not done.
+		else	// Conversion not done.
 			returnFlag = FALSE;
 			
-		}		// end "if (mapProjectionInfoPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 	return (returnFlag);
 
-}		// end "ConvertLatLongPointToMapPoint" 
+}	// end "ConvertLatLongPointToMapPoint" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongRectToMapRect
+//	Function name:		Boolean ConvertLatLongRectToMapRect
 //
-//	Software purpose:			This routine converts the input lat-long coordinates to 
-//									map coordinates.
+//	Software purpose:	This routine converts the input lat-long coordinates to
+//							map coordinates.
 //
 //	Parameters in:		xCoordinateValuePtr - longitude	
 //							yCoordinateValuePtr - latitude	
@@ -1371,12 +1353,12 @@ Boolean ConvertLatLongRectToMapRect (
 	return (ConvertLatLongRectToMapRect (mapProjectionInfoPtr,
 														coordinateRectanglePtr));
 			
-}		// end "ConvertLatLongRectToMapRect" 
+}	// end "ConvertLatLongRectToMapRect" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1426,7 +1408,7 @@ Boolean ConvertLatLongRectToMapRect (
 															&coordinateRectanglePtr->right, 
 															&coordinateRectanglePtr->bottom);
 			
-			}		// end "if (projectionCode == kTransverseMercatorCode)"
+			}	// end "if (projectionCode == kTransverseMercatorCode)"
 		
 		else if (projectionCode == kAlbersConicalEqualAreaCode)
 			{
@@ -1441,7 +1423,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kAlbersConicalEqualAreaCode)"
+			}	// end "else if (projectionCode == kAlbersConicalEqualAreaCode)"
 	
 		else if (projectionCode == kCylindricalEqualAreaCode)
 			{
@@ -1456,7 +1438,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kCylindricalEqualAreaCode)"
+			}	// end "else if (projectionCode == kCylindricalEqualAreaCode)"
 	
 		else if (projectionCode == kEquirectangularCode)
 			{
@@ -1471,7 +1453,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kEquirectangularCode)"
+			}	// end "else if (projectionCode == kEquirectangularCode)"
 	
 		else if (projectionCode == kKrovakCode)
 			{
@@ -1486,7 +1468,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kKrovakCode)"
+			}	// end "else if (projectionCode == kKrovakCode)"
 	
 		else if (projectionCode == kLambertAzimuthalEqualAreaCode)
 			{
@@ -1501,7 +1483,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+			}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 	
 		else if (projectionCode == kLambertConformalConicCode)
 			{
@@ -1516,7 +1498,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+			}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 	
 		else if (projectionCode == kMercatorCode)
 			{
@@ -1531,7 +1513,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kMercatorCode)"
+			}	// end "else if (projectionCode == kMercatorCode)"
 	
 		else if (projectionCode == kOrthographicCode)
 			{
@@ -1583,11 +1565,11 @@ Boolean ConvertLatLongRectToMapRect (
 												coordinateRectanglePtr->right > 0)
 						convertedFlag = TRUE;
 												
-					}		// end "if (!convertedFlag)"
+					}	// end "if (!convertedFlag)"
 				
-				}		// end "if (!convertedFlag)"
+				}	// end "if (!convertedFlag)"
 			
-			}		// end "else if (gridCode == kOrthographicCode)"
+			}	// end "else if (gridCode == kOrthographicCode)"
 	
 		else if (projectionCode == kPolarStereographicCode)
 			{
@@ -1602,7 +1584,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kPolarStereographicCode)"
+			}	// end "else if (projectionCode == kPolarStereographicCode)"
 	
 		else if (projectionCode == kSinusoidalCode)
 			{
@@ -1617,7 +1599,7 @@ Boolean ConvertLatLongRectToMapRect (
 																&coordinateRectanglePtr->right, 
 																&coordinateRectanglePtr->bottom);
 			
-			}		// end "else if (projectionCode == kSinusoidalCode)"
+			}	// end "else if (projectionCode == kSinusoidalCode)"
 													
 		else if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
 																		kGeographicRSCode)
@@ -1629,25 +1611,25 @@ Boolean ConvertLatLongRectToMapRect (
 						mapProjectionInfoPtr->planarCoordinate.metersToNativeFactor,
 						coordinateRectanglePtr);
 			
-		}		// end "if (mapProjectionInfoPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 	return (convertedFlag);
 
-}		// end "ConvertLatLongRectToMapRect" 
+}	// end "ConvertLatLongRectToMapRect" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToAlbersEqualArea
+//	Function name:		Boolean ConvertLatLongToAlbersEqualArea
 //
-//	Software purpose:			This routine handles a conversions from latitude/longitude
-//									to Albers Conical Equal Area meter values.  This routine 
-//									is based on code from John Snyder's Map Projections - A 
-//									Working Manual.
+//	Software purpose:	This routine handles a conversions from latitude/longitude
+//							to Albers Conical Equal Area meter values.  This routine
+//							is based on code from John Snyder's Map Projections - A
+//							Working Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input AEA horizontal meter coordinate	
 //							yCoordinateValuePtr - input AEA vertical meter coordinate	
@@ -1657,7 +1639,9 @@ Boolean ConvertLatLongRectToMapRect (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2007
 //	Revised By:			Larry L. Biehl			Date: 04/27/2007			
@@ -1675,28 +1659,28 @@ Boolean ConvertLatLongToAlbersEqualArea (
 											standardParallel1,
 											standardParallel2;
 
-	double r_major;	// major axis
-	double r_minor;	// minor axis	
-	double c;		// constant c	
-	double e;		// eccentricity 	
-	double rh;		// heigth above elipsoid
-	double ns0;		// ratio between meridians
-	double falseEasting;	// x offset in meters
-	double falseNorthing;	// y offset in meters
+	double 								r_major;				// major axis
+	double 								r_minor;				// minor axis
+	double 								c;						// constant c
+	double 								e;						// eccentricity
+	double 								rh;					// heigth above elipsoid
+	double 								ns0;					// ratio between meridians
+	double 								falseEasting;		// x offset in meters
+	double 								falseNorthing;		// y offset in meters
 
-	double sin_po,cos_po;		// sin and cos values
-	double con;			// temporary variable
-	double e2;			// eccentricity squared and temp var
-	double ms1;			// small m 1
-	double ms2;			// small m 2
-	double qs0;			// small q 0
-	double qs1;			// small q 1
-	double qs2;			// small q 2
+	double 								sin_po,cos_po;		// sin and cos values
+	double 								con;					// temporary variable
+	double 								e2;				// eccentricity squared and temp var
+	double 								ms1;					// small m 1
+	double 								ms2;					// small m 2
+	double 								qs0;					// small q 0
+	double 								qs1;					// small q 1
+	double 								qs2;					// small q 2
 	
-	double sin_phi,cos_phi;		// sine and cos values	
-	double qs;			// small q	
-	double theta;			// angle	
-	double rh1;			// height above ellipsoid
+	double 								sin_phi,cos_phi;	// sine and cos values
+	double 								qs;					// small q
+	double 								theta;				// angle
+	double 								rh1;					// height above ellipsoid
 
 																								
 	if (mapProjectionInfoPtr == NULL)
@@ -1713,10 +1697,10 @@ Boolean ConvertLatLongToAlbersEqualArea (
 	latitude = *yCoordinateValuePtr * kDegreesToRadians;
 		
 	standardParallel1 = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
 		
 	standardParallel2 = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel2 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel2 * kDegreesToRadians;
 					
 	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
 																						kDegreesToRadians;
@@ -1730,11 +1714,11 @@ Boolean ConvertLatLongToAlbersEqualArea (
 	if ((standardParallel1 < 0 && standardParallel2 > 0) ||
 				(standardParallel1 > 0 && standardParallel2 < 0))
 	   {
-//	   p_error ("Equal latitudes for St. Parallels on opposite sides of equator",
-//		  "alber-forinit");
- 		return																						(FALSE);
+		//p_error ("Equal latitudes for St. Parallels on opposite sides of equator",
+		//				"alber-forinit");
+ 																						return (FALSE);
 
-	   }
+	   }	// end "if ((standardParallel1 < 0 && standardParallel2 > 0) || ..."
 	   
 	r_major = mapProjectionInfoPtr->geodetic.semiMajorAxis;
 	r_minor = mapProjectionInfoPtr->geodetic.semiMinorAxis;
@@ -1770,7 +1754,7 @@ Boolean ConvertLatLongToAlbersEqualArea (
 	if (ns0 != 0)
 		rh = r_major * sqrt (c - ns0 * qs0)/ns0;
 		
-	else		// ns0 == 0
+	else	// ns0 == 0
 		rh = r_major;		// Not sure what it should be equal to.
 
 			// Albers Conical Equal Area forward equations--mapping lat,long to x,y
@@ -1784,7 +1768,7 @@ Boolean ConvertLatLongToAlbersEqualArea (
 	if (ns0 != 0)
 		rh1 = r_major * sqrt (c - ns0 * qs)/ns0;
 		
-	else		// ns0 == 0
+	else	// ns0 == 0
 		rh1 = r_major;		// Not sure what it should be equal to.
 	
 	theta = ns0 * adjust_lon (longitude - centerLongitude); 
@@ -1794,21 +1778,21 @@ Boolean ConvertLatLongToAlbersEqualArea (
    
    return (TRUE);
 			
-}		// end "ConvertLatLongToAlbersEqualArea"  
+}	// end "ConvertLatLongToAlbersEqualArea"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToCylindricalEqualArea
+//	Function name:		Boolean ConvertLatLongToCylindricalEqualArea
 //
-//	Software purpose:			This routine handles a conversions from latitude/longitude
-//									to Cylindrical Equal Area (CEA) meter values.  This routine 
-//									is based on code from John Snyder's Map Projections - A 
-//									Working Manual.
+//	Software purpose:	This routine handles a conversions from latitude/longitude
+//							to Cylindrical Equal Area (CEA) meter values.  This routine
+//							is based on code from John Snyder's Map Projections - A
+//							Working Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input CEA horizontal meter coordinate	
 //							yCoordinateValuePtr - input CEA vertical meter coordinate	
@@ -1818,7 +1802,9 @@ Boolean ConvertLatLongToAlbersEqualArea (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Larry L. Biehl			Date: 07/13/2006
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
@@ -1848,7 +1834,7 @@ Boolean ConvertLatLongToCylindricalEqualArea (
 	latitude = *yCoordinateValuePtr * kDegreesToRadians;
 	
 	standardLatitude = 
-					mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
 	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
 																						kDegreesToRadians;
 		
@@ -1859,34 +1845,36 @@ Boolean ConvertLatLongToCylindricalEqualArea (
 										
 	if (cosStandardLatitude != 0)
 		*yCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * 
-														sin (latitude) / cosStandardLatitude;
+															sin (latitude) / cosStandardLatitude;
 														
-	else		// cosStandardLatitude == 0
+	else	// cosStandardLatitude == 0
 		*yCoordinateValuePtr = 0;
    
    return (TRUE);
 			
-}		// end "ConvertLatLongToCylindricalEqualArea"  
+}	// end "ConvertLatLongToCylindricalEqualArea"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToEquirectangular
+//	Function name:		Boolean ConvertLatLongToEquirectangular
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Equirectagular meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Equirectagular meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
 //
-//	Parameters out:	xCoordinateValuePtr - output Orthographic horizontal meter coordinate	
-//							yCoordinateValuePtr - output Orthographic vertical meter coordinate
+//	Parameters out:	xCoordinateValuePtr -
+//												output Orthographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//												output Orthographic vertical meter coordinate
 //
 // Value Returned:	None	
 //												
@@ -1919,36 +1907,36 @@ Boolean ConvertLatLongToEquirectangular (
 			// Get input lat-long
 	
 	standardParallel = 
-				mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.standardParallel1 * kDegreesToRadians;
 	cosStandardParallel = cos (standardParallel);
 	
 	longitude = *xCoordinateValuePtr * kDegreesToRadians;
 	latitude = *yCoordinateValuePtr * kDegreesToRadians;
 	
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 	
 	*xCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * 
-												(longitude - centerLongitude) * cosStandardParallel;
+											(longitude - centerLongitude) * cosStandardParallel;
 																		
 	*yCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * latitude;
    
    return (returnFlag);
 			
-}		// end "ConvertLatLongToEquirectangular" 
+}	// end "ConvertLatLongToEquirectangular" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToKrovak
+//	Function name:		Boolean ConvertLatLongToKrovak
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Krovak meter values.  This routine is based
-//									on code from PJ_krovak.c file from GRASS-CVS
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Krovak meter values.  This routine is based
+//							on code from PJ_krovak.c file from GRASS-CVS
 //
 //	Parameters in:		xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
@@ -2019,7 +2007,7 @@ Boolean ConvertLatLongToKrovak (
 			// Ellipsoid Bessel 1841 a = 6377397.155m 1/f = 299.1528128,
 			// e2=0.006674372230614;
 
-//	a =  1; // 6377397.155;
+	//a =  1; // 6377397.155;
 	a =  6377397.155;
 	
 			// e2 = P->es;     0.006674372230614;
@@ -2029,7 +2017,7 @@ Boolean ConvertLatLongToKrovak (
 
 	alfa = sqrt (1. + (e2 * pow (cos (fi0), 4)) / (1. - e2));
 
-	uq = 1.04216856380474;      // DU(2, 59, 42, 42.69689)
+	uq = 1.04216856380474;      // DU (2, 59, 42, 42.69689)
 	u0 = asin (sin (fi0) / alfa);
 	g = pow ((1. + e * sin (fi0)) / (1. - e * sin (fi0)), alfa * e / 2.);
 
@@ -2066,21 +2054,21 @@ Boolean ConvertLatLongToKrovak (
 	
 	return (TRUE);
 			
-}		// end "ConvertLatLongToKrovak" 
+}	// end "ConvertLatLongToKrovak" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToLambertAzimuthalEqualArea
+//	Function name:		Boolean ConvertLatLongToLambertAzimuthalEqualArea
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Lambert Azimuthal Equal Area meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Lambert Azimuthal Equal Area meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
@@ -2137,8 +2125,8 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 	cosLatitudeOrigin = cos (latitudeOrigin);
 	sinLatitudeOrigin = sin (latitudeOrigin);
 	
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 	
 	deltaLongitude = adjust_lon (longitude - centerLongitude);
 	cosDeltaLongitude = cos (deltaLongitude);
@@ -2150,11 +2138,11 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 		ksp = mapProjectionInfoPtr->geodetic.radiusSpheroid * sqrt (2.0 / (1.0 + g));
 		*xCoordinateValuePtr = ksp * cosLat * sinDeltaLongitude;
 		*yCoordinateValuePtr = ksp * 
-				(cosLatitudeOrigin * sinLat - sinLatitudeOrigin * cosLat * cosDeltaLongitude);
+			(cosLatitudeOrigin * sinLat - sinLatitudeOrigin * cosLat * cosDeltaLongitude);
 		
-	   }		// end "if (g != -1.0)"
+	   }	// end "if (g != -1.0)"
 	   
-	else		// g == -1.0
+	else	// g == -1.0
 	   { 
 	   		// Point projects to a circle of radius = 
 	   		// 2.0 * mapProjectionInfoPtr->geodetic.radiusSpheroid
@@ -2163,10 +2151,10 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 	   *xCoordinateValuePtr = 2.0 * mapProjectionInfoPtr->geodetic.radiusSpheroid;
 	   *yCoordinateValuePtr = 0;
 	   
-	   }		// end "else g == -1.0"
+	   }	// end "else g == -1.0"
 	   
-/* for ellipsoid
-
+	/* 
+			// for ellipsoid
 		double t;
 		
 				// Determine whether this is oblique, equitorial or polar
@@ -2207,7 +2195,7 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 				P->xmf *= P->dd;
 				break;
 				
-			}		// end "switch (P->mode)"
+			}	// end "switch (P->mode)"
 
 		coslam = cos (lp.lam);
 		sinlam = sin (lp.lam);
@@ -2266,32 +2254,34 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 					xy.x = xy.y = 0.;
 				break;
 				
-			}		// end "switch (P->mode)"
-*/
+			}	// end "switch (P->mode)"
+	*/
    
    return (returnFlag);
 			
-}		// end "ConvertLatLongToLambertAzimuthalEqualArea" 
+}	// end "ConvertLatLongToLambertAzimuthalEqualArea" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToLambertConformalConic
+//	Function name:		Boolean ConvertLatLongToLambertConformalConic
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Lambert Conformal Conic meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Lambert Conformal Conic meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
 //
-//	Parameters out:	xCoordinateValuePtr - output Lambert Conformal Conic horizontal meter coordinate	
-//							yCoordinateValuePtr - output Lambert Conformal Conic vertical meter coordinate
+//	Parameters out:	xCoordinateValuePtr -
+//									output Lambert Conformal Conic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//									output Lambert Conformal Conic vertical meter coordinate
 //
 // Value Returned:	None	
 //												
@@ -2342,17 +2332,17 @@ Boolean ConvertLatLongToLambertConformalConic (
 		ts = tsfnz (mapProjectionInfoPtr->geodetic.e, latitude, sinphi);	
 		rh1 = mapProjectionInfoPtr->geodetic.semiMajorAxis * f0 * pow (ts, ns);
 		
-		}		// end "if (con > kEPSLN)"
+		}	// end "if (con > kEPSLN)"
 	
-	else		// con <= kEPSLN
+	else	// con <= kEPSLN
 		{
 		con = latitude * ns;
 		if (con <= 0)
-																								return (FALSE);
+																							return (FALSE);
 			
 		rh1 = 0;
 		
-		}		// end "else con <= kEPSLN"
+		}	// end "else con <= kEPSLN"
 		
 	theta = ns * adjust_lon (longitude - centerLongitude);
 	*xCoordinateValuePtr = rh1 * sin (theta) + 
@@ -2363,63 +2353,63 @@ Boolean ConvertLatLongToLambertConformalConic (
 	return (TRUE);
 			
 
-/* Lambert Conformal conic forward equations--mapping lat,long to x,y
-  -----------------------------------------------------------------
-long lamccfor (lon, lat, x, y)
-double lon;                     // (I) Longitude
-double lat;                     // (I) Latitude
-double *x;                      // (O) X projection coordinate
-double *y;                      // (O) Y projection coordinate
+	/* Lambert Conformal conic forward equations--mapping lat,long to x,y
+	  -----------------------------------------------------------------
+	long lamccfor (lon, lat, x, y)
+	double lon;                     // (I) Longitude
+	double lat;                     // (I) Latitude
+	double *x;                      // (O) X projection coordinate
+	double *y;                      // (O) Y projection coordinate
 
-{
-double con;                     // temporary angle variable
-double rh1;                     // height above ellipsoid
-double sinphi;                  // sin value
-double theta;                   // angle
-double ts;                      // small value t
+	{
+	double con;                     // temporary angle variable
+	double rh1;                     // height above ellipsoid
+	double sinphi;                  // sin value
+	double theta;                   // angle
+	double ts;                      // small value t
 
-con  = fabs (fabs (lat) - HALF_PI);
-if (con > EPSLN)
-  {
-  sinphi = sin (lat);
-  ts = tsfnz (e,lat,sinphi);
-  rh1 = r_major * f0 * pow (ts,ns);
-  }
-else
-  {
-  con = lat * ns;
-  if (con <= 0)
-    {
-    p_error ("Point can not be projected","lamcc-for");
-    return (44);
-    }
-  rh1 = 0;
-  }
-theta = ns * adjust_lon (lon - center_lon);
-*x = rh1 * sin (theta) + false_easting;
-*y = rh - rh1 * cos (theta) + false_northing;
+	con  = fabs (fabs (lat) - HALF_PI);
+	if (con > EPSLN)
+	  {
+	  sinphi = sin (lat);
+	  ts = tsfnz (e,lat,sinphi);
+	  rh1 = r_major * f0 * pow (ts,ns);
+	  }
+	else
+	  {
+	  con = lat * ns;
+	  if (con <= 0)
+		 {
+		 p_error ("Point can not be projected","lamcc-for");
+		 return (44);
+		 }
+	  rh1 = 0;
+	  }
+	theta = ns * adjust_lon (lon - center_lon);
+	*x = rh1 * sin (theta) + false_easting;
+	*y = rh - rh1 * cos (theta) + false_northing;
 
-return (OK);
-}
-*/
+	return (OK);
+	}
+	*/
 			
-}		// end "ConvertLatLongToLambertConformalConic" 
+}	// end "ConvertLatLongToLambertConformalConic" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToMercator
+//	Function name:		Boolean ConvertLatLongToMercator
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Mercator meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual. It is for the
-//									sphere.  An approximation is made for the ellipsoid. This
-//									needs to be changed in the future.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Mercator meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual. It is for the
+//							sphere.  An approximation is made for the ellipsoid. This
+//							needs to be changed in the future.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
@@ -2459,7 +2449,8 @@ Boolean ConvertLatLongToMercator (
 	latitude = *yCoordinateValuePtr * kDegreesToRadians;
 	
 	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 		
 	*xCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * 
 																(longitude - centerLongitude);
@@ -2469,27 +2460,29 @@ Boolean ConvertLatLongToMercator (
 		   
    return (returnFlag);
 			
-}		// end "ConvertLatLongToMercator" 
+}	// end "ConvertLatLongToMercator" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToOrthographic
+//	Function name:		Boolean ConvertLatLongToOrthographic
 //
-//	Software purpose:			This routine handles conversions from latitude and longitude
-//									to Orthographic meter values.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.	
+//	Software purpose:	This routine handles conversions from latitude and longitude
+//							to Orthographic meter values.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
 //	Parameters in:		xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
 //
-//	Parameters out:	xCoordinateValuePtr - input Orthographic horizontal meter coordinate	
-//							yCoordinateValuePtr - input Orthographic vertical meter coordinate
+//	Parameters out:	xCoordinateValuePtr -
+//													input Orthographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//													input Orthographic vertical meter coordinate
 //
 // Value Returned:	None	
 //												
@@ -2533,7 +2526,7 @@ Boolean ConvertLatLongToOrthographic (
 					mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian - 90;
 		returnFlag = FALSE;
 		
-		}		// end "if (*xCoordinateValuePtr < ..."
+		}	// end "if (*xCoordinateValuePtr < ..."
 			
 	else if (*xCoordinateValuePtr > 
 					mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian + 90)
@@ -2542,7 +2535,7 @@ Boolean ConvertLatLongToOrthographic (
 						mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian + 90;	
 		returnFlag = FALSE;
 			
-		}		// end "else if (*xCoordinateValuePtr >"
+		}	// end "else if (*xCoordinateValuePtr >"
 		
 			// Get input lat-long
 			
@@ -2554,43 +2547,48 @@ Boolean ConvertLatLongToOrthographic (
 	
 	centerLatitude = 
 				mapProjectionInfoPtr->gridCoordinate.latitudeOrigin * kDegreesToRadians;
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 	
 	cosCenterLatitude = cos (centerLatitude);
 	sinCenterLatitude = sin (centerLatitude);
 	
 	*xCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * cosLat * 
-																		sin (longitude - centerLongitude);
+																	sin (longitude - centerLongitude);
 																		
 	*yCoordinateValuePtr = mapProjectionInfoPtr->geodetic.radiusSpheroid * 
-		(cosCenterLatitude*sinLat - sinCenterLatitude*cosLat*cos (longitude - centerLongitude));
+					(cosCenterLatitude*sinLat -
+								sinCenterLatitude*cosLat*cos (longitude - centerLongitude));
    
    return (returnFlag);
 			
-}		// end "ConvertLatLongToOrthographic" 
+}	// end "ConvertLatLongToOrthographic" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToPolarStereographic
+//	Function name:		Boolean ConvertLatLongToPolarStereographic
 //
-//	Software purpose:			This routine handles a conversions from Latitude/Longitude
-//									so Polar Stereographic meter values.
+//	Software purpose:	This routine handles a conversions from Latitude/Longitude
+//							so Polar Stereographic meter values.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
 //
-//	Parameters out:	xCoordinateValuePtr - output Polar Stereographic horizontal meter coordinate	
-//							yCoordinateValuePtr - output Polar Stereographic vertical meter coordinate
+//	Parameters out:	xCoordinateValuePtr -
+//										output Polar Stereographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//										output Polar Stereographic vertical meter coordinate
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/2011
 //	Revised By:			Larry L. Biehl			Date: 02/25/2011			
@@ -2633,7 +2631,7 @@ Boolean ConvertLatLongToPolarStereographic (
 				mapProjectionInfoPtr->gridCoordinate.latitudeOrigin * kDegreesToRadians;
 	
 	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
-																							kDegreesToRadians;
+																						kDegreesToRadians;
 		
 	e = mapProjectionInfoPtr->geodetic.e;
 	e4 = mapProjectionInfoPtr->geodetic.e4;
@@ -2641,8 +2639,8 @@ Boolean ConvertLatLongToPolarStereographic (
 	ind = mapProjectionInfoPtr->geodetic.ind;
 	mcs = mapProjectionInfoPtr->geodetic.mcs;
 	tcs = mapProjectionInfoPtr->geodetic.tcs;
-	
-/*	if (fabs (fabs (centerLongitude) - kHALF_PI) > kEPSLN)
+	/*
+	if (fabs (fabs (centerLongitude) - kHALF_PI) > kEPSLN)
 		{
 		ind = 1;
 		con1 = fac * centerLatitude; 
@@ -2651,8 +2649,8 @@ Boolean ConvertLatLongToPolarStereographic (
 		mcs = msfnz (e, sinphi, cosphi);
 		tcs = tsfnz (e, con1, sinphi);
 		
-		}		// end "if (fabs (fabs (longitudeCentralMeridian) - kHALF_PI) > kEPSLN)"
-*/	
+		}	// end "if (fabs (fabs (longitudeCentralMeridian) - kHALF_PI) > kEPSLN)"
+	*/
 	con1 = fac * adjust_lon (longitude - centerLongitude);
 	con2 = fac * latitude;
 	sinphi = sin (con2);
@@ -2670,29 +2668,33 @@ Boolean ConvertLatLongToPolarStereographic (
 
 	return (TRUE);
 
-}		// end "ConvertLatLongToPolarStereographic"
+}	// end "ConvertLatLongToPolarStereographic"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToSinusoidal
+//	Function name:		Boolean ConvertLatLongToSinusoidal
 //
-//	Software purpose:			This routine handles a conversions from Latitude/Longitude
-//									so Sinusoidal meter values.
+//	Software purpose:	This routine handles a conversions from Latitude/Longitude
+//							so Sinusoidal meter values.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
 //
-//	Parameters out:	xCoordinateValuePtr - output Sinusoidal horizontal meter coordinate	
-//							yCoordinateValuePtr - output Sinusoidal vertical meter coordinate
+//	Parameters out:	xCoordinateValuePtr -
+//												output Sinusoidal horizontal meter coordinate
+//							yCoordinateValuePtr -
+//												output Sinusoidal vertical meter coordinate
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2006
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
@@ -2728,7 +2730,8 @@ Boolean ConvertLatLongToSinusoidal (
 	cosLat = cos (lat);
 	sinLat = sin (lat);
 	
-	longitudeCentralMeridian = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
+	longitudeCentralMeridian =
+							mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
 	
 			// Get Datum Constants
 			
@@ -2762,21 +2765,21 @@ Boolean ConvertLatLongToSinusoidal (
    
    return (TRUE);
 			
-}		// end "ConvertLatLongToSinusoidal"
+}	// end "ConvertLatLongToSinusoidal"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToTransverseMercator
+//	Function name:		Boolean ConvertLatLongToTransverseMercator
 //
-//	Software purpose:			This routine handles a conversions from UTM meter
-//									values to latitude and longitude.  This routine is based
-//									on code at a web site by Steven Dutch of the University of
-//									Wisconsin.	
+//	Software purpose:	This routine handles a conversions from UTM meter
+//							values to latitude and longitude.  This routine is based
+//							on code at a web site by Steven Dutch of the University of
+//							Wisconsin.
 //
 //	Parameters in:		xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
@@ -2786,7 +2789,9 @@ Boolean ConvertLatLongToSinusoidal (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Dan Steinwand			Date: 03/18/2005
 //	Revised By:			Larry L. Biehl			Date: 03/19/2005			
@@ -2804,32 +2809,32 @@ Boolean ConvertLatLongToTransverseMercator (
 																							return (FALSE);
 
 	return (ConvertLatLongToTransverseMercator (
-					xCoordinateValuePtr, 
-					yCoordinateValuePtr,
-					mapProjectionInfoPtr->geodetic.semiMajorAxis,
-					mapProjectionInfoPtr->geodetic.semiMinorAxis,
-					mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian,
-					mapProjectionInfoPtr->geodetic.eSquared,
-					mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian,
-					mapProjectionInfoPtr->gridCoordinate.falseEasting,
-					mapProjectionInfoPtr->gridCoordinate.falseNorthing,
-					mapProjectionInfoPtr->geodetic.M0));
+						xCoordinateValuePtr,
+						yCoordinateValuePtr,
+						mapProjectionInfoPtr->geodetic.semiMajorAxis,
+						mapProjectionInfoPtr->geodetic.semiMinorAxis,
+						mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian,
+						mapProjectionInfoPtr->geodetic.eSquared,
+						mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian,
+						mapProjectionInfoPtr->gridCoordinate.falseEasting,
+						mapProjectionInfoPtr->gridCoordinate.falseNorthing,
+						mapProjectionInfoPtr->geodetic.M0));
 
-}		// end "ConvertLatLongToTransverseMercator"
+}	// end "ConvertLatLongToTransverseMercator"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertLatLongToTransverseMercator
+//	Function name:		Boolean ConvertLatLongToTransverseMercator
 //
-//	Software purpose:			This routine handles a conversions from UTM meter
-//									values to latitude and longitude.  This routine is based
-//									on code at a web site by Steven Dutch of the University of
-//									Wisconsin.	
+//	Software purpose:	This routine handles a conversions from UTM meter
+//							values to latitude and longitude.  This routine is based
+//							on code at a web site by Steven Dutch of the University of
+//							Wisconsin.
 //
 //	Parameters in:		xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
@@ -2839,7 +2844,9 @@ Boolean ConvertLatLongToTransverseMercator (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertLatLongPointToMapPoint
+//							ConvertLatLongRectToMapRect
+//							LoadHDF4DataSetInformation in SReadHDF4Header
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2005
 //	Revised By:			Larry L. Biehl			Date: 03/19/2005			
@@ -2857,7 +2864,7 @@ Boolean ConvertLatLongToTransverseMercator (
 				double								M0)
 
 {
-/*
+	/*
 	double								a,
 											A0,
 											b,
@@ -2961,7 +2968,7 @@ Boolean ConvertLatLongToTransverseMercator (
 	
 			// Calculation Constants
 	p = (*xCoordinateValuePtr-longitudeCentralMeridian)*(double)3600/10000;
-//	p = (*xCoordinateValuePtr-longitudeCentralMeridian) * kDegreesToRadians;
+	//p = (*xCoordinateValuePtr-longitudeCentralMeridian) * kDegreesToRadians;
 	pTo2 = p*p;
 	pTo4 = pTo2 * pTo2;
 	sin1 = kPI/(180*3600);
@@ -2982,7 +2989,7 @@ Boolean ConvertLatLongToTransverseMercator (
 	K4 = nu*cosLat*sin1*k0*10000;
 	K5 = (sin1*sin1to2*cosLat*cosLatTo2)*(nu/6)*(1-tanLatTo2+ePrimedSquared*cosLatTo2)*k0*((double)(1E+12));
 	
-//	A6 = (pTo2*pTo4*sin1to2*sin1to4*nu*sinLat*cosLatTo2*cosLatTo3/720)*(61-58*tanLatTo2+tanLatTo2*tanLatTo2+270*ePrimedSquared*cosLatTo2-330*ePrimedSquared*sinLat*sinLat)*k0*(1E+24);
+	//A6 = (pTo2*pTo4*sin1to2*sin1to4*nu*sinLat*cosLatTo2*cosLatTo3/720)*(61-58*tanLatTo2+tanLatTo2*tanLatTo2+270*ePrimedSquared*cosLatTo2-330*ePrimedSquared*sinLat*sinLat)*k0*(1E+24);
 
 	K1 = S*k0;
 	K2 = nu*sinLat*cosLat*sin1to2*k0/2;
@@ -2993,14 +3000,14 @@ Boolean ConvertLatLongToTransverseMercator (
 			// Now get Northing and Easting
 			   
    *yCoordinateValuePtr = K1 + K2*pTo2 + K3*pTo4;
-//   *yCoordinateValuePtr = p*(K4+ K5*pTo2);
+	// *yCoordinateValuePtr = p*(K4+ K5*pTo2);
    if (lat < 0)
    	*yCoordinateValuePtr += (double)10000000;
    	
    *xCoordinateValuePtr = falseEasting + p*(K4+ K5*pTo2);
-//   *xCoordinateValuePtr = falseEasting + K1 + K3*pTo2 + K3*pTo4;
+	// *xCoordinateValuePtr = falseEasting + K1 + K3*pTo2 + K3*pTo4;
 
-*/
+	*/
 			// Using formula on Page 61 of Snyder's Map Projections - Working Manual
 
 	double								a,
@@ -3025,6 +3032,7 @@ Boolean ConvertLatLongToTransverseMercator (
 											Tto2;
 			
 			// Get input lat-long
+	
 	lat = *yCoordinateValuePtr * kDegreesToRadians;
 	cosLat = cos (lat);
 	sinLat = sin (lat);
@@ -3074,17 +3082,17 @@ Boolean ConvertLatLongToTransverseMercator (
 			// Now get the Northing
 			   
    *yCoordinateValuePtr = falseNorthing + k0*(M - M0 + N*tanLat*(Q3 + Q4));
-//   if (lat < 0)
-//   	*yCoordinateValuePtr += (double)10000000;
+	//if (lat < 0)
+	//	*yCoordinateValuePtr += (double)10000000;
    
    return (TRUE);
 			
-}		// end "ConvertLatLongToTransverseMercator"
+}	// end "ConvertLatLongToTransverseMercator"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3099,10 +3107,10 @@ Boolean ConvertLatLongToTransverseMercator (
 //
 // Value Returned:	None
 // 
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
-//							DrawCursorCoordinates in SMapTran.cpp
-//							WriteKMLFile in SSaveWrt.cpp
-//							ListFieldData in SLstData.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
+//							DrawCursorCoordinates in SMapCoordinates.cpp
+//							WriteKMLFile in SSaveWrite.cpp
+//							ListFieldData in SListData.cpp
 //							ReprojectNearestNeighborLineColumn in SRectification.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/2006
@@ -3157,48 +3165,48 @@ Boolean ConvertMapPointToLatLongPoint (
 					
 	else if (projectionCode == kOrthographicCode)
 		validPointFlag = ConvertOrthographicToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);
 					
 	else if (projectionCode == kCylindricalEqualAreaCode)
 		validPointFlag = ConvertCylindricalEqualAreaToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);	
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);	
 					
 	else if (projectionCode == kMercatorCode)		
 		validPointFlag = ConvertMercatorToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);
 					
 	else if (projectionCode == kSinusoidalCode)
 		validPointFlag = ConvertSinusoidalToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);
 					
 	else if (projectionCode == kKrovakCode)
 		validPointFlag = ConvertKrovakToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);
 					
 	else if (projectionCode == kPolarStereographicCode)
 		validPointFlag = ConvertPolarStereographicToLatLong (
-													mapProjectionInfoPtr,
-													&coordinatePointPtr->h, 
-													&coordinatePointPtr->v);
+														mapProjectionInfoPtr,
+														&coordinatePointPtr->h, 
+														&coordinatePointPtr->v);
 													
 	return (validPointFlag);
 		
-}		// end "ConvertMapPointToLatLongPoint" 
+}	// end "ConvertMapPointToLatLongPoint" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3231,13 +3239,13 @@ void ConvertMapRectByGivenFactor (
 		coordinateRectPtr->right *= factor;
 		coordinateRectPtr->bottom *= factor;
 		
-		}		// end "if (factor != 1)"
+		}	// end "if (factor != 1)"
 			
-}		// end "ConvertMapRectByGivenFactor" 
+}	// end "ConvertMapRectByGivenFactor" 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3277,12 +3285,12 @@ void ConvertMapRectToLatLongRect (
 												projectionCode,
 												coordinateRectanglePtr);
 
-}		// end "ConvertMapRectToLatLongRect" 
+}	// end "ConvertMapRectToLatLongRect" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3317,29 +3325,29 @@ void ConvertMapRectToLatLongRect (
 															&coordinateRectanglePtr->right, 
 															&coordinateRectanglePtr->bottom);
 		
-		}		// end "if (projectionCode == kTransverseMercatorCode)"
+		}	// end "if (projectionCode == kTransverseMercatorCode)"
 		
 	else if (projectionCode == kAlbersConicalEqualAreaCode)
 		{
 		ConvertAlbersEqualAreaToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->left, 
-																	&coordinateRectanglePtr->top);
+														&coordinateRectanglePtr->left,
+														&coordinateRectanglePtr->top);
 		ConvertAlbersEqualAreaToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->right, 
-																	&coordinateRectanglePtr->bottom);
+														&coordinateRectanglePtr->right,
+														&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+		}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 		
 	else if (projectionCode == kEquirectangularCode)
 		{
 		ConvertEquirectangularToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->left, 
-																	&coordinateRectanglePtr->top);
+														&coordinateRectanglePtr->left,
+														&coordinateRectanglePtr->top);
 		ConvertEquirectangularToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->right, 
-																	&coordinateRectanglePtr->bottom);
+														&coordinateRectanglePtr->right,
+														&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kEquirectangularCode)"
+		}	// end "else if (projectionCode == kEquirectangularCode)"
 		
 	else if (projectionCode == kLambertAzimuthalEqualAreaCode)
 		{
@@ -3350,18 +3358,18 @@ void ConvertMapRectToLatLongRect (
 																	&coordinateRectanglePtr->right, 
 																	&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+		}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 		
 	else if (projectionCode == kLambertConformalConicCode)
 		{
 		ConvertLambertConformalConicToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->left, 
-																	&coordinateRectanglePtr->top);
+															&coordinateRectanglePtr->left,
+															&coordinateRectanglePtr->top);
 		ConvertLambertConformalConicToLatLong (mapProjectionInfoPtr,
-																	&coordinateRectanglePtr->right, 
-																	&coordinateRectanglePtr->bottom);
+															&coordinateRectanglePtr->right,
+															&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
+		}	// end "else if (projectionCode == kLambertAzimuthalEqualAreaCode)"
 					
 	else if (projectionCode == kOrthographicCode)
 		{
@@ -3372,7 +3380,7 @@ void ConvertMapRectToLatLongRect (
 													&coordinateRectanglePtr->right, 
 													&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kOrthographicCode)"
+		}	// end "else if (projectionCode == kOrthographicCode)"
 					
 	else if (projectionCode == kCylindricalEqualAreaCode)
 		{
@@ -3383,7 +3391,7 @@ void ConvertMapRectToLatLongRect (
 															&coordinateRectanglePtr->right, 
 															&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kCylindricalEqualAreaCode)"	
+		}	// end "else if (projectionCode == kCylindricalEqualAreaCode)"	
 					
 	else if (projectionCode == kMercatorCode)
 		{	
@@ -3394,7 +3402,7 @@ void ConvertMapRectToLatLongRect (
 												&coordinateRectanglePtr->right, 
 												&coordinateRectanglePtr->bottom);
 																	
-		}		// end "else if (projectionCode == kMercatorCode)"	
+		}	// end "else if (projectionCode == kMercatorCode)"	
 					
 	else if (projectionCode == kSinusoidalCode)
 		{
@@ -3405,7 +3413,7 @@ void ConvertMapRectToLatLongRect (
 												&coordinateRectanglePtr->right, 
 												&coordinateRectanglePtr->bottom);
 															
-		}		// end "else if (projectionCode == kSinusoidalCode)"
+		}	// end "else if (projectionCode == kSinusoidalCode)"
 					
 	else if (projectionCode == kKrovakCode)
 		{
@@ -3416,36 +3424,36 @@ void ConvertMapRectToLatLongRect (
 											&coordinateRectanglePtr->right, 
 											&coordinateRectanglePtr->bottom);
 															
-		}		// end "else if (projectionCode == kKrovakCode)"
+		}	// end "else if (projectionCode == kKrovakCode)"
 					
 	else if (projectionCode == kPolarStereographicCode)
 		{
 		ConvertPolarStereographicToLatLong (mapProjectionInfoPtr,
-											&coordinateRectanglePtr->left, 
-											&coordinateRectanglePtr->top);
+														&coordinateRectanglePtr->left,
+														&coordinateRectanglePtr->top);
 		ConvertPolarStereographicToLatLong (mapProjectionInfoPtr,
-											&coordinateRectanglePtr->right, 
-											&coordinateRectanglePtr->bottom);
+														&coordinateRectanglePtr->right,
+														&coordinateRectanglePtr->bottom);
 															
-		}		// end "else if (projectionCode == kKrovakCode)"
+		}	// end "else if (projectionCode == kKrovakCode)"
 		
-}		// end "ConvertMapRectToLatLongRect" 
+}	// end "ConvertMapRectToLatLongRect" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertMercatorToLatLong
+//	Function name:		Boolean ConvertMercatorToLatLong
 //
-//	Software purpose:			This routine handles conversions from Mercator meter values
-//									to latitude and longitude.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual. It is for the
-//									sphere.  An approximation is made for the ellipsoid. This
-//									needs to be changed in the future.	
+//	Software purpose:	This routine handles conversions from Mercator meter values
+//							to latitude and longitude.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual. It is for the
+//							sphere.  An approximation is made for the ellipsoid. This
+//							needs to be changed in the future.
 //
 //	Parameters in:		xCoordinateValuePtr - input Longitude	
 //							yCoordinateValuePtr - input Latitude	
@@ -3484,8 +3492,8 @@ Boolean ConvertMercatorToLatLong (
 	longitude = *xCoordinateValuePtr * kDegreesToRadians;
 	latitude = *yCoordinateValuePtr * kDegreesToRadians;
 	
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 		
 	*xCoordinateValuePtr = centerLongitude +
 					*xCoordinateValuePtr/mapProjectionInfoPtr->geodetic.radiusSpheroid;
@@ -3498,19 +3506,19 @@ Boolean ConvertMercatorToLatLong (
 		   
    return (returnFlag);
 			
-}		// end "ConvertMercatorToLatLong" 
+}	// end "ConvertMercatorToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertSinusoidalToLatLong
+//	Function name:		Boolean ConvertSinusoidalToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Sinusoidal meter 
-//									values to latitude/longitude values.
+//	Software purpose:	This routine handles a conversions from Sinusoidal meter
+//							values to latitude/longitude values.
 //
 //	Parameters in:		xCoordinateValuePtr - input Sinusoidal horizontal meter coordinate
 //							yCoordinateValuePtr - input Sinusoidal vertical meter coordinate
@@ -3520,7 +3528,8 @@ Boolean ConvertMercatorToLatLong (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2006
 //	Revised By:			Larry L. Biehl			Date: 06/30/2009			
@@ -3584,7 +3593,8 @@ Boolean ConvertSinusoidalToLatLong (
 	J2 = 21*e1To2/16 - 55*e1To4/32;
 	J3 = 151*e1To3/96;
 	J4 = 1097*e1To4/512;
-	*yCoordinateValuePtr = mu + J1*sin (2*mu) + J2*sin (4*mu) + J3*sin (6*mu) + J4*sin (8*mu);
+	*yCoordinateValuePtr =
+						mu + J1*sin (2*mu) + J2*sin (4*mu) + J3*sin (6*mu) + J4*sin (8*mu);
 	
 			// Calculate Longitude
 			
@@ -3593,48 +3603,48 @@ Boolean ConvertSinusoidalToLatLong (
 	sqrtOneMinusE2SinSquared = sqrt (1 - e2 * sinLat * sinLat);
 	
 	*xCoordinateValuePtr = long0 + *xCoordinateValuePtr * sqrtOneMinusE2SinSquared / 
-																									(a * cosLat);
+																								(a * cosLat);
    
    *yCoordinateValuePtr *= kRadiansToDegrees;
    *xCoordinateValuePtr *= kRadiansToDegrees;
 	   
    if (*xCoordinateValuePtr < -180)
-//		{
-//		if (*xCoordinateValuePtr < -180.5)
-//			*xCoordinateValuePtr += 360;
-//		
-//		if (*xCoordinateValuePtr < -180)
+		//{
+		//if (*xCoordinateValuePtr < -180.5)
+		//	*xCoordinateValuePtr += 360;
+		//		
+		//if (*xCoordinateValuePtr < -180)
 			*xCoordinateValuePtr = -180;
 		
-//		}		// end "if (*xCoordinateValuePtr < -180)"
+		//}	// end "if (*xCoordinateValuePtr < -180)"
 		
    else if (*xCoordinateValuePtr > 180)
-//		{
-//		if (*xCoordinateValuePtr > 180.5)
-//			*xCoordinateValuePtr -= 360;
-//		
-//		if (*xCoordinateValuePtr > 180)
+		//{
+		//if (*xCoordinateValuePtr > 180.5)
+		//	*xCoordinateValuePtr -= 360;
+		//		
+		//if (*xCoordinateValuePtr > 180)
 			*xCoordinateValuePtr = 180;
-		
-//		}		// end "else if (*xCoordinateValuePtr > 180)"
-   
+				
+		//}	// end "else if (*xCoordinateValuePtr > 180)"
+	
    return (TRUE);
 			
-}		// end "ConvertSinusoidalToLatLong"
+}	// end "ConvertSinusoidalToLatLong"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertTransverseMercatorToLatLong
+//	Function name:		Boolean ConvertTransverseMercatorToLatLong
 //
-//	Software purpose:			This routine handles a conversions from UTM meter
-//									values to latitude and longitude.  This routine is based
-//									on code at a web site by Steven Dutch of the University of
-//									Wisconsin.
+//	Software purpose:	This routine handles a conversions from UTM meter
+//							values to latitude and longitude.  This routine is based
+//							on code at a web site by Steven Dutch of the University of
+//							Wisconsin.
 //
 //	Parameters in:		xCoordinateValuePtr - input UTM horizontal meter coordinate	
 //							yCoordinateValuePtr - input UTM vertical meter coordinate	
@@ -3644,7 +3654,8 @@ Boolean ConvertSinusoidalToLatLong (
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Dan Steinwand			Date: 04/02/2004
 //	Revised By:			Larry L. Biehl			Date: 11/25/2009			
@@ -3708,7 +3719,7 @@ Boolean ConvertTransverseMercatorToLatLong (
 			// Convert UTM meters location to projection space meters and convert to 	
 			// lat/long. 					
 
-//   projectionXeasting =  *xCoordinateValuePtr - 500000;
+	//projectionXeasting =  *xCoordinateValuePtr - 500000;
    projectionXeasting =  
    			*xCoordinateValuePtr - mapProjectionInfoPtr->gridCoordinate.falseEasting;
    
@@ -3719,14 +3730,14 @@ Boolean ConvertTransverseMercatorToLatLong (
    projectionYnorthing = 
 				*yCoordinateValuePtr - mapProjectionInfoPtr->gridCoordinate.falseNorthing;
    		
-//	gridZone = mapProjectionInfoPtr->gridCoordinate.gridZone;
-//   if (gridZone < 0 && projectionYnorthing > 0)
-//   	projectionYnorthing -= mapProjectionInfoPtr->gridCoordinate.falseNorthing;
+	//gridZone = mapProjectionInfoPtr->gridCoordinate.gridZone;
+	//if (gridZone < 0 && projectionYnorthing > 0)
+	//	projectionYnorthing -= mapProjectionInfoPtr->gridCoordinate.falseNorthing;
    								
    		// Get the major and minor axes
    		
    a = mapProjectionInfoPtr->geodetic.semiMajorAxis;
-//	b = mapProjectionInfoPtr->geodetic.semiMinorAxis;
+	//b = mapProjectionInfoPtr->geodetic.semiMinorAxis;
 	long0 = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * 
 																						kDegreesToRadians;
 	
@@ -3734,10 +3745,10 @@ Boolean ConvertTransverseMercatorToLatLong (
 
 			// Calculate the Meridional Arc			
 
-//	e2 = 1 - b*b/(a*a);
+	//e2 = 1 - b*b/(a*a);
 	e2 = mapProjectionInfoPtr->geodetic.eSquared;
-//	e = sqrt (e2);
-//	k0 = 0.9996;
+	//e = sqrt (e2);
+	//k0 = 0.9996;
 	k0 = mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian;
 	M = mapProjectionInfoPtr->geodetic.M0 + projectionYnorthing/k0;
 	
@@ -3766,7 +3777,8 @@ Boolean ConvertTransverseMercatorToLatLong (
 	ePrimedSquared = e2/(1-e2);
 	C1 = ePrimedSquared*cosfp*cosfp;
 	T1 = tanfp*tanfp;
-	R1 = a*(1-e2)/(sqrtOneMinusE2SinSquared*sqrtOneMinusE2SinSquared*sqrtOneMinusE2SinSquared);
+	R1 = a*(1-e2) /
+			(sqrtOneMinusE2SinSquared*sqrtOneMinusE2SinSquared*sqrtOneMinusE2SinSquared);
 	N1 = a/sqrtOneMinusE2SinSquared;
 	D = projectionXeasting/(N1*k0);
 	
@@ -3794,36 +3806,40 @@ Boolean ConvertTransverseMercatorToLatLong (
 	   
    if (*xCoordinateValuePtr < -180)
    	*xCoordinateValuePtr += 360;
+	
    else if (*xCoordinateValuePtr > 180)
    	*xCoordinateValuePtr -= 360;
    
    return (TRUE);
 			
-}		// end "ConvertTransverseMercatorToLatLong" 
+}	// end "ConvertTransverseMercatorToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertOrthographicToLatLong
+//	Function name:		Boolean ConvertOrthographicToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Orthographic meter
-//									values to latitude and longitude.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.
+//	Software purpose:	This routine handles a conversions from Orthographic meter
+//							values to latitude and longitude.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
-//	Parameters in:		xCoordinateValuePtr - input Orthographic horizontal meter coordinate	
-//							yCoordinateValuePtr - input Orthographic vertical meter coordinate	
+//	Parameters in:		xCoordinateValuePtr -
+//												input Orthographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//												input Orthographic vertical meter coordinate
 //
 //	Parameters out:	xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2005
 //	Revised By:			Larry L. Biehl			Date: 02/22/2007			
@@ -3857,11 +3873,10 @@ Boolean ConvertOrthographicToLatLong (
 	xDistanceCoordinate = *xCoordinateValuePtr;
 	yDistanceCoordinate = *yCoordinateValuePtr;
 	
-	centerLatitude = 
-				mapProjectionInfoPtr->gridCoordinate.latitudeOrigin * kDegreesToRadians;
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
-	
+	centerLatitude = mapProjectionInfoPtr->gridCoordinate.latitudeOrigin *
+																						kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 	
 	p = sqrt (xDistanceCoordinate*xDistanceCoordinate + 
 											yDistanceCoordinate*yDistanceCoordinate);
@@ -3883,28 +3898,29 @@ Boolean ConvertOrthographicToLatLong (
 		     								
 			if (mapProjectionInfoPtr->gridCoordinate.latitudeOrigin == 90)
 				*xCoordinateValuePtr = centerLongitude + 
-														atan (xDistanceCoordinate/-yDistanceCoordinate);
+												atan (xDistanceCoordinate/-yDistanceCoordinate);
 			
 			else if (mapProjectionInfoPtr->gridCoordinate.latitudeOrigin == -90)
 				*xCoordinateValuePtr = centerLongitude + 
-														atan (xDistanceCoordinate/yDistanceCoordinate);
+												atan (xDistanceCoordinate/yDistanceCoordinate);
 			
-			else		// latitudeOrigin != +-90 degrees
+			else	// latitudeOrigin != +-90 degrees
 				{	
 				a = p*cosCenterLatitude*cosC - yDistanceCoordinate*sinCenterLatitude*sinC;
 				
-				*xCoordinateValuePtr = centerLongitude + atan (xDistanceCoordinate * sinC/a);
+				*xCoordinateValuePtr =
+										centerLongitude + atan (xDistanceCoordinate * sinC/a);
 					
-				}		// else latitudeOrigin != +-90 degrees
+				}	// else latitudeOrigin != +-90 degrees
 			
-			}		// end "if (p != 0)"
+			}	// end "if (p != 0)"
 		     								
-		else		// p == 0
+		else	// p == 0
 			{
 			*xCoordinateValuePtr = centerLongitude;
 			*yCoordinateValuePtr = centerLatitude;
 			
-			}		// end "else p == 0"
+			}	// end "else p == 0"
 	   
 	   *yCoordinateValuePtr *= kRadiansToDegrees;
 	   *xCoordinateValuePtr *= kRadiansToDegrees;
@@ -3916,42 +3932,45 @@ Boolean ConvertOrthographicToLatLong (
 	   
 	   return (TRUE);
 			
-		}		// end "if (p <= mapProjectionInfoPtr->geodetic.radiusSpheroid)"
+		}	// end "if (p <= mapProjectionInfoPtr->geodetic.radiusSpheroid)"
 		
-	else		// p > mapProjectionInfoPtr->geodetic.radiusSpheroid
+	else	// p > mapProjectionInfoPtr->geodetic.radiusSpheroid
 		{
 	   *xCoordinateValuePtr = -1000;
 	   *yCoordinateValuePtr = -1000;
 	   
 	   return (FALSE);
 		
-		}		// end "else p > mapProjectionInfoPtr->geodetic.radiusSpheroid"
+		}	// end "else p > mapProjectionInfoPtr->geodetic.radiusSpheroid"
 			
-}		// end "ConvertOrthographicToLatLong" 
+}	// end "ConvertOrthographicToLatLong" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:				Boolean ConvertPolarStereographicToLatLong
+//	Function name:		Boolean ConvertPolarStereographicToLatLong
 //
-//	Software purpose:			This routine handles a conversions from Polar Stereographic
-//									meter values to latitude and longitude.  This routine is based
-//									on code from John Snyder's Map Projections - A Working
-//									Manual.
+//	Software purpose:	This routine handles a conversions from Polar Stereographic
+//							meter values to latitude and longitude.  This routine is based
+//							on code from John Snyder's Map Projections - A Working
+//							Manual.
 //
-//	Parameters in:		xCoordinateValuePtr - input Orthographic horizontal meter coordinate	
-//							yCoordinateValuePtr - input Orthographic vertical meter coordinate	
+//	Parameters in:		xCoordinateValuePtr -
+//													input Orthographic horizontal meter coordinate
+//							yCoordinateValuePtr -
+//													input Orthographic vertical meter coordinate
 //
 //	Parameters out:	xCoordinateValuePtr - output Longitude	
 //							yCoordinateValuePtr - output Latitude	
 //
 // Value Returned:	None	
 //												
-// Called By:			UpdateCursorCoordinates in multiSpec.c
+// Called By:			ConvertMapPointToLatLongPoint
+//							ConvertMapRectToLatLongRect
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/2011
 //	Revised By:			Larry L. Biehl			Date: 12/07/2011			
@@ -3988,10 +4007,10 @@ Boolean ConvertPolarStereographicToLatLong (
 	xDistanceCoordinate = *xCoordinateValuePtr;
 	yDistanceCoordinate = *yCoordinateValuePtr;
 	
-	centerLatitude = 
-				mapProjectionInfoPtr->gridCoordinate.latitudeOrigin * kDegreesToRadians;
-	centerLongitude = 
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian * kDegreesToRadians;
+	centerLatitude = mapProjectionInfoPtr->gridCoordinate.latitudeOrigin *
+																						kDegreesToRadians;
+	centerLongitude = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian *
+																						kDegreesToRadians;
 		
 	e = mapProjectionInfoPtr->geodetic.e;
 	e4 = mapProjectionInfoPtr->geodetic.e4;
@@ -4008,15 +4027,18 @@ Boolean ConvertPolarStereographicToLatLong (
 		mcs = msfnz (e, sinphi, cosphi);
 		tcs = tsfnz (e, con1, sinphi);
 		
-		}		// end "if (fabs (fabs (longitudeCentralMeridian) - kHALF_PI) > kEPSLN)"
+		}	// end "if (fabs (fabs (longitudeCentralMeridian) - kHALF_PI) > kEPSLN)"
 	*/	
-	x = (xDistanceCoordinate - mapProjectionInfoPtr->gridCoordinate.falseEasting) * fac;
-	y = (yDistanceCoordinate - mapProjectionInfoPtr->gridCoordinate.falseNorthing) * fac;
+	x = (xDistanceCoordinate - mapProjectionInfoPtr->gridCoordinate.falseEasting) *
+																											fac;
+	y = (yDistanceCoordinate - mapProjectionInfoPtr->gridCoordinate.falseNorthing) *
+																											fac;
 	rh = sqrt (x*x + y*y);
 	
 	if (ind != 0)
 		ts = rh * mapProjectionInfoPtr->geodetic.tcs /
-				(mapProjectionInfoPtr->geodetic.semiMajorAxis * mapProjectionInfoPtr->geodetic.mcs);
+								(mapProjectionInfoPtr->geodetic.semiMajorAxis *
+																mapProjectionInfoPtr->geodetic.mcs);
 	else
 		ts = rh * e4/(mapProjectionInfoPtr->geodetic.semiMajorAxis * 2.0);
 	  
@@ -4026,24 +4048,26 @@ Boolean ConvertPolarStereographicToLatLong (
 		
 	if (rh == 0)
 		*xCoordinateValuePtr = fac * centerLongitude;
-	else
+	
+	else	// rh != 0
 		{
 		temp = atan2 (x, -y);
 		*xCoordinateValuePtr = adjust_lon (fac*temp + centerLongitude);
-		}
+		
+		}	// end "else rh != 0"
 	   
 	*yCoordinateValuePtr *= kRadiansToDegrees;
 	*xCoordinateValuePtr *= kRadiansToDegrees;
 		
 	return (TRUE);
 			
-}		// end "ConvertPolarStereographicToLatLong" 
+}	// end "ConvertPolarStereographicToLatLong" 
 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4104,7 +4128,7 @@ Boolean DetermineIfInverseLatLongPossible (
 			enableInverseLatLongUnitsMenuItemFlag = TRUE;
 		 
 		else if (projectionCode == kEquirectangularCode && 
-//							spheroidCode == kSphereEllipsoidCode &&
+							//spheroidCode == kSphereEllipsoidCode &&
 							spheroidCode != kNoEllipsoidDefinedCode &&
 														planarMapUnitsCode != kUnknownCode)
 			enableInverseLatLongUnitsMenuItemFlag = TRUE; 
@@ -4165,18 +4189,18 @@ Boolean DetermineIfInverseLatLongPossible (
 						mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0)
 				enableInverseLatLongUnitsMenuItemFlag = FALSE;
 			
-			}		// end "if (enableInverseLatLongUnitsMenuItemFlag)"
+			}	// end "if (enableInverseLatLongUnitsMenuItemFlag)"
 			
-		}		// end "if (mapProjectionInfoPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 	return (enableInverseLatLongUnitsMenuItemFlag);
 			
-}		// end "DetermineIfInverseLatLongPossible"
+}	// end "DetermineIfInverseLatLongPossible"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4296,18 +4320,18 @@ Boolean DetermineIfLatLongPossible (
 						mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0)
 				enableLatLongUnitsMenuItemFlag = FALSE;
 			
-			}		// end "if (enableLatLongUnitsMenuItemFlag)"
+			}	// end "if (enableLatLongUnitsMenuItemFlag)"
 			
-		}		// end "if (mapProjectionInfoPtr != NULL)"
+		}	// end "if (mapProjectionInfoPtr != NULL)"
 		
 	return (enableLatLongUnitsMenuItemFlag);
 			
-}		// end "DetermineIfLatLongPossible"
+}	// end "DetermineIfLatLongPossible"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4322,7 +4346,7 @@ Boolean DetermineIfLatLongPossible (
 //
 //	Value Returned:	None
 //
-// Called By:			LoadGeoKeyDirectory in SSaveWrt.cpp
+// Called By:			LoadGeoKeyDirectory in SSaveWrite.cpp
 //							ListMapParameters in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/10/2006
@@ -4373,11 +4397,6 @@ void GetProjectionParameters (
 	
 	switch (projectionCode)
 		{
-//		case kUTMCode:
-//		case kStatePlaneCode:
-//			if (!includeUTMFlag)
-//				break;
-			
 		case kAlaskaConformalCode:
 		case kMercatorCode:
 		case kPolyconicCode:
@@ -4441,7 +4460,7 @@ void GetProjectionParameters (
 			break;
 		
 		case kMollweideCode:
-//		case kSinusoidalCode:
+		//case kSinusoidalCode:
 		case kVanderGrintenICode:
 			*projCenterLongPtr = mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian;
 			*projFalseEastingPtr = mapProjectionInfoPtr->gridCoordinate.falseEasting;
@@ -4485,10 +4504,11 @@ void GetProjectionParameters (
 			*projStdParallel1Ptr = mapProjectionInfoPtr->gridCoordinate.standardParallel1;
 			break;
 		
-		}		// end "switch (projectionCode)"
+		}	// end "switch (projectionCode)"
 		
 			// The false easting and northing is always stored in meters for calculations.
-			// Convert to feet if that is what the planar units are in for interface to users.
+			// Convert to feet if that is what the planar units are in for interface to
+			// users.
 				
 	if (*projFalseEastingPtr != -9999)
 		ConvertMetersToFeet (mapProjectionInfoPtr->planarCoordinate.mapUnitsCode, 
@@ -4500,10 +4520,11 @@ void GetProjectionParameters (
 										projFalseOriginEastingPtr, 
 										projFalseOriginNorthingPtr);
 		
-}		// end "GetProjectionParameters" 
+}	// end "GetProjectionParameters" 
 
 
 
+//------------------------------------------------------------------------------------
 // Function to compute the constant small m which is the radius of
 //   a parallel of latitude, phi, divided by the semimajor axis.
 
@@ -4518,10 +4539,11 @@ double msfnz (
    con = eccent * sinphi;
    return ((cosphi / (sqrt (1.0 - con * con))));
       
-}		// end "msfnz"
+}	// end "msfnz"
 
 
 
+//------------------------------------------------------------------------------------
 // Function to compute phi1, the latitude for the inverse of the
 //   Albers Conical Equal-Area projection.
 
@@ -4541,7 +4563,8 @@ double phi1z (
 
    phi = asinz (.5 * qs);
    if (eccent < kEPSLN) 
-      return (phi);
+      																					return (phi);
+	
    eccnts = eccent * eccent; 
    for (i = 1; i <= 25; i++)
      {
@@ -4554,17 +4577,21 @@ double phi1z (
     	phi = phi + dphi;
     	if (fabs (dphi) <= 1e-7)
        	return (phi);
+			
       }
       
-//  p_error ("Convergence error","phi1z-conv");
-  *flag = 001;
-  return (0);		// ERROR
+	//p_error ("Convergence error","phi1z-conv");
+	*flag = 001;
+	return (0);		// ERROR
   
-}		// end "phi1z"
+}	// end "phi1z"
 
-/* Function to compute the latitude angle, phi2, for the inverse of the
-   Lambert Conformal Conic and Polar Stereographic projections.
-----------------------------------------------------------------*/
+
+
+//------------------------------------------------------------------------------------
+// Function to compute the latitude angle, phi2, for the inverse of the
+//  Lambert Conformal Conic and Polar Stereographic projections.
+
 double phi2z (
 				double								eccent,		// Spheroid eccentricity
 				double								ts,			// Constant value t
@@ -4591,26 +4618,29 @@ double phi2z (
 		if (fabs (dphi) <= .0000000001)
 																				return (phi);
 			
-		}		// end "for (i = 0; i <= 15; i++)"
+		}	// end "for (i = 0; i <= 15; i++)"
 		
 			// Convergence error
 			
   *flagPtr = 002;
   return (002);
   
-}		// end "phi2z"
+}	// end "phi2z"
 
 
 
-// Function to compute constant small q which is the radius of a 
+//------------------------------------------------------------------------------------
+// Function to compute constant small q which is the radius of a
 //   parallel of latitude, phi, divided by the semimajor axis. 
 
 double qsfnz (
 				double								eccent,
 				double								sinphi,
 				double								cosphi)
+				
 {
 	double 								con;
+
 
    if (eccent > 1.0e-7)
 		{
@@ -4622,14 +4652,15 @@ double qsfnz (
    else
      return (2.0 * sinphi);
    
-}		// end "qsfnz"
+}	// end "qsfnz"
 
 
 
+//------------------------------------------------------------------------------------
 // Function to return the sign of an argument
-//  ------------------------------------------
+
 int sign (
-				double 		x)
+				double 								x)
 								 
 {
 	if (x < 0.0) 
@@ -4638,25 +4669,28 @@ int sign (
 	else 
 		return (1);
 		
-}		// end "sign"
+}	// end "sign"
 
 
 
+//------------------------------------------------------------------------------------
 //		Function to compute the constant small t for use in the forward
 //   computations in the Lambert Conformal Conic and the Polar
 //   Stereographic projections.
-// --------------------------------------------------------------*/
+
 double tsfnz (
-				double eccent,	// Eccentricity of the spheroid
-				double phi,		// Latitude phi
-				double sinphi)	// Sine of the latitude
+				double 								eccent,	// Eccentricity of the spheroid
+				double 								phi,		// Latitude phi
+				double 								sinphi)	// Sine of the latitude
+
 {
-  double					con,
-							com;
-  
+	double								con,
+											com;
+	
+	
   con = eccent * sinphi;
   com = .5 * eccent; 
   con = pow (((1.0 - con) / (1.0 + con)),com);
   return (tan (.5 * (kHALF_PI - phi))/con);
   
-}		// end "tsfnz"
+}	// end "tsfnz"

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			05/03/2019
+//	Revision date:			11/09/2019
 //
 //	Language:				C
 //
@@ -23,13 +23,6 @@
 //								performance of the input features but ideally with
 //								significantly fewer.  Chulhee Lee developed the ideas for
 //								the decision boundary method and the code.
-//
-//	Functions in file:	Boolean	 			FeatureExtraction
-//								void		 			FeatureExtractionControl
-//								Boolean				FeatureExtractionDialog
-//								void 					FeatureExtractionDialogAlgorithm
-//								void 					FeatureExtractionDialogPreProcess
-//								Boolean	 			LoadFeatureExtractionSpecs
 //
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
@@ -43,7 +36,7 @@
 //
 //			VerifyProjectStatsUpToDate (in SProjectUtilities.cpp)*
 //			LoadClassPairWeightVector
-//			GetStatusDialog (in SDlgUtil.cpp)
+//			GetStatusDialog (in SDialogUtilities.cpp)
 //			ListHeaderInfo (in SStrings.cpp)
 //			CheckClassEnhancedStats (in SProjectUtilities.cpp)
 //			ListChannelsUsed (in SStrings.cpp)
@@ -52,67 +45,64 @@
 //			CheckNumberOfPixelsInClass (in SProjectUtilities.cpp)
 //
 //			FeatureExtraction
-//				GetMemoryForListTransformation (in SMatUtil.cpp)
+//				GetMemoryForListTransformation (in SMatrixUtilities.cpp)
 //				ListPPOptions
 //
-//				Preprocess (in SProjPur.cpp)
+//				Preprocess (in SProjectionPursuit.cpp)
 //
 //				ListFeatureExtractionOptions
 //				ListSpecifiedStringNumber (in SStrings.cpp)
 //				GetClassInfoStructure (in SProjectUtilities.cpp)
 //				AssignClassInfoMemory (in SProjectUtilities.cpp)
-//				GetIOBufferPointers (in SMemUtil.cpp)
+//				GetIOBufferPointers (in SMemoryUtilities.cpp)
 //				InitializeAreaDescription (in SUtilities.cpp)*
 //				GetTransformedClassCovarianceMatrix (in StatCom.cpp)
-//				GetTransformedMeanVector (in SMatUtil.cpp)
-//				CopySquareToTriangleMatrix (in SMatUtil.cpp)
-//				GetClassDataValues (in SPMatUtil.cpp)
-//				DisposeIOBufferPointers (in SMemUtil.cpp)
+//				GetTransformedMeanVector (in SMatrixUtilities.cpp)
+//				CopySquareToTriangleMatrix (in SMatrixUtilities.cpp)
+//				GetClassDataValues (in SProjectMatrixUtilities.cpp)
+//				DisposeIOBufferPointers (in SMemoryUtilities.cpp)
 //
-//				FS_quick_feature_extraction (SMul.cpp)
-//					FS_discriminant_analysis (SMul.cpp)
-//					FS_decision_boundary (SMul.cpp)
+//				FS_quick_feature_extraction (SFeatureExtractionMath.cpp)
+//					FS_discriminant_analysis (SFeatureExtractionMath.cpp)
+//					FS_decision_boundary (SFeatureExtractionMath.cpp)
 //
-//					NWFE (SMul.cpp)
-//						SetupMatrixInversionMemory (SPMatUtl.cpp)
+//					NWFE (SFeatureExtractionMath.cpp)
+//						SetupMatrixInversionMemory (SProjectMatrixUtilities.cpp)
 //						GetProjectClassWeightsIndex (in SProjectUtilities.cpp)
 //						GetTotalProbability (in SProjectUtilities.cpp)
-//						ZeroMatrix (SMatUtil.cpp)
+//						ZeroMatrix (SMatrixUtilities.cpp)
 //						NWFE_SumInvDistXLocalMean
 //							NWFE_GetLocalMean
-//							CheckSomeEvents (in multispec.c or CStubs.cpp)
+//							CheckSomeEvents (in MMultiSpec.c or SStubs.cpp)
 //
 //						NWFE_GetScatterMatrixWeight
 //						NWFE_AddToScatterMatrixForClass_i
 //						AddBxSymMatrixToSymMatrix
-//							CopyLowerToUpperSquareMatrix (SMatUtil.cpp)
+//							CopyLowerToUpperSquareMatrix (SMatrixUtilities.cpp)
 //
 //						RegularizeSymMatrix
-//							CopyLowerToUpperSquareMatrix (SMatUtil.cpp)
+//							CopyLowerToUpperSquareMatrix (SMatrixUtilities.cpp)
 //
-//						InvertSymmetricMatrix (SPMatUtl.cpp)
-//						MatrixMultiply (SMatUtil.cpp)
-//						CheckSomeEvents (in multispec.c or CStubs.cpp)
+//						InvertSymmetricMatrix (SProjectMatrixUtilities.cpp)
+//						MatrixMultiply (SMatrixUtilities.cpp)
+//						CheckSomeEvents (in MMultiSpec.c or SStubs.cpp)
 //						MatlabEigFunction
-//						ReleaseMatrixInversionMemory (SPMatUtl.cpp)
+//						ReleaseMatrixInversionMemory (SProjectMatrixUtilities.cpp)
 //
-//				MatrixMultiply (in SMatUtil.cpp)
-//				BlockMoveData (CStubs.cpp)
-//				GetClassMeanVector (in SStatCom.cpp)
+//				MatrixMultiply (in SMatrixUtilities.cpp)
+//				BlockMoveData (SStubs.cpp)
+//				GetClassMeanVector (in SProjectComputeStatistics.cpp)
 //				GetTranformationFeatureMeans
 //				ReleaseClassInfoMemory (in SProjectUtilities.cpp)
-//				ListTransformationInformation (in SMatUtil.cpp)
-//				SaveTransformationMatrix (in SMatUtil.cpp)
+//				ListTransformationInformation (in SMatrixUtilities.cpp)
+//				SaveTransformationMatrix (in SMatrixUtilities.cpp)
 //
 //			ListCPUTimeInformation (in SStrings.cpp)
-//			UpdateOutputWScrolls (in controls.c and)
-//			CloseStatusDialog (in SDlgUtil.cpp)
+//			UpdateOutputWScrolls (in MControls.c and)
+//			CloseStatusDialog (in SDialogUtilities.cpp)
 //			MInitCursor (in SUtility.cpp)
-//			CheckAndUnlockHandle (in SMemUtil.cpp)
+//			CheckAndUnlockHandle (in SMemoryUtilities.cpp)
 //			UnlockProjectWindowInfoHandles (in SProject.cpp)
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*	
 			Template used for debugging.
@@ -125,12 +115,10 @@
 
 #include "SMultiSpec.h"    
 
-#if defined multispec_lin
-	#include	"SMultiSpec.h"
-	
-	#include "LFeatureExtractionDialog.h"
-	#include "LProjectionPursuitDialog.h"
-#endif	// defined multispec_lin 
+#if defined multispec_wx
+	#include "xFeatureExtractionDialog.h"
+	#include "xProjectionPursuitDialog.h"
+#endif	// defined multispec_wx 
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_WeightsPrompt				8
@@ -199,7 +187,7 @@ Boolean	 			LoadFeatureExtractionSpecs (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -241,7 +229,7 @@ PascalVoid DrawFEAlgorithmPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -282,7 +270,7 @@ PascalVoid DrawPreprocessingPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -403,9 +391,9 @@ Boolean FeatureExtraction (void)
 				continueFlag = Preprocess (); 
 			#endif	// defined multispec_mac
 									
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				continueFlag = Preprocess ();
-			#endif	// defined multispec_win  || defined multispec_lin
+			#endif	// defined multispec_win  || defined multispec_wx
 			
 			}	// end "if (...->preprocessCode == kComputeNew)"
 			
@@ -473,7 +461,7 @@ Boolean FeatureExtraction (void)
 				// Get memory for the structure which contains pointers to the 	
 				// class statistics and data values.	
 				
-		classInfoPtr = GetClassInfoStructure	(
+		classInfoPtr = GetClassInfoStructure (
 												(UInt16)gFeatureExtractionSpecsPtr->numberClasses);
 		continueFlag = (classInfoPtr != NULL);
 		
@@ -503,7 +491,7 @@ Boolean FeatureExtraction (void)
 		//if (gFeatureExtractionSpecsPtr->algorithmCode != kNonparametricWeighted)
 		//	meanCode = kAssignMemory+kNumberChannels;
 		
-		continueFlag = AssignClassInfoMemory (	
+		continueFlag = AssignClassInfoMemory (
 											classInfoPtr,
 											classPtr, 
 											(SInt32)numberClasses,
@@ -535,7 +523,7 @@ Boolean FeatureExtraction (void)
 		{	
 		ShowStatusDialogItemSet (kStatusTitle2);
 		HideDialogItem (gStatusDialogPtr, IDC_Status22);
-		LoadDItemStringNumber (	kFeatureExtractStrID, 
+		LoadDItemStringNumber (kFeatureExtractStrID, 
 										IDS_FeatureExtract12,
 										gStatusDialogPtr, 
 										IDC_Status21, 
@@ -859,14 +847,15 @@ Boolean FeatureExtraction (void)
 		
 				// Save the new transformation matrix information.							
 				
-		continueFlag = SaveTransformationMatrix (2, 
-										gFeatureExtractionSpecsPtr->eigenVectorHandle,
-										gFeatureExtractionSpecsPtr->eigenValueHandle,
-										gFeatureExtractionSpecsPtr->channelsHandle,
-										preProcBandGroupingHandle,
-										gFeatureExtractionSpecsPtr->numberChannels,
-										(UInt16)numberFEFeatures);
-			
+		continueFlag = SaveTransformationMatrix (
+													2,
+													gFeatureExtractionSpecsPtr->eigenVectorHandle,
+													gFeatureExtractionSpecsPtr->eigenValueHandle,
+													gFeatureExtractionSpecsPtr->channelsHandle,
+													preProcBandGroupingHandle,
+													gFeatureExtractionSpecsPtr->numberChannels,
+													(UInt16)numberFEFeatures);
+		
 		}	// end "if (continueFlag)"
 			
 			// Dispose of the buffer used to list a line of information.																			
@@ -893,7 +882,7 @@ Boolean FeatureExtraction (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1063,7 +1052,8 @@ void FeatureExtractionControl (void)
 						// If enhanced statistics to be used, verify that they exist 
 						// for the requested classes. If not list a message.
 				
-				if (continueFlag && gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats)
+				if (continueFlag &&
+										gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats)
 					continueFlag = CheckClassEnhancedStats (
 								gFeatureExtractionSpecsPtr->numberClasses,
 								classPtr); 
@@ -1194,7 +1184,7 @@ void FeatureExtractionControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1512,10 +1502,10 @@ Boolean FeatureExtractionDialog (void)
 							HiliteControl ((ControlHandle)okHandle, 255);
 							
 							gInterClassWeightsSelection = ClassPairWeightsDialog (
-													(UInt16)gProjectInfoPtr->numberStatisticsClasses,
-													(SInt16**)&localClassPairWeightsListPtr,
-													gInterClassWeightsSelection,
-													&localDefaultClassPairWeight);
+												(UInt16)gProjectInfoPtr->numberStatisticsClasses,
+												(SInt16**)&localClassPairWeightsListPtr,
+												gInterClassWeightsSelection,
+												&localDefaultClassPairWeight);
 							
 							HiliteControl ((ControlHandle)okHandle, 0);
 									
@@ -1534,7 +1524,8 @@ Boolean FeatureExtractionDialog (void)
 						
 					case 12:		// check box for "special options" 
 						specialOptionsFlag = !specialOptionsFlag;
-						SetControlValue ((ControlHandle)theHandle, (SInt16)specialOptionsFlag);
+						SetControlValue (
+										(ControlHandle)theHandle, (SInt16)specialOptionsFlag);
 						updateSpecialOptionsFlag = TRUE;
 						break;
 						
@@ -1797,7 +1788,7 @@ Boolean FeatureExtractionDialog (void)
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMFeatureExtractionDialog*		dialogPtr = NULL;
 		
 		try
@@ -1814,7 +1805,7 @@ Boolean FeatureExtractionDialog (void)
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (returnFlag);
 
@@ -1839,7 +1830,7 @@ void FeatureExtractionDialogAlgorithm (
 		{
 		SetDLogControlHilite (dialogPtr, IDC_SpecialOptions, 0);
 		ShowDialogItem (dialogPtr, IDC_WeightsPrompt); 
-		ShowDialogItem (dialogPtr, IDC_WeightsCombo);
+		ShowDialogItem (dialogPtr, IDC_WeightCombo);
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsPrompt); 
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsCombo);
 		
@@ -1849,7 +1840,7 @@ void FeatureExtractionDialogAlgorithm (
 		{
 		SetDLogControlHilite (dialogPtr, IDC_SpecialOptions, 0);
 		ShowDialogItem (dialogPtr, IDC_WeightsPrompt); 
-		ShowDialogItem (dialogPtr, IDC_WeightsCombo);
+		ShowDialogItem (dialogPtr, IDC_WeightCombo);
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsPrompt); 
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsCombo);
 		
@@ -1858,7 +1849,7 @@ void FeatureExtractionDialogAlgorithm (
 	else if (algorithmCode == kDiscriminantAnalysis)
 		{
 		SetDLogControlHilite (dialogPtr, IDC_SpecialOptions, 255); 
-		ShowDialogItem (dialogPtr, IDC_WeightsPrompt); 
+		ShowDialogItem (dialogPtr, IDC_WeightPrompt);
 		ShowDialogItem (dialogPtr, IDC_WeightsCombo); 
 		HideDialogItem (dialogPtr, IDC_ClassPairWeightsPrompt); 
 		HideDialogItem (dialogPtr, IDC_ClassPairWeightsCombo);
@@ -1869,7 +1860,7 @@ void FeatureExtractionDialogAlgorithm (
 		{
 		SetDLogControlHilite (dialogPtr, IDC_SpecialOptions, 255); 
 		HideDialogItem (dialogPtr, IDC_WeightsPrompt); 
-		HideDialogItem (dialogPtr, IDC_WeightsCombo); 
+		HideDialogItem (dialogPtr, IDC_WeightCombo);
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsPrompt); 
 		ShowDialogItem (dialogPtr, IDC_ClassPairWeightsCombo);
 		
@@ -1879,7 +1870,7 @@ void FeatureExtractionDialogAlgorithm (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2026,7 +2017,7 @@ void FeatureExtractionDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2117,30 +2108,30 @@ void FeatureExtractionDialogOK (
 			// Classes
 			
 	LoadProcessorVectorsFromDialogLocalVectors (
-									channelSelection,
-									FALSE,
-									gProjectInfoPtr->numberStatisticsChannels,
-									localNumberFeatures,
-									localFeaturesPtr,
-									&featureExtractionSpecsPtr->channelSet,
-									&featureExtractionSpecsPtr->numberChannels,
-									featureExtractionSpecsPtr->featureHandle,
-									&featureExtractionSpecsPtr->numberChannels,
-									featureExtractionSpecsPtr->channelsHandle,
-									classSelection,
-									localNumberClasses,
-									localClassPtr,
-									&featureExtractionSpecsPtr->classSet,
-									&featureExtractionSpecsPtr->numberClasses,
-									featureExtractionSpecsPtr->classHandle,
-									0,
-									NULL,
-									NULL,
-									NULL,
-									interClassWeightsSelection,
-									localClassPairWeightsListPtr,
-									&gProjectInfoPtr->classPairWeightSet);
-									
+												channelSelection,
+												FALSE,
+												gProjectInfoPtr->numberStatisticsChannels,
+												localNumberFeatures,
+												localFeaturesPtr,
+												&featureExtractionSpecsPtr->channelSet,
+												&featureExtractionSpecsPtr->numberChannels,
+												featureExtractionSpecsPtr->featureHandle,
+												&featureExtractionSpecsPtr->numberChannels,
+												featureExtractionSpecsPtr->channelsHandle,
+												classSelection,
+												localNumberClasses,
+												localClassPtr,
+												&featureExtractionSpecsPtr->classSet,
+												&featureExtractionSpecsPtr->numberClasses,
+												featureExtractionSpecsPtr->classHandle,
+												0,
+												NULL,
+												NULL,
+												NULL,
+												interClassWeightsSelection,
+												localClassPairWeightsListPtr,
+												&gProjectInfoPtr->classPairWeightSet);
+	
 			// List Transformation Matrix flag.									
 					
 	featureExtractionSpecsPtr->listTransformationFlag = listTransformationFlag;
@@ -2158,7 +2149,7 @@ void FeatureExtractionDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2206,7 +2197,7 @@ void FeatureExtractionDialogOptimizeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2248,7 +2239,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 			HideDialogItems (dialogPtr, 13, 23);
 		#endif	// defined multispec_mac
 									
-		#if defined multispec_win  || defined multispec_lin
+		#if defined multispec_win  || defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_WithinClassThresholdPrompt); 
 			HideDialogItem (dialogPtr, IDC_WithinClassThreshold); 
 			HideDialogItem (dialogPtr, IDC_InterclassThresholdPrompt); 
@@ -2277,7 +2268,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 			ShowDialogItems (dialogPtr, 22, 23);
 		#endif	// defined multispec_mac
 									
-		#if defined multispec_win   || defined multispec_lin
+		#if defined multispec_win   || defined multispec_wx
 			ShowDialogItem (dialogPtr, IDC_WithinClassThresholdPrompt); 
 			ShowDialogItem (dialogPtr, IDC_WithinClassThreshold); 
 			ShowDialogItem (dialogPtr, IDC_InterclassThresholdPrompt); 
@@ -2290,7 +2281,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 				
 			ShowDialogItem (dialogPtr, IDC_MaxPixelsPrompt);      
 			ShowDialogItem (dialogPtr, IDC_MaxPixels); 
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 			
 		SelectDialogItemText (dialogPtr, IDC_WithinClassThreshold, 0, (SInt16)SInt16_MAX);
 		
@@ -2301,7 +2292,7 @@ void FeatureExtractionDialogUpdateSpecialOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2389,7 +2380,7 @@ void GetTranformationFeatureMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2523,7 +2514,7 @@ Boolean ListFeatureExtractionOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2820,7 +2811,7 @@ Boolean LoadFeatureExtractionSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3065,7 +3056,7 @@ Boolean ListPPOptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3241,7 +3232,8 @@ Boolean ProjectionPursuitDialog (void)
 					case 12:		// uniform grouping
 					case 13:		// previous final grouping
 						initialGroupingCode = (itemHit-11);
-						ProjectionPursuitDialogInitialGrouping (dialogPtr, initialGroupingCode);
+						ProjectionPursuitDialogInitialGrouping (
+																	dialogPtr, initialGroupingCode);
 						break;			
 						
 					case 14:		// initial number of features
@@ -3249,14 +3241,16 @@ Boolean ProjectionPursuitDialog (void)
 							NumberErrorAlert (initialNumberFeatures, 
 													dialogPtr, 
 													itemHit);
-						if (theNum > 0 && theNum <= gProjectInfoPtr->numberStatisticsChannels)
+						if (theNum > 0 &&
+											theNum <= gProjectInfoPtr->numberStatisticsChannels)
 							initialNumberFeatures = theNum;
 						break;
 						
 					case 18:		// maximum number features
 						if (theNum > gProjectInfoPtr->numberStatisticsChannels)
 							NumberErrorAlert (maximumNumberFeatures, dialogPtr, itemHit);
-						if (theNum > 0 && theNum <= gProjectInfoPtr->numberStatisticsChannels)
+						if (theNum > 0 &&
+											theNum <= gProjectInfoPtr->numberStatisticsChannels)
 							maximumNumberFeatures = theNum;
 						break;
 						
@@ -3288,7 +3282,8 @@ Boolean ProjectionPursuitDialog (void)
 							NumberErrorAlert (bothOddChoicesNumberFeatures,
 													dialogPtr, 
 													itemHit);
-						if (theNum >= 0 && theNum <= gProjectInfoPtr->numberStatisticsChannels)
+						if (theNum >= 0 &&
+											theNum <= gProjectInfoPtr->numberStatisticsChannels)
 							bothOddChoicesNumberFeatures = theNum;
 						break;
 							
@@ -3313,29 +3308,7 @@ Boolean ProjectionPursuitDialog (void)
 															bottomUpThreshold,
 															maximumNumberFeatures,
 															bothOddChoicesNumberFeatures);
-					/*
-					projectionPursuitSpecsPtr->algorithm = algorithmCode;
-					
-					projectionPursuitSpecsPtr->numericalOptimizationFlag =
-																		numericalOptimizationFlag;
-					
-					projectionPursuitSpecsPtr->optimizationThreshold = optimizeThreshold;
-					
-					projectionPursuitSpecsPtr->initialGroupingCode = initialGroupingCode;
-					
-					projectionPursuitSpecsPtr->initialNumberFeatures = initialNumberFeatures;
-					
-					projectionPursuitSpecsPtr->maximumNumberFeatures = maximumNumberFeatures;
-		
-					projectionPursuitSpecsPtr->firstStageMethod = firstStageMethod;
-			
-					projectionPursuitSpecsPtr->tdThreshold = topDownThreshold;
-			
-					projectionPursuitSpecsPtr->buThreshold = bottomUpThreshold;
-					
-					projectionPursuitSpecsPtr->bothOddChoicesNumberFeatures = 
-																		bothOddChoicesNumberFeatures; 
-					*/
+
 					returnFlag = TRUE;
 
 					}	// end if (itemHit == 1) 
@@ -3375,7 +3348,7 @@ Boolean ProjectionPursuitDialog (void)
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		returnFlag = FALSE;            
 	
 		CMProjectionPursuitDialog*		dialogPtr = NULL;
@@ -3393,7 +3366,7 @@ Boolean ProjectionPursuitDialog (void)
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}						
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	return (returnFlag);
 
@@ -3402,7 +3375,7 @@ Boolean ProjectionPursuitDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3497,7 +3470,7 @@ void ProjectionPursuitDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3694,10 +3667,6 @@ void ProjectionPursuitDialogFSOptions (
 				SInt16								firstStageMethod)
 
 {	
-	//SetDLogControlHilite (dialogPtr, 15, 0);
-	//SetDLogControlHilite (dialogPtr, 16, 0);
-	//SetDLogControlHilite (dialogPtr, 17, 0);
-	
 	ProjectionPursuitDialogFSMethod (dialogPtr, firstStageMethod);	
 			
 }	// end "ProjectionPursuitDialogFSOptions" 

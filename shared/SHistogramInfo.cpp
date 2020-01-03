@@ -1,6 +1,6 @@
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -17,25 +17,20 @@
 //	Brief description:	The purpose of the routines in this file is to
 //								provide routines to support the Histogram Specs structure.
 //
-//	Functions in file:	
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"  
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
   
 #if defined multispec_win
-#endif	// defined multispec_win    
-
-//#include "SExtGlob.h"
+#endif	// defined multispec_win 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -79,7 +74,7 @@ void ReleaseHistogramSupportMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -107,7 +102,7 @@ void ReleaseHistogramSupportMemory (
 	
 	                            
 	HistogramSpecsPtr histogramSpecsPtr = (HistogramSpecsPtr)             
-			GetHandleStatusAndPointer (*histogramSpecsHandlePtr, &handleStatus, kNoMoveHi);
+			GetHandleStatusAndPointer (*histogramSpecsHandlePtr, &handleStatus);
 	
 	if (histogramSpecsPtr != NULL)
 		{                                              
@@ -121,7 +116,7 @@ void ReleaseHistogramSupportMemory (
 		
 		MHSetState (*histogramSpecsHandlePtr, handleStatus);
 		
-		}		// end "if (histogramSpecsPtr != NULL)"
+		}	// end "if (histogramSpecsPtr != NULL)"
 		
 	*histogramSummaryHandlePtr = UnlockAndDispose (*histogramSummaryHandlePtr);
 			

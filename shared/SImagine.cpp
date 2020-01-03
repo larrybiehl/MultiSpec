@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,13 +20,6 @@
 //	Brief description:	This file contains routines which are used to access
 //								ERDAS Immagine formatted disk files.
 //
-//	Functions in file:	
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -34,30 +27,27 @@
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WImageDoc.h"
 	#include "WFileFormatDialog.h"
 #endif	// defined multispec_win
 
 #include "errno.h"
 
-//#include "SExtGlob.h"	
-
 #define	kNotPackedDegrees			0
 #define	kRadians						2								
 			
 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack (push, 2)
 #endif	// defined multispec_win || ...
 	
 //#if PRAGMA_ALIGN_SUPPORTED
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	#pragma options align=mac68k
 #endif
 	
@@ -238,11 +228,11 @@ typedef struct LayerStackValidFlags
 	} LayerStackValidFlags;
 
 //#if PRAGMA_ALIGN_SUPPORTED
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	#pragma options align=reset
 #endif 
 	
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack (pop, 2)
 #endif	// defined multispec_win || ...
 
@@ -251,204 +241,198 @@ typedef struct LayerStackValidFlags
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 
-SInt16 				DetermineDatumCode (
-							char*									inputStringPtr);
+SInt16	DetermineDatumCode (
+				char*									inputStringPtr);
 
-SInt16 				DetermineEllipsoidCode (
-							char*									inputStringPtr);
+SInt16	DetermineEllipsoidCode (
+				char*									inputStringPtr);
 
-SInt16 				DetermineGridCoordinateCode (
-							char*									inputStringPtr);
+SInt16	DetermineGridCoordinateCode (
+				char*									inputStringPtr);
 							
-Boolean 				GetEdscColumnNode (
-							CMFileStream* 						fileStreamPtr,
-							Ehfa_Entry*							ehfaEntryLayerPtr,
-							Ehfa_Entry*							ehfaEntryEdscColumnPtr,
-							Ehfa_Entry*							ehfaEntryEdscBinFunctionPtr,
-							CharPtr								edscColumnNodeNamePtr);
+Boolean	GetEdscColumnNode (
+				CMFileStream* 						fileStreamPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr,
+				Ehfa_Entry*							ehfaEntryEdscColumnPtr,
+				Ehfa_Entry*							ehfaEntryEdscBinFunctionPtr,
+				CharPtr								edscColumnNodeNamePtr);
 
-Boolean 				GetDefaultImaginePaletteInfo (
-							CMFileStream*						fileStreamPtr, 
-							Edsc_Column*						edscColumnRedPtr,
-							Edsc_Column*						edscColumnGreenPtr,
-							Edsc_Column*						edscColumnBluePtr,
-							Edsc_BinFunction*					edscBinFunctionPtr);
+Boolean 	GetDefaultImaginePaletteInfo (
+				CMFileStream*						fileStreamPtr,
+				Edsc_Column*						edscColumnRedPtr,
+				Edsc_Column*						edscColumnGreenPtr,
+				Edsc_Column*						edscColumnBluePtr,
+				Edsc_BinFunction*					edscBinFunctionPtr);
 
-Boolean 				GetFirstImagineLayerNode (
-							CMFileStream* 						fileStreamPtr,
-							Ehfa_Entry*							ehfaEntryPtr);
-							
-Boolean 				GetNextNode (
-							CMFileStream* 						fileStreamPtr,
-							Ehfa_Entry*							ehfaEntryParentPtr,
-							Ehfa_Entry*							ehfaEntryRequestedPtr,
-							char*									nodeTypeStringPtr,
-							Boolean								startFlag);
+Boolean	GetFirstImagineLayerNode (
+				CMFileStream* 						fileStreamPtr,
+				Ehfa_Entry*							ehfaEntryPtr);
 
-Boolean 				GetLayerForRequestedChannel (
-							CMFileStream* 						fileStreamPtr,
-							Ehfa_Entry*							ehfaEntryLayerPtr,
-							UInt32*								currentLayerChannelPtr,
-							UInt32								channel);
+Boolean	GetNextNode (
+				CMFileStream* 						fileStreamPtr,
+				Ehfa_Entry*							ehfaEntryParentPtr,
+				Ehfa_Entry*							ehfaEntryRequestedPtr,
+				char*									nodeTypeStringPtr,
+				Boolean								startFlag);
 
-Boolean 				LoadImagineImageMapInfoForChannel (
-							FileInfoPtr							fileInfoPtr, 
-							UInt32								channel, 
-							UInt32*								currentLayerChannelPtr,
-							Boolean								mapInfoFlag);
+Boolean	GetLayerForRequestedChannel (
+				CMFileStream* 						fileStreamPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr,
+				UInt32*								currentLayerChannelPtr,
+				UInt32								channel);
 
-Boolean 				ReadImagineClassNameColumn (
-							CMFileStream*						fileStreamPtr,
-							Edsc_Column*						edscColumnClassNamePtr,
-							Edsc_BinFunction*					edscBinFunctionPtr, 
-							UCharPtr								classNamePtr);
+Boolean	LoadImagineImageMapInfoForChannel (
+				FileInfoPtr							fileInfoPtr,
+				UInt32								channel, 
+				UInt32*								currentLayerChannelPtr,
+				Boolean								mapInfoFlag);
 
-Boolean 				ReadImagineClassPaletteColumns (
-							FileInfoPtr							fileInfoPtr, 
-							Edsc_Column*						edscColumnRedPtr,
-							Edsc_Column*						edscColumnGreenPtr,
-							Edsc_Column*						edscColumnBluePtr,
-							Edsc_BinFunction*					edscBinFunctionPtr, 
-							ColorSpec*							colorSpecPtr, 
-							DisplaySpecsPtr					displaySpecsPtr, 
-							UInt16*								classSymbolPtr, 
-							UInt16*								paletteCodePtr);
+Boolean	ReadImagineClassNameColumn (
+				CMFileStream*						fileStreamPtr,
+				Edsc_Column*						edscColumnClassNamePtr,
+				Edsc_BinFunction*					edscBinFunctionPtr, 
+				UCharPtr								classNamePtr);
 
-Boolean 				ReadImagineEdscBinFunction (
-							CMFileStream*						fileStreamPtr,
-							UInt32								edscBinFunctionOffset,
-							UInt32								count,
-							Edsc_BinFunction*					edscBinFunctionPtr);
-							
-SInt16				ReadImagineExternalDMSLayerBlockParameters (
-							FileInfoPtr							fileInfoPtr,
-							CMFileStream*						fileStreamPtr,
-							SInt64								layerStackValidFlagsOffset);
+Boolean	ReadImagineClassPaletteColumns (
+				FileInfoPtr							fileInfoPtr,
+				Edsc_Column*						edscColumnRedPtr,
+				Edsc_Column*						edscColumnGreenPtr,
+				Edsc_Column*						edscColumnBluePtr,
+				Edsc_BinFunction*					edscBinFunctionPtr, 
+				ColorSpec*							colorSpecPtr, 
+				DisplaySpecsPtr					displaySpecsPtr, 
+				UInt16*								classSymbolPtr, 
+				UInt16*								paletteCodePtr);
 
-SInt16				ReadImagineExternalRasterDMS (
-							CMFileStream*						fileStreamPtr,
-							UInt32								externalRasterDMSOffset,
-							ExternalRasterDMS*				externalRasterDMSPtr);
-				
-SInt16 				ReadImagineHeader (
-							FileInfoPtr 						fileInfoPtr, 
-							char*									headerRecordPtr);
+Boolean	ReadImagineEdscBinFunction (
+				CMFileStream*						fileStreamPtr,
+				UInt32								edscBinFunctionOffset,
+				UInt32								count,
+				Edsc_BinFunction*					edscBinFunctionPtr);
 
-SInt16 				ReadImagineEdmsState (
-							CMFileStream*						fileStreamPtr,
-							UInt32								edmsStateOffset,
-							Edms_State*							edmsStatePtr);
+SInt16	ReadImagineExternalDMSLayerBlockParameters (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						fileStreamPtr,
+				SInt64								layerStackValidFlagsOffset);
 
-SInt16 				ReadImagineEdmsVirtualBlockInfo (
-							CMFileStream*						fileStreamPtr,
-							UInt32								numVirtualBlocks,
-							UInt32								edmsVirtualBlockInfoOffset,
-							Edms_VirtualBlockInfo*			edmsVirtualBlockInfoPtr);
+SInt16	ReadImagineExternalRasterDMS (
+				CMFileStream*						fileStreamPtr,
+				UInt32								externalRasterDMSOffset,
+				ExternalRasterDMS*				externalRasterDMSPtr);
 
-Boolean 				ReadImagineEdscColumn (
-							CMFileStream*						fileStreamPtr,
-							UInt32								edscColumnOffset,
-							UInt32								count,
-							Edsc_Column*						edscColumnPtr);
+SInt16	ReadImagineHeader (
+				FileInfoPtr 						fileInfoPtr,
+				char*									headerRecordPtr);
 
-SInt16 				ReadImagineEhfaEntry (
-							CMFileStream*						fileStreamPtr,
-							UInt32								ehfaOffset,
-							Ehfa_Entry*							ehfaEntryPtr);
+SInt16	ReadImagineEdmsState (
+				CMFileStream*						fileStreamPtr,
+				UInt32								edmsStateOffset,
+				Edms_State*							edmsStatePtr);
 
-SInt16 				ReadImagineEhfaFile (
-							CMFileStream*						fileStreamPtr,
-							UInt32								ehfaFileOffset,
-							Ehfa_File*							ehfaFilePtr);
-/*
-SInt16 				ReadImagineEhfaLayer (
-							CMFileStream*						fileStreamPtr,
-							UInt32								ehfaLayerOffset,
-							UInt32								count,
-							Ehfa_Layer*							ehfaLayerPtr);
-*/
-SInt16 				ReadImagineEimgLayer (
-							CMFileStream*						fileStreamPtr,
-							UInt32								eimgLayerOffset,
-							UInt32								count,
-							Eimg_Layer*							eimgLayerPtr);
+SInt16	ReadImagineEdmsVirtualBlockInfo (
+				CMFileStream*						fileStreamPtr,
+				UInt32								numVirtualBlocks,
+				UInt32								edmsVirtualBlockInfoOffset,
+				Edms_VirtualBlockInfo*			edmsVirtualBlockInfoPtr);
 
-Boolean 				ReadImageEstaStatistics (
-							CMFileStream*						fileStreamPtr,
-							UInt32								estaStatisticsOffset,
-							UInt32								count,
-							Esta_Statistics*					estaStatisticsPtr);
+Boolean	ReadImagineEdscColumn (
+				CMFileStream*						fileStreamPtr,
+				UInt32								edscColumnOffset,
+				UInt32								count,
+				Edsc_Column*						edscColumnPtr);
 
-Boolean 				ReadImageEprjDatum (
-							CMFileStream*						fileStreamPtr,
-							UInt32								eprjDatumOffset,
-							UInt32								count,
-							Eprj_Datum*							eprjDatumPtr);
+SInt16	ReadImagineEhfaEntry (
+				CMFileStream*						fileStreamPtr,
+				UInt32								ehfaOffset,
+				Ehfa_Entry*							ehfaEntryPtr);
 
-Boolean 				ReadImageEprjMapInfo (
-							CMFileStream*						fileStreamPtr,
-							UInt32								eprjMapInfoOffset,
-							UInt32								count,
-							Eprj_MapInfo*						eprjMapInfoPtr);
+SInt16	ReadImagineEhfaFile (
+				CMFileStream*						fileStreamPtr,
+				UInt32								ehfaFileOffset,
+				Ehfa_File*							ehfaFilePtr);
 
-Boolean 				ReadImageEprjMapProjection (
-							CMFileStream*						fileStreamPtr,
-							UInt32								eprjMapProjectionOffset,
-							UInt32								count,
-							Eprj_ProParameters*				eprjProParametersPtr,
-							Eprj_Spheroid*						eprjSpheroidPtr);
+SInt16	ReadImagineEimgLayer (
+				CMFileStream*						fileStreamPtr,
+				UInt32								eimgLayerOffset,
+				UInt32								count,
+				Eimg_Layer*							eimgLayerPtr);
 
-Boolean 				ReadImageEprjProParameters (
-							CMFileStream*						fileStreamPtr,
-							UInt32								eprjProParametersOffset,
-							UInt32								count,
-							Eprj_ProParameters*				eprjProParametersPtr,
-							Eprj_Spheroid*						eprjSpheroidPtr);
+Boolean	ReadImageEstaStatistics (
+				CMFileStream*						fileStreamPtr,
+				UInt32								estaStatisticsOffset,
+				UInt32								count,
+				Esta_Statistics*					estaStatisticsPtr);
 
-Boolean 				ReadImageSpheroid (
-							UInt32								eprjSpheroidOffset,
-							UInt32								count,
-							UCharPtr								bufferPtr,
-							Eprj_Spheroid*						eprjSpheroidPtr,
-							UCharPtr								endBufferPtr);
+Boolean	ReadImageEprjDatum (
+				CMFileStream*						fileStreamPtr,
+				UInt32								eprjDatumOffset,
+				UInt32								count,
+				Eprj_Datum*							eprjDatumPtr);
 
-Boolean 				ReadImagineHistogramColumn (
-							FileInfoPtr							fileInfoPtr,
-							CMFileStream*						supportFileStreamPtr,
-							HistogramSummaryPtr				histogramSummaryPtr,
-							UInt32								histogramColumnOffset,
-							UInt32								numberValues,
-							UInt16								dataType,
-							UInt32								numBins,
-							UInt16								binFunctionType,
-							double								doubleMinLimit,
-							double								doubleMaxLimit,
-							HUInt32Ptr							histogramArrayPtr,
-							HCharPtr								histrogramBufferPtr);
+Boolean	ReadImageEprjMapInfo (
+				CMFileStream*						fileStreamPtr,
+				UInt32								eprjMapInfoOffset,
+				UInt32								count,
+				Eprj_MapInfo*						eprjMapInfoPtr);
 
-Boolean 				ReadImagineImageParameters (
-							FileInfoPtr 						fileInfoPtr, 
-							CMFileStream*						fileStreamPtr,
-							Ehfa_Entry*							rootEhfaPtr,
-							SInt16*								formatErrorCodePtr);
-				
-Boolean 				ReadImagineLayerBlockParameters (
-							FileInfoPtr 						fileInfoPtr, 
-							CMFileStream*						fileStreamPtr,
-							Ehfa_Entry*							ehfaEntryLayerPtr,
-							SInt16*								formatErrorCodePtr,
-							FileStringName255*				extensionFileNamePtr,
-							SInt64*								layerStackValidFlagsOffsetPtr,
-							UInt32								channel);	
+Boolean	ReadImageEprjMapProjection (
+				CMFileStream*						fileStreamPtr,
+				UInt32								eprjMapProjectionOffset,
+				UInt32								count,
+				Eprj_ProParameters*				eprjProParametersPtr,
+				Eprj_Spheroid*						eprjSpheroidPtr);
 
-void 					ReadImagineNumberOfClasses (
-							FileInfoPtr							fileInfoPtr,
-							Ehfa_Entry*							ehfaEntryLayerPtr);
+Boolean	ReadImageEprjProParameters (
+				CMFileStream*						fileStreamPtr,
+				UInt32								eprjProParametersOffset,
+				UInt32								count,
+				Eprj_ProParameters*				eprjProParametersPtr,
+				Eprj_Spheroid*						eprjSpheroidPtr);
+
+Boolean	ReadImageSpheroid (
+				UInt32								eprjSpheroidOffset,
+				UInt32								count,
+				UCharPtr								bufferPtr,
+				Eprj_Spheroid*						eprjSpheroidPtr,
+				UCharPtr								endBufferPtr);
+
+Boolean	ReadImagineHistogramColumn (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream*						supportFileStreamPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				UInt32								histogramColumnOffset,
+				UInt32								numberValues,
+				UInt16								dataType,
+				UInt32								numBins,
+				UInt16								binFunctionType,
+				double								doubleMinLimit,
+				double								doubleMaxLimit,
+				HUInt32Ptr							histogramArrayPtr,
+				HCharPtr								histrogramBufferPtr);
+
+Boolean	ReadImagineImageParameters (
+				FileInfoPtr 						fileInfoPtr,
+				CMFileStream*						fileStreamPtr,
+				Ehfa_Entry*							rootEhfaPtr,
+				SInt16*								formatErrorCodePtr);
+
+Boolean	ReadImagineLayerBlockParameters (
+				FileInfoPtr 						fileInfoPtr,
+				CMFileStream*						fileStreamPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr,
+				SInt16*								formatErrorCodePtr,
+				FileStringName255*				extensionFileNamePtr,
+				SInt64*								layerStackValidFlagsOffsetPtr,
+				UInt32								channel);	
+
+void	ReadImagineNumberOfClasses (
+				FileInfoPtr							fileInfoPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -463,13 +447,14 @@ void 					ReadImagineNumberOfClasses (
 //
 //	Value Returned:	
 //
-// Called By:			GetDefaultSupportFile in SOpnImag.cpp
+// Called By:			GetDefaultSupportFile in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017
 				
 Boolean CheckForImagineEstaStatistics (
 				Handle								windowInfoHandle)
+
 {
 	CMFileStream						*fileStreamPtr,
 											*supportFileStreamPtr;
@@ -500,10 +485,12 @@ Boolean CheckForImagineEstaStatistics (
 
 	fileStreamPtr = GetFileStreamPointer (windowInfoHandle, &fileHandleStatus);
 	
-			// Now get the file where the image statistics should be.  Note that if the image is loaded
-			// in a .ige file, we will need to get the associated .img file to get the statistics.
+			// Now get the file where the image statistics should be.  Note that if the
+			// image is loaded in a .ige file, we will need to get the associated .img
+			// file to get the statistics.
 			
-	supportFileStreamPtr = GetSupportFileStreamPointer (windowInfoHandle, &supportFileHandleStatus);
+	supportFileStreamPtr = GetSupportFileStreamPointer (
+													windowInfoHandle, &supportFileHandleStatus);
 	
 	if (!FileExists (supportFileStreamPtr))
 		{
@@ -518,9 +505,11 @@ Boolean CheckForImagineEstaStatistics (
 					
 		IndicateFileClosed (supportFileStreamPtr);
 		
-				// Remove the .ige and other suffixes and make sure that .img is the suffix
+				// Remove the .ige and other suffixes and make sure that .img is the
+				// suffix
 				
-		supportFilePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (supportFileStreamPtr);
+		supportFilePathPtr =
+				(FileStringPtr)GetFilePathPPointerFromFileStream (supportFileStreamPtr);
 		RemoveSuffix (supportFilePathPtr);
 		ConcatFilenameSuffix (supportFilePathPtr, (StringPtr)"\0.img\0");
 					
@@ -588,7 +577,7 @@ Boolean CheckForImagineEstaStatistics (
 	gSwapBytesFlag = FALSE;
 				
 			// Close the default support file if it was closed upon entry to this
-			// routine.								
+			// routine. Decided not to do this. It will be closed later if open.
 	
 	//if (!supportFileAlreadyOpenFlag)
 	//	CloseFile (supportFileStreamPtr);
@@ -606,7 +595,7 @@ Boolean CheckForImagineEstaStatistics (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -686,7 +675,7 @@ Boolean CheckIfDefaultImaginePaletteExists (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -701,7 +690,7 @@ Boolean CheckIfDefaultImaginePaletteExists (
 //
 //	Value Returned:	None	
 //
-// Called By:			 in SImagine.cpp
+// Called By:			LoadImagineImageMapInfoForChannel
 //
 //	Coded By:			Larry L. Biehl			Date: 12/22/2003
 //	Revised By:			Larry L. Biehl			Date: 11/25/2009
@@ -757,7 +746,7 @@ SInt16 DetermineDatumCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -772,7 +761,7 @@ SInt16 DetermineDatumCode (
 //
 //	Value Returned:	None	
 //
-// Called By:			 in SImagine.cpp
+// Called By:			LoadImagineImageMapInfoForChannel
 //
 //	Coded By:			Larry L. Biehl			Date: 12/22/2003
 //	Revised By:			Larry L. Biehl			Date: 04/09/2004
@@ -832,7 +821,7 @@ SInt16 DetermineEllipsoidCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -847,7 +836,7 @@ SInt16 DetermineEllipsoidCode (
 //
 //	Value Returned:	None	
 //
-// Called By:			 in SImagine.cpp
+// Called By:			LoadImagineImageMapInfoForChannel
 //
 //	Coded By:			Larry L. Biehl			Date: 04/28/2005
 //	Revised By:			Larry L. Biehl			Date: 04/28/2005
@@ -877,7 +866,7 @@ SInt16 DetermineGridCoordinateCode (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -974,7 +963,7 @@ Boolean GetDefaultImaginePaletteInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1112,7 +1101,7 @@ Boolean GetEdscColumnNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1198,7 +1187,7 @@ Boolean GetFirstImagineLayerNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1242,7 +1231,7 @@ HCharPtr GetImagineHistogramBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1358,7 +1347,7 @@ Boolean GetNextNode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1444,7 +1433,7 @@ Boolean GetLayerForRequestedChannel (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1459,7 +1448,7 @@ Boolean GetLayerForRequestedChannel (
 //
 //	Value Returned:	None	
 //
-// Called By:			ReadImagineHeader in SImagine.cpp
+// Called By:			ReadImagineHeader
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/2001
 //	Revised By:			Larry L. Biehl			Date: 03/23/2012
@@ -1554,22 +1543,23 @@ Boolean LoadImagineImageMapInfoForChannel (
 					if (CompareStringsNoCase (eprjMapInfo.projectionName, 
 																		(UCharPtr)"utm", 3) == 0)
 						{
-						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTMRSCode;
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																							kUTMRSCode;
 						mapProjectionInfoPtr->gridCoordinate.projectionCode =
-																					kTransverseMercatorCode;
+																				kTransverseMercatorCode;
 						
 						}	// end "if (CompareStringsNoCase (..., "utm", 3) == 0)"
 						
 					else if (CompareStringsNoCase (eprjMapInfo.projectionName, 
-																		(UCharPtr)"state plane", 11) == 0)
+																	(UCharPtr)"state plane", 11) == 0)
 						{
 						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
-																					kStatePlaneNAD27RSCode;
+																				kStatePlaneNAD27RSCode;
 						
 						}	// end "else if (CompareStringsNoCase (..., "state plane..."
 						
 					else if (CompareStringsNoCase (eprjMapInfo.projectionName, 
-																(UCharPtr)"Lambert Azimuthal", 16) == 0)
+															(UCharPtr)"Lambert Azimuthal", 16) == 0)
 						mapProjectionInfoPtr->gridCoordinate.projectionCode = 
 																		kLambertAzimuthalEqualAreaCode;
 						
@@ -1590,19 +1580,24 @@ Boolean LoadImagineImageMapInfoForChannel (
 					planarCoordinatePtr->xMapCoordinate11 = eprjMapInfo.xMapCoordinate11;
 					planarCoordinatePtr->yMapCoordinate11 = eprjMapInfo.yMapCoordinate11;
                                                                       
-					planarCoordinatePtr->xMapOrientationOrigin = eprjMapInfo.xMapCoordinate11;
-					planarCoordinatePtr->yMapOrientationOrigin = eprjMapInfo.yMapCoordinate11;
+					planarCoordinatePtr->xMapOrientationOrigin =
+																		eprjMapInfo.xMapCoordinate11;
+					planarCoordinatePtr->yMapOrientationOrigin =
+																		eprjMapInfo.yMapCoordinate11;
 																		
 							// Determine the map units.
 					
 					planarCoordinatePtr->mapUnitsCode = kUnknownCode;													 
-					if (CompareStringsNoCase (eprjMapInfo.mapUnits, (UCharPtr)"feet", 4) == 0)
+					if (CompareStringsNoCase (
+											eprjMapInfo.mapUnits, (UCharPtr)"feet", 4) == 0)
 						planarCoordinatePtr->mapUnitsCode = kFeetCode;
 						
-					else if (CompareStringsNoCase (eprjMapInfo.mapUnits, (UCharPtr)"meters", 5)  == 0)
+					else if (CompareStringsNoCase (
+											eprjMapInfo.mapUnits, (UCharPtr)"meters", 5)  == 0)
 						planarCoordinatePtr->mapUnitsCode = kMetersCode;
 						
-					else if (CompareStringsNoCase (eprjMapInfo.mapUnits, (UCharPtr)"degrees", 7)  == 0)
+					else if (CompareStringsNoCase (
+											eprjMapInfo.mapUnits, (UCharPtr)"degrees", 7)  == 0)
 						planarCoordinatePtr->mapUnitsCode = kDecimalDegreesCode;
 					
 					}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
@@ -1694,16 +1689,17 @@ Boolean LoadImagineImageMapInfoForChannel (
 						
 							// Make sure the State Plane Zone number is positive.
 							// Do not know why it is negative in some files at this time
-							// 11/29/2006										
+							// 11/29/2006
+					
 					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
 																					kStatePlaneNAD27RSCode)
 						mapProjectionInfoPtr->gridCoordinate.gridZone = 
 											abs (mapProjectionInfoPtr->gridCoordinate.gridZone);
 						
 					mapProjectionInfoPtr->gridCoordinate.projectionCode = 
-								GetProjectionCodeFromReferenceSystemCode (
-											mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
-											mapProjectionInfoPtr->gridCoordinate.gridZone);
+							GetProjectionCodeFromReferenceSystemCode (
+									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
+									mapProjectionInfoPtr->gridCoordinate.gridZone);
 					
 							// Get the projection parameters. Just assume that they are 
 							// there for now.
@@ -1712,18 +1708,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 														eprjProParameters.proParams,
 														kNotPackedDegrees,
 														kRadians);
-					/*
-					mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian =
-																			eprjProParameters.proParams[2];
-					mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 
-												eprjProParameters.proParams[4] * kRadiansToDegrees;
-					mapProjectionInfoPtr->gridCoordinate.latitudeOrigin = 
-												eprjProParameters.proParams[5] * kRadiansToDegrees;
-					mapProjectionInfoPtr->gridCoordinate.falseEasting = 
-																			eprjProParameters.proParams[6];
-					mapProjectionInfoPtr->gridCoordinate.falseNorthing = 
-																			eprjProParameters.proParams[7];
-					*/
+
 							// Spheroid Code and specifications.
 					
 					mapProjectionInfoPtr->geodetic.spheroidCode =
@@ -1742,7 +1727,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 							// If the projection is State Plane, get the datum.
 							
 					if (!continueFlag2 &&
-									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
 																					kStatePlaneNAD27RSCode)
 						{
 						if (eprjProParameters.proParams[0] == 0)	
@@ -1756,18 +1741,18 @@ Boolean LoadImagineImageMapInfoForChannel (
 							
 							}	// end "else if (eprjProParameters.proParams[0] == 1)"
 						
-						}	// end "if (...->gridCoordinate.code == kStatePlaneCode)"
+						}	// end "if (...->referenceSystemCode == kStatePlaneNAD27RSCode)"
 						
 							// If datum has been set and there is no spheroid information,
 							// the spheroid can be set.
 							
 					if (mapProjectionInfoPtr->geodetic.spheroidCode == 0 && 
-											mapProjectionInfoPtr->geodetic.datumCode == kNAD27Code)
+										mapProjectionInfoPtr->geodetic.datumCode == kNAD27Code)
 						mapProjectionInfoPtr->geodetic.spheroidCode = 
 																			kClarke1866EllipsoidCode;
 							
 					else if (mapProjectionInfoPtr->geodetic.spheroidCode == 0 && 
-											mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
+										mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
 						mapProjectionInfoPtr->geodetic.spheroidCode = kGRS80EllipsoidCode;
 					
 					}	// end "if (continueFlag)"
@@ -1797,8 +1782,8 @@ Boolean LoadImagineImageMapInfoForChannel (
 						{
 						if (!proParametersExistFlag)
 							{
-									// Get the projection parameters. Just assume that they are 
-									// there for now.
+									// Get the projection parameters. Just assume that they
+									// are there for now.
 							
 							mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian = 
 																		eprjProParameters.proParams[2];
@@ -1817,9 +1802,10 @@ Boolean LoadImagineImageMapInfoForChannel (
 							{
 							if (mapProjectionInfoPtr->geodetic.spheroidCode == 0)
 								mapProjectionInfoPtr->geodetic.spheroidCode =
-																					eprjSpheroid.sphereCode;
+																				eprjSpheroid.sphereCode;
 																				
-							mapProjectionInfoPtr->geodetic.radiusSpheroid = eprjSpheroid.radius;
+							mapProjectionInfoPtr->geodetic.radiusSpheroid =
+																				eprjSpheroid.radius;
 							mapProjectionInfoPtr->geodetic.semiMajorAxis = eprjSpheroid.a;
 							mapProjectionInfoPtr->geodetic.semiMinorAxis = eprjSpheroid.b;
 								
@@ -1843,7 +1829,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1860,7 +1846,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 //
 //	Value Returned:	None	
 //
-// Called By:			LoadSupportFile in SHistogrm.cpp
+// Called By:			LoadSupportFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
 //	Revised By:			Larry L. Biehl			Date: 07/08/2009
@@ -1972,16 +1958,17 @@ Boolean LoadImagineImageStatistics (
 					// data values.
 		
 			fileInfoPtr->maxNumberEDecimalDigits = 
-									MAX (fileInfoPtr->maxNumberEDecimalDigits,
-											histogramSummaryPtr[channelIndex].numberEDecimalDigits);
+								MAX (fileInfoPtr->maxNumberEDecimalDigits,
+										histogramSummaryPtr[channelIndex].numberEDecimalDigits);
 		
 			fileInfoPtr->maxNumberFDecimalDigits = 
-									MAX (fileInfoPtr->maxNumberFDecimalDigits,
-											histogramSummaryPtr[channelIndex].numberFDecimalDigits);
+								MAX (fileInfoPtr->maxNumberFDecimalDigits,
+										histogramSummaryPtr[channelIndex].numberFDecimalDigits);
 			 								
 			fileInfoPtr->maxDataValue = MAX (
 												fileInfoPtr->maxDataValue, 
 												histogramSummaryPtr[channelIndex].maxValue);
+			
 			fileInfoPtr->minDataValue = MIN (
 												fileInfoPtr->minDataValue, 
 												histogramSummaryPtr[channelIndex].minValue);
@@ -2036,7 +2023,7 @@ Boolean LoadImagineImageStatistics (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2145,9 +2132,9 @@ Boolean LoadImagineImageStatisticsForChannel (
 						// them.																	
 						
 				histogramSummaryPtr[channel].maxNonSatValue = 
-																	histogramSummaryPtr[channel].maxValue;
+																histogramSummaryPtr[channel].maxValue;
 				histogramSummaryPtr[channel].minNonSatValue = 
-																	histogramSummaryPtr[channel].minValue;
+																histogramSummaryPtr[channel].minValue;
 														
 					// Get the number of decimal digits to use when listing data
 					// values.
@@ -2160,8 +2147,8 @@ Boolean LoadImagineImageStatisticsForChannel (
 												&histogramSummaryPtr[channel].numberFDecimalDigits);
 												
 				if (fileInfoPtr->numberBytes > 2)
-							// Indicate that the bin width will definitely not be one since the
-							// the number of data bytes is more than 2.
+							// Indicate that the bin width will definitely not be one since
+							// the the number of data bytes is more than 2.
 					histogramSummaryPtr->binType = kBinWidthNotOne;
 					
 				histogramSummaryPtr[channel].numberBins = fileInfoPtr->numberBins;
@@ -2176,8 +2163,8 @@ Boolean LoadImagineImageStatisticsForChannel (
 				
 			}	// end "if (summaryFlag)" 
 			
-				// Get information about the way the histogram is stored when the number of 
-				// data bytes is more than 2.
+				// Get information about the way the histogram is stored when the number
+				// of data bytes is more than 2.
 				
 		if (histogramArrayPtr != NULL || fileInfoPtr->numberBytes > 2)
 			{
@@ -2196,19 +2183,19 @@ Boolean LoadImagineImageStatisticsForChannel (
 				}	// end "if (continueFlag)"
 							
 			if (continueFlag)
-				continueFlag = ReadImagineEdscBinFunction (supportFileStreamPtr,
-																		ehfaEntryEdscBinFunction.data,
-																		ehfaEntryEdscBinFunction.dataSize,
-																		&edscBinFunction);
+				continueFlag = ReadImagineEdscBinFunction (
+																	supportFileStreamPtr,
+																	ehfaEntryEdscBinFunction.data,
+																	ehfaEntryEdscBinFunction.dataSize,
+																	&edscBinFunction);
 																	
 			if (continueFlag && 
 						edscBinFunction.binFunctionType == 1 && fileInfoPtr->numberBytes > 2)
 				histogramSummaryPtr[channel].binFactor = (double)edscBinFunction.numBins / 
-												(edscBinFunction.maxLimit - edscBinFunction.minLimit);
+											(edscBinFunction.maxLimit - edscBinFunction.minLimit);
 																	
 			}	// end "if (histogramArrayPtr != NULL || fileInfoPtr->numberBytes > 2)"
 		
-			
 				// Read histogram stastistics if needed.									
 				// Set up channel pointer for median array.								
 		
@@ -2222,11 +2209,12 @@ Boolean LoadImagineImageStatisticsForChannel (
 				}	// end "if (continueFlag)"
 							
 			if (continueFlag)
-				continueFlag = ReadImagineEdscColumn (supportFileStreamPtr,
-																	ehfaEntryEdscColumnHistogram.data,
-																	ehfaEntryEdscColumnHistogram.dataSize,
-																	&edscColumnHistogram);
-																	
+				continueFlag = ReadImagineEdscColumn (
+															supportFileStreamPtr,
+															ehfaEntryEdscColumnHistogram.data,
+															ehfaEntryEdscColumnHistogram.dataSize,
+															&edscColumnHistogram);
+				
 			if (continueFlag)
 				{
 				if (expectedNumberBins < (UInt32)edscColumnHistogram.numRows)
@@ -2266,7 +2254,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2429,7 +2417,7 @@ Boolean ReadImagineClassNameColumn (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2517,7 +2505,7 @@ Boolean ReadImagineClassNames (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2595,7 +2583,7 @@ Boolean ReadImagineClassPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2817,11 +2805,11 @@ Boolean ReadImagineClassPaletteColumns (
 			colorSpecPtr->value     = (SInt16)entry;
 			
 			colorSpecPtr->rgb.red   = 
-						(UInt16)(65535*GetDoubleValue ((UCharPtr)&redVectorPtr[inputIndex]));
+					(UInt16)(65535*GetDoubleValue ((UCharPtr)&redVectorPtr[inputIndex]));
 			colorSpecPtr->rgb.green = 
-						(UInt16)(65535*GetDoubleValue ((UCharPtr)&greenVectorPtr[inputIndex]));
+					(UInt16)(65535*GetDoubleValue ((UCharPtr)&greenVectorPtr[inputIndex]));
 			colorSpecPtr->rgb.blue  = 
-						(UInt16)(65535*GetDoubleValue ((UCharPtr)&blueVectorPtr[inputIndex]));
+					(UInt16)(65535*GetDoubleValue ((UCharPtr)&blueVectorPtr[inputIndex]));
 			
 			colorSpecPtr++;
 			entry++;
@@ -2860,7 +2848,7 @@ Boolean ReadImagineClassPaletteColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2970,7 +2958,7 @@ SInt16 ReadImagineHeader (
 			RemoveCharsNoCase ((char*)"\0.ige\0", filePathPtr);			
 			externalFileFlag = TRUE;
 			
-			}	// end "else if (CompareSuffixNoCase ((char*)"\0.ige", filePathPtr, NULL))"
+			}	// end "else if (CompareSuffixNoCase ((char*)"\0.ige", ..."
 			
 		if (externalFileFlag)
 			{
@@ -3066,14 +3054,15 @@ SInt16 ReadImagineHeader (
 					{
 							// Get the layer offset bytes to the raster data.
 							
-					continueFlag = ReadImagineLayerBlockParameters (fileInfoPtr,
-																					fileStreamPtr,
-																					&ehfaEntry,
-																					&formatErrorCode,
-																					&extensionFileName,
-																					&layerStackValidFlagsOffset,
-																					channel);
-																
+					continueFlag = ReadImagineLayerBlockParameters (
+																			fileInfoPtr,
+																			fileStreamPtr,
+																			&ehfaEntry,
+																			&formatErrorCode,
+																			&extensionFileName,
+																			&layerStackValidFlagsOffset,
+																			channel);
+					
 					channel++;
 					
 							// If there is an extension (.ige) file then we are done
@@ -3140,9 +3129,10 @@ SInt16 ReadImagineHeader (
 													kVerifyFileStream);
 													
 			if (errCode == noErr)
-				errCode = ReadImagineExternalDMSLayerBlockParameters (fileInfoPtr,
-																						fileStreamPtr,
-																						layerStackValidFlagsOffset);
+				errCode = ReadImagineExternalDMSLayerBlockParameters (
+																			fileInfoPtr,
+																			fileStreamPtr,
+																			layerStackValidFlagsOffset);
 			
 			if (errCode != noErr)
 				formatErrorCode = 2;
@@ -3235,7 +3225,7 @@ SInt16 ReadImagineHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3303,7 +3293,7 @@ SInt16 ReadImagineEdmsState (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3387,7 +3377,7 @@ SInt16 ReadImagineEdmsVirtualBlockInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3459,7 +3449,7 @@ Boolean ReadImagineEdscBinFunction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3527,7 +3517,7 @@ Boolean ReadImagineEdscColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3589,7 +3579,7 @@ SInt16 ReadImagineEhfaEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3653,7 +3643,7 @@ SInt16 ReadImagineEhfaFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3715,7 +3705,7 @@ SInt16 ReadImagineEimgLayer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3759,7 +3749,8 @@ SInt16 ReadImagineExternalDMSLayerBlockParameters (
 
 	if (errCode == noErr)
 		{
-				// Note: will also read the unknown character at the beginning of the Layer Stack Prefix.
+				// Note: will also read the unknown character at the beginning of the
+				// Layer Stack Prefix.
 				
 		count = 27;  
 		errCode = MReadData (fileStreamPtr, 
@@ -3854,7 +3845,7 @@ SInt16 ReadImagineExternalDMSLayerBlockParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3915,7 +3906,8 @@ SInt16 ReadImagineExternalRasterDMS (
 			{
 					// We will leave the null c-string terminator out of the name length
 					
-			externalRasterDMSPtr->fileName[0] = (UInt8)externalRasterDMSPtr->nameLength - 1;
+			externalRasterDMSPtr->fileName[0] =
+													(UInt8)externalRasterDMSPtr->nameLength - 1;
 			
 			count = externalRasterDMSPtr->nameLength;
 			errCode = MReadData (fileStreamPtr, 
@@ -3940,8 +3932,8 @@ SInt16 ReadImagineExternalRasterDMS (
 									
 		if (errCode == noErr)
 			{
-			externalRasterDMSPtr->layerStackValidFlagsOffset = 
-				GetLongInt64Value ((CharPtr)&externalRasterDMSPtr->layerStackValidFlagsOffset);
+			externalRasterDMSPtr->layerStackValidFlagsOffset = GetLongInt64Value (
+								(CharPtr)&externalRasterDMSPtr->layerStackValidFlagsOffset);
 
 			//externalRasterDMSPtr->layerStackValidFlagsOffset1 =
 			//	GetLongIntValue ((CharPtr)&externalRasterDMSPtr->layerStackValidFlagsOffset1);
@@ -3969,7 +3961,7 @@ SInt16 ReadImagineExternalRasterDMS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4062,9 +4054,9 @@ Boolean ReadImagineHistogramColumn (
 			if (binFunctionType == 1 && fileInfoPtr->numberBytes > 2) 
 				{
 						// Make sure that the min and max limits for the bins are consistant
-						// with those already read for the channel.  This needs to be done for
-						// histograms based on a linear combination so that the bin calculations
-						// are correct.
+						// with those already read for the channel.  This needs to be done
+						// for histograms based on a linear combination so that the bin
+						// calculations are correct.
 					
 				histogramSummaryPtr->minValue = doubleMinLimit;
 				histogramSummaryPtr->maxValue = doubleMaxLimit;
@@ -4116,7 +4108,8 @@ Boolean ReadImagineHistogramColumn (
 				else if (binFunctionType == 1)
 					{
 							// This refers to the storage being defined by a linear
-							// function: index = (value-minLimit)*numberBins/(maxLimit-minLimit).
+							// function:
+							// 		index = (value-minLimit)*numberBins/(maxLimit-minLimit).
 							
 					lastBufferIndex = ULONG_MAX;
 					compactionBinCount = 0;
@@ -4206,7 +4199,8 @@ Boolean ReadImagineHistogramColumn (
 				else if (binFunctionType == 1)
 					{
 							// This refers to the storage being defined by a linear
-							// function: index = (value-minLimit)*numberBins/(maxLimit-minLimit).
+							// function:
+							// 		index = (value-minLimit)*numberBins/(maxLimit-minLimit).
 					
 					if (fileInfoPtr->numberBytes <= 2)
 						{					
@@ -4302,7 +4296,7 @@ Boolean ReadImagineHistogramColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4535,7 +4529,7 @@ Boolean ReadImagineImageParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4564,6 +4558,7 @@ Boolean ReadImagineLayerBlockParameters (
 				FileStringName255*				extensionFileNamePtr,
 				SInt64*								layerStackValidFlagsOffsetPtr,
 				UInt32								channel)
+				
 {
 	UCharPtr								ehfaNodeType = (UCharPtr)"Edms_State";
 	UCharPtr								externRasterDMSType = (UCharPtr)"ImgExternalRaster";
@@ -4631,8 +4626,8 @@ Boolean ReadImagineLayerBlockParameters (
 		
 		fileInfoPtr->hfaPtr[channel].numberBlockWidths = numberBlockWidths;
 			
-				// Get the number of blocks that represent the number of lines in the image.
-				// This is only used for images stored in an extension file.
+				// Get the number of blocks that represent the number of lines in the
+				// image. This is only used for images stored in an extension file.
 			
 		ratio = ldiv (fileInfoPtr->numberLines, eimgLayer.blockHeight);
 		numberBlockHeights = ratio.quot;
@@ -4701,7 +4696,8 @@ Boolean ReadImagineLayerBlockParameters (
 							if (channel == 0)
 								{
 								fileInfoPtr->bandInterleave = kBIBlock;
-								fileInfoPtr->numberHeaderBytes = edmsVirtualBlockInfo[0].offset;
+								fileInfoPtr->numberHeaderBytes =
+																	edmsVirtualBlockInfo[0].offset;
 								
 								}	// end "if (channel == 0)"
 							
@@ -4759,12 +4755,13 @@ Boolean ReadImagineLayerBlockParameters (
 												eimgLayer.blockWidth * eimgLayer.blockHeight * 
 																				fileInfoPtr->numberBytes;
 															
-						fileInfoPtr->hfaPtr[channel].blockOffset = fileInfoPtr->numberChannels *
-																fileInfoPtr->hfaPtr[channel].blockSize;
+						fileInfoPtr->hfaPtr[channel].blockOffset =
+												fileInfoPtr->numberChannels *
+															fileInfoPtr->hfaPtr[channel].blockSize;
 															
 						fileInfoPtr->hfaPtr[channel].layerOffsetBytes =
 										fileInfoPtr->numberHeaderBytes +
-													channel * fileInfoPtr->hfaPtr[channel].blockSize;
+												channel * fileInfoPtr->hfaPtr[channel].blockSize;
 							
 						layerOffsetBytesSetFlag = TRUE;
 						
@@ -4807,7 +4804,7 @@ Boolean ReadImagineLayerBlockParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4848,9 +4845,9 @@ Boolean ReadImageEstaStatistics (
 	if (errCode == noErr)
 		{
 		errCode = MReadData (fileStreamPtr, 
-										&count, 
-										estaStatisticsPtr,
-										kErrorMessages);
+									&count,
+									estaStatisticsPtr,
+									kErrorMessages);
 										
 		estaStatisticsPtr->minimum = 
 										GetDoubleValue ((UCharPtr)&estaStatisticsPtr->minimum);
@@ -4877,7 +4874,7 @@ Boolean ReadImageEstaStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5028,11 +5025,11 @@ Boolean ReadImageEprjMapInfo (
 						{
 						lBufferPtr = &bufferPtr[offset];
 						eprjMapInfoPtr->xMapCoordinateLowerRight = 
-																		GetDoubleValue (lBufferPtr);
+																			GetDoubleValue (lBufferPtr);
 						
 						lBufferPtr += 8;
 						eprjMapInfoPtr->yMapCoordinateLowerRight = 
-																		GetDoubleValue (lBufferPtr);
+																			GetDoubleValue (lBufferPtr);
 						
 						lBufferPtr += 8;
 						
@@ -5127,7 +5124,7 @@ Boolean ReadImageEprjMapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5144,7 +5141,7 @@ Boolean ReadImageEprjMapInfo (
 //
 //	Value Returned:	
 //
-// Called By:			 in SImagine.cpp
+// Called By:			LoadImagineImageMapInfoForChannel
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/2006
 //	Revised By:			Larry L. Biehl			Date: 01/24/2006
@@ -5209,8 +5206,8 @@ Boolean ReadImageEprjMapProjection (
 			{	
 			lBufferPtr = bufferPtr;
 			
-					// The first string should be "PE_CORDSYS" (Projection Engine Coordinate 
-					// System.
+					// The first string should be "PE_CORDSYS" (Projection Engine
+					// Coordinate System.
 					
 			numberCharacters = GetLongIntValue (lBufferPtr);
 			lBufferPtr += 4;
@@ -5251,7 +5248,8 @@ Boolean ReadImageEprjMapProjection (
 				offset = GetLongIntValue (lBufferPtr) - eprjMapProjectionOffset;
 				lBufferPtr = &bufferPtr[offset];
 				
-						// Skip second number characters/offset (which must be something else).
+						// Skip second number characters/offset (which must be something
+						// else).
 						
 				//numberCharacters = GetLongIntValue (lBufferPtr);
 				//lBufferPtr += 4;
@@ -5370,7 +5368,7 @@ Boolean ReadImageEprjMapProjection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5387,7 +5385,7 @@ Boolean ReadImageEprjMapProjection (
 //
 //	Value Returned:	
 //
-// Called By:			 in SImagine.cpp
+// Called By:			LoadImagineImageMapInfoForChannel
 //
 //	Coded By:			Larry L. Biehl			Date: 12/22/2003
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -5535,7 +5533,7 @@ Boolean ReadImageEprjDatum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5631,9 +5629,9 @@ Boolean ReadImageEprjProParameters (
 					// Skip the executable name (char p).
 					// The first 4 bytes represent the number of characters in the 
 					// 	executable name.
-					// After the count of characters will be the offset where the characters
-					// 	are actually stored.  for all cases that I have found so far this
-					// 	starts right after the offset value.
+					// After the count of characters will be the offset where the
+					//		characters are actually stored.  for all cases that I have found
+					//		so far this starts right after the offset value.
 					// Take into account the fact that this buffer does not start from the 
 					// 	beginning of the file.
 					// Note: 4/1/2005 found case where needed to check for bad data to be
@@ -5693,8 +5691,8 @@ Boolean ReadImageEprjProParameters (
 					{
 					if (numberCharacters > 0)
 						{
-								// Force offset to represent offset from start of data read into
-								// the buffer not from the start of the file.
+								// Force offset to represent offset from start of data read
+								// into the buffer not from the start of the file.
 							
 						offset -= eprjProParametersOffset;
 					
@@ -5848,7 +5846,7 @@ Boolean ReadImageEprjProParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5964,7 +5962,7 @@ Boolean ReadImageSpheroid (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

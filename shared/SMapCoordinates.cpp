@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,23 +11,14 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/21/2019
+//	Revision date:			11/26/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //
-//	Brief description:	This file contains functions that handle map coordinate settings.
-//
-//	Functions in file:	Boolean				ConvertLambertAzimuthalEqualAreaToLatLong
-//								Boolean 				CoordinateDialogDialog
-//								void					ShowCoordinateWindow
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
+//	Brief description:	This file contains functions that handle map coordinate
+//								settings.
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -91,17 +82,13 @@
 	#include "WMapCoordinateDialog.h" 	 
 #endif	// defined multispec_win 
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-	
-	#include "LMultiSpec.h"
-	#include "LImageView.h"
-	#include "LImageFrame.h"
+#if defined multispec_wx
+	#include "xMultiSpec.h"
+	#include "xImageView.h"
+	#include "xImageFrame.h"
 	#define IDOK  wxID_OK
-	#include "LMapCoordinateDialog.h"
-#endif	// defined multispec_lin
-
-//#include	"SExtGlob.h"	
+	#include "xMapCoordinateDialog.h"
+#endif	// defined multispec_wx
 
 #define	kNotPackedDegrees					0
 #define	kDegrees								1
@@ -121,162 +108,147 @@
 
 #define	kMaxCoordinateValue		1.0e37
 
-extern void 			LoadDItemString (
-								DialogPtr							dialogPtr,
-								SInt16								itemNumber,
-								CharPtr								theStringPtr);
-
-extern double			msfnz (
-								double								eccent,
-								double								sinphi,
-								double								cosphi);
-
-extern double			tsfnz (
-								double								eccent,
-								double								phi,
-								double								sinphi);
-
 
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.
 
-SInt16 					ConvertDecimalDegreesToDMS (
-								double								decimalDegrees,
-								SInt16*								degreesPtr,
-								SInt16*								minutesPtr,
-								double*								secondsPtr,
-								Boolean*								outOfRangeFlagPtr);	
+SInt16 ConvertDecimalDegreesToDMS (
+				double								decimalDegrees,
+				SInt16*								degreesPtr,
+				SInt16*								minutesPtr,
+				double*								secondsPtr,
+				Boolean*								outOfRangeFlagPtr);
 
-void 						ConvertLCRectToMapRect_TransformCoordinate (
-								PlanarCoordinateSystemInfo*	planarCoordinatePtr,
-								DoubleRect*							lineColumnRectPtr, 
-								DoubleRect*							mapRectanglePtr,
-								UInt16								boundingCode);
+void ConvertLCRectToMapRect_TransformCoordinate (
+				PlanarCoordinateSystemInfo*	planarCoordinatePtr,
+				DoubleRect*							lineColumnRectPtr, 
+				DoubleRect*							mapRectanglePtr,
+				UInt16								boundingCode);
 
-Boolean					CoordinateDialogHandleInvalidValidEPSGCode (
-								DialogPtr							dialogPtr,
-								SInt16								epsgCode,
-								Boolean								validEPSGCodeFromGDALFlag,
-								Boolean								lastEPSGCodeValidFlag);
+Boolean CoordinateDialogHandleInvalidValidEPSGCode (
+				DialogPtr							dialogPtr,
+				SInt16								epsgCode,
+				Boolean								validEPSGCodeFromGDALFlag,
+				Boolean								lastEPSGCodeValidFlag);
 
-void						CoordinateDialogSetProjectionParameters (
-								DialogPtr							dialogPtr,
-								SInt16								projectionCode,
-								double								longitudeCentralMeridian,
-								double								latitudeOrigin,
-								double								scaleFactorOfCentralMeridian,
-								double								falseEasting,
-								double								falseNorthing,
-								double								standardParallel1,
-								double								standardParallel2,
-								double								falseOriginLongitude,
-								double								falseOriginLatitude,
-								double								falseOriginEasting,
-								double								falseOriginNorthing);
+void CoordinateDialogSetProjectionParameters (
+				DialogPtr							dialogPtr,
+				SInt16								projectionCode,
+				double								longitudeCentralMeridian,
+				double								latitudeOrigin,
+				double								scaleFactorOfCentralMeridian,
+				double								falseEasting,
+				double								falseNorthing,
+				double								standardParallel1,
+				double								standardParallel2,
+				double								falseOriginLongitude,
+				double								falseOriginLatitude,
+				double								falseOriginEasting,
+				double								falseOriginNorthing);
 
-PascalVoid	 			DrawDatumPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
-											
-PascalVoid	 			DrawEllipsoidPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
-											
-PascalVoid	 			DrawMapUnitsPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
-											
-PascalVoid	 			DrawProjectionPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
-											
-PascalVoid	 			DrawReferenceSystemPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);	
-								
-double					e4fn (
-								double								x);
+PascalVoid DrawDatumPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
 
-void 						GetBoundingOrientationAngleRect (
-								DoubleRect*							boundingMapRectPtr,
-								PlanarCoordinateSystemInfoPtr	planarCoordinatePtr,
-								UInt16								boundingCode);
-									
-SInt16					GetEllipsoidCodeFromDatumCode (
-								SInt16								datumCode);				
+PascalVoid DrawEllipsoidPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
 
-Boolean					GetEllipsoidParameters (
-								SInt16								ellipsoidCode,
-								double*								radiusSpheroidPtr,
-								double*								semiMajorAxisPtr,
-								double*								semiMinorAxisPtr);	
-								
-Boolean					SetGDA94ParametersFromZone (
-								SInt16								gridZone,
-								double*								longitudeCentralMeridianPtr,
-								double*								latitudeOriginPtr,
-								double*								scaleFactorOfCentralMeridianPtr,
-								double*								falseEastingPtr,
-								double*								falseNorthingPtr);
+PascalVoid DrawMapUnitsPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
 
-SInt16 					GetProjectionCodeFromProjectionMenuItem (
-								SInt16								projectionTypeMenuSelection);		
+PascalVoid DrawProjectionPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
 
-SInt16					GetReferenceSystemCodeFromReferenceSystemMenuItem (
-								SInt16								referenceSystemMenuSelection);
+PascalVoid DrawReferenceSystemPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);	
 
-Boolean					SetProjectionParametersFromZone (
-								SInt16								referenceSystemCode,
-								SInt16								datumCode,
-								SInt16*								gridZonePtr,
-								UCharPtr								fipsZoneNamePtr,
-								SInt16*								projectionCodePtr,
-								double*								longitudeCentralMeridianPtr,
-								double*								latitudeOriginPtr,
-								double*								scaleFactorOfCentralMeridianPtr,
-								double*								falseEastingPtr,
-								double*								falseNorthingPtr,
-								double*								standardParallel1Ptr,
-								double*								standardParallel2Ptr,
-								double*								falseOriginLongitudePtr,
-								double*								falseOriginLatitudePtr,
-								double*								falseOriginEastingPtr,
-								double*								falseOriginNorthingPtr);
+double e4fn (
+				double								x);
 
-Boolean					SetStatePlaneParametersFromZone (
-								SInt16								gridZone,
-								SInt16								datumCode,
-								UCharPtr								fipsZoneNamePtr,
-								SInt16*								projectionCodePtr,
-								double*								longitudeCentralMeridianPtr,
-								double*								latitudeOriginPtr,
-								double*								scaleFactorOfCentralMeridianPtr,
-								double*								falseEastingPtr,
-								double*								falseNorthingPtr,
-								double*								standardParallel1Ptr,
-								double*								standardParallel2Ptr,
-								double*								falseOriginLongitudePtr,
-								double*								falseOriginLatitudePtr,
-								double*								falseOriginEastingPtr,
-								double*								falseOriginNorthingPtr);
+void GetBoundingOrientationAngleRect (
+				DoubleRect*							boundingMapRectPtr,
+				PlanarCoordinateSystemInfoPtr	planarCoordinatePtr,
+				UInt16								boundingCode);
 
-Boolean					SetTMPulkovo1942ParametersFromZone (
-								SInt16*								gridZonePtr,
-								double*								longitudeCentralMeridian,
-								double*								latitudeOriginPtr,
-								double*								scaleFactorOfCentralMeridianPtr,
-								double*								falseEastingPtr,
-								double*								falseNorthingPtr);
+SInt16 GetEllipsoidCodeFromDatumCode (
+				SInt16								datumCode);
+
+Boolean GetEllipsoidParameters (
+				SInt16								ellipsoidCode,
+				double*								radiusSpheroidPtr,
+				double*								semiMajorAxisPtr,
+				double*								semiMinorAxisPtr);	
+
+Boolean SetGDA94ParametersFromZone (
+				SInt16								gridZone,
+				double*								longitudeCentralMeridianPtr,
+				double*								latitudeOriginPtr,
+				double*								scaleFactorOfCentralMeridianPtr,
+				double*								falseEastingPtr,
+				double*								falseNorthingPtr);
+
+SInt16 GetProjectionCodeFromProjectionMenuItem (
+				SInt16								projectionTypeMenuSelection);
+
+SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
+				SInt16								referenceSystemMenuSelection);
+
+Boolean SetProjectionParametersFromZone (
+				SInt16								referenceSystemCode,
+				SInt16								datumCode,
+				SInt16*								gridZonePtr,
+				UCharPtr								fipsZoneNamePtr,
+				SInt16*								projectionCodePtr,
+				double*								longitudeCentralMeridianPtr,
+				double*								latitudeOriginPtr,
+				double*								scaleFactorOfCentralMeridianPtr,
+				double*								falseEastingPtr,
+				double*								falseNorthingPtr,
+				double*								standardParallel1Ptr,
+				double*								standardParallel2Ptr,
+				double*								falseOriginLongitudePtr,
+				double*								falseOriginLatitudePtr,
+				double*								falseOriginEastingPtr,
+				double*								falseOriginNorthingPtr);
+
+Boolean SetStatePlaneParametersFromZone (
+				SInt16								gridZone,
+				SInt16								datumCode,
+				UCharPtr								fipsZoneNamePtr,
+				SInt16*								projectionCodePtr,
+				double*								longitudeCentralMeridianPtr,
+				double*								latitudeOriginPtr,
+				double*								scaleFactorOfCentralMeridianPtr,
+				double*								falseEastingPtr,
+				double*								falseNorthingPtr,
+				double*								standardParallel1Ptr,
+				double*								standardParallel2Ptr,
+				double*								falseOriginLongitudePtr,
+				double*								falseOriginLatitudePtr,
+				double*								falseOriginEastingPtr,
+				double*								falseOriginNorthingPtr);
+
+Boolean SetTMPulkovo1942ParametersFromZone (
+				SInt16*								gridZonePtr,
+				double*								longitudeCentralMeridian,
+				double*								latitudeOriginPtr,
+				double*								scaleFactorOfCentralMeridianPtr,
+				double*								falseEastingPtr,
+				double*								falseNorthingPtr);
 /*
-void 						SetUpProjectionPopUpMenu (
-								DialogPtr							dialogPtr);
+void SetUpProjectionPopUpMenu (
+				DialogPtr							dialogPtr);
 
-void 						SetUpEllipsoidPopUpMenu (
-								DialogPtr							dialogPtr);
+void SetUpEllipsoidPopUpMenu (
+				DialogPtr							dialogPtr);
 
-void 						SetUpReferenceSystemPopUpMenu (
-								DialogPtr							dialogPtr);
+void SetUpReferenceSystemPopUpMenu (
+				DialogPtr							dialogPtr);
 */								
 								
 								
@@ -289,7 +261,7 @@ SInt16					gReferenceSystemSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -327,7 +299,7 @@ Boolean AreasIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -380,7 +352,7 @@ Boolean CheckIfGeodeticModelInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -474,7 +446,7 @@ Boolean CheckIfGridCoordinateSystemInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -520,7 +492,7 @@ Boolean CheckIfMapInfoMatches (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -542,6 +514,7 @@ Boolean CheckIfMapInfoMatches (
 
 void CloseCoefficientsVectorPointers (
 				MapProjectionInfoPtr				mapProjectionInfoPtr)
+
 {  
 	PlanarCoordinateSystemInfoPtr	planarCoordinateInfoPtr;
 	
@@ -563,7 +536,7 @@ void CloseCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -603,9 +576,8 @@ void ComputeAndSetScaleInformation (
 		
 	displaySpecsHandle = GetDisplaySpecsHandle (windowInfoHandle);
 	
-	displaySpecsPtr = (DisplaySpecsPtr)GetHandleStatusAndPointer (
-																				displaySpecsHandle,
-																				&handleStatus);
+	displaySpecsPtr = (DisplaySpecsPtr)GetHandleStatusAndPointer (displaySpecsHandle,
+																						&handleStatus);
 
 	if (displaySpecsPtr != NULL)
 		{
@@ -624,7 +596,7 @@ void ComputeAndSetScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -639,7 +611,7 @@ void ComputeAndSetScaleInformation (
 //
 //	Value Returned:	
 // 
-// Called By:			LoadDMSLatLongStrings in SMapTran.cppm
+// Called By:			LoadDMSLatLongStrings in SMapCordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/03/2004
 //	Revised By:			Larry L. Biehl			Date: 02/28/2007		
@@ -690,7 +662,7 @@ SInt16 ConvertDecimalDegreesToDMS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -735,7 +707,7 @@ void ConvertFeetToMeters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -751,8 +723,8 @@ void ConvertFeetToMeters (
 //
 // Value Returned:	None
 // 
-// Called By:			WriteKMLFile in SSaveWrt.cpp
-//							ListFieldData in SLstData.cpp
+// Called By:			WriteKMLFile in SSaveWrite.cpp
+//							ListFieldData in SListData.cpp
 //							ReprojectNearestNeighborLineColumn in SRectification.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/2006
@@ -841,7 +813,7 @@ void ConvertLCPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -885,7 +857,7 @@ void ConvertLCRectToMapRect (
 			// Get point to file map projection specification. We do not need 
 			// to lock it here since no other routines are called								
 			
-	mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoH);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoH);
 
 	if (mapProjectionHandle != NULL)
 		{
@@ -940,7 +912,7 @@ void ConvertLCRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1018,7 +990,7 @@ void ConvertLCRectToMapRect_TransformCoordinate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1131,7 +1103,7 @@ void ConvertMapPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1171,64 +1143,12 @@ void ConvertMapPointToLC (
 									&lMapPoint, 
 									lineColumnPtr);		
 			
-/*	mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoH);
-	
-	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																				mapProjectionHandle);
-
-	if (mapProjectionInfoPtr != NULL)
-		{
-		planarCoordinateSystemInfoPtr = &mapProjectionInfoPtr->planarCoordinate;
-		
-				// Get the map rectangle relative to the offscreen bit/pix map	
-				// We are assuming that the y map coordinate increases from north (top)
-				// to south (bottom).																				
-		
-		xMap11 = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
-		yMap11 = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
-		
-		xPixelSize = mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-		yPixelSize = -mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-		
-		if (planarCoordinateSystemInfoPtr->mapOrientationAngle != 0)
-			{
-			double			cosOrAngle,
-								sinOrAngle,
-								xOffset,
-								yOffset,
-								xOrientationOrigin,
-								yOrientationOrigin;
-								
-			xOrientationOrigin = 
-							mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin;
-			yOrientationOrigin = 
-							mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin;
-								
-			cosOrAngle = cos (planarCoordinateSystemInfoPtr->mapOrientationAngle);
-			sinOrAngle = sin (planarCoordinateSystemInfoPtr->mapOrientationAngle);
-			
-			yOffset = (cosOrAngle*(lMapPoint.v-yOrientationOrigin) + 
-												sinOrAngle*(lMapPoint.h - xOrientationOrigin))/
-												 (cosOrAngle*cosOrAngle + sinOrAngle*sinOrAngle);
-												 
-			xOffset = (lMapPoint.h - xOrientationOrigin - sinOrAngle*yOffset)/cosOrAngle;
-			
-			lMapPoint.h = xOrientationOrigin + xOffset;
-			lMapPoint.v = yOrientationOrigin + yOffset;
-				
-			}	// end "if (planarCoordinateSystemInfoPtr->mapOrientationAngle != 0)"
-		
-		lineColumnPtr->v = (SInt32)((lMapPoint.v - yMap11)/yPixelSize + 1.5);
-		lineColumnPtr->h = (SInt32)((lMapPoint.h - xMap11)/xPixelSize + 1.5);
-		
-		}	// end "if (mapProjectionInfoPtr != NULL)" 
-*/
-}	// end "ConvertMapPointToLC" 
+}	// end "ConvertMapPointToLC"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1318,19 +1238,21 @@ void ConvertMapRectToLCRect (
 				sinOrAngle = sin (planarCoordinateSystemInfoPtr->mapOrientationAngle);
 				
 				yOffset = (cosOrAngle*(lMapRect.top-yOrientationOrigin) + 
-													sinOrAngle*(lMapRect.left - xOrientationOrigin))/
-													 (cosOrAngle*cosOrAngle + sinOrAngle*sinOrAngle);
+											sinOrAngle*(lMapRect.left - xOrientationOrigin)) /
+													(cosOrAngle*cosOrAngle + sinOrAngle*sinOrAngle);
 													 
-				xOffset = (lMapRect.left - xOrientationOrigin - sinOrAngle*yOffset)/cosOrAngle;
+				xOffset = (lMapRect.left - xOrientationOrigin -
+																	sinOrAngle*yOffset)/cosOrAngle;
 				
 				lMapRect.left = xOrientationOrigin + xOffset;
 				lMapRect.top = yOrientationOrigin + yOffset;
 				
 				yOffset = (cosOrAngle*(lMapRect.bottom-yOrientationOrigin) + 
-													sinOrAngle*(lMapRect.right - xOrientationOrigin))/
-													 (cosOrAngle*cosOrAngle + sinOrAngle*sinOrAngle);
+											sinOrAngle*(lMapRect.right - xOrientationOrigin))/
+													(cosOrAngle*cosOrAngle + sinOrAngle*sinOrAngle);
 													 
-				xOffset = (lMapRect.right - xOrientationOrigin - sinOrAngle*yOffset)/cosOrAngle;
+				xOffset = (lMapRect.right - xOrientationOrigin -
+																		sinOrAngle*yOffset)/cosOrAngle;
 				
 				lMapRect.right = xOrientationOrigin + xOffset;
 				lMapRect.bottom = yOrientationOrigin + yOffset;
@@ -1338,25 +1260,30 @@ void ConvertMapRectToLCRect (
 				}	// end "if (planarCoordinateSystemInfoPtr->mapOrientationAngle != 0)"
 				
 					// Get line-column for the input top-left map units.
-					// A column or line will be included if more than half of it is with the area
-					// to the right or lower of the map coordinate value. And to the left or above
-					// the lower right map coordinate value.
-					// 	- Add .5 pixel (line or column to take into account that xMap11 and yMap11
-					// 		represent the center of the upper left pixel.
-					// 	- Add 1 to convert resulting value from 0 based line / column to 1 based.
-					//		- Add .5 to allow for the above criterea for amount of area to be within
-					//			a pixel to be included for the upper-left pixel in the selection. One
-					//			does not need to add this for the lower-right pixel in the selection.
+					// A column or line will be included if more than half of it is with
+					// the area to the right or lower of the map coordinate value. And to
+					// the left or above the lower right map coordinate value.
+					// 	- Add .5 pixel (line or column to take into account that xMap11
+					//			and yMap11 represent the center of the upper left pixel.
+					// 	- Add 1 to convert resulting value from 0 based line / column to
+					//			1 based.
+					//		- Add .5 to allow for the above criterea for amount of area to be
+					// 		within a pixel to be included for the upper-left pixel in the
+					//			selection. One does not need to add this for the lower-right
+					//			pixel in the selection.
 				
 			lineColumnRectPtr->left = (SInt32)((lMapRect.left - xMap11)/xPixelSize + 2.0);
 			
 			lineColumnRectPtr->top = (SInt32)((lMapRect.top - yMap11)/yPixelSize + 2.0);
 					// Get line-column for the input bottom-right map units.	
 													
-			lineColumnRectPtr->right = (SInt32)((lMapRect.right - xMap11)/xPixelSize + 1.499);
+			lineColumnRectPtr->right =
+										(SInt32)((lMapRect.right - xMap11)/xPixelSize + 1.499);
 			
-			lineColumnRectPtr->bottom = (SInt32)((lMapRect.bottom - yMap11)/yPixelSize + 1.499);
+			lineColumnRectPtr->bottom =
+										(SInt32)((lMapRect.bottom - yMap11)/yPixelSize + 1.499);
 			/*
+						// For debugging.
 				int numberChars = sprintf ((char*)gTextString3,
 					" SMapCoordinates:ConvertMapRectToLCRect (right, bottom): %f, %f%s",
 					(lMapRect.right - xMap11)/xPixelSize + 1.499,
@@ -1415,7 +1342,7 @@ void ConvertMapRectToLCRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1468,33 +1395,14 @@ void ConvertMapRectToOffscreenRect (
 	offscreenRectPtr->bottom = MAX (upperLeftPoint.v, lowerRightPoint.v);
 	offscreenRectPtr->left = MIN (upperLeftPoint.h, lowerRightPoint.h);
 	offscreenRectPtr->right = MAX (upperLeftPoint.h, lowerRightPoint.h);
-	/*
-				// Get the map rectangle relative to the offscreen bit/pix map	
-				// for the x (column) part of rectangle											
-				
-	xMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
-	xPixelSize = mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-												
-	lineColumnPtr->h = (SInt32)((mapPoint->x - xMapCoordinate11)/xPixelSize + 1.5);
-		
-			// Get the selected point location relative to the offscreen			
-			// bit/pix map																			
-	
-	offscreenPointPtr->v = (SInt32)
-		((selectedlineColPtr->v - displaySpecsPtr->displayedLineStart)/
-												displaySpecsPtr->displayedLineInterval);
-											
-	offscreenPointPtr->h = (SInt16)
-		((selectedlineColPtr->h - displaySpecsPtr->displayedColumnStart)/
-												displaySpecsPtr->displayedColumnInterval);
-	*/
-}	// end "ConvertMapRectToOffscreenRect" 
+
+}	// end "ConvertMapRectToOffscreenRect"
 			
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1546,7 +1454,7 @@ void ConvertMapPointToOrientationAngleMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1620,14 +1528,12 @@ Boolean ConvertMapPointToWinPoint (
 				// Get the map rectangle relative to the offscreen pixmap	
 				// for the x (column) part of rectangle											
 				
-		//windowDoublePoint.h = mapXPoint - mapToWindowUnitsVariablesPtr->mapXOrigin;
 		mapXOffset = mapXPoint - mapToWindowUnitsVariablesPtr->mapXOrigin;
 		windowDoublePoint.h = mapXOffset/mapToWindowUnitsVariablesPtr->xMapPixelSize;
 		
 				// Get the map rectangle relative to the offscreen pixmap	
 				// for the y (line) part of rectangle																
 		
-		//windowDoublePoint.v = mapPoint->y - mapToWindowUnitsVariablesPtr->mapYOrigin;
 		mapYOffset = mapYPoint - mapToWindowUnitsVariablesPtr->mapYOrigin;
 		windowDoublePoint.v = mapYOffset/mapToWindowUnitsVariablesPtr->yMapPixelSize;
 						
@@ -1694,7 +1600,7 @@ Boolean ConvertMapPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1754,7 +1660,7 @@ void ConvertMapRectToWinRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1762,6 +1668,7 @@ void ConvertMapRectToWinRect (
 //
 //	Software purpose:	This routine converts the input window point coordinates to the
 //							map point coordinates for the current window.
+//								Currently not needed so commented out.
 //
 //	Parameters in:				
 //
@@ -1866,7 +1773,7 @@ void ConvertWinPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1911,7 +1818,7 @@ void ConvertMetersToFeet (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1930,7 +1837,7 @@ void ConvertMetersToFeet (
 // Value Returned:	None
 // 
 // Called By:			DrawArcViewShapes in SArcView.cpp
-//							GetWindowMapRect in SMapTran.cpp
+//							GetWindowMapRect in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2001
 //	Revised By:			Larry L. Biehl			Date: 03/12/2015		
@@ -1981,7 +1888,7 @@ void ConvertWinRectToMapRect (
 			// Get point to file map projection specification. We do not need 
 			// to lock it here since no other routines are called								
 			
-	mapProjectionHandle = GetFileMapProjectionHandle2(windowInfoH);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoH);
 	
 	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (mapProjectionHandle);
 
@@ -1998,7 +1905,7 @@ void ConvertWinRectToMapRect (
 			legendWidth = GetLegendWidth (windowInfoH);
 		#endif	// defined multispec_mac          
 		                         
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 					// Note that the legend in the Windows version is in its on
 					// view. It is not the same as that used for the image. Therefore
 					// the legend width is always 0 within the image view. However
@@ -2006,7 +1913,7 @@ void ConvertWinRectToMapRect (
 					// or print window, then the actual legend width needs to be
 					// returned.
 			legendWidth = GetLegendWidthForWindow (windowInfoH);
-		#endif	// defined multispec_win || defined multispec_lin		
+		#endif	// defined multispec_win || defined multispec_wx		
 		
 				// Initialize mapRect
 				// This takes into account the possibility of a side by side	
@@ -2047,7 +1954,7 @@ void ConvertWinRectToMapRect (
 				mapRect.bottom += originMapUnits;
 			#endif	// defined multispec_mac                
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (winUseOriginFlag)
 					{               
 					originMapUnits = displaySpecsPtr->origin[kVertical] * yIntervalSize;                                        
@@ -2055,7 +1962,7 @@ void ConvertWinRectToMapRect (
 					mapRect.bottom += originMapUnits;
 					
 					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			mapRect.top += yMapCoordinate11 + 
 													((double)displayedLineStart - 1.5)*yPixelSize;
@@ -2078,7 +1985,7 @@ void ConvertWinRectToMapRect (
 				mapRect.right += originMapUnits;
 			#endif	// defined multispec_mac                
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (winUseOriginFlag)
 					{                 
 					originMapUnits = displaySpecsPtr->origin[kHorizontal] * xIntervalSize;                                      
@@ -2086,27 +1993,17 @@ void ConvertWinRectToMapRect (
 					mapRect.right += originMapUnits;
 					
 					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 													
 			mapRect.left += xMapCoordinate11 + 
 										((double)displayedColumnStart - 1.5)*xPixelSize;
 			mapRect.right += xMapCoordinate11 + 
 										((double)displayedColumnStart - 1.5)*xPixelSize;
-		
-			//boundingMapRectPtr->top = MIN (mapRect.top, mapRect.bottom);
-			//boundingMapRectPtr->bottom = MAX (mapRect.top, mapRect.bottom);
-			//boundingMapRectPtr->left = MIN (mapRect.left, mapRect.right);
-			//boundingMapRectPtr->right = MAX (mapRect.left, mapRect.right);
 			
 			if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle != 0)
 				GetBoundingOrientationAngleRect (&mapRect,
 															&mapProjectionInfoPtr->planarCoordinate,
 															boundingCode);
-	
-			//boundingMapRectPtr->top = MIN (mapRect.top, mapRect.bottom);
-			//boundingMapRectPtr->bottom = MAX (mapRect.top, mapRect.bottom);
-			//boundingMapRectPtr->left = MIN (mapRect.left, mapRect.right);
-			//boundingMapRectPtr->right = MAX (mapRect.left, mapRect.right);
 			
 			}	// end "mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0"
 			
@@ -2124,20 +2021,22 @@ void ConvertWinRectToMapRect (
 			lineColumnRect.right *= displayedColumnInterval/magnification;				
 		
 			#if defined multispec_mac
-				originMapUnits = displaySpecsPtr->origin[kHorizontal] * displayedColumnInterval;
+				originMapUnits =
+							displaySpecsPtr->origin[kHorizontal] * displayedColumnInterval;
 				lineColumnRect.left += originMapUnits;
 				lineColumnRect.right += originMapUnits;
 			#endif	// defined multispec_mac                
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (winUseOriginFlag)
 					{                 
-					originMapUnits = displaySpecsPtr->origin[kHorizontal] * displayedColumnInterval;                                      
+					originMapUnits =
+							displaySpecsPtr->origin[kHorizontal] * displayedColumnInterval;
 					lineColumnRect.left += originMapUnits;
 					lineColumnRect.right += originMapUnits;
 					
 					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 													
 			lineColumnRect.left += ((double)displayedColumnStart - 1.5);
 			lineColumnRect.right += ((double)displayedColumnStart - 1.5);
@@ -2149,20 +2048,22 @@ void ConvertWinRectToMapRect (
 			lineColumnRect.bottom *= displayedLineInterval/magnification;
 		
 			#if defined multispec_mac
-				originMapUnits = displaySpecsPtr->origin[kVertical] * displayedLineInterval;
+				originMapUnits =
+									displaySpecsPtr->origin[kVertical] * displayedLineInterval;
 				lineColumnRect.top += originMapUnits;
 				lineColumnRect.bottom += originMapUnits;
 			#endif	// defined multispec_mac                
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				if (winUseOriginFlag)
 					{               
-					originMapUnits = displaySpecsPtr->origin[kVertical] * displayedLineInterval;                                        
+					originMapUnits =
+									displaySpecsPtr->origin[kVertical] * displayedLineInterval;
 					lineColumnRect.top += originMapUnits;
 					lineColumnRect.bottom += originMapUnits;
 					
 					}	// end "if (winUseOriginFlag)"
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			lineColumnRect.top += ((double)displayedLineStart - 1.5);
 			lineColumnRect.bottom += ((double)displayedLineStart - 1.5);
@@ -2172,57 +2073,7 @@ void ConvertWinRectToMapRect (
 								&lineColumnRect, 
 								&mapRect,
 								boundingCode);
-			/*
-			TransformCoordinatePoint (
-							(double)mapRect.left,
-							(double)mapRect.top,
-							&mapRect.left,
-							&mapRect.top,
-							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
-									
-			TransformCoordinatePoint (
-							(double)mapRect.right,
-							(double)mapRect.bottom,
-							&mapRect.right,
-							&mapRect.bottom,
-							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
-		
-			if (boundingCode == kAllCorners)
-				{	
-				double							bottom,
-													left,
-													right,
-													top;
-													
-				TransformCoordinatePoint (
-							(double)mapRect.right,
-							(double)mapRect.top,
-							&right,
-							&top,
-							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
-									
-				TransformCoordinatePoint (
-							(double)mapRect.left,
-							(double)mapRect.bottom,
-							&left,
-							&bottom,
-							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
-							
-				mapRect.left = MIN (left, mapRect.left);
-				mapRect.right = MAX (right, mapRect.right);
-				mapRect.top = MIN (top, mapRect.top);
-				mapRect.bottom = MAX (bottom, mapRect.bottom);
-				
-				}	// end "if (boundingCode == kAllCorners)"
-			*/
+
 			}	// end "else mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0"
 
 		*boundingMapRectPtr = mapRect;
@@ -2234,7 +2085,7 @@ void ConvertWinRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2280,7 +2131,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2296,7 +2147,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 //
 // Value Returned:  	None
 //
-// Called By:			Menus   in menu.c
+// Called By:			OnEditImageMapParameters in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/16/1992
 //	Revised By:			Larry L. Biehl			Date: 04/18/2019
@@ -2325,8 +2176,8 @@ Boolean CoordinateDialog (void)
 			// Get a pointer to the map projection information if it exists.		
 	
 	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																		fileInfoPtr->mapProjectionHandle,
-																		kLock);
+																	fileInfoPtr->mapProjectionHandle,
+																	kLock);
 											
 #if defined multispec_mac
 	UInt8									datumName[64];
@@ -2635,10 +2486,14 @@ Boolean CoordinateDialog (void)
 							horizontalPixelSize = GetDItemRealValue (dialogPtr, 11);
 							verticalPixelSize = GetDItemRealValue (dialogPtr, 13);
 			
-							LoadDItemRealValue (dialogPtr, 7, xMapCoordinate11, decimalDigits);	
-							LoadDItemRealValue (dialogPtr, 9, yMapCoordinate11, decimalDigits);	
-							LoadDItemRealValue (dialogPtr, 11, horizontalPixelSize, decimalDigits);	
-							LoadDItemRealValue (dialogPtr, 13, verticalPixelSize, decimalDigits);
+							LoadDItemRealValue (
+											dialogPtr, 7, xMapCoordinate11, decimalDigits);
+							LoadDItemRealValue (
+											dialogPtr, 9, yMapCoordinate11, decimalDigits);
+							LoadDItemRealValue (
+											dialogPtr, 11, horizontalPixelSize, decimalDigits);
+							LoadDItemRealValue (
+											dialogPtr, 13, verticalPixelSize, decimalDigits);
 							
 							}	// end "if (itemHit != 0 && gMapUnitsSelection != itemHit)"
 			
@@ -2693,7 +2548,8 @@ Boolean CoordinateDialog (void)
 																		&gEllipsoidSelection,
 																		&gMapUnitsSelection);
 		
-								// Set the projection parameters based on the selected reference system
+								// Set the projection parameters based on the selected
+								// reference system
 								
 						CoordinateDialogSetParametersFromRS (dialogPtr,
 																			gReferenceSystemSelection-1,
@@ -2706,14 +2562,14 @@ Boolean CoordinateDialog (void)
 																			
 						if (gReferenceSystemSelection == kByEPSGCodeCode+1)												
 							validEPSGCodeFlag = CoordinateDialogSetParametersFromEPSGCode (
-																						dialogPtr,
-																						epsgCode,
-																						validEPSGCodeFlag,
-																						epsgName,
-																						datumName,
-																						ellipsoidName,
-																						&gMapUnitsSelection,
-																						&gProjectionSelection);
+																				dialogPtr,
+																				epsgCode,
+																				validEPSGCodeFlag,
+																				epsgName,
+																				datumName,
+																				ellipsoidName,
+																				&gMapUnitsSelection,
+																				&gProjectionSelection);
 						
 						adjustUpperLeftMapPointFlag = TRUE;
 		
@@ -2789,7 +2645,8 @@ Boolean CoordinateDialog (void)
 					
 				case  IDC_ZoneDirection:	// Northern or Southern Hemisphere
 					GetDialogItemText (theHandle, gTextString);
-					if (gTextString[0] > 1 || (gTextString[1] != 'N' && gTextString[1] != 'S'))
+					if (gTextString[0] > 1 ||
+												(gTextString[1] != 'N' && gTextString[1] != 'S'))
 						{
 						okayFlag = FALSE;
 						if (gTextString[0] == 1)
@@ -2834,13 +2691,13 @@ Boolean CoordinateDialog (void)
 						if (gridZoneDirection[1] == 'S')
 							gridZoneWithDirection = -gridZone;
 						CoordinateDialogSetParametersFromRS (dialogPtr,
-																				gReferenceSystemSelection-1,
-																				&gProjectionSelection,
-																				gridZoneDirection,
-																				gridZoneWithDirection,
-																				abs (gDatumSelection)-1,
-																				abs (gEllipsoidSelection)-1,
-																				&gridZone);
+																			gReferenceSystemSelection-1,
+																			&gProjectionSelection,
+																			gridZoneDirection,
+																			gridZoneWithDirection,
+																			abs (gDatumSelection)-1,
+																			abs (gEllipsoidSelection)-1,
+																			&gridZone);
 																				
 						InvalWindowRect (GetDialogWindow (dialogPtr), &theProjectionPopupBox);
 						
@@ -2873,7 +2730,8 @@ Boolean CoordinateDialog (void)
 							adjustUpperLeftMapPointFlag = TRUE;
 							
 							InvalWindowRect (GetDialogWindow (dialogPtr), &theDatumPopupBox);
-							InvalWindowRect (GetDialogWindow (dialogPtr), &theEllipsoidPopupBox);
+							InvalWindowRect (
+											GetDialogWindow (dialogPtr), &theEllipsoidPopupBox);
 							
 							}	// end "if (itemHit != 0 && ..."
 			
@@ -2900,15 +2758,16 @@ Boolean CoordinateDialog (void)
 							gDatumSelection = itemHit;
 							
 							gEllipsoidSelection = CoordinateDialogSetDatumParameters (
-																				dialogPtr,
-																				gDatumSelection-1,
-																				abs (gEllipsoidSelection)-1,
-																				FALSE,
-																				FALSE);
+																			dialogPtr,
+																			gDatumSelection-1,
+																			abs (gEllipsoidSelection)-1,
+																			FALSE,
+																			FALSE);
 							
 							adjustUpperLeftMapPointFlag = TRUE;
 						
-							InvalWindowRect (GetDialogWindow (dialogPtr), &theEllipsoidPopupBox);	
+							InvalWindowRect (
+											GetDialogWindow (dialogPtr), &theEllipsoidPopupBox);
 							
 							}	// end "if (itemHit != 0)"
 			
@@ -2934,7 +2793,8 @@ Boolean CoordinateDialog (void)
 							{
 							gEllipsoidSelection = itemHit;
 		
-							CoordinateDialogSetEllipsoidParameters (dialogPtr, gEllipsoidSelection-1);
+							CoordinateDialogSetEllipsoidParameters (
+																	dialogPtr, gEllipsoidSelection-1);
 								
 							}	// end "if (itemHit != 0 && gEllipsoidSelection != itemHit)"
 			
@@ -2971,9 +2831,10 @@ Boolean CoordinateDialog (void)
 						// Verify that the grid zone parameter is within range if it is being
 						// used.
 						
-				itemHit = CoordinateDialogCheckIfZoneIsValid (dialogPtr,
-																				gReferenceSystemSelection - 1,
-																				gridZoneDirection);
+				itemHit = CoordinateDialogCheckIfZoneIsValid (
+																		dialogPtr,
+																		gReferenceSystemSelection - 1,
+																		gridZoneDirection);
 						
 				}	// end "if	(itemHit == 1)"
 				
@@ -3068,13 +2929,12 @@ Boolean CoordinateDialog (void)
 		END_CATCH_ALL
 	#endif // defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMMapCoordinateDlg* dialogPtr = NULL;
 
 		try
 			{
-			//dialogPtr = new CMMapCoordinateDlg ((wxWindow*)GetMainFrame ());
-         dialogPtr = new CMMapCoordinateDlg (NULL);
+			dialogPtr = new CMMapCoordinateDlg (NULL);
 			returnFlag = dialogPtr->DoDialog (fileInfoPtr, mapProjectionInfoPtr);
 
 			if (dialogPtr != NULL)
@@ -3086,7 +2946,7 @@ Boolean CoordinateDialog (void)
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;    
 			}
-	#endif // defined multispec_lin 
+	#endif // defined multispec_wx 
 	
 	if (returnFlag && fileInfoPtr->mapProjectionHandle != NULL)
 		{
@@ -3099,11 +2959,15 @@ Boolean CoordinateDialog (void)
 							(Boolean)GetCoordinateHeight (gActiveImageWindowInfoH));
 		#endif // defined multispec_win
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
 			CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 			imageFrameCPtr->ShowCoordinateView (3);
-		#endif // defined multispec_lin
+		
+			SetUpCoordinateUnitsPopUpMenu (NULL,
+														gActiveImageWindowInfoH,
+														imageFrameCPtr->m_coordinatesBar);
+		#endif // defined multispec_wx
 		
 				// Update the coordinate parameters.
 		
@@ -3148,7 +3012,7 @@ Boolean CoordinateDialog (void)
 				
 			else if ((displayPlanarMapUnitsIndex == kDecimalLatLongUnitsMenuItem ||
 							displayPlanarMapUnitsIndex == kDMSLatLongUnitsMenuItem) &&
-									!DetermineIfLatLongPossible (gActiveImageWindowInfoH))
+										!DetermineIfLatLongPossible (gActiveImageWindowInfoH))
 						// Cannot keep the lat-long display coordinate unit setting
 						// force to meters
 				newCoordinatesUnits = kMetersUnitsMenuItem;
@@ -3157,12 +3021,16 @@ Boolean CoordinateDialog (void)
 				newAreaUnits = kSqKilometersUnitsMenuItem;
 				
 			}	// end "if (fileMapUnitsCode == kUnknownCode)"
+		
+		if (newCoordinatesUnits < 0)
+					// Then use the current setting
+			newCoordinatesUnits = displayPlanarMapUnitsIndex;
 			
 		if (newCoordinatesUnits >= 0)
 			{
 			SetCoordinateViewUnits (gActiveImageWindowInfoH, newCoordinatesUnits);
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				int coordinateUnitsSetting = newCoordinatesUnits;
 			
 				CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
@@ -3183,7 +3051,7 @@ Boolean CoordinateDialog (void)
 			{
 			SetCoordinateViewAreaUnits (gActiveImageWindowInfoH, newAreaUnits);
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				int areaUnitsSetting = newAreaUnits;
 			
 				CMImageView* imageViewCPtr = GetWindowPtr (gActiveImageWindowInfoH);
@@ -3195,8 +3063,9 @@ Boolean CoordinateDialog (void)
 			#endif
 			
 			if (newAreaUnits >= 0)
-				SetControlValue (GetCoordinateViewAreaUnitsControl (gActiveImageWindowInfoH),
-										newAreaUnits);
+				SetControlValue (
+								GetCoordinateViewAreaUnitsControl (gActiveImageWindowInfoH),
+								newAreaUnits);
 			
 			}	// and "if (newAreaUnits >= 0)"
 			
@@ -3227,7 +3096,7 @@ Boolean CoordinateDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3243,7 +3112,7 @@ Boolean CoordinateDialog (void)
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/2012
 //	Revised By:			Larry L. Biehl			Date: 03/19/2012	
@@ -3265,7 +3134,7 @@ void CoordinateDialogActivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3281,7 +3150,7 @@ void CoordinateDialogActivateProjectionParameters (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2012
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017	
@@ -3327,7 +3196,8 @@ SInt16 CoordinateDialogCheckIfZoneIsValid (
 					}	// end "if (referenceSystemCode == kByEPSGCodeCode)"
 				
 				SetDLogControlHilite (dialogPtr, 1, 255);
-				DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, alertStringNumber, 0, NULL);
+				DisplayAlert (
+						kErrorAlertID, kStopAlert, kAlertStrID, alertStringNumber, 0, NULL);
 				SetDLogControlHilite (dialogPtr, 1, 0);
 				
 				SelectDialogItemText (dialogPtr, selectItem, 0, SHRT_MAX);
@@ -3362,7 +3232,7 @@ SInt16 CoordinateDialogCheckIfZoneIsValid (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3378,7 +3248,7 @@ SInt16 CoordinateDialogCheckIfZoneIsValid (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/2012
 //	Revised By:			Larry L. Biehl			Date: 03/19/2012	
@@ -3400,7 +3270,7 @@ void CoordinateDialogDeactivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3432,10 +3302,10 @@ SInt16 CoordinateDialogGetCodeFromSelection (
 		code = abs (selection) - 1;
 	#endif	// defined multispec_mac   
                              
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 				// Allow for Windows 0 based menu selections.
 		code = abs (selection);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 
 	return (code);
 	
@@ -3445,7 +3315,7 @@ SInt16 CoordinateDialogGetCodeFromSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3462,7 +3332,7 @@ SInt16 CoordinateDialogGetCodeFromSelection (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/17/2012
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017	
@@ -3539,7 +3409,7 @@ void CoordinateDialogGetMinMaxZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3571,10 +3441,10 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 		selection = code + 1;
 	#endif	// defined multispec_mac   
                              
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 				// Allow for Windows & Linux 0 based menu selections.
 		selection = code;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 
 	return (selection);
 	
@@ -3583,7 +3453,7 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3598,7 +3468,7 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/2012
 //	Revised By:			Larry L. Biehl			Date: 03/09/2019
@@ -3621,9 +3491,9 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 			#if defined multispec_mac
 				ShowDialogItem (dialogPtr, IDC_ProjectionCombo);
 			#endif	// defined multispec_mac
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				ShowDialogItem (dialogPtr, IDC_ProjectionName);
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			ShowDialogItem (dialogPtr, IDC_DatumPrompt);
 			ShowDialogItem (dialogPtr, IDC_DatumName);
 			ShowDialogItem (dialogPtr, IDC_ProjectionEllipsoidPrompt);
@@ -3647,15 +3517,15 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 			{
 			HideDialogItem (dialogPtr, IDC_ProjectionPrompt);
 			HideDialogItem (dialogPtr, IDC_ProjectionCombo);
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				HideDialogItem (dialogPtr, IDC_ProjectionName);
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_DatumPrompt);
 			HideDialogItem (dialogPtr, IDC_DatumName);
 			HideDialogItem (dialogPtr, IDC_ProjectionEllipsoidPrompt);
 			HideDialogItem (dialogPtr, IDC_EllipsoidName);
 			
-			#if !defined multispec_lin
+			#if !defined multispec_wx
 				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
 			#endif
 			HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
@@ -3692,7 +3562,7 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3701,9 +3571,9 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 //	Software purpose:	The purpose of this routine is to show the projection parameters
 //							for the specified projection. The datum will change if specific
 //							projections like Orthographic are selected. This will only occur
-//							when the user makes a selection on the projection popup menu. This
-//							is signified with datumSelectionPtr and ellipsoidSelectionPtr not
-//							being NULL
+//							when the user makes a selection on the projection popup menu.
+//							This is signified with datumSelectionPtr and
+//							ellipsoidSelectionPtr not being NULL
 //
 //	Parameters in:		None
 //
@@ -3711,7 +3581,7 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
 //	Revised By:			Larry L. Biehl			Date: 03/15/2019
@@ -3953,7 +3823,8 @@ void CoordinateDialogHideShowProjectionParameters (
 		{
 		if (setDatumParametersFlag)
 			{
-			ellipsoidCode = CoordinateDialogGetCodeFromSelection (abs (*ellipsoidSelectionPtr));
+			ellipsoidCode = CoordinateDialogGetCodeFromSelection (
+																		abs (*ellipsoidSelectionPtr));
 			
 			*ellipsoidSelectionPtr = CoordinateDialogSetDatumParameters (
 																			dialogPtr,
@@ -3969,12 +3840,12 @@ void CoordinateDialogHideShowProjectionParameters (
 		else	// !setDatumParametersFlag
 			*datumSelectionPtr = abs (*datumSelectionPtr);
 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			dialogPtr->SetStaticTextOrDropDownList (abs (*datumSelectionPtr),
 																	IDC_DatumCombo, 
 																	IDC_DatumName,
 																	*datumSelectionPtr<0);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 															
 		}	// end "if (datumSelectionPtr != NULL && ellipsoidSelectionPtr != NULL)"
 		
@@ -3983,7 +3854,7 @@ void CoordinateDialogHideShowProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3998,7 +3869,7 @@ void CoordinateDialogHideShowProjectionParameters (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017	
@@ -4119,7 +3990,7 @@ void CoordinateDialogInitialize (
 		*latitudeOriginPtr = mapProjectionInfoPtr->gridCoordinate.latitudeOrigin;
 		
 		if (mapProjectionInfoPtr->gridCoordinate.projectionCode ==
-																				kLambertConformalConicCode)
+																			kLambertConformalConicCode)
 			{
 			*longitudeCentralMeridianPtr = 
 								mapProjectionInfoPtr->gridCoordinate.falseOriginLongitude;								
@@ -4292,14 +4163,14 @@ void CoordinateDialogInitialize (
 		*referenceSystemSelectionPtr = referenceSystemCode + 1;
 	#endif	// defined multispec_mac   
                              
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 				// Adjust for menu selections for Windows 0 based system.
 		(*mapUnitsSelectionPtr)--;
 		*referenceSystemSelectionPtr = referenceSystemCode;
 		(*projectionSelectionPtr)--;
 		(*datumSelectionPtr)--;
 		(*ellipsoidSelectionPtr)--;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 
 			// Set up the dialog items for the specified reference system. Note that
 			// we do not want to cause changes in the initial settings for the projection,
@@ -4338,7 +4209,7 @@ void CoordinateDialogInitialize (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4353,8 +4224,8 @@ void CoordinateDialogInitialize (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
-//							CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
+//							CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/21/2012
 //	Revised By:			Larry L. Biehl			Date: 03/21/2012	
@@ -4384,7 +4255,7 @@ Boolean CoordinateDialogIsZoneDirectionEditable (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4399,8 +4270,8 @@ Boolean CoordinateDialogIsZoneDirectionEditable (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
-//							CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
+//							CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/17/2012
 //	Revised By:			Larry L. Biehl			Date: 04/29/2012	
@@ -4436,7 +4307,7 @@ Boolean CoordinateDialogIsZoneDisplayed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4451,7 +4322,7 @@ Boolean CoordinateDialogIsZoneDisplayed (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017	
@@ -4611,8 +4482,8 @@ void CoordinateDialogOK (
 		LoadSpheroidInformation (fileInfoPtr->mapProjectionHandle);
 		
 				// Do not do this for now. The user need to have control over when this is to be
-				// done. There can be times when the upper left map point is correct; the other
-				// parameters just needed to be changed.
+				// done. There can be times when the upper left map point is correct; the
+				// other parameters just needed to be changed.
 		
 		adjustUpperLeftMapPointFlag = FALSE;
 		if (adjustUpperLeftMapPointFlag)
@@ -4647,7 +4518,7 @@ void CoordinateDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4662,7 +4533,7 @@ void CoordinateDialogOK (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
 //	Revised By:			Larry L. Biehl			Date: 04/21/2019
@@ -4758,7 +4629,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 																	
 		*projectionSelectionPtr = -CoordinateDialogGetSelectionFromCode (projectionCode);
 		  
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			dialogPtr->SetStaticTextOrDropDownList (abs (*mapUnitsSelectionPtr),
 																	IDC_MapUnitsCombo, 
 																	IDC_MapUnitsName,
@@ -4774,7 +4645,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 																	IDC_DatumName,
 																	TRUE);
 			*/
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 				// Verify the correct major/minor axis or radius of sphere parameters
 				// are being displayed. Note that we only have ellipsoid name at this
@@ -4788,7 +4659,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 			HideDialogItem (dialogPtr, IDC_MinorAxisPrompt);
 			HideDialogItem (dialogPtr, IDC_MinorAxis);
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 				LoadDItemString (dialogPtr,
 										IDC_MajorAxisPrompt,
@@ -4811,7 +4682,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 			ShowDialogItem (dialogPtr, IDC_MinorAxisPrompt);
 			ShowDialogItem (dialogPtr, IDC_MinorAxis);
 		
-			#if defined multispec_lin
+			#if defined multispec_wx
 				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
 			#else
 				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
@@ -4834,7 +4705,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4849,7 +4720,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2007
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017	
@@ -4943,7 +4814,8 @@ void CoordinateDialogSetParametersFromRS (
 				gridZoneDirectionPtr[1] = 'N';
 				if (gridZone < 0) 
 					gridZoneDirectionPtr[1] = 'S';
-				LoadDItemString (dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
+				LoadDItemString (
+								dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
 				
 				*gridZonePtr = abs (gridZone);
 				
@@ -4975,7 +4847,8 @@ void CoordinateDialogSetParametersFromRS (
 				
 						// Scale factor for central meridian.																	
 					
-				LoadDItemRealValue (dialogPtr, IDC_ScaleFactor, scaleFactorOfCentralMeridian, 5);
+				LoadDItemRealValue (
+								dialogPtr, IDC_ScaleFactor, scaleFactorOfCentralMeridian, 5);
 				break;
 						
 			case kLambertConformalConicCode:
@@ -5001,7 +4874,8 @@ void CoordinateDialogSetParametersFromRS (
 				
 						// Standard Parallel 2.																	
 					
-				LoadDItemRealValue (dialogPtr, IDC_StandardParallel2, standardParallel2, 4);
+				LoadDItemRealValue (
+										dialogPtr, IDC_StandardParallel2, standardParallel2, 4);
 				break;
 			
 			}	// end "switch (projectionCode)"	
@@ -5023,15 +4897,16 @@ void CoordinateDialogSetParametersFromRS (
 		if (referenceSystemCode == kStatePlaneNAD27RSCode || 
 												referenceSystemCode == kStatePlaneNAD83RSCode)
 			{
-			*projectionSelectionPtr = -CoordinateDialogGetSelectionFromCode (projectionCode);
+			*projectionSelectionPtr =
+										-CoordinateDialogGetSelectionFromCode (projectionCode);
 			  
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				dialogPtr->SetStaticTextOrDropDownList (
 													abs (*projectionSelectionPtr),
 													IDC_ProjectionCombo, 
 													IDC_ProjectionName,
 													TRUE);
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			}	// end "if (referenceSystemCode == kStatePlaneNAD27RSCode || ..."
 		
@@ -5063,7 +4938,7 @@ void CoordinateDialogSetParametersFromRS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5078,7 +4953,7 @@ void CoordinateDialogSetParametersFromRS (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/19/2012
 //	Revised By:			Larry L. Biehl			Date: 03/15/2019
@@ -5112,12 +4987,12 @@ SInt16 CoordinateDialogSetDatumParameters (
 	if (ellipsoidDeactivatedFlag)
 		ellipsoidSelection = -abs (ellipsoidSelection);
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		dialogPtr->SetStaticTextOrDropDownList (abs (ellipsoidSelection),
 																IDC_EllipsoidCombo, 
 																IDC_EllipsoidName,
 																ellipsoidDeactivatedFlag);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	return (ellipsoidSelection);
 	
@@ -5126,7 +5001,7 @@ SInt16 CoordinateDialogSetDatumParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5141,8 +5016,9 @@ SInt16 CoordinateDialogSetDatumParameters (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
-//							CoordinateDialogHideShowProjectionTypeParameters2 in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
+//							CoordinateDialogHideShowProjectionTypeParameters2 in
+//																						SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2009
 //	Revised By:			Larry L. Biehl			Date: 03/09/2019
@@ -5166,7 +5042,7 @@ void CoordinateDialogSetEllipsoidParameters (
 	switch (ellipsoidCode)
 		{
 		case kNoEllipsoidDefinedCode:
-			#if !defined multispec_lin
+			#if !defined multispec_wx
 				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
 			#endif
 			HideDialogItem (dialogPtr, IDC_MajorAxisPrompt);
@@ -5179,7 +5055,7 @@ void CoordinateDialogSetEllipsoidParameters (
 			SetDialogItemToEditText (dialogPtr, IDC_Radius);
 			SetDialogItemToEditText (dialogPtr, IDC_MinorAxis);
 		
-			#if defined multispec_lin
+			#if defined multispec_wx
 				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
 			#else
 				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
@@ -5212,7 +5088,7 @@ void CoordinateDialogSetEllipsoidParameters (
 			SetDialogItemToStaticText (dialogPtr, IDC_Radius);
 			SetDialogItemToStaticText (dialogPtr, IDC_MinorAxis);
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				LoadDItemString (dialogPtr, IDC_MajorAxisPrompt, (CharPtr)"Major axis: ");
 			#else
 				HideDialogItem (dialogPtr, IDC_RadiusPrompt);
@@ -5228,7 +5104,7 @@ void CoordinateDialogSetEllipsoidParameters (
 			LoadDItemRealValue (dialogPtr, IDC_Radius, radiusSpheroid, 4);			
 			SetDialogItemToEditText (dialogPtr, IDC_Radius);
 			
-			#if defined multispec_lin
+			#if defined multispec_wx
 				ShowDialogItem (dialogPtr, IDC_MajorAxisPrompt);
 				LoadDItemString (dialogPtr,
 										IDC_MajorAxisPrompt,
@@ -5245,7 +5121,7 @@ void CoordinateDialogSetEllipsoidParameters (
 		
 		}	// end "switch (switch (ellipsoidCode))"
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		dialogPtr->Fit ();
 	#endif
 	
@@ -5254,7 +5130,7 @@ void CoordinateDialogSetEllipsoidParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5269,7 +5145,7 @@ void CoordinateDialogSetEllipsoidParameters (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/13/2012
 //	Revised By:			Larry L. Biehl			Date: 04/13/2012	
@@ -5377,7 +5253,7 @@ void CoordinateDialogSetProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5392,8 +5268,8 @@ void CoordinateDialogSetProjectionParameters (
 //
 // Value Returned:  	None
 //
-// Called By:			CoordinateDialog in SMapTran.cpp
-//							CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
+//							CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2000
 //	Revised By:			Larry L. Biehl			Date: 03/15/2019
@@ -5433,10 +5309,10 @@ void CoordinateDialogSetReferenceSystemParameters (
 	ellipsoidCode = CoordinateDialogGetCodeFromSelection (*ellipsoidSelectionPtr);
 	mapUnitsCode = CoordinateDialogGetCodeFromSelection (*mapUnitsSelectionPtr);
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		HideDialogItem (dialogPtr, IDC_ProjectionName);
 		HideDialogItem (dialogPtr, IDC_MapUnitsName);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	HideDialogItem (dialogPtr, IDC_DatumName);
 	HideDialogItem (dialogPtr, IDC_EllipsoidName);
 	
@@ -5550,7 +5426,8 @@ void CoordinateDialogSetReferenceSystemParameters (
 				{
 				case kGaussKrugerRSCode:
 					gridZoneDirectionPtr[1] = 'N';
-					LoadDItemString (dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
+					LoadDItemString (
+								dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
 					SetDialogItemToStaticText (dialogPtr, IDC_ZoneDirection);
 					
 					if (!initialFlag)
@@ -5560,7 +5437,8 @@ void CoordinateDialogSetReferenceSystemParameters (
 				case kGDA94RSCode:
 					LoadDItemString (dialogPtr, IDC_ZonePrompt, (Str255*)mgaZoneString);
 					gridZoneDirectionPtr[1] = 'S';
-					LoadDItemString (dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
+					LoadDItemString (
+								dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
 					SetDialogItemToStaticText (dialogPtr, IDC_ZoneDirection);
 					
 					if (!initialFlag)
@@ -5604,7 +5482,8 @@ void CoordinateDialogSetReferenceSystemParameters (
 				
 				case kUTM_NAD27RSCode:
 					gridZoneDirectionPtr[1] = 'N';
-					LoadDItemString (dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
+					LoadDItemString (
+								dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
 					SetDialogItemToStaticText (dialogPtr, IDC_ZoneDirection);
 					if (!initialFlag)
 						datumCode = kNAD27Code;
@@ -5612,7 +5491,8 @@ void CoordinateDialogSetReferenceSystemParameters (
 					
 				case kUTM_NAD83RSCode:
 					gridZoneDirectionPtr[1] = 'N';
-					LoadDItemString (dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
+					LoadDItemString (
+								dialogPtr, IDC_ZoneDirection, (Str255*)gridZoneDirectionPtr);
 					SetDialogItemToStaticText (dialogPtr, IDC_ZoneDirection);
 					if (!initialFlag)
 						datumCode = kNAD83Code;
@@ -5707,7 +5587,7 @@ void CoordinateDialogSetReferenceSystemParameters (
 																	NULL,
 																	FALSE);
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		dialogPtr->SetStaticTextOrDropDownList (abs (*mapUnitsSelectionPtr),
 																IDC_MapUnitsCombo, 
 																IDC_MapUnitsName,
@@ -5730,7 +5610,7 @@ void CoordinateDialogSetReferenceSystemParameters (
 
 		if (hideEllipsoidComboFlag)
 			HideDialogItem (dialogPtr, IDC_EllipsoidCombo);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 																			
 	SelectDialogItemText (dialogPtr, dialogTextItem, 0, SHRT_MAX);
 		
@@ -5739,7 +5619,7 @@ void CoordinateDialogSetReferenceSystemParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5813,7 +5693,7 @@ SInt16 CopyMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5854,7 +5734,7 @@ Handle DisposeMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5869,12 +5749,10 @@ Handle DisposeMapProjectionHandle (
 //
 // Value Returned:	None
 // 
-// Called By:			DoImageWUpdateEvent in multiSpec.c
-//							UpdateCursorCoordinates in multiSpec.c
-//							DoThematicWUpdateEvent in thematicWindow.c
+// Called By:			UpdateCursorCoordinates in xImageView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/26/2000
-//	Revised By:			Larry L. Biehl			Date: 04/16/2019
+//	Revised By:			Larry L. Biehl			Date: 09/12/2019
 
 void DrawCursorCoordinates (
 				Handle								windowInfoHandle)
@@ -5890,7 +5768,7 @@ void DrawCursorCoordinates (
 	
 	xCursorStart = (SInt16)GetCoordinateViewCursorStart (windowInfoHandle);
 	
-	if (gPresentCursor == kCross)
+	if (gPresentCursor == kCross || gPresentCursor == kBlinkOpenCursor2)
 		{
 		numberCharacters = (SInt16)GetCoordinateViewNumberChars (windowInfoHandle);
 		viewUnits = GetCoordinateViewUnits (windowInfoHandle);
@@ -5970,17 +5848,21 @@ void DrawCursorCoordinates (
 					verticalPixelSize = 
 									-mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 				
-					xMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
-					yMapCoordinate11 = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+					xMapCoordinate11 =
+										mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+					yMapCoordinate11 =
+										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
 					
 					if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle == 0)
 						{
 						yCoordinateValue = yMapCoordinate11 + (gDoubleCoordinateLineValue - 
-								0.5*displaySpecsPtr->displayedLineInterval) * verticalPixelSize;
+											0.5*displaySpecsPtr->displayedLineInterval) *
+																						verticalPixelSize;
 						yCoordinateValue *= factor;
 				
 						xCoordinateValue = xMapCoordinate11 + (gDoubleCoordinateColumnValue - 
-								0.5*displaySpecsPtr->displayedColumnInterval) * horizontalPixelSize;
+											0.5*displaySpecsPtr->displayedColumnInterval) *
+																						horizontalPixelSize;
 						xCoordinateValue *= factor;
 							
 						}	// end "if (...->planarCoordinate.mapOrientationAngle == 0)"
@@ -5992,23 +5874,27 @@ void DrawCursorCoordinates (
 											xOffset,
 											yOffset;
 											
-						cosOrientAngle = 
-								cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
-						sinOrientAngle = 
-								sin (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+						cosOrientAngle = cos (
+									mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
+						sinOrientAngle = sin (
+									mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
 								
 						xOffset = (gDoubleCoordinateColumnValue - 
-								0.5*displaySpecsPtr->displayedColumnInterval) * horizontalPixelSize;
+											0.5*displaySpecsPtr->displayedColumnInterval) *
+																					horizontalPixelSize;
 								
 						yOffset = (gDoubleCoordinateLineValue - 
-								0.5*displaySpecsPtr->displayedLineInterval) * verticalPixelSize;
+											0.5*displaySpecsPtr->displayedLineInterval) *
+																					verticalPixelSize;
 				
-						xCoordinateValue = mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin + 
-														xOffset*cosOrientAngle + yOffset*sinOrientAngle;
+						xCoordinateValue =
+								mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin +
+												xOffset*cosOrientAngle + yOffset*sinOrientAngle;
 						xCoordinateValue *= factor;
 								
-						yCoordinateValue = mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin -  
-														xOffset*sinOrientAngle + yOffset*cosOrientAngle;
+						yCoordinateValue =
+								mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin -
+												xOffset*sinOrientAngle + yOffset*cosOrientAngle;
 						yCoordinateValue *= factor;
 							
 						}	// end "if (...->planarCoordinate.mapOrientationAngle != 0)"
@@ -6035,13 +5921,13 @@ void DrawCursorCoordinates (
 					GetCoefficientsVectorPointers (mapProjectionInfoPtr);
 			
 					TransformCoordinatePoint (
-								gDoubleCoordinateColumnValue,
-								gDoubleCoordinateLineValue,
-								&xCoordinateValue,
-								&yCoordinateValue,
-								mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-								mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-								mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
+							gDoubleCoordinateColumnValue,
+							gDoubleCoordinateLineValue,
+							&xCoordinateValue,
+							&yCoordinateValue,
+							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
+							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
+							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
 															
 					CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 						
@@ -6111,16 +5997,16 @@ void DrawCursorCoordinates (
 																		decimalPlaces,
 																		numberCharacters);
 			
-			}	// end "if (numberCharacters < 60 && viewUnits != kDMSLatLongUnitsMenuItem)"
+			}	// end "if (numberCharacters < 60 && viewUnits != ..."
 			
 		}	// end "if (gPresentCursor == kCross)"
 					
-	else	// gPresentCursor != kCross
+	else	// gPresentCursor != kCross && != kBlinkOpenCursor2
 		{
 		numberYChars = sprintf ((char*)gTextString, " ");
 		numberXChars = sprintf ((char*)gTextString2, " ");
 		
-		}	// end "else gPresentCursor != kCross"
+		}	// end "else gPresentCursor != kCross && ..."
 		        
 	#if defined multispec_mac
 		TextFont (gWindowTextFont); 			// monaco  
@@ -6146,12 +6032,12 @@ void DrawCursorCoordinates (
 																(char*)gTextString2);
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		CMImageFrame* imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();	
 		imageFrameCPtr->UpdateCursorCoordinates ((char*) gTextString,
 																(char*) gTextString2);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 }	// end "DrawCursorCoordinates" 
 
@@ -6159,7 +6045,7 @@ void DrawCursorCoordinates (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6200,7 +6086,7 @@ pascal void DrawMapUnitsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6241,7 +6127,7 @@ pascal void DrawDatumPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6283,7 +6169,7 @@ pascal void DrawEllipsoidPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6325,7 +6211,7 @@ pascal void DrawProjectionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6367,7 +6253,7 @@ pascal void DrawReferenceSystemPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6471,7 +6357,7 @@ void DrawScaleInformation (
 				
 			}	// end "if (scale > 0)"  
 												  
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			else	// scale <= 0
 				sprintf ((char*)&scaleValueString, "");
 			
@@ -6487,7 +6373,7 @@ void DrawScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6502,8 +6388,8 @@ void DrawScaleInformation (
 //
 // Value Returned:	None
 // 
-//	Called By:			RectangleSelection in selectionArea.c
-//							ShowSelection in selectionArea.c
+//	Called By:			RectangleSelection in SSelectionUtility.cpp
+//							ShowSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2000
 //	Revised By:			Larry L. Biehl			Date: 04/16/2019
@@ -6526,7 +6412,7 @@ void DrawSelectedAreaInformation (
 		SInt16								xCursorStart;
 	#endif	// defined multispec_mac    
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		CMImageFrame* 						imageFrameCPtr;
 		CMImageView* 						imageViewCPtr;
 	#endif	// defined multispec_win || lin
@@ -6543,7 +6429,7 @@ void DrawSelectedAreaInformation (
 											(char*)gTextString2);
 	#endif	// defined multispec_mac   
 	                             
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
@@ -6601,15 +6487,15 @@ void DrawSelectedAreaInformation (
 		DrawText (gTextString2, 0, numberChars); 
 	#endif	// defined multispec_mac   
 	                             
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
-		#if defined multispec_lin
+		#if defined multispec_wx
 			CMCoordinateBar* coordinatesBar = imageFrameCPtr->m_coordinatesBar;
 			//((wxStaticText*)coordinatesBar->FindWindow (IDC_NumberPixelsPrompt))->Show (true);
 			((wxStaticText*)coordinatesBar->FindWindow (IDC_NumberPixels))->Show (true);
 			((wxWindow*)coordinatesBar->FindWindow (IDC_AreaUnitsCombo))->Show (true);
-		#endif	// multispec_lin
+		#endif	// multispec_wx
 
 		imageFrameCPtr->UpdateSelectedAreaInformation ((char*)gTextString,
 																		(char*)gTextString2);
@@ -6620,7 +6506,7 @@ void DrawSelectedAreaInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6635,8 +6521,8 @@ void DrawSelectedAreaInformation (
 //
 // Value Returned:	None
 // 
-//	Called By:			RectangleSelection in selectionArea.c
-//							ShowSelection in selectionArea.c
+//	Called By:			RectangleSelection in SSelectionUtility.cpp
+//							ShowSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2000
 //	Revised By:			Larry L. Biehl			Date: 04/16/2019
@@ -6678,8 +6564,8 @@ void DrawSelectionCoordinates (
 	if (coordinateViewUnits == kLineColumnUnitsMenuItem)
 		{							
 		numberChars = sprintf ((char*)&beginYTextString, 
-											"%ld",
-											lineColumnRectPtr->top);
+											"%d",
+											(int)lineColumnRectPtr->top);
 
 		numberChars = InsertCommasInNumberString (
 											(char*)&beginYTextString, 
@@ -6688,8 +6574,8 @@ void DrawSelectionCoordinates (
 											numberViewCharacters);
 										
 		numberChars = sprintf ((char*)&endYTextString, 
-											"%ld",
-											lineColumnRectPtr->bottom);
+											"%d",
+											(int)lineColumnRectPtr->bottom);
 
 		numberChars = InsertCommasInNumberString (
 											(char*)&endYTextString, 
@@ -6700,8 +6586,8 @@ void DrawSelectionCoordinates (
 				// Load beginning and ending column (x) selections.
 										
 		numberChars = sprintf ((char*)&beginXTextString, 
-											"%ld",
-											lineColumnRectPtr->left);
+											"%d",
+											(int)lineColumnRectPtr->left);
 
 		numberChars = InsertCommasInNumberString (
 											(char*)&beginXTextString, 
@@ -6710,8 +6596,8 @@ void DrawSelectionCoordinates (
 											numberViewCharacters);
 										
 		numberChars = sprintf ((char*)&endXTextString, 
-											"%ld",
-											lineColumnRectPtr->right);
+											"%d",
+											(int)lineColumnRectPtr->right);
 
 		numberChars = InsertCommasInNumberString (
 											(char*)&endXTextString, 
@@ -6911,16 +6797,16 @@ void DrawSelectionCoordinates (
 		RGBForeColor (&savedForeGroundColor);
 	#endif	// defined multispec_mac   
 	                             
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		CMImageFrame* 	imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			((wxStaticText*)imageFrameCPtr->m_coordinatesBar->FindWindow (
 																	IDC_SelectionLine))->Show (true);
 			((wxStaticText*)imageFrameCPtr->m_coordinatesBar->FindWindow (
 																	IDC_SelectionColumn))->Show (true);
-		#endif	// multispec_lin
+		#endif	// multispec_wx
 		
 		imageFrameCPtr->UpdateSelectionCoordinates ((char*)gTextString,
 																	(char*)gTextString2);
@@ -6938,6 +6824,7 @@ void DrawSelectionCoordinates (
 //   of the spheroid, x.  This constant is used in the Polar Stereographic
 //   projection.
 //  --------------------------------------------------------------------*/
+
 double e4fn (
 				double								x)
 
@@ -6955,7 +6842,7 @@ double e4fn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6974,8 +6861,8 @@ double e4fn (
 //							CheckIfVectorOverlaysIntersectImage in SArcView.cpp
 //							SetUpImageOverlayInformation in SImageOverlays.cpp
 //							UpdateFileImageSaveAs in SMenus.cpp
-//							ChangeImageFormatDialogInitialize in SReform1.cpp
-//							InitializeReformatStructure in SReform1.cpp
+//							ChangeImageFormatDialogInitialize in SReformatChangeImageFileFormat.cpp
+//							InitializeReformatStructure in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/2002
 //	Revised By:			Larry L. Biehl			Date: 06/28/2010			
@@ -7007,7 +6894,7 @@ Boolean FindIfMapInformationExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7051,12 +6938,12 @@ Boolean FindIfMapInformationExists (
 						
 		if ((mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize == 0 ||
 				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize == 0) &&
-						mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0)
+								mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0)
 			mapInfoExistsFlag = FALSE;
 														
 		if (mapInfoExistsFlag && 
 					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 0 &&
-							mapProjectionInfoPtr->gridCoordinate.projectionCode == 0)
+								mapProjectionInfoPtr->gridCoordinate.projectionCode == 0)
 			mapInfoExistsFlag = FALSE;
 			
 		}	// end "if (mapProjectionInfoPtr != NULL)"
@@ -7068,7 +6955,7 @@ Boolean FindIfMapInformationExists (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7174,7 +7061,7 @@ void GetAreaNumberWidths (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7214,7 +7101,7 @@ SInt16 GetAreaUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7247,13 +7134,8 @@ SInt16 GetAreaUnitString (
 			// unless the display area units options is set to something other 
 			// than number of pixels.
 	
-	//areaUnitsIndex = kHectareUnitsMenuItem;
-	//displayAreaUnitsIndex = GetCoordinateViewAreaUnits (imageWindowInfoHandle);
 	areaUnitsIndex = GetAreaUnits (imageWindowInfoHandle, fromCoordinateViewFlag);
 	
-	//if (displayAreaUnitsIndex >= kSqKilometersUnitsMenuItem)
-	//	areaUnitsIndex = displayAreaUnitsIndex;
-	 
 	#if defined multispec_mac
 		GetMenuItemText (gPopUpAreaUnitsMenu, 
 								areaUnitsIndex, 
@@ -7268,7 +7150,7 @@ SInt16 GetAreaUnitString (
 		areaUnitsStringPtr[areaUnitsStringPtr[0]+1] = 0;
 	#endif	// defined multispec_mac   
                        
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		MGetString ((UCharPtr)areaUnitsStringPtr,
 							0,
 							IDS_MapAreaUnits01+areaUnitsIndex-2);
@@ -7281,7 +7163,7 @@ SInt16 GetAreaUnitString (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7298,7 +7180,8 @@ SInt16 GetAreaUnitString (
 //
 // Value Returned:	Conversion factor to use
 //
-// Called By:			UpdateCursorCoordinates in multiSpec.cpp
+// Called By:			CoordinateDialogOK
+//							FinishMapInformationSetUp in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/29/2012
 //	Revised By:			Larry L. Biehl			Date: 04/29/2012
@@ -7324,7 +7207,7 @@ double GetConversionFromMetersToNativeMapUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7340,7 +7223,7 @@ double GetConversionFromMetersToNativeMapUnits (
 // Value Returned:	True, if coordinates have changed
 //							False, if coordinates have not changed.
 //
-// Called By:			UpdateCursorCoordinates in multiSpec.cpp
+// Called By:			UpdateCursorCoordinates in xImageView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/2000
 //	Revised By:			Larry L. Biehl			Date: 05/17/2012
@@ -7417,7 +7300,7 @@ Boolean GetCursorCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7489,7 +7372,7 @@ void GetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7505,8 +7388,8 @@ void GetBoundingMapRectangle (
 //
 // Value Returned:	None
 // 
-// Called By:			ConvertWinRectToMapRect in SMapTran.cpp
-//							SetBoundingMapRectangle in SMapTran.cpp
+// Called By:			ConvertWinRectToMapRect in SMapCoordinates.cpp
+//							SetBoundingMapRectangle in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/24/2005
 //	Revised By:			Larry L. Biehl			Date: 07/25/2006		
@@ -7596,7 +7479,7 @@ void GetBoundingOrientationAngleRect (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7635,7 +7518,7 @@ Handle GetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7657,6 +7540,7 @@ Handle GetCoefficientsHandle (
 
 void GetCoefficientsVectorPointers (
 				MapProjectionInfoPtr				mapProjectionInfoPtr)
+				
 {  
 	PlanarCoordinateSystemInfoPtr	planarCoordinateInfoPtr;
 	
@@ -7687,13 +7571,14 @@ void GetCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 GetEllipsoidCodeFromDatumCode
 //
-//	Software purpose:	This routine returns the code for the ellipsoid based on the datum.
+//	Software purpose:	This routine returns the code for the ellipsoid based on the
+//							datum.
 //
 //	Parameters in:		Pointer to the map projection structure	
 //
@@ -7769,7 +7654,7 @@ SInt16 GetEllipsoidCodeFromDatumCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7886,7 +7771,7 @@ Boolean GetEllipsoidParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7922,7 +7807,7 @@ SInt16 GetFileProjectionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7958,7 +7843,7 @@ SInt16 GetFileGridZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7995,7 +7880,7 @@ SInt16 GetFilePlanarMapUnitsCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8031,7 +7916,7 @@ SInt16 GetFileReferenceSystemCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8064,49 +7949,10 @@ SInt16 GetFileSpheroidCode (
 	
 }	// end "GetFileSpheroidCode" 
 
- 
-/*
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		SInt16 GetProjectionCode
-//
-//	Software purpose:	This routine returns the code for the grid coordinate system.
-//
-//	Parameters in:				
-//
-//	Parameters out:				
-//
-//	Value Returned:	
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 04/03/2004
-//	Revised By:			Larry L. Biehl			Date: 03/13/2012		
 
-SInt16 GetProjectionCode (
-				Handle								mapProjectionHandle)
-
-{ 
-	MapProjectionInfoPtr				mapProjectionInfoPtr;
-	
-	
-	mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
-																				mapProjectionHandle);
-										
-	if (mapProjectionInfoPtr != NULL) 
-	  return (mapProjectionInfoPtr->gridCoordinate.projectionCode);    
-	     
-	return (-1);
-	
-}	// end "GetProjectionCode" 
-*/
- 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8145,7 +7991,7 @@ SInt16 GetGridZone (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8184,7 +8030,7 @@ double GetMapOrientationAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8202,8 +8048,8 @@ double GetMapOrientationAngle (
 //							returned will be NULL if there is not enough
 //							memory.
 //
-// Called By:			ReadArcViewMapInfo in SOpnImag.cpp
-//							ReadERDASHeader in SOpnImag.cpp
+// Called By:			ReadArcViewMapInfo in SOpenImage.cpp
+//							ReadERDASHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/1994
 //	Revised By:			Larry L. Biehl			Date: 03/03/2005
@@ -8230,7 +8076,7 @@ Handle GetMapProjectionHandle (void)
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8282,7 +8128,7 @@ void GetPixelSize (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8322,7 +8168,7 @@ SInt16 GetPlanarMapUnitsCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8363,7 +8209,7 @@ SInt16 GetPolynomialOrder (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8403,7 +8249,7 @@ SInt16 GetProjectedCSTypeGeoKey (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8442,7 +8288,7 @@ SInt16 GetProjectionCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8475,7 +8321,7 @@ SInt16 GetProjectionCodeFromProjectionMenuItem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8540,7 +8386,7 @@ SInt16 GetProjectionCodeFromReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8579,7 +8425,7 @@ SInt16 GetReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8614,7 +8460,7 @@ SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
 	else if (referenceSystemMenuSelection == kGeographicRSMenuItem)
 		referenceSystemCode = kGeographicRSCode;
 	
-	else	// referenceSystemMenuSelection > kGeographicMenuItem
+	else	// referenceSystemMenuSelection > kGeographicRSMenuItem
 		referenceSystemCode = referenceSystemMenuSelection - 1;
 	
 	return (referenceSystemCode);
@@ -8624,7 +8470,7 @@ SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8639,7 +8485,7 @@ SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
 //
 // Value Returned:  	None
 //
-// Called By:			Menus   in menu.c
+// Called By:			ComputeAndSetScaleInformation
 //
 //	Coded By:			Larry L. Biehl			Date: 12/14/2000
 //	Revised By:			Larry L. Biehl			Date: 09/21/2001	
@@ -8677,7 +8523,7 @@ double GetScale (
 				screenHorizontalResolution = 72;
 		#endif	// defined multispec_mac   
 		                             
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			CMImageView* imageViewCPtr = GetWindowPtr (windowInfoHandle);
 			screenHorizontalResolution = imageViewCPtr->m_xPixelsPerInch;
 		#endif	// defined multispec_win 
@@ -8710,7 +8556,7 @@ double GetScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8778,7 +8624,7 @@ SInt16 GetSpecificUTMRSFromDatumOrEllipsoid (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8817,7 +8663,7 @@ SInt16 GetSpheroidCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8910,7 +8756,7 @@ SInt16 GetSpheroidCodeFromMajorMinorAxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8997,7 +8843,7 @@ void GetWindowMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9040,7 +8886,7 @@ void InitializeGeodeticModelStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9090,7 +8936,7 @@ void InitializeGridCoordinateSystemStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9132,7 +8978,7 @@ void InitializeMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9178,7 +9024,7 @@ void InitializePlanarCoordinateInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9271,7 +9117,7 @@ SInt16 LoadDMSLatLongStrings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9291,7 +9137,7 @@ SInt16 LoadDMSLatLongStrings (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2012
-//	Revised By:			Larry L. Biehl			Date: 03/01/2012			
+//	Revised By:			Larry L. Biehl			Date: 10/04/2019
 
 void LoadPlanarCoordinates (
 				MapProjectionInfoPtr				mapProjectionInfoPtr,
@@ -9306,7 +9152,8 @@ void LoadPlanarCoordinates (
 			// Load the map transform information
 			
 	mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 0;
-	if (dataValue2 != 0)
+	if (dataValue2 != 0 && dataValue1 != 0)
+				// dataValue1 == 0 implies 0 width pixel
 		mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 
 										-atan2 (dataValue2, dataValue1);
 	
@@ -9338,7 +9185,7 @@ void LoadPlanarCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9355,8 +9202,8 @@ void LoadPlanarCoordinates (
 // Value Returned:	None	
 //												
 // Called By:			ReadNDFHeader in SNDFFormat.cpp
-//							FinishMapInformationSetUp in SOpnImag.cpp
-//							LoadHDF4DataSetInformation in SReadHdfHeader.cpp
+//							FinishMapInformationSetUp in SOpenImage.cpp
+//							LoadHDF4DataSetInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/2004
 //	Revised By:			Larry L. Biehl			Date: 04/26/2012			
@@ -9650,7 +9497,7 @@ void LoadSpheroidInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9688,7 +9535,7 @@ Boolean PointInRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9734,7 +9581,7 @@ void SetAlbersEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9750,8 +9597,8 @@ void SetAlbersEqualAreaParameters (
 //
 // Value Returned:	None
 // 
-// Called By:			CoordinateDialog in SMapTran.cpp
-//							UpdateLayerInfoStructure in SOpnImag.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
+//							UpdateLayerInfoStructure in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/2000
 //	Revised By:			Larry L. Biehl			Date: 12/22/2015	
@@ -9853,7 +9700,8 @@ void SetBoundingMapRectangle (
 														boundingLatLongRectangle.top);
 		
 				// Handle situations where the left and right bounding longitude values
-				// may be in reverse order.  This can happen with the sinusoidal projection.
+				// may be in reverse order.  This can happen with the sinusoidal
+				// projection.
 				
 		if (windowInfoPtr->boundingLatLongRectangle.left > 
 													windowInfoPtr->boundingLatLongRectangle.right)
@@ -9898,7 +9746,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10002,7 +9850,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10040,7 +9888,7 @@ void SetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10055,10 +9903,7 @@ void SetCoefficientsHandle (
 //
 // Value Returned:	None
 // 
-// Called By:			AreaUnitsControlEvent in controls.c
-//							CoordinateUnitsControlEvent in controls.c
-//							ShowHideCoordinateView in menus.c
-//							CoordinateDialog in SMapTran.cpp
+// Called By:			CoordinateDialog in SMapCoordinates.cpp
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
@@ -10096,13 +9941,13 @@ void SetCoordinateViewLocationParameters (
 											
 	Boolean								convertMapProjectionToLatLongFlag;
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMCoordinateBar*					coordinatesBar;
 		CMImageView*						imageViewCPtr;
 		CMImageFrame*						imageFrameCPtr;
 		int									linWidth,
 												linHeight;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	#if defined multispec_win
 		CMImageView*						imageViewCPtr;
@@ -10165,8 +10010,8 @@ void SetCoordinateViewLocationParameters (
 			number = MAX (maxNumberColumns, maxNumberLines);
 			
 			maxNumberCharacters = sprintf ((char*)gTextString, 
-														"%ld", 
-														number);
+														"%u",
+														(unsigned int)number);
 			maxNumberCharacters = InsertCommasInNumberString (
 														(char*)gTextString, 
 														maxNumberCharacters, 
@@ -10228,9 +10073,6 @@ void SetCoordinateViewLocationParameters (
 				
 			else	// viewUnits != kDMSLatLongUnitsMenuItem
 				{	
-				//decimalDigits = 2;
-				//if (viewUnits == kDecimalLatLongUnitsMenuItem)
-				//	decimalDigits = 6;
 				decimalDigits = GetCoordinateViewUnitDecimalPlaces (windowInfoHandle);
 				
 				if (fabs (coordinateRectangle.top) < kMaxCoordinateValue)
@@ -10353,25 +10195,21 @@ void SetCoordinateViewLocationParameters (
 						windowInfoHandle, 
 						GetCoordinateViewCursorStart (windowInfoHandle)+width);
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 		coordinatesBar = imageFrameCPtr->m_coordinatesBar;
 	
-		//((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorLine)))->
-		//														SetWindowStyle (wxST_NO_AUTORESIZE);
 		((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorLine)))->
 																GetSize (&linWidth, &linHeight);
 		((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorLine)))->
 																SetSize (width, linHeight);
 	
-		//((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorColumn)))->
-		//														SetWindowStyle (wxST_NO_AUTORESIZE);
 		((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorColumn)))->
 																GetSize (&linWidth, &linHeight);
 		((wxStaticText*)(coordinatesBar->FindWindow (IDC_CursorColumn)))->
 																SetSize (width, linHeight);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 			// Now get the width required for the selection coordinate string.
 	
@@ -10391,7 +10229,7 @@ void SetCoordinateViewLocationParameters (
 						windowInfoHandle, 
 						GetCoordinateViewSelectionStart (windowInfoHandle)+width);
 						
-	#if defined multispec_lin
+	#if defined multispec_wx
 		((wxStaticText*)(coordinatesBar->FindWindow (
 										IDC_SelectionLine)))->GetSize (&linWidth, &linHeight);
 		((wxStaticText*)(coordinatesBar->FindWindow (
@@ -10401,7 +10239,7 @@ void SetCoordinateViewLocationParameters (
 										IDC_SelectionColumn)))->GetSize (&linWidth, &linHeight);
 		((wxStaticText*)(coordinatesBar->FindWindow (
 										IDC_SelectionColumn)))->SetSize (width, linHeight);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 		// Get the factor to use to convert the number of selected pixels to area.
 			
@@ -10447,8 +10285,8 @@ void SetCoordinateViewLocationParameters (
 	if (GetCoordinateViewAreaUnits (windowInfoHandle) <= kNumberPixelsUnitsMenuItem)
 		{
 		maxNumberCharacters = sprintf ((char*)gTextString, 
-												"%ld",
-												maxNumberPixels);
+												"%u",
+												(unsigned int)maxNumberPixels);
 		
 		maxNumberCharacters = InsertCommasInNumberString (
 												(char*)gTextString, 
@@ -10494,7 +10332,8 @@ void SetCoordinateViewLocationParameters (
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
 		if (imageFrameCPtr != NULL)
-			imageFrameCPtr->GetCoordinateViewComboText ((char*)gTextString, IDC_AreaUnitsCombo);
+			imageFrameCPtr->GetCoordinateViewComboText (
+															(char*)gTextString, IDC_AreaUnitsCombo);
 	#endif	// defined multispec_win
 
 	width = MAX (width, StringWidth (gTextString));
@@ -10513,7 +10352,7 @@ void SetCoordinateViewLocationParameters (
 		SetPort (savedPort);
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		coordinatesBar->Layout ();
 	#endif
 		
@@ -10522,7 +10361,7 @@ void SetCoordinateViewLocationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10581,7 +10420,7 @@ void SetCylindricalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10617,7 +10456,7 @@ void SetEllipsoidFromDatum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10659,7 +10498,7 @@ void SetEquirectangularParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10674,7 +10513,7 @@ void SetEquirectangularParameters (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/17/2012
 //	Revised By:			Larry L. Biehl			Date: 03/17/2012
@@ -10724,7 +10563,7 @@ Boolean SetGDA94ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10764,7 +10603,7 @@ void SetKrovakParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10813,7 +10652,7 @@ void SetLambertAzimuthalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10867,7 +10706,7 @@ void SetLambertConformalConicParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10928,7 +10767,7 @@ void SetMercatorParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -10971,7 +10810,7 @@ void SetOrthographicParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11026,7 +10865,7 @@ void SetPolarStereographicParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11060,8 +10899,6 @@ void SetProjectionParameters (
 	
 															
 	projectionCode = mapProjectionInfoPtr->gridCoordinate.projectionCode;
-	//if (projectionCode == kUTMCode || projectionCode == kStatePlaneCode)
-	//	projectionCode = mapProjectionInfoPtr->gridCoordinate.zoneProjectionCode;
 	
 	if (packedDegreesFlag)
 		{
@@ -11158,7 +10995,7 @@ void SetProjectionParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11211,7 +11048,7 @@ Boolean SetProjectionParametersFromReferenceSystem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11226,8 +11063,8 @@ Boolean SetProjectionParametersFromReferenceSystem (
 //
 //	Value Returned:	None
 //
-// Called By:			CoordinateDialogSetParametersFromRS in SMapTran.cpp
-//							LoadSpheroidInformation in SMapTran.cpp
+// Called By:			CoordinateDialogSetParametersFromRS in SMapCoordinates.cpp
+//							LoadSpheroidInformation in SMapCoordinates.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 04/19/2007
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -11352,7 +11189,7 @@ Boolean SetProjectionParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11374,7 +11211,7 @@ Boolean SetProjectionParametersFromZone (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2007
 //	Revised By:			Larry L. Biehl			Date: 04/30/2007
@@ -11436,7 +11273,7 @@ Boolean SetTMPulkovo1942ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11490,7 +11327,7 @@ void SetSinusoidalParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11534,22 +11371,22 @@ Boolean SetStatePlaneParametersFromZone (
 	
 	#if include_gdal_capability
 		parametersSetFlag = GDALSetStatePlaneParametersFromZone (
-															fipsZone,
-															datumCode,
-															fipsZoneNamePtr,
-															projectionCodePtr,
-															longitudeCentralMeridianPtr,
-															latitudeOriginPtr,
-															scaleFactorOfCentralMeridianPtr,
-															falseEastingPtr,
-															falseNorthingPtr,
-															standardParallel1Ptr,
-															standardParallel2Ptr,
-															falseOriginLongitudePtr,
-															falseOriginLatitudePtr,
-															falseOriginEastingPtr,
-															falseOriginNorthingPtr);
-		
+																	fipsZone,
+																	datumCode,
+																	fipsZoneNamePtr,
+																	projectionCodePtr,
+																	longitudeCentralMeridianPtr,
+																	latitudeOriginPtr,
+																	scaleFactorOfCentralMeridianPtr,
+																	falseEastingPtr,
+																	falseNorthingPtr,
+																	standardParallel1Ptr,
+																	standardParallel2Ptr,
+																	falseOriginLongitudePtr,
+																	falseOriginLatitudePtr,
+																	falseOriginEastingPtr,
+																	falseOriginNorthingPtr);
+	
 		useGDALFlag = TRUE;
 	#endif	// include_gdal_capability
 	
@@ -11641,7 +11478,7 @@ Boolean SetStatePlaneParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11704,7 +11541,7 @@ void SetTransverseMercatorParameters (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11712,6 +11549,7 @@ void SetTransverseMercatorParameters (
 //
 //	Software purpose:	The purpose of this routine is to set up the coordinate units
 //							popup menu according to the map information available.
+//								This is currently not used so commented out.
 //
 //	Parameters in:					
 //
@@ -11719,7 +11557,7 @@ void SetTransverseMercatorParameters (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/04/2000
 //	Revised By:			Larry L. Biehl			Date: 12/12/2000
@@ -11746,7 +11584,7 @@ void SetUpEllipsoidPopUpMenu (
 		EnableMenuItem (menuHandle, kWGS84EllipsoidMenuItem);
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		SInt16							index;
 			
 		CComboBox* comboBoxPtr = 
@@ -11762,14 +11600,14 @@ void SetUpEllipsoidPopUpMenu (
 			index--;
 
 			}	// end "while (index > 0)"
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 			
 }	// end "SetUpEllipsoidPopUpMenu" 
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11777,6 +11615,7 @@ void SetUpEllipsoidPopUpMenu (
 //
 //	Software purpose:	The purpose of this routine is to set up the coordinate units
 //							popup menu according to the map information available.
+//								This is currently not used so commented out.
 //
 //	Parameters in:					
 //
@@ -11784,7 +11623,7 @@ void SetUpEllipsoidPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/30/2001
 //	Revised By:			Larry L. Biehl			Date: 03/23/2022
@@ -11802,7 +11641,7 @@ void SetUpHorizontalDatumPopUpMenu (
 		EnableMenuItem (menuHandle, kWGS84MenuItem);			
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		SInt16							index;
 			
 		CComboBox* comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_DatumCombo);
@@ -11817,14 +11656,14 @@ void SetUpHorizontalDatumPopUpMenu (
 			index--;
 
 			}	// end "while (index > 0)"
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 			
 }	// end "SetUpHorizontalDatumPopUpMenu"  
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11832,6 +11671,7 @@ void SetUpHorizontalDatumPopUpMenu (
 //
 //	Software purpose:	The purpose of this routine is to set up the coordinate units
 //							popup menu according to the map information available.
+//								This is currently not used so commented out.
 //
 //	Parameters in:					
 //
@@ -11839,7 +11679,7 @@ void SetUpHorizontalDatumPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/10/2000
 //	Revised By:			Larry L. Biehl			Date: 03/23/2012
@@ -11874,7 +11714,7 @@ void SetUpProjectionPopUpMenu (
 		EnableMenuItem (menuHandle, kModifiedTransverseMercatorMenuItem);			
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		SInt16							index;
 			
 		CComboBox* comboBoxPtr = 
@@ -11890,14 +11730,14 @@ void SetUpProjectionPopUpMenu (
 			index--;
 
 			}	// end "while (index > 0)"			
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 			
 }	// end "SetUpProjectionPopUpMenu"      
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11905,6 +11745,7 @@ void SetUpProjectionPopUpMenu (
 //
 //	Software purpose:	The purpose of this routine is to set up the reference system
 //							popup menu.
+//								This is currently not used so commented out.
 //
 //	Parameters in:					
 //
@@ -11912,7 +11753,7 @@ void SetUpProjectionPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/2012
 //	Revised By:			Larry L. Biehl			Date: 03/23/2012
@@ -11925,7 +11766,7 @@ void SetUpReferenceSystemPopUpMenu (
 	
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		SInt16							index;
 			
 		CComboBox* comboBoxPtr = 
@@ -11941,14 +11782,14 @@ void SetUpReferenceSystemPopUpMenu (
 			index--;
 
 			}	// end "while (index > 0)"
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 			
 }	// end "SetUpReferenceSystemPopUpMenu"  
 */
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11963,7 +11804,7 @@ void SetUpReferenceSystemPopUpMenu (
 //
 // Value Returned:
 //
-// Called By:			CoordinateDialogInitialize in SMapTran.cpp
+// Called By:			CoordinateDialogInitialize in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2007
 //	Revised By:			Larry L. Biehl			Date: 04/30/2007
@@ -12015,7 +11856,7 @@ Boolean SetUTMParametersFromZone (
 								
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12126,7 +11967,7 @@ SInt16 TransformCoordinatePoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

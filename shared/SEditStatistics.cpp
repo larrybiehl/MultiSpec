@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University                                   
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/15/2019
+//	Revision date:			11/19/2019
 //
 //	Language:				C
 //
@@ -20,44 +20,19 @@
 //	Brief description:	This file contains routines that edit the field and
 //								class statistics.
 //
-//	Functions in file:	void 					AddField
-//								void					AddFieldStatsToClassStats
-//								void 					ChangeFieldType
-//								Boolean				ChangeProjectChannelsList
-//								void					CheckEnhancedStatistics
-//								void					ClearProjectStatistics
-//								void 					ClearProjectMaskStatistics
-//								void 					CutClass
-//								void 					CutField
-//								void 					CutPolygonPoint
-//								void 					DoStatisticsWEdit
-//								Boolean 				EditClassFieldDialog
-//								Boolean 				EditCoordinatesDialog
-//								void 					PasteClassFields
-//								void 					PasteField
-//								void 					PasteFieldToNewClass
-//								void 					RemoveFieldStatsFromClassStats
-//								void 					SetLoadedIntoClassStats
-//								void 					UndoCutClass
-//								void 					UndoCutField
-//								void 					UpdateStatWEditMenu
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"     
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/wx.h"
-	#include "LDialog.h"
-	#include "LImageView.h"
-	#include "LNewClassFieldDialog.h"
-	#include "LEditClassFieldDialog.h"
-	#include "LStatisticsFrame.h"
-	#include "LStatisticsView.h"
-#endif	// defined multispec_lin
+	#include "xDialog.h"
+	#include "xImageView.h"
+	#include "xNewClassFieldDialog.h"
+	#include "xEditClassFieldDialog.h"
+	#include "xStatisticsFrame.h"
+	#include "xStatisticsView.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define IDC_ClassNamePrompt		3
@@ -133,7 +108,7 @@ void UndoCutField (void);
 
                                   	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -148,8 +123,8 @@ void UndoCutField (void);
 //
 // Value Returned:	None
 // 
-// Called By:			UndoCutField in SEdtStat.cpp
-//							PasteField in SEdtStat.cpp
+// Called By:			UndoCutField in SEditStatistics.cpp
+//							PasteField in SEditStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1989
 //	Revised By:			Larry L. Biehl			Date: 02/17/1999			
@@ -200,7 +175,7 @@ void AddField (
 		classNamesPtr[currentStorageClass].numberOfTestFields++;
 		gProjectInfoPtr->numberStatTestFields++;
 		
-		}		// end "else if (fieldType == kTestingType)" 
+		}	// end "else if (fieldType == kTestingType)"
 	
 			// Update the project structure variables.									
 			
@@ -230,7 +205,7 @@ void AddField (
 			if (LGetSelect (TRUE, &cell, gStatisticsListHandle))
 				LSetSelect (FALSE, cell, gStatisticsListHandle);
 			
-			}		// end "if (gProjectInfoPtr->currentField >= 0)" 
+			}	// end "if (gProjectInfoPtr->currentField >= 0)"
 			
 		cell.v = classNamesPtr[currentStorageClass].numberOfFields - 1;
 		row = LAddRow (1, cell.v, gStatisticsListHandle);
@@ -263,7 +238,7 @@ void AddField (
 		if (fieldType == kTrainingType)
 			HiliteControl (gProjectInfoPtr->updateControlH, 0);
 		
-		}		// end "if (gProjectInfoPtr->statsWindowMode == 3 && ...)" 
+		}	// end "if (gProjectInfoPtr->statsWindowMode == 3 && ...)"
 	
 			// Redo outlining the fields so that the 'cut' field will be 			
 			// removed.																				
@@ -290,12 +265,12 @@ void AddField (
 	if (gProjectInfoPtr->toFieldControlH != NULL)		
 		HiliteControl (gProjectInfoPtr->toFieldControlH, 0);
 	
-}		// end "AddField"   
+}	// end "AddField"
 
 	
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -313,8 +288,8 @@ void AddField (
 //
 // Value Returned:	None
 // 
-// Called By:			AddField in SEdtStat.cpp
-//							ChangeFieldType in SEdtStat.cpp
+// Called By:			AddField in SEditStatistics.cpp
+//							ChangeFieldType in SEditStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1994
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -348,7 +323,7 @@ void AddFieldStatsToClassStats (
 	if (fieldIdentPtr[currentField].statsUpToDate)
 		fieldIdentPtr[currentField].loadedIntoClassStats = TRUE;
 		
-	else		// !fieldIdentPtr[currentField].statsUpToDate  
+	else	// !fieldIdentPtr[currentField].statsUpToDate
 		{				
 		classNamesPtr[storageClass].statsUpToDate = FALSE;
 		fieldIdentPtr[currentField].loadedIntoClassStats = FALSE;
@@ -359,7 +334,7 @@ void AddFieldStatsToClassStats (
 													gProjectInfoPtr->updateControlH)
 			HiliteControl (gProjectInfoPtr->updateControlH, 0);
 			
-		}		// end "else !fieldIdentPtr[currentField].statsUpToDate" 
+		}	// end "else !fieldIdentPtr[currentField].statsUpToDate"
 								
 			// Update the count of the number of pixels in the class.
 	
@@ -380,12 +355,12 @@ void AddFieldStatsToClassStats (
 	
 	SetProjectCovarianceStatsToUse (gProjectInfoPtr->covarianceStatsToUse);
 		
-}		// end "AddFieldStatsToClassStats" 
+}	// end "AddFieldStatsToClassStats"
 
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -402,7 +377,7 @@ void AddFieldStatsToClassStats (
 //
 // Value Returned:  	None
 //
-// Called By:			EditClassFieldDialog   in editStatistics.c
+// Called By:			EditClassFieldDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 02/23/1989
 //	Revised By:			Larry L. Biehl			Date: 03/19/1993	
@@ -447,11 +422,11 @@ void ChangeFieldType (
 				fieldIdentPtr[currentField].trainingStatsNumber =
 											gProjectInfoPtr->numberStorageStatFields - 1;
 											
-				}		// end "if (...trainingStatsNumber == -1)" 
+				}	// end "if (...trainingStatsNumber == -1)"
 											
 			AddFieldStatsToClassStats (classStorage, currentField);
 			
-			}		// end "if (fieldType == kTrainingType)" 
+			}	// end "if (fieldType == kTrainingType)"
 			
 		if (fieldType == kTestingType)
 			{
@@ -475,7 +450,7 @@ void ChangeFieldType (
 					
 			fieldIdentPtr[currentField].fieldType = kTestingType;
 			
-			}		// end "if (fieldType == kTestingType)" 
+			}	// end "if (fieldType == kTestingType)"
 			
 		ForceFieldOutlineUpdate (TRUE);
 			
@@ -486,14 +461,14 @@ void ChangeFieldType (
 		gUpdateProjectMenuItemsFlag = TRUE;
 		gUpdateProcessorMenuItemsFlag = TRUE;
 			
-		}		// end "if (classStorage >= 0 && ..." 
+		}	// end "if (classStorage >= 0 && ..."
 
-}		// end "ChangeFieldType" 
+}	// end "ChangeFieldType"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -514,10 +489,10 @@ void ChangeFieldType (
 //
 // Value Returned:	None	
 // 
-// Called By:			ChangeProjectBaseImage in project.c
-//							InitializeNewProject in project.c
-//							ReadProjectFile in project.c
-//							ClearProjectStatistics in projectUtilities.c
+// Called By:			ChangeProjectBaseImage in SProject.cpp
+//							InitializeNewProject in SProject.cpp
+//							ReadProjectFile in SProject.cpp
+//							ClearProjectStatistics in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/01/1991
 //	Revised By:			Larry L. Biehl			Date: 04/01/1991	
@@ -564,18 +539,18 @@ Boolean ChangeProjectChannelsList (
 	if (gProjectInfoPtr->statisticsCode == kMeanStdDevOnly)
 		gProjectInfoPtr->numberCovarianceEntries = numberChannels;
 								
-	else		// gProjectInfoPtr->statisticsCode != kMeanStdDevOnly 
+	else	// gProjectInfoPtr->statisticsCode != kMeanStdDevOnly
 		gProjectInfoPtr->numberCovarianceEntries = 
 										(SInt32)numberChannels * (numberChannels + 1)/2;
 	
 	return (TRUE);
 		
-}		// end "ChangeProjectChannelsList" 
+}	// end "ChangeProjectChannelsList"
 
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -590,10 +565,10 @@ Boolean ChangeProjectChannelsList (
 //
 // Value Returned:	None
 // 
-// Called By:			AddFieldStatsToClassStats in SEdtStat.cpp
-//							CutClass in SEdtStat.cpp
-//							RemoveFieldStatsFromClassStats in SEdtStat.cpp
-//							UndoCutClass in SEdtStat.cpp 
+// Called By:			AddFieldStatsToClassStats in SEditStatistics.cpp
+//							CutClass in SEditStatistics.cpp
+//							RemoveFieldStatsFromClassStats in SEditStatistics.cpp
+//							UndoCutClass in SEditStatistics.cpp 
 //
 //	Coded By:			Larry L. Biehl			Date: 01/26/1994
 //	Revised By:			Larry L. Biehl			Date: 01/26/1994	
@@ -625,17 +600,17 @@ void CheckEnhancedStatistics (void)
 		if (classNamesPtr[classStorage].modifiedStatsFlag)
 			modifiedStatsExistFlag = TRUE;
 			
-		}		// end "for (classIndex=0; classIndex<..." 
+		}	// end "for (classIndex=0; classIndex<..."
 		
 	if (modifiedStatsExistFlag)
 		gProjectInfoPtr->enhancedStatsExistFlag = TRUE;
 		
-	else		// !modifiedStatsExistFlag 
+	else	// !modifiedStatsExistFlag
 		{
 		gProjectInfoPtr->covarianceStatsToUse = kOriginalStats;
 		gProjectInfoPtr->enhancedStatsExistFlag = FALSE;
 		
-		}		// end "else !modifiedStatsExistFlag" 
+		}	// end "else !modifiedStatsExistFlag"
 			
 			// Update processor menu items.													
 			
@@ -647,7 +622,7 @@ void CheckEnhancedStatistics (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -690,7 +665,7 @@ void ClearPixelDataMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -709,8 +684,8 @@ void ClearPixelDataMemory (
 // Value Returned:	None	
 // 
 // Called By:			ChangeProjectBaseImage in SProject.cpp
-//							ProjectMenuClearStatistics in SProjUtl.cpp
-//							StatisticsDialog in SStatist.cpp
+//							ProjectMenuClearStatistics in SProjectUtilities.cpp
+//							StatisticsDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
 //	Revised By:			Larry L. Biehl			Date: 08/15/2019
@@ -780,7 +755,7 @@ void ClearProjectStatistics (
 				if (classNamesPtr[classStorage].numberOfTrainFields > 0)
 					classNamesPtr[classStorage].looCovarianceValue = -1;
 				
-				}		// end "if (clearCode != 3)"
+				}	// end "if (clearCode != 3)"
 	
 				// Continue only if the number of fields in the class is one 		
 				// or more.																			
@@ -806,15 +781,15 @@ void ClearProjectStatistics (
 						fieldIdentPtr->loadedIntoClassStats = FALSE;
 						fieldIdentPtr->statsUpToDate = FALSE;
 								
-						}		// end "if (fieldIdentPtr->field..." 
+						}	// end "if (fieldIdentPtr->field..."
 				
 					fieldNumber = fieldIdentPtr->nextField;
 			
-					}		// end "while (fieldNumber != -1)" 
+					}	// end "while (fieldNumber != -1)"
 			
-				}		// end "if (classNamesPtr[classStorage].number ..." 
+				}	// end "if (classNamesPtr[classStorage].number ..."
 			
-			}		// end "for (classIndex=0; ... 
+			}	// end "for (classIndex=0; ...
 			
 				// Now cut any cluster fields from the project since no				
 				// coordinates exist to compute new statistics for the field.		
@@ -848,15 +823,15 @@ void ClearProjectStatistics (
 									
 						CutField (fieldNumber, classIndex);
 													
-						}		// end "if (...->pointType == kClusterType)"
+						}	// end "if (...->pointType == kClusterType)"
 				
 					fieldNumber = fieldIdentPtr->nextField;
 			
-					}		// end "while (fieldNumber != -1)" 
+					}	// end "while (fieldNumber != -1)"
 			
-				}		// end "if (classNamesPtr[classStorage].number ..." 
+				}	// end "if (classNamesPtr[classStorage].number ..."
 			
-			}		// end "for (classIndex=0; ... 
+			}	// end "for (classIndex=0; ...
 			
 				// Now cut the classes that have no fields.								
 				// If there are no fields for the class then cut the class from 	
@@ -886,9 +861,9 @@ void ClearProjectStatistics (
 				CutClass (classIndex);
 				numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 				
-				}		// end "if (!classNamesPtr[classStorage].numberOfFields == 0)" 
+				}	// end "if (!classNamesPtr[classStorage].numberOfFields == 0)"
 				
-			else		// classNamesPtr[classStorage].numberOfFields > 0 
+			else	// classNamesPtr[classStorage].numberOfFields > 0
 				classIndex++;
 																		
 			}		while (classIndex < numberClasses);
@@ -896,7 +871,7 @@ void ClearProjectStatistics (
 		if (gProcessorCode != kChangeBaseImageProcessor)
 			UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 			
-		}		// end "if (numberClasses > 0 && gProjectInfoPtr->..." 
+		}	// end "if (numberClasses > 0 && gProjectInfoPtr->..."
 		
 			// Set project statistics information.											
 			
@@ -922,7 +897,7 @@ void ClearProjectStatistics (
 		if (gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats)
 			gProjectInfoPtr->covarianceStatsToUse = kOriginalStats;
 			
-		}		// end "if (clearCode != 3)"
+		}	// end "if (clearCode != 3)"
 	
 			// Hilite the 'update statistics' control if needed.						
 	
@@ -942,12 +917,12 @@ void ClearProjectStatistics (
 	gUpdateProcessorMenuItemsFlag = TRUE;
 	gUpdateProjectMenuItemsFlag = TRUE;
 		
-}		// end "ClearProjectStatistics" 
+}	// end "ClearProjectStatistics"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1021,11 +996,11 @@ void ClearProjectMaskStatistics (void)
 						fieldIdentPtr->statsUpToDate = FALSE;
 						fieldStatsChangedFlag = TRUE;
 								
-						}		// end "if (fieldIdentPtr->field..." 
+						}	// end "if (fieldIdentPtr->field..."
 				
 					fieldNumber = fieldIdentPtr->nextField;
 			
-					}		// end "while (fieldNumber != -1)" 
+					}	// end "while (fieldNumber != -1)"
 					
 				if (fieldStatsChangedFlag)
 					{
@@ -1051,11 +1026,11 @@ void ClearProjectMaskStatistics (void)
 							GetNumberOfTrainPixelsInClass (&classNamesPtr[classStorage], 
 																		gProjectInfoPtr->fieldIdentPtr);
 					
-					}		// end "if (fieldStatsChangedFlag)"
+					}	// end "if (fieldStatsChangedFlag)"
 			
-				}		// end "if (classNamesPtr[classStorage].number ..." 
+				}	// end "if (classNamesPtr[classStorage].number ..."
 			
-			}		// end "for (classIndex=0; ... 
+			}	// end "for (classIndex=0; ...
 			
 		if (classStatsChangedFlag)
 			{
@@ -1086,16 +1061,16 @@ void ClearProjectMaskStatistics (void)
 												TRUE,
 												kUTF8CharString);
 			
-			}		// end "if (classStatsChangedFlag)"
+			}	// end "if (classStatsChangedFlag)"
 			
-		}		// end "if (numberClasses > 0 && gProjectInfoPtr->statsLoaded)"
+		}	// end "if (numberClasses > 0 && gProjectInfoPtr->statsLoaded)"
 		
-}		// end "ClearProjectMaskStatistics" 
+}	// end "ClearProjectMaskStatistics"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1167,7 +1142,7 @@ void CutClass (
 				
 			field = gProjectInfoPtr->fieldIdentPtr[field].nextField;
 					
-			}		// end "while (field > -1)"
+			}	// end "while (field > -1)"
 	
 				// Update any statistics variables if needed.			
 						
@@ -1192,7 +1167,7 @@ void CutClass (
 			gProjectInfoPtr->storageClass[classIndex] = tempStorageClass;
 			classNamesPtr[tempStorageClass].classNumber = classIndex+1;
 			
-			}		// end "for (classIndex=removeClass; ..." 
+			}	// end "for (classIndex=removeClass; ..."
 	
 		#if defined multispec_mac 		
 					// Remove the class name from the class pop up menu.					
@@ -1276,7 +1251,7 @@ void CutClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1336,21 +1311,21 @@ void CutEmptyClassesFromProject ()
 				CutClass (classIndex);
 				numberClasses = gProjectInfoPtr->numberStatisticsClasses;
 				
-				}		// end "if (!classNamesPtr[classStorage].numberOfFields == 0)" 
+				}	// end "if (!classNamesPtr[classStorage].numberOfFields == 0)"
 				
-			else		// classNamesPtr[classStorage].numberOfFields > 0 
+			else	// classNamesPtr[classStorage].numberOfFields > 0
 				classIndex++;
 																		
 			}		while (classIndex < numberClasses);
 			
 		}	// end "if (numberClasses > 0)"
 			
-}		// end "CutEmptyClassesFromProject" 
+}	// end "CutEmptyClassesFromProject"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1413,7 +1388,7 @@ void CutField (
 		
 		if (fieldType == kTrainingType)
 			classNamesPtr[currentStorageClass].numberOfTrainFields--;
-		else // fieldType == kTestingType 
+		else	// fieldType == kTestingType 
 			classNamesPtr[currentStorageClass].numberOfTestFields--;
 		
 		if (nextFieldNumber == -1)
@@ -1431,7 +1406,7 @@ void CutField (
 		
 		if (fieldType == kTrainingType)
 			gProjectInfoPtr->numberStatTrainFields--;
-		else		// fieldType == kTestingType 
+		else	// fieldType == kTestingType
 			gProjectInfoPtr->numberStatTestFields--;
 										
 		gProjectInfoPtr->numberTotalPoints -=
@@ -1469,9 +1444,9 @@ void CutField (
 										GetListViewBounds (gStatisticsListHandle, &gTempRect));
 				#endif	// defined multispec_mac 
 					
-				}		// end "if (LGetSelect (TRUE, &cell, gStatisticsListHandle))" 
+				}	// end "if (LGetSelect (TRUE, &cell, gStatisticsListHandle))"
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)" 
+			}	// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
 		
 				// Redo outlining the fields so that the 'cut' field will be 		
 				// removed.																			
@@ -1503,14 +1478,14 @@ void CutField (
 			MHiliteControl (
 					gProjectWindow, gProjectInfoPtr->toFieldControlH, 255);
 		
-		}		// end "if (removeField >= 0 && ..." 
+		}	// end "if (removeField >= 0 && ..."
 			
-}		// end "CutField" 
+}	// end "CutField"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1592,7 +1567,7 @@ void CutPolygonPoint (
 			fieldPointsPtr++;
 			nextFieldNumber--;
 			 
-			}		// end "while (nextFieldNumber > 0)" 
+			}	// end "while (nextFieldNumber > 0)"
 			
 		*fieldPointsPtr = savedFieldPoint;
 		
@@ -1636,14 +1611,14 @@ void CutPolygonPoint (
 				
 		gUpdateProjectMenuItemsFlag = TRUE;
 		
-		}		// end "if (removePoint >= 0 && ...)" 
+		}	// end "if (removePoint >= 0 && ...)"
 			
-}		// end "CutPolygonPoint" 
+}	// end "CutPolygonPoint"
 
 	
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1660,7 +1635,7 @@ void CutPolygonPoint (
 // Value Returned:	None	
 // 
 // Called By:			LoadNewMaskFields in SMask.cpp
-//							StatisticsDialogMaskCheck in SStatist.cpp
+//							StatisticsDialogMaskCheck in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1998
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
@@ -1726,22 +1701,22 @@ void CutMaskClasses (
 						CutField (fieldNumber, classIndex);
 						fieldsCutFlag = TRUE;
 								
-						}		// end "if (fieldIdentPtr->field..." 
+						}	// end "if (fieldIdentPtr->field..."
 				
 					fieldNumber = fieldIdentPtr->nextField;
 			
-					}		// end "while (fieldNumber != -1)"
+					}	// end "while (fieldNumber != -1)"
 				
 						// Check if any statistics are still loaded for the class.
 						
 				if (classNamesPtr->numberStatisticsPixels > 0)
 					 statsLoadedFlag = TRUE;
 			
-				}		// end "if (classNamesPtr[classStorage].number ..." 
+				}	// end "if (classNamesPtr[classStorage].number ..."
 			
-			}		// end "for (classIndex=0; ...
+			}	// end "for (classIndex=0; ...
 			
-		}		// end "if (numberClasses > 0)"
+		}	// end "if (numberClasses > 0)"
 		
 	if (fieldsCutFlag)
 		{
@@ -1781,9 +1756,9 @@ void CutMaskClasses (
 				
 			gProjectInfoPtr->changedFlag = TRUE;
 				
-			}		// end "if (fieldType == kTrainingType)"
+			}	// end "if (fieldType == kTrainingType)"
 					
-		}		// end "if (fieldsCutFlag)"
+		}	// end "if (fieldsCutFlag)"
 	
 			// Hilite the 'update statistics' control if needed.						
 	
@@ -1795,12 +1770,12 @@ void CutMaskClasses (
 	gUpdateProcessorMenuItemsFlag = TRUE;
 	gUpdateProjectMenuItemsFlag = TRUE;
 		
-}		// end "CutMaskClasses" 
+}	// end "CutMaskClasses"
 */
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1816,7 +1791,7 @@ void CutMaskClasses (
 // Value Returned:	None	
 // 
 // Called By:			LoadNewMaskFields in SMask.cpp
-//							StatisticsDialogMaskCheck in SStatist.cpp
+//							StatisticsDialogMaskCheck in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1998
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -1882,26 +1857,26 @@ void CutMaskFields (
 						CutField (fieldNumber, classIndex);
 						fieldsCutFlag = TRUE;
 								
-						}		// end "if (fieldIdentPtr->field..." 
+						}	// end "if (fieldIdentPtr->field..."
 				
 					fieldNumber = fieldIdentPtr->nextField;
 			
-					}		// end "while (fieldNumber != -1)"
+					}	// end "while (fieldNumber != -1)"
 				
 						// Check if any statistics are still loaded for the class.
 						
 				if (classNamesPtr->numberStatisticsPixels > 0)
 					 statsLoadedFlag = TRUE;
 			
-				}		// end "if (classNamesPtr[classStorage].number ..." 
+				}	// end "if (classNamesPtr[classStorage].number ..."
 			
-			}		// end "for (classIndex=0; ...
+			}	// end "for (classIndex=0; ...
 			
 				// Now make sure any empty classes are cut from the project
 				
 		CutEmptyClassesFromProject ();
 			
-		}		// end "if (numberClasses > 0)"
+		}	// end "if (numberClasses > 0)"
 		
 	if (fieldsCutFlag)
 		{
@@ -1942,9 +1917,9 @@ void CutMaskFields (
 				
 			gProjectInfoPtr->changedFlag = TRUE;
 				
-			}		// end "if (fieldType == kTrainingType)"
+			}	// end "if (fieldType == kTrainingType)"
 					
-		}		// end "if (fieldsCutFlag)"
+		}	// end "if (fieldsCutFlag)"
 	
 			// Hilite the 'update statistics' control if needed.						
 	
@@ -1956,12 +1931,12 @@ void CutMaskFields (
 	gUpdateProcessorMenuItemsFlag = TRUE;
 	gUpdateProjectMenuItemsFlag = TRUE;
 		
-}		// end "CutMaskFields"
+}	// end "CutMaskFields"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +1998,7 @@ Boolean DetermineIfStatisticsFromClustering ()
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2054,7 +2029,7 @@ void DoStatisticsWCut (void)
 		CutClass (gProjectInfoPtr->currentClass);
 		tempFlag = (gProjectInfoPtr->currentClass < 0);
 			
-		}		// end "if (gProjectInfoPtr->statsWindowMode == kClassListMode)"
+		}	// end "if (gProjectInfoPtr->statsWindowMode == kClassListMode)"
 									
 	if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 		{
@@ -2062,7 +2037,7 @@ void DoStatisticsWCut (void)
 														gProjectInfoPtr->currentClass);
 		tempFlag = (gProjectInfoPtr->currentField < 0);
 		
-		}		// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
+		}	// end "if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
 									
 	if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)
 		{
@@ -2071,7 +2046,7 @@ void DoStatisticsWCut (void)
 		cell.h = 0;	
 		cell.v = 0;
 		if (LGetSelect (TRUE, &cell, gStatisticsListHandle))
-			CutPolygonPoint (	cell.v,
+			CutPolygonPoint (cell.v,
 									gProjectInfoPtr->currentField,
 									gProjectInfoPtr->currentClass);
 		
@@ -2081,13 +2056,13 @@ void DoStatisticsWCut (void)
 		MHiliteControl (
 					gProjectWindow, gProjectInfoPtr->editNameControlH, 255);
 
-}		// end "DoStatisticsWCut"
+}	// end "DoStatisticsWCut"
 
 
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2133,19 +2108,19 @@ void DoStatisticsWEdit (
 			EditSelectionDialog (kRectangleType, TRUE);
    		break;
 		
-		}		// end "switch (menuItem)" 
+		}	// end "switch (menuItem)"
 		
 			// Force update of processor menu items.										
 	
 	gUpdateProcessorMenuItemsFlag = TRUE;
 
-}		// end "DoStatisticsWEdit" 
+}	// end "DoStatisticsWEdit"
 #endif	// defined multispec_mac
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2182,16 +2157,16 @@ void DoStatisticsWPaste (void)
 			if (gProjectInfoPtr->editClassStorageNumber >= 0)
 				PasteClassFields ();
 				
-			}		// end "if (gProjectInfoPtr->statsWindowMode >= 2)" 
+			}	// end "if (gProjectInfoPtr->statsWindowMode >= 2)"
 		
-		}		// end "if (gProjectInfoPtr != NULL)"
+		}	// end "if (gProjectInfoPtr != NULL)"
 
-}		// end "DoStatisticsWPaste"
+}	// end "DoStatisticsWPaste"
 
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2222,14 +2197,14 @@ void DoStatisticsWUndo (void)
 		else if (gProjectInfoPtr->editFieldNumber >= 0)
 			UndoCutField ();
 			
-		}		// end "if (gProjectInfoPtr != NULL)"
+		}	// end "if (gProjectInfoPtr != NULL)"
 
-}		// end "DoStatisticsWUndo"
+}	// end "DoStatisticsWUndo"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2247,7 +2222,7 @@ void DoStatisticsWUndo (void)
 //
 // Value Returned:  	None
 //
-// Called By:			StatisticsWControlEvent	in SStatist.cpp
+// Called By:			StatisticsWControlEvent	in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/13/1989
 //	Revised By:			Larry L. Biehl			Date: 05/02/2019
@@ -2279,7 +2254,7 @@ Boolean EditClassFieldDialog (
 		
 		oldFieldType = fieldIdentPtr->fieldType;
 		
-		}		// end "else if (classFieldFlag == 3)" 
+		}	// end "else if (classFieldFlag == 3)"
 	
 			// Get the class storage number.													
 						
@@ -2384,9 +2359,9 @@ Boolean EditClassFieldDialog (
 					SetDLogControl (dialogPtr, 7, 0);
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)"
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)"
 		else
 			if	(itemHit == 1)      // User selected OK for information 
 				{
@@ -2413,7 +2388,7 @@ Boolean EditClassFieldDialog (
 							DisplayAlert (
 										kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
 						
-						else		// returnCode > 0
+						else	// returnCode > 0
 							DupClassFieldNameAlert (1, gTextString);
 							
 						HiliteControl ((ControlHandle)okHandle, 0);
@@ -2421,9 +2396,9 @@ Boolean EditClassFieldDialog (
 						modalDone = FALSE;
 						OKFlag = FALSE;
 						
-						}		// end "if (returnCode != 0)" 
+						}	// end "if (returnCode != 0)"
 						
-					else		// returnCode == 0 
+					else	// returnCode == 0
 						CopyPToP (gProjectInfoPtr->classNamesPtr[classStorage].name,
 										gTextString);
 					
@@ -2436,9 +2411,9 @@ Boolean EditClassFieldDialog (
 									currentClass+2, 
 									gProjectInfoPtr->classNamesPtr[classStorage].name);    
 														
-						}		// end "if (modalDone)" 
+						}	// end "if (modalDone)"
 					
-					}		// end "if (classFieldFlag == 2)" 
+					}	// end "if (classFieldFlag == 2)"
 					
 				if (classFieldFlag == 3)
 					{
@@ -2460,7 +2435,7 @@ Boolean EditClassFieldDialog (
 							DisplayAlert (
 										kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
 						
-						else		// returnCode == 2
+						else	// returnCode == 2
 							DupClassFieldNameAlert (2, gTextString);
 							                                       
 						HiliteControl ((ControlHandle)okHandle, 0);
@@ -2468,9 +2443,9 @@ Boolean EditClassFieldDialog (
 						modalDone = FALSE;
 						OKFlag = FALSE;
 						
-						}		// end "if (returnCode > 0)" 
+						}	// end "if (returnCode > 0)"
 						
-					else		// returnCode == 0 
+					else	// returnCode == 0
 						CopyPToP (fieldIdentPtr->name, (UCharPtr)gTextString);
 						
 							// Items 7,8; Training field or test field					
@@ -2485,18 +2460,18 @@ Boolean EditClassFieldDialog (
 						
 						fieldIdentPtr->fieldType = fieldType;	
 																		
-						}		// end "if (modalDone)" 
+						}	// end "if (modalDone)"
 																		
-					}		// end "if (classFieldFlag == 3)"
+					}	// end "if (classFieldFlag == 3)"
 												
-				}		// end "if (itemHit == 1)" 
+				}	// end "if (itemHit == 1)"
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;
 				OKFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)"
 				
 		} while (!modalDone);
 		
@@ -2525,7 +2500,7 @@ Boolean EditClassFieldDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMEditClassFieldDlg*		dialogPtr = NULL; 
 		
 		try
@@ -2543,7 +2518,7 @@ Boolean EditClassFieldDialog (
 			{
 			MemoryMessage (0, kObjectMessage);
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	if (OKFlag)
 		{
@@ -2561,7 +2536,7 @@ Boolean EditClassFieldDialog (
 			if (gProjectInfoPtr->outlineFieldType > 0) 		
 				ForceFieldOutlineUpdate (TRUE);
 			
-			}		// end "if (classFieldFlag == 2)"
+			}	// end "if (classFieldFlag == 2)"
 			     	
 		if (classFieldFlag == 3)
 			{  														
@@ -2576,7 +2551,7 @@ Boolean EditClassFieldDialog (
 					MHiliteControl (
 									gProjectWindow, gProjectInfoPtr->updateControlH, 0);
 							
-				}		// end "if (...fieldIdentPtr->...." 
+				}	// end "if (...fieldIdentPtr->...."
 							
 					// Change name in field list.									
 						
@@ -2590,7 +2565,7 @@ Boolean EditClassFieldDialog (
 								cell,
 								gStatisticsListHandle);
 							
-				}		// end "if (LGetSelect (TRUE, &cell, ..." 
+				}	// end "if (LGetSelect (TRUE, &cell, ..."
 					
 					// Force class/field name to be redrawn.										
 				
@@ -2598,7 +2573,7 @@ Boolean EditClassFieldDialog (
 												fieldIdentPtr->fieldType) 		
 				ForceFieldOutlineUpdate (TRUE);
 			
-			}		// end "if (classFieldFlag == 3)"
+			}	// end "if (classFieldFlag == 3)"
 					
 					      
 				// Indicate that the project has been changed.					
@@ -2610,16 +2585,16 @@ Boolean EditClassFieldDialog (
 		gUpdateProjectMenuItemsFlag = TRUE;
 		gUpdateProcessorMenuItemsFlag = TRUE;
 		
-		}		// end "if (OKFlag)"  
+		}	// end "if (OKFlag)"
 	
 	return (OKFlag); 
 	
-}		// end "EditClassFieldDialog"
+}	// end "EditClassFieldDialog"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2634,8 +2609,8 @@ Boolean EditClassFieldDialog (
 //
 // Value Returned:  	None
 //
-// Called By:			EditClassFieldDialog in SEdtStat.cpp
-//							CMEditClassFieldDlg::OnInitDialog in WProjDlg.cpp
+// Called By:			EditClassFieldDialog in SEditStatistics.cpp
+//							CMEditClassFieldDlg::OnInitDialog in WProjectDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1999
 //	Revised By:			Larry L. Biehl			Date: 12/21/2017	
@@ -2681,9 +2656,9 @@ void EditClassFieldDialogInitialize (
 			HideDialogItem (dialogPtr, IDC_Training); 
 			HideDialogItem (dialogPtr, IDC_TestField);
 		#endif	// defined multispec_mac || ...
-		#if defined multispec_lin
+		#if defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_AreaTypeOutline);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 	
 				// Show the number of training pixels in this class.
@@ -2700,7 +2675,7 @@ void EditClassFieldDialogInitialize (
 			HideDialogItem (dialogPtr, IDC_AreaTypeOutline);
 		#endif		// defined multispec_win 
 		
-		}		// end "if (classFieldFlag == 2)" 
+		}	// end "if (classFieldFlag == 2)"
 					
 			// Present dialog for editing the field name and changing test/train	
 			// field choice.																		
@@ -2744,7 +2719,7 @@ void EditClassFieldDialogInitialize (
 			else if (fieldIdentPtr->fieldType == kTestingType)
 				SetDLogControlHilite (dialogPtr, IDC_Training, 255);
 				
-			}		// end "if (fieldIdentPtr->pointType >= kClusterType)"
+			}	// end "if (fieldIdentPtr->pointType >= kClusterType)"
 			
 				// Hide the number of class pixels dialog item. 
 			
@@ -2760,14 +2735,14 @@ void EditClassFieldDialogInitialize (
 											(char*)gTextString2);
 		LoadDItemString (dialogPtr, IDC_FieldNumberPixels, (Str255*)gTextString);
 		
-		}		// end "if (classFieldFlag == 3)" 
+		}	// end "if (classFieldFlag == 3)"
 	
-}		// end "EditClassFieldDialogInitialize"
+}	// end "EditClassFieldDialogInitialize"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2783,7 +2758,7 @@ void EditClassFieldDialogInitialize (
 //
 // Value Returned:  	None
 //
-// Called By:			StatisticsWControlEvent   in statistics.c
+// Called By:			StatisticsWControlEvent   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/06/1989
 //	Revised By:			Larry L. Biehl			Date: 03/17/2005
@@ -2864,9 +2839,7 @@ Boolean EditCoordinatesDialog (
 		
 		stringID = IDS_Dialog24;
 			
-//		CtoPstring ("Edit Rectangular Field Coordinates", (char*)gTextString); 
-		
-		}		// end "if (pointType == kRectangleType)"
+		}	// end "if (pointType == kRectangleType)"
 		
 	if (pointType == kPolygonType)
 		{
@@ -2881,7 +2854,7 @@ Boolean EditCoordinatesDialog (
 			
 		//CtoPstring ("Edit Polygonal Field Coordinate", (char*)gTextString);
 		
-		}		// end "if (pointType == kRectangleType)"
+		}	// end "if (pointType == kRectangleType)"
 		
 	unitsDisplayCode = kLineColumnUnits;
 
@@ -2912,7 +2885,7 @@ Boolean EditCoordinatesDialog (
 				fieldPointsPtr[upperLeftStorage+1].line =  selectionRectangle.bottom;
 				fieldPointsPtr[upperLeftStorage+1].col = selectionRectangle.right;
 				
-				}		// end "if (pointType == kRectangleType)"
+				}	// end "if (pointType == kRectangleType)"
 				
 					// Load new coordinates into the statistics coordinate list window.
 				
@@ -2940,7 +2913,7 @@ Boolean EditCoordinatesDialog (
 									gStatisticsListHandle);
 				#endif	// defined multispec_mac 
 					
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					gTextString[0] = sprintf ((char*)&gTextString[1], 
 														"%d\t%d",
 														(int)selectionRectangle.top,
@@ -2950,13 +2923,13 @@ Boolean EditCoordinatesDialog (
 									(SInt16)gTextString[0],
 									cell,
 									gStatisticsListHandle);
-				#endif	// defined multispec_win || defined multispec_lin
+				#endif	// defined multispec_win || defined multispec_wx
 			 						
 				GetPolygonLabelPoint (&fieldIdentPtr[currentField],
 								gProjectInfoPtr->fieldPointsPtr,
 								&fieldIdentPtr[currentField].labelPoint);	
 				
-				}		// end "if (pointType == kPolygonType)"
+				}	// end "if (pointType == kPolygonType)"
 				
 					// An existing project field was changed.
 					// Indicate that project has changed.							
@@ -2979,20 +2952,20 @@ Boolean EditCoordinatesDialog (
 								
 			gUpdateProjectMenuItemsFlag = TRUE;
 						
-			}		// end "if (changedFlag)" 
+			}	// end "if (changedFlag)"
 			
-		}		// end "if (EditLineColumnDialog (..."
+		}	// end "if (EditLineColumnDialog (..."
 		
 	CheckAndUnlockHandle (gProjectInfoPtr->windowInfoHandle);
 	
 	return (OKFlag);
 	
-}		// end "EditCoordinatesDialog" 
+}	// end "EditCoordinatesDialog"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3007,8 +2980,8 @@ Boolean EditCoordinatesDialog (
 //
 // Value Returned:	None
 //
-// Called By:			DetermineIfSpecifiedStatisticsExist in SStatCom.cpp
-//							UpdateClassStats in SStatCom.cpp
+// Called By:			DetermineIfSpecifiedStatisticsExist in SProjectComputeStatistics.cpp
+//							UpdateClassStats in SProjectComputeStatistics.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 12/18/1998
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
@@ -3033,7 +3006,7 @@ SInt64 GetNumberOfTrainPixelsInClass (
 			
 		fieldNumber = fieldIdentPtr[fieldNumber].nextField;
 		
-		}		// end "while (fieldNumber != -1)"
+		}	// end "while (fieldNumber != -1)"
 	
 	return (numberOfTrainPixelsInClass); 
 			
@@ -3042,7 +3015,7 @@ SInt64 GetNumberOfTrainPixelsInClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3062,9 +3035,9 @@ SInt64 GetNumberOfTrainPixelsInClass (
 //
 // Value Returned:	None				
 // 
-// Called By:			RemoveFieldStatsFromClassStats in SEdtStat.cpp
-//							VerifyClassAndFieldParameters in SProjFIO.cpp
-//							AddFieldToProject in SStatist.cpp
+// Called By:			RemoveFieldStatsFromClassStats in SEditStatistics.cpp
+//							VerifyClassAndFieldParameters in SProjectFileIO.cpp
+//							AddFieldToProject in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1991
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
@@ -3104,7 +3077,7 @@ SInt64 GetTotalNumberPixelsInField (
 			(SInt64)(areaDescription.lineEnd - areaDescription.lineStart + 1) *
 					(areaDescription.columnEnd - areaDescription.columnStart + 1);
 			
-	else		// areaDescription.pointType == kPolygonType 
+	else	// areaDescription.pointType == kPolygonType
 		{
 		rgnHandle = areaDescription.rgnHandle;
 		totalNumberPixels = 0;
@@ -3126,31 +3099,31 @@ SInt64 GetTotalNumberPixelsInField (
 						
 					point.h++;
 						
-					}		// end "for (column=columnStart; column<=..." 
+					}	// end "for (column=columnStart; column<=..."
 					
 				point.v++;
 					
-				}		// end "for (line=areaDescriptionPtr->lineStart; ..."
+				}	// end "for (line=areaDescriptionPtr->lineStart; ..."
 				
-			}		// end "if (rgnHandle != NULL)" 
+			}	// end "if (rgnHandle != NULL)"
 						
 				// Dispose of the region.						
 
 		CloseUpAreaDescription (&areaDescription);
 			
-		}		// end "else areaDescription.pointType == kPolygonType" 
+		}	// end "else areaDescription.pointType == kPolygonType"
 	
 	//if (totalNumberPixels != fieldIdentPtr->numberPixels)
 	//	gProjectInfoPtr->changedFlag = TRUE;
 	
 	return (totalNumberPixels);
 			
-}		// end "GetTotalNumberPixelsInField" 
+}	// end "GetTotalNumberPixelsInField"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3206,20 +3179,20 @@ void PasteClassFields (void)
 				nextField = gProjectInfoPtr->fieldIdentPtr[addField].nextField;
 				AddField (addField, currentStorageClass);
 		
-				}		// end "if (addField >= 0 && ..." 
+				}	// end "if (addField >= 0 && ..."
 				
 			addField = nextField;
 			
-			}		// end "while (addField != -1)" 
+			}	// end "while (addField != -1)"
 			
-		}		// end "if (currentStorageClass >= 0 && ..." 
+		}	// end "if (currentStorageClass >= 0 && ..."
 		
-}		// end "PasteClassFields" 
+}	// end "PasteClassFields"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3266,16 +3239,16 @@ void PasteField (void)
 			gProjectInfoPtr->fieldIdentPtr[addField].classStorage = currentStorageClass;
 			AddField (addField, currentStorageClass);
 			
-			}		// end "if (currentStorageClass >= 0 && ..." 
+			}	// end "if (currentStorageClass >= 0 && ..."
 		
-		}		// end "if (addField >= 0 && ..." 
+		}	// end "if (addField >= 0 && ..."
 		
-}		// end "PasteField" 
+}	// end "PasteField"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3332,18 +3305,18 @@ void PasteFieldToNewClass (void)
 				gProjectInfoPtr->fieldIdentPtr[addField].fieldType = fieldType;
 				PasteField ();
 				
-				}		// end "if (continueFlag)" 
+				}	// end "if (continueFlag)"
 			
-			}		// end "if (continueFlag)" 
+			}	// end "if (continueFlag)"
 			
-		}		// end "if (...->numberStatisticsClasses < ..." 
+		}	// end "if (...->numberStatisticsClasses < ..."
 		
-}		// end "PasteFieldToNewClass"
+}	// end "PasteFieldToNewClass"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3402,9 +3375,9 @@ void RemoveFieldStatsFromClassStats (
 			
 				setUpdateControlFlag = TRUE;
 					
-				}		// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag)" 
+				}	// end "if (gProjectInfoPtr->keepClassStatsOnlyFlag)"
 			
-			}		// end "if (...loadedIntoClassStats)"
+			}	// end "if (...loadedIntoClassStats)"
 			
 				// Force any leave-one-out stats to be recalculated.
 				
@@ -3434,13 +3407,13 @@ void RemoveFieldStatsFromClassStats (
 			
 			setUpdateControlFlag = TRUE;
 			
-			}		// end "if (fieldSizeChangeFlag)"
+			}	// end "if (fieldSizeChangeFlag)"
 			
 		if (setUpdateControlFlag && gProjectInfoPtr->updateControlH != NULL)
 			MHiliteControl (
 						gProjectWindow, gProjectInfoPtr->updateControlH, 0);
 			
-		}		// end "if (...fieldType == kTrainingType)" 
+		}	// end "if (...fieldType == kTrainingType)"
 							
 	if (fieldSizeChangeFlag)		
 		fieldIdentPtr[currentField].numberPixels = 
@@ -3450,12 +3423,12 @@ void RemoveFieldStatsFromClassStats (
 	
 	SetProjectCovarianceStatsToUse (gProjectInfoPtr->covarianceStatsToUse);
 		
-}		// end "RemoveFieldStatsFromClassStats" 
+}	// end "RemoveFieldStatsFromClassStats"
 
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3500,14 +3473,14 @@ void SetLoadedIntoClassStats (
 	
 		nextFieldNumber = gProjectInfoPtr->fieldIdentPtr[nextFieldNumber].nextField;
 
-		}		// end "while (nextFieldNumber != -1)" 
+		}	// end "while (nextFieldNumber != -1)"
 			
-}		// end "SetLoadedIntoClassStats" 
+}	// end "SetLoadedIntoClassStats"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3541,7 +3514,7 @@ void UndoCutClass (void)
 	
 	
 	classStorage = gProjectInfoPtr->editClassStorageNumber;
-	if (	classStorage >= 0 && 
+	if (classStorage >= 0 &&
 			classStorage < gProjectInfoPtr->numberStorageClasses &&
 			gProjectInfoPtr->numberStatisticsClasses < kMaxNumberStatClasses-1)
 		{
@@ -3577,7 +3550,7 @@ void UndoCutClass (void)
 				
 			field = gProjectInfoPtr->fieldIdentPtr[field].nextField;
 					
-			}		// end "while (field > -1)" 
+			}	// end "while (field > -1)"
 		
 				// Add this class back to the list of project classes.				
 		
@@ -3614,7 +3587,7 @@ void UndoCutClass (void)
 				cell.v = gProjectInfoPtr->currentClass;
 				LSetSelect (FALSE, cell, gStatisticsListHandle);
 				
-				}		// end "if (gProjectInfoPtr->currentClass >= 0)" 
+				}	// end "if (gProjectInfoPtr->currentClass >= 0)"
 				
 			row = LAddRow (1, newClass, gStatisticsListHandle);
 							
@@ -3638,7 +3611,7 @@ void UndoCutClass (void)
 			gProjectInfoPtr->currentClass = newClass;
 			UpdateToClassControl ();
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 2)" 
+			}	// end "if (gProjectInfoPtr->statsWindowMode == 2)"
 		
 				// Update current class depending on statistics window mode.		
 				
@@ -3651,7 +3624,7 @@ void UndoCutClass (void)
 			InvalWindowRect (gProjectWindow, &gProjectInfoPtr->popUpClassBox);
 			UpdateToClassControl ();
 			
-			}		// end "if (gProjectInfoPtr->statsWindowMode == 1)" 
+			}	// end "if (gProjectInfoPtr->statsWindowMode == 1)"
 	
 				// Make certain that the "To Project" control is hilited				
 	
@@ -3682,14 +3655,14 @@ void UndoCutClass (void)
 		gUpdateProjectMenuItemsFlag = TRUE;
 		gUpdateProcessorMenuItemsFlag = TRUE;
 		
-		}		// end "if (classStorage >= 0 && ..." 
+		}	// end "if (classStorage >= 0 && ..."
 			
-}		// end "UndoCutClass" 
+}	// end "UndoCutClass"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3735,18 +3708,18 @@ void UndoCutField (void)
 					
 			AddField (addField, currentStorageClass);
 			
-			}		// end "if (currentStorageClass >= 0 && ..." 
+			}	// end "if (currentStorageClass >= 0 && ..."
 		
-		}		// end "if (addField >= 0 && ..." 
+		}	// end "if (addField >= 0 && ..."
 	
 			
-}		// end "UndoCutField" 
+}	// end "UndoCutField"
 
 
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3809,7 +3782,7 @@ void UpdateStatWEditMenu (void)
 														gProjectInfoPtr->editFieldNumber < 0)
  		SetMenuItemText (gMultiSpecMenus[kEditM], kUndo, "\pUndo");
  		
- 	else		// gProjectInfoPtr->editClassStorageNumber >= 0 || ... 
+ 	else	// gProjectInfoPtr->editClassStorageNumber >= 0 || ...
  		{
 		if (gProjectInfoPtr->editClassStorageNumber >= 0)
  			SetMenuItemText (gMultiSpecMenus[kEditM], kUndo, "\pUndo Cut Class");
@@ -3820,7 +3793,7 @@ void UpdateStatWEditMenu (void)
 		if (gProjectInfoPtr->numberStatisticsClasses < kMaxNumberStatClasses-1)
   	 		EnableMenuItem (gMultiSpecMenus[kEditM], kUndo);
   	 				
-  	 	}		// end "else gProjectInfoPtr->editClassStorageNumber != 0 || ..." 
+  	 	}	// end "else gProjectInfoPtr->editClassStorageNumber != 0 || ..."
    		
 	DisableMenuItem (gMultiSpecMenus[kEditM], kClearSelectionRect);
 			
@@ -3838,9 +3811,9 @@ void UpdateStatWEditMenu (void)
 			if (gProjectInfoPtr->numberStatisticsClasses < kMaxNumberStatClasses-1)
    			EnableMenuItem (gMultiSpecMenus[kEditM], kPaste);
    		
-   		}		// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ...)"
+   		}	// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ...)"
  		
- 		}		// end "if (gProjectInfoPtr->statsWindowMode == 1)" 
+ 		}	// end "if (gProjectInfoPtr->statsWindowMode == 1)"
  		
 			// For 'List Project Classes' mode.												
 			
@@ -3854,7 +3827,7 @@ void UpdateStatWEditMenu (void)
 			cell.v = gProjectInfoPtr->currentClass;
 			LSetSelect (TRUE, cell, gStatisticsListHandle);
   	 		
-  	 		}		// end "if (gProjectInfoPtr->currentClass >= 0)" 
+  	 		}	// end "if (gProjectInfoPtr->currentClass >= 0)"
   	 		
  		SetMenuItemText (gMultiSpecMenus[kEditM], kPaste, "\pPaste");
   	 	if (gProjectInfoPtr->editFieldNumber >= 0 &&
@@ -3869,9 +3842,9 @@ void UpdateStatWEditMenu (void)
  				SetMenuItemText (gMultiSpecMenus[kEditM], kPaste, "\pPaste Field");
    			EnableMenuItem (gMultiSpecMenus[kEditM], kPaste);
    			
-   			}		// end "if (...fieldIdentPtr[gProjectInfoPtr->..." 
+   			}	// end "if (...fieldIdentPtr[gProjectInfoPtr->..."
    		
-   		}		// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ...)" 
+   		}	// end "if (gProjectInfoPtr->editFieldNumber >= 0 && ...)"
    		
   	 	if (gProjectInfoPtr->editClassStorageNumber >= 0 &&
   	 														gProjectInfoPtr->currentClass >= 0)
@@ -3879,9 +3852,9 @@ void UpdateStatWEditMenu (void)
  			SetMenuItemText (gMultiSpecMenus[kEditM], kPaste, "\pPaste Class Fields");
    		EnableMenuItem (gMultiSpecMenus[kEditM], kPaste);
    		
-   		}		// end "if (gProjectInfoPtr->editClassStorageNumber >= ...)" 
+   		}	// end "if (gProjectInfoPtr->editClassStorageNumber >= ...)"
   	 	
-  	 	}		// end "if (gProjectInfoPtr->statsWindowMode == 2)" 
+  	 	}	// end "if (gProjectInfoPtr->statsWindowMode == 2)"
   	 	
 			// For 'List Class Fields' mode.													
 			
@@ -3901,16 +3874,16 @@ void UpdateStatWEditMenu (void)
  			if (classNumber != gProjectInfoPtr->currentClass)
    			EnableMenuItem (gMultiSpecMenus[kEditM], kPaste);
    		
-   		}		// end "if (gProjectInfoPtr->editFieldNumber >= 0)" 
+   		}	// end "if (gProjectInfoPtr->editFieldNumber >= 0)"
    		
   	 	if (gProjectInfoPtr->editClassStorageNumber >= 0)
   	 		{
  			SetMenuItemText (gMultiSpecMenus[kEditM], kPaste, "\pPaste Class Fields");
    		EnableMenuItem (gMultiSpecMenus[kEditM], kPaste);
    		
-   		}		// end "if (gProjectInfoPtr->editClassStorageNumber >= 0)" 
+   		}	// end "if (gProjectInfoPtr->editClassStorageNumber >= 0)"
   	 	
-  	 	}		// end "if (gProjectInfoPtr->statsWindowMode == 3)" 
+  	 	}	// end "if (gProjectInfoPtr->statsWindowMode == 3)"
   	 	
 			// For field coordinates mode.													
 			
@@ -3920,7 +3893,7 @@ void UpdateStatWEditMenu (void)
 				// of points is greater than 3.												
 		
 		cutPolygonPointFlag = FALSE;
-		if (	gProjectInfoPtr->fieldIdentPtr[
+		if (gProjectInfoPtr->fieldIdentPtr[
   	 					gProjectInfoPtr->currentField].pointType == kPolygonType &&
   	 			gProjectInfoPtr->fieldIdentPtr[
   	 						gProjectInfoPtr->currentField].numberOfPolygonPoints > 3)
@@ -3929,21 +3902,21 @@ void UpdateStatWEditMenu (void)
 			if (LGetSelect (TRUE, &cell, gStatisticsListHandle))
 				cutPolygonPointFlag = TRUE;
 				
-			}		// end "if (gProjectInfoPtr->fieldIdentPtr[..." 
+			}	// end "if (gProjectInfoPtr->fieldIdentPtr[..."
 		
 		if (cutPolygonPointFlag)
 			{
  			SetMenuItemText (gMultiSpecMenus[kEditM], kCut, "\pCut Point");
    		EnableMenuItem (gMultiSpecMenus[kEditM], kCut);
    		
-   		}		// end "if (cutPolygonPointFlag)" 
+   		}	// end "if (cutPolygonPointFlag)"
  			
- 		else		// !cutPolygonPointFlag 
+ 		else	// !cutPolygonPointFlag
  			SetMenuItemText (gMultiSpecMenus[kEditM], kCut, "\pCut");
  			
  		SetMenuItemText (gMultiSpecMenus[kEditM], kPaste, "\pPaste");
   	 	
-  	 	}		// end "if (gProjectInfoPtr->statsWindowMode == 4)" 
+  	 	}	// end "if (gProjectInfoPtr->statsWindowMode == 4)"
    
-}		// end "UpdateStatWEditMenu"
+}	// end "UpdateStatWEditMenu"
 #endif	// defined multispec_mac 

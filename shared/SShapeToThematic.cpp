@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -22,22 +22,6 @@
 //								0 for all non-selected pixels and the class number for all 
 //								pixels that the shapes include.
 //
-//	Functions in file:	SInt16			ConvertPolygonShapeToClassNumber
-//								Boolean 			ConvertShapeToClassNumber
-//								Boolean			IsPointInPolygon
-//								Boolean			ListShapeDBFFieldNames
-//								void				LoadShapeToThematicClassNames
-//								Boolean 			LoadShapeToThematicDialog
-//								void 				LoadShapeToThematicInitialize
-//								void 				LoadShapeToThematicDialogOK
-//								Boolean 			LoadShapeToThematicSpecs
-//								Boolean			PointInRectangle
-//								SInt16			SetClassInMaskImage
-//								void 				ShapeToThematicFileControl
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 /*  Following is template used for testing/debugging
 	int numberChars = sprintf ((char*)gTextString3,
 										" SShapeToThematicFile: (test): %d%s",
@@ -50,42 +34,21 @@
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_mac 
 #endif	// defined multispec_mac    
   
 #if defined multispec_win 
-#endif	// defined multispec_win 
+#endif	// defined multispec_win
 
 
-
-extern void 		LoadShapeToThematicDialogInitialize (
-							DialogPtr							dialogPtr,
-							ReformatOptionsPtr				reformatOptionsPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							Boolean*								trainTypeFlagPtr,
-							Boolean*								testTypeFlagPtr,
-							SInt16*								classSelectionPtr,
-							UInt16**								localClassPtrPtr,
-							UInt32*								localNumberClassesPtr,
-							Boolean*								includeHeaderFlagPtr);
-
-extern void 		LoadShapeToThematicDialogOK (
-							ReformatOptionsPtr				reformatOptionsPtr,
-							DialogSelectArea*					dialogSelectAreaPtr,
-							Boolean								trainTypeFlag,
-							Boolean								testTypeFlag,
-							SInt16								classSelection,
-							UInt32								localNumberClasses,
-							Boolean								includeHeaderFlag);
 	 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack(4)
 #endif	// defined multispec_win
-	
+
 typedef struct ArcViewMultiPoint
 	{
 	UInt32						recordNumber;
@@ -131,7 +94,7 @@ typedef struct ArcViewRecordHeader
 	
 	} ArcViewRecordHeader, *ArcViewRecordHeaderPtr;
 	 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	#pragma pack()
 #endif	// defined multispec_win
 
@@ -140,65 +103,64 @@ typedef struct ArcViewRecordHeader
 		// Prototypes for routines in this file that are only called by			
 		// other routines in this file.	
 		
-SInt16					ConvertPolygonShapeToClassNumber (
-								ReformatOptionsPtr				reformatOptionsPtr,
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								MapProjectionInfoPtr				mapProjectionInfoPtr,
-								ShapeInfoPtr						shapeInfoPtr,
-								Ptr									vectorDataPtr,
-								CMFileStream*						outFileStreamPtr,
-								Handle								windowInfoHandle,
-								Boolean								maskInMemoryFlag);												
+SInt16 ConvertPolygonShapeToClassNumber (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				ShapeInfoPtr						shapeInfoPtr,
+				Ptr									vectorDataPtr,
+				CMFileStream*						outFileStreamPtr,
+				Handle								windowInfoHandle,
+				Boolean								maskInMemoryFlag);
 		
-Boolean 					ConvertShapeToClassNumber (
-								FileInfoPtr							outFileInfoPtr,
-								ShapeInfoPtr						shapeInfoPtr,
-								ReformatOptionsPtr				reformatOptionsPtr);
-/*
-UInt32					GetValueForRecordIndex (
-								DBFHandle							dbfInfoPtr,
-								UInt32								featureNumber,
-								UInt32								recordIndex);
-*/
-Boolean					IsPointInPolygon (
-								UInt32								nvert, 
-								ArcViewDoublePoint*				vert,  
-								double								testx, 
-								double								testy);
-/*
-Boolean					IsPointInPolygon2 (
-								UInt32								nvert, 
-								ArcViewDoublePoint*				vert,  
-								double								testx, 
-								double								testy);
-*/                       
-Boolean					ListShapeDBFFieldNames (
-								ShapeInfoPtr						shapeInfoPtr);
-				
-Boolean 					LoadShapeToThematicSpecs (
-								Handle*								reformatOptionsHPtr);
+Boolean ConvertShapeToClassNumber (
+				FileInfoPtr							outFileInfoPtr,
+				ShapeInfoPtr						shapeInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-Boolean 					LoadShapeToThematicDialog (
-								ReformatOptionsPtr				reformatOptionsPtr);		
+Boolean LoadShapeToThematicSpecs (
+				Handle*								reformatOptionsHPtr);
 
-Boolean					PointInRectangle (
-								DoublePoint*						doublePointPtr,
-								DoubleRect*							boundingRectanglePtr);
+Boolean LoadShapeToThematicDialog (
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-SInt16					SetClassInMaskImage (
-								FileIOInstructionsPtr			fileIOInstructionsPtr,
-								HUCharPtr				 			ioOutBufferPtr,
-								Boolean								maskInMemoryFlag,
-								UInt32*								currentLinePtr,
-								Boolean*								lineToBeWrittenFlagPtr,
-								UInt32								line, 
-								UInt32								column, 
-								UInt32								classNumber);
-								
+SInt16 SetClassInMaskImage (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				HUCharPtr				 			ioOutBufferPtr,
+				Boolean								maskInMemoryFlag,
+				UInt32*								currentLinePtr,
+				Boolean*								lineToBeWrittenFlagPtr,
+				UInt32								line, 
+				UInt32								column, 
+				UInt32								classNumber);
+
+void LoadShapeToThematicDialogInitialize (
+				DialogPtr							dialogPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				Boolean*								trainTypeFlagPtr,
+				Boolean*								testTypeFlagPtr,
+				SInt16*								classSelectionPtr,
+				UInt16**								localClassPtrPtr,
+				UInt32*								localNumberClassesPtr,
+				Boolean*								includeHeaderFlagPtr);
+
+void LoadShapeToThematicDialogOK (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				Boolean								trainTypeFlag,
+				Boolean								testTypeFlag,
+				SInt16								classSelection,
+				UInt32								localNumberClasses,
+				Boolean								includeHeaderFlag);
+
+
+
 		// Quick fix for now to allow a parameter setting to be shared across more
 		// than one routine.
 		
 Boolean c_phenoSorgProjectFlag = false;
+
 
 
 /* Code found on the web to determine if point is within polygon
@@ -277,7 +239,7 @@ private bool IsPointInPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -293,7 +255,7 @@ private bool IsPointInPolygon (
 //
 // Value Returned:	None				
 // 
-// Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
+// Called By:			AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2013
 //	Revised By:			Larry L. Biehl			Date: 04/26/2016
@@ -380,9 +342,9 @@ SInt16 ConvertPolygonShapeToClassNumber (
 			lineColumnRect.right = MIN (
 										reformatOptionsPtr->columnEnd, lineColumnRect.right);
 					
-			}		// end "if (recordIndex == shapeInfoPtr->numberRecords-1)"
+			}	// end "if (recordIndex == shapeInfoPtr->numberRecords-1)"
 
-      }		// end "for (recordIndex=0; ..."
+      }	// end "for (recordIndex=0; ..."
 	
 			// Load the total number of lines into the status dialog.				
 				
@@ -410,11 +372,13 @@ SInt16 ConvertPolygonShapeToClassNumber (
 			CheckSomeEvents (updateMask);
 			gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 			
-			}		// end "if (TickCount () >= gNextStatusTime)"
+			}	// end "if (TickCount () >= gNextStatusTime)"
 		
 		lastRecordIndex = shapeInfoPtr->numberRecords + 1;
 		lastClassNumber = 0;
-		for (column=(UInt32)lineColumnRect.left; column<=(UInt32)lineColumnRect.right; column++)
+		for (column=(UInt32)lineColumnRect.left;
+					column<=(UInt32)lineColumnRect.right;
+							column++)
 			{
 			lineColumnPoint.h = column;
 			lineColumnPoint.v = line;
@@ -446,7 +410,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 							
 							if (partIndex+1 < arcViewPolyLinePtr->numParts)
 								pointStop = arcViewPolyLinePtr->parts[partIndex+1];
-							else		// partIndex+1 == areaViewPolyLinePtr->numParts
+							else	// partIndex+1 == areaViewPolyLinePtr->numParts
 								pointStop = arcViewPolyLinePtr->numPoints;
 								
 							numberPoints = pointStop - pointStart;
@@ -462,7 +426,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 								if (recordIndex == lastRecordIndex)
 									classNumber = lastClassNumber;
 								
-								else		// recordIndex != lastRecordIndex
+								else	// recordIndex != lastRecordIndex
 									{
 									classNumber = GetValueForRecordIndex (
 																				shapeInfoPtr->dbfInfoPtr,
@@ -471,24 +435,24 @@ SInt16 ConvertPolygonShapeToClassNumber (
 									lastRecordIndex = recordIndex;
 									lastClassNumber = classNumber;
 									
-									}		// end "else recordIndex != lastRecordIndex"
+									}	// end "else recordIndex != lastRecordIndex"
 								*/
-								}		// end "if (IsPointInPolygon (numberPoints, ..."
+								}	// end "if (IsPointInPolygon (numberPoints, ..."
 															
 							doublePointPtr += numberPoints;
 
-							}		// end "for (partIndex=0; partIndex<..."
+							}	// end "for (partIndex=0; partIndex<..."
 							
-						}		// end "if (PointInRectangle (&mapPoint, ..."
+						}	// end "if (PointInRectangle (&mapPoint, ..."
 						
 					if (classNumber > 0)
 						break;
 						
-					}		// end "if (arcViewPolyLinePtr->shapeType == 3 || ..."
+					}	// end "if (arcViewPolyLinePtr->shapeType == 3 || ..."
 				
 				vectorDataIndex += arcViewPolyLinePtr->recordLength;
 											
-				}		// end "for (recordIndex=0; recordIndex<..."
+				}	// end "for (recordIndex=0; recordIndex<..."
 				
 			if (classNumber > 0)
 				{
@@ -504,25 +468,25 @@ SInt16 ConvertPolygonShapeToClassNumber (
 				if (errCode != noErr)
 					break;
 					
-				}		// end "if (classNumber > 0)"
+				}	// end "if (classNumber > 0)"
 															
-			}		// end "for (column=lineColumnRect.left; column<=..."
+			}	// end "for (column=lineColumnRect.left; column<=..."
 			
 		if (errCode != noErr)
 			break;
 		
-		}		// end "for (line=lineColumnRect.top; line<=lineColumnRect.bottom; ..."
+		}	// end "for (line=lineColumnRect.top; line<=lineColumnRect.bottom; ..."
 		
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 		
 	return (errCode);
 		
-}		// end "ConvertPolygonShapeToClassNumber"
+}	// end "ConvertPolygonShapeToClassNumber"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -540,7 +504,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 //
 // Value Returned:	None				
 // 
-// Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
+// Called By:			AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/2001
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -635,8 +599,8 @@ Boolean ConvertShapeToClassNumber (
 		mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
 													mapProjectionHandle, kLock);
 		
-			// Get the rectangle in map units that is going to be converted to
-			// a raster thematic image file.
+				// Get the rectangle in map units that is going to be converted to
+				// a raster thematic image file.
 	
 		lineColRect.top = reformatOptionsPtr->lineStart;
 		lineColRect.left = reformatOptionsPtr->columnStart;
@@ -691,12 +655,13 @@ Boolean ConvertShapeToClassNumber (
 														nextPoint.h-reformatOptionsPtr->columnStart, 
 														classNumber);
 					
-						}		// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
+						}	// end "if (PointInBox (&areaViewPolyLinePtr->box, ..."
 						
       			break;
       			
       		case 3:	// PolyLine shape	
       		case 5:	// Polygon shape
+				case 15:	// PolygonZ shape
 					errCode = ConvertPolygonShapeToClassNumber (
 																reformatOptionsPtr,
 																fileIOInstructionsPtr,
@@ -713,14 +678,14 @@ Boolean ConvertShapeToClassNumber (
       		default:
       			break;
 				
-				}		// end "switch (areaViewRecordHeaderPtr->shapeType)"
+				}	// end "switch (areaViewRecordHeaderPtr->shapeType)"
 				
 			vectorDataIndex += arcViewRecordHeaderPtr->recordLength;
 							
 			if (errCode != noErr)
 				break;
 			
-			}		// end "for (recordIndex=0; ..."
+			}	// end "for (recordIndex=0; ..."
 			
 		CheckAndUnlockHandle (mapProjectionHandle);
 		
@@ -757,7 +722,7 @@ Boolean ConvertShapeToClassNumber (
 				lineToBeWrittenFlag = FALSE;
 				maskInMemoryFlag = FALSE;
 													
-				}		// end "if (lineToBeWrittenFlag)"
+				}	// end "if (lineToBeWrittenFlag)"
 			
 			if (maskInMemoryFlag)
 				{
@@ -775,36 +740,36 @@ Boolean ConvertShapeToClassNumber (
 													(HUCharPtr)reformatOptionsPtr->ioOutBufferPtr,
 													kErrorMessages);
 				
-				}		// end "if (maskInMemoryFlag)"
+				}	// end "if (maskInMemoryFlag)"
 				
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
 		CheckAndUnlockHandle (shapeInfoPtr->vectorDataHandle);
 		
 		if (errCode == noErr)
 			returnFlag = TRUE;
 		
-		}		// end "if (vectorDataPtr != NULL)"
+		}	// end "if (vectorDataPtr != NULL)"
 		
 	if (shapeType == 1)
 		{
 		reformatOptionsPtr->numberClasses = 2;
 		outFileInfoPtr->numberClasses = reformatOptionsPtr->numberClasses;
 		
-		}		// end "if (shapeType == 1)"
+		}	// end "if (shapeType == 1)"
 	
 	CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);	
 	CloseUpGeneralFileIOInstructions (fileIOInstructionsPtr);
 	
 	return (returnFlag);
 		
-}		// end "ConvertShapeToClassNumber"
+}	// end "ConvertShapeToClassNumber"
 
 
 /*
 // Currently not used; was done for a test.
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -852,7 +817,8 @@ UInt32 GetValueForRecordIndex (
 	#if include_gdal_capability
 				// Get type for field
 		
-		fieldType = DBFGetFieldInfo (dbfInfoPtr, featureNumber, fieldName, &fieldWidth, &numberDecimals);
+		fieldType = DBFGetFieldInfo (
+					dbfInfoPtr, featureNumber, fieldName, &fieldWidth, &numberDecimals);
 	#endif	// include_gdal_capability
 	
 	classNumber = recordIndex;
@@ -873,17 +839,17 @@ UInt32 GetValueForRecordIndex (
 			default:
 				break;
 					
-			}		// end "switch (fieldType)"
+			}	// end "switch (fieldType)"
 	#endif	// include_gdal_capability
 	
 	return (classNumber);
 
-}		// end "GetValueForRecordIndex"
+}	// end "GetValueForRecordIndex"
 */
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -927,16 +893,16 @@ Boolean IsPointInPolygon (
 																(vert[j].y-vert[i].y) + vert[i].x))
 			inPolygonFlag = !inPolygonFlag;
 			
-		}		// end "for (i = 0, j = nvert-1; i < nvert; j = i++)"
+		}	// end "for (i = 0, j = nvert-1; i < nvert; j = i++)"
 		
   return (inPolygonFlag);
 		
-}		// end "IsPointInPolygon"
+}	// end "IsPointInPolygon"
 
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -988,12 +954,12 @@ Boolean IsPointInPolygon2 (
 					&& (vert[i].x <= testx || vert[j].y <= testx)) 
 			{
 			oddNodes ^= (vert[i].x+(testy-vert[i].y)/
-											(vert[j].y-vert[i].y)*(vert[j].x-vert[i].x) < testx); 
+										(vert[j].y-vert[i].y)*(vert[j].x-vert[i].x) < testx);
 			}
 		
 		j = i; 
 	 
-		}		// end "for (i=0; i<nvert; i++)"
+		}	// end "for (i=0; i<nvert; i++)"
 
   return oddNodes; 
 }
@@ -1003,7 +969,7 @@ Boolean IsPointInPolygon2 (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1060,7 +1026,7 @@ Boolean ListShapeDBFFieldNames (
 			fieldNumber[1] = 9;
 			fieldNumber[2] = 10;
 					
-			}		// end "if (c_phenoSorgProjectFlag)"
+			}	// end "if (c_phenoSorgProjectFlag)"
 		
 				// Get type for first field
 				
@@ -1087,7 +1053,7 @@ Boolean ListShapeDBFFieldNames (
 								fieldName);
 			totalLength += length;
 								
-			}		// end "if (numberFields > 1)"
+			}	// end "if (numberFields > 1)"
 			
 		if (numberFields > 2)
 			{
@@ -1101,7 +1067,7 @@ Boolean ListShapeDBFFieldNames (
 								fieldName);
 			totalLength += length;
 								
-			}		// end "if (numberFields > 2)"
+			}	// end "if (numberFields > 2)"
 			
 		length = sprintf (&textString[totalLength], "%s", gEndOfLine);
 		totalLength += length;
@@ -1112,17 +1078,17 @@ Boolean ListShapeDBFFieldNames (
 												gOutputForce1Code,
 												TRUE);
 		
-		}		// end "if (shapeInfoPtr->dbfInfoPtr != NULL)" 	
+		}	// end "if (shapeInfoPtr->dbfInfoPtr != NULL)" 	
 		
 	return (continueFlag);
 		
-}		// end "ListShapeDBFFieldNames"
+}	// end "ListShapeDBFFieldNames"
 #endif	// include_gdal_capability
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1208,15 +1174,8 @@ void LoadShapeToThematicClassNames (
 			numberRecords = DBFGetRecordCount (dbfInfoPtr);				
 			numberFields = DBFGetFieldCount (dbfInfoPtr);
 			fieldLimit = MIN (numberFields, 3);
-			/*
-			int numberChars = sprintf (
-				(char*)gTextString3,
-				" SShapeToThematicFile:LoadShapeToThematicClassNames (numberFields): %d%s",
-				numberFields,
-				gEndOfLine);
-			ListString ((char*)gTextString3, numberChars, gOutputTextH);
-			*/
-					// Include code to determine if this is a shape file for the PhenoSorg 
+
+					// Include code to determine if this is a shape file for the PhenoSorg
 					// project. It may very well change but do this for the initial version 
 					// of the shape file for processing work on the project.
 					// 4/28/2016.
@@ -1260,9 +1219,9 @@ void LoadShapeToThematicClassNames (
 					fieldNumber[1] = 9;
 					fieldNumber[2] = 10;
 					
-					}		// end "if (c_phenoSorgProjectFlag)"
+					}	// end "if (c_phenoSorgProjectFlag)"
 				
-				}		// end "if (numberFields == 11)"
+				}	// end "if (numberFields == 11)"
 			
 					// Get type for first field
 					
@@ -1286,7 +1245,7 @@ void LoadShapeToThematicClassNames (
 															&fieldWidth, 
 															&numberDecimals[2]);
 		
-			}		// end "if (shapeInfoPtr->dbfInfoPtr != NULL && ...)"
+			}	// end "if (shapeInfoPtr->dbfInfoPtr != NULL && ...)"
 	#endif	// include_gdal_capability
 		
 	for (index=1; index<=numberClasses; index++)
@@ -1298,9 +1257,9 @@ void LoadShapeToThematicClassNames (
 			identifier = arcViewRecordHeaderPtr->recordNumber - 1; 
 			vectorDataIndex += arcViewRecordHeaderPtr->recordLength;
 			
-			}		// end "if (vectorDataPtr != NULL)"
+			}	// end "if (vectorDataPtr != NULL)"
 			
-		else		// vectorDataPtr == NULL
+		else	// vectorDataPtr == NULL
 			identifier = index - 1;
 			
 		if (dbfInfoPtr != NULL && identifier < (UInt32)numberRecords)
@@ -1343,7 +1302,7 @@ void LoadShapeToThematicClassNames (
 						default:
 							break;
 						
-						}		// end "switch (fieldType)"
+						}	// end "switch (fieldType)"
 						
 					if (field == 0 || !c_phenoSorgProjectFlag)
 						nameLength += length;
@@ -1373,54 +1332,56 @@ void LoadShapeToThematicClassNames (
 									// Remove the '_'
 							nameLength--;
 							
-							}		// end "else if (field > 0 && integerLabel == 0)"
+							}	// end "else if (field > 0 && integerLabel == 0)"
 							
-						}		// end "if (c_phenoSorgProjectFlag)"
+						}	// end "if (c_phenoSorgProjectFlag)"
 					
 					if (nameLength < 25 && field < fieldLimit-1)
 						{
 						sprintf ((char*)&textString[nameLength], "_");
 						nameLength++;
 					
-						}		// end "if (nameLength < 25 && field < fieldLimit-1)"
+						}	// end "if (nameLength < 25 && field < fieldLimit-1)"
 					
 					if (nameLength >= 25 || field >= fieldLimit-1)
 						field = fieldLimit;
 						
-					}		// end "for (field=0; field<fieldLimit; field++)"
+					}	// end "for (field=0; field<fieldLimit; field++)"
 					
 				nameLength = MIN (nameLength, 31);
 				textString[nameLength] = 0;
 				nameLength = sprintf ((char*)classNameTablePtr, "%s", textString);
 			#endif	// include_gdal_capability
 			
-			}		// end "if (dbfInfoPtr != NULL && identifier < numberRecords)"
+			}	// end "if (dbfInfoPtr != NULL && identifier < numberRecords)"
 			
 		else if (shapeInfoPtr->shapeType == 1)
 			{
-			nameLength = sprintf ((char*)classNameTablePtr, "Class %d", (unsigned int)identifier);
+			nameLength = sprintf (
+						(char*)classNameTablePtr, "Class %d", (unsigned int)identifier);
 			
-			}		// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
+			}	// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
 			
-		else		// (dbfInfoPtr == NULL || identifier >= numberRecords) && ->shapeType != 1
+		else	// (dbfInfoPtr == NULL || identifier >= numberRecords) && ...
 			{
-			nameLength = sprintf ((char*)classNameTablePtr, "Shape Record %d", (unsigned int)identifier);
+			nameLength = sprintf (
+					(char*)classNameTablePtr, "Shape Record %d", (unsigned int)identifier);
 			
-			}		// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
+			}	// end "else dbfInfoPtr == NULL || identifier >= numberRecords"
 				
 		classNameTablePtr[nameLength] = 0;
 		classNameTablePtr += 32;
 		
-		}		// end "for (index=1; index<=numberClasses; index++)"
+		}	// end "for (index=1; index<=numberClasses; index++)"
 						
 	CheckAndUnlockHandle (shapeInfoPtr->vectorDataHandle);
 		
-}		// end "LoadShapeToThematicClassNames"
+}	// end "LoadShapeToThematicClassNames"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1542,7 +1503,7 @@ Boolean LoadShapeToThematicDialog (
 				GetDialogItemText (theHandle, gTextString);	
 				StringToNum (gTextString, &theNum);
 				
-				}		// end "if (theType == 16)" 
+				}	// end "if (theType == 16)" 
 				
 			switch (itemHit)
 				{
@@ -1552,8 +1513,7 @@ Boolean LoadShapeToThematicDialog (
 				case 10:				//	 Display line interval of image  
 				case 11:				//	 Display start column of image  
 				case 12:				//	 Display end column of image  
-				case 13:				//	 Display column interval of image  
-
+				case 13:				//	 Display column interval of image
 					DialogLineColumnHits (&dialogSelectArea,
 													dialogPtr, 
 													itemHit,
@@ -1586,7 +1546,7 @@ Boolean LoadShapeToThematicDialog (
 											gClassSelection,
 											okHandle);
 							
-						}		// end "if (itemHit == kSubsetMenuItem)" 
+						}	// end "if (itemHit == kSubsetMenuItem)" 
 					
 					if (itemHit != 0)
 						gClassSelection = itemHit;
@@ -1597,9 +1557,9 @@ Boolean LoadShapeToThematicDialog (
 					InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 					break;
 						
-				}		// end "switch (itemHit)" 
+				}	// end "switch (itemHit)" 
 				
-			}		// end "if (itemHit > 2)" 
+			}	// end "if (itemHit > 2)" 
 			
 		else if (itemHit > 0) 	// and itemHit <= 2 
 			{
@@ -1627,16 +1587,16 @@ Boolean LoadShapeToThematicDialog (
 														localNumberClasses,
 														(GetDLogControl (dialogPtr, 20) == 1));
 														
-				}		// end "if	(itemHit == 1)" 
+				}	// end "if	(itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
 				{
 				modalDone = TRUE;		
 				returnFlag = FALSE;
 				
-				}		// end "if	(itemHit == 2)" 
+				}	// end "if	(itemHit == 2)" 
 				
-			}		// end "else if (itemHit > 0) and itemHit <= 2" 
+			}	// end "else if (itemHit > 0) and itemHit <= 2" 
 				
 		} while (!modalDone);                    
 		
@@ -1667,7 +1627,7 @@ Boolean LoadShapeToThematicDialog (
 	
 	return (returnFlag);
 	
-}		// end "LoadShapeToThematicDialog"
+}	// end "LoadShapeToThematicDialog"
 
 
 
@@ -1721,7 +1681,7 @@ void LoadShapeToThematicDialogInitialize (
 			
 	*includeHeaderFlagPtr = (reformatOptionsPtr->headerFormat != 0);	
 	
-}		// end "LoadShapeToThematicDialogInitialize"
+}	// end "LoadShapeToThematicDialogInitialize"
 
 
 
@@ -1766,12 +1726,12 @@ void LoadShapeToThematicDialogOK (
 	if (includeHeaderFlag)
 	 	reformatOptionsPtr->headerFormat = kErdas74Type;
 	
-}		// end "LoadShapeToThematicDialogOK"
+}	// end "LoadShapeToThematicDialogOK"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1852,7 +1812,7 @@ Boolean LoadShapeToThematicSpecs (
 			outFileInfoPtr->numberBytes = 2;
 			outFileInfoPtr->numberBits = 16;
 			
-			}		// end "if (outFileInfoPtr->numberClasses > 256)" 
+			}	// end "if (outFileInfoPtr->numberClasses > 256)" 
 			
 		outFileInfoPtr->swapBytesFlag 		= FALSE;
 		outFileInfoPtr->descriptionsFlag 	= FALSE;
@@ -1860,26 +1820,26 @@ Boolean LoadShapeToThematicSpecs (
 		outFileInfoPtr->classDescriptionH 	= NULL;
 		outFileInfoPtr->thematicType 			= TRUE;
 			
-		}		// end "if (continueFlag)" 
+		}	// end "if (continueFlag)" 
 	
 			// If unable to set up information for reformat								
 			// specifications, release memory allocated to it (if any).				
 			
-	else		// !continueFlag
+	else	// !continueFlag
 		{
 		ReleaseReformatOutputFileInfoAndBuffers (reformatOptionsPtr, NULL); 
 		ReleaseReformatSpecsMemory (reformatOptionsHPtr);
 		
-		}		// end "else !continueFlag"
+		}	// end "else !continueFlag"
 		
 	return (continueFlag);
 
-}		// end "LoadShapeToThematicSpecs" 
+}	// end "LoadShapeToThematicSpecs" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1912,28 +1872,29 @@ Boolean PointInRectangle (
 		
 	return (TRUE);
 
-}		// end "PointInRectangle"
+}	// end "PointInRectangle"
 
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SetClassInMaskImage
 //
 //	Software purpose:	The purpose of this routine is to set the input class number for
-//							the input line and column in the mask image file. This will handle
-//							case for entire image being loaded into memory and the case when
-//							one needs to read and write each line of the mask image out. If
-//							the latter case, the line will be written out only when a new line
-//							needs to be used. Current working line is written and next line
-//							is read in and the point in the line is set to the specified
-//							class number.
+//							the input line and column in the mask image file. This will //
+//							handle case for entire image being loaded into memory and the
+// 						case when one needs to read and write each line of the mask
+//							image out. If the latter case, the line will be written out
+//							only when a new line needs to be used. Current working line is
+//							written and next line is read in and the point in the line is
+//							set to the specified class number.
 //
 //	Parameters in:		column is 0 based.
-//							line is 0 based. Need to change to 1 based for mask file on disk operations.
+//							line is 0 based. Need to change to 1 based for mask file on disk
+//								operations.
 //
 //	Parameters out:	None
 //
@@ -1976,15 +1937,15 @@ SInt16 SetClassInMaskImage (
 		if (classNumber > 255)
 			classNumber = 0;
 		
-		}		// end "if (outFileInfoPtr->numberBytes == 1)"
+		}	// end "if (outFileInfoPtr->numberBytes == 1)"
 	
-	else		// outFileInfoPtr->numberBytes == 2
+	else	// outFileInfoPtr->numberBytes == 2
 		{
 		ioOut2ByteBufferPtr = (UInt16*)ioOutBufferPtr;
 		if (classNumber > UInt16_MAX)
 			classNumber = 0;
 		
-		}		// end "else outFileInfoPtr->numberBytes == 2"
+		}	// end "else outFileInfoPtr->numberBytes == 2"
 			
 	if (maskInMemoryFlag)
 		{
@@ -1993,12 +1954,12 @@ SInt16 SetClassInMaskImage (
 		if (outFileInfoPtr->numberBytes == 1)
 			ioOutBufferPtr[index] = (UInt8)classNumber;
 			
-		else		// outFileInfoPtr->numberBytes != 1
+		else	// outFileInfoPtr->numberBytes != 1
 			ioOut2ByteBufferPtr[index] = (UInt16)classNumber; 
 		
-		}		// end "if (maskInMemoryFlag)"
+		}	// end "if (maskInMemoryFlag)"
 		
-	else		// !maskInMemoryFlag
+	else	// !maskInMemoryFlag
 		{		
 					// Change line to 1 based for disk based operations.
 		line++;	
@@ -2036,7 +1997,7 @@ SInt16 SetClassInMaskImage (
 													
 				*lineToBeWrittenFlagPtr = FALSE;
 													
-				}		// end "if (lineToBeWrittenFlag)"
+				}	// end "if (lineToBeWrittenFlag)"
 				
 			if (errCode == noErr)
 				errCode = GetLine (fileIOInstructionsPtr,
@@ -2048,31 +2009,31 @@ SInt16 SetClassInMaskImage (
 											&count,
 											(HUCharPtr)ioOutBufferPtr);
 							
-			}		// end "if (currentLine != nextPoint.v)" 
+			}	// end "if (currentLine != nextPoint.v)" 
 		
 		if (errCode == noErr)	
 			{							
 			if (outFileInfoPtr->numberBytes == 1)
 				ioOutBufferPtr[column] = (UInt8)classNumber;
 				
-			else		// outFileInfoPtr->numberBytes != 1
+			else	// outFileInfoPtr->numberBytes != 1
 				ioOut2ByteBufferPtr[column] = (UInt16)classNumber; 
 			
 			*currentLinePtr = line;	
 			*lineToBeWrittenFlagPtr = TRUE;
 			
-			}		// end "if (errCode == noErr)"
+			}	// end "if (errCode == noErr)"
 		
-		}		// end "!maskInMemoryFlag"
+		}	// end "!maskInMemoryFlag"
 		
 	return (errCode);
 	
-}		// end "SetClassInMaskImage"
+}	// end "SetClassInMaskImage"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2178,7 +2139,7 @@ void ShapeToThematicFileControl (void)
 		if (shapeType == 1)		// point type
 			reformatOptionsPtr->numberClasses = 2;
 			
-		else		// shapeType != 1
+		else	// shapeType != 1
 			{
 			if (reformatOptionsPtr->numberClasses < UInt32_MAX)
 				reformatOptionsPtr->numberClasses++;
@@ -2186,7 +2147,7 @@ void ShapeToThematicFileControl (void)
 			reformatOptionsPtr->numberClasses = 
 										MIN (reformatOptionsPtr->numberClasses, UInt16_MAX);
 			
-			}		// end "else shapeType != 1"
+			}	// end "else shapeType != 1"
 		
 		outFileInfoPtr->numberClasses = reformatOptionsPtr->numberClasses;
 		
@@ -2195,7 +2156,7 @@ void ShapeToThematicFileControl (void)
 			outFileInfoPtr->numberBytes = 2;
 			outFileInfoPtr->numberBits = 16;
 			
-			}		// end "if (outFileInfoPtr->numberClasses > 255)"
+			}	// end "if (outFileInfoPtr->numberClasses > 255)"
 			
 				// Update parameters in the structure for the output file.			
 		
@@ -2240,13 +2201,13 @@ void ShapeToThematicFileControl (void)
 				
 		if (continueFlag)	
 			continueFlag = CreateBackgroundImageFile (
-													outFileInfoPtr, 
-													reformatOptionsPtr->ioOutBufferPtr,
-													kFromReformat,
-													reformatOptionsPtr->numberOutputBufferLines,
-													(UInt8)reformatOptionsPtr->backgroundValue,
-													(reformatOptionsPtr->numberOutputBufferLines < 
-																		outFileInfoPtr->numberLines)); 
+										outFileInfoPtr,
+										reformatOptionsPtr->ioOutBufferPtr,
+										kFromReformat,
+										reformatOptionsPtr->numberOutputBufferLines,
+										(UInt8)reformatOptionsPtr->backgroundValue,
+										(reformatOptionsPtr->numberOutputBufferLines < 
+																		outFileInfoPtr->numberLines));
 	
 				//	Set title and dialog items for changing pixels to class numbers.	
 	
@@ -2277,9 +2238,9 @@ void ShapeToThematicFileControl (void)
             													
 				continueFlag = (shapeInfoPtr != NULL);
 				
-				}		// end "if (shapeHandlePtr != NULL)"
+				}	// end "if (shapeHandlePtr != NULL)"
 			
-			}		// end "if (continueFlag)"
+			}	// end "if (continueFlag)"
 				
 				// Now change those pixels that belong to one of the requested			
 				// project classes.																	
@@ -2317,7 +2278,7 @@ void ShapeToThematicFileControl (void)
 														kCollapseToHighest,
 														supportFileType);
 										
-			}		// end "if (continueFlag)"	
+			}	// end "if (continueFlag)"	
 		
 				// List Reformat information.												
 		
@@ -2342,7 +2303,7 @@ void ShapeToThematicFileControl (void)
 	  				
 		CloseFile (outFileInfoPtr);
 		
-		}		// end "if (LoadAreasToThematicDialog (reformatOptionsPtr))"
+		}	// end "if (LoadAreasToThematicDialog (reformatOptionsPtr))"
 			
 			// Release memory used for the reformat structure.	
 							
@@ -2354,5 +2315,5 @@ void ShapeToThematicFileControl (void)
 			
 	MInitCursor ();
 		
-}		// end "ShapeToThematicFileControl" 
+}	// end "ShapeToThematicFileControl" 
 

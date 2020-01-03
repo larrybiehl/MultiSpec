@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/01/2019
+//	Revision date:			11/24/2019
 //
 //	Language:				C
 //
@@ -31,53 +31,37 @@
 //								Larry Ryan, Viewpoint:EARTH, 66 Fletcher Street, 
 //								Kennebunk, ME 04043.
 //
-//	Functions in file:	Boolean				ConvertLineToGAIAFormat
-//								Boolean				CopyToNewGAIAHeader
-//								void 					ForceGAIACodeResourceLoad
-//								Boolean				GetGAIAClassMeans
-//								SInt16	 			GetGAIAHeaderParameters
-//								Boolean 				ReadGAIAClassNames
-//								SInt16	 			ReadGAIAHeader
-//								SInt32 				GetNumberBytesInGAIALine
-//								void					InitializeGAIALineBytes
-//								Boolean 				WriteGAIAHeader
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif 
                              
 #if defined multispec_win
 	//#include	"CDatFile.h"
 #endif	// defined multispec_win
 
-//#include	"SExtGlob.h"
-
 															
 Boolean GetGAIAClassMeans (
-					ChannelStatisticsPtr					classChannelStatsPtr, 
-					SInt16									numberChannels, 
-					SInt16*									channelListPtr, 
-					SInt16									classNumber);
+				ChannelStatisticsPtr				classChannelStatsPtr,
+				SInt16								numberChannels,
+				SInt16*								channelListPtr,
+				SInt16								classNumber);
 
 SInt16 GetGAIAHeaderParameters (
-					 FileInfoPtr							fileInfoPtr,
-					 char*									bufferPtr,
-					 SInt32*									numberChannelsPtr,
-					 SInt32*									numberFieldsPtr,
-					 SInt32*									numberPoolsPtr,
-					 SInt32*									numberStatChannelsPtr,
-					 SInt32*									numberStatClassesPtr);
+				FileInfoPtr							fileInfoPtr,
+				char*									bufferPtr,
+				SInt32*								numberChannelsPtr,
+				SInt32*								numberFieldsPtr,
+				SInt32*								numberPoolsPtr,
+				SInt32*								numberStatChannelsPtr,
+				SInt32*								numberStatClassesPtr);
 
-																
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -92,8 +76,8 @@ SInt16 GetGAIAHeaderParameters (
 //
 // Value Returned:	None
 //
-// Called By:			WriteClassificationResults in classify.c
-//							CovertMultispectralToThematic in fieldsToThematic.c
+// Called By:			WriteClassificationResults in SClassify.cpp
+//							CovertMultispectralToThematic in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/20/1994
 //	Revised By:			Larry L. Biehl			Date: 02/03/1994
@@ -161,7 +145,7 @@ SInt32 ConvertLineToGAIAFormat (
    
    		}	// end "if (copyType == 1)" 
    			
-		else		// copyType != 1 
+		else	// copyType != 1 
 			{
 			outputBufferPtr -= samplesToMove;
 			outputBuffer2Ptr -= samplesToMove;
@@ -206,7 +190,7 @@ SInt32 ConvertLineToGAIAFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -529,13 +513,13 @@ Boolean CopyToNewGAIAHeader (
 		tempLongInt = GetLongIntValue ((char*)&outFileInfoPtr->numberLines);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[14], 4);
 		
-				// Modify INFO(4) = First line of area classified.						
+				// Modify INFO (4) = First line of area classified.
 		
 		tempLongInt = outFileInfoPtr->startLine;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[30], 4);
 		
-				// Modify INFO(5) = Last line of area classified.						
+				// Modify INFO (5) = Last line of area classified.
 				// Get the original line interval.											
 				// And adjust for the compounded line interval, if any.				
 		
@@ -547,18 +531,18 @@ Boolean CopyToNewGAIAHeader (
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[34], 4);
 		
-				// Modify INFO(6) = Line interval used for classification.			
+				// Modify INFO (6) = Line interval used for classification.
 		
 		tempLongInt = GetLongIntValue ((char*)&interval);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[38], 4);
 		
-				// Modify INFO(7) = First column of area classified.					
+				// Modify INFO (7) = First column of area classified.
 		
 		tempLongInt = outFileInfoPtr->startColumn;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[42], 4);
 		
-				// Modify INFO(8) = Last column of area classified.					
+				// Modify INFO (8) = Last column of area classified.
 				// Get the original column interval.										
 				// And adjust for the compounded column interval, if any.			
 		
@@ -570,7 +554,7 @@ Boolean CopyToNewGAIAHeader (
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[46], 4);
 		
-				// Modify INFO(9) = Column interval used for classification.		
+				// Modify INFO (9) = Column interval used for classification.
 		
 		tempLongInt = GetLongIntValue ((char*)&interval);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[50], 4);
@@ -628,8 +612,8 @@ Boolean CopyToNewGAIAHeader (
 
 
 /*
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -670,7 +654,7 @@ void ForceGAIACodeResourceLoad (void)
     
 #if defined multispec_mac || defined multispec_mac_swift
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -684,7 +668,7 @@ void ForceGAIACodeResourceLoad (void)
 //
 // Value Returned:	None
 //
-// Called By:			WriteGAIAHeader in gaiaRoutines.c
+// Called By:			WriteGAIAHeader in SGAIARoutines.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/20/1994
 //	Revised By:			Larry L. Biehl			Date: 01/20/1994
@@ -735,7 +719,7 @@ Boolean GetGAIAClassMeans (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -754,7 +738,7 @@ Boolean GetGAIAClassMeans (
 //
 //	Value Returned:	None		
 // 
-// Called By:			LoadClassNameDescriptions in fileIO.c
+// Called By:			LoadClassNameDescriptions in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/08/1994
 //	Revised By:			Larry L. Biehl			Date: 03/01/2019
@@ -780,7 +764,7 @@ SInt16 GetGAIAHeaderParameters (
 	SInt16								errCode;
 	
 	
-	if (	fileInfoPtr == NULL || bufferPtr == NULL)
+	if (fileInfoPtr == NULL || bufferPtr == NULL)
 																								return (1);
 	
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
@@ -899,8 +883,8 @@ SInt16 GetGAIAHeaderParameters (
 
 																
 																
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -946,8 +930,8 @@ SInt32 GetNumberBytesInGAIALine (
 
 																
 																
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -962,7 +946,7 @@ SInt32 GetNumberBytesInGAIALine (
 //
 // Value Returned:	None
 //
-// Called By:			WriteGAIAHeader in gaiaRoutines.c
+// Called By:			WriteGAIAHeader in SGAIARoutines.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/20/1994
 //	Revised By:			Larry L. Biehl			Date: 01/20/1994
@@ -1021,8 +1005,8 @@ void InitializeGAIALineBytes (
 
 
 
-//-------------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1037,7 +1021,7 @@ void InitializeGAIALineBytes (
 //
 //	Value Returned:	None				
 // 
-// Called By:			LoadClassNameDescriptions in fileIO.c
+// Called By:			LoadClassNameDescriptions in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1992
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
@@ -1171,7 +1155,7 @@ Boolean ReadGAIAClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1518,8 +1502,8 @@ SInt16 ReadGAIAHeader (
 
 
 			             													
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1533,8 +1517,8 @@ SInt16 ReadGAIAHeader (
 //
 // Value Returned:	None
 //
-// Called By:			CreateResultsDiskFile in multiSpecUtilities.c
-//							WriteNewImageHeader in reformat.c
+// Called By:			CreateResultsDiskFile in SUtilities.cpp
+//							WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1992
 //	Revised By:			Larry L. Biehl			Date: 09/18/2006
@@ -2218,54 +2202,54 @@ Boolean WriteGAIAHeader (
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[14], 4);
 		
 				// Load the INFO array.															
-				// INFO(1) = LARSYS Run Number - not used.								
+				// INFO (1) = LARSYS Run Number - not used.
 				
 		memset (&headerRecordPtr[18], 0, 4);
 		
-				// INFO(2-3) = Field Name or identifier - not used.					
+				// INFO (2-3) = Field Name or identifier - not used.
 				
 		memset (&headerRecordPtr[22], ' ', 8);
 		
-				// INFO(4) = First line of area classified.								
+				// INFO (4) = First line of area classified.
 				
 		tempLongInt = fileInfoPtr->startLine;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[30], 4);
 		
-				// INFO(5) = Last line of area classified.								
+				// INFO (5) = Last line of area classified.
 				
 		tempLongInt = gAreaDescription.lineEnd + 
 									(fileInfoPtr->startLine - gAreaDescription.lineStart);
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[34], 4);
 		
-				// INFO(6) = Line interval used for classification.					
+				// INFO (6) = Line interval used for classification.
 				
 		tempLongInt = gAreaDescription.lineInterval;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[38], 4);
 		
-				// INFO(7) = First column of area classified.							
+				// INFO (7) = First column of area classified.
 				
 		tempLongInt = fileInfoPtr->startColumn;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[42], 4);
 		
-				// INFO(8) = Last column of area classified.								
+				// INFO (8) = Last column of area classified.
 				
 		tempLongInt = gAreaDescription.columnEnd + 
 							(fileInfoPtr->startColumn - gAreaDescription.columnStart);
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[46], 4);
 		
-				// INFO(9) = Column interval used for classification.					
+				// INFO (9) = Column interval used for classification.
 				
 		tempLongInt = gAreaDescription.columnInterval;
 		tempLongInt = GetLongIntValue ((char*)&tempLongInt);
 		BlockMoveData ((char*)&tempLongInt, &headerRecordPtr[50], 4);
 		
-				// INFO(10-11) = Class Name - not used.									
-				// INFO(12-17) = Other information - not used.							
+				// INFO (10-11) = Class Name - not used.
+				// INFO (12-17) = Other information - not used.							
 				
 		memset (&headerRecordPtr[54], ' ', 32);
 				
@@ -2380,5 +2364,7 @@ Boolean WriteGAIAHeader (
 #if defined multispec_win
 	return (FALSE);
 #endif	// defined multispec_win
+
+return (FALSE);
 
 }	// end "WriteGAIAHeader" 

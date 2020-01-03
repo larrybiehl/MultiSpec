@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/14/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -20,36 +20,22 @@
 //	Brief description:	This file contains functions that handle classification
 //								dialogs.
 //
-//	Functions in file:	Boolean 					CEMClassifyDialog
-//								Boolean  				ClassifyDialog
-//								Boolean 					ClassifyDialogGetThresholdAllowedFlag
-//								Boolean 					ClassifyDialogSetLeaveOneOutItems
-//								Boolean 					ClassifyDialogSetThresholdItems
-//								Boolean 					CorrelationClassifyDialog
-//								pascal void 			DrawClassificationProcedurePopUp
-//								pascal void	 			DrawCovarianceEstimatePopUp
-//								pascal void 			DrawDiskFilePopUp
-//								Boolean 					EchoClassifyDialog
-//								void 						ListResultsOptionsDialog
-//								Boolean 					LoadCEMParameterSpecs
-//
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"  
-//#include "SExtGlob.h" 
 
-#if defined multispec_lin    
-	#include "LClassifyCEMDialog.h" 
-	#include "LClassifyCorrelationDialog.h"
-	#include "LClassifyDialog.h"
-	#include "LClassifyEchoDialog.h"
-   #include "LClassifyKNNDialog.h"
-   //#include "LClassifySVMDialog.h"
-	#include "LListResultsOptionsDialog.h"
-#endif	// defined multispec_lin 
+#if defined multispec_wx    
+	#include "xClassifyCEMDialog.h" 
+	#include "xClassifyCorrelationDialog.h"
+	#include "xClassifyDialog.h"
+	#include "xClassifyEchoDialog.h"
+   #include "xClassifyKNNDialog.h"
+   #include "xClassifySVMDialog.h"
+	#include "xListResultsOptionsDialog.h"
+#endif	// defined multispec_wx 
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_FeatureTransformation		6
@@ -72,6 +58,7 @@
 	#include "WClassifyCorrelationDialog.h"
 	#include "WClassifyEchoDialog.h" 
    #include "WClassifyKNNDialog.h"
+   #include "WClassifySVMDialog.h"
 	#include "WListResultsOptionsDialog.h"   
 #endif	// defined multispec_win   
 	
@@ -87,7 +74,7 @@ SInt16			gCovarianceEstimate = 0;
 SInt16			gEchoAlgorithmProcedure = 0;
 									
 									
-#if defined multispec_lin || defined multispec_mac || defined multispec_win
+#if defined multispec_wx || defined multispec_mac || defined multispec_win
 	typedef struct 	DecisionTreeVar 
 		{
 		double				startThreshold;
@@ -100,64 +87,86 @@ SInt16			gEchoAlgorithmProcedure = 0;
 		
 		}	DecisionTreeVar, *DecisionTreeVarPtr;  
 #endif
+
+
                                  	
 								
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.
 
-Boolean 					CheckIfClassesToUseForClassificationChanged (
-								SInt16								newClassSelection,
-								UInt32								newNumberClasses,
-								UInt16*								newClassPtr,
-								SInt16								previousClassSelection,
-								UInt32								previousNumberClasses,
-								Handle								previousClassHandle);
+Boolean CheckIfClassesToUseForClassificationChanged (
+				SInt16								newClassSelection,
+				UInt32								newNumberClasses,
+				UInt16*								newClassPtr,
+				SInt16								previousClassSelection,
+				UInt32								previousNumberClasses,
+				Handle								previousClassHandle);
 
-Boolean  				ClassifyDialog (
-								FileInfoPtr							fileInfoPtr);
+Boolean ClassifyDialog (
+				FileInfoPtr							fileInfoPtr);
 								
-Boolean 					CorrelationClassifyDialog (
-								SInt16*								covarianceEstimatePtr);
+Boolean CorrelationClassifyDialog (
+				SInt16*								covarianceEstimatePtr);
+
+Boolean DetermineIfChannelClassWeightListChanged (
+				SInt16								channelSelection,
+				Boolean								featureTransformationFlag,
+				UInt16								numberAllChannels,
+				UInt16								newNumberFeatures,
+				UInt16*								newFeaturesPtr,
+				SInt16								channelSet,
+				UInt16								currentNumberFeatures,
+				Handle								currentFeatureHandle,
+				UInt16								numberChannels,
+				Handle								channelsHandle,
+				SInt16								classSelection,
+				UInt32								newNumberClasses,
+				UInt16*								newClassPtr,
+				SInt16								classSet,
+				UInt32								currentNumberClasses,
+				Handle								currentClassHandle,
+				SInt16								weightsSelection,
+				float*								classWeightsPtr);
+
+PascalVoid DrawClassificationProcedurePopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
+								
+PascalVoid DrawCorrelationMatrixClassAreaPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
+								
+PascalVoid DrawCovarianceEstimatePopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
+
+PascalVoid DrawEchoAlgorithmPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 											
-PascalVoid	 			DrawClassificationProcedurePopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
+PascalVoid DrawDiskFilePopUp (
+				DialogPtr 							dialogPtr,
+				SInt16 								itemNumber);
 								
-PascalVoid	 			DrawCorrelationMatrixClassAreaPopUp (
-								DialogPtr							dialogPtr, 
-								SInt16								itemNumber);
-								
-PascalVoid	 			DrawCovarianceEstimatePopUp (
-								DialogPtr							dialogPtr, 
-								SInt16								itemNumber);
+Boolean DecisionTreeDialog (void);
 
-PascalVoid 				DrawEchoAlgorithmPopUp (
-								DialogPtr							dialogPtr, 
-								SInt16								itemNumber);
-											
-PascalVoid	 			DrawDiskFilePopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16 								itemNumber);
+Boolean KNNClassifyDialog (
+				SInt16*								nearestNeighborKValuePtr);
 								
-Boolean 					DecisionTreeDialog (void);
+Boolean LoadCEMParameterSpecs (
+				UInt16								classifyProcedureEnteredCode);
 
-Boolean              KNNClassifyDialog (
-								SInt16*								nearestNeighborKValuePtr);
-								
-Boolean 					LoadCEMParameterSpecs (
-								UInt16								classifyProcedureEnteredCode);
-
-Boolean              SVMClassifyDialog ();
+Boolean SVMClassifyDialog ();
 								
 								
 		// Global variables for file.
 		
-SInt16					gfile_EntireIconItem;
+SInt16								gfile_EntireIconItem;
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -173,7 +182,7 @@ SInt16					gfile_EntireIconItem;
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1997
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -246,7 +255,8 @@ Boolean CEMClassifyDialog (
 		
 			// Intialize local user item proc pointers.	
 			
-	drawCorrelationMatrixClassesPtr = NewUserItemUPP (DrawCorrelationMatrixClassAreaPopUp);
+	drawCorrelationMatrixClassesPtr =
+										NewUserItemUPP (DrawCorrelationMatrixClassAreaPopUp);
 				
 			// Initialize selected area structure.
 			
@@ -331,8 +341,9 @@ Boolean CEMClassifyDialog (
 									kIntervalEditBoxesExist,
 									1);
 		
-	ShowHideDialogItem (
-				dialogPtr, entireIconItem, (cemParametersPtr->correlationMatrixCode & kAreaType));
+	ShowHideDialogItem (dialogPtr,
+								entireIconItem,
+								(cemParametersPtr->correlationMatrixCode & kAreaType));
 	ShowHideDialogItems (
 				dialogPtr, 10, 17, (cemParametersPtr->correlationMatrixCode & kAreaType));
 		
@@ -417,7 +428,8 @@ Boolean CEMClassifyDialog (
 				case 15:				//	 cluster from columnStart  
 				case 16:				//	 cluster from columnEnd  
 				case 17:				//	 cluster from columnInterval  
-				case 19:				// Entire area to selected area switch. (for Appearance Manager)
+				case 19:				// Entire area to selected area switch.
+										// (for Appearance Manager)
 					DialogLineColumnHits (&dialogSelectArea,
 													dialogPtr, 
 													itemHit,
@@ -467,7 +479,7 @@ Boolean CEMClassifyDialog (
 			
 			}	// end "else itemHit <= 2" 
 				
-		} while (!modalDone); 
+		}	while (!modalDone);
 		
 	DisposeUserItemUPP (drawCorrelationMatrixClassesPtr);
 		
@@ -483,7 +495,8 @@ Boolean CEMClassifyDialog (
 			{ 
 			dialogPtr = new CMCEMClassifyDialog ();
 			
-			returnFlag = dialogPtr->DoDialog (cemParametersPtr, classifyProcedureEnteredCodePtr); 
+			returnFlag = dialogPtr->DoDialog (
+											cemParametersPtr, classifyProcedureEnteredCodePtr);
 		                       
 			delete dialogPtr;
 			}
@@ -496,15 +509,16 @@ Boolean CEMClassifyDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMCEMClassifyDialog* dialogPtr = NULL;
 		dialogPtr = new CMCEMClassifyDialog ();
 		if (dialogPtr != NULL)
 			{
-			returnFlag = dialogPtr->DoDialog (cemParametersPtr, classifyProcedureEnteredCodePtr);
+			returnFlag = dialogPtr->DoDialog (
+											cemParametersPtr, classifyProcedureEnteredCodePtr);
 			delete dialogPtr;
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	CheckAndUnlockHandle (gClassifySpecsPtr->cemParametersH); 
 	
@@ -580,7 +594,7 @@ void CEMClassifyDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -646,7 +660,7 @@ Boolean CheckIfClassesToUseForClassificationChanged (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -662,7 +676,7 @@ Boolean CheckIfClassesToUseForClassificationChanged (
 //
 // Value Returned:  	None
 //
-// Called By:			ClassifyControl   in classify.c
+// Called By:			ClassifyControl   in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
 //	Revised By:			Larry L. Biehl			Date: 05/04/2019
@@ -1001,6 +1015,7 @@ Boolean ClassifyDialog (
 															&covarianceEstimate,
 															numberEigenvectors,
 															&classifyProcedureEnteredCode,
+															correlationComboListItem,
 															optionKeyFlag);
 															         
 					if (covarianceEstimate == kNoCovarianceUsed)
@@ -1186,7 +1201,8 @@ Boolean ClassifyDialog (
 				case 22:				//	 columnStart  
 				case 23:				//	 columnEnd  
 				case 24:				//	 columnInterval  	
-				case 50:				// Entire area to selected area switch. (Appearance Manager version)
+				case 50:				// Entire area to selected area switch.
+										// (Appearance Manager version)
 					dialogSelectArea.imageWindowInfoPtr = (WindowInfoPtr)
 								GetHandleStatusAndPointer (targetWindowInfoHandle,
 																		&handleStatus);	
@@ -1651,7 +1667,7 @@ Boolean ClassifyDialog (
 								
 			}	// end "if (updateDialogWindowFlag)"
 				
-		} while (!modalDone);
+		}	while (!modalDone);
 		
 	ReleaseDialogLocalVectors (localFeaturesPtr,
 											localTransformFeaturesPtr,
@@ -1698,7 +1714,7 @@ Boolean ClassifyDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMClassifyDialog* dialogPtr = NULL;
 		dialogPtr = new CMClassifyDialog ();
 		if (dialogPtr != NULL)
@@ -1706,7 +1722,7 @@ Boolean ClassifyDialog (
 			returnFlag = dialogPtr->DoDialog ();
 			delete dialogPtr;
 			}
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 	
 	return (returnFlag);
 	
@@ -1772,20 +1788,8 @@ void ClassifyDialogInitialize (
 	#if defined multispec_win  
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
-	
-	#if defined multispec_lin  
-		wxComboBox*							comboBoxPtr;
-	#endif	// defined multispec_lin
-	
-   // init SVM convergence_rate
-   //gProjectInfoPtr->convergence_rate = 0.1;
-		// Load the dialog local vectors
-   // init KNN topK value
-   //gProjectInfoPtr->topK = 5;
-   //gProjectInfoPtr->knnCounter = 0;
-	
 		
-		// Load the dialog local vectors
+			// Load the dialog local vectors
 
 	LoadDialogLocalVectors (localFeaturesPtr,
 										localTransformFeaturesPtr,
@@ -1837,7 +1841,7 @@ void ClassifyDialogInitialize (
 	
 	#if defined multispec_win  
 		dialogPtr->SetComboItemText (IDC_ClassificationProcedure, 
-												kCorrelationMode - 2,
+												kCorrelationMode - 1,
 												&gTextString[1]); 
 	
 		comboBoxPtr = 
@@ -1847,50 +1851,69 @@ void ClassifyDialogInitialize (
 		comboBoxPtr->SetItemData (1, kMahalanobisMode);
 		comboBoxPtr->SetItemData (2, kFisherMode);
 		comboBoxPtr->SetItemData (3, kEchoMode);
-		comboBoxPtr->SetItemData (4, kKNearestNeighborMode);
-		comboBoxPtr->SetItemData (5, kEuclideanMode);
-		comboBoxPtr->SetItemData (6, kCorrelationMode);
-		comboBoxPtr->SetItemData (7, kCEMMode);
-		comboBoxPtr->SetItemData (8, kParallelPipedMode);
+		comboBoxPtr->SetItemData (4, kSupportVectorMachineMode);
+		comboBoxPtr->SetItemData (5, kKNearestNeighborMode);
+		comboBoxPtr->SetItemData (6, kEuclideanMode);
+		comboBoxPtr->SetItemData (7, kCorrelationMode);
+		comboBoxPtr->SetItemData (8, kCEMMode);
+		comboBoxPtr->SetItemData (9, kParallelPipedMode); 
+
+		if (gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
+			{
+			comboBoxPtr->DeleteString (kKNearestNeighborMode-1);
+			comboBoxPtr->DeleteString (kSupportVectorMachineMode-1);
+
+			}	// end "if (gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)"
+
 	#endif	// defined multispec_win  		
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		int index = 0;
-		comboBoxPtr = (wxComboBox*) dialogPtr->FindWindowById (IDC_ClassificationProcedure);
 
-		comboBoxPtr->SetClientData (index, (void*)kMaxLikeMode);
+		#if defined multispec_wxlin
+			wxComboBox*		procedureCtrl;
+			procedureCtrl =
+					(wxComboBox*)dialogPtr->FindWindowById (IDC_ClassificationProcedure);
+		#endif
+		#if defined multispec_wxmac
+			wxChoice*		procedureCtrl;
+			procedureCtrl =
+					(wxChoice*)dialogPtr->FindWindowById (IDC_ClassificationProcedure);
+		#endif
+	
+		procedureCtrl->SetClientData (index, (void*)kMaxLikeMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kMahalanobisMode);
+		procedureCtrl->SetClientData (index, (void*)kMahalanobisMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kFisherMode);
+		procedureCtrl->SetClientData (index, (void*)kFisherMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kEchoMode);
-	
-		//index++;
-      //comboBoxPtr->SetClientData (index, (void*)kSVMMode);
+		procedureCtrl->SetClientData (index, (void*)kEchoMode);
 	
 		if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)
 			{
 			index++;
-      	comboBoxPtr->SetClientData (index, (void*)kKNearestNeighborMode);
+      	procedureCtrl->SetClientData (index, (void*)kSupportVectorMachineMode);
+			
+			index++;
+      	procedureCtrl->SetClientData (index, (void*)kKNearestNeighborMode);
 			
       	}	// end "if (!gProjectInfoPtr->includesStatisticsFromClusterOperationFlag)"
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kEuclideanMode);
+		procedureCtrl->SetClientData (index, (void*)kEuclideanMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kCorrelationMode);
+		procedureCtrl->SetClientData (index, (void*)kCorrelationMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kCEMMode);
+		procedureCtrl->SetClientData (index, (void*)kCEMMode);
 	
 		index++;
-		comboBoxPtr->SetClientData (index, (void*)kParallelPipedMode);
-	#endif  		                 
+		procedureCtrl->SetClientData (index, (void*)kParallelPipedMode);
+	#endif	// multispec_wx
 	
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
 		{
@@ -1908,12 +1931,12 @@ void ClassifyDialogInitialize (
 			comboBoxPtr->DeleteString (kMaxLikeMode-1);
 		#endif	// defined multispec_win 
 		 			
-		#if defined multispec_lin        
-			comboBoxPtr->Delete (kEchoMode - 1);
-			comboBoxPtr->Delete (kFisherMode - 1);
-			comboBoxPtr->Delete (kMahalanobisMode - 1);
-			comboBoxPtr->Delete (kMaxLikeMode - 1);
-		#endif	// defined multispec_lin		
+		#if defined multispec_wx        
+			procedureCtrl->Delete (kEchoMode - 1);
+			procedureCtrl->Delete (kFisherMode - 1);
+			procedureCtrl->Delete (kMahalanobisMode - 1);
+			procedureCtrl->Delete (kMaxLikeMode - 1);
+		#endif	// defined multispec_wx		
 		
 				// Force covariance estimate that is to be used with the correlation 
 				// classifier to 'None' since no second order statistics are available.
@@ -1966,7 +1989,7 @@ void ClassifyDialogInitialize (
 	
 	*targetWindowInfoHandlePtr = gClassifySpecsPtr->targetWindowInfoHandle;
 	*fileNamesSelectionPtr = GetImageList (
-						dialogPtr, *targetWindowInfoHandlePtr, IDC_TargetCombo, TRUE, &listCount);
+				dialogPtr, *targetWindowInfoHandlePtr, IDC_TargetCombo, TRUE, &listCount);
 		
 	if (*fileNamesSelectionPtr <= 1)
 		*targetWindowInfoHandlePtr = gProjectInfoPtr->windowInfoHandle;
@@ -1980,22 +2003,24 @@ void ClassifyDialogInitialize (
 		
 		#if defined multispec_win  
 			comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_TargetCombo);
-			UInt32 windowIndex = (UInt32)comboBoxPtr->GetItemData (*fileNamesSelectionPtr-1);
+			UInt32 windowIndex =
+								(UInt32)comboBoxPtr->GetItemData (*fileNamesSelectionPtr-1);
 			*targetWindowInfoHandlePtr = GetWindowInfoHandle (gWindowList [windowIndex]);
 		#endif	// defined multispec_win   
 
-		#if defined multispec_lin
-			comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow (IDC_TargetCombo);
-			SInt64 windowIndex64 = (SInt64)((int*) comboBoxPtr->GetClientData (*fileNamesSelectionPtr - 1));
+		#if defined multispec_wx
+			wxChoice* targetCtrl = (wxChoice*)dialogPtr->FindWindow (IDC_TargetCombo);
+			SInt64 windowIndex64 =
+					(SInt64)((int*)targetCtrl->GetClientData (*fileNamesSelectionPtr - 1));
 			UInt32 windowIndex = (UInt32)windowIndex64;
 			*targetWindowInfoHandlePtr = GetWindowInfoHandle (gWindowList [windowIndex]);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		}	// end "else *fileNamesSelectionPtr > 1" 
 	
 	if (listCount <= 1)
 		*fileNamesSelectionPtr = -*fileNamesSelectionPtr;
 	
-	#if defined multispec_win || defined multispec_lin		
+	#if defined multispec_win || defined multispec_wx		
 		if (*fileNamesSelectionPtr <= 0)	 
 			HideDialogItem (dialogPtr, IDC_TargetCombo);
 			
@@ -2064,7 +2089,7 @@ void ClassifyDialogInitialize (
 			HideDialogItem (dialogPtr,12);
 	#endif	// defined multispec_mac  	
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		((CMClassifyDialog*)dialogPtr)->HideShowClassAreasItem ();
 	#endif	// defined multispec_win || ...
 															
@@ -2153,7 +2178,7 @@ void ClassifyDialogInitialize (
 			}	// end "else !*imageAreaFlagPtr"
 	#endif	// defined multispec_mac  	
 			
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		LoadLineColumnItems (dialogSelectAreaPtr, 
 									dialogPtr, 
 									kDoNotInitializeLineColumnValues, 
@@ -2214,21 +2239,23 @@ void ClassifyDialogInitialize (
 					
 	if (*createImageOverlayFlagPtr)
 		ShowDialogItem (dialogPtr, IDC_ImageOverlayCombo);
+		
 	else	// !*createImageOverlayFlagPtr
 		HideDialogItem (dialogPtr, IDC_ImageOverlayCombo);	
 	
 	*selectImageOverlaySelectionPtr = GetWindowImageOverlayIndex (
-														gProjectInfoPtr->overlayImageWindowInfoHandle,
-														gClassifySpecsPtr->imageOverlayIndex) + 2;
+													gProjectInfoPtr->overlayImageWindowInfoHandle,
+													gClassifySpecsPtr->imageOverlayIndex) + 2;
 				
 	#if defined multispec_win 
 		comboBoxPtr = (CComboBox*)(dialogPtr->GetDlgItem (IDC_ImageOverlayCombo));
 		gPopUpImageOverlayMenu = (MenuHandle)comboBoxPtr;
 	#endif	// defined multispec_win			
 
-	#if defined multispec_lin 
-		comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (IDC_ImageOverlayCombo));
-		gPopUpImageOverlayMenu = (MenuHandle) comboBoxPtr;
+	#if defined multispec_wx 
+		wxChoice*		overlayCtrl;
+		overlayCtrl = (wxChoice*)(dialogPtr->FindWindow (IDC_ImageOverlayCombo));
+		gPopUpImageOverlayMenu = (MenuHandle)overlayCtrl;
 	#endif 
 
 	SetUpImageOverlayPopUpMenu (gPopUpImageOverlayMenu, 
@@ -2244,7 +2271,7 @@ void ClassifyDialogInitialize (
 												#if defined multispec_mac  
 													gPopUpDiskFileMenu,
 												#endif	// defined multispec_mac
-												#if defined multispec_win || defined multispec_lin
+												#if defined multispec_win || defined multispec_wx
 													IDC_DiskCombo,
 												#endif	// defined multispec_win || ...
 												kClassifyOutputTIFFGeoTIFFMenuItem);
@@ -2368,7 +2395,342 @@ Boolean ClassifyDialogGetThresholdAllowedFlag (
 										
 	return (thresholdAllowedFlag); 
 	
-}	// end "ClassifyDialogGetThresholdAllowedFlag"  
+}	// end "ClassifyDialogGetThresholdAllowedFlag"
+
+
+
+void ClassifyDialogOK (
+				SInt16								classificationProcedure,
+				SInt16								covarianceEstimate,
+				Boolean								featureTransformationFlag,
+				SInt16								channelSelection,
+				SInt16								localNumberFeatures,
+				SInt16*								localFeaturesPtr,
+				Handle								targetWindowInfoHandle,
+				SInt16								fileNamesSelection,
+				SInt16								classAreaSelection,
+				SInt16								localNumberClassAreas,
+				SInt16*								localClassAreaPtr,
+				Boolean								trainingFldsResubstitutionFlag,
+				Boolean								trainingFldsLOOFlag,
+				Boolean								testFldsFlag,
+				Boolean								imageAreaFlag,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				SInt16								classSelection,
+				SInt16								localNumberClasses,
+				SInt16*								localClassPtr,
+				SInt16								weightsSelection,
+				float*								classWeightsPtr,
+				SInt16								symbolSelection,
+				unsigned char*						localSymbolsPtr,
+				Boolean								diskFileFlag,
+				Boolean								createImageOverlayFlag,
+				SInt16								selectImageOverlaySelection,
+				SInt16								outputFormatCode,
+				Boolean								thresholdFlag,
+				double								saveCorrelationThreshold,
+				double								saveAngleThreshold,
+				double								saveCEMThreshold,
+				double								saveThresholdPercent,
+				SInt16								saveKNNThreshold,
+				Boolean								probabilityFileFlag,
+				SInt16								paletteSelection,
+				SInt16								listResultsTestCode,
+				SInt16								listResultsTrainingCode,
+				SInt16								parallelPipedCode,
+				SInt16								nearestNeighborKValue)
+
+{
+	double								thresholdValue;
+	
+	SInt16								*classAreaPtr;
+	
+	SInt16								index;
+	
+	
+			// Classifier options.
+
+	gClassifySpecsPtr->mode = classificationProcedure;
+	
+	if (classificationProcedure == kCorrelationMode)
+		gClassifySpecsPtr->correlationCovarianceCode = covarianceEstimate;
+	
+			// Feature transformation option.
+	
+	gClassifySpecsPtr->featureTransformationFlag = featureTransformationFlag;
+	
+			// Determine if channel and/or class list changed. If so SVM model
+			// needs to be re-created
+	
+	if (DetermineIfChannelClassWeightListChanged (
+									channelSelection,
+									featureTransformationFlag,
+									gProjectInfoPtr->numberStatisticsChannels,
+									localNumberFeatures,
+									(UInt16*)localFeaturesPtr,
+									gClassifySpecsPtr->channelSet,
+									gClassifySpecsPtr->numberFeatures,
+									gClassifySpecsPtr->featureHandle,
+									gClassifySpecsPtr->numberChannels,
+									gClassifySpecsPtr->channelsHandle,
+									classSelection,
+									localNumberClasses,
+									(UInt16*)localClassPtr,
+									gClassifySpecsPtr->classSet,
+									gClassifySpecsPtr->numberClasses,
+									gClassifySpecsPtr->classHandle,
+									weightsSelection,
+									classWeightsPtr))
+		gClassifySpecsPtr->supportVectorMachineModelAvailableFlag = FALSE;
+	
+			// Load some common processor parameters
+			// Channels
+			// Classes
+			// Class symbols
+	
+	LoadProcessorVectorsFromDialogLocalVectors (
+									channelSelection,
+									featureTransformationFlag,
+									gProjectInfoPtr->numberStatisticsChannels,
+									localNumberFeatures,
+									(UInt16*)localFeaturesPtr,
+									&gClassifySpecsPtr->channelSet,
+									(UInt16*)&gClassifySpecsPtr->numberFeatures,
+									gClassifySpecsPtr->featureHandle,
+									(UInt16*)&gClassifySpecsPtr->numberChannels,
+									gClassifySpecsPtr->channelsHandle,
+									classSelection,
+									localNumberClasses,
+									(UInt16*)localClassPtr,
+									&gClassifySpecsPtr->classSet,
+									&gClassifySpecsPtr->numberClasses,
+									gClassifySpecsPtr->classHandle,
+									symbolSelection,
+									localSymbolsPtr,
+									&gClassifySpecsPtr->symbolSet,
+									gClassifySpecsPtr->symbolsHandle,
+									0,
+									NULL,
+									NULL);
+	
+			// Load the classVectorPtr list.
+	
+	for (index=0; index<=gProjectInfoPtr->numberStatisticsClasses; index++)
+		gClassifySpecsPtr->classVectorPtr[index] = 0;
+	
+	for (index=0; index<gClassifySpecsPtr->numberClasses; index++)
+		gClassifySpecsPtr->classVectorPtr[gClassifySpecsPtr->classPtr[index]] = 1;
+	
+			// Target window information handle.
+	
+	gClassifySpecsPtr->targetWindowInfoHandle = targetWindowInfoHandle;
+	
+			// Class areas
+
+	classAreaPtr = (SInt16*)GetHandlePointer (gClassifySpecsPtr->classAreaHandle);
+
+	gClassifySpecsPtr->classAreaSet = classAreaSelection;
+	if (classAreaSelection == kAllMenuItem)		// All classes
+		LoadClassAreaVector (&gClassifySpecsPtr->numberClassAreas,
+										classAreaPtr);
+	
+	else	// classAreaSelection == kSubsetMenuItem
+		{
+		gClassifySpecsPtr->numberClassAreas = localNumberClassAreas;
+		for (index=0; index<localNumberClassAreas; index++)
+			classAreaPtr[index] = (SInt16)localClassAreaPtr[index];
+		
+		}	// end "else classAreaSelection == kSubsetMenuItem"
+	
+			// Area to Classify
+
+	gClassifySpecsPtr->trainingFldsResubstitutionFlag =
+														trainingFldsResubstitutionFlag;
+
+	gClassifySpecsPtr->trainingFldsLOOFlag = trainingFldsLOOFlag;
+
+	gClassifySpecsPtr->testFldsFlag = testFldsFlag;
+
+	gClassifySpecsPtr->imageAreaFlag = imageAreaFlag;
+	
+			// Classification area
+	
+	gClassifySpecsPtr->imageLineStart = dialogSelectAreaPtr->lineStart;
+	gClassifySpecsPtr->imageLineEnd = dialogSelectAreaPtr->lineEnd;
+	gClassifySpecsPtr->imageLineInterval =
+												dialogSelectAreaPtr->lineInterval;
+	
+	gClassifySpecsPtr->imageColumnStart = dialogSelectAreaPtr->columnStart;
+	gClassifySpecsPtr->imageColumnEnd = dialogSelectAreaPtr->columnEnd;
+	gClassifySpecsPtr->imageColumnInterval =
+												dialogSelectAreaPtr->columnInterval;
+	
+			// Class Weights
+	
+	UpdateProjectClassWeights (
+					gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
+					weightsSelection,
+					classWeightsPtr);
+	
+			// Write classification to output window.
+	
+	gClassifySpecsPtr->outputStorageType = 0;
+	
+			// Write classification to disk file.
+	
+	gClassifySpecsPtr->diskFileFormat	= 0;
+	if (diskFileFlag)
+		{
+		switch (outputFormatCode)
+			{
+			/*
+			case kClassifyArcViewMenuItem:
+				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
+				gClassifySpecsPtr->diskFileFormat = kArcViewType;
+				break;
+			*/
+			case kClassifyASCIIOutputFormat:
+				gClassifySpecsPtr->outputStorageType += kAsciiFormatCode;
+				gClassifySpecsPtr->diskFileFormat = kMultiSpecClassificationType;
+				break;
+				
+			case kClassifyERDAS74OutputFormat:
+				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
+				gClassifySpecsPtr->diskFileFormat = kErdas74Type;
+				break;
+				
+			case kClassifyGAIAOutputFormat:
+				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
+				gClassifySpecsPtr->diskFileFormat = kGAIAType;
+				break;
+				
+			case kClassifyTIFFGeoTIFFOutputFormat:
+				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
+				gClassifySpecsPtr->diskFileFormat = kTIFFType;
+				break;
+				
+			}	// end "switch (outputFormatCode)"
+		
+		gOutputFormatCode = 0;
+		if (gClassifySpecsPtr->outputStorageType & kClassifyFileCode)
+			gOutputFormatCode = gClassifySpecsPtr->diskFileFormat;
+		
+		}	// end "if (diskFileFlag)"
+	
+	if (createImageOverlayFlag)
+		gClassifySpecsPtr->outputStorageType += kCreateImageOverlayCode;
+	
+	gProjectInfoPtr->overlayImageWindowInfoHandle =
+											GetTargetOverlayImageWindowInfoHandle (
+																			fileNamesSelection,
+																			targetWindowInfoHandle);
+	
+	gClassifySpecsPtr->imageOverlayIndex = GetImageOverlayIndex (
+												gProjectInfoPtr->overlayImageWindowInfoHandle,
+												selectImageOverlaySelection - 2);
+	
+	if (gClassifySpecsPtr->mode == kEchoMode &&
+											gClassifySpecsPtr->imageAreaFlag)
+		{
+		EchoClassifierVarPtr	echoClassifierVarPtr =
+			(EchoClassifierVarPtr)GetHandlePointer (
+														gClassifySpecsPtr->echoClassifierVarH);
+			
+		if (echoClassifierVarPtr->createHomogeneousFilesFlag)
+			gClassifySpecsPtr->outputStorageType +=
+								kEchoFieldsCode + kEchoClassesCode;
+		
+		}	// end "if (gClassifySpecsPtr->mode == ..."
+	
+			// Get threshold results flag.
+			// Get probability threshold.
+	
+	gClassifySpecsPtr->thresholdFlag = thresholdFlag;
+	
+	if (gClassifySpecsPtr->thresholdFlag)
+		{
+		if (gClassifySpecsPtr->mode == kCorrelationMode)
+			{
+			gClassifySpecsPtr->correlationCoefficientThreshold =
+															saveCorrelationThreshold;
+			gClassifySpecsPtr->correlationAngleThreshold = saveAngleThreshold;
+			thresholdValue = saveAngleThreshold;
+			
+			}	// end "if (gClassifySpecsPtr->mode == kCorrelationMode)"
+		
+		else if (gClassifySpecsPtr->mode == kCEMMode)
+			{
+			gClassifySpecsPtr->cemThreshold = saveCEMThreshold;
+			thresholdValue = saveCEMThreshold;
+			
+			}	// end "else if (gClassifySpecsPtr->mode == kCEMMode)"
+		
+		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
+			{
+			gClassifySpecsPtr->knnThreshold = saveKNNThreshold;
+			thresholdValue = saveKNNThreshold;
+			
+			}	// end "else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)"
+		
+		else	// ...->mode != kCorrelationMode && ...
+			{
+			gClassifySpecsPtr->probabilityThreshold = saveThresholdPercent;
+			thresholdValue = saveThresholdPercent;
+			
+			}	// end "else ...->mode != kCorrelationMode && ..."
+		
+				// Get the image data value which corresponds to the given
+				// threshold value.
+		
+		gClassifySpecsPtr->probabilityThresholdCode =
+										GetThresholdCode (thresholdValue,
+																	NULL,
+																	gClassifySpecsPtr->mode);
+		
+		}	// end "if (gClassifySpecsPtr->thresholdFlag)"
+	
+			// Create ERDAS probability file.
+	
+	if (probabilityFileFlag)
+		gClassifySpecsPtr->outputStorageType += kProbFormatCode;
+	
+			// Determine if a threshold table will need to be
+			// generated.
+	
+	gClassifySpecsPtr->createThresholdTableFlag =
+			gClassifySpecsPtr->thresholdFlag ||
+					(gClassifySpecsPtr->outputStorageType & kProbFormatCode);
+	
+			// Get the number of probability classes.
+	
+	gClassifySpecsPtr->numberProbabilityClasses = 0;
+	if (gClassifySpecsPtr->createThresholdTableFlag)
+		{
+		gClassifySpecsPtr->numberProbabilityClasses = gNumberProbabilityClasses;
+		
+		if (gClassifySpecsPtr->mode == kCEMMode)
+			gClassifySpecsPtr->numberProbabilityClasses = 102;
+		
+		else if (gClassifySpecsPtr->mode == kCorrelationMode)
+			gClassifySpecsPtr->numberProbabilityClasses = 91;
+		
+		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
+			gClassifySpecsPtr->numberProbabilityClasses = nearestNeighborKValue;
+		
+		}	// end "if (gClassifySpecsPtr->createProbabilityFileFlag)"
+	
+	gProjectInfoPtr->imagePalettePopupMenuSelection = paletteSelection;
+
+			// Codes for training and test listings.
+	
+	gProjectInfoPtr->listResultsTestCode = listResultsTestCode;
+	gProjectInfoPtr->listResultsTrainingCode = listResultsTrainingCode;
+	
+	gClassifySpecsPtr->parallelPipedCode = parallelPipedCode;
+	
+	gClassifySpecsPtr->nearestNeighborKValue = nearestNeighborKValue;
+	
+}	// end "ClassifyDialogOK"
 
                           
 	                
@@ -2384,6 +2746,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 				SInt16								numberEigenvectors,
 				SInt16*								nearestNeighborKValuePtr,
 				UInt16*								classifyProcedureEnteredCodePtr,
+				SInt16								correlationComboListItem,
 				Boolean								optionKeyFlag)
 	
 {  
@@ -2393,9 +2756,9 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 	#if defined multispec_win  
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win  
-	#if defined multispec_lin  
-		wxComboBox*							comboBoxPtr;
-	#endif	// defined multispec_lin  
+	#if defined multispec_wx  
+		//wxComboBox*							comboBoxPtr;
+	#endif	// defined multispec_wx  
 	
 													
 	if (classificationSelection == kEchoMode)
@@ -2407,8 +2770,8 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		SetDLogControlHilite (dialogPtr, okItem, 0); 
 								
 		}	// end "if (classificationSelection == kEcho)"
-   /*
-   else if (classificationSelection == kSVMMode && optionKeyFlag )
+	
+   else if (classificationSelection == kSupportVectorMachineMode && optionKeyFlag)
    	{
       		// SVM procedure to be used; get specifications.
 	 
@@ -2416,9 +2779,9 @@ SInt16 ClassifyDialogOnClassificationProcedure (
       returnFlag = SVMClassifyDialog ();
       SetDLogControlHilite (dialogPtr, okItem, 0);
 	 
-   	}	// end "else if (classificationSelection == kCorrelationMode && ...)"
-   */
-   else if (classificationSelection == kKNearestNeighborMode && optionKeyFlag )
+   	}	// end "else if (classificationSelection == kSupportVectorMachineMode && ...)"
+	
+   else if (classificationSelection == kKNearestNeighborMode && optionKeyFlag)
    	{
       		// KNN procedure to be used; get specifications.
 		
@@ -2462,7 +2825,6 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		*parallelPipedCodePtr = kPPMinMaxCode;
 								
 		}	// end "else if (classificationSelection == kParallelPipedMode && ..."
-		 
 	/*													
 	else if (classificationSelection == kDecisionTreeMode)
 		{
@@ -2477,35 +2839,38 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		HiliteControl ((ControlHandle)okHandle, 0); 
 								
 		}	// end "if (classificationSelection == kDecisionTreeMode)" 
-	*/	 
-								
+	*/
 	if (*covarianceEstimatePtr == kNoCovarianceUsed)
 		{              
 		#if defined multispec_mac             
 			SetMenuItemText (gPopUpClassifyProcedureMenu, 
-									kCorrelationMode, 
+									kCorrelationMode,
 									"\pCorrelation (SAM)"); 
 		#endif	// defined multispec_mac  
 		
 		#if defined multispec_win                                
 			dialogPtr->SetComboItemText (IDC_ClassificationProcedure, 
-													kCorrelationMode - 2,
+													correlationComboListItem,
 													(UCharPtr)"Correlation (SAM)"); 
 			
 			comboBoxPtr = 
 					(CComboBox*)dialogPtr->GetDlgItem (IDC_ClassificationProcedure);
 								
-			comboBoxPtr->SetItemData (kCorrelationMode-2, kCorrelationMode);
+			comboBoxPtr->SetItemData (correlationComboListItem, kCorrelationMode);
 		#endif	// defined multispec_win   
 
-		#if defined multispec_lin
+		#if defined multispec_wx
+					// This is not needed now since the menu item name does not change.
+					// The shift symbol and ... are always a part of the name.
+			/*
 			dialogPtr->SetComboItemText (IDC_ClassificationProcedure,
-													kCorrelationMode - 2,
-													(char*) "Correlation (SAM)");
+													correlationComboListItem,
+													(char*)"Correlation (SAM)");
 			comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_ClassificationProcedure);
 
-			comboBoxPtr->SetClientData (kCorrelationMode-2, (void*)kCorrelationMode);
-		#endif		// defined multispec_lin
+			comboBoxPtr->SetClientData (correlationComboListItem, (void*)kCorrelationMode);
+			*/
+		#endif		// defined multispec_wx
 		 								
 		}	// end "if (*covarianceEstimatePtr == kNoCovarianceUsed)"
 		
@@ -2541,7 +2906,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2556,10 +2921,10 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/2006
-//	Revised By:			Larry L. Biehl			Date: 03/23/2006	
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 	                
 void ClassifyDialogOnOverlay (
 				DialogPtr							dialogPtr,
@@ -2585,8 +2950,12 @@ void ClassifyDialogOnOverlay (
 		*createImageOverlayFlagPtr = FALSE;
 		
 		}	// end "else	// ...->overlayImageWindowInfoHandle == NULL"
-		
-	HideDialogItem (dialogPtr, IDC_ImageOverlayCombo);	
+	
+	if (*createImageOverlayFlagPtr)
+		ShowDialogItem (dialogPtr, IDC_ImageOverlayCombo);
+	
+	else	// !*createImageOverlayFlagPtr
+		HideDialogItem (dialogPtr, IDC_ImageOverlayCombo);
 	
 	ClassifyDialogSetPaletteItems (dialogPtr,
 												gOutputFormatCode,
@@ -2597,7 +2966,7 @@ void ClassifyDialogOnOverlay (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2612,7 +2981,7 @@ void ClassifyDialogOnOverlay (
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1999
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -2630,9 +2999,9 @@ SInt16 ClassifyDialogOnTargetFile (
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxComboBox*							comboBoxPtr;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	UInt32								windowIndex;
 											
@@ -2670,11 +3039,12 @@ SInt16 ClassifyDialogOnTargetFile (
 			windowIndex = (UInt32)comboBoxPtr->GetItemData (fileNamesSelection - 1);
 		#endif	// defined multispec_win     
 
-		#if defined multispec_lin  
+		#if defined multispec_wx  
 			comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow (IDC_TargetCombo);
-			SInt64 windowIndex64 = (SInt64)((int*)comboBoxPtr->GetClientData (fileNamesSelection - 1));
+			SInt64 windowIndex64 =
+						(SInt64)((int*)comboBoxPtr->GetClientData (fileNamesSelection - 1));
 			windowIndex = (UInt32)windowIndex64;
-		#endif	// defined multispec_lin 
+		#endif	// defined multispec_wx 
 				
 		*targetWindowInfoHandlePtr = GetWindowInfoHandle (gWindowList[windowIndex]);
 		dialogSelectAreaPtr->windowPtr = GetWindowPtr (*targetWindowInfoHandlePtr);
@@ -2686,8 +3056,6 @@ SInt16 ClassifyDialogOnTargetFile (
 		SetDLogControlHilite (dialogPtr, IDC_Training, 255);
 		SetDLogControlHilite (dialogPtr, IDC_TestAreas, 255);
 		SetDLogControlHilite (dialogPtr, IDC_TrainingLOO, 255);
-		
-//		*checkOKFlagPtr = TRUE;
 		
 		}	// end "else gFileNamesSelection >= 2" 
 
@@ -2728,7 +3096,8 @@ SInt16 ClassifyDialogOnTargetFile (
 	dialogSelectAreaPtr->imageWindowInfoPtr = NULL;
 	
 	#if defined multispec_mac 
-		InvalWindowRect (GetDialogWindow (dialogPtr), &dialogSelectAreaPtr->toSelectionBox);
+		InvalWindowRect (
+						GetDialogWindow (dialogPtr), &dialogSelectAreaPtr->toSelectionBox);
 	#endif	// defined multispec_mac   
 	
 	ClassifyDialogOnOverlay (dialogPtr,
@@ -2869,7 +3238,8 @@ Boolean ClassifyDialogSetThresholdItems (
 	ShowHideDialogItem (dialogPtr, IDC_CEMThreshold, cemItemsFlag);
 			
 	ShowHideDialogItem (dialogPtr, IDC_correlationPrompt, correlationItemsFlag); 
-	ShowHideDialogItem (dialogPtr, IDC_CorrelationCoefficientThreshold, correlationItemsFlag);
+	ShowHideDialogItem (
+					dialogPtr, IDC_CorrelationCoefficientThreshold, correlationItemsFlag);
 	ShowHideDialogItem (dialogPtr, IDC_CorrelationAngleThreshold, correlationItemsFlag);
 	ShowHideDialogItem (dialogPtr, IDC_DegreeSymbol, correlationItemsFlag);
 	
@@ -2943,324 +3313,12 @@ void ClassifyDialogSetPaletteItems (
 		
 		}	// end "else abs (outputFormatCode) != kClassifyERDAS74OutputFormat && ..."
 	
-}	// end "ClassifyDialogSetPaletteItems" 
-
-
-
-void ClassifyDialogOK (
-				SInt16								classificationProcedure,
-				SInt16								covarianceEstimate,
-				Boolean								featureTransformationFlag,
-				SInt16								channelSelection,
-				SInt16								localNumberFeatures,
-				SInt16*								localFeaturesPtr,
-				Handle								targetWindowInfoHandle,
-				SInt16								fileNamesSelection,
-				SInt16								classAreaSelection,
-				SInt16								localNumberClassAreas,
-				SInt16*								localClassAreaPtr,
-				Boolean								trainingFldsResubstitutionFlag,
-				Boolean								trainingFldsLOOFlag,
-				Boolean								testFldsFlag,
-				Boolean								imageAreaFlag,
-				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								classSelection,
-				SInt16								localNumberClasses,
-				SInt16*								localClassPtr,
-				SInt16								weightsSelection,
-				float*								classWeightsPtr,
-				SInt16								symbolSelection,
-				unsigned char*						localSymbolsPtr,
-				Boolean								diskFileFlag,
-				Boolean								createImageOverlayFlag,
-				SInt16								selectImageOverlaySelection,
-				SInt16								outputFormatCode,
-				Boolean								thresholdFlag,
-				double								saveCorrelationThreshold,
-				double								saveAngleThreshold,
-				double								saveCEMThreshold,
-				double								saveThresholdPercent,
-				SInt16								saveKNNThreshold,
-				Boolean								probabilityFileFlag,
-				SInt16								paletteSelection,
-				SInt16								listResultsTestCode,
-				SInt16								listResultsTrainingCode,
-				SInt16								parallelPipedCode,
-				SInt16								nearestNeighborKValue)
-				
-{		
-	double								thresholdValue;
-	
-	SInt16								*classAreaPtr;
-	
-	SInt16								index;
-											
-				
-			// Classifier options.													
-
-	gClassifySpecsPtr->mode = classificationProcedure;
-		
-	if (classificationProcedure == kCorrelationMode)
-		gClassifySpecsPtr->correlationCovarianceCode = covarianceEstimate;
-	
-			// Feature transformation option.									
-			
-	gClassifySpecsPtr->featureTransformationFlag = 
-														featureTransformationFlag;
-	
-			// Load some common processor parameters
-			// Channels
-			// Classes	
-			// Class symbols	
-			
-	LoadProcessorVectorsFromDialogLocalVectors (
-									channelSelection,
-									featureTransformationFlag,
-									gProjectInfoPtr->numberStatisticsChannels,
-									localNumberFeatures,
-									(UInt16*)localFeaturesPtr,
-									&gClassifySpecsPtr->channelSet,
-									(UInt16*)&gClassifySpecsPtr->numberFeatures,
-									gClassifySpecsPtr->featureHandle,
-									(UInt16*)&gClassifySpecsPtr->numberChannels,
-									gClassifySpecsPtr->channelsHandle,
-									classSelection,
-									localNumberClasses,
-									(UInt16*)localClassPtr,
-									&gClassifySpecsPtr->classSet,
-									&gClassifySpecsPtr->numberClasses,
-									gClassifySpecsPtr->classHandle,
-									symbolSelection,
-									localSymbolsPtr,
-									&gClassifySpecsPtr->symbolSet,
-									gClassifySpecsPtr->symbolsHandle,
-									0,
-									NULL,
-									NULL);
-	
-			// Load the classVectorPtr list.
-	
-	for (index=0; index<=gProjectInfoPtr->numberStatisticsClasses; index++)
-		gClassifySpecsPtr->classVectorPtr[index] = 0;
-	
-	for (index=0; index<gClassifySpecsPtr->numberClasses; index++)
-		gClassifySpecsPtr->classVectorPtr[gClassifySpecsPtr->classPtr[index]] = 1;
-									
-			// Target window information handle.								
-	
-	gClassifySpecsPtr->targetWindowInfoHandle = targetWindowInfoHandle;
-		
-			// Class areas																	
-
-	classAreaPtr = (SInt16*)GetHandlePointer (gClassifySpecsPtr->classAreaHandle);													
-
-	gClassifySpecsPtr->classAreaSet = classAreaSelection;
-	if (classAreaSelection == kAllMenuItem)		// All classes 
-		LoadClassAreaVector (&gClassifySpecsPtr->numberClassAreas,
-										classAreaPtr); 
-											
-	else	// classAreaSelection == kSubsetMenuItem
-		{                                              
-		gClassifySpecsPtr->numberClassAreas = localNumberClassAreas;
-		for (index=0; index<localNumberClassAreas; index++)
-			classAreaPtr[index] = (SInt16)localClassAreaPtr[index]; 
-			
-		}	// end "else classAreaSelection == kSubsetMenuItem" 
-		
-			// Area to Classify														
-
-	gClassifySpecsPtr->trainingFldsResubstitutionFlag = 
-														trainingFldsResubstitutionFlag;													
-
-	gClassifySpecsPtr->trainingFldsLOOFlag = trainingFldsLOOFlag;
-
-	gClassifySpecsPtr->testFldsFlag = testFldsFlag;
-
-	gClassifySpecsPtr->imageAreaFlag = imageAreaFlag;
-	
-			// Classification area													
-	
-	gClassifySpecsPtr->imageLineStart = dialogSelectAreaPtr->lineStart;
-	gClassifySpecsPtr->imageLineEnd = dialogSelectAreaPtr->lineEnd;
-	gClassifySpecsPtr->imageLineInterval = 
-												dialogSelectAreaPtr->lineInterval;
-													
-	gClassifySpecsPtr->imageColumnStart = dialogSelectAreaPtr->columnStart;
-	gClassifySpecsPtr->imageColumnEnd = dialogSelectAreaPtr->columnEnd;
-	gClassifySpecsPtr->imageColumnInterval = 
-												dialogSelectAreaPtr->columnInterval;
-												
-			// Class Weights															
-			
-	UpdateProjectClassWeights (
-					gProjectInfoPtr->covarianceStatsToUse == kEnhancedStats,
-					weightsSelection,
-					classWeightsPtr);
-					
-			// Write classification to output window.							
-			
-	gClassifySpecsPtr->outputStorageType = 0;							
-	
-			// Write classification to disk file.								
-			
-	gClassifySpecsPtr->diskFileFormat	= 0;
-	if (diskFileFlag)	
-		{
-		switch (outputFormatCode)
-			{
-			/*
-			case kClassifyArcViewMenuItem:
-				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
-				gClassifySpecsPtr->diskFileFormat = kArcViewType;
-				break;
-			*/
-			case kClassifyASCIIOutputFormat:
-				gClassifySpecsPtr->outputStorageType += kAsciiFormatCode;
-				gClassifySpecsPtr->diskFileFormat = kMultiSpecClassificationType;
-				break;
-				
-			case kClassifyERDAS74OutputFormat:
-				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
-				gClassifySpecsPtr->diskFileFormat = kErdas74Type;
-				break;
-				
-			case kClassifyGAIAOutputFormat:
-				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
-				gClassifySpecsPtr->diskFileFormat = kGAIAType;
-				break;
-					
-			case kClassifyTIFFGeoTIFFOutputFormat:
-				gClassifySpecsPtr->outputStorageType += kClassifyFileCode;
-				gClassifySpecsPtr->diskFileFormat = kTIFFType;
-				break;
-				
-			}	// end "switch (outputFormatCode)"
-			
-		gOutputFormatCode = 0;
-		if (gClassifySpecsPtr->outputStorageType & kClassifyFileCode)
-			gOutputFormatCode = gClassifySpecsPtr->diskFileFormat;
-			
-		}	// end "if (diskFileFlag)" 
-		
-	if (createImageOverlayFlag)
-		gClassifySpecsPtr->outputStorageType += kCreateImageOverlayCode;
-	
-	gProjectInfoPtr->overlayImageWindowInfoHandle = 
-											GetTargetOverlayImageWindowInfoHandle (
-																			fileNamesSelection,
-																			targetWindowInfoHandle);
-																				
-	gClassifySpecsPtr->imageOverlayIndex = GetImageOverlayIndex (
-												gProjectInfoPtr->overlayImageWindowInfoHandle,
-												selectImageOverlaySelection - 2);
-			
-	if (gClassifySpecsPtr->mode == kEchoMode && 
-											gClassifySpecsPtr->imageAreaFlag)
-		{				
-		EchoClassifierVarPtr	echoClassifierVarPtr = 
-			(EchoClassifierVarPtr)GetHandlePointer (
-														gClassifySpecsPtr->echoClassifierVarH);
-			
-		if (echoClassifierVarPtr->createHomogeneousFilesFlag)
-			gClassifySpecsPtr->outputStorageType += 
-								kEchoFieldsCode + kEchoClassesCode;
-								
-		}	// end "if (gClassifySpecsPtr->mode == ..." 
-		
-			// Get threshold results flag.										
-			// Get probability threshold.											
-		
-	gClassifySpecsPtr->thresholdFlag = thresholdFlag;
-	
-	if (gClassifySpecsPtr->thresholdFlag)
-		{
-		if (gClassifySpecsPtr->mode == kCorrelationMode)
-			{
-			gClassifySpecsPtr->correlationCoefficientThreshold =
-															saveCorrelationThreshold;
-			gClassifySpecsPtr->correlationAngleThreshold = saveAngleThreshold;
-			thresholdValue = saveAngleThreshold;
-			
-			}	// end "if (gClassifySpecsPtr->mode == kCorrelationMode)"
-			
-		else if (gClassifySpecsPtr->mode == kCEMMode)
-			{
-			gClassifySpecsPtr->cemThreshold = saveCEMThreshold;
-			thresholdValue = saveCEMThreshold;
-			
-			}	// end "else if (gClassifySpecsPtr->mode == kCEMMode)"
-		
-		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
-			{
-			gClassifySpecsPtr->knnThreshold = saveKNNThreshold;
-			thresholdValue = saveKNNThreshold;
-			
-			}	// end "else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)"
-			
-		else	// ...->mode != kCorrelationMode && ...
-			{
-			gClassifySpecsPtr->probabilityThreshold = saveThresholdPercent;
-			thresholdValue = saveThresholdPercent;
-			
-			}	// end "else ...->mode != kCorrelationMode && ..."
-		
-				// Get the image data value which corresponds to the given
-				// threshold value.
-					
-		gClassifySpecsPtr->probabilityThresholdCode =
-										GetThresholdCode (thresholdValue, 
-																	NULL,
-																	gClassifySpecsPtr->mode);
-		
-		}	// end "if (gClassifySpecsPtr->thresholdFlag)" 
-		
-			// Create ERDAS probability file.									
-			
-	if (probabilityFileFlag)			
-		gClassifySpecsPtr->outputStorageType += kProbFormatCode;
-		
-			// Determine if a threshold table will need to be 				
-			// generated.																
-			
-	gClassifySpecsPtr->createThresholdTableFlag = 
-			gClassifySpecsPtr->thresholdFlag || 
-					(gClassifySpecsPtr->outputStorageType & kProbFormatCode);
-	
-			// Get the number of probability classes.
-							
-	gClassifySpecsPtr->numberProbabilityClasses = 0;
-	if (gClassifySpecsPtr->createThresholdTableFlag)
-		{
-		gClassifySpecsPtr->numberProbabilityClasses = gNumberProbabilityClasses;
-		
-		if (gClassifySpecsPtr->mode == kCEMMode)
-			gClassifySpecsPtr->numberProbabilityClasses = 102;
-			
-		else if (gClassifySpecsPtr->mode == kCorrelationMode)
-			gClassifySpecsPtr->numberProbabilityClasses = 91;
-		
-		else if (gClassifySpecsPtr->mode == kKNearestNeighborMode)
-			gClassifySpecsPtr->numberProbabilityClasses = nearestNeighborKValue;
-		
-		}	// end "if (gClassifySpecsPtr->createProbabilityFileFlag)"
-								
-	gProjectInfoPtr->imagePalettePopupMenuSelection = paletteSelection;
-
-			// Codes for training and test listings.
-			 
-	gProjectInfoPtr->listResultsTestCode = listResultsTestCode;
-	gProjectInfoPtr->listResultsTrainingCode = listResultsTrainingCode;
-	
-	gClassifySpecsPtr->parallelPipedCode = parallelPipedCode;
-	
-	gClassifySpecsPtr->nearestNeighborKValue = nearestNeighborKValue;
-				
-}	// end "ClassifyDialogOK"
+}	// end "ClassifyDialogSetPaletteItems"
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3276,7 +3334,7 @@ void ClassifyDialogOK (
 //
 // Value Returned: 	
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1997
 //	Revised By:			Larry L. Biehl			Date: 03/25/1999	
@@ -3402,7 +3460,7 @@ Boolean CorrelationClassifyDialog (
 			
 			}	// end "else if (itemHit > 0)" 
 				
-		} while (!modalDone); 
+		}	while (!modalDone); 
 		
 	DisposeUserItemUPP (drawCovariancePopUpPtr);
 		
@@ -3431,7 +3489,7 @@ Boolean CorrelationClassifyDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 		CMCorrelationClassifyDialog* dialogPtr = NULL;
 		dialogPtr = new CMCorrelationClassifyDialog ();
 		if (dialogPtr != NULL)
@@ -3439,7 +3497,7 @@ Boolean CorrelationClassifyDialog (
 			returnFlag = dialogPtr->DoDialog (covarianceEstimatePtr);
 			delete dialogPtr;
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (returnFlag);
 	
@@ -3449,7 +3507,7 @@ Boolean CorrelationClassifyDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3465,7 +3523,7 @@ Boolean CorrelationClassifyDialog (
 //
 // Value Returned:		
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1994
 //	Revised By:			Larry L. Biehl			Date: 12/09/1994	
@@ -3569,8 +3627,8 @@ Boolean DecisionTreeDialog (void)
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kEuclideanMode);
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kEchoMode);
 		EnableMenuItem (gPopUpClassifyProcedureMenu, kParallelPipedMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kSVMMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNNMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kSupportVectorMachineMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNearestNeighborMode);
 		
 		}	// end "if (...->statisticsCode != kMeanCovariance)" 
 
@@ -3580,8 +3638,8 @@ Boolean DecisionTreeDialog (void)
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kMahalanobisMode);
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kEchoMode);
 		DisableMenuItem (gPopUpClassifyProcedureMenu, kFisherMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kSVMMode);
-		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNNMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kSupportVectorMachineMode);
+		DisableMenuItem (gPopUpClassifyProcedureMenu, kKNearestNeighborMode);
 		
 		}	// end "if (...->statisticsCode != kMeanCovariance)" 
 	
@@ -3764,9 +3822,152 @@ Boolean DecisionTreeDialog (void)
 
 
 
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean DetermineIfChannelClassWeightListChanged
+//
+//	Software purpose:	The purpose of this routine is to determine if the channels
+//							or class list or the class weights have changed.
+//							Note that this needs to be tested for case when enhanced
+//							statistics are selected but SVM classifier is being used which
+// 						will not use enhanced statistics.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned: 	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/17/2019
+//	Revised By:			Larry L. Biehl			Date: 09/20/2019
+
+Boolean DetermineIfChannelClassWeightListChanged (
+				SInt16								channelSelection,
+				Boolean								featureTransformationFlag,
+				UInt16								numberAllChannels,
+				UInt16								newNumberFeatures,
+				UInt16*								newFeaturesPtr,
+				SInt16								channelSet,
+				UInt16								currentNumberFeatures,
+				Handle								currentFeatureHandle,
+				UInt16								numberChannels,
+				Handle								channelsHandle,
+				SInt16								classSelection,
+				UInt32								newNumberClasses,
+				UInt16*								newClassPtr,
+				SInt16								classSet,
+				UInt32								currentNumberClasses,
+				Handle								currentClassHandle,
+				SInt16								weightsSelection,
+				float*								classWeightsPtr)
+
+{
+   HPClassNamesPtr					classNamesPtr;
+	
+	UInt32								classStorage,
+											index;
+	
+	Boolean								listChangedFlag = FALSE;
+	
+	
+			// Channels
+	
+	if (currentNumberFeatures != newNumberFeatures)
+		listChangedFlag = TRUE;
+	
+	else	// currentNumberFeatures == newNumberFeatures
+		{
+				// Verify that the channel list is the same
+		
+		SInt16* currentFeaturesPtr = (SInt16*)GetHandlePointer (currentFeatureHandle);
+		for (index=0; index<newNumberFeatures; index++)
+			{
+			if (currentFeaturesPtr[index] != newFeaturesPtr[index])
+				{
+				listChangedFlag = TRUE;
+				break;
+				
+				}	// end "if (currentFeaturesPtr[index] != newFeaturesPtr[index])"
+	
+			}	// end "for (index=0; index<newNumberFeatures; index++)"
+		
+		}	// end "else currentNumberFeatures == newNumberFeatures"
+
+	if (!listChangedFlag)
+		{
+				// Classes
+
+		if (currentNumberClasses != newNumberClasses)
+			listChangedFlag = TRUE;
+		
+		else	// currentNumberClasses == newNumberClasses
+			{
+					// Verify that the class list is the same
+			
+			SInt16* currentClassPtr = (SInt16*)GetHandlePointer (currentClassHandle);
+			for (index=0; index<newNumberClasses; index++)
+				{
+				if (currentClassPtr[index] != newClassPtr[index])
+					{
+					listChangedFlag = TRUE;
+					break;
+					
+					}	// end "if (currentClassPtr[index] != newClassPtr[index])"
+		
+    			}	// end "for (index=0; index<newNumberClasses; index++)"
+			
+			}	// end "else currentNumberClasses == newNumberClasses"
+		
+		}	// end "if (!listChangedFlag)"
+
+	if (!listChangedFlag)
+		{
+				// Weights
+
+		if (gProjectInfoPtr->classWeightSet != weightsSelection)
+			listChangedFlag = TRUE;
+		
+		else if (weightsSelection == kUnequalWeights)
+			{
+					// Verify that the weight list is the same
+			
+      	classNamesPtr = gProjectInfoPtr->classNamesPtr;
+
+			for (index=0;
+					index<gProjectInfoPtr->numberStatisticsClasses;
+						index++)
+				{
+				classStorage = gProjectInfoPtr->storageClass[index];
+
+				if (classNamesPtr[classStorage].priorWeights[0] != *classWeightsPtr)
+					{
+					listChangedFlag = TRUE;
+					break;
+					
+					}	// end "if (if (classNamesPtr[classStorage].priorWeights[weightsIndex] != ..."
+
+				classWeightsPtr++;
+
+				}	// end "for (index=0; index<numberClasses; index++)"
+			
+			}	// end "else if (weightsSelection == kUnequalWeights)"
+		
+		}	// end "if (!listChangedFlag)"
+		
+	return (listChangedFlag);
+	
+}	// end "DetermineIfChannelClassWeightListChanged"
+
+
+
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3807,7 +4008,7 @@ pascal void DrawClassificationProcedurePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3849,7 +4050,7 @@ pascal void DrawCorrelationMatrixClassAreaPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3885,13 +4086,55 @@ pascal void DrawCovarianceEstimatePopUp (
 								TRUE);
 	
 }	// end "DrawCovarianceEstimatePopUp"
-#endif	// defined multispec_mac 
+#endif	// defined multispec_mac
 
 
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		pascal void DrawDiskFilePopUp
+//
+//	Software purpose:	The purpose of this routine is to draw the
+//							disk file selection for Classify To Disk
+//							pop up menu.  This routine will also draw a drop
+//							shadow box around the pop up selection.
+//
+//	Parameters in:
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 02/10/1990
+//	Revised By:			Larry L. Biehl			Date: 10/30/1990
+
+pascal void DrawDiskFilePopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber)
+
+{
+			// Use the generic pop up drawing routine.
+	
+	DrawPopUpMenuItem (dialogPtr,
+								itemNumber,
+								gPopUpDiskFileMenu,
+								gOutputFormatCode,
+								(gOutputFormatCode > 0));
+	
+}	// end "DrawDiskFilePopUp"
+#endif	// defined multispec_mac
+
+
+
+#if defined multispec_mac
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3927,54 +4170,12 @@ pascal void DrawEchoAlgorithmPopUp (
 								TRUE);
 	
 }	// end "DrawEchoAlgorithmPopUp"
-#endif	// defined multispec_mac 
-
-
-
-#if defined multispec_mac
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		pascal void DrawDiskFilePopUp
-//
-//	Software purpose:	The purpose of this routine is to draw the 
-//							disk file selection for Classify To Disk
-//							pop up menu.  This routine will also draw a drop
-//							shadow box around the pop up selection.
-//
-//	Parameters in:					
-//
-//	Parameters out:	None
-//
-// Value Returned:	None			
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 02/10/1990
-//	Revised By:			Larry L. Biehl			Date: 10/30/1990	
-
-pascal void DrawDiskFilePopUp (
-				DialogPtr							dialogPtr, 
-				SInt16								itemNumber)
-
-{
-			// Use the generic pop up drawing routine.									
-	
-	DrawPopUpMenuItem (dialogPtr, 
-								itemNumber, 
-								gPopUpDiskFileMenu, 
-								gOutputFormatCode, 
-								(gOutputFormatCode > 0));
-	
-}	// end "DrawDiskFilePopUp" 
 #endif	// defined multispec_mac
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4376,25 +4577,29 @@ Boolean EchoClassifyDialog (void)
 			returnFlag = dialogPtr->DoDialog (echoClassifierVarPtr); 
 		                       
 			delete dialogPtr;
+			
 			}
 			
 		CATCH_ALL (e)
 			{
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
+			
 			}
+	
 		END_CATCH_ALL  
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMEchoClassifyDialog* dialogPtr = NULL;
 		dialogPtr = new CMEchoClassifyDialog ();
 		if (dialogPtr != NULL)
 			{
 			returnFlag = dialogPtr->DoDialog (echoClassifierVarPtr);
 			delete dialogPtr;
+			
 			}	// end "if (dialogPtr != NULL)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	CheckAndUnlockHandle (gClassifySpecsPtr->echoClassifierVarH); 
 	
@@ -4411,7 +4616,7 @@ Boolean KNNClassifyDialog (
    Boolean                     returnFlag = FALSE;
 	
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMKNNClassifyDialog* dialogPtr = NULL;
 		dialogPtr = new CMKNNClassifyDialog ();
 		if (dialogPtr != NULL)
@@ -4420,11 +4625,9 @@ Boolean KNNClassifyDialog (
 			delete dialogPtr;
 			
 			}	// end "if (dialogPtr != NULL)"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	#if defined multispec_win 
-		returnFlag = TRUE;  
-	
 		CMKNNClassifyDialog*		dialogPtr = NULL;
 		
 		TRY
@@ -4434,13 +4637,16 @@ Boolean KNNClassifyDialog (
 			returnFlag = dialogPtr->DoDialog (nearestNeighborKValuePtr); 
 		                       
 			delete dialogPtr;
+			
 			}
 			
 		CATCH_ALL (e)
 			{
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
+			
 			}
+	
 		END_CATCH_ALL  
 	#endif	// defined multispec_win 
 	
@@ -4451,7 +4657,7 @@ Boolean KNNClassifyDialog (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4467,7 +4673,7 @@ Boolean KNNClassifyDialog (
 // Value Returned:  	0 if user clicked on cancel
 //							1 if user clicked on ok.
 //
-// Called By:			StatisticsControl   in statistics.c
+// Called By:			StatisticsControl   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/08/1997
 //	Revised By:			Larry L. Biehl			Date: 04/08/1997
@@ -4476,8 +4682,7 @@ void ListResultsOptionsDialog (
 				SInt16*			listResultsTrainingCodePtr, 
 				SInt16*			listResultsTestCodePtr)
 
-{              
-	Boolean						returnFlag = FALSE;
+{
 	
 #if defined multispec_mac
 	Rect							theBox;
@@ -4490,7 +4695,8 @@ void ListResultsOptionsDialog (
 									
 	DialogPtr					dialogPtr;
 	
-	Boolean						modalDone;
+	Boolean						modalDone,
+									returnFlag = FALSE;
 
 
 			// Get the modal dialog for the reformat specification					
@@ -4634,7 +4840,7 @@ void ListResultsOptionsDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMListResultsOptionsDlg* dialogPtr = NULL;
 		dialogPtr = new CMListResultsOptionsDlg ();
 		if (dialogPtr != NULL)
@@ -4644,14 +4850,14 @@ void ListResultsOptionsDialog (
 
 			delete dialogPtr;
 			}
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 	
 }	// end "ListResultsOptionsDialog"   
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4667,7 +4873,7 @@ void ListResultsOptionsDialog (
 //
 // Value Returned:			
 // 
-// Called By:			CEMClassifyDialog in SClasfy2.cpp
+// Called By:			CEMClassifyDialog in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1997
 //	Revised By:			Larry L. Biehl			Date: 05/13/2016
@@ -4775,7 +4981,7 @@ Boolean LoadCEMParameterSpecs (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4793,7 +4999,7 @@ Boolean LoadCEMParameterSpecs (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1996
-//	Revised By:			Larry L. Biehl			Date: 11/18/1996
+//	Revised By:			Larry L. Biehl			Date: 11/09/2019
 
 void SetUpPalettePopUpMenu (
 				DialogPtr					dialogPtr)
@@ -4828,51 +5034,220 @@ void SetUpPalettePopUpMenu (
 		comboBoxPtr->DeleteString (6);
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
+		#if defined multispec_wxlin
+			wxComboBox*			paletteCtrl;
+			paletteCtrl =
+					wxDynamicCast (dialogPtr->FindWindow (IDC_PaletteCombo), wxComboBox);
+		#endif
+		#if defined multispec_wxmac
+			wxChoice*			paletteCtrl;
+			paletteCtrl =
+					wxDynamicCast (dialogPtr->FindWindow (IDC_PaletteCombo), wxChoice);
+		#endif
+	
 				// Set user defined values for palette combo box.
 
-		wxComboBox* comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (IDC_PaletteCombo));
-		UInt32 numbermenuitem = comboBoxPtr->GetCount ();
+		UInt32 numbermenuitem = paletteCtrl->GetCount ();
 
-		//    int m_kDefaultColors = kDefaultColors;
-		//    int m_kDefaultGrays = kDefaultGrays;
-		//    int m_kCorrelationMatrixColors = kCorrelationMatrixColors;
-		//    int m_kAVHRR_NDVI_Colors = kAVHRR_NDVI_Colors;
-		//    int m_kMODIS_NDVI_Colors = kMODIS_NDVI_Colors;
-		//    int m_kFalseColors = kFalseColors;
-
-		comboBoxPtr->SetClientData (0, (void*)kDefaultColors);
-		comboBoxPtr->SetClientData (1, (void*)kDefaultGrays);
-		comboBoxPtr->SetClientData (2, (void*)kCorrelationMatrixColors);
-		comboBoxPtr->SetClientData (3, (void*)kAVHRR_NDVI_Colors);
-		comboBoxPtr->SetClientData (4, (void*)kMODIS_NDVI_Colors);
-		comboBoxPtr->SetClientData (5, (void*)kFalseColors);
+		paletteCtrl->SetClientData (0, (void*)kDefaultColors);
+		paletteCtrl->SetClientData (1, (void*)kDefaultGrays);
+		paletteCtrl->SetClientData (2, (void*)kCorrelationMatrixColors);
+		paletteCtrl->SetClientData (3, (void*)kAVHRR_NDVI_Colors);
+		paletteCtrl->SetClientData (4, (void*)kMODIS_NDVI_Colors);
+		paletteCtrl->SetClientData (5, (void*)kFalseColors);
 
 				// Make sure that the 6th and 7th strings do not exist. 
 
 		while (numbermenuitem > 6) // changed from 5
 			{
-			comboBoxPtr->Delete (numbermenuitem - 1);
+			paletteCtrl->Delete (numbermenuitem - 1);
 			numbermenuitem--;
 			}
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 			
-}	// end Routine "SetUpPalettePopUpMenu" 
+}	// end Routine "SetUpPalettePopUpMenu"
 
 
-/*
+
+//------------------------------------------------------------------------------------
+//								 Copyright (2019-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean SVMClassifyDialog
+//
+//	Software purpose:	The purpose of this routine is to set up the SVM classify
+//							dialog
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:
+//
+//	Coded By:			Tsung Tai Yeh			Date: 08/??/2019
+//	Revised By:			Larry L. Biehl			Date: 09/28/2019
+
 Boolean SVMClassifyDialog ()
+
 {
    Boolean                     returnFlag = FALSE;
-#if defined multispec_lin
-   CMSVMClassifyDialog* dialogPtr = NULL;
-   dialogPtr = new CMSVMClassifyDialog ();
-   if (dialogPtr != NULL)
-   {
-      returnFlag = dialogPtr->DoDialog ();
-      delete dialogPtr;
-   }
-#endif   // defined multispec_lin
+	
+	
+	#if defined multispec_wx
+		CMSVMClassifyDialog* dialogPtr = NULL;
+
+		dialogPtr = new CMSVMClassifyDialog ();
+		if (dialogPtr != NULL)
+			{
+			returnFlag = dialogPtr->DoDialog ();
+			delete dialogPtr;
+			
+			}
+	#endif   // defined multispec_wx
+
+	#if defined multispec_win
+		CMSVMClassifyDialog*		dialogPtr = NULL;
+	
+		TRY
+			{
+			dialogPtr = new CMSVMClassifyDialog ();
+			
+			returnFlag = dialogPtr->DoDialog ();
+			
+			delete dialogPtr;
+			}
+	
+		CATCH_ALL (e)
+			{
+			MemoryMessage (0, kObjectMessage);
+			returnFlag = FALSE;
+			}
+		END_CATCH_ALL
+	#endif	// defined multispec_win
+	
    return (returnFlag);
-}
-*/
+	
+}	// end "SVMClassifyDialog"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (2019-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean SVMClassifyDialog
+//
+//	Software purpose:	The purpose of this routine is to set up the SVM classify
+//							dialog
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 09/20/2019
+//	Revised By:			Larry L. Biehl			Date: 09/21/2019
+
+void SVMClassifyDialogShowHideParameters (
+				DialogPtr							dialogPtr,
+				int									svmType,
+				int									svmKernel)
+
+{
+	Boolean							showHideFlag;
+	
+	
+	showHideFlag = (svmKernel == kPolynomialKernel);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_DEGREE_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_DEGREE,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_DEGREE_INFO,
+								showHideFlag);
+
+	showHideFlag = (svmKernel == kPolynomialKernel ||
+							svmKernel == kRBFKernel ||
+								svmKernel == kSigmoidKernel);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_GAMMA_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_GAMMA,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_GAMMA_INFO,
+								showHideFlag);
+	
+	showHideFlag = (svmKernel == kPolynomialKernel ||
+							svmKernel == kSigmoidKernel);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COEF0_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COEF0,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COEF0_INFO,
+								showHideFlag);
+	
+	showHideFlag = (svmType == kC_SVC_Type ||
+							svmType == kEpsilon_SVR_Type ||
+								svmType == kNU_SVR_Type);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COST_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COST,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_COST_INFO,
+								showHideFlag);
+	
+	showHideFlag = (svmType == kNU_SVC_Type ||
+							svmType == kOne_Class_Type ||
+								svmType == kNU_SVR_Type);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_NU_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_NU,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_NU_INFO,
+								showHideFlag);
+	
+	showHideFlag = (svmType == kEpsilon_SVR_Type);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_P_PROMPT,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_P,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_P_INFO,
+								showHideFlag);
+	
+	showHideFlag = (svmType == kC_SVC_Type ||
+							svmType == kNU_SVC_Type ||
+								svmType == kEpsilon_SVR_Type ||
+									svmType == kNU_SVR_Type);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_PROBABILITY,
+								showHideFlag);
+	ShowHideDialogItem (dialogPtr,
+								IDC_SVM_PROBABILITY_INFO,
+								showHideFlag);
+
+}	// end "SVMClassifyDialogShowHideParameters"
+

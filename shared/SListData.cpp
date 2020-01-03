@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -22,34 +22,15 @@
 //								and fields and or selected area to the output 
 //								text window or a disk file.
 //
-//	Functions in file:	Boolean 				CheckListDataTextWindowSpaceNeeded
-//								UInt32	 			DetermineBytesForListDataText
-//								PascalVoid 			DrawListDataFormatPopUp
-//								SInt16 				GetMaximumDataValueStringLength
-//								SInt16 				GetStringLengthForNumber
-//								SInt16 	 			ListClassData
-//								void		 			ListDataControl
-//								Boolean				ListDataDialog
-//								void 					ListDataDialogOK
-//								Boolean				ListDataTitleLine
-//								Boolean				ListDataTitleLine2
-//								Boolean				ListDataTitleLine3
-//								SInt16 				ListFieldData
-//								Boolean 				ListProjectData
-//								Boolean	 			LoadListDataSpecs
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"    
 
-#if defined multispec_lin
-   #include "LGraphDoc.h"
-	#include "LImageView.h" 
-	#include "LListDataDialog.h" 
-	#include "LMultiSpec.h"
+#if defined multispec_wx
+   #include "xGraphDoc.h"
+	#include "xImageView.h" 
+	#include "xListDataDialog.h" 
+	#include "xMultiSpec.h"
    #include "wx/evtloop.h"
 #endif
 
@@ -70,8 +51,6 @@
 	#include "WListDataDialog.h"
 #endif	// defined multispec_win 
 
-//#include "SExtGlob.h"
-
 ListDataSpecsPtr		gListDataSpecsPtr;
 
 SInt16					gListDataFormatCode = 0;
@@ -81,82 +60,76 @@ SInt16					gListDataFormatCode = 0;
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 			
-Boolean 				CheckListDataTextWindowSpaceNeeded (
-							ListDataSpecsPtr 					listDataSpecsPtr);
-/*
-void					CreateChannelWavelengthOrderSubset (
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16*								channelListPtr,
-							SInt32								channelListLength);
-*/
-UInt32	 			DetermineBytesForListDataText (
-							ListDataSpecsPtr 					listDataSpecsPtr, 
-							Boolean 								textWindowFlag);
+Boolean	CheckListDataTextWindowSpaceNeeded (
+				ListDataSpecsPtr 					listDataSpecsPtr);
 
-PascalVoid 			DrawListDataFormatPopUp (
-							DialogPtr							dialogPtr, 
-							SInt16								itemNumber);
+UInt32	DetermineBytesForListDataText (
+				ListDataSpecsPtr 					listDataSpecsPtr,
+				Boolean 								textWindowFlag);
 
-SInt16 				GetMaximumDataValueStringLength (
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							Boolean								includeMaxColumnValueFlag,
-							SInt16								numberFFormatDecimalDigits,
-							SInt16*								numberEFormatDecimalDigitsPtr);
+PascalVoid	DrawListDataFormatPopUp (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber);
 
-SInt16 				GetStringLengthForNumber (
-							UInt32								maximumNumber);
+SInt16	GetMaximumDataValueStringLength (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				Boolean								includeMaxColumnValueFlag,
+				SInt16								numberFFormatDecimalDigits,
+				SInt16*								numberEFormatDecimalDigitsPtr);
+
+SInt16	GetStringLengthForNumber (
+				UInt32								maximumNumber);
 											
-SInt16	 			ListClassData (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							SInt16								dataValueFieldSize,
-							SInt16								numberEDecimalDigits,
-							SInt16								numberFDecimalDigits, 
-							SInt16								classNumber);
+SInt16	ListClassData (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				SInt16								dataValueFieldSize,
+				SInt16								numberEDecimalDigits,
+				SInt16								numberFDecimalDigits, 
+				SInt16								classNumber);
 
-Boolean				ListDataDialog (
-							FileInfoPtr							fileInfoPtr);
+Boolean	ListDataDialog (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean				ListDataTitleLine (
-							SInt16								dataValueFieldSize);
+Boolean	ListDataTitleLine (
+				SInt16								dataValueFieldSize);
 
-Boolean				ListDataTitleLine2 (
-							SInt16								dataValueFieldSize, 
-							SInt16								classNumberCode, 
-							SInt16								fieldNumber);
+Boolean	ListDataTitleLine2 (
+				SInt16								dataValueFieldSize,
+				SInt16								classNumberCode, 
+				SInt16								fieldNumber);
 
-Boolean				ListDataTitleLine3 (
-							SInt16								pointType,
-							SInt16								dataValueFieldSize, 
-							UInt32								columnStart,
-							UInt32								columnEnd,
-							FileIOInstructionsPtr			fileIOInstructionsPtr);
+Boolean	ListDataTitleLine3 (
+				SInt16								pointType,
+				SInt16								dataValueFieldSize, 
+				UInt32								columnStart,
+				UInt32								columnEnd,
+				FileIOInstructionsPtr			fileIOInstructionsPtr);
 
-SInt16				ListFieldData (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							SInt16								dataValueFieldSize,
-							SInt16								numberEDecimalDigits,
-							SInt16								numberFDecimalDigits, 
-							SInt16								classNumberCode, 
-							SInt16								fieldNumber);
+SInt16	ListFieldData (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				SInt16								dataValueFieldSize,
+				SInt16								numberEDecimalDigits,
+				SInt16								numberFDecimalDigits, 
+				SInt16								classNumberCode, 
+				SInt16								fieldNumber);
 
-Boolean	 			LoadListDataSpecs (
-							Handle								windowInfoHandle);
+Boolean	LoadListDataSpecs (
+				Handle								windowInfoHandle);
 
-Boolean 				ListProjectData (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							SInt16								dataValueFieldSize,
-							SInt16								numberEDecimalDigits,
-							SInt16								numberFDecimalDigits);
+Boolean	ListProjectData (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				SInt16								dataValueFieldSize,
+				SInt16								numberEDecimalDigits,
+				SInt16								numberFDecimalDigits);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -208,7 +181,7 @@ Boolean CheckListDataTextWindowSpaceNeeded (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -350,7 +323,7 @@ void CreateChannelWavelengthOrderSubset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -481,7 +454,7 @@ UInt32 DetermineBytesForListDataText (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -522,7 +495,7 @@ pascal void DrawListDataFormatPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -575,17 +548,17 @@ SInt16 GetMaximumDataValueStringLength (
 	
 	if (maxDataValue > kMaxValueToListWith_f)
 		{
-		dataValueEFormatFieldSize = (SInt32)log10(maxDataValue) + 1;
+		dataValueEFormatFieldSize = (SInt32)log10 (maxDataValue) + 1;
 		numberEFormatDecimalDigits = dataValueEFormatFieldSize - 1;
 		numberEFormatDecimalDigits = MIN (7, numberEFormatDecimalDigits);
 		
 		dataValueEFormatFieldSize = numberEFormatDecimalDigits + 6;
       
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 				// For windows allow for E+xxx or E-xxx instead of
 				// E+xx or E-xx as it is for Macintosh
 			dataValueEFormatFieldSize++;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		maxDataValue = kMaxValueToListWith_f;
 		
@@ -593,7 +566,7 @@ SInt16 GetMaximumDataValueStringLength (
 	
 	dataValueFFormatFieldSize = 1;
 	if (maxDataValue != 0)
-		dataValueFFormatFieldSize = (SInt32)(log10(maxDataValue) + 1);
+		dataValueFFormatFieldSize = (SInt32)(log10 (maxDataValue) + 1);
 	
 	dataValueFFormatFieldSize = MAX (dataValueFFormatFieldSize, 3);
 	dataValueFFormatFieldSize = MIN (dataValueFFormatFieldSize, 10);
@@ -607,11 +580,11 @@ SInt16 GetMaximumDataValueStringLength (
 		{
 		dataValueEFormatFieldSize = dataValueFFormatFieldSize;
       
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 				// For windows allow for E+xxx or E-xxx instead of
 				// E+xx or E-xx as it is for Macintosh
 			dataValueEFormatFieldSize++;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 
 		numberEFormatDecimalDigits = numberFFormatDecimalDigits-4;
 
@@ -642,7 +615,7 @@ SInt16 GetMaximumDataValueStringLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -681,7 +654,7 @@ SInt16 GetStringLengthForNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -793,7 +766,7 @@ SInt16 ListClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -973,8 +946,8 @@ void ListDataControl (void)
 				
 				numberBytes += 2 * 15;
 				
-						// The minimum of 64 bytes more than covers the case for inclusion of
-						// 'Thematic image data values' for a thematic image window.
+						// The minimum of 64 bytes more than covers the case for inclusion
+						// of 'Thematic image data values' for a thematic image window.
 						
 				numberBytes = MAX (numberBytes, 64);
 				gCharBufferPtr1 = (HPtr)MNewPointer (numberBytes);
@@ -1120,11 +1093,9 @@ void ListDataControl (void)
 			
 			gStatusDialogPtr = NULL;
 			if (continueFlag && !gListDataSpecsPtr->graphDataFlag)
-				gStatusDialogPtr = GetStatusDialog (kUpdateStatsInfoID, showStatusDialogFlag);
+				gStatusDialogPtr = GetStatusDialog (
+														kUpdateStatsInfoID, showStatusDialogFlag);
 				
-			//if (gStatusDialogPtr == NULL)
-			//	continueFlag = FALSE;
-			
 			ShowStatusDialogItemSet (kStatusClassA);
 			ShowStatusDialogItemSet (kStatusField);
 			ShowStatusDialogItemSet (kStatusLine);
@@ -1134,7 +1105,7 @@ void ListDataControl (void)
 			
 			if (continueFlag && gListDataSpecsPtr->graphDataFlag)
 				{
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxDocument*  graph_doc =
 											((CMultiSpecApp*)wxTheApp)->ActivateListDataView ();
 				
@@ -1143,7 +1114,7 @@ void ListDataControl (void)
 							// Assign window ID for list data window
 				
                ((wxWindow*)graphViewCPtr)->SetId (GR_LISTDATA);
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 				#if defined multispec_mac
 					graphViewCPtr = CreateGraphWindow ();
@@ -1183,12 +1154,9 @@ void ListDataControl (void)
 														gImageFileInfoPtr);
 					GetGraphLabels (gGraphRecordPtr);
 														
-					#if defined multispec_lin	
-						//wxComboBox* comboBoxPtr = (wxComboBox*)graphViewCPtr->GetXAxisComboBoxPtr();
-						//MenuHandle popUpMenuHandle = (MenuHandle)comboBoxPtr;
-						//SetUpXAxisPopUpMenu (gGraphRecordPtr, popUpMenuHandle);
+					#if defined multispec_wx	
 						gActiveImageWindow->m_frame->Update ();
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 					
 					gGraphRecordPtr->imageWindow = gActiveImageWindow;
 						
@@ -1366,7 +1334,7 @@ void ListDataControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2038,10 +2006,9 @@ Boolean ListDataDialog (
 		END_CATCH_ALL 	
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMListDataDialog* dialogPtr = NULL;
 
-		//dialogPtr = new CMListDataDialog ((wxWindow*)GetMainFrame ());
 		dialogPtr = new CMListDataDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog ();
@@ -2220,7 +2187,7 @@ void ListDataDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2350,7 +2317,7 @@ Boolean ListDataTitleLine (
 			{
 					// Include a carriage return for thematic images.								
 				
-			sprintf (tempCharBufferPtr, gEndOfLine);
+			sprintf (tempCharBufferPtr, "%s", gEndOfLine);
 			tempCharBufferPtr += gNumberOfEndOfLineCharacters;
 							
 			}	// end "if (gImageFileInfoPtr->thematicType)"										
@@ -2452,7 +2419,7 @@ Boolean ListDataTitleLine (
 			if (tempCharBufferPtr != gCharBufferPtr1)
 				tempCharBufferPtr--;
 															
-			sprintf (tempCharBufferPtr, gEndOfLine);
+			sprintf (tempCharBufferPtr, "%s", gEndOfLine);
 			
 					// List the line.																	
 					
@@ -2473,7 +2440,7 @@ Boolean ListDataTitleLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2600,7 +2567,7 @@ Boolean ListDataTitleLine2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2674,7 +2641,7 @@ Boolean ListDataTitleLine3 (
 			{
 					// Skip a line before the first title line.									
 					
-			sprintf (tempCharBufferPtr, gEndOfLine);
+			sprintf (tempCharBufferPtr, "%s", gEndOfLine);
 			tempCharBufferPtr += gNumberOfEndOfLineCharacters;
 			
 			}	// end "if (pointType == kMaskType)"
@@ -2715,9 +2682,9 @@ Boolean ListDataTitleLine3 (
 						(pointType == kMaskType && *maskBufferPtr == maskRequestValue))
 				{
 				sprintf (tempCharBufferPtr, 
-								"%*ld\t", 	
+								"%*u\t",
 								dataValueFieldSize, 
-								column);
+								(unsigned int)column);
 				tempCharBufferPtr += dataValueFieldIndexSkip;
 				
 				}	// end "if (pointType != kMaskType || ..."
@@ -2730,7 +2697,7 @@ Boolean ListDataTitleLine3 (
 				// Add the carriage return in place of the last tab.					
 		
 		tempCharBufferPtr--;											
-		sprintf (tempCharBufferPtr, gEndOfLine);
+		sprintf (tempCharBufferPtr, "%s", gEndOfLine);
 		
 				// List the line.																	
 				
@@ -2749,7 +2716,7 @@ Boolean ListDataTitleLine3 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2768,7 +2735,7 @@ Boolean ListDataTitleLine3 (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/06/1998
-//	Revised By:			Larry L. Biehl			Date: 01/17/2017
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt16 ListFieldData (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -2994,7 +2961,7 @@ SInt16 ListFieldData (
 													
 	maskRequestValue = (UInt16)fileIOInstructionsPtr->maskValueRequest;
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// Disable all active windows except list data window in the wxwidgets
 				// linux version.
 		if (gListDataSpecsPtr->graphDataFlag)
@@ -3048,7 +3015,7 @@ SInt16 ListFieldData (
 				
 				if (fileIOInstructionsPtr->maskBufferPtr != NULL)
 					maskBufferPtr = &fileIOInstructionsPtr->maskBufferPtr[
-																fileIOInstructionsPtr->maskColumnStart];
+															fileIOInstructionsPtr->maskColumnStart];
 			   
 				for (column=columnStart; column<=columnEnd; column+=columnInterval)
 					{								
@@ -3074,9 +3041,11 @@ SInt16 ListFieldData (
 						if (lineColumnValueFlag)
 							{
 							sprintf (&gCharBufferPtr1[charIndex], 
-											"%*ld\t%*ld\t",
-											lineColumnFieldSize, line, 
-											lineColumnFieldSize, column);
+											"%*d\t%*u\t",
+											lineColumnFieldSize,
+											(int)line,
+											lineColumnFieldSize,
+											(unsigned int)column);
 							charIndex += lineColumnFieldIndexSkip;
 							
 							}	// end "if (lineColumnValueFlag)"
@@ -3099,7 +3068,8 @@ SInt16 ListFieldData (
 								
 								}	// end "if (!ConvertMapPointToLatLongPoint (..."
 								
-							if (gListDataSpecsPtr->latLongUnitsCode == kDMSLatLongUnitsMenuItem)
+							if (gListDataSpecsPtr->latLongUnitsCode ==
+																				kDMSLatLongUnitsMenuItem)
 								{
 								LoadDMSLatLongStrings (latLongPoint.v,
 																latLongPoint.h,
@@ -3109,18 +3079,18 @@ SInt16 ListFieldData (
 								sprintf (&gCharBufferPtr1[charIndex], 
 												"%*s\t%*s\t",
 												latFieldSize, 
-												(char*)&gTextString[1],		// skip the first blank
+												(char*)&gTextString[1],	// skip the first blank
 												longFieldSize, 
 												(char*)gTextString2);
 								
-								}	// end "if (...->latLongUnitsCode == kDMSLatLongUnitsMenuItem)"
+								}	// end "if (...->latLongUnitsCode == ..."
 								
 							else	// ...->latLongUnitsCode == kDecimalLatLongUnitsMenuItem
 								{
 								sprintf (&gCharBufferPtr1[charIndex], 
-												"%*.*f\t%*.*f\t", 
-												latFieldSize, latLongDecimalPlaces, latLongPoint.v, 
-												longFieldSize, latLongDecimalPlaces, latLongPoint.h);
+											"%*.*f\t%*.*f\t",
+											latFieldSize, latLongDecimalPlaces, latLongPoint.v,
+											longFieldSize, latLongDecimalPlaces, latLongPoint.h);
 									
 								}	// end "else ...->latLongUnitsCode == ..."
 											
@@ -3158,7 +3128,7 @@ SInt16 ListFieldData (
 							
 								// Remove the last tab and add a carriage return. 
 						
-						sprintf (&gCharBufferPtr1[charIndex-1], gEndOfLine);
+						sprintf (&gCharBufferPtr1[charIndex-1], "%s", gEndOfLine);
 						charIndex += (gNumberOfEndOfLineCharacters - 1);
 						continueFlag = OutputString (resultsFileStreamPtr, 
 																gCharBufferPtr1, 
@@ -3221,9 +3191,9 @@ SInt16 ListFieldData (
 						if (lineColumnValueFlag)
 							{
 							sprintf (&gCharBufferPtr1[charIndex], 
-											"%*ld\t",
+											"%*d\t",
 											lineFieldSize,
-											line);
+											(int)line);
 							charIndex += lineFieldSize + 1;
 											
 							}	// end "if (lineColumnValueFlag)"
@@ -3268,7 +3238,7 @@ SInt16 ListFieldData (
 					
 					if (fileIOInstructionsPtr->maskBufferPtr != NULL)
 						maskBufferPtr = &fileIOInstructionsPtr->maskBufferPtr[
-																fileIOInstructionsPtr->maskColumnStart];
+															fileIOInstructionsPtr->maskColumnStart];
 			   
 					for (column=columnStart; column<=columnEnd; column+=columnInterval)
 						{
@@ -3281,7 +3251,8 @@ SInt16 ListFieldData (
 						else if (pointType == kPolygonType && PtInRgn (point, rgnHandle))
 							includePixelFlag = TRUE;
 						
-						else if (pointType == kMaskType && *maskBufferPtr == maskRequestValue)
+						else if (pointType == kMaskType &&
+																*maskBufferPtr == maskRequestValue)
 							includePixelFlag = TRUE;
 						
 						if (includePixelFlag)
@@ -3300,7 +3271,7 @@ SInt16 ListFieldData (
 						
 						else if (pointType != kMaskType)
 							{
-							sprintf (&gCharBufferPtr1[charIndex], (char*)blankString);
+							sprintf (&gCharBufferPtr1[charIndex], "%s", (char*)blankString);
 							charIndex += dataValueFieldIndexSkip;
 							
 							}	// end "else if (pointType != kMaskType)"
@@ -3315,7 +3286,7 @@ SInt16 ListFieldData (
 							// Add the carriage return in place of the last tab if this	
 							// is a column oriented list for each channel.	
 						
-					sprintf (&gCharBufferPtr1[charIndex-1], gEndOfLine);
+					sprintf (&gCharBufferPtr1[charIndex-1], "%s", gEndOfLine);
 					charIndex += (gNumberOfEndOfLineCharacters - 1);
 					continueFlag = OutputString (resultsFileStreamPtr,
 															gCharBufferPtr1,
@@ -3410,8 +3381,9 @@ SInt16 ListFieldData (
 		
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 	
-	#if defined multispec_lin
-				// Re-enable all active windows and main menu in the wxwidgets linux version. 
+	#if defined multispec_wx
+				// Re-enable all active windows and main menu in the wxwidgets
+				// versions.
 		if (m_windowDisabler != NULL)
 			{
 			delete m_windowDisabler;
@@ -3434,7 +3406,7 @@ SInt16 ListFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3532,7 +3504,7 @@ Boolean ListProjectData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

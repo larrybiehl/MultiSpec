@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2018)
+//									Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -22,40 +22,21 @@
 //								for a selected area or classes and selected channels 
 //								to the output text window or a disk file.
 //
-//	Functions in file:	Boolean 		LoadPrincipalComponentSpecs
-// 							Boolean 		PrincipalComponentAnalysis
-//								void		 	PrincipalComponentControl
-//								Boolean		PrincipalComponentDialog
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"    
 
-#if defined multispec_lin
-	#include "LMultiSpec.h"
-	#include "LImageView.h"
-	#include "LPrincipalComponentsDialog.h"
+#if defined multispec_wx
+	#include "xMultiSpec.h"
+	#include "xImageView.h"
+	#include "xPrincipalComponentsDialog.h"
 #endif
   
 #if defined multispec_win 
 	#include "WPrincipalComponentsDialog.h"
 #endif	// defined multispec_win 
 
-//#include "SExtGlob.h"
 
-
-
-extern SInt32 ComputeEigenvectorsSVD (
-				double*								inputMatrixPtr, 
-				UInt32 								m, 
-				UInt32 								n, 
-				double 								w[], 
-				double*								outputEigenvectorsPtr,
-				double*								rv1Ptr,
-				double**								a,
-				double**								v);
-							
-							
 
 		// Pointer to the Principal Components analysis information structure.	
 		
@@ -78,7 +59,7 @@ Boolean PrincipalComponentDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -130,14 +111,13 @@ Boolean LoadPrincipalComponentSpecs (
 	if (projectFlag)
 		{
 		lastClassIndex	= -1;			
-		index = GetNextFieldArea (
-										gProjectInfoPtr,
-										NULL, 
-										gProjectInfoPtr->numberStatisticsClasses, 
-										&lastClassIndex, 
-										-1, 
-										kTrainingType,
-										kIncludeClusterFields);
+		index = GetNextFieldArea (gProjectInfoPtr,
+											NULL,
+											gProjectInfoPtr->numberStatisticsClasses,
+											&lastClassIndex,
+											-1,
+											kTrainingType,
+											kIncludeClusterFields);
 		
 		if (index == -1)
 			projectFlag = FALSE;
@@ -279,11 +259,10 @@ Boolean LoadPrincipalComponentSpecs (
 		{
 		bytesNeeded =
 				(SInt32)gImageWindowInfoPtr->totalNumberChannels * sizeof (SInt16);
-		featurePtr = (SInt16*)CheckHandleSize (
-									&gPrincipalCompSpecsPtr->featureHandle, 
-									&returnFlag,   
-									&changedFlag, 
-									bytesNeeded);
+		featurePtr = (SInt16*)CheckHandleSize (&gPrincipalCompSpecsPtr->featureHandle,
+															&returnFlag,
+															&changedFlag,
+															bytesNeeded);
 									
 		if (changedFlag)
 			gPrincipalCompSpecsPtr->channelSet = kAllMenuItem;
@@ -336,8 +315,7 @@ Boolean LoadPrincipalComponentSpecs (
 		
 		if (gPrincipalCompSpecsPtr->classSet == kAllMenuItem && 
 														gPrincipalCompSpecsPtr->projectFlag)								
-			LoadClassVector (&gPrincipalCompSpecsPtr->numberClasses,
-									classPtr);
+			LoadClassVector (&gPrincipalCompSpecsPtr->numberClasses, classPtr);
 			
 		}	// end "if (returnFlag)" 
 	
@@ -358,7 +336,7 @@ Boolean LoadPrincipalComponentSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -373,7 +351,7 @@ Boolean LoadPrincipalComponentSpecs (
 //
 // Value Returned:	None				
 // 
-// Called By:			PrincipalComponentControl in principalComponent.c
+// Called By:			PrincipalComponentControl in SPrincipalComponents.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/1991
 //	Revised By:			Larry L. Biehl			Date: 12/29/2005
@@ -651,7 +629,9 @@ Boolean PrincipalComponentAnalysis (
 			}	// end "if (!ComputeEigenvectors (..." 
 
 		
-				// Get memory for matrix inversions and eigenvector computation.																		
+				// Get memory for matrix inversions and eigenvector computation.
+				// This was done for some testing with singular value decomposition
+				// routine
 		/*	
 		if (SetupMatrixInversionMemory ((UInt16)gPrincipalCompSpecsPtr->numberChannels,
 														kMeanCovariance,
@@ -820,7 +800,7 @@ Boolean PrincipalComponentAnalysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1081,14 +1061,14 @@ void PrincipalComponentControl (void)
 							
 				if (continueFlag)							
 					continueFlag = ListProjectFieldsUsed (
-																gImageFileInfoPtr, 
-																classPtr, 
-																gPrincipalCompSpecsPtr->numberClasses, 
-																NULL, 
-																gPrincipalCompSpecsPtr->fieldTypeCode, 
-																resultsFileStreamPtr, 
-																&gOutputForce1Code,
-																TRUE);
+															gImageFileInfoPtr,
+															classPtr,
+															gPrincipalCompSpecsPtr->numberClasses,
+															NULL,
+															gPrincipalCompSpecsPtr->fieldTypeCode,
+															resultsFileStreamPtr,
+															&gOutputForce1Code,
+															TRUE);
 						
 				}	// end "if (gPrincipalCompSpecsPtr->dataCode == ...)" 
 										
@@ -1214,7 +1194,7 @@ void PrincipalComponentControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1645,7 +1625,7 @@ Boolean PrincipalComponentDialog (
 			delete dialogPtr;
 			}
 			
-		CATCH_ALL(e)
+		CATCH_ALL (e)
 			{
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
@@ -1653,10 +1633,9 @@ Boolean PrincipalComponentDialog (
 		END_CATCH_ALL 
 	#endif	// defined multispec_win	
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMPrincipalCompDialog* dialogPtr = NULL;
 
-		//dialogPtr = new CMPrincipalCompDialog ((wxWindow *)GetMainFrame ());
 		dialogPtr = new CMPrincipalCompDialog (NULL);
 
 		returnFlag = dialogPtr->DoDialog ();
@@ -1671,7 +1650,7 @@ Boolean PrincipalComponentDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1687,7 +1666,8 @@ Boolean PrincipalComponentDialog (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			DoDialog in xPrincipalComponentsDialog.cpp
+//							PrincipalComponentDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 05/19/1997
 //	Revised By:			Larry L. Biehl			Date: 05/19/1997	

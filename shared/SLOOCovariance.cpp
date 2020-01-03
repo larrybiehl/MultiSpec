@@ -2,7 +2,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,25 +19,11 @@
 //	Brief description:	The purpose of the routines in this file is to
 //								implements the Leave-One-Out Covariance (LOOC) Estimate..
 //
-//	Functions in file:	void 					AddScalarTimesDiagonalMatrixToMatrix
-//								void 					AddScalarTimesMatrixToScalarTimesMatrix
-//								void 					AddScalarXDiagonalMatrixToScalarXMatrix
-//								void 					CopyFloatVectorToDoubleVector
-//								Boolean 				DetermineIfLOOMethodUsed
-//								double 				GetLOOLikelihoodValue
-//								double 				GetLOOCMixingValue
-//								void 					GetLOOCovariance
-//								void 					MultiplyScalarTimesMatrix
-//								void 					SubtractVectors
-//								SInt16 				UpdateClassLOOStats
-//								SInt16 				UpdateProjectLOOStats
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"    
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 	
 #if defined multispec_mac
@@ -45,8 +31,6 @@
 
 #if defined multispec_win
 #endif	// defined multispec_win
-
-//#include "SExtGlob.h"
 
 
 
@@ -93,7 +77,7 @@ double GetLOOLikelihoodValue (
 				SInt32								numberCommonCovarianceClasses,
 				HDoublePtr							looCovariancePtr);
 				
-double GetLOOCMixingValue (	
+double GetLOOCMixingValue (
 				HDoublePtr							dataValuesPtr,
 				SInt32								numberClassSamples,
 				SInt32								numberFeatures,
@@ -126,7 +110,7 @@ SInt16 UpdateClassLOOStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -169,9 +153,9 @@ void AddScalarTimesDiagonalMatrixToMatrix (
 			// proper rangers									
 								
 	if (matrixSize <= 0 || 
-					inputMatrix1Ptr == NULL || 
-									inputMatrix2Ptr == NULL || 
-												outputMatrixPtr == NULL)  
+			inputMatrix1Ptr == NULL ||
+					inputMatrix2Ptr == NULL ||
+							outputMatrixPtr == NULL)
 																								return;
 						
 																		
@@ -197,7 +181,7 @@ void AddScalarTimesDiagonalMatrixToMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -304,7 +288,7 @@ void AddScalarTimesMatrixToScalarTimesMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -319,8 +303,8 @@ void AddScalarTimesMatrixToScalarTimesMatrix (
 //							The sizes of the matrices may be:
 //								all square with matrixSize rows and columns.
 //								all in lower triangular form.
-//								input matrix1 and input matrix 2 may be in lower triangular form 
-//									and the output matrix in full square form.
+//								input matrix1 and input matrix 2 may be in lower triangular
+//									form and the output matrix in full square form.
 //
 //							If inputMatrix1, inputMatrix2 and outputMatrix 
 //								point to the same place, the operation is done "in place."
@@ -417,7 +401,7 @@ void AddScalarXDiagonalMatrixToScalarXMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -463,7 +447,7 @@ void CopyFloatVectorToDoubleVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -482,7 +466,7 @@ void CopyFloatVectorToDoubleVector (
 //
 // Value Returned:	None
 // 
-// Called By:			SetupStatsMemory in SStatCom.cpp
+// Called By:			SetupStatsMemory in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Joe Hoffbeck			Date: 09/24/1997
 //	Revised By:			Larry L. Biehl			Date: 12/03/1999	
@@ -538,7 +522,7 @@ Boolean DetermineIfLOOCProjectMemoryNeeded (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -554,7 +538,7 @@ Boolean DetermineIfLOOCProjectMemoryNeeded (void)
 //
 // Value Returned:	None
 // 
-// Called By:			SetupStatsMemory in SStatCom.cpp
+// Called By:			SetupStatsMemory in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Joe Hoffbeck			Date: 02/04/1999
 //	Revised By:			Larry L. Biehl			Date: 02/04/1999	
@@ -613,7 +597,7 @@ Boolean DetermineIfLOOExists (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -636,7 +620,7 @@ Boolean DetermineIfLOOExists (
 //
 // Value Returned:	likelihood value for the input mixing value
 // 
-// Called By:			GetLOOCMixingValue in SLOOCov.cpp
+// Called By:			GetLOOCMixingValue in SLOOCovariance.cpp
 //
 //	Coded By:			Joe Hoffbeck			Date: 06/28/1995
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006	
@@ -753,9 +737,9 @@ double GetLOOLikelihoodValue (
 		}	// end "else if (a > 2 && a <= 3)"
 		
 	else	// a < 0 || a > 3
-				// a is not between 0 and 3 inclusive as required. Return the likelihood as
-				// a huge negative value.
-																							return (-HUGE_VAL);
+				// a is not between 0 and 3 inclusive as required. Return the likelihood
+				// as a huge negative value.
+																					return (-HUGE_VAL);
 	
 	//logdet = invert_m (gPtr,numberFeatures);	// Replace gPtr with its inverse
 	determinantOKFlag = InvertLowerTriangularMatrix (
@@ -767,7 +751,7 @@ double GetLOOLikelihoodValue (
 										kReturnMatrixInverse);
 							
 	if (gOperationCanceledFlag)
-																							return (-HUGE_VAL);
+																					return (-HUGE_VAL);
 										
 	if (determinantOKFlag)
 		{
@@ -818,7 +802,7 @@ double GetLOOLikelihoodValue (
 				
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -846,12 +830,12 @@ double GetLOOLikelihoodValue (
 //
 // Value Returned:	mixing value that gives the largest likelihood value
 // 
-// Called By:			UpdateClassLOOStats in SLOOCov.cpp
+// Called By:			UpdateClassLOOStats in SLOOCovariance.cpp
 //
 //	Coded By:			Joe Hoffbeck			Date: 06/28/1995
 //	Revised By:			Larry L. Biehl			Date: 10/08/1997	
 
-double GetLOOCMixingValue (	
+double GetLOOCMixingValue (
 				HDoublePtr							savedDataValuesPtr,
 				SInt32								numberClassSamples,
 				SInt32								numberFeatures,
@@ -1035,7 +1019,7 @@ double GetLOOCMixingValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1057,12 +1041,12 @@ double GetLOOCMixingValue (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassCovarianceMatrix in SStatCom.cpp
+// Called By:			GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Joe Hoffbeck			Date: 06/28/1995
 //	Revised By:			Larry L. Biehl			Date: 02/24/2000	
 
-void GetLOOCovariance (	
+void GetLOOCovariance (
 				SInt16								mixingParameterCode,
 				double								loocMixingParameter,
 				double								userMixingParameter,
@@ -1150,7 +1134,7 @@ void GetLOOCovariance (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1208,7 +1192,7 @@ void MultiplyScalarTimesMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1280,7 +1264,7 @@ void ResetProjectLOOStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1333,7 +1317,7 @@ void SetClassMixingParameter (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1381,7 +1365,7 @@ void SetProjectMixingParameter (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1429,7 +1413,7 @@ void SubtractVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1444,7 +1428,7 @@ void SubtractVectors (
 //
 // Value Returned:	None	
 // 
-// Called By:			UpdateProjectLOOStats in SLooCov.cpp
+// Called By:			UpdateProjectLOOStats in SLOOCovariance.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/17/1997
 //	Revised By:			Larry L. Biehl			Date: 12/15/2010	
@@ -1544,7 +1528,7 @@ SInt16 UpdateClassLOOStats (
 								
 			}	// end "for (index=0; index<numberDataValues; index++)"
 					
-		classNamesPtr[classStorage].looCovarianceValue = GetLOOCMixingValue (	
+		classNamesPtr[classStorage].looCovarianceValue = GetLOOCMixingValue (
 										classInfoPtr->dataValuesPtr,
 										(SInt32)numberDataValues,
 										numberChannels,
@@ -1567,7 +1551,7 @@ SInt16 UpdateClassLOOStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1584,8 +1568,8 @@ SInt16 UpdateClassLOOStats (
 // 						1 = Everything okay, no LOOC stats were updated
 // 						2 = Update completed okay and LOOC stats were updated
 //							
-// Called By:			GetClassCovarianceMatrix in SStatCom.cpp
-//							UpdateStatsControl in SStatCom.cpp
+// Called By:			GetClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/17/1997
 //	Revised By:			Larry L. Biehl			Date: 12/15/2010	
@@ -1622,13 +1606,13 @@ SInt16 UpdateProjectLOOStats (
 			// being used in the project.
 			
 	if (gProjectInfoPtr->statisticsCode != kMeanCovariance)
-																						return (returnCode);
+																					return (returnCode);
 	
 			// Do not need to update the leave-one-out stats if only field statistics
 			// are being update.
 																								
 	if (statsWindowMode == kUpdateField)
-																						return (returnCode);
+																					return (returnCode);
 	
 			// Initialize local variables.
 			
@@ -1718,7 +1702,7 @@ SInt16 UpdateProjectLOOStats (
 				// Allocate memory for variables within the structure.
 		
 		if (continueFlag)
-			continueFlag = AssignClassInfoMemory (	
+			continueFlag = AssignClassInfoMemory (
 							classInfoPtr,
 							NULL, 
 							1,									// one class
@@ -1750,7 +1734,8 @@ SInt16 UpdateProjectLOOStats (
 		commonCovariancePtr = (HCovarianceStatisticsPtr)GetHandlePointer (
 													gProjectInfoPtr->commonCovarianceStatsHandle);
 		
-		if (gProjectInfoPtr->useCommonCovarianceInLOOCFlag && commonCovariancePtr == NULL)
+		if (gProjectInfoPtr->useCommonCovarianceInLOOCFlag &&
+																			commonCovariancePtr == NULL)
 			continueFlag = FALSE;
 		
 		if (continueFlag && gProjectInfoPtr->useCommonCovarianceInLOOCFlag)
@@ -1838,8 +1823,8 @@ SInt16 UpdateProjectLOOStats (
 																		(UInt32)maxNumberOfPixels);
 						
 								// Ignore any errors for a given class so that subsequent
-								// class mixing parameters can be computed. Unless the user canceled
-								// the operation.
+								// class mixing parameters can be computed. Unless the user
+								// canceled the operation.
 																
 						//if (returnCode <= 0)
 						if (gOperationCanceledFlag)
@@ -1871,8 +1856,9 @@ SInt16 UpdateProjectLOOStats (
 		}	// end "if (computeCommonCovarianceFlag || numberClassesToUpdate > 0)" 
 	
 			// Indicate that the project stats are up-to-date only if this is a project
-			// update. If a class update then need to create a routine to check if all classes
-			// are up-to-date before setting the project up-to-date flag.
+			// update. If a class update then need to create a routine to check if all
+			// classes are up-to-date before setting the project up-to-date flag.
+			// Do not do this now.
 					
 	//if (statsWindowMode == kUpdateProject)
 	//	gProjectInfoPtr->statsUpToDate = TRUE;

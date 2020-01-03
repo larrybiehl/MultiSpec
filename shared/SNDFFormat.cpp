@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/17/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -20,14 +20,10 @@
 //	Brief description:	This file contains routines which are used to access
 //								the information in ndf formatted mage files.
 //
-//	Functions in file:	
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include "SFileStream_class.h"
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDS_FileIO161						161
@@ -48,15 +44,11 @@
 	#define	IDS_FileIO195						195	
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
-#if defined multispec_win	
-	#include "CFileStream.h"	 
+#if defined multispec_win
 #endif	// defined multispec_win
 
-#if defined multispec_lin
-	#include "CFileStream.h"
-#endif   // defined multispec_lin
-
-//#include "SExtGlob.h"
+#if defined multispec_wx
+#endif   // defined multispec_wx
 
 #define	kNdfType								29
 #define	kPackedDegrees						1
@@ -65,7 +57,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -254,7 +246,7 @@ SInt16 LinkNDFFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -271,7 +263,7 @@ SInt16 LinkNDFFiles (
 //	Value Returned:	0 - if NDF header record parameters make sense
 //							1 - if NDF header record paramters do not make sense.
 //
-// Called By:			CheckImageHeader in SOpnImag.cpp
+// Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/05/2007
 //	Revised By:			Larry L. Biehl			Date: 01/17/2019
@@ -354,7 +346,7 @@ SInt16 ReadNDFHeader (
 			{
 					//  Check if image file is a NDF header file.
 						
-			if (MGetString (gTextString3, kFileIOStrID, IDS_FileIO161))		// NDF_REVISION
+			if (MGetString (gTextString3, kFileIOStrID, IDS_FileIO161))	// NDF_REVISION
 				{
 				if (strncmp ((char*)headerRecordPtr, (char*)&gTextString3[1], 6) == 0)
 					{
@@ -366,7 +358,7 @@ SInt16 ReadNDFHeader (
 																
 					strPtr = headerRecordPtr;
 					tReturnCode = GetFileHeaderString (kFileIOStrID, 
-																	IDS_FileIO173, 	// DATA_SET_TYPE=
+																	IDS_FileIO173, // DATA_SET_TYPE=
 																	&strPtr, 
 																	-3, 
 																	kDoNotSkipEqual,
@@ -392,7 +384,8 @@ SInt16 ReadNDFHeader (
 				{
 						// Not NDF header; check if image file associated with ndf header
 						
-				imageFilePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
+				imageFilePathPPtr =
+						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 				if (CompareSuffixNoCase ((char*)"\0.I?",
 													imageFilePathPPtr,
@@ -429,7 +422,7 @@ SInt16 ReadNDFHeader (
 			fileInfoPtr->format = fileType;
 			fileInfoPtr->thematicType = FALSE;
 			//*versionPtr = 0;
-																								return (noErr);
+																						return (noErr);
 																								
 			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
@@ -438,7 +431,7 @@ SInt16 ReadNDFHeader (
 		
 		ioBufferPtr = (char*)MNewPointer (5000);
 		if (ioBufferPtr == NULL)
-																								return (1);
+																						return (1);
 
 		if (*versionPtr == 1)
 			{
@@ -469,7 +462,7 @@ SInt16 ReadNDFHeader (
 						// Save the path length
 				
 				pathLength = 0;
-				#if defined multispec_lin || defined multispec_win
+				#if defined multispec_wx || defined multispec_win
 					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
 				#endif
 				
@@ -500,7 +493,7 @@ SInt16 ReadNDFHeader (
 						wcstombs ((char*)&gTextString[1], &imageFilePathPPtr[1], 254);
 						gTextString[0] = (unsigned char)imageFilePathPPtr[0];
 						tReturnCode = GetFileHeaderString (kFileIOStrID,
-																	IDS_FileIO195, 	// BAND1_FILENAME
+																	IDS_FileIO195, // BAND1_FILENAME
 																	&strPtr, 
 																	-3, 
 																	kSkipEqual,
@@ -511,7 +504,7 @@ SInt16 ReadNDFHeader (
 					#else
 					*/
 					tReturnCode = GetFileHeaderString (kFileIOStrID,
-																	IDS_FileIO195, 	// BAND1_FILENAME
+																	IDS_FileIO195, // BAND1_FILENAME
 																	&strPtr, 
 																	-3, 
 																	kSkipEqual,
@@ -577,7 +570,8 @@ SInt16 ReadNDFHeader (
 				else	// !demFlag
 					{
 					RemoveCharsNoCase ((char*)"\0.H?\0", headerFilePathPPtr);
-					ConcatFilenameSuffix (headerFilePathPPtr, headerSuffixNamePtr[headerSet]);
+					ConcatFilenameSuffix (headerFilePathPPtr,
+													headerSuffixNamePtr[headerSet]);
 					
 					}	// end "else !demFlag"
 					
@@ -599,8 +593,8 @@ SInt16 ReadNDFHeader (
 												
 							// Make sure that there is a c string terminator at the end of
 							// to force searches to end there now.
-							// Also put a c string terminator at the end of that which was read
-							// in.
+							// Also put a c string terminator at the end of that which was
+							// read in.
 					
 					if (errCode == noErr)
 						{
@@ -647,7 +641,7 @@ SInt16 ReadNDFHeader (
 						// Save the path length
 				
 				pathLength = 0;
-				#if defined multispec_lin || defined multispec_win
+				#if defined multispec_wx || defined multispec_win
 					pathLength = fileStreamPtr->GetFileUTF8PathLength ();
 				#endif
 				
@@ -804,7 +798,7 @@ SInt16 ReadNDFHeader (
 			strPtr = ioBufferPtr;	
 			numberBands = (SInt16)GetFileHeaderValue (
 													kFileIOStrID, 
-													IDS_FileIO165, 	// NUMBER_OF_BANDS_IN_VOLUME=
+													IDS_FileIO165, // NUMBER_OF_BANDS_IN_VOLUME=
 													ioBufferPtr, 
 													1, 
 													kDoNotSkipEqual, 
@@ -892,9 +886,9 @@ SInt16 ReadNDFHeader (
 				
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
 							GetMapProjectionCodeFromGCTPNumber (
-											(SInt16)value,
-											FALSE,
-											&mapProjectionInfoPtr->gridCoordinate.projectionCode);
+										(SInt16)value,
+										FALSE,
+										&mapProjectionInfoPtr->gridCoordinate.projectionCode);
 				
 				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
 																					kStatePlaneNAD27RSCode)
@@ -970,23 +964,24 @@ SInt16 ReadNDFHeader (
 						// The projection info line was found.  Now read the 15 strings that 
 						// should be in this line that are separated by commas.
 						
-				returnCode = sscanf (strPtr, 
-											"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf;", 
-											&realValues[0], 
-											&realValues[1], 
-											&realValues[2], 
-											&realValues[3], 
-											&realValues[4], 
-											&realValues[5], 
-											&realValues[6], 
-											&realValues[7], 
-											&realValues[8], 
-											&realValues[9], 
-											&realValues[10], 
-											&realValues[11], 
-											&realValues[12], 
-											&realValues[13], 
-											&realValues[14]);
+				returnCode = sscanf (
+							strPtr,
+							"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf;",
+							&realValues[0], 
+							&realValues[1], 
+							&realValues[2], 
+							&realValues[3], 
+							&realValues[4], 
+							&realValues[5], 
+							&realValues[6], 
+							&realValues[7], 
+							&realValues[8], 
+							&realValues[9], 
+							&realValues[10], 
+							&realValues[11], 
+							&realValues[12], 
+							&realValues[13], 
+							&realValues[14]);
 										
 				if (returnCode >= 8)
 					SetProjectionParameters (

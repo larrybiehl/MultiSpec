@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/10/2019
+//	Revision date:			12/20/2019
 //
 //	Language:				C
 //
@@ -19,14 +19,6 @@
 //
 //	Brief description:	This file contains routines for dialog boxes which are used to 
 //								access and/or interpret image files stored on disk.
-//
-//	Functions in file:	pascal void			DrawCollapseClassOptionPopUp
-//								Boolean 				ModalFileSpecification
-//								void 					OpenImageFile
-//								SInt16 				VerifyFileInfoDialogValues
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*	Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
@@ -38,9 +30,9 @@
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "LMultiSpec.h"
-	#include "LFileFormatDialog.h"
+#if defined multispec_wx
+	#include "xMultiSpec.h"
+	#include "xFileFormatDialog.h"
 	
 	#define	IDOK									1
 	#define	IDC_FillDataValueExists			29
@@ -95,13 +87,12 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CFileStream.h"
+	#include "SFileStream_class.h"
+	#include "WFileFormatDialog.h"
+	#include "WGraphView.h"
 	#include "WImageView.h" 
 	#include "WMultiSpec.h" 
-	#include "WFileFormatDialog.h"
-#endif	// defined multispec_win 
-
-//#include		"SExtGlob.h"
+#endif	// defined multispec_win
 
 #define	kFirstFileStreamNotLoaded		0
 #define	kFirstFileStreamLoaded			1
@@ -252,7 +243,7 @@ SInt16 gCollapseClassSelection = 1;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -279,6 +270,7 @@ Boolean AddSelectedFilesToWindow (
 				FSRef*								fileAsFSRefPtr,
 				SInt16								instrumentCode,
 				Boolean								firstFileStreamLoadedFlag)
+
 {
 	WindowInfoPtr						windowInfoPtr;
 
@@ -478,7 +470,7 @@ Boolean AddSelectedFilesToWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -505,6 +497,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UInt8									fileName[256],
 											savedFileName[256];
@@ -549,10 +542,12 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatTM;
 					
-				else if (CompareStringsNoCase ((UCharPtr)"LT07", &savedFileName[1], 4) == 0)
+				else if (CompareStringsNoCase (
+													(UCharPtr)"LT07", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatTM7;
 					
-				else if (CompareStringsNoCase ((UCharPtr)"LC08", &savedFileName[1], 4) == 0)
+				else if (CompareStringsNoCase (
+													(UCharPtr)"LC08", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatLC8_OLI;
 					
 				if (instrumentCode == 0)
@@ -656,7 +651,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -688,6 +683,7 @@ Boolean CheckForLandsatETMFileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UInt8									fileName[256],
 											savedFileName[256];
@@ -760,7 +756,7 @@ Boolean CheckForLandsatETMFileList (
 
 				fileVectorIndex = bandNumber - 1;
 				if (bandNumber == 6 && !CompareStringsNoCase (
-											(UCharPtr)"_B6_VCID_2", &fileName[bandNameStart], 10))
+										(UCharPtr)"_B6_VCID_2", &fileName[bandNameStart], 10))
 					fileVectorIndex = 7;
 
 				if (bandNumber == 8)
@@ -819,7 +815,7 @@ Boolean CheckForLandsatETMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -844,6 +840,7 @@ Boolean CheckForInstrumentFileList (
 				UInt32								itemCount,
 				FSRef*								fileAsFSRefPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	char									bandString[5];
 
@@ -1004,7 +1001,7 @@ Boolean CheckForInstrumentFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1013,8 +1010,8 @@ Boolean CheckForInstrumentFileList (
 //	Software purpose:	The purpose of this routine is to check for a Landsat MSS 
 //							file list and adjust the list if needed so that the bands are
 //							in wavelength order.
-//							More than one naming convention has been found ... M1 at the start
-//							with the bands named as 40, 50, 60 & 70
+//							More than one naming convention has been found ... M1 at the
+//							start with the bands named as 40, 50, 60 & 70
 //							and LM at the start with the bands named as 4, 5, 6 & 7.
 //
 //	Parameters in:		None
@@ -1035,6 +1032,7 @@ Boolean CheckForLandsatMSSFileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UInt8									fileName[256],
 											savedFileName[256];
@@ -1079,8 +1077,8 @@ Boolean CheckForLandsatMSSFileList (
 
             }	// end "if (fileIndex == 0)"
 
-					// For Landsat MSS, the band name is like _Bn0 where n can be 4 through 7.
-					// Fill vector with the order of the n's
+					// For Landsat MSS, the band name is like _Bn0 where n can be 4
+					// through 7. Fill vector with the order of the n's
 
 			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
 											"_B%hd",
@@ -1125,7 +1123,7 @@ Boolean CheckForLandsatMSSFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1153,6 +1151,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+				
 {
 	UInt8									fileName[256],
 											savedFileName[256];
@@ -1195,10 +1194,12 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatTM;
 					
-				else if (CompareStringsNoCase ((UCharPtr)"LT07", &savedFileName[1], 4) == 0)
+				else if (CompareStringsNoCase (
+													(UCharPtr)"LT07", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatTM7;
 					
-				else if (CompareStringsNoCase ((UCharPtr)"LC08", &savedFileName[1], 4) == 0)
+				else if (CompareStringsNoCase (
+													(UCharPtr)"LC08", &savedFileName[1], 4) == 0)
 					instrumentCode = kLandsatLC8_OLI;		
 				
 				if (instrumentCode == 0)
@@ -1285,7 +1286,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1313,6 +1314,7 @@ Boolean CheckForLandsatTMFileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UInt8									fileName[256],
 											savedFileName[256];
@@ -1372,8 +1374,8 @@ Boolean CheckForLandsatTMFileList (
 
 			if (tReturnCode == 0)
 				{
-						// Check if this might be just an extra file that was selected. If so
-						// just ignore the file.
+						// Check if this might be just an extra file that was selected. If
+						// so just ignore the file.
 
 				if (itemCount > 6 + extraFileCount)
 					continueFlag = TRUE;
@@ -1447,7 +1449,7 @@ Boolean CheckForLandsatTMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1466,7 +1468,7 @@ Boolean CheckForLandsatTMFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2013
-//	Revised By:			Larry L. Biehl			Date: 08/23/2017	
+//	Revised By:			Larry L. Biehl			Date: 09/23/2019
 
 Boolean CheckForLandsat8FileList (
 				UInt32								itemCount,
@@ -1475,6 +1477,7 @@ Boolean CheckForLandsat8FileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UCharPtr								startBandIdentiferPtr;
 	UInt8									fileName[256],
@@ -1492,7 +1495,7 @@ Boolean CheckForLandsat8FileList (
 
 
 			// Check if Landsat 8
-			// This can be just the reflective bands (1,2,3,4,5,6,7,9)or
+			// This can be just the reflective bands (1,2,3,4,5,6,7,9) or
 			// 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
 			// Band 8 if included will be ignored.
 
@@ -1543,7 +1546,12 @@ Boolean CheckForLandsat8FileList (
 
 				if (CompareStringsNoCase (
 											&fileName[bandNameStart], (UCharPtr)"_BQA", 4) == 0)
+					{
 					continueFlag = TRUE;
+					tReturnCode = 1;
+					bandNumber = 12;
+					
+					}	// end "if (CompareStringsNoCase (..."
 
             }	// end "if (tReturnCode == 0)"
 
@@ -1551,7 +1559,7 @@ Boolean CheckForLandsat8FileList (
 					!CompareStringsNoCase (
 										&savedFileName[1], &fileName[1], savedFileName[0]) &&
 						bandNumber >= 1 &&
-							bandNumber <= 11)
+							bandNumber <= 12)
 				{
 				fileVectorIndex = bandNumber - 1;
 
@@ -1578,29 +1586,10 @@ Boolean CheckForLandsat8FileList (
 				// This is a Landsat 8 list of files.
 				// Now put the bands in order.
 				// Put band 9 in wavelenght order with the rest and leave band 8 out.
+				// If the BQA band is included, place it at the end of the list.
 				
-		ReorderLandsat8FileList (fileVectorPtr,instrumentCodePtr);
-		/*
-		savedIndex8 = fileVectorPtr[7];
-		savedIndex = fileVectorPtr[8];
-		fileVectorPtr[7] = fileVectorPtr[6];
-		fileVectorPtr[6] = fileVectorPtr[5];
-		fileVectorPtr[5] = savedIndex;
-		fileVectorPtr[8] = fileVectorPtr[9];
-		fileVectorPtr[9] = fileVectorPtr[10];
-		fileVectorPtr[10] = savedIndex8;
-
-		*instrumentCodePtr = kLandsatLC8_OLI_TIRS;
-
-		if (fileVectorPtr[8] == -1 && fileVectorPtr[9] == -1)
-			*instrumentCodePtr = kLandsatLC8_OLI;
-
-		else if (fileVectorPtr[0] == -1 && fileVectorPtr[1] == -1 &&
-					fileVectorPtr[2] == -1 && fileVectorPtr[3] == -1 &&
-					fileVectorPtr[4] == -1 && fileVectorPtr[5] == -1 &&
-					fileVectorPtr[6] == -1 && fileVectorPtr[7] == -1)
-			*instrumentCodePtr = kLandsatLC8_TIRS;
-		*/
+		ReorderLandsat8FileList (fileVectorPtr, instrumentCodePtr);
+		
 		}	// end "if (continueFlag)"
 
 	return (continueFlag);
@@ -1610,7 +1599,7 @@ Boolean CheckForLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1639,6 +1628,7 @@ Boolean CheckForSentinel2FileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr)
+
 {
 	UCharPtr								startBandIdentiferPtr;
 	UInt8									fileName[256],
@@ -1774,7 +1764,7 @@ Boolean CheckForSentinel2FileList (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1799,6 +1789,7 @@ Boolean CheckForSentinel2FileList (
 pascal void DrawCollapseClassOptionPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 		// Use the generic pop up drawing routine.
 
@@ -1814,7 +1805,7 @@ pascal void DrawCollapseClassOptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1839,6 +1830,7 @@ pascal void DrawCollapseClassOptionPopUp (
 pascal void DrawHDFDataSetPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber)
+
 {
 		// Use the generic pop up drawing routine.
 
@@ -1853,7 +1845,7 @@ pascal void DrawHDFDataSetPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1872,9 +1864,10 @@ pascal void DrawHDFDataSetPopUp (
 //
 //	Value Returned:	None
 //
-// Called By:			Menus in menus.cpp
-//							ModalFileFormat in openImageRoutines.c
-//							ChangeErdasHeaderDialog in reformat.c
+// Called By:			OnEditImageDescription in xMainFrame.cpp
+//							LoadImageInformation in SOpenImage.cpp
+//							ModalFileFormat in SOpenImage.cpp
+//							ChangeErdasHeaderDialog in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/12/1988
 //	Revised By:			Larry L. Biehl			Date: 11/30/2018
@@ -1883,6 +1876,7 @@ Boolean FileSpecificationDialog (
 				Handle								fileInfoHandle,
 				Handle								windowInfoHandle,
 				Boolean*								parameterChangeFlagPtr)
+
 {
 	Handle								newChannelToHdfDataSetHandle,
 											newHfaHandle,
@@ -1963,7 +1957,6 @@ Boolean FileSpecificationDialog (
 											modalDone,
 											okHiliteFlag,
 											parameterChangeFlag,
-											//parametersOKFlag,
 											shiftKeyDownFlag,
 											signedDataFlag,
 											swapBytesFlag;
@@ -1981,7 +1974,7 @@ Boolean FileSpecificationDialog (
 
 	dialogPtr = LoadRequestedDialog (kFormatDescriptionID, kCopyScrap, 1, 2);
 	if (dialogPtr == NULL)
-																							return (FALSE);
+																						return (FALSE);
 
 			// Intialize local user item proc pointers.
 
@@ -2166,7 +2159,7 @@ Boolean FileSpecificationDialog (
 				fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kNETCDF2Type ||
 				fileInfoPtr->format == kHDF4Type2 || fileInfoPtr->format == kNITFType) &&
 					fileInfoPtr->numberHdfDataSets > 1 &&
-								!gHDFDataSetSelectionAlertDisplayedFlag)
+							!gHDFDataSetSelectionAlertDisplayedFlag)
 		{
 		HiliteControl ((ControlHandle)okHandle, 255);
 		DisplayAlert (kErrorAlertID,
@@ -2467,15 +2460,16 @@ Boolean FileSpecificationDialog (
 						else	// returnCode != noErr && returnCode != 20
 							gHdfDataSetSelection = savedHdfDataSetSelection;
 
-						FileSpecificationDialogSetInterleaveItems (dialogPtr,
-																					gBandInterleaveSelection,
-																					fileInfoPtr->blockedFlag);
+						FileSpecificationDialogSetInterleaveItems (
+																			dialogPtr,
+																			gBandInterleaveSelection,
+																			fileInfoPtr->blockedFlag);
 
 						if (returnCode != noErr)
 									// Force the main dialog box to be redrawn.
 							InvalWindowRect (
-											GetDialogWindow (dialogPtr),
-											GetPortBounds (GetDialogPort (dialogPtr), &gTempRect));
+										GetDialogWindow (dialogPtr),
+										GetPortBounds (GetDialogPort (dialogPtr), &gTempRect));
 
 						InvalWindowRect (GetDialogWindow (dialogPtr), &theBox);
 
@@ -2553,7 +2547,7 @@ Boolean FileSpecificationDialog (
 			*/
 			}	// end "if (itemHit > 2)"
 
-		else if (itemHit == 1)// User selected OK for information
+		else if (itemHit == 1)	// User selected OK for information
 			{
 					// Make sure that we have the latest values for number lines, etc.
 					// They could have been set in the hdf specification selection.
@@ -2646,12 +2640,13 @@ Boolean FileSpecificationDialog (
 					// get the name of external files.			
 
 			sizeDifference = 0;
-			if ((fileInfoPtr->format != kHDF4Type && fileInfoPtr->format != kNETCDFType &&
-						fileInfoPtr->format != kHDF5Type &&
-							fileInfoPtr->format != kNETCDF2Type &&
-								fileInfoPtr->format != kHDF4Type2 &&
-									fileInfoPtr->format != kNITFType) ||
-										fileInfoPtr->numberHdfDataSets <= 1)
+			if ((fileInfoPtr->format != kHDF4Type &&
+						fileInfoPtr->format != kNETCDFType &&
+							fileInfoPtr->format != kHDF5Type &&
+								fileInfoPtr->format != kNETCDF2Type &&
+									fileInfoPtr->format != kHDF4Type2 &&
+										fileInfoPtr->format != kNITFType) ||
+											fileInfoPtr->numberHdfDataSets <= 1)
 				{
 				theNum = 1;
 				if (!fileInfoPtr->thematicType)
@@ -2660,19 +2655,20 @@ Boolean FileSpecificationDialog (
 				numberBytes =
 							FileSpecificationDialogGetNumberBytes (gDataValueTypeSelection);
 
-				sizeDifference = CompareFileInfoAndFileSize (fileInfoPtr,
-																			numberLines,
-																			numberColumns,
-																			theNum,
-																			numberBytes,
-																			numberPreLineBytes,
-																			numberPostLineBytes,
-																			numberPreChannelBytes,
-																			numberPostChannelBytes,
-																			numberHeaderBytes,
-																			numberTrailerBytes,
-																			gBandInterleaveSelection,
-																			(gDataValueTypeSelection == 1));
+				sizeDifference = CompareFileInfoAndFileSize (
+																	fileInfoPtr,
+																	numberLines,
+																	numberColumns,
+																	theNum,
+																	numberBytes,
+																	numberPreLineBytes,
+																	numberPostLineBytes,
+																	numberPreChannelBytes,
+																	numberPostChannelBytes,
+																	numberHeaderBytes,
+																	numberTrailerBytes,
+																	gBandInterleaveSelection,
+																	(gDataValueTypeSelection == 1));
 
             }	// end "if ((...format != kHDF4Type && != kNETCDFType)|| ...."
 
@@ -2816,16 +2812,10 @@ Boolean FileSpecificationDialog (
 		END_CATCH_ALL
 	#endif   //	defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMFileFormatSpecsDlg* dialogPtr = NULL;
 		try
 			{
-					// Try to get the current top window.
-					
-			//wxFrame* parentFrame = GetActiveFrame ();
-			//dialogPtr = new CMFileFormatSpecsDlg ((wxWindow *)gActiveImageViewCPtr->m_frame);
-			//dialogPtr = new CMFileFormatSpecsDlg (parentFrame);
-			//dialogPtr = new CMFileFormatSpecsDlg ((wxWindow*)GetMainFrame ());
 			dialogPtr = new CMFileFormatSpecsDlg (NULL);
 		 
 			returnFlag = dialogPtr->DoDialog (fileInfoHandle,
@@ -2859,7 +2849,7 @@ Boolean FileSpecificationDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2875,10 +2865,10 @@ Boolean FileSpecificationDialog (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialog in openImageRoutines.c
+// Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/1999
-//	Revised By:			Larry L. Biehl			Date: 07/29/2018
+//	Revised By:			Larry L. Biehl			Date: 12/20/2019
 
 void FileSpecificationDialogInitialize (
             DialogPtr                     dialogPtr,
@@ -2910,6 +2900,7 @@ void FileSpecificationDialogInitialize (
             SInt16*								hdfDataSetPtr,
             SInt16*								collapseClassesSelectionPtr,
             Boolean*                      callGetHDFLineFlagPtr)
+
 {
    FileInfoPtr                   fileInfoPtr;
    HdfDataSets*                  hdfDataSetsPtr;
@@ -3065,10 +3056,11 @@ void FileSpecificationDialogInitialize (
             // closed.																			
 
       if (fileInfoPtr->bytesPer1lineAllChans == 0 ||
-                fileInfoPtr->numberClasses > kMaxNumberClasses)
+                fileInfoPtr->numberClasses >= kMaxNumberClasses)
          {
          HideDialogItem (dialogPtr, IDC_DetermineNumClasses);
-         if (fileInfoPtr->numberClasses > kMaxNumberClasses)
+         if (fileInfoPtr->numberClasses > kMaxNumberClasses &&
+         													fileInfoPtr->classesComputedFlag)
                 SetDLogControlHilite (dialogPtr, IDC_ComputeNumClasses, 255);
 
          }    // end "if (fileInfoPtr->bytesPer1line1chan == 0 || ...)"
@@ -3100,7 +3092,8 @@ void FileSpecificationDialogInitialize (
 
    dataSetPromptFlag = (fileInfoPtr->hdfHandle != NULL);
    //		fileInfoPtr->format == kHDF4Type ||
-   //				fileInfoPtr->format == kNETCDFType || fileInfoPtr->format == kHDF5Type);
+   //				fileInfoPtr->format == kNETCDFType ||
+	//						fileInfoPtr->format == kHDF5Type);
    if (!(dataSetPromptFlag && gProcessorCode == kOpenImageFileProcessor) &&
 			!(dataSetPromptFlag && gProcessorCode == kRefChangeFileFormatProcessor) &&
 			!(dataSetPromptFlag && gProcessorCode == kChangeImageDescriptionProcessor) &&
@@ -3124,11 +3117,9 @@ void FileSpecificationDialogInitialize (
 						fileInfoPtr->numberHdfDataSets > 1 &&
 								gLastHDFNumberDataSets > 0 &&
 									fileInfoPtr->numberHdfDataSets >= gLastHDFDataSetSelection)
-                              //fileInfoPtr->numberHdfDataSets == gLastHDFNumberDataSets)
-                              //gMultipleImageFileCode == 2)
+									//fileInfoPtr->numberHdfDataSets == gLastHDFNumberDataSets)
+									//gMultipleImageFileCode == 2)
       {
-      //imageFileInfoHandle = GetFileInfoHandle (gActiveImageWindowInfoH);
-      //firstHdfDataSetSelection = GetHdfDataSetSelection (imageFileInfoHandle);
       firstHdfDataSetSelection = gLastHDFDataSetSelection;
 
       if (fileInfoPtr->numberHdfDataSets > firstHdfDataSetSelection)
@@ -3165,7 +3156,7 @@ void FileSpecificationDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3184,7 +3175,7 @@ void FileSpecificationDialogInitialize (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
-//	Revised By:			Larry L. Biehl			Date: 04/10/2019
+//	Revised By:			Larry L. Biehl			Date: 11/20/2019
 
 Boolean FileSpecificationDialogOK (
 				DialogPtr							dialogPtr,
@@ -3223,6 +3214,7 @@ Boolean FileSpecificationDialogOK (
 				UInt16 								dataCompressionCode,
 				SInt16 								gdalDataTypeCode,
 				Boolean 								callGetHDFLineFlag)
+
 {
 	SInt16								coordinateViewUnites,
 											dataTypeCode,
@@ -3558,19 +3550,6 @@ Boolean FileSpecificationDialogOK (
 		}	// end "if (...->dataTypeCode != dataTypeCode)"
 	
 	fileInfoPtr->dataTypeCode = dataTypeCode;
-	/*
-			// Get the number of bins.	  Now done in IntermediateFileUpdate
-			
-	fileInfoPtr->numberBins = 0;
-				
-	if (fileInfoPtr->numberBits  > 0 && fileInfoPtr->numberBits <= 16)
-		fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, fileInfoPtr->numberBits);
-	else if (fileInfoPtr->numberBits > 16)
-		fileInfoPtr->numberBins = 2048;
-	*/
-	//	if (numberBits > 0 && numberBits <= 32)
-	//		fileInfoPtr->numberBins =
-	//							(UInt32)ldexp ((double)1, numberBits);
 
 			// Swap bytes (yes or no)
 
@@ -3587,7 +3566,7 @@ Boolean FileSpecificationDialogOK (
 		lineColumnUnitsMenuItem = kLineColumnUnitsMenuItem;
 	#endif 	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		offset = 0;
 		lineColumnUnitsMenuItem = kLineColumnUnitsMenuItem - 1;
 	#endif 	// defined multispec_win
@@ -3643,9 +3622,9 @@ Boolean FileSpecificationDialogOK (
 													gTextString);
 				#endif	// defined multispec_win	
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (gActiveImageViewCPtr != NULL)
-						MSetWindowTitle (gActiveImageViewCPtr,&gTextString[0]);
+						MSetWindowTitle (gActiveImageViewCPtr, &gTextString[0]);
 				#endif
 
 						// Also remove any vector and image overlays. They will need to be
@@ -3653,11 +3632,44 @@ Boolean FileSpecificationDialogOK (
 
 				windowInfoPtr->numberImageOverlays = 0;
 				windowInfoPtr->numberOverlays = 0;
+			
+					// Need to check any selections in the current window to verify that
+					// they are within the limits for the new data set.
+			
+				LongRect		selectionRect;
+				if (GetSelectionRectangle (gActiveImageWindow,
+													&selectionRect,
+													kDontClearSelectionArea,
+													kDontUseThreshold,
+													kDontAdjustToBaseImage))
+					{
+					ClearSelectionArea (gActiveImageWindow);
+					
+					if (gSelectionGraphViewCPtr != NULL)
+						{
+								// Force the selection graph information to be reloaded if it is
+								// being shown. The number of channels could be different.
+					
+						Handle selectionGraphRecHandle =
+												gSelectionGraphViewCPtr->GetGraphRecordHandle ();
+						GraphPtr selectionGraphRecordPtr = (GraphPtr)GetHandlePointer (
+																				selectionGraphRecHandle);
+						
+						if (selectionGraphRecordPtr != NULL)
+							{
+							selectionGraphRecordPtr->imageWindow = NULL;
+							selectionGraphRecordPtr->lastActiveImageWindow = NULL;
+							
+							}	// end "if (selectionGraphRecordPtr != NULL)"
+						
+						}	// end "if (gSelectionGraphViewCPtr != NULL)"
+					
+					}	// end "if (GetSelectionRectangle (..."
 				
 						// Indicate that the image base address for the bitmap will not be
 						// valid
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (windowInfoPtr->offscreenMapSize <= 0)
 						windowInfoPtr->imageBaseAddressH = NULL;
 				#endif
@@ -3711,7 +3723,7 @@ Boolean FileSpecificationDialogOK (
 
 			fileInfoPtr->dataCompressionCode = dataCompressionCode;
 			fileInfoPtr->gdalDataTypeCode = gdalDataTypeCode;
-
+			
 			}	// end "if (fileInfoPtr->hdfDataSetSelection != ..."
 
 		else if (fileInfoPtr->hfaHandle == NULL && *newHfaHandlePtr != NULL)
@@ -3862,7 +3874,7 @@ Boolean FileSpecificationDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3878,10 +3890,10 @@ Boolean FileSpecificationDialogOK (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialog in openImageRoutines.c
+// Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
-//	Revised By:			Larry L. Biehl			Date: 03/17/2014
+//	Revised By:			Larry L. Biehl			Date: 11/11/2019
 
 SInt16 FileSpecificationDialogSetHDFValues (
 				DialogPtr							dialogPtr,
@@ -3897,6 +3909,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 				UInt16*								dataCompressionCodePtr,
 				SInt16*								gdalDataTypeCodePtr,
 				Boolean*								callGetHDFLineFlagPtr)
+
 {
 	MFileInfo hdfFileInfo;
 
@@ -3913,8 +3926,8 @@ SInt16 FileSpecificationDialogSetHDFValues (
 	#if defined multispec_win
 		CComboBox*							comboBoxPtr;
 	#endif	// defined multispec_win
-	#if defined multispec_lin
-		wxComboBox*							comboBoxPtr;
+	#if defined multispec_wx
+		wxChoice*							hdfDataSetCtrl;
 	#endif
 
 
@@ -3960,9 +3973,9 @@ SInt16 FileSpecificationDialogSetHDFValues (
 			dataSetIndex = (UInt32)comboBoxPtr->GetItemData (hdfDataSetSelection);
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
-			comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_HDFDataSet);
-			SInt64 mclientdata = (SInt64)((int*)comboBoxPtr->
+		#if defined multispec_wx
+			hdfDataSetCtrl = (wxChoice*)dialogPtr->FindWindow (IDC_HDFDataSet);
+			SInt64 mclientdata = (SInt64)((int*)hdfDataSetCtrl->
 																GetClientData (hdfDataSetSelection));
 			dataSetIndex = (UInt32)mclientdata;
 		#endif
@@ -4092,7 +4105,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 	CloseFile (hdfFileStreamPtr);
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		if (hdfFileStreamPtr != NULL)
 			delete hdfFileStreamPtr;
 	#endif	// defined multispec_win
@@ -4117,7 +4130,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4133,7 +4146,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialog in openImageRoutines.c
+// Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
 //	Revised By:			Larry L. Biehl			Date: 01/31/2003
@@ -4142,6 +4155,7 @@ void FileSpecificationDialogSetInterleaveItems (
 				DialogPtr							dialogPtr,
 				SInt16								bandInterleaveSelection,
 				Boolean								blockedFlag)
+
 {
 	switch (bandInterleaveSelection)
 		{
@@ -4272,7 +4286,7 @@ void FileSpecificationDialogSetInterleaveItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4287,13 +4301,14 @@ void FileSpecificationDialogSetInterleaveItems (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialog in openImageRoutines.c
+// Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2003
 //	Revised By:			Larry L. Biehl			Date: 04/07/2006
 
 SInt16 FileSpecificationDialogGetNumberBytes (
 				SInt16								dataTypeSelection)
+
 {
 	SInt16								numberBytes;
 
@@ -4331,7 +4346,7 @@ SInt16 FileSpecificationDialogGetNumberBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4346,7 +4361,7 @@ SInt16 FileSpecificationDialogGetNumberBytes (
 //
 //	Value Returned:	
 //
-// Called By:			FileSpecificationDialog in openImageRoutines.c
+// Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/18/2003
 //	Revised By:			Larry L. Biehl			Date: 04/26/2013
@@ -4355,6 +4370,7 @@ SInt16 FileSpecificationDialogSetDataType (
 				SInt16								dataTypeCode,
 				SInt16								numberBits,
 				Boolean								signedDataFlag)
+
 {
 	SInt16								dataTypeSelection;
 
@@ -4413,7 +4429,7 @@ SInt16 FileSpecificationDialogSetDataType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4428,8 +4444,8 @@ SInt16 FileSpecificationDialogSetDataType (
 //
 // Value Returned:	
 // 
-// Called By:			AddSelectedFilesToWindow in SOpenDlg.cpp
-//							OpenSeparateImageWindows in SOpenDlg.cpp
+// Called By:			AddSelectedFilesToWindow in SOpenFileDialog.cpp
+//							OpenSeparateImageWindows in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/2007
 //	Revised By:			Larry L. Biehl			Date: 01/15/2013	
@@ -4437,6 +4453,7 @@ SInt16 FileSpecificationDialogSetDataType (
 SInt16 LinkFiles (
 				SInt16								fileFormat,
 				Handle								windowInfoHandle)
+
 {
 	SInt16								returnCode = 1;
 
@@ -4454,7 +4471,7 @@ SInt16 LinkFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4478,6 +4495,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 				Handle								fileInfoHandle,
 				UInt32								itemCount,
 				FSRef*								fileAsFSRefPtr)
+
 {
 	Handle								windowInfoHandle;
 
@@ -4502,8 +4520,8 @@ SInt16 LinkSelectedFilesToNewWindow (
 	if (fileInfoHandle != NULL)
 		{
 		setUpFileInfoStructureFlag = CheckForInstrumentFileList (itemCount,
-																				fileAsFSRefPtr,
-																				&instrumentCode);
+																					fileAsFSRefPtr,
+																					&instrumentCode);
 
 		fileNumber = 0;
 		doneFlag = FALSE;
@@ -4543,8 +4561,8 @@ SInt16 LinkSelectedFilesToNewWindow (
 			fileFormat = GetFileFormat (fileInfoHandle);
 			if (fileInfoLoadedFlag && fileFormat != kArcViewShapeType)
 				{
-						// The first file for the window has been found. Create the structures
-						// for the new window.
+						// The first file for the window has been found. Create the
+						// structures for the new window.
 
 				#if defined multispec_mac
 					windowInfoHandle = GetWindowInfoStructures (fileInfoHandle,
@@ -4553,18 +4571,19 @@ SInt16 LinkSelectedFilesToNewWindow (
 				#endif	// defined multispec_mac
 
 				#if defined multispec_win
-					windowInfoHandle = ((CMultiSpecApp*)AfxGetApp ())->SetUpNewImageDocument (
+					windowInfoHandle =
+								((CMultiSpecApp*)AfxGetApp ())->SetUpNewImageDocument (
 																				fileInfoHandle,
 																				gGetFileImageType,
 																				gGetFileImageType);
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					windowInfoHandle = ((CMultiSpecApp*)wxTheApp)->SetUpNewImageDocument (
 																				fileInfoHandle,
 																				gGetFileImageType,
 																				gGetFileImageType);
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 
 						// The file information structure is now associated with the
 						// new window information structure. Get a new structure to use to
@@ -4636,7 +4655,8 @@ SInt16 LinkSelectedFilesToNewWindow (
 		}	// end "if (fileInfoHandle != NULL)"
 
 			// The handles within the file information structure are now being used in
-			// another file info structure for the window. We do not want to clear them out.
+			// another file info structure for the window. We do not want to clear them
+			// out.
 
 	CheckAndUnlockHandle (fileInfoHandle);
 
@@ -4647,7 +4667,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4670,6 +4690,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 void ListFileIgnoredMessage (
 				Handle								fileInfoHandle,
 				SInt16								messageCode)
+
 {
 	char*									fileNamePtr;
 
@@ -4703,7 +4724,7 @@ void ListFileIgnoredMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4718,7 +4739,7 @@ void ListFileIgnoredMessage (
 //
 //	Value Returned:				
 // 
-// Called By:			LoadImageInformation in SOpnImag.cpp
+// Called By:			LoadImageInformation in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2012
 //	Revised By:			Larry L. Biehl			Date: 07/29/2018
@@ -4728,6 +4749,7 @@ SInt16 LoadSelectedDataSetInformation (
 				FileInfoPtr							outputFileInfoPtr,
 				UInt32								dataSetIndex,
 				Boolean								useGroupedDataSetsFlag)
+
 {
 	HdfDataSets*						hdfDataSetsPtr;
 	SInt16								returnCode;
@@ -4770,7 +4792,7 @@ SInt16 LoadSelectedDataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4791,8 +4813,8 @@ SInt16 LoadSelectedDataSetInformation (
 //							value > 0 indicating the project file version if the
 //								selected file is not a project file.			
 // 
-// Called By:			GetImageFile in fileIO.c
-//							OpenMultiSpecDocument in fileIO.c
+// Called By:			GetImageFile in SFileIO.cpp
+//							OpenMultiSpecDocument in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1989
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
@@ -4801,6 +4823,7 @@ SInt32 OpenImageFile (
 				LocalAppFile*						localAppFilePtr,
 				Boolean								fromOpenProjectImageWindowFlag,
 				UInt16								hdfDataSetSelection)
+
 {
 	CMFileStream*						fileStreamPtr;
 
@@ -4995,13 +5018,17 @@ SInt32 OpenImageFile (
 							gStatusDialogPtr = GetStatusDialog (kShortStatusInfoID, FALSE);
 							if (gStatusDialogPtr != NULL)
 								{
-								ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusText, TRUE);
-								ShowHideDialogItem (gStatusDialogPtr, IDC_ShortStatusValue, TRUE);
+								ShowHideDialogItem (
+													gStatusDialogPtr, IDC_ShortStatusText, TRUE);
+								ShowHideDialogItem (
+													gStatusDialogPtr, IDC_ShortStatusValue, TRUE);
 								MGetString (gTextString, kAlertStrID, IDS_Alert62);
-								LoadDItemString (
-									gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
-								LoadDItemValue (
-												gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)1);
+								LoadDItemString (gStatusDialogPtr,
+														IDC_ShortStatusText,
+														(Str255*)gTextString);
+								LoadDItemValue (gStatusDialogPtr,
+														IDC_ShortStatusValue,
+														(SInt32)1);
 								ShowStatusDialogWindow (kShortStatusInfoID);
 								
 								}	// end "if (gStatusDialogPtr != NULL)"
@@ -5094,7 +5121,7 @@ SInt32 OpenImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5125,6 +5152,7 @@ Boolean OpenSeparateImageWindows (
 				UInt32								itemCount,
 				FSRef*								fileAsFSRefPtr,
 				Boolean								fileInfoLoadedFlag)
+
 {
 	Handle								windowInfoHandle = NULL;
 
@@ -5203,12 +5231,12 @@ Boolean OpenSeparateImageWindows (
 																						gGetFileImageType);
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin
+				#if defined multispec_wx
                 windowInfoHandle = ((CMultiSpecApp*)wxTheApp)->SetUpNewImageDocument (
 																						fileInfoHandle,
 																						gGetFileImageType,
 																						gGetFileImageType);
-				#endif	// multispec_lin
+				#endif	// multispec_wx
 
 				continueFlag = (windowInfoHandle != NULL);
 
@@ -5232,7 +5260,7 @@ Boolean OpenSeparateImageWindows (
 					else if (gGetFileImageType == kThematicImageType)
 						continueFlag = SetUpThematicImageWindow (windowInfoHandle);
 
-					//		DoWorkFlow ();
+					//DoWorkFlow ();
 					//#endif	// defined multispec_mac	
 
 					}	// end "if (continueFlag)" 
@@ -5246,7 +5274,7 @@ Boolean OpenSeparateImageWindows (
 
 					}	// end "if (!continueFlag)"
 
-				}	// end "if (fileInfoLoadedFlag && gGetFileImageType != kVectorImageType)" 
+				}	// end "if (fileInfoLoadedFlag && gGetFileImageType != ..."
 
 			if (!continueFlag || gGetFileImageType == kVectorImageType)
 				{
@@ -5281,7 +5309,7 @@ Boolean OpenSeparateImageWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5304,6 +5332,7 @@ Boolean OpenSeparateImageWindows (
 SInt16 OpenSpecifiedFile (
 				Handle								fileInfoHandle,
 				FSRef									fileAsFSRef)
+
 {
 	#if defined multispec_mac
 		CFStringRef							cfStringRef;
@@ -5325,29 +5354,29 @@ SInt16 OpenSpecifiedFile (
 
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 
-		#if defined multispec_lin
+		#if defined multispec_wx
         FSRef* fileAsFSRefPtr = &fileAsFSRef;
         fileStreamPtr->SetFilePath ((wchar_t*)&fileAsFSRefPtr[0], TRUE);
 
         errCode = CMFileStream::GetFileType (
-							(WideFileStringPtr)&fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
+						(WideFileStringPtr)&fileAsFSRefPtr[0], &fileStreamPtr->mFileType);
 
 					// Force the pascal file name to be updated in case user is
 					// expecting to use it.
 
         fileStreamPtr->GetFileNamePPtr ();
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 
 		#if defined multispec_mac
 			fileStreamPtr->fSRefFlag = TRUE;
 			fileStreamPtr->fsRef = fileAsFSRef;
 
 			errCode = FSGetCatalogInfo (&fileStreamPtr->fsRef,
-                kFSCatInfoVolume,
-                &fsCatalogInfo,
-                &fileStreamPtr->uniFileName,
-                NULL,
-                &fileStreamPtr->parentFSRef);
+												 kFSCatInfoVolume,
+												 &fsCatalogInfo,
+												 &fileStreamPtr->uniFileName,
+												 NULL,
+												 &fileStreamPtr->parentFSRef);
 
 			if (errCode == noErr)
 				{
@@ -5405,7 +5434,7 @@ SInt16 OpenSpecifiedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5414,7 +5443,8 @@ SInt16 OpenSpecifiedFile (
 //	Software purpose:	The purpose of this routine is to reorder the Landsat 8 file
 //							list so that the list is in wavelength order. Put band 9 in 
 //							wavelength order with the rest and leave band 8 out if it
-//							exists.
+//							exists.  The BQA band (band 12) should be at the end of the list
+//							if it is included.
 //
 //	Parameters in:		None
 //
@@ -5425,7 +5455,7 @@ SInt16 OpenSpecifiedFile (
 // Called By:			FileSpecificationDialogOK
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/2017
-//	Revised By:			Larry L. Biehl			Date: 11/07/2017
+//	Revised By:			Larry L. Biehl			Date: 09/24/2019
 
 void ReorderLandsat8FileList (
 				SInt16*								fileVectorPtr,
@@ -5461,7 +5491,7 @@ void ReorderLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5486,6 +5516,7 @@ void SetHDFDataSetFileInformation (
 				FileInfoPtr							fileInfoPtr,
 				SInt16								hdfDataSetSelection,
 				UInt32								dataSetIndex)
+
 {
 	HdfDataSets*						hdfDataSetsPtr;
 
@@ -5502,7 +5533,7 @@ void SetHDFDataSetFileInformation (
 		offset = 0;
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		offset = 0;
 	#endif	// defined multispec_win
 
@@ -5513,9 +5544,9 @@ void SetHDFDataSetFileInformation (
 		dataSet = hdfDataSetsPtr[dataSetIndex].dataSet;
 
 		#if include_hdf_capability
-					// This will check if this data set uses an extension. If so the current
-					// file will be closed and the new one will be added to the file 
-					// information structure. The file will then be opened.
+					// This will check if this data set uses an extension. If so the
+					// current file will be closed and the new one will be added to the
+					// file information structure. The file will then be opened.
 
 			if (fileInfoPtr->format == kHDF4Type || fileInfoPtr->format == kNETCDFType)
 				GetHDFDataSetSpecialInfo (fileInfoPtr, dataSetIndex);
@@ -5536,7 +5567,7 @@ void SetHDFDataSetFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5554,19 +5585,20 @@ void SetHDFDataSetFileInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/2001
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 11/11/2019
 
 void SetUpHDFDataSetPopupMenu (
 				DialogPtr							dialogPtr,
 				FileInfoPtr							fileInfoPtr)
+
 {
 	#if defined multispec_win
 		CComboBox*							comboBoxPtr;
 		SInt32								windowsMenuIndex;
 	#endif	// defined multispec_win
 		 
-	#if defined multispec_lin
-		wxComboBox*							comboBoxPtr;
+	#if defined multispec_wx
+		wxChoice*							hdfDataSetCtrl;
 		SInt32								windowsMenuIndex;
 	#endif
 
@@ -5578,7 +5610,7 @@ void SetUpHDFDataSetPopupMenu (
 											numberHdfDataSets;
 
 
-	#if defined multispec
+	#if defined multispec_win
 		USES_CONVERSION;
 	#endif
 
@@ -5595,13 +5627,13 @@ void SetUpHDFDataSetPopupMenu (
 			windowsMenuIndex = 0;
 		#endif	// defined multispec_win
         
-		#if defined multispec_lin
-			comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_HDFDataSet);
+		#if defined multispec_wx
+			hdfDataSetCtrl = (wxChoice*)dialogPtr->FindWindow (IDC_HDFDataSet);
 			windowsMenuIndex = 0;
-			((CMFileFormatSpecsDlg*)dialogPtr)->m_menuclientdata = calloc (
+			((CMFileFormatSpecsDlg*)dialogPtr)->m_menuClientData = calloc (
 														numberHdfDataSets, sizeof (unsigned int));
 			unsigned int* menuptr =
-					(unsigned int*)((CMFileFormatSpecsDlg*)dialogPtr)->m_menuclientdata;
+					(unsigned int*)((CMFileFormatSpecsDlg*)dialogPtr)->m_menuClientData;
 		#endif
 
 		dataSetType = 0;
@@ -5692,11 +5724,12 @@ void SetUpHDFDataSetPopupMenu (
 										hdfDataSetsPtr[dataSetIndex].name);
 				/*
 				CFStringRef cfStringRef;
-				cfStringRef = CFStringCreateWithBytes (kCFAllocatorDefault,
-																	&hdfDataSetsPtr[dataSetIndex].name[1],
-																	hdfDataSetsPtr[dataSetIndex].name[0],
-																	kCFStringEncodingUTF8,
-																	false);
+				cfStringRef = CFStringCreateWithBytes (
+															kCFAllocatorDefault,
+															&hdfDataSetsPtr[dataSetIndex].name[1],
+															hdfDataSetsPtr[dataSetIndex].name[0],
+															kCFStringEncodingUTF8,
+															false);
 				//cfStringRef = CFStringCreateFromExternalRepresentation (
 				//								kCFAllocatorDefault,
 				//								(const __CFData*)hdfDataSetsPtr[dataSetIndex].name,
@@ -5719,12 +5752,13 @@ void SetUpHDFDataSetPopupMenu (
             windowsMenuIndex++;
 			#endif	// defined multispec_win
             
-			#if defined multispec_lin
-            dialogPtr->SetComboItemText (IDC_HDFDataSet,
-													  (SInt16)windowsMenuIndex,
-													  (char*)&hdfDataSetsPtr[dataSetIndex].name[1]);
+			#if defined multispec_wx
+            dialogPtr->SetChoiceItemText (IDC_HDFDataSet,
+														(SInt16)windowsMenuIndex,
+													  	(char*)&hdfDataSetsPtr[dataSetIndex].name[1]);
             *menuptr = (unsigned int)dataSetIndex;
-            comboBoxPtr->SetClientData (windowsMenuIndex, (void*)dataSetIndex);
+            hdfDataSetCtrl->SetClientData (
+            									windowsMenuIndex, (void*)(SInt64)dataSetIndex);
             windowsMenuIndex++;
             menuptr++;
 			#endif
@@ -5768,7 +5802,7 @@ void SetUpHDFDataSetPopupMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5788,7 +5822,7 @@ void SetUpHDFDataSetPopupMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/12/1993
-//	Revised By:			Larry L. Biehl			Date: 06/22/2006	
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt16 VerifyFileInfoDialogValues (
 				DialogPtr							dialogPtr,
@@ -5807,6 +5841,7 @@ SInt16 VerifyFileInfoDialogValues (
 				Boolean								thematicType,
 				SInt32*								minLimitPtr,
 				SInt32*								maxLimitPtr)
+
 {
 	SInt16								returnValue;
 
@@ -5847,69 +5882,69 @@ SInt16 VerifyFileInfoDialogValues (
 
 		}	// end "else if !thematicType && (..."
 
-	else if (startLine < 1 || startLine > LONG_MAX)
+	else if (startLine < 1 || startLine > SInt32_MAX)
 		{
 		returnValue = IDC_StartLineNumber;
 		*minLimitPtr = 1;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
 		}	// end "else if (startLine < 1 || ..."
 
-	else if (startColumn < 1 || startColumn > LONG_MAX)
+	else if (startColumn < 1 || startColumn > SInt32_MAX)
 		{
 		returnValue = IDC_StartColumnNumber;
 		*minLimitPtr = 1;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
 		}	// end "else if (startColumn < 1 || ..."
 
-	else if (numberHeaderBytes > LONG_MAX)
+	else if (numberHeaderBytes > SInt32_MAX)
 		{
 		returnValue = IDC_HeaderBytes;
 		*minLimitPtr = 0;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
-		}	// end "else if (numberHeaderBytes > LONG_MAX)"
+		}	// end "else if (numberHeaderBytes > SInt32_MAX)"
 
-	else if (numberTrailerBytes > LONG_MAX)
+	else if (numberTrailerBytes > SInt32_MAX)
 		{
 		returnValue = IDC_TrailerBytes;
 		*minLimitPtr = 0;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
-		}	// end "else if (numberTrailerBytes > LONG_MAX)"
+		}	// end "else if (numberTrailerBytes > SInt32_MAX)"
 
-	else if (numberPreLineBytes > LONG_MAX)
+	else if (numberPreLineBytes > SInt32_MAX)
 		{
 		  returnValue = IDC_PreLineBytes;
 		  *minLimitPtr = 0;
 		  *maxLimitPtr = LONG_MAX;
 
-		}	// end "else if (numberPreLineBytes > LONG_MAX)"
+		}	// end "else if (numberPreLineBytes > SInt32_MAX)"
 
-	else if (numberPostLineBytes > LONG_MAX)
+	else if (numberPostLineBytes > SInt32_MAX)
 		{
 		returnValue = IDC_PostLineBytes;
 		*minLimitPtr = 0;
 		*maxLimitPtr = LONG_MAX;
 
-		}	// end "else if (numberPostLineBytes > LONG_MAX)"
+		}	// end "else if (numberPostLineBytes > SInt32_MAX)"
 
-	else if (numberPreChannelBytes > LONG_MAX)
+	else if (numberPreChannelBytes > SInt32_MAX)
 		{
 		returnValue = IDC_PreChannelBytes;
 		*minLimitPtr = 0;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
 		}	// end "else if (numberPreChannelBytes > LONG_MAX)"
 
-	else if (numberPostChannelBytes > LONG_MAX)
+	else if (numberPostChannelBytes > SInt32_MAX)
 		{
 		returnValue = IDC_PostChannelBytes;
 		*minLimitPtr = 0;
-		*maxLimitPtr = LONG_MAX;
+		*maxLimitPtr = SInt32_MAX;
 
-		}	// end "else if (numberPostChannelBytes > LONG_MAX)"
+		}	// end "else if (numberPostChannelBytes > SInt32_MAX)"
 
 	else if (thematicType && (dataTypeSelection < k4BitUnsignedIntegerMenuItem ||
 											dataTypeSelection > k2ByteUnsignedIntegerMenuItem))
@@ -5922,7 +5957,7 @@ SInt16 VerifyFileInfoDialogValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5947,6 +5982,7 @@ SInt16 VerifyFileInfoDialogValues (
 Boolean VerifyImageFileSizeAgainstBaseImage (
 				Handle								windowInfoHandle,
 				Handle								fileInfoHandle)
+
 {
 	FileInfoPtr							fileInfoPtr;
 	WindowInfoPtr						windowInfoPtr;

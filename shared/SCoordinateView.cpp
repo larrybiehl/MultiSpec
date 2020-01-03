@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,18 +19,11 @@
 //
 //	Brief description:	 
 //
-//	Functions in file:	void UpdateCoordinateViewControls
-//
-//	Include files:			"MultiSpecHeaders"
-//								"SMultiSpec.h"
-//
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-	//#include	"SExternalGlobals.h"
+#if defined multispec_wx
 #endif	
 
 #if defined multispec_mac  
@@ -38,14 +31,12 @@
 #endif	// defined multispec_mac   
                              
 #if defined multispec_win
-	#include "SMultiSpec.h"
-	//#include	"SExternalGlobals.h"
 #endif	// defined multispec_win 
 	 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -60,8 +51,10 @@
 //
 // Value Returned:	None
 // 
-// Called By:			ShowHideCoordinateView in menus.c
-//							DoImageWActivateEvent in multiSpec.c
+// Called By:			DisplayColorImage in SDisplay.cpp
+//							DisplayThematicImage in SDisplayThematic.cpp
+//							DoEditSelectAllImage in SMenus.cpp
+//							ClearSelectionArea in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/2000
 //	Revised By:			Larry L. Biehl			Date: 11/22/2000			
@@ -101,10 +94,10 @@ void UpdateCoordinateViewControls (
 			if (gActiveOffscreenMapExists && theWindow == FrontWindow ())
 				HiliteControl (controlHandle, 0);
 			
-			else		// !gActiveOffscreenMapExists || ...
+			else	// !gActiveOffscreenMapExists || ...
 				HiliteControl (controlHandle, 255);
 				
-			}		// end "if (controlHandle != NULL)"
+			}	// end "if (controlHandle != NULL)"
 					
 		controlHandle = GetCoordinateViewAreaUnitsControl (windowInfoHandle);
 		if (controlHandle != NULL)
@@ -117,12 +110,12 @@ void UpdateCoordinateViewControls (
 				HiliteControl (controlHandle, 0);	
 				ShowControl (controlHandle);
 				
-				}		// end "if (GetSelectionTypeCode (theWindow) != 0)"
+				}	// end "if (GetSelectionTypeCode (theWindow) != 0)"
 			
-			else		// coordinateHeight == 0 || ...
+			else	// coordinateHeight == 0 || ...
 				HideControl (controlHandle);
 				
-			}		// end "if (controlHandle != NULL)"
+			}	// end "if (controlHandle != NULL)"
 																								
 				// Reset the clip region back to that upon entry to this routine.		
 				
@@ -130,5 +123,5 @@ void UpdateCoordinateViewControls (
 		SetEmptyRgn (gTempRegion1);
 	#endif	// defined multispec_mac 			
      	
-}		// end "UpdateCoordinateViewControls" 
+}	// end "UpdateCoordinateViewControls" 
 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/02/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -20,33 +20,6 @@
 //	Brief description:	The routines in this file handle writing and reading
 //								Transformation, kml, thematic support (.sti * .clr)
 //								files and writing GeoTIFF files.
-//
-//	Functions in file:	Boolean 				GetGroupInfoFile
-//								SInt16 				GetNextLine
-//								Boolean 				GetThematicSupportFile
-//								void 					LoadThematicClasses 
-//								void 					LoadThematicGroups
-//								void 					LoadThematicInfo
-//								void					LoadTransformationFile
-//								Boolean 				ReadOffsetGainFile
-//								Boolean 				ReadTransformationFile
-//								void					SaveImageWindowAs
-//								Boolean				SaveTextOutputAs  
-//								char* 				SkipToNextCarriageReturn
-//								Boolean 				WriteErdasHeader
-//								Boolean				WriteNewErdasHeader
-//								Boolean				WriteNewImageHeader
-//								Boolean 				WriteTextOutputFile
-//								void 					WriteThematicClassesAs
-//								void 					WriteThematicGroups
-//								void 					WriteThematicInfo
-//								short int 			WriteTIFFColorMap
-//								short int 			WriteTIFFImageData
-//								Boolean				WriteTIFFImageFile
-//								void					WriteTransformationFile
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
@@ -58,13 +31,13 @@
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+#include "SFileStream_class.h"
 
-#if defined multispec_lin
-	#include "CFileStream.h"
-	#include "LImageDoc.h"
-	#include "LImageView.h"
+#if defined multispec_wx
+	#include "xImageDoc.h"
+	#include "xImageView.h"
 	#include "wx/wx.h"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	//#include 	"WASTE.h"
@@ -88,11 +61,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CFileStream.h"
-	#include "CPalette.h"	 
+	#include "SPalette_class.h"
 #endif	// defined multispec_win 
-
-//#include "SExtGlob.h"
 
 #define	kKMLStrID								174
 
@@ -105,19 +75,6 @@
 #define	kDoNotIncludeUTM						0
 #define	kIncludeUTM								1
 
-
-extern UInt16 GetPaletteEntry (
-				UInt16								paletteIndex);
-										
-extern Boolean WriteKMLFile (
-				FileInfoPtr							fileInfoPtr, 
-				CMFileStream*						fileStreamPtr,
-				UInt32								columnInterval,
-				UInt32								lineInterval,
-				UInt32								startMapColumn,
-				UInt32								startMapLine,
-				UInt32								endMapColumn,
-				UInt32								endMapLine);
 
                
 			// Prototypes for routines in this file that are only called by		
@@ -269,13 +226,8 @@ SInt16 	WriteGeoTIFFInformation (
 				UInt32								displayedLineInterval,
 				UInt32								startMapLeft,
 				UInt32								startMapTop);
-								
-SInt16	 WriteTIFFColorMap (
-				CMFileStream* 						fileStreamPtr,
-				CMPaletteInfo						paletteObject,
-				UInt16								paletteOffset);
 
-SInt16 	WriteTIFFColorMap2 (
+SInt16 	WriteTIFFColorMap (
 				FileInfoPtr							fileInfoPtr,
 				CMFileStream* 						fileStreamPtr,
 				SInt16								tiffSourceCode,
@@ -304,7 +256,7 @@ Boolean 	WriteTextOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1992-2019)
+//								 	Copyright (1992-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -356,10 +308,10 @@ SInt16 FindEndOfLineCode (
 		bufferPtr = (UCharPtr)paramBlockPtr->ioParam.ioBuffer;
 	#endif	// defined multispec_mac
 		
-   #if defined multispec_win | defined multispec_lin	
+   #if defined multispec_win | defined multispec_wx	
 		count = paramBlockPtr->ioReqCount;
 		bufferPtr = paramBlockPtr->ioBuffer;	
-	#endif	// defined multispec_win | defined multispec_lin
+	#endif	// defined multispec_win | defined multispec_wx
 	/*	
 	#if defined multispec_mac
 		IOParamPtr							ioParamPtr;
@@ -476,7 +428,7 @@ SInt16 FindEndOfLineCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -632,7 +584,7 @@ Boolean GetGroupInfoFile (
 
 
 //------------------------------------------------------------------------------------
-//								 		Copyright (1992-2019)
+//								 		Copyright (1992-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -651,7 +603,7 @@ Boolean GetGroupInfoFile (
 //
 // Value Returned:	The new input string pointer.
 //
-// Called By:			ConvertROIPixelsToClassNumbers in SFieldsT.cpp
+// Called By:			ConvertROIPixelsToClassNumbers in SFieldsToThematicFile.cpp
 //							ReadCovarianceInformation in SProjectFileIO.cpp
 //							ReadModifiedStats in SProjectFileIO.cpp
 //							ReadProjectFile in SProjectFileIO.cpp
@@ -705,7 +657,7 @@ SInt16 GetNextLine (
 		ioParamPtr->ioBuffer[paramBlockPtr->ioParam.ioActCount] = kNullTerminator;	
 	#endif	// defined multispec_mac
 	
-   #if defined multispec_win | defined multispec_lin  	   
+   #if defined multispec_win | defined multispec_wx  	   
 	   UCharPtr 				bufferPtr,
 	   							lastLinePtr,
 	   							newLinePtr,
@@ -841,7 +793,7 @@ SInt16 GetNextLine (
 			}	// end "if (newLinePtr == NULL)"
 			
 		*inputStringPtrPtr = newLinePtr;	
-	#endif	// defined multispec_win | defined multispec_lin
+	#endif	// defined multispec_win | defined multispec_wx
 	
 	return (errCode);
 		
@@ -850,7 +802,7 @@ SInt16 GetNextLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -938,8 +890,8 @@ UInt32 GetNumberStripsToUse (
 				
 					// Now get the number of strips needed.
 					
-			numberStrips = 
-					(UInt32)floor (((double)numberLines + numberLinesPerStrip - 1)/numberLinesPerStrip);
+			numberStrips = (UInt32)floor (
+					((double)numberLines + numberLinesPerStrip - 1)/numberLinesPerStrip);
 			
 			if (planarConfiguration == 2 && numberChannels > 1)
 				{
@@ -947,11 +899,7 @@ UInt32 GetNumberStripsToUse (
 						
 				numberStripsPerChannel = numberStrips;
 				
-				//numberStripsPerChannel = numberBytesPerChannel/numberBytesPerStrip;
-				//if (numberStripsPerChannel * numberBytesPerStrip < numberBytesPerChannel)
-				//	numberStripsPerChannel++;
-					
-				numberBytesInLastStrip = (UInt32)(numberBytesPerChannel - 
+				numberBytesInLastStrip = (UInt32)(numberBytesPerChannel -
 											(numberStripsPerChannel - 1) * numberBytesPerStrip);
 					
 				numberStrips = numberStripsPerChannel * numberChannels;
@@ -960,11 +908,7 @@ UInt32 GetNumberStripsToUse (
 				
 			else	// bandInterleaveCode != kBSQ || numberChannels == 1
 				{
-				//numberStrips = totalNumberBytes/numberBytesPerStrip;
-				//if (numberStrips * numberBytesPerStrip < totalNumberBytes)
-				//	numberStrips++;	
-					
-				numberBytesInLastStrip = (UInt32)(totalNumberBytes - 
+				numberBytesInLastStrip = (UInt32)(totalNumberBytes -
 														(numberStrips - 1) * numberBytesPerStrip);
 												
 				numberStripsPerChannel = numberStrips;
@@ -1001,7 +945,7 @@ UInt32 GetNumberStripsToUse (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1182,7 +1126,7 @@ Boolean GetThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1221,7 +1165,7 @@ UInt32 LoadGeoDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1237,7 +1181,7 @@ UInt32 LoadGeoDoubleValue (
 //
 //	Value Returned:	
 //
-// Called By:			WriteTIFFImageFile in SSaveWrt.cpp
+// Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/11/2002
 //	Revised By:			Larry L. Biehl			Date: 08/11/2013
@@ -1825,28 +1769,7 @@ UInt32 LoadGeoKeyDirectory (
 			// Get the date and time to add.
 	
 	count = 0;
-	/*
-	time_t currentTime = time (NULL);
-	struct tm *currentDate = localtime (&currentTime);
-	strftime ((char*)gTextString3, 254, "%m-%d-%Y  %X", currentDate);
-		
-	count = sprintf (string, 
-								"Generated by %s on %s|", 
-								&gApplicationIdentifierString,
-								gTextString3);
-								
-	count += LoadInstrumentNameToTIFFAsciiTag (fileInfoPtr, &string[count]);
-	*/
-	/*		// The following was for debugging a problem with gdal in April 2012. Will 
-			// take out when problem is completely resolved.
-	count = sprintf (string, 
-							"IMAGINE GeoTIFF Support.\nERDAS Desktop 2011 Version 11.0.3 "
-								"11.0.0.896.\nProjection Name = State Plane.\nUnits = "
-								"us_survey_feet.\nGeoTIFF Units = us_survey_feet|");
-							"IMAGINE GeoTIFF Support.\nERDAS Desktop 2011 Version 11.0.3 "
-							"11.0.0.896.\nProjection Name = State Plane.\nUnits = "
-							"us_survey_feet.|");
-	*/
+
 	if (count > 0)
 		{
 		if (bufferPtr != NULL && asciiParametersBufferPtr != NULL)
@@ -2653,7 +2576,7 @@ UInt32 LoadGeoKeyDirectory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2693,7 +2616,7 @@ void LoadGeoKeyEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2826,7 +2749,7 @@ UInt32 LoadGeoModelTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2841,7 +2764,7 @@ UInt32 LoadGeoModelTiePoints (
 //
 //	Value Returned:	None				
 // 
-// Called By:			WriteTIFFImageFile in SSaveWrt.cpp
+// Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/10/2013
 //	Revised By:			Larry L. Biehl			Date: 07/02/2018
@@ -2906,7 +2829,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2925,7 +2848,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/20/2012
-//	Revised By:			Larry L. Biehl			Date: 02/28/2012
+//	Revised By:			Larry L. Biehl			Date: 10/04/2019
 
 UInt32 LoadGeoModelTransformationParameters (
 				FileInfoPtr 						fileInfoPtr,
@@ -2974,7 +2897,8 @@ UInt32 LoadGeoModelTransformationParameters (
 									
 			// Model Transformation 3
 			
-	value = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11;
+	value = mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 -
+								.5 * mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;;
 	index = LoadGeoDoubleValue (geoTiffInfoBufferPtr,
 											index,
 											value);
@@ -3003,7 +2927,8 @@ UInt32 LoadGeoModelTransformationParameters (
 									
 			// Model Transformation 7
 			
-	value = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11;
+	value = mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 +
+								.5 * mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 	index = LoadGeoDoubleValue (geoTiffInfoBufferPtr,
 											index,
 											value);
@@ -3064,7 +2989,7 @@ UInt32 LoadGeoModelTransformationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3079,7 +3004,7 @@ UInt32 LoadGeoModelTransformationParameters (
 //
 // Value Returned:	None
 //
-// Called By:			LoadThematicInfo in SSAveWrt.cpp
+// Called By:			LoadThematicInfo in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
@@ -3178,7 +3103,7 @@ void LoadThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3193,7 +3118,7 @@ void LoadThematicClasses (
 //
 // Value Returned:	None
 //
-// Called By:			LoadThematicInfo in SSAveWrt.cpp
+// Called By:			LoadThematicInfo in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1996
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -3272,7 +3197,7 @@ void LoadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3287,7 +3212,7 @@ void LoadThematicGroups (
 //
 // Value Returned:	None
 //
-// Called By:			Menus in menus.c
+// Called By:			Menus in MMenus.c
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
@@ -3339,7 +3264,7 @@ void LoadThematicInfo (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3508,7 +3433,7 @@ void LoadTIFFColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3585,7 +3510,7 @@ void LoadTiffEntry (
                    
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3602,7 +3527,7 @@ void LoadTiffEntry (
 //
 // Value Returned:	
 //
-// Called By:			Menus in menus.c
+// Called By:			Menus in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1993
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -3812,7 +3737,7 @@ void LoadTransformationFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3831,7 +3756,7 @@ void LoadTransformationFile (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1997
-//	Revised By:			Larry L. Biehl			Date: 03/01/2019
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean ReadOffsetGainFile (
 				CMFileStream*						fileStreamPtr,
@@ -3839,9 +3764,7 @@ Boolean ReadOffsetGainFile (
 				Boolean*								fileFoundFlagPtr,
 				SInt16*								errorCodePtr)
 
-{  
-	UInt8									bufferPtr[500];
-	    
+{
 	HParamBlockRec						paramBlock;
 	
 	double								gain,
@@ -3857,13 +3780,11 @@ Boolean ReadOffsetGainFile (
 	
 	SInt32								versionNumber;
 	
-	UInt32								count,
-											numberEndOfLineBytes;
+	UInt32								count;
 	
 	OSErr 								errCode;
 	
-	SInt16								endOfLineCode,
-											tReturnCode;
+	SInt16								tReturnCode;
 	
 	Boolean								continueFlag,
 											fileFoundFlag;
@@ -3873,10 +3794,15 @@ Boolean ReadOffsetGainFile (
 	fileFoundFlag = FALSE;
 	versionNumber = 0;
 	numberChannels = 0;
+	errCode = noErr;
 		
 				// Read a section of the transformation file. 			
 				
 	#if defined multispec_mac
+		UInt8									bufferPtr[500];
+		UInt32								numberEndOfLineBytes;
+		SInt16								endOfLineCode;
+	
 		paramBlock.ioParam.ioPosOffset = 0;
 		paramBlock.ioParam.ioRefNum = fileStreamPtr->refNum;
 		paramBlock.ioParam.ioCompletion = NULL;
@@ -3895,6 +3821,10 @@ Boolean ReadOffsetGainFile (
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
+		UInt8									bufferPtr[500];
+		UInt32								numberEndOfLineBytes;
+		SInt16								endOfLineCode;
+	
 		paramBlock.ioPosOffset = 0;
 		paramBlock.fileStreamPtr = fileStreamPtr;
 		paramBlock.ioBuffer = bufferPtr;
@@ -4153,7 +4083,7 @@ Boolean ReadOffsetGainFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4292,17 +4222,18 @@ Boolean ReadTransformationFile (
 		changeVersionCreatedByBytesFlag = FALSE;		
 		if (versionNumber == 1 && createdByCodeByte == 2 && swapCode == 0)
 					// This condition implies that the version byte and createdByCode
-					// code were swapped when written to the disk using an OSX version older
-					// than August 2011 on Mac Intel computers or by the Windows version.
-					// Version 1 did not have tranformation info for feature extraction.
+					// code were swapped when written to the disk using an OSX version
+					// older than August 2011 on Mac Intel computers or by the Windows
+					// version. Version 1 did not have tranformation info for feature
+					// extraction.
 			changeVersionCreatedByBytesFlag = TRUE;
 			
 		else if ((versionNumber <= 2 || versionNumber == 5) && swapCode != 0)
 					// This condition implies that the version byte and createdByCode
-					// code were swapped when written to the disk using an OSX version older
-					// than August 2011 on Mac Intel computers. This condition will not
-					// catch all cases of this. The check against file sizes will catch the
-					// rest.
+					// code were swapped when written to the disk using an OSX version
+					// older than August 2011 on Mac Intel computers. This condition will
+					// not catch all cases of this. The check against file sizes will
+					// catch the rest.
 			changeVersionCreatedByBytesFlag = TRUE;
 			
 		if (changeVersionCreatedByBytesFlag)
@@ -4364,14 +4295,15 @@ Boolean ReadTransformationFile (
 					// The swapFlag is not defined yet because this in an older version of
 					// the transformation file. Determine how large the file should be 
 					// based on the number of channels and number of features. If the 
-					// computed file size is not equal to the size that the file actually is
-					// then there is a good chance that the bytes need to be swapped.
+					// computed file size is not equal to the size that the file actually
+					// is then there is a good chance that the bytes need to be swapped.
 					// There are three possible sizes for the file:
 					//		- all doubles are k68881Bytes (12) bytes (Pre OSX versions)
 					//		- eigenvalues are 8 bytes and eigenvectors are 8 bytes stored
 					//			as 12 bytes that are left justified. (OSX versions 7/28/2011 &
 					//			before.
-					//		- all doubles are 8 bytes (Windows and OSX after 7/28/2011 version)
+					//		- all doubles are 8 bytes (Windows and OSX after 7/28/2011
+					// version)
 			
 			errCode = ReadTransformationFileSetSwapInfo (
 																(UInt32)fileSize,
@@ -4719,7 +4651,7 @@ Boolean ReadTransformationFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4829,7 +4761,7 @@ SInt16 ReadTransformationFileSetSwapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4900,9 +4832,9 @@ void ReadTransformationGetFileSizes (
 														
 	if (computedFileSize2 == fileSize - 2)
 		{
-				// This implies that this transformation file was created by an OSX version
-				// before August 2011 running on an Intel computer. The Version number and 
-				// byte code are swapped.
+				// This implies that this transformation file was created by an OSX
+				// version before August 2011 running on an Intel computer. The Version
+				// number and byte code are swapped.
 				
 		versionNumber = createdByCodeByte;
 		
@@ -4930,7 +4862,7 @@ void ReadTransformationGetFileSizes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5050,9 +4982,9 @@ void SaveImageWindowAs (void)
 			ConcatFilenameSuffix ((FileStringPtr)filePathPtr, (StringPtr)"\0.tif\0");
 		#endif	// defined multispec_mac	               
 		                                                    
-		#if defined multispec_win || defined multispec_lin         
+		#if defined multispec_win || defined multispec_wx         
 			ConcatFilenameSuffix ((FileStringPtr)filePathPtr, (StringPtr)"\0.tif\0");
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 				// Now get wide character and unicode names.
 		
@@ -5116,40 +5048,7 @@ void SaveImageWindowAs (void)
 															
 			if (continueFlag && DetermineIfInverseLatLongPossible (windowInfoHandle))
 				{
-				/*
-				GetCopyOfPFileNameFromFileStream (fileStreamPtr, savedImageFileName);
-				
-						// Close the tiff file.	
-						
-				vRefNum = GetVolumeReferenceNumber (fileStreamPtr);
-				CloseFile (fileStreamPtr);
-				
-						// Get the default kml file name.
-		
-				RemoveSuffix (filePathPtr);
-				ConcatFilenameSuffix (filePathPtr, (StringPtr)"\0.kml\0");
-	
-						// Force the uniFileName to be recreated to match the kml file
-						// name.
-						
-				fileStreamPtr->uniFileName.length = 0;
-				
-						// Now open the kml file.
-						
-				SetType (fileStreamPtr, kTEXTFileType);
-    	
-				errCode = CreateNewFile (fileStreamPtr, 
-													vRefNum, 
-													-1, 
-													kErrorMessages,
-													kReplaceFlag);
-								
-							// Set position to start writing data at the start of the file.
-					
-				if ((errCode == noErr) && FileExists (fileStreamPtr))
-					errCode = MSetMarker (fileStreamPtr, fsFromStart, 0, kErrorMessages);
-				*/				
-				endMapColumn = displaySpecsPtr->displayedColumnStart + 
+				endMapColumn = displaySpecsPtr->displayedColumnStart +
 						offScreenRectangle.right * displaySpecsPtr->displayedColumnInterval;
 				
 				endMapLine = displaySpecsPtr->displayedLineStart + 
@@ -5188,7 +5087,7 @@ void SaveImageWindowAs (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5276,17 +5175,14 @@ Boolean SaveTextOutputAs (void)
 			#endif			
 			}	// end "if (textLength == 0)"
 
-			// Set up default name.																
-			// Get the output file name and volume to write file to.	Make the 	
-			// default name the same as the output window name minus ".Project"	
-			// if it is there and add ".txt" at the end.  Check if there 	
-			// is enough space on the selected volume.									
+				// Set up default name.
+				// Get the output file name and volume to write file to.	Make the 	
+				// default name the same as the output window name minus ".Project"	
+				// if it is there and add ".txt" at the end.  Check if there 	
+				// is enough space on the selected volume.									
 	
 		GetWTitle (gOutputWindow, gTextString);
 		CopyPToP (fileStreamPtr->fileName, gTextString);
-		//RemoveCharsNoCase ((char*)"\0.Project\0", fileStreamPtr->fileName);
-		//fileStreamPtr->uniFileName.length = 0;
-		//UpdateFileNameInformation (fileStreamPtr, NULL);
 		ConcatFilenameSuffix (fileStreamPtr->fileName, (UCharPtr)"\p.txt");
 		fileStreamPtr->uniFileName.length = 0;
 		UpdateFileNameInformation (fileStreamPtr, NULL);
@@ -5336,7 +5232,7 @@ Boolean SaveTextOutputAs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2019)
+//								 	Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5351,7 +5247,7 @@ Boolean SaveTextOutputAs (void)
 //
 // Value Returned:	The new input string pointer.
 //
-// Called By:			GetNextLine in SSaveWrt.cpp
+// Called By:			GetNextLine in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/05/1992
 //	Revised By:			Larry L. Biehl			Date: 03/16/2017
@@ -5388,7 +5284,7 @@ UCharPtr SkipToNextCarriageReturn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5404,7 +5300,7 @@ UCharPtr SkipToNextCarriageReturn (
 //	Value Returned:	true - if ArcView header file written without problem
 //							false - if error writing ArcView header file.
 //
-// Called By:			WriteNewImageHeader in SReform2.cpp
+// Called By:			WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/13/2000
 //	Revised By:			Larry L. Biehl			Date: 04/09/2018
@@ -5542,7 +5438,7 @@ Boolean WriteArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5558,10 +5454,10 @@ Boolean WriteArcViewWorldFile (
 //	Value Returned:	true - if ArcView header file written without problem
 //							false - if error writing ArcView header file.
 //
-// Called By:			WriteNewImageHeader in SReform2.cpp
+// Called By:			WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/2000
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 Boolean WriteArcViewHeaderFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5661,8 +5557,8 @@ Boolean WriteArcViewHeaderFile (
 					// Write "NCOLS" to the output header file.
 				
 			count = sprintf ((char*)gTextString, 
-									"NCOLS       %ld%s", 
-									fileInfoPtr->numberColumns,
+								  "NCOLS       %u%s", 
+								  (unsigned int)fileInfoPtr->numberColumns,
 									gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -5674,8 +5570,8 @@ Boolean WriteArcViewHeaderFile (
 					// Write "NROWS" to the output header file.	
 				
 			count = sprintf ((char*)gTextString, 
-									"NROWS       %ld%s", 
-									fileInfoPtr->numberLines,
+								  "NROWS       %u%s", 
+								  (unsigned int)fileInfoPtr->numberLines,
 									gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -5772,8 +5668,8 @@ Boolean WriteArcViewHeaderFile (
 					// Write "SKIPBYTES" to the output header file.	
 				
 			count = sprintf ((char*)gTextString, 
-									"SKIPBYTES   %ld%s", 
-									fileInfoPtr->numberHeaderBytes,
+								  "SKIPBYTES   %u%s", 
+								  (unsigned int)fileInfoPtr->numberHeaderBytes,
 									gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -5790,8 +5686,8 @@ Boolean WriteArcViewHeaderFile (
 				UInt32 numberBandRowBytes = fileInfoPtr->numberPostChannelBytes +
 										fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
 				count = sprintf ((char*)gTextString, 
-										"BANDROWBYTES   %ld%s",
-										numberBandRowBytes,
+									  "BANDROWBYTES   %u%s",
+									  (unsigned int)numberBandRowBytes,
 										gEndOfLine);
 				
 				errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -6019,7 +5915,7 @@ Boolean WriteArcViewHeaderFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6035,7 +5931,7 @@ Boolean WriteArcViewHeaderFile (
 //	Value Returned:	true - if ArcView header file written without problem
 //							false - if error writing ArcView header file.
 //
-// Called By:			WriteArcViewSupportFiles in SSaveWrt.cpp
+// Called By:			WriteArcViewSupportFiles in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/13/2000
 //	Revised By:			Larry L. Biehl			Date: 06/13/2002
@@ -6065,7 +5961,7 @@ Boolean WriteArcViewSupportFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6082,7 +5978,7 @@ Boolean WriteArcViewSupportFiles (
 //	Value Returned:	true - if ArcView header file written without problem
 //							false - if error writing ArcView header file.
 //
-// Called By:			WriteArcViewHeaderFile in SSaveWrt.cpp
+// Called By:			WriteArcViewHeaderFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/13/2002
 //	Revised By:			Larry L. Biehl			Date: 01/25/2013
@@ -6196,7 +6092,7 @@ SInt16 WriteArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteErdasHeader
@@ -6210,8 +6106,8 @@ SInt16 WriteArcViewMapInformation (
 //
 // Value Returned:	None
 //
-// Called By:			WriteNewErdasHeader in fileIO.c
-//							ChangeErdasHeader in reformat.c
+// Called By:			WriteNewErdasHeader in SFileIO.cpp
+//							ChangeErdasHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1988
 //	Revised By:			Larry L. Biehl			Date: 12/08/2014
@@ -6264,7 +6160,7 @@ Boolean	WriteErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6280,7 +6176,7 @@ Boolean	WriteErdasHeader (
 //
 //	Value Returned:	
 //
-// Called By:			WriteTIFFImageFile in SSaveWrt.cpp
+// Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2002
 //	Revised By:			Larry L. Biehl			Date: 08/06/2014
@@ -6666,7 +6562,7 @@ SInt16 WriteGeoTIFFInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteKMLFile
@@ -7057,7 +6953,7 @@ Boolean	WriteKMLFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //
 //	Function name:		Boolean WriteNewErdasHeader
@@ -7072,9 +6968,9 @@ Boolean	WriteKMLFile (
 //
 // Value Returned:	None
 //
-// Called By:			CreateBackgroundImageFile in fieldsToThematicFile.c
-//							CreateResultsDiskFile in multiSpecUtilities.c
-//							InsertNewErdasHeader in reformat.c
+// Called By:			CreateBackgroundImageFile in SFieldsToThematicFile.cpp
+//							CreateResultsDiskFile in SUtilities.cpp
+//							InsertNewErdasHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1988
 //	Revised By:			Larry L. Biehl			Date: 11/16/1991
@@ -7106,7 +7002,7 @@ Boolean	WriteNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7121,11 +7017,10 @@ Boolean	WriteNewErdasHeader (
 //
 // Value Returned:	
 //
-// Called By:			CovertMultispectralToThematic in fieldsToThematic.c
-//							MosaicImagesSideBySide in mosaic.c
-//							RectifyImage in rectification.c
-//							ChangeFormatToBILorBIS in reformat.c
-//							ChangeFormatToBSQ in reformat.c	
+// Called By:			CovertMultispectralToThematic in SFieldsToThematicFile.cpp
+//							MosaicImagesSideBySide in SMosaic.cpp
+//							RectifyImage in SRectifyImage.cpp
+//							ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1992
 //	Revised By:			Larry L. Biehl			Date: 08/20/2010
@@ -7294,7 +7189,7 @@ Boolean WriteNewImageHeader (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7394,7 +7289,8 @@ Boolean WriteTextOutputFile (
 			
 	if (IOResult != noErr)
 		{
-		IOCheck (IOResult, (CharPtr)fileNamePtr);
+		
+		 (IOResult, (CharPtr)fileNamePtr);
 		return (FALSE);
 		
 		}	// end "if (IOResult != noErr)" 
@@ -7407,7 +7303,7 @@ Boolean WriteTextOutputFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7499,10 +7395,10 @@ void WriteThematicClassesAs (
 			
 		if (!fileInfoPtr->classChangedFlag && !fileInfoPtr->groupChangedFlag)
 			{
-			#if defined multispec_lin
+			#if defined multispec_wx
 						// Make sure that wxWidgets knows the document has not changed
 						// since the last save.
-				gActiveImageViewCPtr->GetDocument ()->Modify (FALSE);
+				gActiveImageViewCPtr->GetDocument()->Modify (FALSE);
 			#endif
 			}	// end "if (!fileInfoPtr->classChangedFlag && ..."
 
@@ -7539,7 +7435,7 @@ void WriteThematicClassesAs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7554,7 +7450,7 @@ void WriteThematicClassesAs (
 //
 // Value Returned:	None
 //
-// Called By:			WriteThematicInfo	in SSaveWrt.cpp
+// Called By:			WriteThematicInfo	in SSaveWrite.cpp
 //							SaveIfWindowChanged in SWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/09/1992
@@ -7778,16 +7674,17 @@ void WriteThematicGroups (
 							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue);
 				#endif
 				
-				#if defined multispec_lin
-							// Need to allow for just 8-bit color definition in ColorSpec vector
-							// for wxWidgets version. The output format is expecting 16-bit
-							// color with useful color informtation in the upper 8 bits.
+				#if defined multispec_wx
+							// Need to allow for just 8-bit color definition in ColorSpec
+							// vector for wxWidgets version. The output format is expecting
+							// 16-bit color with useful color informtation in the upper
+							// 8 bits.
 					sprintf (
-							stringPtr,
-							" %4x %4x %4x ",
-							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.red << 8,
-							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.green << 8,
-							colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue << 8);
+						stringPtr,
+						" %4x %4x %4x ",
+						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.red << 8,
+						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.green << 8,
+						colorSpecPtr[groupToPalettePtr[group]+gPaletteOffset].rgb.blue << 8);
 				#endif
 							
 				count = 6 + groupNamePtr[0] + 15;
@@ -7835,10 +7732,10 @@ void WriteThematicGroups (
 											TRUE,
 											kUTF8CharString);
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 					// Make sure that wxWidgets knows the document has not changed
 					// since the last save.
-			gActiveImageViewCPtr->GetDocument ()->Modify (FALSE);
+			gActiveImageViewCPtr->GetDocument()->Modify (FALSE);
 		#endif
 		
 		}	// end "if (continueFlag)" 
@@ -7861,7 +7758,7 @@ void WriteThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7876,7 +7773,7 @@ void WriteThematicGroups (
 //
 // Value Returned:	None
 //
-// Called By:			menus in menus.c
+// Called By:			menus in MMenus.c
 //							SaveIfWindowChanged in SWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
@@ -7930,147 +7827,16 @@ void WriteThematicInfo (
 	
 	CheckAndUnlockHandle (fileInfoHandle);
 
-}	// end "WriteThematicInfo" 
+}	// end "WriteThematicInfo"
 
-
-/*                   
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		SInt16 WriteTIFFColorMap2
-//
-//	Software purpose:	This purpose of this routine is to save the input color
-//							map to a TIFF formatted disk file.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 04/26/2004
-
-SInt16 WriteTIFFColorMap2 (
-				FileInfoPtr							outFileInfoPtr, 
-				CMFileStream* 						fileStreamPtr,
-				UInt16								numberClasses,
-				CMPaletteInfo						paletteObject,
-				UInt16								paletteOffset)
-
-{                                       
-	ColorSpec*							colorSpecPtr;
-	
-	UInt32								colorIndex,
-											count;
-	
-	SInt16								errCode = -1;
-										
-	UInt16								blueVectorPtr[256],
-											greenVectorPtr[256],
-											redVectorPtr[256]; 
-	
-	UInt16								classNumber,
-											index, 
-											paletteCode;
-											
-	Boolean								continueFlag; 
-		                                  
-	
-	if (outFileInfoPtr != NULL)
-		{
-				// Get table for palette information. Allow enough for the
-				// number of classes, white, black, and background. The
-				// white, black and background will probably not be need for
-				// the trailer file, but the routines being called will
-				// fix those colors.
-					
-		colorSpecPtr = (ColorSpec*)MNewPointer (
-												(SInt32)(numberClasses+3)*sizeof (ColorSpec));
-		continueFlag = (colorSpecPtr != NULL);
-			
-				// Get the requested color scheme for the classes.
-		
-		if (continueFlag)
-			continueFlag = LoadColorSpecTable (NULL, 
-											NULL,
-											NULL,
-											colorSpecPtr,
-											paletteObject,
-											paletteOffset,
-											MIN (numberClasses+3, 256),
-											numberClasses,
-											kPaletteHandle,
-											numberClasses,
-											kClassDisplay,
-											&paletteCode);
-		
-				// Load the red, green and blue colors.			
-		
-		//paletteIndex = 0;
-		colorIndex = 0;
-		index = 0;			
-		for (classNumber=1; classNumber<=numberClasses; classNumber++)
-			{
-			//if (paletteIndexPtr != NULL)
-			//	index = paletteIndexPtr[paletteIndex];
-							
-			//else	// newPaletteIndexPtr == NULL
-			//	index = paletteIndex + paletteOffset;
-					
-			redVectorPtr[colorIndex] = colorSpecPtr[index].rgb.red; 
-			greenVectorPtr[colorIndex] = colorSpecPtr[index].rgb.green;
-			blueVectorPtr[colorIndex] = colorSpecPtr[index].rgb.blue;
-			colorIndex++;
-			//paletteIndex++;
-			index++;
-			                            
-			}	// end "for (index=0; index<numberEntries; index++)"  
-			
-				// Finish fill with black if needed.
-				
-		for (index=colorIndex; index<256; index++)
-			{
-			redVectorPtr[index] = 0;
-			greenVectorPtr[index] = 0;
-			blueVectorPtr[index] = 0;
-			
-			}	// end "for (index=colorIndex; index<256; index++)"
-	
-		CheckAndDisposePtr ((Ptr)colorSpecPtr);
-			
-		count = 512;
-		errCode = 
-				MWriteData (fileStreamPtr, &count, redVectorPtr, kErrorMessages);
-			
-		count = 512;
-		if (errCode == noErr)
-			errCode = 
-				MWriteData (fileStreamPtr, &count, greenVectorPtr, kErrorMessages);
-			
-		count = 512;
-		if (errCode == noErr)
-			errCode = 
-				MWriteData (fileStreamPtr, &count, blueVectorPtr, kErrorMessages);
-		
-		}	// end "if (outFileInfoPtr != NULL)" 
-		
-	return (errCode);
-	
-}	// end "WriteTIFFColorMap2" 
-*/
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
-//	Function name:		SInt16 WriteTIFFColorMap2
+//	Function name:		SInt16 WriteTIFFColorMap
 //
 //	Software purpose:	The purpose of this routine is to save the input color map to a 
 //							TIFF formatted disk file.
@@ -8086,7 +7852,7 @@ SInt16 WriteTIFFColorMap2 (
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
 //	Revised By:			Larry L. Biehl			Date: 04/27/2016
 // 
-SInt16 WriteTIFFColorMap2 (
+SInt16 WriteTIFFColorMap (
 				FileInfoPtr							fileInfoPtr,
 				CMFileStream* 						fileStreamPtr,
 				SInt16								tiffSourceCode,
@@ -8288,162 +8054,12 @@ SInt16 WriteTIFFColorMap2 (
 		
 	return (errCode);
 	
-}	// end "WriteTIFFColorMap2" 
+}	// end "WriteTIFFColorMap"
 
-
-/*                   
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:		SInt16 WriteTIFFColorMap
-//
-//	Software purpose:	The purpose of this routine is to save the input color
-//							map to a TIFF formatted disk file.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 07/22/2010
-// TODO: For Linux
-SInt16 WriteTIFFColorMap (
-				CMFileStream* 						fileStreamPtr,
-				SInt16								originationCode,
-				CMPaletteInfo						paletteObject,
-				UInt16								paletteOffset)
-
-{                                       
-#ifndef multispec_lin
-	RGBColor								theColor;
-	
-	UInt32								colorIndex,
-											count;
-	
-	SInt16								errCode = -1;
-										
-	UInt16								blueVectorPtr[256],
-											greenVectorPtr[256],
-											redVectorPtr[256]; 
-	
-	UInt16								index, 
-											numberEntries; 
-	
-	Boolean								continueFlag;
-	
-	
-	if (fileStreamPtr != NULL)
-		{
-		continueFlag = TRUE;
-			
-		if (originationCode == kResources)
-			{
-			continueFlag = GetClassColorTable (gisFileInfoPtr, 
-														  numberClasses, 
-														  classPtr,
-														  numberListClasses,  
-														  &colorSpecPtr,
-														  paletteHandle,
-														  paletteIndexPtr,
-														  paletteType,
-														  numberPaletteEntriesToRead, 
-														  paletteOffset, 
-														  classNameCode,
-														  thematicListType,
-														  collapseClassCode);
-			
-			}	// end "if (originationCode == kResources)"
-	
-		else if (originationCode == kPaletteObject)
-			{
-			if (paletteObject != NULL)
-				{
-						// Initialize some more local variables.									
-																 
-				numberEntries = MGetNumberPaletteEntries (paletteObject);
-				if (paletteOffset == USHRT_MAX)
-					numberEntries++;
-					
-				numberEntries = MIN (256, numberEntries);
-				
-						// Load the red, green and blue colors.	
-						
-				colorIndex = 0;
-				if (paletteOffset == USHRT_MAX)
-					{
-							// The first color is to be white.
-							
-					redVectorPtr[colorIndex] = 255; 
-					greenVectorPtr[colorIndex] = 255;
-					blueVectorPtr[colorIndex] = 255;
-					colorIndex++;
-					paletteOffset = 0;
-					
-					}	// end "if (paletteOffset == USHRT_MAX)"		
-						
-				for (index=paletteOffset; index<numberEntries; index++)
-					{
-					MGetEntryColor (paletteObject, index, &theColor);
-					
-					redVectorPtr[colorIndex] = theColor.red; 
-					greenVectorPtr[colorIndex] = theColor.green;
-					blueVectorPtr[colorIndex] = theColor.blue;
-					colorIndex++;
-														 
-					}	// end "for (index=0; index<numberEntries; index++)"  
-					
-						// Finish fill with black if needed.
-						
-				for (index=numberEntries-paletteOffset; index<256; index++)
-					{
-					redVectorPtr[index] = 0;
-					greenVectorPtr[index] = 0;
-					blueVectorPtr[index] = 0;
-					
-					}	// end "for (index=numberEntries; index<256; index++)"
-					
-				}	// end "if (paletteObject != NULL)"
-					
-			}	// end "else if (originationCode == kPaletteObject)"
-		
-		if (continueFlag)
-			{
-			count = 512;
-			errCode = 
-					MWriteData (fileStreamPtr, &count, redVectorPtr, kErrorMessages);
-				
-			count = 512;
-			if (errCode == noErr)
-				errCode = 
-					MWriteData (fileStreamPtr, &count, greenVectorPtr, kErrorMessages);
-				
-			count = 512;
-			if (errCode == noErr)
-				errCode = 
-					MWriteData (fileStreamPtr, &count, blueVectorPtr, kErrorMessages); 
-				
-			}	// end "if (continueFlag)"
-			
-		}	// end "if (fileStreamPtr != NULL)"
-		
-	return (errCode);
-	
-#else	//  defined multispec_lin
-    return -1;
-#endif	// else defined multispec_lin
-
-}	// end "WriteTIFFColorMap" 
-*/
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8524,7 +8140,7 @@ SInt16 WriteTIFFImageData (
 						(UInt32)bitMapInfoHeadPtr->biHeight - areaRectanglePtr->top;	 
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		UInt32		linuxIncrement;
 	
 		DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (
@@ -8547,7 +8163,7 @@ SInt16 WriteTIFFImageData (
 			
 			}	// end "if (!gImageFileInfoPtr->thematicType)"
 				
-		else // !gImageFileInfoPtr->thematicType
+		else	// !gImageFileInfoPtr->thematicType
 			{
 			linuxIncrement = 3;
 			#if defined multispec_wxmac_alpha || defined multispec_wxlin_alpha
@@ -8591,7 +8207,7 @@ SInt16 WriteTIFFImageData (
 																																										
 			// If this is not a palette image, then get a buffer to copy			
 			// the offscreen data into.														
-	#ifndef multispec_lin		
+	#ifndef multispec_wx		
 		if (numberBytes > 1 || paletteOffset >= 1)
 			{
 			savedBufferPtr = (UCharPtr)MNewPointer (numberBytesPerLine);
@@ -8599,9 +8215,9 @@ SInt16 WriteTIFFImageData (
 																							return (-2);
 		
 			}	// end "if (numberBytes > 1 || paletteOffset >= 1)" 
-	#endif	// #ifndef multispec_lin
+	#endif	// #ifndef multispec_wx
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		savedBufferPtr = (UCharPtr)MNewPointer (numberBytesPerLine);
 		if (savedBufferPtr == NULL)
 																							return (-2);
@@ -8635,7 +8251,7 @@ SInt16 WriteTIFFImageData (
 		rowBytes = -rowBytes; 
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 	
 				// Get pointer to the raw bitmap data and indicate that bitmap is
 				// ready to be modified.
@@ -8655,12 +8271,12 @@ SInt16 WriteTIFFImageData (
 		
 	count = numberBytesPerLine;	
 															
-	#ifdef multispec_lin	
+	#ifdef multispec_wx	
 		//offset = areaRectanglePtr->left * linuxIncrement;
 		offset = areaRectanglePtr->left;
 	#endif	
 													
-	#ifndef multispec_lin		
+	#ifndef multispec_wx		
 		offset = areaRectanglePtr->left * numberBytes;
 	#endif
 						
@@ -8670,7 +8286,7 @@ SInt16 WriteTIFFImageData (
 				line<(UInt32)areaRectanglePtr->bottom; 
 					line++)
 			{
-			#if defined multispec_lin
+			#if defined multispec_wx
 				tempBufferPtr = savedBufferPtr;
 				tOffScreenBufferPtr = &offScreenBufferPtr[offset];
 			
@@ -8697,7 +8313,7 @@ SInt16 WriteTIFFImageData (
 						  kErrorMessages);
 			#endif
 			
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				errCode = MWriteData (fileStreamPtr, 
 												&count, 
 												&offScreenBufferPtr[offset],
@@ -8796,13 +8412,13 @@ SInt16 WriteTIFFImageData (
 					column<(UInt32)areaRectanglePtr->right;
 						column++)
 				{        
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					tempBufferPtr[2] = *tOffScreenBufferPtr++;
 					tempBufferPtr[1] = *tOffScreenBufferPtr++;
 					tempBufferPtr[0] = *tOffScreenBufferPtr++;
 				#endif
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					tempBufferPtr[0] = *tOffScreenBufferPtr++;
 					tempBufferPtr[1] = *tOffScreenBufferPtr++;
 					tempBufferPtr[2] = *tOffScreenBufferPtr++;
@@ -8875,7 +8491,7 @@ SInt16 WriteTIFFImageData (
 		CheckAndUnlockHandle (gImageWindowInfoPtr->imageBaseAddressH);  
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (gImageWindowInfoPtr->offscreenMapSize == 0)
 			EndBitMapRawDataAccess (&gActiveImageViewCPtr->m_ScaledBitmap);
 		else
@@ -8891,7 +8507,7 @@ SInt16 WriteTIFFImageData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8911,8 +8527,8 @@ SInt16 WriteTIFFImageData (
 // Value Returned:
 //
 // Called By:			CreateResultsDiskFile in SUtility.cpp
-//							SaveImageWindowAs in SSaveWrt.cpp
-//							WriteNewImageHeader in SReform2.cpp
+//							SaveImageWindowAs in SSaveWrite.cpp
+//							WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1994
 //	Revised By:			Larry L. Biehl			Date: 01/27/2017
@@ -8998,7 +8614,6 @@ Boolean WriteTIFFImageFile (
 	if (fileStreamPtr != NULL)
 		{
 		saved_gSwapBytesFlag = gSwapBytesFlag;
-		//imageFileDirectoryShortValuePtr = (UInt16*)&imageFileDirectory.value;
 		
 		if (tiffSourceCode == kFromImageWindow)
 			{
@@ -9474,7 +9089,6 @@ Boolean WriteTIFFImageFile (
 				{ 
 			*/
 				imageFileDirectory.count = 1;
-				//imageFileDirectory.value = bytesPerChannel;
 				imageFileDirectory.value = bytesPerStrip;
 				
 			//	if (planarConfiguration == 1)
@@ -9668,7 +9282,7 @@ Boolean WriteTIFFImageFile (
 				// Write the TIFF Color Map if needed.											
 				
 		if (errCode == noErr && photoInterpret == 3)
-			errCode = WriteTIFFColorMap2 (fileInfoPtr, 
+			errCode = WriteTIFFColorMap (fileInfoPtr,
 													fileStreamPtr,
 													tiffSourceCode,
 													paletteObject,
@@ -9717,9 +9331,9 @@ Boolean WriteTIFFImageFile (
 					// ASCII symbol vector conversion is not needed for this. 
 			thematicFileInfo.asciiSymbols = FALSE;
 			
-			#if defined multispec_lin || defined multispec_win
+			#if defined multispec_wx || defined multispec_win
 				thematicFileInfo.fileStreamCPtr = new CMFileStream;
-			#endif	// defined multispec_lin || defined multispec_win
+			#endif	// defined multispec_wx || defined multispec_win
 			
 			thematicFileStreamPtr = GetFileStreamPointer (&thematicFileInfo);
 			CopyFileStream (thematicFileStreamPtr, fileStreamPtr);
@@ -9740,9 +9354,9 @@ Boolean WriteTIFFImageFile (
 												kCollapseClass,
 												kICLRFileType);
 											
-			#if defined multispec_lin || defined multispec_win
+			#if defined multispec_wx || defined multispec_win
 				delete thematicFileInfo.fileStreamCPtr;
-			#endif	// defined multispec_lin || defined multispec_win
+			#endif	// defined multispec_wx || defined multispec_win
 											
 			}	// end "if (continueFlag && fileInfoPtr->thematicType || ..." 
 													
@@ -9758,7 +9372,7 @@ Boolean WriteTIFFImageFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9773,7 +9387,7 @@ Boolean WriteTIFFImageFile (
 //
 // Value Returned:	
 //
-// Called By:			Menus in menus.c
+// Called By:			Menus in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1993
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -9806,7 +9420,7 @@ void WriteTransformationFile (void)
 		double								extendedValue;                                   
 	#endif  
 	
-   #if defined multispec_lin  
+   #if defined multispec_wx  
 		double extendedValue;
    #endif 
 	

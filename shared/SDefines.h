@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,21 +21,21 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 08/15/2019
+//	Revised By:				Larry L. Biehl			Date: 12/02/2019
 //	
 //------------------------------------------------------------------------------------
 
 #ifndef __SDEFINES__
-#define __SDEFINES__
+	#define __SDEFINES__
 
 #if include_gdal_capability
-	#if defined multispec_lin && !defined multispec_wxmac
+	#if defined multispec_wxlin
 		#include "dbfopen.h"
-	#endif	// multispec_lin
+	#endif	// multispec_wxlin
 
-	#if defined multispec_lin && defined multispec_wxmac
+	#if defined multispec_wxmac
 		#include "shapefil.h"
-	#endif	// multispec_lin
+	#endif	// multispec_mac
 	
 	#ifdef multispec_mac
 		#include "shapefil.h"
@@ -48,7 +48,7 @@
 #endif	// include_gdal_capability
 	
 		// Forward definition of classes
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/wx.h"
 	#include "wx/listbox.h"
 	#include "wx/dc.h"
@@ -73,8 +73,10 @@
 	class CMStatisticsDoc;
 	class CMStatisticsView;
 	class CMStatisticsFrame;
-
-	#define _T(x)     x
+	
+	#ifndef _T
+		#define _T(x)     x
+	#endif
 	#define A2T(x)		x
 	#define T2A(x)		x
 
@@ -88,7 +90,7 @@
 	//typedef dlib::matrix<double,0,1> sample_type;
 #endif
 
-#ifndef multispec_lin
+#ifndef multispec_wx
 	class CCmdUI;
 
 	class	CDocument;
@@ -127,7 +129,6 @@ typedef struct DialogSelectArea DialogSelectArea, *DialogSelectAreaPtr;
 typedef struct DisplaySpecs DisplaySpecs, *DisplaySpecsPtr;
 typedef struct DistancesSummary DistancesSummary, *DistancesSummaryPtr;
 typedef struct DoubleRect DoubleRect, *DoubleRectPtr;
-typedef struct	EchoFieldInfo EchoFieldInfo, *EchoFieldInfoPtr;
 typedef struct FeatureExtractionSpecs FeatureExtractionSpecs, *FeatureExtractionSpecsPtr;
 typedef struct MFileInfo MFileInfo, *FileInfoPtr, **FileInfoHandle;
 typedef struct FileIOBuffer FileIOBuffer;
@@ -357,7 +358,7 @@ typedef double				CMeanType2;
 
 	typedef UInt8*						FileStringPtr;
 
-	#if defined __MWERKS__ 
+	#if defined __MWERKS__
 		typedef short double 			SDouble;
 	#else
 		typedef double						SDouble;
@@ -411,8 +412,6 @@ typedef double				CMeanType2;
 	
 	typedef PFieldPointsPtr			HPFieldPointsPtr;
 	
-	//typedef EchoFieldInfoPtr		HEchoFieldInfoPtr; 
-	
 	typedef CMeanType*				HCMeanTypePtr;
 	
 	typedef CType*						HCTypePtr;
@@ -420,8 +419,6 @@ typedef double				CMeanType2;
 	typedef ListHandle				LegendListHandle;
 	
 	typedef Str255						CString;
-	
-	//typedef struct OpaqueWEReference *WEReference;
 	
 	#ifndef _LongCoords_
 		#include "LongCoords.h"
@@ -471,6 +468,7 @@ typedef double				CMeanType2;
 			//			long							parID;
 			//			Str63							name; };
 	/*
+			// The following was used before the conversion to using Unicode.
 	typedef struct CMFileStream
 		{
 		SInt16					vRefNum;
@@ -518,6 +516,7 @@ typedef double				CMeanType2;
 	#pragma options align=mac68k
 	#endif
 	/*
+			// The following was used before the conversion to using Unicode.
 	typedef struct LocalAppFile
 		{
 		SInt16					vRefNum;
@@ -744,7 +743,7 @@ typedef double				CMeanType2;
 											  
 #endif	// defined multispec_mac
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#define  huge
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 	#define kPMPortrait	1
@@ -766,6 +765,7 @@ typedef double				CMeanType2;
 	typedef wchar_t*				WideFileStringPtr;
 
 	typedef char					SignedByte, SInt8;
+	//typedef long unsigned int 	UINT;
 	typedef unsigned short		UInt16;
 	typedef signed short			SInt16;
 	typedef unsigned int			UInt32;
@@ -806,7 +806,7 @@ typedef double				CMeanType2;
 	typedef Ptr						CursPtr;
 	typedef Ptr						DlgHookUPP;
 	//	typedef Ptr					DialogPtr;
-	typedef CMDialog*				DialogPtr; //************Temporary*****
+	typedef CMDialog*				DialogPtr;
 
 	typedef Ptr						DragGrayRgnUPP;
 	typedef Ptr						GrafPtr; // Pointer
@@ -953,6 +953,9 @@ typedef double				CMeanType2;
 	typedef Ptr UserItemUPP;
 	typedef Ptr DlgHookYDUPP;
 	typedef CMImageView*		WindowPtr;
+	
+	typedef WindowPtr			StatisticsWindowPtr;
+
 
 	typedef char LWindow;
 
@@ -999,7 +1002,6 @@ typedef double				CMeanType2;
 	typedef ProjectClassNames huge * HPClassNamesPtr;
 	typedef ProjectFieldIdentifiers huge * HPFieldIdentifiersPtr;
 	typedef ProjectFieldPoints huge * HPFieldPointsPtr;
-	typedef EchoFieldInfo huge * HEchoFieldInfoPtr;
 	typedef CMeanType huge * HCMeanTypePtr;
 	typedef CType huge * HCTypePtr;
 
@@ -1015,12 +1017,10 @@ typedef double				CMeanType2;
 		UInt32				ioActCount;
 		SInt16				ioPosMode;
 		} HParamBlockRec, *ParmBlkPtr;
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 #if defined multispec_win
-	//#ifdef _WIN32
-   	#define  huge
-	//#endif
+	#define  huge
 
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a)) 
 
@@ -1104,15 +1104,7 @@ typedef double				CMeanType2;
 	typedef Handle				WSHandle;   
 	typedef Handle				WEReference;   
 	typedef Handle				wxDC;
-	/*
-	struct FSSpec 
-		{
-		short							vRefNum;
-		long							parID;
-		Str63							name;
-		};  
-	*/
-	
+
 	typedef struct EventRecord
 		{            
 		SInt16 		modifiers;
@@ -1265,13 +1257,7 @@ typedef double				CMeanType2;
 	typedef FourCharCode		OSType;
 
 	typedef LocalAppFile*	LocalAppFilePtr;  
-	/*	
-	typedef struct LocalAppFile
-		{
-		Str255					fileName;
-		
-		} LocalAppFile, *LocalAppFilePtr; 
-	*/
+
 			// Declare huge pointers
 	
 	typedef char huge *						HPtr;
@@ -1317,8 +1303,6 @@ typedef double				CMeanType2;
 	typedef ProjectFieldIdentifiers huge *		HPFieldIdentifiersPtr;
 	
 	typedef ProjectFieldPoints	huge *	HPFieldPointsPtr;
-	
-	//typedef EchoFieldInfo huge *		HEchoFieldInfoPtr; 	
 	
 	typedef CMeanType huge *				HCMeanTypePtr;
 	
@@ -1608,8 +1592,6 @@ typedef struct ChannelStatistics
 	double				standardDev;
 	double				minimum;
 	double				maximum;
-//	SInt32				minimum;
-//	SInt32				maximum;
 	
 	} ChannelStatistics, *ChannelStatisticsPtr;
 
@@ -1691,6 +1673,21 @@ typedef struct ClassifySpecs
 			// of offscreen classification results
 	SInt16					imageOverlayIndex;
 	
+			// Values for Support Vector Machine classifier
+			//		See information in Ssvm.h file for more information
+	int						svm_type;
+	int						svm_kernel_type;
+	int						svm_degree;
+	double					svm_gamma;
+ 	double					svm_coef0;
+   double					svm_cache_size;
+   double					svm_eps;
+	double					svm_cost;
+   double					svm_nu;
+   double					svm_p;
+   int						svm_shrinking;
+   int						svm_probability;
+	
 			// K value to be used for K Nearest Neighbor classifier
 	SInt16					nearestNeighborKValue;
 	SInt16					knnThreshold;
@@ -1711,6 +1708,8 @@ typedef struct ClassifySpecs
 	Boolean					createThresholdTableFlag;
 	Boolean					featureTransformationFlag;
 	
+	Boolean					supportVectorMachineModelAvailableFlag;
+	
 	Boolean					imageAreaFlag;
 	Boolean					testFldsFlag;
 	Boolean					thresholdFlag;
@@ -1722,7 +1721,7 @@ typedef struct ClassifySpecs
 	
 typedef struct ClassifierVar
 	{
-	AreaDescription				maskAreaDescription;		// Use for special case.
+	AreaDescription	maskAreaDescription;		// Use for special case.
 	double				variable1;
 	double				variable2;
 	double				variable3;
@@ -1962,9 +1961,9 @@ typedef struct DataToDisplayLevel
 	#if defined multispec_win  
 		CMImageView* 	window;  
 	#endif	// defined multispec_win
-	#if defined multispec_lin
+	#if defined multispec_wx
     CMImageView* window;
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
       
 	double		gaussianStretch;
 	SInt32		vectorBytes;
@@ -2102,7 +2101,7 @@ typedef struct DisplaySpecs
 		CMPaletteInfo			backgroundPaletteObject; 
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// Handle for color palette for image window when in the background.
 				// This is required for the windows version.
 		CMPaletteInfo 			backgroundPaletteObject;
@@ -2112,7 +2111,7 @@ typedef struct DisplaySpecs
 	
 		int						updateEndLine;
 		int						updateStartLine;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
       
       
 			// Value that is to be considered a background value rather than a data
@@ -2424,11 +2423,7 @@ typedef struct DisplaySpecsDefault
 			// value.
 	SInt32							backgroundDataValue;
 	
-			// Minimum and maximum data indices used for thematic type multispectral
-			// image displays.		
-	//SInt32							thematicTypeMinMaxIndices[2];
-	
-			// Number of display levels.															
+			// Number of display levels.
 	UInt32							numberLevels;	
 	
 			// Number of display levels.															
@@ -2544,7 +2539,7 @@ typedef struct EchoClassifierVar
 		CMFileStream					*tempFileStreamPtr;
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMFileStream               *tempFileStreamPtr;
    #endif
       
@@ -2559,7 +2554,6 @@ typedef struct EchoClassifierVar
 	HUInt32Ptr						fieldLikelihoodTableIndexPtr;
    HUInt32Ptr						field_number_table;
    HFldLikPtr						fldlikPtr;
-	//HEchoFieldInfoPtr				fieldInfoPtr;
    HFldLikPtr*						fieldLikeIndicesPtr;
 		
 	SInt64							ipixels;
@@ -2599,18 +2593,7 @@ typedef struct EchoClassifierVar
    
 	}	EchoClassifierVar, *EchoClassifierVarPtr;
 
-/*
-typedef struct	EchoFieldInfo
-	{
-			// Index in the likelihood table for a probability map.
-	UInt32			likelihoodTableIndex;
-	
-			// This defines the current class assignment for the echo field
-	SInt16			classNumber; 
-	
-	}		EchoFieldInfo, *EchoFieldInfoPtr;
-*/	
-	
+
 typedef struct EvaluateCovarianceSpecs
 	{
 	SInt16*		 					featurePtr;
@@ -2715,9 +2698,9 @@ typedef struct MFileInfo
 		CMFileStream					*fileStreamCPtr;
 	#endif	// defined multispec_win
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMFileStream *fileStreamCPtr;
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 
 	HierarchalFileFormatPtr		hfaPtr;
 	BlockFormatPtr					blockFormatPtr;
@@ -3106,9 +3089,6 @@ typedef struct GridCoordinateSystemInfo
 			//  2=Albers Conical Equal Area												
 	SInt16					projectionCode;
 	
-			// Code for the map projection for the UTM or State Plane grid system													
-	//SInt16					zoneProjectionCode;
-	
 			// Coordinate grid zone.
 			//    < 0 is northern hemisphere. > 0 is southern hemisphere											
 	SInt16					gridZone;
@@ -3424,7 +3404,7 @@ typedef struct ImageOverlayInfo
 		HDC									overlayDC;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		wxBitmap*								overlayBitmapPtr;
 	#endif
 
@@ -3465,7 +3445,7 @@ typedef struct ImageOverlayInfo
 	
 typedef struct ImageOverlaySpecs
 	{
-	#if defined multispec_lin
+	#if defined multispec_wx
 		double					opacityLoaded;
 	#endif
 	double					opacity;
@@ -4005,7 +3985,7 @@ typedef struct knnPoint
 
 
 //#if PRAGMA_ALIGN_SUPPORTED
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	#pragma options align=mac68k
 #endif
 
@@ -4019,22 +3999,17 @@ typedef struct ProjectInfo
 		CMFileStream*					fileStreamCPtr;
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMFileStream*					fileStreamCPtr;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 				// used in SVM classify training
 	
-	//column_vector 					svm_weights;
-	//std::vector<sample_type> 	svm_samples;
-	//std::vector<int> 				svm_labels;
-	//float 								convergence_rate;
+	struct svm_model*				svmModel;
+	struct svm_node*				svm_x;
 
 				// used in KNN classify training
 
-	//std::vector<knnType> knn_distances;
-	//std::vector<int> knnLabelsPtr;
-	//std::vector<double> knnDataValuesPtr;
 	knnType*							knnDistancesPtr;
 	UInt16*							knnLabelsPtr;
 	double*							knnDataValuesPtr;
@@ -4145,7 +4120,7 @@ typedef struct ProjectInfo
 	HChannelStatisticsPtr		fieldChanStatsPtr;
 	HSumSquaresStatisticsPtr	fieldSumSquaresStatsPtr;
 	
-		// Current mask value to field number vector.
+			// Current mask value to field number vector.
 	SInt16*							maskValueToFieldPtr;
 	 
 	UInt16*							channelsPtr;
@@ -4153,7 +4128,7 @@ typedef struct ProjectInfo
 			// List indicating the relation of class number and group number.		
 	SInt16*							classGroupPtr;
 	
-		// Class number to structure storage order vector.
+			// Class number to structure storage order vector.
 	SInt16*							storageClass;
 	
 	SInt32							classPairWeightSum;
@@ -4171,7 +4146,7 @@ typedef struct ProjectInfo
 	UInt32							numberCovarianceEntries;
 	UInt32							numberProjectClassPairs;
 	
-		// Project window information.												
+			// Project window information.
 	SInt16							currentClass;
 	SInt16							currentCoordinate;
 	SInt16							currentField;
@@ -4186,6 +4161,14 @@ typedef struct ProjectInfo
 	SInt16							falseColorPaletteBlue;
 	SInt16							falseColorPaletteGreen;
 	SInt16							falseColorPaletteRed;
+	
+			// Code indicating whether the histograms are to be created
+			// for the classes or the fields.
+			//		=1: classes
+			//		=2: fields
+	SInt16							histogramClassFieldCode;
+	SInt16							histogramClassListClassFieldCode;
+	SInt16							histogramFieldListClassFieldCode;
 	
 			// User specified palette popup menu selection.
 	SInt16							imagePalettePopupMenuSelection;
@@ -4280,8 +4263,6 @@ typedef struct ProjectInfo
 	Boolean							labelAreasFlag;
 	Boolean							listClassFlag;
 	Boolean							listFieldFlag;
-	Boolean							histogramClassFlag;
-	Boolean							histogramFieldFlag;
 	Boolean							newProjectFlag;
 	Boolean							pixelDataLoadedFlag;
 	Boolean							includesStatisticsFromClusterOperationFlag;
@@ -4303,7 +4284,7 @@ typedef struct ProjectInfo
 	}	ProjectInfo, *ProjectInfoPtr, **ProjectInfoHandle;
 
 //#if PRAGMA_ALIGN_SUPPORTED
-#if PRAGMA_STRUCT_ALIGN
+#if defined PRAGMA_STRUCT_ALIGN
 	#pragma options align=reset
 #endif
 	
@@ -4366,7 +4347,6 @@ typedef struct ReformatOptions
 	Handle							eigenVectorHandle;
 	Handle							inputWindowInfoHandle;
 	Handle							outFileInfoHandle;
-	//CMDataFile*						dataFileCPtr;
 	Handle							pcChannelHandle;
 	Handle							rightBottomMosaicWindowInfoHandle;
 	HDoublePtr						eigenValuePtr;
@@ -4394,6 +4374,9 @@ typedef struct ReformatOptions
 	SInt32							stopLine;
 	SInt32							startColumn;
 	SInt32							stopColumn;
+	
+			// Defines the data value conversion to be done. See GetDataConversionCode
+			// routine.
 	UInt32							convertType;
 	UInt32							highSaturationCount;
 	UInt32							kthSmallestValue;
@@ -4470,6 +4453,7 @@ struct RGBCharColor
 	UChar								red;
 	UChar								green;
 	UChar								blue;
+	
 	};              
 	
 typedef struct RGBCharColor RGBCharColor, *RGBCharColorPtr, **RGBCharColorHdl; 
@@ -4614,10 +4598,10 @@ typedef struct ShapeInfo
 		CMFileStream					*fileStreamCPtr;
 	#endif	// defined multispec_win
 			
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMFileStream					*fileStreamCPtr;
       bool								expandFeatureList;
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 
 			// Geodetic model description for vectors
 	GeodeticModelInfo					geodetic;
@@ -4925,11 +4909,11 @@ typedef struct WindowInfo
 	{
 			// Pointer to the class structure which defines this image window.
 			
-   #if defined multispec_lin
+   #if defined multispec_wx
 		CMImageWindow*				cImageWindowPtr;
       Ptr							windowPtr;
       wxImage						offScreenImage;
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 	
 			// Pointer to the window structure for this image window.
 			// Used in Macintosh version only
@@ -4997,9 +4981,6 @@ typedef struct WindowInfo
 	
 			// Pointer to mask file information for image window. 			
 	CMFileStream*			maskFileStreamPtr;
-	
-			// Handle for storage of channel description information.				
-	//Handle					descriptionH;
 	
 			// Handle to histogram display levels for image.  Will be NULL for 	
 			// non-image type windows.															
@@ -5254,10 +5235,6 @@ typedef struct WindowInfo
 			// turn back on again so that any vectors for the window are drawn. 
 	Boolean					drawVectorOverlaysFlag;
 	
-			// Flag indicating whether wavelength values are available for the channels
-			// in the file.
-	//Boolean					hasWavelengthValuesFlag;
-	
 			// Flag indicating whether the number of data bytes differ for the	
 			// local channel list.																
 	Boolean					localBytesDifferFlag;
@@ -5304,7 +5281,7 @@ typedef struct WorkFlowInfo
 	} WorkFlowInfo, *WorkFlowInfoPtr;
 
    
-#if defined multispec_lin
+#if defined multispec_wx
 			// The following is a list of structures defined in MFC
 			// which may be useful in Linux version
 
@@ -5362,6 +5339,6 @@ typedef struct WorkFlowInfo
 	#define GetRValue(rgb)   ((BYTE) (rgb))
 	#define GetGValue(rgb)   ((BYTE) (((WORD) (rgb)) >> 8))
 	#define GetBValue(rgb)   ((BYTE) ((rgb) >> 16))
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 #endif	// ifndef __SDEFINES__

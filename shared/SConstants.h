@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,14 +19,14 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 08/15/2019
+//	Revised By:				Larry L. Biehl			Date: 12/20/2019
 //	
 //------------------------------------------------------------------------------------
 
 #ifndef SCONSNT
 #define SCONSNT
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include <time.h>
 	#include <string>
 	#include <cstring>
@@ -127,7 +127,7 @@
 	#define	yellowColor						RGB(255,255,0)	//69 
 	#define LMGetTicks()		(UInt32)GetTickCount() 
 	#define	kSample 1
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#pragma once
@@ -569,11 +569,12 @@
 #define	kLegendWidthDown			6
 #define	kBlinkOpenCursor1			7
 #define	kBlinkOpenCursor2			8
-#define	kBlinkShutCursor			9
-#define	kSpin							10
-#define	kSpinEnd						13
-#define	kHandClosed					14
-#define	kCross2						15
+#define	kBlinkShutCursor1			9
+#define	kBlinkShutCursor2			10
+#define	kSpin							11
+#define	kSpinEnd						14
+#define	kHandClosed					15
+#define	kCross2						16
  
 		// Image format structure constants												
 #define	kMixed						-1
@@ -812,6 +813,7 @@
 #define	kBetter8BitPaletteProcessor			16011
 
 #define	kSelectionGraphProcessor				17004
+#define	kSelectionGraphStatsProcess			17005
 
 #define	kZoomButtonControl						20001
 
@@ -960,6 +962,18 @@
 #define	kCEMMode								9
 #define	kParallelPipedMode				10
 
+		// Support Vector Machine Classifier Constants.
+#define	kC_SVC_Type						0
+#define	kNU_SVC_Type					1
+#define	kOne_Class_Type				2
+#define	kEpsilon_SVR_Type				3
+#define	kNU_SVR_Type					4
+
+#define	kLinearKernel					0
+#define	kPolynomialKernel				1
+#define	kRBFKernel						2
+#define	kSigmoidKernel					3
+
 		// Correlation Classifier Constants.
 #define	kNoCovarianceUsed				1
 #define	kCommonCovariance				2
@@ -1004,10 +1018,10 @@
 		//		Display types
 #define k1_ChannelThematicDisplayType	1
 #define k1_ChannelGrayLevelDisplayType	2
-#define k2_ChannelDisplayType				4
+///#define k2_ChannelDisplayType				4
 #define k3_ChannelDisplayType				3
 #define k3_2_ChannelDisplayType			5
-#define kSideSideChannelDisplayType		7	
+#define kSideSideChannelDisplayType		4
 
 		// Feature Extraction Processor Constants.
 		
@@ -1158,7 +1172,6 @@
 #define	kByEPSGCodeCode								14
 
 #define	kNoneDefinedMenuItem							1
-//#define	kGeographicMenuItem							2
 #define	kAlaskaConformalMenuItem					2
 #define	kAlbersConicalEqualAreaMenuItem			3
 #define	kAzimuthalEquidistantMenuItem				4
@@ -1230,9 +1243,6 @@
 #define	kVanderGrintenICode						32
 #define	kWagnerIVCode								33
 #define	kWagnerVIICode								34
-//#define	kGGRS87Code									35
-//#define	kStatePlaneCode							36
-//#define	kUTMCode										37
 
 		// Area Units Popup Menu Constants
 #define	kNumberPixelsUnitsMenuItem				1
@@ -1425,6 +1435,15 @@
 #define	kListData						1
 #define	kPlotData						2
 
+#define	kHistogramClass				1
+#define	kHistogramField				2
+
+#define	kListMatrixFormat				1
+#define	kListSingleColumnFormat		2
+
+#define	kGroupByChannels				1
+#define	kGroupByFieldsClasses		2
+
 		// Class to Group constants														
 #define	kNewGroup						1
 #define	kEditGroup						2
@@ -1495,7 +1514,7 @@
 #define	kAdjustToBaseImage					1 
 #define	kDontAdjustToBaseImage				0 
 
-#if defined multispec_lin
+#if defined multispec_wx
     #define	kLineColumnUnits						0
     #define	kMapUnits                        1
     #define	kLatLongUnits							2
@@ -1768,14 +1787,14 @@
 #define	kMaxNumberColumns						300000
 #define	kMaxNumberOSXDisplayColumns		32767
 
-#if defined multispec_lin
-	#define	kMaxNumberDisplayLines				65535
+#if defined multispec_wx
+	#define	kMaxNumberDisplayLines				100000
 #endif
 #if defined multispec_mac
 	#define	kMaxNumberDisplayLines				32767
 #endif
 #if defined multispec_win
-	#define	kMaxNumberDisplayLines				32767
+	#define	kMaxNumberDisplayLines				100000
 #endif
 
 #define	kMaxNumberLines						300000

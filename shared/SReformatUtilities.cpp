@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,27 +19,6 @@
 //
 //	Brief description:	 
 //
-//	Functions in file:	SInt16 			AppendFile
-//								SInt32 			AppendFileDialog
-//								void 				ChangeErdasHeader
-//								Boolean	 		ChangeErdasHeaderDialog
-//								pascal void 	DrawHeaderOptionsPopUp
-//								pascal void 	DrawOutputFilePopUp
-//								Boolean 			GetReformatOutputFile
-//								Boolean 			InsertNewErdasHeader
-//								Boolean			ListReformatResultsInformation
-//								void				LoadCurrentHeaderParametersInDialog
-//								void 				LoadDescriptionIntoDItem
-//								void 				ModifyChannelDescriptions
-//								void				ModifyChannelDescriptionsViaDiskFile
-//								Boolean			ModifyChannelDescriptionsViaKeyboard
-//								void 				UpdateOutputFileStructure
-//								SInt16			WriteChannelDescriptions
-//								void				WriteChannelDescriptionsAndValues
-//								SInt16			WriteChannelValues
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /* Template for debugging
 	int numberChars = sprintf ((char*)gTextString3,
@@ -58,34 +37,20 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
                              
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WAppendFileDialog.h"
 	#include "WChangeChannelDescriptionDialog.h"
 	#include "WReformatChangeHeaderDialog.h"
 #endif	// defined multispec_win 
  
-#if defined multispec_lin
-	#include "CImageWindow.h"
-   #include "LChangeChannelDescriptionDialog.h"
-#endif
-
-//#include	"SExtGlob.h"
+#if defined multispec_wx
+	#include "SImageWindow_class.h"
+   #include "xChangeChannelDescriptionDialog.h"
+#endif	// defined multispec_wx
 
 
 
-extern void SwapBytes (
-				SInt16								numberBytes,
-				HUInt8Ptr							fileIOBufferPtr,
-				UInt32								numberSamples);
-
-extern void	GetOutputBufferParameters (
-				FileInfoPtr							outFileInfoPtr, 
-				ReformatOptionsPtr				reformatOptionsPtr,
-				UInt32*								outChannelByteIncrementPtr,
-				UInt32*								outLineByteIncrementPtr,
-				UInt32*								outNumberBytesPerLineAndChannelPtr);
-
-			// Prototype descriptions for routines in this file that are only		
+			// Prototype descriptions for routines in this file that are only
 			// called by routines in this file.
 															
 SInt16	 AppendFile (
@@ -160,7 +125,7 @@ SInt16	WriteChannelValues (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -176,10 +141,10 @@ SInt16	WriteChannelValues (
 //
 // Value Returned:	Error code for file operations.
 //
-// Called By:			GetReformatOutputFile in reformat.c
+// Called By:			GetReformatOutputFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 02/28/2019
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 SInt16 AppendFile (
 				FileInfoPtr 						fileInfoPtr, 
@@ -279,9 +244,7 @@ SInt16 AppendFile (
 				{
 						// Get the space left on the volume.							
 						
-				errCode = GetVolumeFreeSpace ((Str255*)fileNamePtr,
-															vRefNum, 
-															&freeBytes); 
+				errCode = GetVolumeFreeSpace (fileStreamPtr, vRefNum, &freeBytes);
 				
 				if (errCode == noErr)
 					{
@@ -573,7 +536,7 @@ SInt16 AppendFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -615,6 +578,7 @@ SInt16 AppendFileDialog (
 																							return (-1);
 	
 	*bytesToSkipPtr = 0;
+	returnCode = 0;
 	
 			// Get the effective band interleave to be used.
 			
@@ -707,7 +671,8 @@ SInt16 AppendFileDialog (
 			
 				// Item 5: File name to be appended to or modified.					
 		
-		StringPtr appendFileNamePtr = (StringPtr)GetFileNamePPointerFromFileInfo (appendFileInfoPtr);
+		StringPtr appendFileNamePtr =
+							(StringPtr)GetFileNamePPointerFromFileInfo (appendFileInfoPtr);
 		ParamText ((UCharPtr)appendFileNamePtr,"\p", "\p", "\p");
 		
 				// Item 6: After lines or channels.											
@@ -866,7 +831,7 @@ void AppendFileDialogOK (
 		if (lineFlag)
 			newAfterLineChannel = appendFileInfoPtr->numberLines;
 							
-		else // !lineFlag 
+		else	// !lineFlag 
 			newAfterLineChannel = appendFileInfoPtr->numberChannels;
 							
 		}	// end "if (lineColumnCode == 1)" 
@@ -918,7 +883,7 @@ void AppendFileDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -934,7 +899,7 @@ void AppendFileDialogOK (
 //
 // Value Returned:	None
 //
-// Called By:			ReformatControl   in reformat.c
+// Called By:			SReformatControl in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1988
 //	Revised By:			Larry L. Biehl			Date: 11/20/1991
@@ -1022,7 +987,7 @@ void ChangeErdasHeader (void)
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1225,7 +1190,7 @@ Boolean ChangeErdasHeaderDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1267,7 +1232,7 @@ pascal void DrawHeaderOptionsPopUp (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1308,7 +1273,7 @@ pascal void DrawOutputFilePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1378,7 +1343,7 @@ void GetOutputBufferParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1551,7 +1516,7 @@ void GetOutputFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1623,7 +1588,6 @@ Boolean GetReformatOutputFile (
    
 	outFileNamePtr = 
 					(FileStringPtr)GetFileNamePPointerFromFileStream (outFileStreamPtr);
-	//MGetString (outFileNamePtr, kFileIOStrID, IDS_ImageFile);
 	
 	GetOutputFileName (gImageFileInfoPtr, outFileNamePtr);
 	
@@ -1738,7 +1702,9 @@ Boolean GetReformatOutputFile (
 				{
 						// Add the suffix back.
 				
-				strncpy ((char*)&outFileNamePtr[stringLength+1], (char*)&gTextString[1], 4);
+				strncpy ((char*)&outFileNamePtr[stringLength+1],
+							(char*)&gTextString[1],
+							4);
 	
             }	// end "if (savedSuffixPtr != NULL && gTextString[0] == 4)"
 				
@@ -1753,9 +1719,9 @@ Boolean GetReformatOutputFile (
 			// for Linux & Windows versions, copy the proposed file name to the
 			// file path string. 
 			  
-	#if defined multispec_lin || defined multispec_win                                               
+	#if defined multispec_wx || defined multispec_win                                               
 		outFileStreamPtr->SetFileName (outFileNamePtr);
-	#endif	// defined multispec_lin || defined multispec_win
+	#endif	// defined multispec_wx || defined multispec_win
 
 	SetType (outFileStreamPtr, type); 
 	
@@ -1835,25 +1801,7 @@ Boolean GetReformatOutputFile (
 				// compute the size of the image.
 																
 		IntermediateFileUpdate (outFileInfoPtr); 
-		/*	
-				// Now copy map project information to the output file info structure
-				// the information exists for the input file and a new file is being
-				// created.	
-			
-		if (mapProjectionHandle != NULL && 
-									reformatOptionsPtr->outputFileCode == kNewFileMenuItem)
-			{
-			UpdateMapProjectionStructure (mapProjectionHandle,
-														outFileInfoPtr,
-														startLine, 
-														startColumn,
-														reformatOptionsPtr->lineInterval,
-														reformatOptionsPtr->columnInterval,
-														reformatOptionsPtr->rightToLeft,
-														reformatOptionsPtr->bottomToTop);
-																	
-			}	// end "if (mapProjectionHandle != NULL && ..."
-		*/					
+
 		}	// end "else reformatOptionsPtr->outputFileCode != kNewFileMenuItem"
 	
 			// Now check if a file name was entered.
@@ -1870,7 +1818,7 @@ Boolean GetReformatOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2114,7 +2062,7 @@ Boolean InsertNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2288,7 +2236,7 @@ Boolean ListReformatResultsInformation (
 				gTextString2[gTextString2[0]+1] = 0;
 			#endif	// defined multispec_mac    
 			                            
-         #if defined multispec_win | defined multispec_lin
+         #if defined multispec_win | defined multispec_wx
 				MGetString (gTextString2,
 									0,
 									IDS_ChannelFunction01+reformatOptionsPtr->functionCode-1);
@@ -2324,24 +2272,26 @@ Boolean ListReformatResultsInformation (
 		}	// end "if (...->transformDataCode != kNoTransform)" 
 		
 	if (continueFlag && gProcessorCode != kENVIROItoThematicProcessor)
-		continueFlag = ListLineColumnIntervalString (NULL, 
-																	gOutputForce1Code,
-																	(UInt32)reformatOptionsPtr->lineStart, 
-																	(UInt32)reformatOptionsPtr->lineEnd, 
-																	(UInt32)reformatOptionsPtr->lineInterval,
-																	(UInt32)reformatOptionsPtr->columnStart, 
-																	(UInt32)reformatOptionsPtr->columnEnd, 
-																	(UInt32)reformatOptionsPtr->columnInterval, 
-																	continueFlag);
-																	
+		continueFlag = ListLineColumnIntervalString (
+														NULL,
+														gOutputForce1Code,
+														(UInt32)reformatOptionsPtr->lineStart, 
+														(UInt32)reformatOptionsPtr->lineEnd, 
+														(UInt32)reformatOptionsPtr->lineInterval,
+														(UInt32)reformatOptionsPtr->columnStart, 
+														(UInt32)reformatOptionsPtr->columnEnd, 
+														(UInt32)reformatOptionsPtr->columnInterval, 
+														continueFlag);
+	
 	if (continueFlag && gProcessorCode == kRefMosaicImagesProcessor)
 		{
 				// List information for the 2nd file that was used for mosaicing
 				
 		mosaicFileInfoHandle = GetFileInfoHandle (
-												reformatOptionsPtr->rightBottomMosaicWindowInfoHandle);
+										reformatOptionsPtr->rightBottomMosaicWindowInfoHandle);
 	
-		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileHandle (mosaicFileInfoHandle);
+		fileNamePtr =
+				(FileStringPtr)GetFileNameCPointerFromFileHandle (mosaicFileInfoHandle);
 		if (reformatOptionsPtr->mosaicDirectionCode == kMosaicLeftRight)
 			sprintf ((char*)gTextString,
 								"%s    Right input image file name: '%s'%s",
@@ -2467,8 +2417,8 @@ Boolean ListReformatResultsInformation (
 		{	
 		numberChars = sprintf (
 								numberLowCountString,
-								"%ld",
-								reformatOptionsPtr->lowSaturationCount);
+								"%u",
+								(unsigned int)reformatOptionsPtr->lowSaturationCount);
 																
 		numberChars = InsertCommasInNumberString (
 									numberLowCountString, 
@@ -2478,8 +2428,8 @@ Boolean ListReformatResultsInformation (
 									
 		numberChars = sprintf (
 								numberHighCountString,
-								"%ld",
-								reformatOptionsPtr->highSaturationCount);
+								"%u",
+								(unsigned int)reformatOptionsPtr->highSaturationCount);
 																
 		numberChars = InsertCommasInNumberString (
 									numberHighCountString, 
@@ -2553,7 +2503,7 @@ Boolean ListReformatResultsInformation (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2625,7 +2575,7 @@ void LoadCurrentHeaderParametersInDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2641,7 +2591,7 @@ void LoadCurrentHeaderParametersInDialog (
 //
 // Value Returned:	None
 //
-// Called By:			ModifyChannelDescriptionsViaKeyboard   in reformat.c
+// Called By:			ModifyChannelDescriptionsViaKeyboard   in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/16/1992
 //	Revised By:			Larry L. Biehl			Date: 09/16/1992
@@ -2675,7 +2625,7 @@ void LoadDescriptionIntoDItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2693,10 +2643,10 @@ void LoadDescriptionIntoDItem (
 //
 // Value Returned:	None
 //
-// Called By:			ReformatControl   in reformat.c
+// Called By:			ReformatControl in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 01/25/2018
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 void ModifyChannelDescriptions (
 				SInt16								requestedProcedure)
@@ -2750,10 +2700,7 @@ void ModifyChannelDescriptions (
 				                      
 		fileNamePtr = (char*)GetFileNamePPointerFromFileStream (fileStreamPtr);
 		vRefNum = GetVolumeReferenceNumber (fileStreamPtr);
-		errCode = GetVolumeFreeSpace (
-							(Str255*)fileNamePtr, 
-							vRefNum, 
-							&freeBytes);
+		errCode = GetVolumeFreeSpace (fileStreamPtr, vRefNum, &freeBytes);
 								
 		if (bytesToAdd + 50 > freeBytes)
 			{
@@ -2851,9 +2798,7 @@ void ModifyChannelDescriptions (
 			if (gImageWindowInfoPtr->descriptionCode == 0)
 				gImageWindowInfoPtr->descriptionCode = kDescriptionExists;
 				
-			//printf ("ModifyChannelDescriptions returnCode:%d, %d, %d\n", returnCode, 
-          //     gImageFileInfoPtr->numberChannels, gImageWindowInfoPtr->descriptionCode);
-			WriteChannelDescriptionsAndValues (gImageFileInfoPtr, 
+			WriteChannelDescriptionsAndValues (gImageFileInfoPtr,
 															NULL, 
 															gImageFileInfoPtr->numberChannels,
 															FALSE);
@@ -2914,7 +2859,7 @@ void ModifyChannelDescriptions (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2930,7 +2875,7 @@ void ModifyChannelDescriptions (
 //
 // Value Returned:	None
 //
-// Called By:			ModifyChannelDescriptions in SReform2.cpp
+// Called By:			ModifyChannelDescriptions in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
 //	Revised By:			Larry L. Biehl			Date: 01/11/2017
@@ -3179,7 +3124,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 		END_CATCH_ALL 
 	#endif	// defined multispec_win   
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMChangeChannelDescriptionDlg*		dialogPtr = NULL;
       
       dialogPtr = new CMChangeChannelDescriptionDlg (); 
@@ -3198,7 +3143,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3263,7 +3208,7 @@ Boolean ModifyChannelDescriptionsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3307,7 +3252,7 @@ void ModifyChannelDescriptionsChangeChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3323,12 +3268,12 @@ void ModifyChannelDescriptionsChangeChannel (
 //
 // Value Returned:	None
 //
-// Called By:			MosaicImagesSideBySideControl in mosaic.c
-//							RectifyImageControl in rectification.c
-//							AreasToThematicFileControl in SFieldsT.cpp
-//							CovertMultispectralToThematicControl in SFieldsT.cpp
-//							ENVI_ASCII_ROI_ToThematicFileControl in SFieldsT.cpp
-//							ChangeImageFileFormat in SReform1.cpp
+// Called By:			MosaicImagesSideBySideControl in SMosaic.cpp
+//							RectifyImageControl in SRectifyImage.cpp
+//							AreasToThematicFileControl in SFieldsToThematicFile.cpp
+//							CovertMultispectralToThematicControl in SFieldsToThematicFile.cpp
+//							ENVI_ASCII_ROI_ToThematicFileControl in SFieldsToThematicFile.cpp
+//							ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
 //	Revised By:			Larry L. Biehl			Date: 07/10/2018
@@ -3419,13 +3364,11 @@ void UpdateOutputFileStructure (
 			// Make sure instrument code will still make sense.
 			// Will allow output number of channels to be fewer than the original file
 			// number of channels for the instrument code. This will allow the source
-			// instrument to be document. The wavelength bands written at the end
+			// instrument to be documented. The wavelength bands written at the end
 			// will indicate which bands are in the file. (7/9/2018). Will see if
 			// this causes problems down the road.
 			
 	if (outFileInfoPtr->thematicType)
-	//if (outFileInfoPtr->thematicType ||
-	//			outFileInfoPtr->numberChannels != gImageWindowInfoPtr->totalNumberChannels)
 		outFileInfoPtr->instrumentCode = 0;
 	
 			// Set channel wavelength order code
@@ -3465,7 +3408,7 @@ void UpdateOutputFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3602,95 +3545,7 @@ SInt16 WriteChannelDescriptions (
 		
 			}	// end "while (errCode == noErr && ..."
 		
-				// Loop through the image files.												
-		/*
-		for (fileIndex=0;
-				fileIndex<gImageWindowInfoPtr->numberImageFiles;
-				fileIndex++)
-			{
-			localFileInfoPtr = &gImageFileInfoPtr[fileIndex];
-			
-			channelDescriptionPtr = NULL;
-			if (localFileInfoPtr->channelDescriptionH != NULL)
-				{
-				channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
-															localFileInfoPtr->channelDescriptionH, 
-															kLock); 
-				}
-			
-						// If the pointer to a list of channels to be used is  		
-						// NULL (implies to use all channels), then write all   		
-						// the channel descriptions to the file.							
-			
-			if (channelDescriptionPtr != NULL && channelPtr == NULL)
-				{
-					// Write channel descriptions to the image file. 					
-
-				count = localFileInfoPtr->numberChannels * 16;
-            				
-				errCode = MWriteData (fileStreamPtr, 
-											&count, 
-											channelDescriptionPtr,
-											kErrorMessages);
-            
-	
-				}	// end "if (channelDescriptionPtr != NULL && ..." 
-
-					// If the pointer to a list of channels to be used is 			
-					// not NULL (implies that only a subset of the channel 			
-					// descriptions are to be written to the file), then 				
-					// write the requested channel descriptions to the file.			
-		
-			else	// channelDescriptionPtr == NULL || channelPtr != NULL 
-				{
-						// Write subset of channel descriptions to the image 			
-						// file or write blanks if no descriptions exist in			
-						// the input image file. 												
-	
-				fileInfoIndex = fileIndex;
-				
-				while (errCode == noErr && 
-							fileInfoIndex == fileIndex && 
-								channelIndex < numberChannels)
-					{
-					if (channelPtr)		
-						channel = channelPtr[channelIndex] + 1;
-				
-					fileInfoIndex = gImageLayerInfoPtr[channel].fileInfoIndex;
-				
-					if (fileInfoIndex == fileIndex)
-						{
-						count = 16;
-						
-						if (channelDescriptionPtr != NULL)
-							{
-							fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
-							descriptionPtr = (char*)&channelDescriptionPtr[fileChannel-1];
-												
-							}	// end "if (channelDescriptionPtr != NULL)" 
-							
-						else	// channelDescriptionPtr == NULL
-							descriptionPtr = blankPtr;
-						
-						errCode = MWriteData (fileStreamPtr, 
-														&count, 
-														descriptionPtr,
-														kErrorMessages);
-					
-						channelIndex++;
-						channel++;
-						
-						}	// end "if (fileInfoIndex == fileIndex)" 
-				
-					}	// end "while (errCode == noErr && ..." 
-					
-				}	// end "else channelPtr != NULL" 
-
-			CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
-				
-			}	// end "for (fileIndex=0; ..." 
-		*/
-		}	// end "if (errCode == noErr && ..." 
+		}	// end "if (errCode == noErr && ..."
 		
 	return (errCode);
 
@@ -3699,7 +3554,7 @@ SInt16 WriteChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3714,12 +3569,11 @@ SInt16 WriteChannelDescriptions (
 //
 // Value Returned:	None
 //
-// Called By:			MosaicImagesSideBySide in mosaic.c
-//							RectifyImage in rectification.c
-//							ChangeFormatToBILorBIS in SReform1.cpp
-//							ChangeFormatToBSQ in SReform1.cpp
-//							InsertNewErdasHeader in SReform1.cpp
-//							ModifyChannelDescriptions in SReform2.cpp
+// Called By:			MosaicImagesSideBySide in SMosaic.cpp
+//							RectifyImage in SRectifyImage.cpp
+//							ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
+//							InsertNewErdasHeader in SReformatChangeImageFileFormat.cpp
+//							ModifyChannelDescriptions in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1989
 //	Revised By:			Larry L. Biehl			Date: 12/22/2003
@@ -3779,7 +3633,7 @@ void WriteChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3959,94 +3813,8 @@ SInt16 WriteChannelValues (
 			channel++;
 		
 			}	// end "while (errCode == noErr && ..."
-		/*
-		channelIndex = 0;
-		channel = 1;
-		
-				// Loop through the image files.												
-				
-		for (fileIndex=0;
-				fileIndex<gImageWindowInfoPtr->numberImageFiles;
-				fileIndex++)
-			{
-			localFileInfoPtr = &gImageFileInfoPtr[fileIndex];
-			
-			channelValuePtr = (float*)GetHandlePointer (
-															localFileInfoPtr->channelValuesHandle, 
-															kLock); 
-		
-			if (channelValuePtr != NULL || numberChannelsWritten > 0)
-				{
-						// Write requested  channel values to the image 			
-						// file. 																
-				
-				fileInfoIndex = fileIndex;
-	
-				while (errCode == noErr && 
-							fileInfoIndex == fileIndex && 
-								channelIndex < numberChannels)
-					{
-					if (channelPtr != NULL)
-						channel = channelPtr[channelIndex] + 1;
-					
-					fileInfoIndex = gImageLayerInfoPtr[channel].fileInfoIndex;
-					
-					if (fileInfoIndex == fileIndex)
-						{
-						if (channelValuePtr != NULL)
-							{
-							fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
-							sprintf ((char*)gTextString, 
-											" %f", 
-											channelValuePtr[fileChannel-1]);
-											
-							}	// end "if (channelValuePtr != NULL)"
-							
-						else	// channelValuePtr == NULL
-							{
-							sprintf ((char*)gTextString, 
-											" %f", 
-											noValue);
-							
-							}	// end "else channelValuePtr == NULL"
-										
-						count = (UInt32)strlen ((char*)gTextString);
-					
-						errCode = MWriteData (fileStreamPtr, 
-														&count, 
-														(char*)gTextString,
-														kErrorMessages);
-					
-						channelIndex++;
-						channel++;
-						
-						}	// end "if (fileInfoIndex == fileIndex)" 
-				
-					}	// end "while (errCode == noErr && ..." 
-					
-				}	// end "if (channelValuePtr != NULL || numberChannelsWritten > 0)" 
-					
-			else	// channelValuePtr == NULL && numberChannelsWritten == 0
-				{
-						// If channel values do not exist for any channel, then		
-						// do not write any channel values to the output file.	
-					                                                   
-				errCode = MSetSizeOfFile (fileStreamPtr, 
-													positionOffset,
-													kErrorMessages);
-				
-				errCode = -1;
-				
-				}	// end "else channelValuePtr == NULL && numberChannelsWritten == 0" 
 
-			CheckAndUnlockHandle (localFileInfoPtr->channelValuesHandle);
-			
-			if (errCode != noErr)
-				break;
-				
-			}	// end "for (fileIndex=0; ..." 
-		*/
-		}	// end "if (errCode == noErr && ..." 
+		}	// end "if (errCode == noErr && ..."
 		
 	return (errCode);
 
@@ -4055,7 +3823,7 @@ SInt16 WriteChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4115,10 +3883,11 @@ SInt16 WriteOutputDataToFile (
 			numberHeaderBytes = reformatOptionsPtr->modifyAppendBytesSkip;
 			
 		positionOffset = (SInt64)numberHeaderBytes + 
-									(SInt64)lastOutputWrittenLine * numberBytesPerLineAndChannel;
+								(SInt64)lastOutputWrittenLine * numberBytesPerLineAndChannel;
 									
 		numberBytesPerChannel = totalIOOutBytes/numberOutChannels;
-		fileBSQOffsetIncrement = (SInt64)numberOutputLines * numberBytesPerLineAndChannel;
+		fileBSQOffsetIncrement =
+								(SInt64)numberOutputLines * numberBytesPerLineAndChannel;
 					
 		for (channelCount=1; channelCount<=numberOutChannels; channelCount++)
 			{		
@@ -4130,7 +3899,7 @@ SInt16 WriteOutputDataToFile (
 			if (outFileInfoPtr->bandInterleave == kBNonSQ)
 				{
 				numberHeaderBytes = 
-						outFileInfoPtr->hfaPtr[channelsPtr[channelCount-1]].layerOffsetBytes;
+					outFileInfoPtr->hfaPtr[channelsPtr[channelCount-1]].layerOffsetBytes;
 				if (reformatOptionsPtr->outputFileCode != kNewFileMenuItem)
 					numberHeaderBytes = reformatOptionsPtr->modifyAppendBytesSkip;
 		
@@ -4140,8 +3909,8 @@ SInt16 WriteOutputDataToFile (
 				}	// end "if (outFileInfoPtr->bandInterleave == kBNonSQ)"
 			
 			if (numberOutsideLoops == 1)
-						// This implies that the data are being handled by line then by channel
-						// as apposed to channel and then be line.
+						// This implies that the data are being handled by line then by
+						// channel as apposed to channel and then be line.
 				errCode = MSetMarker (outFileStreamPtr, 
 												fsFromStart, 
 												positionOffset,

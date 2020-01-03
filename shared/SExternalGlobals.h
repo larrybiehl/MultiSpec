@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -18,16 +18,22 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 04/04/2018
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
 //	
 //------------------------------------------------------------------------------------
 
 #ifndef __SExtGlob__
 #define __SExtGlob__
 
-#if defined multispec_lin
+#if defined multispec_wx
 			// Storage for default (last used directory) for file input
    extern wxString		gDefaultDataDirectory;
+	
+			// Storage for file output. This is used when the output directory is
+			// changed because the original directory is not writeable.
+			// This is used for PutFile. If the parameter is empty, then one does not
+			// need to change the output directory for PutFile.
+   extern wxString		gOutputDirectory;
 	
 	extern int				g4BitUnsignedIntegerMenuItem;
 	extern int				g1ByteSignedIntegerMenuItem;
@@ -53,7 +59,7 @@
 	#else
 		extern int			gFontSize;
 	#endif
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 
 // Externally Declared Global Variables 
@@ -198,10 +204,7 @@ extern Boolean							gIncludeTestMenuItemFlag;
 		// listed thousands of times.
 extern Boolean							gListOnlyOneMessagePerClassFlag;
 
-		// Flag indicating whether the file IO error message is to be given.
-//extern Boolean							gIOErrorMessageFlag;
-
-		// Flag indicating whether map coordinates should be displayed in the	
+		// Flag indicating whether map coordinates should be displayed in the
 		// coordinate dialog window.															
 extern Boolean							gMapCoordinateFlag;
 
@@ -338,9 +341,6 @@ extern DataToDisplayLevel 			gToDisplayLevels;
 
 		// Structure to be used to store the date and time in.						
 extern DateTimeRec					gDateTimeRecord;
-
-		// dialog pointer to grag gray rgn coordinate dialog box						
-// extern DialogPtr						gCoordinatePtr;
 
 		// Dialog pointer to the status dialog window.  This is used by several	
 		// of the processors.																	
@@ -507,7 +507,7 @@ extern ListHandle						gDialogListHandle2;
 #if defined multispec_win 
 	extern CListBox*						gStatisticsListHandle;
 #endif	// defined multispec_win 
-#if defined multispec_lin 
+#if defined multispec_wx 
    extern wxListBox* gStatisticsListHandle;    
 #endif
 		// Structure used by the MultiSpec to pass finder information about 		
@@ -762,7 +762,7 @@ extern ReformatOptionsPtr			gReformatOptionsPtr;
 	extern COLORREF						gRGBColorList[8];
 #endif	// defined multispec_win
 
-#if defined multispec_lin
+#if defined multispec_wx
 			// pen structure to be used for storing the color of the pen.
 	extern wxPen								gBlackPen;
 	extern wxPen								gBluePen;
@@ -776,7 +776,7 @@ extern ReformatOptionsPtr			gReformatOptionsPtr;
 	extern wxRegion							gMFC_Rgn;
 	
 	//extern COLORREF						gRGBColorList[8];
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 extern RGBColor						gCoordinateViewBackgroundColor;
 
@@ -820,16 +820,10 @@ extern Str255							gTextString3;
 
 		// Date version string
 		// Application identifier string
-//#if defined multispec_mac
-	extern char								gDateVersionString[64];
-	extern char								gApplicationIdentifierString[64];
-//#else
-//	extern wchar_t							gDateVersionString[16];
-//	extern wchar_t							gApplicationIdentifierString[64];
-//#endif
+extern char								gDateVersionString[64];
+extern char								gApplicationIdentifierString[64];
 
 		// buffer to be used to manipulate text strings		
-//extern TBYTE							gWideTextString[256];							
 extern wchar_t							gWideTextString[256];									
 extern wchar_t							gWideTextString2[256];								
 extern wchar_t							gWideTextString3[256];
@@ -886,7 +880,7 @@ extern WindowInfoPtr					gImageWindowInfo2Ptr;
 extern WindowPtr						gActiveImageWindow;  
 
 		// current windows CDC pointer. This is only used by Windows.														
-#ifndef multispec_lin
+#ifndef multispec_wx
 	extern CDC*								gCDCPointer;
 #else
 	extern wxDC*							gCDCPointer;
@@ -1009,11 +1003,11 @@ extern double							gStatusBoxIncrement;
 		// portion of the work that has been completed.									
 extern double							gStatusGraphicsRight;
             
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 	extern int								gCrossCursorID;
 #endif	// defined multispec_win
 
-extern int 								szip_allow_encoding;		// For HDF library
+//extern int 								szip_allow_encoding;		// For HDF library
 
 		// Variables used when converting between line-column units and window	
 		// units.																					
@@ -1095,9 +1089,8 @@ extern UInt32							gMaxNumberChannelCombinations;
 		// 0x8000 if the origin was change each time for the offscreen bit maps.
 extern UInt32							gMaxRowBytes;   
                       
-#if defined multispec_win || defined multispec_lin
-			// Maximum number of row bytes possible for 24 bit offscreen maps.
-			// This variable is only used for the Windows system.  
+#if defined multispec_win || defined multispec_wx
+			// Maximum number of row bytes possible for 24 bit offscreen maps. 
 	extern UInt32							gMaxRowBytesFor24Bits; 
 #endif	// defined multispec_win									
 
@@ -1123,9 +1116,9 @@ extern UInt32							gNextStatusTimeOffset;
 	extern UInt32							gNextTime;
 #endif	// defined multispec_win
 
-#if defined multispec_lin
+#if defined multispec_wx
 	extern time_t							gNextTime;
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 		// Count of the number of shape files that have been loaded in.
 extern UInt32							gNumberImageOverlayFiles;
@@ -1186,10 +1179,6 @@ extern SInt16							gBlinkProcedure;
 		// Variable indicating what the current bits per data value selection 	
 		// is.																						
 extern SInt16							gBitsPerDataValueSelection;
-
-		// Variable indicating what the current bytes per data value selection 	
-		// is.																						
-// extern SInt16							gBytesPerDataValueSelection;
 
 		// Variable indicating what the current channel description selection 	
 		// is.																						
@@ -1260,7 +1249,7 @@ extern SInt16							gDialogItemTableSet;
 		// portion of an image on the screen. The units are ticks (1/60 second)	
 extern SInt16							gDisplayIntervalTime;
 
-#if defined multispec_win | defined multispec_lin
+#if defined multispec_win | defined multispec_wx
 			// File filter index to use in the windows version for opening
 			// files.
 	extern SInt16							gFileFilterIndex;
@@ -1517,20 +1506,19 @@ extern SInt16							gViewHPixels;
 		// =2 is unequal.																			
 extern SInt16							gWeightsSelection;
 
-			// Font number to be used in the windows.										
+		// Font number to be used in the windows.
 extern SInt16							gWindowTextFont;
 
-#if defined multispec_lin                        
-                        // Disable other windows when executing list Data graph window
-extern wxWindowDisabler                                         *m_windowDisabler;
-
+#if defined multispec_wx                        
+			// Disable other windows when executing list Data graph window
+	extern wxWindowDisabler				*m_windowDisabler;
 #endif
 
 			// Structure contain information used for workflow processing. Currently
 			// this is for testing and for a very specific project.
 extern WorkFlowInfo					gMultiSpecWorkflowInfo;
 
-#if defined multispec_lin
+#if defined multispec_wx
 // Data to assign to each entry in wxCombo in coordinatebar
 extern SInt16 gLineColumnUnitsMenuItem;
 extern SInt16 gUnknownUnitsMenuItem;

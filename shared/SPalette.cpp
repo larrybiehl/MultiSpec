@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,37 +11,13 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/29/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //
 //	Brief description:	Display a pattern image file on the screen.
-//
-//	Functions in file:	void 				ActivateImageWindowPalette
-//								Boolean			CreatePalette
-//								Boolean 			CreateThematicColorPalette
-//								void 				Create1CPalette
-//								void 				Create2CPalette
-//								void 				Create3CPalette
-//								void 				CreatePPalette
-//								void				DrawCPalette
-//								void				DrawPalette
-//								pascal void 	DrawPalettePopUp
-//								void				DrawPPalette
-//								Boolean 			GetDefaultThematicFilePalette
-//								PaletteHandle 	GetPaletteHandle
-//								short int 		GetPaletteID
-//								short int 		GetPaletteOffset
-//								Boolean 			ReadOneBytePalette
-//								Boolean			ReadPaletteFromResource
-//								Boolean			SetBackgroundPaletteEntries
-//								void 				SetUpPalettePopUpMenu
-//								void 				UpdateActiveImageLegend
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 /*
 			// Template for debugging.
@@ -52,15 +28,15 @@
 */
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h"     
+#include "SMultiSpec.h"
+#include "SPalette_class.h"
 
-#if defined multispec_lin
-	#include "CPalette.h"
-   #include "LDialog.h"
-	#include "LImageDoc.h"
-	#include "LImageView.h"
-   #include "LFalseColorDialog.h"
-	#include "LMainFrame.h"
+#if defined multispec_wx
+   #include "xDialog.h"
+	#include "xImageDoc.h"
+	#include "xImageView.h"
+   #include "xFalseColorDialog.h"
+	#include "xMainFrame.h"
 #endif 
 
 #if defined multispec_mac    
@@ -69,63 +45,23 @@
                              
 #if defined multispec_win     
 	#include "WImageView.h"
-	#include "CPalette.h"  
 	#include	"WFalseColorDialog.h"
 	#include "WMainFrame.h"	 
 #endif	// defined multispec_win
 
-#define kArcViewDefaultSupportType		1024
-
-//#include	"SExtGlob.h"	
+#define kArcViewDefaultSupportType		1024	
 
 
 
-extern void CreateDefaultGroupTable (
-				FileInfoPtr							fileInfoPtr,
-				DisplaySpecsPtr					displaySpecsPtr);
-/*
-extern Boolean	GetClassColorTable (
-				FileInfoPtr							gisFileInfoPtr,
-				UInt16								numberClasses, 
-				SInt16*								classPtr,
-				UInt16								numberListClasses,
-				UInt16*								numberTRLClassesPtr,  
-				ColorSpec**							inputColorSpecPtrPtr,
-				CMPaletteInfo						paletteHandle,
-				UInt16*								paletteIndexPtr,
-				SInt16								paletteType,
-				UInt16								numberPaletteEntriesToRead, 
-				SInt16								paletteOffset, 
-				SInt16								classNameCode,
-				SInt16								thematicListType,
-				SInt16								collapseClassCode);	
-*/
-extern void LoadOSXColorTable (
-				CMPaletteInfo						paletteHandle,
-				UCharPtr								osxColorTablePtr);	
+#if defined multispec_mac
+	extern void LoadOSXColorTable (
+					CMPaletteInfo						paletteHandle,
+					UCharPtr								osxColorTablePtr);
 
-extern void LoadTwoBytePalette (
-				ColorSpec*							colorSpecPtr,
-				FileInfoPtr							imageFileInfoPtr,
-				DisplaySpecsPtr					displaySpecsPtr,
-				UInt16*								classSymbolPtr,
-				UInt16*								paletteCodePtr,
-				UInt32								colorVectorLength,
-				UInt16*								vectorBluePtr,
-				UInt16*								vectorGreenPtr,
-				UInt16*								vectorRedPtr);
-
-extern void UpdateOSXColorSpace (
-				CMPaletteInfo						paletteHandle,
-				UCharPtr								osxColorTablePtr);
-
-extern Boolean ReadArcViewColorPalette (
-				ColorSpec*							colorSpecPtr,
-				FileInfoPtr							imageFileInfoPtr, 
-				CMFileStream*						paletteFileStreamPtr,
-				DisplaySpecsPtr					displaySpecsPtr, 
-				UInt16*								classSymbolPtr, 
-				UInt16*								paletteCodePtr);
+	extern void UpdateOSXColorSpace (
+					CMPaletteInfo						paletteHandle,
+					UCharPtr								osxColorTablePtr);
+#endif
 
 
 
@@ -224,7 +160,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -241,11 +177,11 @@ Boolean SetBackgroundPaletteEntries (
 //
 // Value Returned:	None		
 // 
-// Called By:			DisplayThematicImage in SDisThem.cpp
+// Called By:			DisplayThematicImage in SDisplayThematic.cpp
 //							UpdateActiveImageLegend in SPalette.cpp
-//							DoThematicWColorsUpdate in SThemWin.cpp
-//							EditClassGroupPalette in SThemWin.cpp
-//							UpdateUserDefinedGroupColorTable in SThemWin.cpp
+//							DoThematicWColorsUpdate in SThematicWindow.cpp
+//							EditClassGroupPalette in SThematicWindow.cpp
+//							UpdateUserDefinedGroupColorTable in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1991
 //	Revised By:			Larry L. Biehl			Date: 10/25/2001	
@@ -285,14 +221,14 @@ void ActivateImageWindowPalette (
 	#endif	// defined multispec_mac 
 
 	#if defined multispec_win 
-		CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp ()->m_pMainWnd;
+		CMainFrame* pAppFrame = (CMainFrame*) AfxGetApp()->m_pMainWnd;
 		pAppFrame->SendMessage (WM_QUERYNEWPALETTE, NULL, NULL);
 	
 		//gActiveImageViewCPtr->SendMessage (WM_DOREALIZE, 0, 1);
 		//gActiveImageViewCPtr->Invalidate (FALSE); 
 	#endif	// defined multispec_win 
 							
-	#if defined multispec_lin
+	#if defined multispec_wx
 			// Right now, i dont think anything has to be done for wxWidgets
 	#endif
 
@@ -301,7 +237,7 @@ void ActivateImageWindowPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -373,7 +309,7 @@ Boolean CopyColorsFromClassTableToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -427,7 +363,7 @@ Boolean CreateFalseColorPalette (
 											index,
 											numberColors;
 	
-   #ifdef multispec_lin
+   #ifdef multispec_wx
       maxPaletteValue = 255;
    #else
       maxPaletteValue = 65535;
@@ -582,21 +518,21 @@ Boolean CreateFalseColorPalette (
 			colorSpecPtr->value = index;
 			
 			paletteValue = (classChannelMeanPtr[0] - minMean[0]) /
-																(maxMean[0] - minMean[0]) * maxPaletteValue;
+													(maxMean[0] - minMean[0]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
 			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.blue = (SInt16)longPaletteValue;
 				
 			paletteValue = (classChannelMeanPtr[1] - minMean[1]) /
-																(maxMean[1] - minMean[1]) * maxPaletteValue;
+													(maxMean[1] - minMean[1]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
 			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
 			colorSpecPtr->rgb.green = (SInt16)longPaletteValue;
 				
 			paletteValue = (classChannelMeanPtr[2] - minMean[2])/
-																(maxMean[2] - minMean[2]) * maxPaletteValue;
+													(maxMean[2] - minMean[2]) * maxPaletteValue;
 			longPaletteValue = (SInt32)(paletteValue + .5);
 			longPaletteValue = (SInt32)MIN (maxPaletteValue, longPaletteValue);
 			longPaletteValue = MAX (0, longPaletteValue);
@@ -618,7 +554,7 @@ Boolean CreateFalseColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -689,7 +625,7 @@ Boolean CreateGrayLevelPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -710,13 +646,13 @@ Boolean CreateGrayLevelPalette (
 //
 // Value Returned:	None  				
 // 
-// Called By:			DisplayMultispectralImage in SDisMulc.cpp
-//							DisplayThematicImage in SDisThem.cpp
+// Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
+//							DisplayThematicImage in SDisplayThematic.cpp
 //							DrawPalette in SPalette.cpp
 //							UpdateActiveImageLegend in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 12/19/2018
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 Boolean CreatePalette (
 				Handle								windowInfoHandle, 
@@ -767,10 +703,11 @@ Boolean CreatePalette (
 					// Find the number of entries needed in the palette.				
 						
 			numberEntries = displaySpecsPtr->numberPaletteLevels;
-			if (displaySpecsPtr->displayType == 4 || displaySpecsPtr->displayType == 5)
+			if (//displaySpecsPtr->displayType == 4 ||
+							displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 				numberEntries *= numberEntries;
 				
-			else if (displaySpecsPtr->displayType == 3)
+			else if (displaySpecsPtr->displayType == k3_ChannelDisplayType)
 				numberEntries *= numberEntries*numberEntries;
 				
 					// Make certain that the number of entries is not more than 256.
@@ -791,7 +728,7 @@ Boolean CreatePalette (
 			if (!PaletteExists (displaySpecsPtr->paletteObject))
 				{
 						// A new palette needs to be generated.							
-				//#ifdef multispec_lin
+				//#ifdef multispec_wx
 				//	displaySpecsPtr->paletteObject = NULL;
 				//#endif
 				
@@ -801,7 +738,7 @@ Boolean CreatePalette (
 				
 				}	// end "if (!PaletteExists (..." 
 				
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				if (windowType == kThematicWindowType)
 					{
 							// Check if new background palette for the color window 
@@ -840,15 +777,15 @@ Boolean CreatePalette (
 				{
 				displaySpecsPtr->numPaletteEntriesUsed = (UInt16)numberEntries;
 			
-				if (displaySpecsPtr->displayType == 2 || 
-														displaySpecsPtr->displayType == 7)
+				if (displaySpecsPtr->displayType == k1_ChannelGrayLevelDisplayType ||
+								displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 					Create1CPalette (displaySpecsPtr);
 										
-				if (displaySpecsPtr->displayType == 3)
+				else if (displaySpecsPtr->displayType == k3_ChannelDisplayType)
 					Create3CPalette (displaySpecsPtr);
 										
-				if (displaySpecsPtr->displayType == 4 ||
-														displaySpecsPtr->displayType == 5)
+				else if (//displaySpecsPtr->displayType == 4 ||
+									displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 					Create2CPalette (displaySpecsPtr);
 				
 				}	// end "if (windowType == kImageWindowType)" 
@@ -880,7 +817,7 @@ Boolean CreatePalette (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1091,7 +1028,7 @@ void CreatePPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1299,7 +1236,7 @@ Boolean CreateThematicColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,7 +1340,7 @@ void Create1CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1428,7 +1365,7 @@ void Create1CPalette (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/15/1988
-//	Revised By:			Larry L. Biehl			Date: 04/26/2011
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 void Create2CPalette (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1502,7 +1439,7 @@ void Create2CPalette (
 			for (green=0; green<numberLevels; green++) 
 				{
 				theColor.green = (UInt16)(greenInit + green*increment);
-				if (displayType == 5)
+				if (displayType == k3_2_ChannelDisplayType)
 					theColor.blue = theColor.green;
 				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
@@ -1526,7 +1463,7 @@ void Create2CPalette (
 			for (blue=0; blue<numberLevels; blue++) 
 				{
 				theColor.blue = (UInt16)(blueInit + blue*increment);
-				if (displayType == 5)
+				if (displayType == k3_2_ChannelDisplayType)
 					theColor.red = theColor.blue;
 				MSetEntryColor (paletteObject, paletteEntry, &theColor);
 				paletteEntry++;
@@ -1546,7 +1483,7 @@ void Create2CPalette (
 					// green will be the same level as for red.
 				
 			theColor.red = (UInt16)(redInit + red*increment);
-			if (displayType == 5)
+			if (displayType == k3_2_ChannelDisplayType)
 				theColor.green = theColor.red;
 	
 			for (blue=0; blue<numberLevels; blue++) 
@@ -1624,7 +1561,7 @@ void Create2CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1749,7 +1686,7 @@ void Create3CPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1829,7 +1766,7 @@ Boolean DetermineIfFalseColorAvailable (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1911,7 +1848,7 @@ void DrawCPalette (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1928,7 +1865,7 @@ void DrawCPalette (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayThematicDialog in displayThematic.c
+// Called By:			DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/31/1990
 //	Revised By:			Larry L. Biehl			Date: 10/31/1990	
@@ -1953,7 +1890,7 @@ pascal void DrawPalettePopUp (
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2031,7 +1968,7 @@ void DrawPPalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2047,7 +1984,7 @@ void DrawPPalette (
 // Value Returned: 	
 //
 // Called By:			ImageWControlEvent in MControls.c
-//							ClassifyDialog in SClassfy.cpp
+//							ClassifyDialog in SClassify.cpp
 //							DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/1996
@@ -2094,13 +2031,12 @@ Boolean FalseColorPaletteDialog (void)
 																				
 			// Get Project window information structure pointer.
 			
-	GetProjectImageFileInfo (
-								kDoNotPrompt, 
-								kSetupGlobalInfoPointersIfCan,
-								&projectWindowInfoPtr,
-								&projectLayerInfoPtr,
-								&projectFileInfoPtr,
-								&projectHandleStatus);
+	GetProjectImageFileInfo (kDoNotPrompt,
+										kSetupGlobalInfoPointersIfCan,
+										&projectWindowInfoPtr,
+										&projectLayerInfoPtr,
+										&projectFileInfoPtr,
+										&projectHandleStatus);
 												
 			// Load default project values if needed.
 			
@@ -2289,21 +2225,21 @@ Boolean FalseColorPaletteDialog (void)
 		END_CATCH_ALL  	
 	#endif	// defined multispec_win 
 	
-	#if defined multispec_lin   
+	#if defined multispec_wx   
 		CMFalseColorDlg*		dialogPtr = NULL;
 		
-			try
-				{ 
-				dialogPtr = new CMFalseColorDlg ();
-				returnFlag = dialogPtr->DoDialog (); 
-				delete dialogPtr;
-				}
-			catch (int e)
-				{
-				MemoryMessage (0, kObjectMessage);
-				returnFlag = FALSE;
-				} 
-	#endif	// defined multispec_lin
+		try
+			{
+			dialogPtr = new CMFalseColorDlg ();
+			returnFlag = dialogPtr->DoDialog ();
+			delete dialogPtr;
+			}
+		catch (int e)
+			{
+			MemoryMessage (0, kObjectMessage);
+			returnFlag = FALSE;
+			}
+	#endif	// defined multispec_wx
 
 	return (returnFlag);
 	
@@ -2372,7 +2308,7 @@ SInt16 FalseColorCheckColorChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2399,7 +2335,7 @@ CMPaletteInfo GetActivePaletteHandle (void)
 		return (GetPalette (gActiveImageWindow));
 	#endif	// defined multispec_mac_swift
 				
-	#if defined multispec_win || defined multispec_lin	
+	#if defined multispec_win || defined multispec_wx	
 		CMPaletteInfo paletteHandle = NULL;
 		
 		Handle displaySpecsHandle = GetActiveDisplaySpecsHandle (); 
@@ -2417,7 +2353,7 @@ CMPaletteInfo GetActivePaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2454,11 +2390,11 @@ Boolean GetBackgroundIncludedFlag (
 	if (classSymbolPtr != NULL)
 		{		
 		if (fileInfoPtr->format == kMultiSpecClassificationType &&
-																		*classSymbolPtr == ' ')
+																				*classSymbolPtr == ' ')
 			backgroundFlag = TRUE;
 			
 		else if (fileInfoPtr->format != kMultiSpecClassificationType &&
-																		*classSymbolPtr == 0)
+																				*classSymbolPtr == 0)
 			backgroundFlag = TRUE;
 			
 		}	// end "if (classSymbolPtr != NULL)"
@@ -2470,7 +2406,7 @@ Boolean GetBackgroundIncludedFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2625,7 +2561,7 @@ Boolean GetClassColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2643,7 +2579,7 @@ Boolean GetClassColorTable (
 //
 // Value Returned:	None		
 // 
-// Called By:			LoadThematicDisplaySpecs in displayPalette.c
+// Called By:			LoadThematicDisplaySpecs in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1989
 //	Revised By:			Larry L. Biehl			Date: 06/29/2011	
@@ -2719,7 +2655,7 @@ Boolean GetDefaultThematicFilePalette (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2763,7 +2699,7 @@ CMPaletteInfo GetPaletteHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2778,7 +2714,7 @@ CMPaletteInfo GetPaletteHandle (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			ChangeFormatToBILorBIS in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/14/1995
 //	Revised By:			Larry L. Biehl			Date: 06/28/2019
@@ -2833,7 +2769,7 @@ SInt16 GetPaletteID (
 
                     
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2877,7 +2813,7 @@ SInt16 GetPaletteOffset (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2892,7 +2828,7 @@ SInt16 GetPaletteOffset (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			ChangeFormatToBILorBIS in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1996
 //	Revised By:			Larry L. Biehl			Date: 11/19/1996	
@@ -2921,7 +2857,7 @@ SInt16 GetPaletteType (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3200,7 +3136,7 @@ Boolean LoadColorSpecTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3284,7 +3220,7 @@ void LoadDefaultProjectFalseColorChannels (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3431,7 +3367,7 @@ void LoadTwoBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3460,13 +3396,12 @@ void MDisposePalette (
 		#if defined multispec_mac             		                                             
 			DisposePalette (paletteObject);		
 		#endif	// defined multispec_mac
-				
-				      
+			
 		#if defined multispec_win		
 			delete paletteObject;                                		   
 		#endif	// defined multispec_win 
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			//wxDELETE (paletteObject);
 			delete paletteObject;
 		#endif
@@ -3478,7 +3413,7 @@ void MDisposePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3519,14 +3454,7 @@ void MGetEntryColor (
 		theColorPtr->blue = (UInt16)(paletteEntry.peBlue << 8); 	   
 	#endif	// defined multispec_win  
 
-   #if defined multispec_lin
-   	/*
-      unsigned char red,green,blue;
-      paletteObject->GetRGB (entry, &red, &green, &blue);
-      theColorPtr->red = (UInt16)red;
-      theColorPtr->green = (UInt16)green;
-      theColorPtr->blue = (UInt16)blue;
-		*/
+   #if defined multispec_wx
       theColorPtr->red = paletteObject->mPaletteObject[entry].red;
       theColorPtr->green = paletteObject->mPaletteObject[entry].green;
       theColorPtr->blue = paletteObject->mPaletteObject[entry].blue;
@@ -3537,7 +3465,7 @@ void MGetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3566,9 +3494,8 @@ SInt16 MGetNumberPaletteEntries (
 		#if defined multispec_mac             		                                             
 			return ((*paletteObject)->pmEntries);		
 		#endif	// defined multispec_mac
-				
-				      
-      #if defined multispec_win	|| defined multispec_lin		                           
+			
+      #if defined multispec_win	|| defined multispec_wx		                           
 			return (paletteObject->GetNumberPaletteEntries ());		   
 		#endif	// defined multispec_win 
 		
@@ -3581,7 +3508,7 @@ SInt16 MGetNumberPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3666,7 +3593,7 @@ Boolean MNewPalette (
 			}	// end "if (continueFlag)"	   
 	#endif	// defined multispec_win  
 	                    
-   #if defined multispec_lin	
+   #if defined multispec_wx	
 		if (*paletteObjectPtr == NULL)
 			{
 					// Get new palette class.
@@ -3679,7 +3606,7 @@ Boolean MNewPalette (
 			}	// end "if (*paletteObjectPtr == NULL)"
 	
 		return (TRUE);
-   #endif	// defined multispec_lin
+   #endif	// defined multispec_wx
 	
 	return (continueFlag);
 	
@@ -3688,7 +3615,7 @@ Boolean MNewPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3735,79 +3662,11 @@ void MSetEntryColor (
 			paletteObject->SetPaletteEntries (entry, 1, &paletteEntry);
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
-			//bool continueFlag;
-			//UInt16 numberColors = paletteObject->GetNumberPaletteEntries ();
-			/*
-			if (entry < numberColors)
-				{
-				UInt8 redp[numberColors];
-				UInt8 greenp[numberColors];
-				UInt8 bluep[numberColors];
-				for (int index = 0; index < numberColors; index++)
-					{
-					continueFlag = paletteObject->GetRGB (index,
-																		&redp[index],
-																		&greenp[index],
-																		&bluep[index]);
-			 
-					}	// end "for (index=0; index<numberColors; index++)"
-			 
-						// Now make changes in the palette
-			 
-				if (continueFlag)
-					{
-					//redp[entry] = (UInt8)(theColorPtr->red >> 8);
-					//greenp[entry] = (UInt8)(theColorPtr->green >> 8);
-					//bluep[entry] = (UInt8)(theColorPtr->blue >> 8);
-					redp[entry] = (UInt8)theColorPtr->red;
-					greenp[entry] = (UInt8)theColorPtr->green;
-					bluep[entry] = (UInt8)theColorPtr->blue;
-					paletteObject->Create (numberColors,redp,greenp,bluep);
-
-					}	// end "if (continueFlag)"
-			 
-				}	// end if (entry < numberColors)
-
-			else	// entry >= numberColors
-				{
-				UInt8 redp[entry];
-				UInt8 greenp[entry];
-				UInt8 bluep[entry];
-				for (int index = 0; index < numberColors; index++)
-					{
-					continueFlag = paletteObject->GetRGB (index,
-																		&redp[index],
-																		&greenp[index],
-																		&bluep[index]);
-			 
-					}	// end "for (index=0; index<numberColors; index++)"
-			 
-				for (int index=numberColors; index<(entry+1); index++)
-					{
-					redp[index] = 255;
-					greenp[index] = 255;
-					bluep[index] = 255;
-			 
-					}	// end "for (index=0; index<numberColors; index++)"
-			 
-						// Now make changes in the palette
-			 
-				if (continueFlag)
-					{
-					redp[entry] = (UInt8)theColorPtr->red;
-					greenp[entry] = (UInt8)theColorPtr->green;
-					bluep[entry] = (UInt8)theColorPtr->blue;
-					paletteObject->Create ((entry+1),redp,greenp,bluep);
-			 
-					}	// end "if (continueFlag)"
-			 
-				}	// end "else entry >= numberColors"
-			*/
+		#if defined multispec_wx
 			paletteObject->mPaletteObject[entry].red = (UInt8)theColorPtr->red;
 			paletteObject->mPaletteObject[entry].green = (UInt8)theColorPtr->green;
 			paletteObject->mPaletteObject[entry].blue = (UInt8)theColorPtr->blue;
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		
 		}	// end "if (entry >= 0 && entry < 256)"
 
@@ -3816,7 +3675,7 @@ void MSetEntryColor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3863,35 +3722,14 @@ Boolean MVerifyPaletteSize (
 	   	paletteObject->SetNumberPaletteEntries ((UInt16)numberEntries);
 	#endif	// defined multispec_win  
 
-   #if defined multispec_lin
+   #if defined multispec_wx
    			// Note that 256 entries are available in the palette.
-		//if (paletteObject != NULL &&
-		//						paletteObject->GetNumberPaletteEntries () >= numberEntries)
+
 		if (paletteObject != NULL && numberEntries <= 256)
 			continueFlag = TRUE;
 	
 	   if (continueFlag)
 	   	paletteObject->SetNumberPaletteEntries ((UInt16)numberEntries);
-		/*
-		UInt16 redIndex, greenIndex, blueIndex;
-		UInt8 redpalette[numberEntries];
-		UInt8 greenpalette[numberEntries];
-		UInt8 bluepalette[numberEntries];
-
-		for (int index = 0; index < numberEntries; index++)
-			{
-			redpalette[index] = (UInt8)(255);
-			greenpalette[index] = (UInt8)(255);
-			bluepalette[index] = (UInt8)(255);
-			
-			}	// end "for (index=0; index<numberColors; index++)"
-	
-		paletteObject->SetNumberPaletteEntries ((UInt16) numberEntries);
-		continueFlag = paletteObject->Create (numberEntries,
-															redpalette,
-															greenpalette,
-															bluepalette);
-		*/
    #endif
 	
 	return (continueFlag);
@@ -3901,7 +3739,7 @@ Boolean MVerifyPaletteSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3942,14 +3780,11 @@ Boolean PaletteExists (
 		return (paletteExistsFlag); 
 	#endif	// defined multispec_win
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
 		Boolean paletteExistsFlag = FALSE;
 
-		//if (paletteObject != NULL && paletteObject->mPaletteObject != 0)
 		if (paletteObject != NULL)
 			paletteExistsFlag = TRUE;
-		//else // It does not exist. Make sure its NULL
-		//	paletteObject = NULL;
 
 		return (paletteExistsFlag);
    #endif
@@ -3959,7 +3794,7 @@ Boolean PaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4160,11 +3995,11 @@ Boolean ReadOneBytePalette (
 						vector3Ptr[index] = (UInt16)tempVector3Ptr[index] * 256;
 					#endif	// defined multispec_mac || defined multispec_win
 					
-					#if defined multispec_lin
+					#if defined multispec_wx
 						vector1Ptr[index] = (UInt16)tempVector1Ptr[index];
 						vector2Ptr[index] = (UInt16)tempVector2Ptr[index];
 						vector3Ptr[index] = (UInt16)tempVector3Ptr[index];
-					#endif	// defined multispec_lin
+					#endif	// defined multispec_wx
 				
 					}	// end "for (index=0; index<=numberColors; index++)" 
 				
@@ -4237,7 +4072,7 @@ Boolean ReadOneBytePalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4301,7 +4136,7 @@ Boolean ReadPaletteFromResource (
 											useClassSymbolPtrFlag;
 											
 											
-   #ifdef multispec_lin
+   #ifdef multispec_wx
       maxPaletteValue = 255;
    #else
       maxPaletteValue = 65535;
@@ -4427,7 +4262,7 @@ Boolean ReadPaletteFromResource (
 				{
 				if (paletteIndexSkip > 1)
 					paletteIndex = 
-							(UInt16)((double)classSymbolPtr[index] * paletteIndexSkip);
+								(UInt16)((double)classSymbolPtr[index] * paletteIndexSkip);
 				
 				else	// paletteIndexSkip <= 1
 					paletteIndex = classSymbolPtr[index];
@@ -4582,7 +4417,7 @@ Boolean ReadPaletteFromResource (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4598,7 +4433,7 @@ Boolean ReadPaletteFromResource (
 //
 // Value Returned:	None		
 // 
-// Called By:			CreateThematicColorPalette in paletteProc.c
+// Called By:			CreateThematicColorPalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/22/1991
 //	Revised By:			Larry L. Biehl			Date: 09/11/2006	
@@ -4642,8 +4477,7 @@ Boolean SetBackgroundPaletteEntries (
 			SetEntryUsage (paletteObject, 0, pmTolerant, 0);
 			SetEntryUsage (paletteObject, numberEntries-1, pmTolerant, 0);
 			
-				//if (displaySpecsPtr->numberPaletteLevels <= 253)
-				SetEntryUsage (paletteObject, numberEntries-2, pmTolerant, 0);
+			SetEntryUsage (paletteObject, numberEntries-2, pmTolerant, 0);
 			
 			}	// end "if (gBlinkProcedure == kBlink2)" 
 			
@@ -4660,7 +4494,7 @@ Boolean SetBackgroundPaletteEntries (
 		CTab2Palette (cTableHandle, displaySpecsPtr->backgroundPaletteObject, 0, 0);			
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
+   #if defined multispec_wx
 		CTab2Palette (cTableHandle, paletteObject, 0, 0);
 		CTab2Palette (cTableHandle, displaySpecsPtr->backgroundPaletteObject, 0, 0);			
 	#endif	// defined multispec_win
@@ -4696,7 +4530,7 @@ Boolean SetBackgroundPaletteEntries (
 				MSetEntryColor (
 					paletteObject, (SInt16)paletteIndex, &displaySpecsPtr->backgroundColor); 
 				
-            #if defined multispec_win || defined multispec_lin                                           
+            #if defined multispec_win || defined multispec_wx                                           
 					MSetEntryColor (displaySpecsPtr->backgroundPaletteObject, 
 											(SInt16)paletteIndex, 
 											&displaySpecsPtr->backgroundColor);
@@ -4725,7 +4559,7 @@ Boolean SetBackgroundPaletteEntries (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4740,8 +4574,8 @@ Boolean SetBackgroundPaletteEntries (
 //
 // Value Returned:	None		
 // 
-// Called By:			ImageWControlEvent in controls.c
-//							DisplayThematicDialogOK in SDisThem.cpp
+// Called By:			ImageWControlEvent in MControls.c
+//							DisplayThematicDialogOK in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1996
 //	Revised By:			Larry L. Biehl			Date: 06/22/2015	
@@ -4804,10 +4638,10 @@ void SetPaletteSpecification (
 		else	// classGroupCode == kGroupDisplay								
 			fileInfoPtr->groupChangedFlag = TRUE;
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 				// Make sure that wxWidgets knows the document has changed.
-			gActiveImageViewCPtr->GetDocument ()->Modify (TRUE);
-		#endif // defined multispec_lin
+			gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
+		#endif // defined multispec_wx
 		
 		}	// end "if (!displaySpecsPtr->paletteUpToDateFlag && ..."
 		
@@ -4816,7 +4650,7 @@ void SetPaletteSpecification (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4832,13 +4666,13 @@ void SetPaletteSpecification (
 //
 // Value Returned:	paletteCode to be used.
 //
-// Called By:			ImageWControlEvent in controls.c
-//							DisplayThematicDialog in SDisThem.cpp
+// Called By:			ImageWControlEvent in MControls.c
+//							DisplayThematicDialog in SDisplayThematic.cpp
 //							CMDisplayThematicDlg::OnInitDialog in WDistDlg.cpp
-//							CMDisplayThematicDlg::OnDropdownPaletteCombo in WDistDlg.cpp
+//							CMDisplayThematicDlg::OnPaletteComboDropDown in WDistDlg.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/31/1990
-//	Revised By:			Larry L. Biehl			Date: 04/27/2018
+//	Revised By:			Larry L. Biehl			Date: 11/11/2019
 
 SInt16 SetUpPalettePopUpMenu (
 				DialogPtr							dialogPtr,
@@ -4928,7 +4762,8 @@ SInt16 SetUpPalettePopUpMenu (
 		EnableMenuItem (popUpPaletteMenu, kAVHRR_NDVI_Colors);
 		EnableMenuItem (popUpPaletteMenu, kMODIS_NDVI_Colors);
 		
-		if (DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH)) 
+		if (DetermineIfFalseColorAvailable (
+													fileFormat, numberClasses, classDescriptionH))
 			EnableMenuItem (popUpPaletteMenu, kFalseColors);
 		
 		else	// !DetermineIfFalseColorAvailable (fileFormat)	
@@ -4970,7 +4805,8 @@ SInt16 SetUpPalettePopUpMenu (
 		
 				// Determine if the FALSE color item is to be included. 
 				                                   
-		if (DetermineIfFalseColorAvailable (fileFormat, numberClasses, classDescriptionH))
+		if (DetermineIfFalseColorAvailable (
+													fileFormat, numberClasses, classDescriptionH))
 			{                                                     
 		 	comboBoxPtr->InsertString (nextStringIndex, (LPCTSTR)_T("False Color..."));
 			comboBoxPtr->SetItemData (nextStringIndex, kFalseColors);
@@ -5068,8 +4904,9 @@ SInt16 SetUpPalettePopUpMenu (
 		return paletteCode;
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin	
-		wxComboBox*							comboBoxPtr;
+   #if defined multispec_wx
+		wxChoice*							paletteChoiceCtrl;
+		wxComboBox*							paletteComboCtrl;
 	
 		int									comboItemCount,
 												j;
@@ -5077,30 +4914,66 @@ SInt16 SetUpPalettePopUpMenu (
 		SInt16								nextStringIndex,
 												paletteSelection;
 	
+		Boolean								wxChoiceFlag = FALSE;
+	
 	
 				// Set user defined values for palette combo box.
-				
-		comboBoxPtr = (wxComboBox*)(dialogPtr->FindWindow (IDC_PaletteCombo));
+	
+		const wxChar* classNamePtr = (dialogPtr->FindWindow (IDC_PaletteCombo))->
+																		GetClassInfo()->GetClassName ();
+		if (wxStrcmp (classNamePtr, wxT("wxChoice")) == 0)
+			wxChoiceFlag = TRUE;
+	
+		paletteChoiceCtrl = (wxChoice*)(dialogPtr->FindWindow (IDC_PaletteCombo));
+		paletteComboCtrl = (wxComboBox*)(dialogPtr->FindWindow (IDC_PaletteCombo));
 	
 				// Make sure that the 6th, 7th & 8th strings do not exist.
-				 
-		comboItemCount = comboBoxPtr->GetCount ();
-		if (comboItemCount > 5)
+	
+		if (wxChoiceFlag)
 			{
-         for (j=comboItemCount; j>=6; j--)
-            comboBoxPtr->Delete (j-1);
-		
-			}	// end "if (comboItemCount > 5)"
+			comboItemCount = paletteChoiceCtrl->GetCount ();
+			if (comboItemCount > 5)
+				{
+				for (j=comboItemCount; j>=6; j--)
+					paletteChoiceCtrl->Delete (j-1);
 			
+				}	// end "if (comboItemCount > 5)"
+			
+			}	// end "if (wxChoiceFlag)"
+	
+		else	// must be combo box
+			{
+			comboItemCount = paletteComboCtrl->GetCount ();
+			if (comboItemCount > 5)
+				{
+				for (j=comboItemCount; j>=6; j--)
+					paletteComboCtrl->Delete (j-1);
+			
+				}	// end "if (comboItemCount > 5)"
+			
+			}	// end "else !wxChoiceFlag"
+	
 		nextStringIndex = 5;    
 		
 				// Determine if the FALSE color item is to be included. 
 				                                   
 		if (DetermineIfFalseColorAvailable (
 													fileFormat, numberClasses, classDescriptionH))
-			{                                                     
-		 	comboBoxPtr->Append (wxT("False Color..."));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kFalseColors);
+			{
+			if (wxChoiceFlag)
+				{
+		 		paletteChoiceCtrl->Append (wxT("False Color..."));
+				paletteChoiceCtrl->SetClientData (nextStringIndex, (void*)kFalseColors);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+		 		paletteComboCtrl->Append (wxT("False Color..."));
+				paletteComboCtrl->SetClientData (nextStringIndex, (void*)kFalseColors);
+				
+				}	// end "else !wxChoiceFlag"
+
 			nextStringIndex++;
 			
 			}	// end "if (DetermineIfFalseColorAvailable (fileFormat))" 
@@ -5119,15 +4992,33 @@ SInt16 SetUpPalettePopUpMenu (
 					// Determine if .trl file is present.										
 					
 			if (displaySpecsPtr->filePaletteFlag) 
-				{                    
-				if (ancillaryInfoFormat == kArcViewDefaultSupportType)
-					comboBoxPtr->Append (wxT("ArcView .clr file"));
-				
-				else	// ancillaryInfoFormat != kArcViewDefaultSupportType
-					comboBoxPtr->Append (wxT("ERDAS .trl file"));
+				{
+				if (wxChoiceFlag)
+					{
+					if (ancillaryInfoFormat == kArcViewDefaultSupportType)
+						paletteChoiceCtrl->Append (wxT("ArcView .clr file"));
 					
-				comboBoxPtr->SetClientData (
+					else	// ancillaryInfoFormat != kArcViewDefaultSupportType
+						paletteChoiceCtrl->Append (wxT("ERDAS .trl file"));
+					
+					paletteChoiceCtrl->SetClientData (
 												nextStringIndex, (void*)kImageDefaultColorTable);
+					
+					}	// end "if (wxChoiceFlag)"
+				
+				else	// !wxChoiceFlag
+					{
+					if (ancillaryInfoFormat == kArcViewDefaultSupportType)
+						paletteComboCtrl->Append (wxT("ArcView .clr file"));
+					
+					else	// ancillaryInfoFormat != kArcViewDefaultSupportType
+						paletteComboCtrl->Append (wxT("ERDAS .trl file"));
+					
+					paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+					
+					}	// end "else !wxChoiceFlag"
+				
 				nextStringIndex++;
 				
 				}	// end "if (displaySpecsPtr->filePaletteFlag)"
@@ -5135,47 +5026,117 @@ SInt16 SetUpPalettePopUpMenu (
 	 		}	// end "if (fileFormat == kErdas73Type || ...)" 
 	 		
 		else if (fileFormat == kSunScreenDumpType)
-			{                                  
-	 		comboBoxPtr->Append (wxT("SUN screendump file"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
+			{
+			if (wxChoiceFlag)
+				{
+	 			paletteChoiceCtrl->Append (wxT("SUN screendump file"));
+				paletteChoiceCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+	 			paletteComboCtrl->Append (wxT("SUN screendump file"));
+				paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "else !wxChoiceFlag"
+				
 			nextStringIndex++;
 				
 			}	// end "else if (fileFormat == kSunScreenDumpType)"  
 	 		
 		else if (fileFormat == kTIFFType && colorTableOffset > 0)
-			{                                
-	 		comboBoxPtr->Append (wxT("TIFF file"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
+			{
+			if (wxChoiceFlag)
+				{
+	 			paletteChoiceCtrl->Append (wxT("TIFF file"));
+				paletteChoiceCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+	 			paletteComboCtrl->Append (wxT("TIFF file"));
+				paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "else !wxChoiceFlag"
+			
 			nextStringIndex++;
 				
 			}	// end "else if (fileFormat == kTIFFType && ..."  
 	 		
 		else if (fileFormat == kGeoTIFFType && colorTableOffset > 0)
-			{                                  
-	 		comboBoxPtr->Append (wxT("GeoTIFF file"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
+			{
+			if (wxChoiceFlag)
+				{
+	 			paletteChoiceCtrl->Append (wxT("GeoTIFF file"));
+				paletteChoiceCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+	 			paletteComboCtrl->Append (wxT("GeoTIFF file"));
+				paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "else !wxChoiceFlag"
+			
 			nextStringIndex++;
 				
 			}	// end "else if (fileFormat == kGeoTIFFType && ..."  
 	 		
 		else if (fileFormat == kImagineType)
-			{                                  
-	 		comboBoxPtr->Append (wxT("Imagine file"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
+			{
+			if (wxChoiceFlag)
+				{
+	 			paletteChoiceCtrl->Append (wxT("Imagine file"));
+				paletteChoiceCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+	 			paletteComboCtrl->Append (wxT("Imagine file"));
+				paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "else !wxChoiceFlag"
+			
 			nextStringIndex++;
 				
 			}	// end "else if (fileFormat == kImagineType)"  
 	 		
 		else	// fileFormat not one of above but has a color table
-			{                                  
-	 		comboBoxPtr->Append (wxT("Image file default"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kImageDefaultColorTable);
+			{
+			if (wxChoiceFlag)
+				{
+	 			paletteChoiceCtrl->Append (wxT("Image file default"));
+				paletteChoiceCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+	 			paletteComboCtrl->Append (wxT("Image file default"));
+				paletteComboCtrl->SetClientData (
+												nextStringIndex, (void*)kImageDefaultColorTable);
+				
+				}	// end "else !wxChoiceFlag"
+			
 			nextStringIndex++;
 				
-			}	// end "else if (fileFormat == kImagineType)" 
+			}	// end "else fileFormat not one of above but has a color table"
 		 	
 		//if (nextStringIndex == 6)    
-		//	comboBoxPtr->SetClientData (nextStringIndex, (void*)gUserDefinedColors);   
+		//	paletteCtrl->SetClientData (nextStringIndex, (void*)gUserDefinedColors);
 	 		
 	 			// Determine if user defined colors is to be included in the list.               
 		
@@ -5184,8 +5145,21 @@ SInt16 SetUpPalettePopUpMenu (
 			  (classGroupCode != kClassDisplay &&
 					displaySpecsPtr->thematicGroupPaletteType == kUserDefinedColors)) 
 			{
-		 	comboBoxPtr->Append (wxT("User Defined Colors"));
-			comboBoxPtr->SetClientData (nextStringIndex, (void*)kUserDefinedColors);
+			if (wxChoiceFlag)
+				{
+		 		paletteChoiceCtrl->Append (wxT("User Defined Colors"));
+				paletteChoiceCtrl->SetClientData (
+													nextStringIndex, (void*)kUserDefinedColors);
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+		 		paletteComboCtrl->Append (wxT("User Defined Colors"));
+				paletteComboCtrl->SetClientData (
+													nextStringIndex, (void*)kUserDefinedColors);
+				
+				}	// end "else !wxChoiceFlag"
 			
 			}	// end "if ((classGroupCode == kClassDisplay && ..."	
 
@@ -5202,25 +5176,43 @@ SInt16 SetUpPalettePopUpMenu (
 					// This implies that the False Color option is not available now.
 					// Set paletteSelection to the last option available which is the
 					// the original
-			paletteSelection = comboBoxPtr->GetCount () - 1;
 			
-			SInt64 palette64 =
-					(SInt64)((int*)comboBoxPtr->GetClientData (paletteSelection));
+			SInt64 			palette64;
+			
+			if (wxChoiceFlag)
+				{
+				paletteSelection = paletteChoiceCtrl->GetCount () - 1;
+				palette64 =
+						(SInt64)((int*)paletteChoiceCtrl->GetClientData (paletteSelection));
+				
+				}	// end "if (wxChoiceFlag)"
+			
+			else	// !wxChoiceFlag
+				{
+				paletteSelection = paletteComboCtrl->GetCount () - 1;
+				palette64 =
+						(SInt64)((int*)paletteComboCtrl->GetClientData (paletteSelection));
+				
+				}	// end "else !wxChoiceFlag"
+			
 			paletteCode = (SInt16)palette64;
 			
 			}	// end "if (paletteSelection < 0)"
 
-		comboBoxPtr->SetSelection (paletteSelection);
+		if (wxChoiceFlag)
+			paletteChoiceCtrl->SetSelection (paletteSelection);
+		else	// !wxChoiceFlag
+			paletteComboCtrl->SetSelection (paletteSelection);
 	
 		return paletteCode;
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 			
 }	// end Routine "SetUpPalettePopUpMenu"          
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5235,13 +5227,13 @@ SInt16 SetUpPalettePopUpMenu (
 //
 // Value Returned:	None		
 // 
-// Called By:			ImageWControlEvent in controls.c
-//							Menus in menus.c
-//							LoadThematicClasses in SSaveWrt.cpp
-//							LoadThematicGroups in SSaveWrt.cpp
-//							EditGroupClassDialogOK in SThemWin.cpp
-//							EditGroups in SThemWin.cpp
-//							LegendPopUpMenu in thematicWindow.cpp
+// Called By:			ImageWControlEvent in MControls.c
+//							Menus in MMenus.c
+//							LoadThematicClasses in SSaveWrite.cpp
+//							LoadThematicGroups in SSaveWrite.cpp
+//							EditGroupClassDialogOK in SThematicWindow.cpp
+//							EditGroups in SThematicWindow.cpp
+//							LegendPopUpMenu in MThematicWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/04/1996
 //	Revised By:			Larry L. Biehl			Date: 06/08/2011	

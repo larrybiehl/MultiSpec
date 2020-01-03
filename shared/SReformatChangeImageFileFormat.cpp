@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/22/2019
+//	Revision date:			11/12/2019
 //
 //	Language:				C
 //
@@ -20,39 +20,15 @@
 //	Brief description:	The routines in this file handle the Processor->Reformat->
 //								Change Image File Format menu command.							
 //
-//	Functions in file:	void				AddWhiteGaussianNoise
-//								void				AdjustDataForChangeFormat
-//								Boolean 			ChangeFormatToBILorBISorBSQ
-//								void 				ChangeImageFileFormat
-//								Boolean 			ChangeImageFormatDialog
-//								Boolean 			ChangeImageTransformDialog
-//								void 				CreatePCImage
-//								SInt16			DecodeAlgebraicFormula
-//								SInt16	 		DeterminePCMinimumNumberBits
-//								pascal void 	DrawChanDescriptionPopUp
-//								pascal void 	DrawPCChannelsPopUp
-//								SInt32 			GetNumberHeaderBytes
-//								SInt16	 		GetPCChannelList
-//								Boolean 			GetReformatAndFileInfoStructures
-//								Boolean 			GetReformatOutputBuffer
-//								SInt16	 		GetTransformChannelList
-//								void 				InitializeReformatStructure
-//								void 				ReformatControl
-//								SInt16	 		ReformatDialog
-//								void 				TransformData
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
  
 #include "SMultiSpec.h"
 	 
-#if defined multispec_lin
-	#include "LMultiSpec.h"
-	#include "LReformatChangeDialog.h"
-	#include "LImageView.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+	#include "xMultiSpec.h"
+	#include "xReformatChangeDialog.h"
+	#include "xImageView.h"
+#endif	// defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define IDOK									1
@@ -96,30 +72,9 @@
 	#include "WReformatChangeDialog.h" 
 #endif	// defined multispec_win 
 
-//#include	"SExtGlob.h" 
 
-extern SInt16		CheckIfValueInList (
-							SInt16*								listPtr,
-							SInt16								numberValuesInList,
-							SInt16								value);
-								
-extern SInt16		GetHeaderFormatFromPopUpSelection (
-							SInt16		 						headerOptionsSelection);
 
-extern SInt16 		FileSpecificationDialogGetNumberBytes (
-							SInt16								dataTypeSelection);
-
-extern void			ReformatDialogInitialize (
-							DialogPtr							dialogPtr,
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr,
-							SInt16*								reformatRequestPtr,
-							SInt16*								actionCodeVector,
-							SInt16*								fileNamesSelectionPtr,
-							SInt16*								chanDescriptionSelectionPtr);
-							
-
-			// Prototypes for routines in this file that are only called by		
+			// Prototypes for routines in this file that are only called by
 			// other routines in this file.													
 			
 void		AddWhiteGaussianNoise (
@@ -213,17 +168,17 @@ HUInt16Ptr CreateDataValueToClassTable (
 				HUInt16Ptr							newPaletteIndexPtr);
 
 #if defined multispec_mac
-	pascal void 		DrawChanDescriptionPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16	 							itemNumber);
+	pascal void	DrawChanDescriptionPopUp (
+					DialogPtr 							dialogPtr,
+					SInt16	 							itemNumber);
 
-	pascal void 		DrawFunctionPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16	 							itemNumber);
+	pascal void	DrawFunctionPopUp (
+					DialogPtr 							dialogPtr,
+					SInt16	 							itemNumber);
 	
-	pascal void 		DrawPCChannelsPopUp (
-								DialogPtr 							dialogPtr, 
-								SInt16	 							itemNumber);
+	pascal void	DrawPCChannelsPopUp (
+					DialogPtr 							dialogPtr,
+					SInt16	 							itemNumber);
 #endif	// defined multispec_mac 
 
 double	Find_kth_SmallestElementInList (
@@ -291,7 +246,7 @@ SInt16	gFunctionSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -367,7 +322,7 @@ void AddWhiteGaussianNoise (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -382,7 +337,7 @@ void AddWhiteGaussianNoise (
 //
 // Value Returned:	
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.c
+// Called By:			ChangeFormatToBILorBISorBSQ
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1992
 //	Revised By:			Larry L. Biehl			Date: 02/08/2006
@@ -422,7 +377,7 @@ void AdjustDataForChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -860,7 +815,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 			{
 					// Note that BSQ format is never convertType == 1
 					
-			if (forceBISFlag && numberOutChannels > 1) // reformatOptionsPtr->functionCode == kNoFunction)
+			if (forceBISFlag && numberOutChannels > 1)
 				outOffsetBytes = (outOffsetBytes-preLineBytes)/numberOutColumnsChannels;
 				
 			else	// !forceBISFlag || ...
@@ -895,7 +850,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					outsideLoopChannel++)
 			{
 			if (numberOutsideLoops > 1)
-				//channelIdentifier = reformatOptionsPtr->channelPtr[outsideLoopChannel];
 				channelIdentifier = fileWavelengthOrderPtr[outsideLoopChannel];
 			
 					// Load some of the File IO Instructions structure that pertain
@@ -978,8 +932,8 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					
 					}	// end "if (errCode != noErr)"
 					
-						// Get data for channel that is to be used to adjust the selected channels
-						// if needed.
+						// Get data for channel that is to be used to adjust the selected
+						// channels if needed.
 					
 				if (reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel)
 					{
@@ -1007,8 +961,11 @@ Boolean ChangeFormatToBILorBISorBSQ (
 							
 						else	// !inputBISFlag
 							{
-							inputBufferOffset = reformatOptionsPtr->locationInList * numberColumnBytes;
-							memcpy ((char*)ioOutAdjustBufferPtr, &ioBufferPtr2[inputBufferOffset], numberColumnBytes);
+							inputBufferOffset = 
+										reformatOptionsPtr->locationInList * numberColumnBytes;
+							memcpy ((char*)ioOutAdjustBufferPtr, 
+										&ioBufferPtr2[inputBufferOffset], 
+										numberColumnBytes);
 							
 							}	// end "else !inputBISFlag"
 
@@ -1016,8 +973,9 @@ Boolean ChangeFormatToBILorBISorBSQ (
 						
 					else	// reformatOptionsPtr->locationInList < 0
 						{
-								// The data for the channel to be used to adjust the selected channels 
-								// has not been read. Read the data directly to the adjust buffer location.
+								// The data for the channel to be used to adjust the selected 
+								// channels has not been read. Read the data directly to the 
+								// adjust buffer location.
 																	
 						errCode = GetLineOfData (fileIOInstructions2Ptr,
 															line,
@@ -1392,7 +1350,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 							for (j=0; j<numberColumns; j++)
 								{
 								doubleValue = inputDoublePtr[column];
-								*outputSInt8Ptr = (SInt8)(doubleValue + SIGN2(.5, doubleValue));
+								*outputSInt8Ptr = (SInt8)(doubleValue + SIGN2 (.5, doubleValue));
 								outputSInt8Ptr += outSkip;
 								column += columnInterval;
 								
@@ -1425,7 +1383,8 @@ Boolean ChangeFormatToBILorBISorBSQ (
 							for (j=0; j<numberColumns; j++)
 								{
 								doubleValue = inputDoublePtr[column];
-								*outputSInt16Ptr = (SInt16)(doubleValue + SIGN2(.5, doubleValue));
+								*outputSInt16Ptr =
+												(SInt16)(doubleValue + SIGN2 (.5, doubleValue));
 								outputSInt16Ptr += outSkip;
 								column += columnInterval;
 								
@@ -1458,7 +1417,8 @@ Boolean ChangeFormatToBILorBISorBSQ (
 							for (j=0; j<numberColumns; j++)
 								{
 								doubleValue = inputDoublePtr[column];
-								*outputSInt32Ptr = (SInt32)(doubleValue + SIGN2(.5, doubleValue));
+								*outputSInt32Ptr =
+												(SInt32)(doubleValue + SIGN2 (.5, doubleValue));
 								outputSInt32Ptr += outSkip;
 								column += columnInterval;
 								
@@ -1524,7 +1484,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 													numberOutColumnsChannels);
 				*/
 				if (outFileInfoPtr->format == kGAIAType)
-					ConvertLineToGAIAFormat (	
+					ConvertLineToGAIAFormat (
 											NULL,
 											(UInt16*)savedOutBufferPtr,
 											numberColumns,
@@ -1538,7 +1498,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					savedOutBufferPtr = &savedOutBufferPtr[countOutBytes];
 
 				ioOut1ByteBufferPtr = savedOutBufferPtr;
-				//savedOutBufferPtr = ioOut1ByteBufferPtr;
 
 						// Write line(s), channel(s) of data when needed.					
 				
@@ -1549,7 +1508,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					errCode = WriteOutputDataToFile (outFileInfoPtr,
 																	outFileStreamPtr,
 																	ioOutBufferPtr,
-																	//(SInt16*)channelPtr,
 																	(SInt16*)channelOutOrderPtr,
 																	numberInsideLoops,	// numberOutChannels,
 																	lastOutputWrittenLine,
@@ -1606,10 +1564,11 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					
 			CloseUpFileIOInstructions (fileIOInstructionsPtr, NULL);
 			
-			}	// end "for (outsideLoopChannel=0; outsideLoopChannel<numberOutsideLoops; ..."
+			}	// end "for (outsideLoopChannel=0; outsideLoopChannel<..."
 			
-				// Make sure that the channel list pointer in the FileIOInstructions structure
-				// set correctly. It may have changed if the outside channel loop was used.
+				// Make sure that the channel list pointer in the FileIOInstructions
+				// structure set correctly. It may have changed if the outside channel
+				// loop was used.
 				
 		fileIOInstructionsPtr->numberChannels = numberOutChannels;
 		fileIOInstructionsPtr->channelListPtr = (UInt16*)reformatOptionsPtr->channelPtr;
@@ -1622,7 +1581,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 			errCode = WriteOutputDataToFile (outFileInfoPtr,
 															outFileStreamPtr,
 															ioOutBufferPtr,
-															//(SInt16*)channelPtr,
 															(SInt16*)channelOutOrderPtr,
 															numberInsideLoops,		// numberOutChannels,
 															lastOutputWrittenLine,
@@ -1643,7 +1601,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		if (continueFlag && reformatOptionsPtr->channelDescriptions)	
 			WriteChannelDescriptionsAndValues (
 										outFileInfoPtr,
-										//reformatOptionsPtr->channelPtr,
 										(SInt16*)fileWavelengthOrderPtr,
 										reformatOptionsPtr->numberChannels,
 										(reformatOptionsPtr->outputFileCode == kAppendToMenuItem));
@@ -1686,7 +1643,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1749,7 +1706,8 @@ void ChangeImageFileFormat ()
 		outFileInfoPtr = (FileInfoPtr)GetHandlePointer (outFileInfoHandle, kLock);
 		outFileInfoHandle = NULL;	
 		
-		reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer (reformatOptionsH, kLock);
+		reformatOptionsPtr =
+							(ReformatOptionsPtr)GetHandlePointer (reformatOptionsH, kLock);
 			
 		if (gImageFileInfoPtr->format != kGAIAType && 
 												gImageFileInfoPtr->format != kGAIA2Type)
@@ -1776,8 +1734,8 @@ void ChangeImageFileFormat ()
 													
 				// Get Changes that the user wants to make in the file format		
 				
-		if (ChangeImageFormatDialog (gImageFileInfoPtr, outFileInfoPtr,
-																			reformatOptionsPtr))
+		if (ChangeImageFormatDialog (
+									gImageFileInfoPtr, outFileInfoPtr, reformatOptionsPtr))
 			{
 					// List the processor name, date and time.							
 				
@@ -1828,27 +1786,27 @@ void ChangeImageFileFormat ()
 			
 			if (continueFlag)	 						
 				continueFlag = GetIOBufferPointers (
-										&gFileIOInstructions[0],
-										gImageWindowInfoPtr,
-										gImageLayerInfoPtr,
-										gImageFileInfoPtr,
-										&gInputBufferPtr, 
-										&gOutputBufferPtr,
-										reformatOptionsPtr->columnStart,
-				 						reformatOptionsPtr->columnEnd,
-				 						reformatOptionsPtr->columnInterval,
-				 						reformatOptionsPtr->numberChannels,
-				 						(UInt16*)reformatOptionsPtr->channelPtr, 
-										kPackData, 
-										forceBISFlag, 
-										reformatOptionsPtr->forceByteCode,
-										kDoNotAllowForThreadedIO,
-										&fileIOInstructionsPtr);
-										
-					// If the request is to adjust the selected channels by a selected channel
-					// check if separate read of the file will be required. This occurs if the 
-					// the selected channel to adjust the channels by is not included in the
-					// selected channels to be adjust.
+														&gFileIOInstructions[0],
+														gImageWindowInfoPtr,
+														gImageLayerInfoPtr,
+														gImageFileInfoPtr,
+														&gInputBufferPtr, 
+														&gOutputBufferPtr,
+														reformatOptionsPtr->columnStart,
+														reformatOptionsPtr->columnEnd,
+														reformatOptionsPtr->columnInterval,
+														reformatOptionsPtr->numberChannels,
+														(UInt16*)reformatOptionsPtr->channelPtr, 
+														kPackData, 
+														forceBISFlag, 
+														reformatOptionsPtr->forceByteCode,
+														kDoNotAllowForThreadedIO,
+														&fileIOInstructionsPtr);
+			
+					// If the request is to adjust the selected channels by a selected
+					// channel check if separate read of the file will be required. This
+					// occurs if the the selected channel to adjust the channels by is not
+					// included in the selected channels to be adjust.
 					
 			if (reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel)
 				{
@@ -1856,10 +1814,10 @@ void ChangeImageFileFormat ()
 						// channels to be adjusted. Note that channelPtr list is 0 based
 						// while transformAdjustSelectedChannel is 1 based.
 				
-				reformatOptionsPtr->locationInList =		
-					CheckIfValueInList (reformatOptionsPtr->channelPtr,
-												reformatOptionsPtr->numberChannels,
-												reformatOptionsPtr->transformAdjustSelectedChannel - 1);
+				reformatOptionsPtr->locationInList = CheckIfValueInList (
+										reformatOptionsPtr->channelPtr,
+										reformatOptionsPtr->numberChannels,
+										reformatOptionsPtr->transformAdjustSelectedChannel - 1);
 						
 				
 				}	// end "if (...->transformDataCode == kAdjustChannelsByChannel)"
@@ -1870,24 +1828,23 @@ void ChangeImageFileFormat ()
 						// channel being used to adjust the selected set of channels.
 						
 				adjustChannel = reformatOptionsPtr->transformAdjustSelectedChannel - 1;
-				continueFlag = GetIOBufferPointers (
-										&gFileIOInstructions[1],
-										gImageWindowInfoPtr,
-										gImageLayerInfoPtr,
-										gImageFileInfoPtr,
-										&gInputBuffer2Ptr, 
-										&gOutputBuffer2Ptr,
-										reformatOptionsPtr->columnStart,
-				 						reformatOptionsPtr->columnEnd,
-				 						reformatOptionsPtr->columnInterval,
-				 						1,
-				 						&adjustChannel, 
-										kPackData, 
-										forceBISFlag, 
-										reformatOptionsPtr->forceByteCode,
-										kDoNotAllowForThreadedIO,
-										&fileIOInstructions2Ptr);
-										
+				continueFlag = GetIOBufferPointers (&gFileIOInstructions[1],
+																gImageWindowInfoPtr,
+																gImageLayerInfoPtr,
+																gImageFileInfoPtr,
+																&gInputBuffer2Ptr, 
+																&gOutputBuffer2Ptr,
+																reformatOptionsPtr->columnStart,
+																reformatOptionsPtr->columnEnd,
+																reformatOptionsPtr->columnInterval,
+																1,
+																&adjustChannel, 
+																kPackData, 
+																forceBISFlag, 
+																reformatOptionsPtr->forceByteCode,
+																kDoNotAllowForThreadedIO,
+																&fileIOInstructions2Ptr);
+				
 				}	// end "if (continueFlag && reformatOptionsPtr->locationInList < 0)"
 	
 					// Get buffer for output data.											
@@ -1985,8 +1942,8 @@ void ChangeImageFileFormat ()
 					if (reformatOptionsPtr->transformDataCode == kCreatePCImage)
 						{
 						reformatOptionsPtr->eigenValuePtr = (double*)GetHandlePointer (
-														reformatOptionsPtr->eigenValueHandle, 
-														kLock);
+															reformatOptionsPtr->eigenValueHandle,
+															kLock);
 						reformatOptionsPtr->eigenValuePtr = 
 									&reformatOptionsPtr->eigenValuePtr[
 												reformatOptionsPtr->numberPCComponents];
@@ -2000,7 +1957,7 @@ void ChangeImageFileFormat ()
 							reformatOptionsPtr->transformOffset = 0;
 							if (!outFileInfoPtr->signedDataFlag)
 								reformatOptionsPtr->transformOffset = 
-																(outFileInfoPtr->maxUsableDataValue+1)/2;
+														(outFileInfoPtr->maxUsableDataValue+1)/2;
 							
 							}	// end "if (gTransformationMatrix.createdByCode < 16)"
 																
@@ -2128,7 +2085,7 @@ void ChangeImageFileFormat ()
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2418,7 +2375,8 @@ Boolean ChangeImageFormatDialog (
 								SetDLogControl (dialogPtr,
 														IDC_OutputInWavelengthOrder,
 														outputInWavelengthOrderFlag);
-								SetDLogControlHilite (dialogPtr, IDC_OutputInWavelengthOrder, 0);
+								SetDLogControlHilite (
+														dialogPtr, IDC_OutputInWavelengthOrder, 0);
 								
 								}	// end "if (outputInWavelengthOrderAllowedFlag)"
 							
@@ -2481,7 +2439,8 @@ Boolean ChangeImageFormatDialog (
 								}	// end "if (!sessionUserSetDataValueTypeSelectionFlag && ..."
 												
 							gTextString2[0] = numChars;			
-							LoadDItemString (dialogPtr, IDC_MinimumBitsPrompt, (Str255*)gTextString2);
+							LoadDItemString (
+									dialogPtr, IDC_MinimumBitsPrompt, (Str255*)gTextString2);
 							
 							//SetDLogControl (dialogPtr, 41, 0);
 							//SetDLogControlHilite (dialogPtr, 41, 255);
@@ -2491,7 +2450,8 @@ Boolean ChangeImageFormatDialog (
 								SetDLogControl (dialogPtr,
 														IDC_OutputInWavelengthOrder,
 														0);
-								SetDLogControlHilite (dialogPtr, IDC_OutputInWavelengthOrder, 255);
+								SetDLogControlHilite (
+													dialogPtr, IDC_OutputInWavelengthOrder, 255);
 								
 								}	// end "if (outputInWavelengthOrderAllowedFlag)"
 							
@@ -2712,26 +2672,27 @@ Boolean ChangeImageFormatDialog (
 				{
 				modalDone = TRUE;  
 
-				OKFlag = ChangeImageFormatDialogOK (dialogPtr,
-																gImageWindowInfoPtr,
-																gImageLayerInfoPtr,
-																gImageFileInfoPtr,
-																outFileInfoPtr,
-																reformatOptionsPtr,
-																&dialogSelectArea,
-																gOutputFileSelection,
-																gBandInterleaveSelection,
-																gDataValueTypeSelection,
-																sessionUserSetDataValueTypeSelectionFlag,
-																gChannelSelection,
-																GetDLogControl (dialogPtr, 39),
-																GetDLogControl (dialogPtr, 40),
-																GetDLogControl (dialogPtr, 41),
-																GetDLogControl (dialogPtr, 42),
-																GetDLogControl (dialogPtr, 47),
-																gHeaderOptionsSelection,
-																channelThematicDisplayFlag);
-																
+				OKFlag = ChangeImageFormatDialogOK (
+														dialogPtr,
+														gImageWindowInfoPtr,
+														gImageLayerInfoPtr,
+														gImageFileInfoPtr,
+														outFileInfoPtr,
+														reformatOptionsPtr,
+														&dialogSelectArea,
+														gOutputFileSelection,
+														gBandInterleaveSelection,
+														gDataValueTypeSelection,
+														sessionUserSetDataValueTypeSelectionFlag,
+														gChannelSelection,
+														GetDLogControl (dialogPtr, 39),
+														GetDLogControl (dialogPtr, 40),
+														GetDLogControl (dialogPtr, 41),
+														GetDLogControl (dialogPtr, 42),
+														GetDLogControl (dialogPtr, 47),
+														gHeaderOptionsSelection,
+														channelThematicDisplayFlag);
+				
 				}	// end "if (itemHit == 1)" 
 				
 			if	(itemHit == 2)      // User selected Cancel for information 
@@ -2771,11 +2732,9 @@ Boolean ChangeImageFormatDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMChangeFormatDlg* dialogPtr = NULL;
 
-		//dialogPtr = new CMChangeFormatDlg ((wxWindow*)GetMainFrame ());
-		//dialogPtr = new CMChangeFormatDlg ((wxWindow*)gActiveImageViewCPtr->m_frame);
 		dialogPtr = new CMChangeFormatDlg (reformatOptionsPtr, NULL);
 
 		OKFlag = dialogPtr->DoDialog (outFileInfoPtr);
@@ -2790,7 +2749,7 @@ Boolean ChangeImageFormatDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2807,7 +2766,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 03/09/2019
+//	Revised By:			Larry L. Biehl			Date: 11/04/2019
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2844,10 +2803,10 @@ void ChangeImageFormatDialogInitialize (
 	Boolean								mapInfoExistsFlag,
 											signedDataFlag;
 		 
-	#if defined multispec_lin
-		wxComboBox* comboBoxPtr;
+	#if defined multispec_wx
+		wxChoice* comboBoxPtr;
 				
-		comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_ChangeHeader);
+		comboBoxPtr = (wxChoice*)dialogPtr->FindWindow (IDC_ChangeHeader);
 	#endif	// defined multispec_win
 
 	#if defined multispec_win  
@@ -2891,7 +2850,7 @@ void ChangeImageFormatDialogInitialize (
 			LoadDItemString (dialogPtr, IDC_InputFileName, (Str255*)fileNamePtr);
 	#endif	// defined multispec_mac 
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		LoadDItemString (dialogPtr, IDC_InputFileName, (Str255*)fileNamePtr);
 	#endif
 	
@@ -3026,12 +2985,12 @@ void ChangeImageFormatDialogInitialize (
 								(UCharPtr)inputDataValueTypeStringPtr);
 	#endif	// defined multispec_mac  
                        
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		MGetString ((UCharPtr)inputDataValueTypeStringPtr,
 							0,
 							IDS_DataType01+*dataValueTypeSelectionPtr-1,
 							63);
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 			// "Output file" popup box.
 												
@@ -3236,7 +3195,7 @@ void ChangeImageFormatDialogInitialize (
 		comboBoxPtr->DeleteString (kTIFFGeoTIFFMenuItem);
 	#endif	// defined multispec_win  
 
-   #if defined multispec_lin
+   #if defined multispec_wx
 		comboBoxPtr->Delete (kTIFFGeoTIFFMenuItem);
    #endif
 	
@@ -3259,11 +3218,12 @@ void ChangeImageFormatDialogInitialize (
 		comboBoxPtr->SetItemData (kTIFFGeoTIFFMenuItem, kTIFFGeoTIFFMenuItem);
 	#endif	// defined multispec_win  
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       wxString tiffmenustring (&tiffMenuNameStringPtr[1], wxConvUTF8);
       comboBoxPtr->Insert (
-					tiffmenustring, kTIFFGeoTIFFMenuItem, (void*)gTIFFGeoTIFFMenuItem);
-		comboBoxPtr->SetClientData (kTIFFGeoTIFFMenuItem, (void*)kTIFFGeoTIFFMenuItem);
+			tiffmenustring, kTIFFGeoTIFFMenuItem, (void*)(SInt64)gTIFFGeoTIFFMenuItem);
+		comboBoxPtr->SetClientData (
+								kTIFFGeoTIFFMenuItem, (void*)(SInt64)kTIFFGeoTIFFMenuItem);
    #endif
 	
 			// Now that settings have been initialized, make sure the "Output file" popup box
@@ -3281,7 +3241,7 @@ void ChangeImageFormatDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3325,8 +3285,6 @@ Boolean ChangeImageFormatDialogOK (
 	float*								channelValuePtr;
 	
 	SInt16*								channelWavelengthOrderPtr;
-	
-	UInt16*								fileWavelengthOrderPtr;
 	
 	UInt32								index,
 											inputByteCode,
@@ -3372,8 +3330,7 @@ Boolean ChangeImageFormatDialogOK (
 			// Make sure data value selection is positive and 0-based.
 			
 	dataValueTypeSelection = abs (dataValueTypeSelection);
-	//	if (reformatOptionsPtr->dataValueTypeSelection != 0 &&
-	//				reformatOptionsPtr->dataValueTypeSelection != dataValueTypeSelection)
+
 	if (sessionUserSetDataValueTypeSelectionFlag)
 		reformatOptionsPtr->userSetDataValueTypeSelectionFlag = TRUE;
 	reformatOptionsPtr->dataValueTypeSelection = dataValueTypeSelection;
@@ -3623,7 +3580,7 @@ Boolean ChangeImageFormatDialogOK (
 				outputInWavelengthOrderFlag)
 		{
 		channelValuePtr = (float*)GetHandlePointer (
-																imageFileInfoPtr->channelValuesHandle);
+															imageFileInfoPtr->channelValuesHandle);
 		
 		if (channelValuePtr != NULL)
 			{
@@ -3661,7 +3618,7 @@ Boolean ChangeImageFormatDialogOK (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3675,10 +3632,12 @@ Boolean ChangeImageFormatDialogOK (
 //
 // Value Returned:
 //
-// Called By:			Data value type popup in ChangeImageFormatDialog
+// Called By:			OnSelendokDataValueType in xReformatChangeDialog.cpp
+//							OnTransformData in xReformatChangeDialog.cpp
+//							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2005
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 11/04/2017
 
 void ChangeImageFormatDialogUpdateHeaderMenu (
 				DialogPtr							dialogPtr,
@@ -3694,7 +3653,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 				Boolean								GAIAFormatAllowedFlag)
 
 {
-	#if defined multispec_win | defined multispec_lin
+	#if defined multispec_win | defined multispec_wx
 		Boolean								menuItemList[6];
 
 
@@ -3704,7 +3663,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 		menuItemList[kGAIAMenuItem] = GAIAFormatAllowedFlag;
 		menuItemList[kTIFFGeoTIFFMenuItem] = TRUE;
 		menuItemList[kMatlabMenuItem] = TRUE;
-	#endif	// defined multispec_win | defined multispec_lin
+	#endif	// defined multispec_win | defined multispec_wx
 
 
 	#if defined multispec_win
@@ -3725,9 +3684,9 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 			DisableMenuItem (popUpHeaderOptionsMenu, kArcViewMenuItem);
 		#endif	// defined multispec_mac	
 		
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			menuItemList[kArcViewMenuItem] = FALSE;
-		#endif	// defined multispec_win | defined multispec_lin
+		#endif	// defined multispec_win | defined multispec_wx
 		
 		}	// end "if (dataValueTypeSelection >= k4ByteRealMenuItem)"
 		
@@ -3742,9 +3701,9 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 				EnableMenuItem (popUpHeaderOptionsMenu, kArcViewMenuItem);
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_win | defined multispec_lin
+		#if defined multispec_win | defined multispec_wx
 			menuItemList[kERDAS74MenuItem] = FALSE;
-		#endif	// defined multispec_win | defined multispec_lin
+		#endif	// defined multispec_win | defined multispec_wx
 		
 		}	// end "if (dataValueTypeSelection >= k4ByteSignedIntegerMenuItem)"
 	
@@ -3816,12 +3775,11 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 			}	// end "if (menuItemList[kMatlabMenuItem])"
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
-		SInt16			index = 0,
-							numberComboItems;
+	#if defined multispec_wx
+		SInt16			numberComboItems;
 							
-		wxComboBox* comboBoxPtr =
-									(wxComboBox*)(dialogPtr->FindWindow (IDC_ChangeHeader));
+		wxChoice* comboBoxPtr =
+									(wxChoice*)(dialogPtr->FindWindow (IDC_ChangeHeader));
 		
 				// Remove all but the first item in the list.
 
@@ -3875,7 +3833,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 			comboBoxPtr->SetClientData (numberComboItems, (void*)kMatlabMenuItem);
 
 			}	// end "if (menuItemList[kMatlabMenuItem])"
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	ChangeImageFormatDialogVerifyHeaderSetting (dialogPtr,
 																fileInfoPtr,
@@ -3896,7 +3854,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3910,10 +3868,11 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 //
 // Value Returned:
 //
-// Called By:			"Write Headers Options" in ChangeImageFormatDialog
+// Called By:			OnSelendokHeader in xReformatChangeDialog.cpp
+//							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 01/20/2006
-//	Revised By:			Larry L. Biehl			Date: 06/16/2016
+//	Revised By:			Larry L. Biehl			Date: 11/04/2019
 
 void ChangeImageFormatDialogUpdateHeaderOptions (
 				DialogPtr							dialogPtr,
@@ -3941,9 +3900,9 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 															GetDlgItem (IDC_OutputFileSelection);
 	#endif	// defined multispec_win  
 											
-   #if defined multispec_lin
-		wxComboBox* comboBoxPtr =
-							(wxComboBox*)dialogPtr->FindWindow (IDC_OutputFileSelection);
+   #if defined multispec_wx
+		wxChoice* comboBoxPtr =
+							(wxChoice*)dialogPtr->FindWindow (IDC_OutputFileSelection);
    #endif
 						
 	switch (headerOptionsSelection)
@@ -4042,14 +4001,14 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
          		}	// end "comboBoxPtr->GetCount () == 1"
 			#endif	// defined multispec_win  
 				
-         #if defined multispec_lin
+         #if defined multispec_wx
             if (comboBoxPtr->GetCount () > 1) 
 					{
 					comboBoxPtr->Delete (kModifyPartMenuItem - 1);
 					comboBoxPtr->Delete (kAppendToMenuItem - 1);
 
-					} // end "comboBoxPtr->GetCount () == 1"
-         #endif	// defined multispec_lin
+					}	// end "comboBoxPtr->GetCount () == 1"
+         #endif	// defined multispec_wx
 
 			*dataValueTypeSelectionPtr = k8ByteRealMenuItem;
 			
@@ -4108,13 +4067,13 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
          	}	// end "comboBoxPtr->GetCount () == 1"
 		#endif	// defined multispec_win  
 		
-   #if defined multispec_lin
+   #if defined multispec_wx
         if (comboBoxPtr->GetCount () == 1) {
             comboBoxPtr->Append ("Append To");
             comboBoxPtr->Append ("Modify Part");
 
-        } // end "comboBoxPtr->GetCount () == 1"
-   #endif	// defined multispec_lin
+        }	// end "comboBoxPtr->GetCount () == 1"
+   #endif	// defined multispec_wx
 
 		}	// end "if (setFileFlag)" 
 		
@@ -4146,7 +4105,7 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4232,7 +4191,7 @@ void ChangeImageFormatDialogUpdateSwapBytes (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4249,7 +4208,7 @@ void ChangeImageFormatDialogUpdateSwapBytes (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2005
-//	Revised By:			Larry L. Biehl			Date: 05/24/2018
+//	Revised By:			Larry L. Biehl			Date: 11/04/2019
 
 void ChangeImageFormatDialogUpdateTIFFHeader (
 				DialogPtr							dialogPtr,
@@ -4281,16 +4240,16 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
    		}	// end "comboBoxPtr->GetCount () > 1"
 	#endif	// defined multispec_win  
    
-   #if defined multispec_lin 
-      wxComboBox* comboBoxPtr =
-							(wxComboBox*)dialogPtr->FindWindow (IDC_OutputFileSelection);
+   #if defined multispec_wx 
+      wxChoice* comboBoxPtr =
+							(wxChoice*)dialogPtr->FindWindow (IDC_OutputFileSelection);
       if (comboBoxPtr->GetCount () > 1)
          {
          comboBoxPtr->Delete (kModifyPartMenuItem-1);
          comboBoxPtr->Delete (kAppendToMenuItem-1);
          
          }	// end "comboBoxPtr->GetCount () > 1"
-   #endif	// defined multispec_lin  
+   #endif	// defined multispec_wx  
 	 	
 	if (bandInterleaveSelectionPtr != NULL && 
 					gImageWindowInfoPtr->windowType == kImageWindowType &&
@@ -4302,16 +4261,13 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 		#endif	// defined multispec_mac 
 		
 		}	// end "if (bandInterleaveSelectionPtr != NULL && ...)"
-								
-	//SetDLogControl (dialogPtr, IDC_WriteChanDescriptions, 0);
-	//SetDLogControlHilite (dialogPtr, IDC_WriteChanDescriptions, 255);
 	
 }	// end "ChangeImageFormatDialogUpdateTIFFHeader"
 
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4325,10 +4281,11 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 //
 // Value Returned:
 //
-// Called By:			"Band interleave popup" in ChangeImageFormatDialog
+// Called By:			OnSelendokBandInterleave in xReformatChangeDialog.cpp
+//							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 01/19/2006
-//	Revised By:			Larry L. Biehl			Date: 06/16/2016
+//	Revised By:			Larry L. Biehl			Date: 11/12/2019
 
 void ChangeImageFormatDialogVerifyHeaderSetting (
 				DialogPtr							dialogPtr,
@@ -4447,6 +4404,16 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 															fileInfoPtr,
 															dataValueTypeSelection,
 															*headerOptionsSelectionPtr);
+	
+	#if defined multispec_wx
+				// Reset the file format selection. It may have changed above.
+	
+   	int headerListSelection = GetComboListSelection (dialogPtr,
+   																		IDC_ChangeHeader,
+																			*headerOptionsSelectionPtr);
+   	wxChoice* fileFormatCtrl = (wxChoice*)dialogPtr->FindWindow (IDC_ChangeHeader);
+   	fileFormatCtrl->SetSelection (headerListSelection);
+	#endif
 			
 	#if defined multispec_mac  
 		InvalidateDialogItemRect (dialogPtr, IDC_ChangeHeader);
@@ -4457,7 +4424,7 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4715,9 +4682,10 @@ Boolean ChangeImageTransformDialog (
 		
 		}	// end "if (...->functionCode != kFunctionKthSmallestElement)"
 		
-	SetDLogControl (dialogPtr, 
-						38, 
-						(reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel));
+	SetDLogControl (
+					dialogPtr,
+					38,
+					(reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel));
 	if (reformatOptionsPtr->transformDataCode != kAdjustChannelsByChannel)
 		HideDialogItems (dialogPtr, 39, 44);
 		
@@ -5066,7 +5034,8 @@ Boolean ChangeImageTransformDialog (
 				case 42:				// Adjust selected channels with selected channel	
 					realValue = GetDItemRealValue (dialogPtr, 42);
 					if (realValue > maxValue || realValue < minValue)
-						RealNumberErrorAlert (lastAdjustSelectedChannelsFactor, dialogPtr, 42, 3);
+						RealNumberErrorAlert (
+											lastAdjustSelectedChannelsFactor, dialogPtr, 42, 3);
 					
 					else	// realValue <= maxValue && realValue >= minValue 
 						lastAdjustSelectedChannelsFactor = realValue;						
@@ -5285,7 +5254,7 @@ Boolean ChangeImageTransformDialog (
 					reformatOptionsPtr->transformAdjustSelectedChannel = 
 																			lastAdjustSelectedChannel;
 					
-					}	// end "if (reformatOptionsPtr->transformDataCode == kTransformChannels)"
+					}	// end "if (reformatOptionsPtr->transformDataCode == ..."
 											
 				}	// end "if (itemHit == 1)" 
 				
@@ -5313,7 +5282,7 @@ Boolean ChangeImageTransformDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5508,7 +5477,7 @@ void CheckForSaturation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5529,7 +5498,7 @@ void CheckForSaturation (
 //	Coded By:			Larry L. Biehl			Date: 12/08/1995
 //	Revised By:			Larry L. Biehl			Date: 10/24/2013
 
-void CleanUpChangeFormat (	
+void CleanUpChangeFormat (
 				UInt16*						newPaletteIndexPtr,
 				UInt16*						symbolToOutputBinPtr, 
 				HDoublePtr					tempBufferPtr)
@@ -5544,7 +5513,7 @@ void CleanUpChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5562,7 +5531,7 @@ void CleanUpChangeFormat (
 //
 // Value Returned:	
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2006
 //	Revised By:			Larry L. Biehl			Date: 10/24/2013
@@ -5624,7 +5593,7 @@ void ConvertDataValueToBinValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5717,7 +5686,7 @@ void ConvertSymbolsToBinary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5736,7 +5705,7 @@ void ConvertSymbolsToBinary (
 //
 // Value Returned:
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1995
 //	Revised By:			Larry L. Biehl			Date: 01/27/2013
@@ -5879,7 +5848,7 @@ UInt16* CreateNewToOldPaletteVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5896,7 +5865,7 @@ UInt16* CreateNewToOldPaletteVector (
 //
 // Value Returned:
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in reformat.c
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1992
 //	Revised By:			Larry L. Biehl			Date: 01/18/2006
@@ -6008,7 +5977,7 @@ void CreatePCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6027,7 +5996,7 @@ void CreatePCImage (
 //
 // Value Returned:
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/1994
 //	Revised By:			Larry L. Biehl			Date: 05/25/2012
@@ -6176,7 +6145,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6191,7 +6160,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 //
 // Value Returned:
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/23/2004
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
@@ -6405,7 +6374,7 @@ HUInt16Ptr CreateClassToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6421,7 +6390,7 @@ HUInt16Ptr CreateClassToGroupTable (
 //
 // Value Returned:
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.cpp
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/26/2006
 //	Revised By:			Larry L. Biehl			Date: 12/11/2012
@@ -6479,7 +6448,7 @@ HUInt16Ptr CreateDataValueToClassTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6613,7 +6582,7 @@ SInt16 DecodeAlgebraicFormula (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							 (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6687,7 +6656,7 @@ SInt16 DeterminePCMinimumNumberBits (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6729,7 +6698,7 @@ pascal void DrawChanDescriptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6771,7 +6740,7 @@ pascal void DrawFunctionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6812,7 +6781,7 @@ pascal void DrawPCChannelsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6821,7 +6790,8 @@ pascal void DrawPCChannelsPopUp (
 //	Software purpose:	The purpose of this routine is to find the kth smallest element
 //							in the input vector of values.
 //							Use the median () macro defined below to get the median
-//							#define median (a,n) kth_smallest (a,n,(((n)&1)?((n)/2):(((n)/2)-1)))
+//							#define median (a,n)
+//												kth_smallest (a,n,(((n)&1)?((n)/2):(((n)/2)-1)))
 //
 //							Algorithm from N. Wirth's book, implementation by N. Devillard.
 //							This code in public domain.
@@ -6900,7 +6870,7 @@ double Find_kth_SmallestElementInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7117,7 +7087,7 @@ void FunctionOfChannels (
 						*ioOutDoubleBufferPtr += *ioDoubleBufferPtr;
 						(*countVectorPtr)++;
 						
-						}	// end "if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)"
+						}	// end "if (!noDataValueFlag || *ioDoubleBufferPtr != ..."
 						
 					ioDoubleBufferPtr += bufferInterval;
 					ioOutDoubleBufferPtr += bufferInterval;	
@@ -7241,7 +7211,8 @@ void FunctionOfChannels (
 				}	// end "for (j=0; j<numberSamples; j++)"
 				
 					// Now go through the rest of the channels to find the latest channel
-					// with a data value less than or equal to the defined minimum data value.
+					// with a data value less than or equal to the defined minimum data
+					// value.
 	
 			for (channel=1; channel<numberChannels; channel++)
 				{					
@@ -7256,7 +7227,7 @@ void FunctionOfChannels (
 						if (*ioDoubleBufferPtr <= minDataValue)
 							*ioOutDoubleBufferPtr = channel + 1;
 							
-						}	// end "if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)"
+						}	// end "if (!noDataValueFlag || *ioDoubleBufferPtr != ..."
 						
 					ioDoubleBufferPtr += bufferInterval;
 					ioOutDoubleBufferPtr += bufferInterval;	
@@ -7358,7 +7329,7 @@ void FunctionOfChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7455,7 +7426,7 @@ SInt16 GetAdjustBufferData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7608,7 +7579,7 @@ Boolean GetDefaultBandRatio (
 										(UCharPtr)"\0001.0C1+1.0C4\0");
 						stringsSetFlag = TRUE;
 						
-						}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)"
+						}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == ..."
 					
 					else if (windowInfoPtr->channelsInWavelengthOrderCode == kInOrder)
 						{
@@ -7618,7 +7589,7 @@ Boolean GetDefaultBandRatio (
 										(UCharPtr)"\0001.0C3+1.0C4\0");
 						stringsSetFlag = TRUE;
 						
-						}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder)"
+						}	// end "if (windowInfoPtr->channelsInWavelengthOrderCode == ..."
 					
 					}	// end "if (windowInfoPtr->totalNumberChannels == 4)"
 				break;
@@ -7730,7 +7701,7 @@ Boolean GetDefaultBandRatio (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7781,7 +7752,7 @@ SInt16 GetHeaderFormatFromPopUpSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7848,7 +7819,7 @@ SInt32 GetNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7909,7 +7880,7 @@ SInt16 GetPCChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7926,11 +7897,11 @@ SInt16 GetPCChannelList (
 //
 // Value Returned:	None 				
 // 
-// Called By:			CovertMultispectralToThematicControl in fieldsToThematicFile.c
-//							LoadAreasToThematicSpecs in fieldsToThematicFile.c 
+// Called By:			CovertMultispectralToThematicControl in SFieldsToThematicFile.cpp
+//							LoadAreasToThematicSpecs in SFieldsToThematicFile.cpp 
 //							MosaicTwoImagesControl in SMosaic.cpp
-//							RectifyImageControl in rectification.c
-//							ChangeImageFileFormat in reformat.c
+//							RectifyImageControl in SRectifyImage.cpp
+//							ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/1993
 //	Revised By:			Larry L. Biehl			Date: 02/26/2013
@@ -7990,7 +7961,7 @@ Boolean GetReformatAndFileInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8008,8 +7979,8 @@ Boolean GetReformatAndFileInfoStructures (
 //
 // Value Returned:	None
 //
-// Called By:			ChangeImageFileFormat in reformat.c
-//							AreasToThematicFileControl in fieldsToThematicFile.c
+// Called By:			ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
+//							AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
 //	Revised By:			Larry L. Biehl			Date: 03/22/2019
@@ -8192,7 +8163,7 @@ Boolean GetReformatOutputBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8305,7 +8276,7 @@ SInt16 GetTransformChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8363,30 +8334,30 @@ void InitializeHeaderPopupMenu (
 		comboBoxPtr->SetItemData (5, kMatlabMenuItem);
 	#endif	// defined multispec_win
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
       UInt16			comboBoxHeaderItem;
 
 		comboBoxHeaderItem = IDC_ChangeHeader;
 		if (popUpHeaderOptionsMenu != NULL)
 			comboBoxHeaderItem = *(UInt16*)popUpHeaderOptionsMenu;
       
-		 wxComboBox* comboBoxPtr = 
-								(wxComboBox*)(dialogPtr->FindWindow (comboBoxHeaderItem));
+		 wxChoice* comboBoxPtr =
+								(wxChoice*)(dialogPtr->FindWindow (comboBoxHeaderItem));
 
-		 comboBoxPtr->SetClientData (0, (void*)gNoneMenuItem);
-		 comboBoxPtr->SetClientData (1, (void*)gArcViewMenuItem);
-		 comboBoxPtr->SetClientData (2, (void*)gERDAS74MenuItem);
-		 comboBoxPtr->SetClientData (3, (void*)gGAIAMenuItem);
-		 comboBoxPtr->SetClientData (4, (void*)gTIFFGeoTIFFMenuItem);
-		 comboBoxPtr->SetClientData (5, (void*)gMatlabMenuItem);
-	#endif	// defined multispec_win
+		 comboBoxPtr->SetClientData (0, (void*)(SInt64)gNoneMenuItem);
+		 comboBoxPtr->SetClientData (1, (void*)(SInt64)gArcViewMenuItem);
+		 comboBoxPtr->SetClientData (2, (void*)(SInt64)gERDAS74MenuItem);
+		 comboBoxPtr->SetClientData (3, (void*)(SInt64)gGAIAMenuItem);
+		 comboBoxPtr->SetClientData (4, (void*)(SInt64)gTIFFGeoTIFFMenuItem);
+		 comboBoxPtr->SetClientData (5, (void*)(SInt64)gMatlabMenuItem);
+	#endif	// defined multispec_wx
 
 }	// end "InitializeHeaderPopupMenu" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8401,7 +8372,7 @@ void InitializeHeaderPopupMenu (
 //
 // Value Returned:	None
 //
-// Called By:			Menus   in menu.c
+// Called By:			Menus   in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/2005
 //	Revised By:			Larry L. Biehl			Date: 03/15/2014	
@@ -8509,7 +8480,7 @@ void InitializeOutputFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8715,7 +8686,7 @@ void InitializeReformatStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8779,11 +8750,16 @@ Boolean LoadReformatOptionsSpecs (
 			releaseReformatMemoryFlag = TRUE; 
 		
 		if (!releaseReformatMemoryFlag &&
-				(gImageFileInfoPtr->dataTypeCode != reformatOptionsPtr->lastInputFileDataTypeCode ||			
-					gImageFileInfoPtr->signedDataFlag != reformatOptionsPtr->lastInputFileSignedDataFlag ||
-						reformatOptionsPtr->lastInputWindowNumberBytes != windowInfoPtr->numberBytes ||
-				GetImageType (windowInfoHandle) != reformatOptionsPtr->lastInputImageType || 
-					GetWindowType (windowInfoHandle) != reformatOptionsPtr->lastInputWindowType))
+				(gImageFileInfoPtr->dataTypeCode !=
+												reformatOptionsPtr->lastInputFileDataTypeCode ||
+					gImageFileInfoPtr->signedDataFlag !=
+												reformatOptionsPtr->lastInputFileSignedDataFlag ||
+						reformatOptionsPtr->lastInputWindowNumberBytes !=
+																		windowInfoPtr->numberBytes ||
+							GetImageType (windowInfoHandle) !=
+														reformatOptionsPtr->lastInputImageType ||
+								GetWindowType (windowInfoHandle) !=
+															reformatOptionsPtr->lastInputWindowType))
 			releaseReformatMemoryFlag = TRUE; 
 			
 				// If the input file contains fewer lines or columns than what was used
@@ -9002,7 +8978,7 @@ Boolean LoadReformatOptionsSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9017,7 +8993,7 @@ Boolean LoadReformatOptionsSpecs (
 //
 // Value Returned:	None
 //
-// Called By:			Menus   in menu.c
+// Called By:			Menus   in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1988
 //	Revised By:			Larry L. Biehl			Date: 02/07/2018
@@ -9148,7 +9124,7 @@ void ReformatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9217,7 +9193,7 @@ void ReleaseReformatOutputFileInfoAndBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9259,7 +9235,7 @@ void SaveAlgebraicTransformationFunction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9274,7 +9250,7 @@ void SaveAlgebraicTransformationFunction (
 //
 // Value Returned:	
 //
-// Called By:			ChangeFormatToBILorBISorBSQ in SReform1.c
+// Called By:			ChangeFormatToBILorBISorBSQ
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/2013
 //	Revised By:			Larry L. Biehl			Date: 04/11/2013
@@ -9339,7 +9315,7 @@ void TransformAdjustChannelsByChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//									Copyright (1988-2019)
+//									Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -17,30 +17,12 @@
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
 //
-//	Functions in file:	SInt16	 			BiPlotClassData
-//								void		 			BiPlotDataControl
-//								Boolean				BiPlotDataDialog
-//								SInt16				BiPlotFieldData
-//								Boolean 				BiPlotProjectData
-//								Boolean 				CheckIfStatisticsChannel
-//								void 					FillVectorOffsets
-//								SInt16	 			GetStatisticsChannelFeature
-//								void 					GetBiPlotGraphTitle
-//								Boolean 				LoadBiPlotClassStats
-//								Boolean	 			LoadBiPlotDataSpecs
-//								Boolean 				SetupBiPlotStatMemory
-//								void 					UpdateEllipseMinMax
-//								void 					UpdateEllipseMinMax2
-//
 //	Brief description:	This file contains functions that allow the user to
 //								plot the data values for selected channels, classes
 //								and fields and or selected area in a graphics window.
 //								I call it a biplot because one channel (feature) is plotted
 //								along the x axis and one channel is plotted along the
 //								y axis.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"SMultiSpec.h"
 /*
 	Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
@@ -53,9 +35,9 @@
 
 #include "SMultiSpec.h"
 
-#ifdef multispec_lin    
-   #include "LBiplotDialog.h"
-   #include "LGraphView.h"
+#ifdef multispec_wx    
+   #include "xBiplotDialog.h"
+   #include "xGraphView.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -95,66 +77,63 @@
 	#include "WGraphDoc.h"
 	#include "WBiPlotDialog.h"
 	#include "WMultiSpec.h"
-#endif	// defined multispec_win 
+#endif	// defined multispec_win
 
-//#include "SExtGlob.h"
-
-//BiPlotDataSpecsPtr		gBiPlotDataSpecsPtr;
 	
 	
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 											
-SInt16	 			BiPlotClassData (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							SInt16								classNumber);
+SInt16 BiPlotClassData (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				SInt16								classNumber);
 
-Boolean				BiPlotDataDialog (void);
+Boolean BiPlotDataDialog (void);
 
-SInt16				BiPlotFieldData (
-							FileIOInstructionsPtr			fileIOInstructionsPtr, 
-							SInt16								classNumberCode, 
-							SInt16								fieldNumber);
+SInt16 BiPlotFieldData (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				SInt16								classNumberCode,
+				SInt16								fieldNumber);
 
-Boolean 				BiPlotProjectData (void);
+Boolean  BiPlotProjectData (void);
 								
-Boolean 				CheckIfStatisticsChannel (
-							SInt16								channelNumber,
-							Boolean								featureTransformationFlag);
+Boolean CheckIfStatisticsChannel (
+				SInt16								channelNumber,
+				Boolean								featureTransformationFlag);
 
-void 					FillVectorOffsets (
-							GraphPtr								graphRecordPtr);
+void FillVectorOffsets (
+				GraphPtr								graphRecordPtr);
 								
-SInt16	 			GetStatisticsChannelFeature (
-							SInt16								channelNumber,
-							Boolean								featureTransformationFlag);
+SInt16 GetStatisticsChannelFeature (
+				SInt16								channelNumber,
+				Boolean								featureTransformationFlag);
 
-Boolean 				LoadBiPlotClassStats (
-							GraphPtr								graphRecordPtr);
+Boolean  LoadBiPlotClassStats (
+				GraphPtr								graphRecordPtr);
 								
-Boolean	 			LoadBiPlotDataSpecs (
-							Handle								windowInfoHandle);
+Boolean LoadBiPlotDataSpecs (
+				Handle								windowInfoHandle);
 
-Boolean 				SetupBiPlotStatMemory (
-							ChannelStatisticsPtr*			classChannelStatsPtrPtr,
-							double**								eigenValuePtrPtr,
-							double**								eigenVectorPtrPtr,
-							SInt16								numberChannels);
-								
-void 					UpdateEllipseMinMax (
-							GraphPtr								graphRecordPtr,
-							double								angle,
-							double*								classStatisticsPtr);
+Boolean SetupBiPlotStatMemory (
+				ChannelStatisticsPtr*			classChannelStatsPtrPtr,
+				double**								eigenValuePtrPtr,
+				double**								eigenVectorPtrPtr,
+				SInt16								numberChannels);
 
-void 					UpdateEllipseMinMax2 (
-							GraphPtr								graphRecordPtr,
-							double								angle,
-							double*								classStatisticsPtr);
+void UpdateEllipseMinMax (
+				GraphPtr								graphRecordPtr,
+				double								angle,
+				double*								classStatisticsPtr);
+
+void UpdateEllipseMinMax2 (
+				GraphPtr								graphRecordPtr,
+				double								angle,
+				double*								classStatisticsPtr);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -235,7 +214,7 @@ SInt16 BiPlotClassData (
 				if (BiPlotFieldData (fileIOInstructionsPtr,
 												classNumber+1, 
 												fieldNumber) == 0)
-																						return (0);
+																							return (0);
 				
 				fieldCount++;
 								
@@ -256,7 +235,7 @@ SInt16 BiPlotClassData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -349,11 +328,10 @@ void BiPlotDataControl (void)
  	
  			// Get image window globals.
  			
-	continueFlag = SetUpActiveImageInformationGlobals (
-										&activeWindowInfoHandle, 
-										&activeImageGlobalHandleStatus, 
-										kUseProject);
-		
+	continueFlag = SetUpActiveImageInformationGlobals (&activeWindowInfoHandle,
+																		&activeImageGlobalHandleStatus, 
+																		kUseProject);
+	
 			// Set up biplot specification structure.										
 			
 	if (continueFlag && LoadBiPlotDataSpecs (activeWindowInfoHandle))
@@ -389,14 +367,14 @@ void BiPlotDataControl (void)
 						// Update statistics for project if needed	
 							
 				continueFlag = VerifyProjectStatsUpToDate (
-										&gBiPlotDataSpecsPtr->numberClasses,
-										gBiPlotDataSpecsPtr->classPtr,
-										1,
-										gProjectInfoPtr->statisticsCode,
-										kNoStatisticsUsed, 
-										kSetupGlobalInfoPointers,
-										NULL);
-										
+															&gBiPlotDataSpecsPtr->numberClasses,
+															gBiPlotDataSpecsPtr->classPtr,
+															1,
+															gProjectInfoPtr->statisticsCode,
+															kNoStatisticsUsed, 
+															kSetupGlobalInfoPointers,
+															NULL);
+				
 				gImageWindowInfoPtr = savedWindowInfoPtr;
 				gImageFileInfoPtr = savedFileInfoPtr;
 				gImageLayerInfoPtr = savedLayerInfoPtr;
@@ -406,83 +384,8 @@ void BiPlotDataControl (void)
 				savedLayerInfoPtr = NULL;
 										
 				}	// end "if (...->outlineClassCode & kOutlineClasses)" 
-			/*				
-			if (continueFlag)
-				{					
-						// If an IO buffer is needed for plotting training pixels and the 
-						// image window is not the project image window, then make sure 
-						// that the buffer obtained is for the image with the most columns.
-				
-				if ((gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels) &&
-						 (gBiPlotDataSpecsPtr->plotDataCode & (kTrainingType+kTestingType))
-							 && savedWindowInfoPtr != NULL)
-					{
-					if (GetMaxNumberColumns (gProjectInfoPtr->windowInfoHandle) >
-																savedWindowInfoPtr->maxNumberColumns)
-						{
-						if (!GetProjectImageFileInfo (kPrompt, 
-																	kSetupGlobalInfoPointers,
-																	&gImageWindowInfoPtr,
-																	&gImageLayerInfoPtr,
-																	&gImageFileInfoPtr,
-																	&projectHandleStatus))
-							continueFlag = FALSE;
-							
-						}	// end "if (GetMaxNumberColumns (..."
-						
-					}	// end "if ((gBiPlotDataSpecsPtr->displayPixelCode & ..."
-					
-				}	// end "if (continueFlag)"
-			*/			
-			/*					
-					// Restore previous global information pointers if needed.			
-			
-			if (continueFlag)
-				{					
-				if (gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels)
-					{
-					continueFlag = GetIOBufferPointers (
-										1,
-										gImageWindowInfoPtr,
-										gImageFileInfoPtr,
-										gImageLayerInfoPtr,
-										&gInputBufferPtr, 
-										&gOutputBufferPtr,
-										1,
-				 						gImageWindowInfoPtr->maxNumberColumns,
-				 						gBiPlotDataSpecsPtr->columnInterval,
-				 						gBiPlotDataSpecsPtr->numberChannels,
-										(HUInt16Ptr)*gBiPlotDataSpecsPtr->channelsHandle,
-										kPackData,
-										kForceBISFormat,
-										kForce4Bytes,
-										kDoNotAllowForThreadedIO);
-										
-					}	// end "if (...->displayPixelCode & kDisplayPixels)"
-										
-				}	// end "if (continueFlag)"
-					
-			if (savedWindowInfoPtr != NULL)
-				{
-						// Restore previous global information pointers.
-								
-				gImageWindowInfoPtr = savedWindowInfoPtr;
-				gImageFileInfoPtr = savedFileInfoPtr;
-				gImageLayerInfoPtr = savedLayerInfoPtr;
-				
-				savedWindowInfoPtr = NULL;
-				savedFileInfoPtr = NULL;
-				savedLayerInfoPtr = NULL;
-				
-						// Unlock Project information handles if needed.
-				
-				if (projectHandleStatus != -1)
-					UnlockImageInformationHandles (projectHandleStatus, 
-														gProjectInfoPtr->windowInfoHandle);
-				
-				}	// end "if (savedWindowInfoPtr != NULL)"
-			*/	
-					// Continue biplot data if everything is okay.						
+
+					// Continue biplot data if everything is okay.
 			
 			if (continueFlag)
 				{
@@ -498,11 +401,12 @@ void BiPlotDataControl (void)
 					
 					// List the processor name, date, time and project info.			
 
-			continueFlag = ListHeaderInfo (NULL, 
-														kLImageInfo + 2*gBiPlotDataSpecsPtr->projectFlag, 
-														&gOutputForce1Code, 
-														kNoStatisticsUsed, 
-														continueFlag);
+			continueFlag = ListHeaderInfo (
+												NULL,
+												kLImageInfo + 2*gBiPlotDataSpecsPtr->projectFlag,
+												&gOutputForce1Code,
+												kNoStatisticsUsed,
+												continueFlag);
 					
 					// List the classes used.													
 											
@@ -555,15 +459,15 @@ void BiPlotDataControl (void)
 	
 			if (continueFlag && gBiPlotDataSpecsPtr->featureTransformationFlag)	
 				continueFlag = SetupFeatureTransformationMemory (
-							gBiPlotDataSpecsPtr->featureTransformationFlag, 
-							gTransformationMatrix.numberFeatures,
-							gTransformationMatrix.numberChannels,
-							&gTransformationMatrix.eigenVectorPtr, 
-							&gTransformationMatrix.tempMatrixPtr,
-							&gTransformationMatrix.offsetVectorPtr, 
-							&gTransformationMatrix.eigenFeaturePtr,
-							kDoNotLoadMatricesVectors,
-							NULL);
+												gBiPlotDataSpecsPtr->featureTransformationFlag,
+												gTransformationMatrix.numberFeatures,
+												gTransformationMatrix.numberChannels,
+												&gTransformationMatrix.eigenVectorPtr, 
+												&gTransformationMatrix.tempMatrixPtr,
+												&gTransformationMatrix.offsetVectorPtr, 
+												&gTransformationMatrix.eigenFeaturePtr,
+												kDoNotLoadMatricesVectors,
+												NULL);
 	
 					// Get the graph window if needed.										
 				
@@ -572,12 +476,12 @@ void BiPlotDataControl (void)
 				totalNumberPixels = 0;
 				if (gBiPlotDataSpecsPtr->displayPixelCode & kDisplayPixels)
 					totalNumberPixels = GetTotalNumberOfPixels (
-									gBiPlotDataSpecsPtr->plotDataCode, 
-									gBiPlotDataSpecsPtr->classPtr,
-									gBiPlotDataSpecsPtr->numberClasses, 
-									&gBiPlotDataSpecsPtr->lineStart,
-									0);
-									
+														gBiPlotDataSpecsPtr->plotDataCode,
+														gBiPlotDataSpecsPtr->classPtr,
+														gBiPlotDataSpecsPtr->numberClasses, 
+														&gBiPlotDataSpecsPtr->lineStart,
+														0);
+				
 				numberVectors = 1;
 				if (gBiPlotDataSpecsPtr->projectFlag)     
 					numberVectors += gProjectInfoPtr->numberStatisticsClasses;
@@ -592,17 +496,15 @@ void BiPlotDataControl (void)
 					CMGraphDoc* graphDocCPtr =
 						(CMGraphDoc*)graphDocTemplatePtr->OpenDocumentFile (NULL);
 					graphViewCPtr = graphDocCPtr->GetGraphViewCPtr ();
-					//CDocument*  graph_doc;
-					//graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
-
 				#endif
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxDocument*  graph_doc = 
 											((CMultiSpecApp*)wxTheApp)->ActivateListDataView ();
 					graphViewCPtr = ((CMGraphDoc*)graph_doc)->GetGraphViewCPtr ();
           
-						// Assign window ID for Biplot window
+							// Assign window ID for Biplot window
+				
 					((wxWindow*)graphViewCPtr)->SetId (GR_BIPLOT);
 				#endif
 				
@@ -610,13 +512,13 @@ void BiPlotDataControl (void)
 		
 				if (continueFlag)
 					continueFlag = graphViewCPtr->FinishGraphRecordSetUp (
-								(SInt16*)channelsPtr,
-								2,
-								(SInt32)totalNumberPixels,
-								numberVectors,
-								1,
-								gImageFileInfoPtr->dataTypeCode,
-								gImageFileInfoPtr->dataTypeCode);
+																	(SInt16*)channelsPtr,
+																	2,
+																	(SInt32)totalNumberPixels,
+																	numberVectors,
+																	1,
+																	gImageFileInfoPtr->dataTypeCode,
+																	gImageFileInfoPtr->dataTypeCode);
 				
 				if (continueFlag)
 					{
@@ -631,7 +533,7 @@ void BiPlotDataControl (void)
 				
 				}	// end "if (continueFlag)" 
 				
-			#if defined multispec_lin
+			#if defined multispec_wx
 				if (gActiveImageWindow != NULL)
 					gActiveImageWindow->m_frame->Update ();
 			#endif
@@ -650,12 +552,12 @@ void BiPlotDataControl (void)
 										kLock);
 										
 					ReduceMatrix (eigenVectorPtr, 
-									gTransformationMatrix.eigenVectorPtr,
-									gTransformationMatrix.numberFeatures,
-									gTransformationMatrix.numberChannels,
-									2,
-									gBiPlotDataSpecsPtr->axisFeaturePtr,
-									(gTransformationMatrix.createdByCode >= 16));
+										gTransformationMatrix.eigenVectorPtr,
+										gTransformationMatrix.numberFeatures,
+										gTransformationMatrix.numberChannels,
+										2,
+										gBiPlotDataSpecsPtr->axisFeaturePtr,
+										(gTransformationMatrix.createdByCode >= 16));
 
 					CheckAndUnlockHandle (gTransformationMatrix.eigenVectorHandle);
 
@@ -668,9 +570,7 @@ void BiPlotDataControl (void)
 		
 				if (gBiPlotDataSpecsPtr->plotDataCode & kAreaType)
 					{
-					//LoadDItemString (gStatusDialogPtr, IDC_Status11, 
-					//							(Str255*)"\pPlotting Data for Selected Area.");
-               LoadDItemStringNumber (kBiPlotStrID, 
+              LoadDItemStringNumber (kBiPlotStrID,
 												IDS_BiPlot1,
 												gStatusDialogPtr, 
 												IDC_Status11, 
@@ -719,7 +619,7 @@ void BiPlotDataControl (void)
                LoadDItemStringNumber (kBiPlotStrID, 
 												IDS_BiPlot2,	
 												gStatusDialogPtr, 
-												IDC_Status11, 		// (Str255*)"\pPlotting Data for Project Classes."
+												IDC_Status11,
 												(Str255*)gTextString);
                               
 					ShowStatusDialogItemSet (kStatusClassA);
@@ -741,7 +641,7 @@ void BiPlotDataControl (void)
             LoadDItemStringNumber (kBiPlotStrID, 
 												IDS_BiPlot3,
 												gStatusDialogPtr, 
-												IDC_Status11,			// (Str255*)"\pPlotting Class Outlines."
+												IDC_Status11,
 												(Str255*)gTextString);
 				ShowStatusDialogItemSet (kStatusClassA);
 				HideStatusDialogItemSet (kStatusField);
@@ -842,7 +742,7 @@ void BiPlotDataControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1520,8 +1420,7 @@ Boolean BiPlotDataDialog (void)
 		CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
 	#endif	// defined multispec_mac
 
-	#if defined multispec_win   
-		//CMMosaicTwoImagesDialog*		dialogPtr = NULL;
+	#if defined multispec_win
 		CMBiPlotDialog* dialogPtr = NULL;
 		
 		TRY
@@ -1539,12 +1438,11 @@ Boolean BiPlotDataDialog (void)
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
    
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMBiPlotDialog*		dialogPtr = NULL;
 		
 		try
-			{ 
-			//dialogPtr = new CMBiPlotDialog ((wxWindow *)GetMainFrame ());
+			{
 			dialogPtr = new CMBiPlotDialog (NULL);
 			
 			returnFlag = dialogPtr->DoDialog ();
@@ -1754,8 +1652,11 @@ void BiPlotDataDialogInitialize (
 	*saveThresholdPercentPtr = biPlotDataSpecsPtr->probabilityThreshold;
 		
 			// The threshold flag is not currently used.
+	
 	*thresholdFlagPtr = biPlotDataSpecsPtr->thresholdFlag;
-	//SetDLogControl (dialogPtr, IDC_ThresholdPixelCheck, biPlotDataSpecsPtr->thresholdFlag);
+	//SetDLogControl (dialogPtr,
+	//						IDC_ThresholdPixelCheck,
+	//						biPlotDataSpecsPtr->thresholdFlag);
 	HideDialogItem (dialogPtr, IDC_ThresholdPixelCheck);
 	
 			// Symbols to use.																	
@@ -1991,7 +1892,7 @@ Boolean BiPlotDataDialogCheckFeatureTransform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2025,7 +1926,7 @@ void BiPlotDataDialogHideShowClassItems (
 		ShowDialogItem (dialogPtr, IDC_SymbolPrompt);
 		ShowDialogItem (dialogPtr, IDC_SymbolCombo);
 		
-		}
+		}	// end "if ((plotDataCode & 0x0003) || ..."
 
 	else	// !(plotDataCode & 0x0003) && 
 				//							!(outlineClassCode & kOutlineClasses) 
@@ -2035,14 +1936,14 @@ void BiPlotDataDialogHideShowClassItems (
 		HideDialogItem (dialogPtr, IDC_SymbolPrompt);
 		HideDialogItem (dialogPtr, IDC_SymbolCombo);
 		
-		}
+		}	// end "else !(plotDataCode & 0x0003) && ..."
 					
 }	// end "BiPlotDataDialogHideShowClassItems"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2182,12 +2083,12 @@ SInt16 BiPlotFieldData (
 													
 			}	// end "else if (fieldNumber < 0)" 
 		
-		rgnHandle = 	gAreaDescription.rgnHandle;
-		polygonField = gAreaDescription.polygonFieldFlag;
-		lineStart = 	gAreaDescription.lineStart;
-		lineEnd = 		gAreaDescription.lineEnd;
-		columnStart = 	gAreaDescription.columnStart;
-		columnEnd = 	gAreaDescription.columnEnd;
+		rgnHandle = 		gAreaDescription.rgnHandle;
+		polygonField = 	gAreaDescription.polygonFieldFlag;
+		lineStart = 		gAreaDescription.lineStart;
+		lineEnd = 			gAreaDescription.lineEnd;
+		columnStart = 		gAreaDescription.columnStart;
+		columnEnd = 		gAreaDescription.columnEnd;
 		columnInterval = 	gAreaDescription.columnInterval;
 		lineInterval = 	gAreaDescription.lineInterval;
 		
@@ -2377,7 +2278,7 @@ SInt16 BiPlotFieldData (
 					
 				}	// end "if (errCode != kSkipLine)" 
 				
-				// Exit routine if user has "command period" down							
+					// Exit routine if user has "command period" down
 				
 			if (TickCount () >= gNextTime)
 				{
@@ -2428,7 +2329,7 @@ SInt16 BiPlotFieldData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2515,8 +2416,8 @@ Boolean BiPlotProjectData ()
 				{							
 				classPtr = gBiPlotDataSpecsPtr->classPtr;
 		
-						// Get offsets to use for lines and columns in case needed for project 
-						// fields.	
+						// Get offsets to use for lines and columns in case needed for
+						//	project fields.
 		
 				//SetAreaDescriptionOffsetVariables (&gAreaDescription,
 				//													gImageWindowInfoPtr,
@@ -2577,7 +2478,7 @@ Boolean BiPlotProjectData ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2633,7 +2534,7 @@ Boolean CheckIfStatisticsChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2648,7 +2549,7 @@ Boolean CheckIfStatisticsChannel (
 //
 // Value Returned:	None
 // 
-// Called By:			GetGraphTitle in graphicsUtilities.c
+// Called By:			GetGraphTitle in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/29/1994
 //	Revised By:			Larry L. Biehl			Date: 01/19/2017			
@@ -2666,9 +2567,6 @@ void FillVectorOffsets (
 	
 	if (graphRecordPtr != NULL)
 		{
-		//vectorLengthsPtr = (SInt32*)*graphRecordPtr->vectorLengthsHandle;
-		//xVectorDataPtr = (SInt32*)*graphRecordPtr->xVectorDataHandle;
-      
       vectorLengthsPtr = (SInt32*)GetHandlePointer (
 											graphRecordPtr->vectorLengthsHandle);
       xVectorDataPtr = (SInt32*)GetHandlePointer (
@@ -2690,7 +2588,7 @@ void FillVectorOffsets (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2705,7 +2603,7 @@ void FillVectorOffsets (
 //
 // Value Returned:	None
 // 
-// Called By:			GetGraphTitle in graphicsUtilities.c
+// Called By:			GetGraphTitle in SGraphUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/22/1994
 //	Revised By:			Larry L. Biehl			Date: 05/24/1994			
@@ -2744,7 +2642,7 @@ void GetBiPlotGraphTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2804,7 +2702,7 @@ SInt16 GetStatisticsChannelFeature (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2946,11 +2844,11 @@ Boolean LoadBiPlotClassStats (
 				// for determining the radius distance of the ellipse of 			
 				// concentration.																	
 		/*				
-		graphRecordPtr->classThresholdValue = GetChiSquaredValue (	
+		graphRecordPtr->classThresholdValue = GetChiSquaredValue (
 						gProjectInfoPtr->numberStatisticsChannels, 
 						(100.-gBiPlotDataSpecsPtr->probabilityThreshold)/100.);
 		*/				
-		graphRecordPtr->classThresholdValue = GetChiSquaredValue (	
+		graphRecordPtr->classThresholdValue = GetChiSquaredValue (
 						2, 
 						(100.-gBiPlotDataSpecsPtr->probabilityThreshold)/100.);
 						
@@ -3065,10 +2963,6 @@ Boolean LoadBiPlotClassStats (
 			
 			if (determinantOKFlag)
 				{				
-//				classStatisticsPtr[2] = gInverseMatrixMemory.inversePtr[xxIndex];
-//				classStatisticsPtr[3] = gInverseMatrixMemory.inversePtr[xyIndex];
-//				classStatisticsPtr[4] = gInverseMatrixMemory.inversePtr[yyIndex];
-							
 				classStatisticsPtr[2] = inverseMatrix[0];
 				classStatisticsPtr[3] = inverseMatrix[1];
 				classStatisticsPtr[4] = inverseMatrix[3];
@@ -3164,8 +3058,8 @@ Boolean LoadBiPlotClassStats (
 				//UpdateEllipseMinMax (
 				//				graphRecordPtr, rotationAngle-angle1, classStatisticsPtr);
 								
-							// Adjust for min-max relative to second mean square
-							// regression line.
+						// Adjust for min-max relative to second mean square
+						// regression line.
 										
 				//UpdateEllipseMinMax (
 				//				graphRecordPtr, rotationAngle+angle2, classStatisticsPtr);
@@ -3191,13 +3085,12 @@ Boolean LoadBiPlotClassStats (
 						// List message that covariance matrix for this class 		
 						// could not be inverted.												
 					
-				continueFlag = ListClassInformationMessage (
-											kProjectStrID, 
-											IDS_Project31,
-											NULL, 
-											gOutputForce1Code,
-											statClassNumber, 
-											continueFlag);
+				continueFlag = ListClassInformationMessage (kProjectStrID,
+																			IDS_Project31,
+																			NULL, 
+																			gOutputForce1Code,
+																			statClassNumber, 
+																			continueFlag);
 				
 				}	// end "else !determinantOKFlag" 
 			
@@ -3230,7 +3123,7 @@ Boolean LoadBiPlotClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3518,7 +3411,7 @@ Boolean LoadBiPlotDataSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3610,7 +3503,7 @@ Boolean SetupBiPlotStatMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3691,7 +3584,7 @@ void UpdateEllipseMinMax (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3744,35 +3637,35 @@ void UpdateEllipseMinMax2 (
 		xT_val *= distance;
 		yT_val *= distance;
 		
-		x_val = classStatisticsPtr[5+graphRecordPtr->numberStatisticsChannels] * xT_val + 
-					classStatisticsPtr[6+graphRecordPtr->numberStatisticsChannels] * yT_val;
+		x_val = classStatisticsPtr[
+										5+graphRecordPtr->numberStatisticsChannels] * xT_val +
+					classStatisticsPtr[
+										6+graphRecordPtr->numberStatisticsChannels] * yT_val;
 						
-		y_val = classStatisticsPtr[5+2*graphRecordPtr->numberStatisticsChannels] * xT_val + 
-					classStatisticsPtr[6+2*graphRecordPtr->numberStatisticsChannels] * yT_val;
+		y_val = classStatisticsPtr[
+										5+2*graphRecordPtr->numberStatisticsChannels] * xT_val +
+					classStatisticsPtr[
+										6+2*graphRecordPtr->numberStatisticsChannels] * yT_val;
 					
 		x_val = fabs (x_val);
 		y_val = fabs (y_val);
 		
 				// Min/max in x direction.														
 		
-		graphRecordPtr->xEllipseMin = MIN (
-							(classStatisticsPtr[0] - x_val),
-							graphRecordPtr->xEllipseMin);
-				
-		graphRecordPtr->xEllipseMax = MAX (
-							(classStatisticsPtr[0] + x_val),
-							graphRecordPtr->xEllipseMax);
+		graphRecordPtr->xEllipseMin = MIN ((classStatisticsPtr[0] - x_val),
+														graphRecordPtr->xEllipseMin);
+			
+		graphRecordPtr->xEllipseMax = MAX ((classStatisticsPtr[0] + x_val),
+														graphRecordPtr->xEllipseMax);
 		
 				// Min/max in y direction.														
 			
-		graphRecordPtr->yEllipseMin = MIN (
-							(classStatisticsPtr[1] - y_val),
-							graphRecordPtr->yEllipseMin);
-				
-		graphRecordPtr->yEllipseMax = MAX (
-							(classStatisticsPtr[1] + y_val),
-							graphRecordPtr->yEllipseMax);
-							
+		graphRecordPtr->yEllipseMin = MIN ((classStatisticsPtr[1] - y_val),
+														graphRecordPtr->yEllipseMin);
+			
+		graphRecordPtr->yEllipseMax = MAX ((classStatisticsPtr[1] + y_val),
+														graphRecordPtr->yEllipseMax);
+			
 		}	// end "if (graphRecordPtr != NULL)" 
 		
 }	// end "UpdateEllipseMinMax2" 

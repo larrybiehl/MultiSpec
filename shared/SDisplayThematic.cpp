@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,27 +11,11 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/16/2019
+//	Revision date:			12/20/2019
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
-//
-//	Functions in file:	Boolean 					ClassGroupDialog
-//								void 						DisplayColorThematicImage
-//								Boolean 					DisplayThematicDialog
-//								void 						DisplayThematicDialogOK
-//								void						DisplayThematicImage
-//								pascal void 			DrawDisplayAllSubsetClassesGroupsPopUp
-//								pascal void 			DrawDisplayClassesGroupsPopUp
-//								Boolean 					HistogramThematicVector
-//								void						LoadClassGroupDisplayInfo
-//								void 						LoadClassGroupVector 
-//								void 						LoadLocalClassGroupDisplayInfo          
-//								void 						LoadThematicClassNamesIntoList
-//								Boolean					LoadThematicDisplaySpecs
-//								void 						LoadThematicGroupNamesIntoList
-//								void 						RemoveListCells
 //
 //	Brief description:	The procedures in this file control the display of
 // 							thematic type image data in the image windows.
@@ -40,56 +24,48 @@
 //
 //		DisplayThematicImage
 //			LoadThematicDisplaySpecs
-//				GetWindowClipRectangle (in multiSpec.c)
-//				GetSelectedAreaInfo (in selectionArea.c)
+//				GetSelectedAreaInfo (in SSelectionUtility.cpp)
 //
 //			DisplayThematicDialog
-//				LoadDItemValue	(in multiSpecUtilities.c)
-//				ShowDialogWindow (in multiSpecUtilities.c)
-//				CheckSomeEvents (in multiSpec.c)
-//				HiliteOKButton (in dialogUtilities.c)
-//				NumberDefault (in multiSpecUtilities.c)
-//				GetDLogControl (in multiSpecUtilities.c)
-//				ChangeDLogCheckBox (in multiSpecUtilities.c)
-//				GetDItemValue (in multiSpecUtilities.c)
+//				LoadDItemValue	(MDialogUtilities.c)
+//				ShowDialogWindow (ShowDialogWindow and SStubs.cpp)
+//				CheckSomeEvents (MacOS routine, xUtilities.cpp, SStubs.cpp for Windows)
+//				HiliteOKButton (in MDialogUtilities.c)
+//				NumberDefault (in SUtilities.cpp)
+//				GetDLogControl (in SUtilities.cpp)
+//				ChangeDLogCheckBox (in SUtilities.cpp)
+//				GetDItemValue (in SUtilities.cpp)
 //				
 //			HistogramThematicVector
-//				UnlockAndDispose (in multiSpec.c)
+//				UnlockAndDispose (in MMultiSpec.c)
 //
-//			CreatePalette		(in palette.c)
+//			CreatePalette		(in SPalette.cpp)
 //
-//			DisplayColorImage	(in displayc.c)
+//			DisplayColorImage	(in SDisplay.cpp)
 //
-//			GetWindowClipRectangle (in multiSpec.c)
-//
-//			UpdateImageZoomControls	(in controls.c)
-//			UpdateImageWControls	(in controls.c)
-//			DrawScrollBars	(in window.c)
-//
-//				
-//	Include files:			"MultiSpecHeaders"
-//								
-//								"multiSpec.h"
+//			UpdateImageZoomControls	(in MControls.c)
+//			UpdateImageWControls	(in MControls.c)
+//			DrawScrollBars	(in MWindow.c)
 //
 //   Following is template for debugging
 //   int numberChars2 = sprintf ((char*)gTextString2,
-//                            " SDisThem::DisplayThematicImage (displaySpecsPtr): %d, %s",
-//                            displaySpecsPtr,
-//                            gEndOfLine);
+//                       " SDisThem::DisplayThematicImage (displaySpecsPtr): %d, %s",
+//                        displaySpecsPtr,
+//                        gEndOfLine);
 //   ListString ((char*)gTextString2, numberChars2, gOutputTextH);
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+	#include "SDisplay_class.h"
+	#include "SPalette_class.h"
 
-#if defined multispec_lin 
-	#include "CDisplay.h"
-	#include "CPalette.h"
-	#include "LDisplayThematicDialog.h"
-	#include "LImageFrame.h"
-	#include "LImageView.h"  
-	#include "LMultiSpec.h"
-#endif	// defined multispec_lin 
+#if defined multispec_wx
+	#include "xDisplayThematicDialog.h"
+	#include "xImageFrame.h"
+	#include "xImageView.h"  
+	#include "xMultiSpec.h"
+#endif	// defined multispec_wx 
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_Magnification				18
@@ -103,8 +79,6 @@
                              
 #if defined multispec_win
 	#include	"WImageView.h"
-	#include	"CDisplay.h"
-	#include	"CPalette.h"
 	#include	"WDisplayThematicDialog.h" 
 	#include "WImageDoc.h" 
 	#include "WImageFrame.h"
@@ -157,7 +131,7 @@ void UpdateLegendWidth (void);
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -173,7 +147,7 @@ void UpdateLegendWidth (void);
 //
 // Value Returned:	None
 //
-// Called By:			ClassifyDialog   in classify.c
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/1989
 //	Revised By:			Larry L. Biehl			Date: 04/05/1996	
@@ -323,7 +297,7 @@ Boolean ClassGroupDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -355,7 +329,6 @@ void DisplayColorThematicImage (
 	
 {
 	LongRect								longSourceRect;
-	//RGBColor								theColor;
 	
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
 	
@@ -407,9 +380,9 @@ void DisplayColorThematicImage (
 	offscreenProcedure = 0;
 	if (fileInfoPtr->numberBytes == 1)
 		{
-		//#if defined multispec_lin
+		//#if defined multispec_wx
 		//	pixRowBytes = pixRowBytes/3;
-		//#endif	// end "defined multispec_lin"
+		//#endif	// end "defined multispec_wx"
 
 		if (!fileInfoPtr->asciiSymbols)
 			{
@@ -442,11 +415,6 @@ void DisplayColorThematicImage (
 		
 	else if (fileInfoPtr->numberBytes == 2)
 		{
-		//#if defined multispec_lin
-			//pixRowBytes = 2*(pixRowBytes/3);
-		//	pixRowBytes = pixRowBytes/3;
-		//#endif	// end "defined multispec_lin"
-
 		if (!fileInfoPtr->asciiSymbols)
 			{
 			if (displaySpecsPtr->paletteOffset == 1)
@@ -555,9 +523,9 @@ void DisplayColorThematicImage (
 			// images are loaded with first line at the end of the bitmap 
 			// to last line at the beginning of the bitmap.
 					                             
-	#if defined multispec_mac || defined multispec_lin                                   
+	#if defined multispec_mac || defined multispec_wx                                   
 		offScreenLinePtr = (HUCharPtr)offScreenBufferPtr;
-	#endif	// defined multispec_mac || defined multispec_lin
+	#endif	// defined multispec_mac || defined multispec_wx
 				
 	#if defined multispec_win 
 		UInt32 numberLines = 
@@ -724,7 +692,7 @@ void DisplayColorThematicImage (
 			lineCount++;
 			if (TickCount () >= gNextTime)
 				{
-				#if defined multispec_lin
+				#if defined multispec_wx
 					displaySpecsPtr->updateEndLine = lineCount;
 				#endif
 				
@@ -738,7 +706,7 @@ void DisplayColorThematicImage (
 														displayBottomMax))
 					break;
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					displaySpecsPtr->updateStartLine = lineCount;
 				#endif
 				/*
@@ -754,9 +722,9 @@ void DisplayColorThematicImage (
 					// Update the offscreen pointer for the next line and update	
 					// the pointer for the IO buffer if needed.
 					                             
-			#if defined multispec_mac || defined multispec_lin
+			#if defined multispec_mac || defined multispec_wx
 				offScreenLinePtr += pixRowBytes; 
-			#endif	// defined multispec_mac || defined multispec_lin
+			#endif	// defined multispec_mac || defined multispec_wx
 					
 			#if defined multispec_win 
 				offScreenLinePtr -= pixRowBytes; 
@@ -781,7 +749,7 @@ void DisplayColorThematicImage (
 	else	// longSourceRect.bottom != -1 
 		rectPtr->bottom = lineCount;
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		displaySpecsPtr->updateEndLine = lineCount;
 	#endif
 
@@ -792,7 +760,6 @@ void DisplayColorThematicImage (
 	if (!updateIOBufferUpdateFlag)
 		CheckAndDisposePtr (ioBufferPtr);
 	
-	//if (fileInfoPtr->asciiSymbols)
 	CheckAndUnlockHandle (displaySpecsPtr->symbolToPaletteEntryH);
 	
 }	// end "DisplayColorThematicImage"  
@@ -800,7 +767,7 @@ void DisplayColorThematicImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -901,8 +868,9 @@ Boolean DisplayThematicDialog (
 				
 		drawBackgroundColorBoxPtr = NewUserItemUPP (DrawColorBoxInDialogWindow);
 		drawDisplayAllSubsetClassesGroupsPopUpPtr = 
-											NewUserItemUPP (DrawDisplayAllSubsetClassesGroupsPopUp);
-		drawDisplayClassesGroupsPopUpPtr = NewUserItemUPP (DrawDisplayClassesGroupsPopUp);
+										NewUserItemUPP (DrawDisplayAllSubsetClassesGroupsPopUp);
+		drawDisplayClassesGroupsPopUpPtr =
+												NewUserItemUPP (DrawDisplayClassesGroupsPopUp);
 		drawPalettePopUpPtr = NewUserItemUPP (DrawPalettePopUp);
 		
 				// Get pointer to local class to group list .
@@ -968,7 +936,8 @@ Boolean DisplayThematicDialog (
 		SetDLogControl (dialogPtr, 27, showLegendFlag);				
 		
 		SetDLogControl (dialogPtr, 28, thresholdFileFlag);
-					// Center the dialog and then show it.											
+	
+				// Center the dialog and then show it.
 				
 		ShowDialogWindow (
 						dialogPtr, kThematicDisplaySpecificationID, kSetUpDFilterTable);
@@ -1339,9 +1308,8 @@ Boolean DisplayThematicDialog (
 		END_CATCH_ALL  
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMDisplayThematicDlg* dialogPtr = NULL;
-		//dialogPtr = new CMDisplayThematicDlg ((wxWindow*)GetMainFrame ());
 		dialogPtr = new CMDisplayThematicDlg (NULL);
 
 		CMDisplay* displayCPtr = gActiveImageViewCPtr->m_displayMultiCPtr;
@@ -1350,7 +1318,7 @@ Boolean DisplayThematicDialog (
 		returnFlag = dialogPtr->DoDialog (displaySpecsPtr);
 
 		delete dialogPtr;
-	#endif // defined multispec_lin   
+	#endif // defined multispec_wx   
 	
 	return (returnFlag);
 	
@@ -1359,7 +1327,7 @@ Boolean DisplayThematicDialog (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1374,7 +1342,8 @@ Boolean DisplayThematicDialog (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			OnInitDialog in xDisplayThematicDialog.cpp
+//							DisplayThematicDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2006
 //	Revised By:			Larry L. Biehl			Date: 04/27/2018
@@ -1403,7 +1372,7 @@ void DisplayThematicDialogInitialize (
 				Boolean*								includeVectorOverlaysFlagPtr)
 
 {  
-	SInt16									entireIconItem;
+	SInt16								entireIconItem;
 	
 	
 			// Initialize selected area structure.		
@@ -1467,10 +1436,10 @@ void DisplayThematicDialogInitialize (
 			((CComboBox*)dialogPtr->GetDlgItem (IDC_DisplayCombo))->DeleteString (1);
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (fileInfoPtr->numberGroups == 0)
 			{
-			wxComboBox* dispcombo = ((wxComboBox*)dialogPtr->FindWindow (IDC_DisplayCombo));
+			wxChoice* dispcombo = ((wxChoice*)dialogPtr->FindWindow (IDC_DisplayCombo));
 			if (dispcombo->GetCount () > 1)
 				dispcombo->Delete (1);
 			}
@@ -1529,12 +1498,20 @@ void DisplayThematicDialogInitialize (
 			*classSelectionPtr = kAllMenuItem;
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin   
-			wxComboBox* dispcombo = ((wxComboBox*)dialogPtr->FindWindow (IDC_ClassesGroupsCombo));
+		#if defined multispec_wx   
+			#if defined multispec_wxlin
+				wxComboBox* dispcombo = ((wxComboBox*)dialogPtr->
+																FindWindow (IDC_ClassesGroupsCombo));
+			#endif
+			#if defined multispec_wxmac
+				wxChoice* dispcombo = ((wxChoice*)dialogPtr->
+																FindWindow (IDC_ClassesGroupsCombo));
+			#endif
+	
 			if (dispcombo->GetCount () > 1)
 				dispcombo->Delete (1);
 			*classSelectionPtr = kAllMenuItem;
-		#endif	// defined multispec_win
+		#endif	// defined multispec_wx
 		
 		}	// end "if (displaySpecsPtr->numberLevels > gClassListLimit)"
 	
@@ -1582,7 +1559,7 @@ void DisplayThematicDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1599,7 +1576,8 @@ void DisplayThematicDialogInitialize (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			DoDialog in xDisplayThematicDialog.cpp
+//							DisplayThematicDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/1996
 //	Revised By:			Larry L. Biehl			Date: 05/09/2016
@@ -1636,7 +1614,7 @@ void DisplayThematicDialogOK (
 			// Magnification to use										
 						
 	displaySpecsPtr->magnification = magnification;
-	#if defined multispec_lin
+	#if defined multispec_wx
 		gActiveImageViewCPtr->m_Scale = magnification;
 		
 				// Check max magnification. GTK has problems if too large. Checks
@@ -1660,7 +1638,7 @@ void DisplayThematicDialogOK (
 							MIN (maxMagnification, 26000/numberVerticalPixels);
 							
 		displaySpecsPtr->maxMagnification = maxMagnification;		
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 				
 			// Palette to be used.	
 			
@@ -1735,53 +1713,7 @@ void DisplayThematicDialogOK (
 			// Display legend.											
 			
 	gImageWindowInfoPtr->showLegend = showLegendFlag;
-	/*
-	redrawScrollBarFlag = FALSE;
-	if (gImageWindowInfoPtr->showLegend && gImageWindowInfoPtr->legendWidth == 0)
-		{	
-		UpdateLegendParameters (GetActiveImageWindowInfoHandle (),
-										gDefaultLegendWidth);
-		redrawScrollBarFlag = TRUE;
-					
-		}	// end "if (windowInfoPtr->showLegend && ..." 
-						
-	if (!gImageWindowInfoPtr->showLegend && gImageWindowInfoPtr->legendWidth != 0)
-		{
-		gImageWindowInfoPtr->legendWidth = 0;
-		redrawScrollBarFlag = TRUE;
-						
-		}	// end "if (!windowInfoPtr->showLegend && ..." 
-		
-			// Redraw the scroll bars if needed.								
-						
-	if (redrawScrollBarFlag)
-		{              
-		#if defined multispec_mac 
-			Rect				theBox;
-		
-			SetPortWindowPort (gActiveImageWindow);
-			DrawScrollBars (gActiveImageWindow);
-						
-					// Invalidate the area for the legend list so that it		
-					// will be drawn.														
-							
-							
-			GetWindowPortBounds (gActiveImageWindow, &theBox);	
-			theBox.bottom -= kSBarWidth;
-			EraseRect (&theBox);
-			
-			InvalWindowRect (gActiveImageWindow, &theBox);
-		#endif	// defined multispec_mac 
-		
-		  
-		#if defined multispec_win  
-			CMImageDoc* imageDocCPtr = (CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
-			CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
-			imageFrameCPtr->SetLegendWidth (gImageWindowInfoPtr->legendWidth);
-		#endif	// defined multispec_win
-					
-		}	// end "if (redrawScrollBarFlag)" 
-	*/
+
 	displaySpecsPtr->includeVectorOverlaysFlag = includeVectorOverlaysFlag;
 					
 			// Make certain that the palette will be updated if it		
@@ -1798,7 +1730,7 @@ void DisplayThematicDialogOK (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1813,10 +1745,10 @@ void DisplayThematicDialogOK (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus
+// Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 03/16/2019
+//	Revised By:			Larry L. Biehl			Date: 12/20/2019
 
 Boolean DisplayThematicImage (void)
 
@@ -1850,7 +1782,7 @@ Boolean DisplayThematicImage (void)
 	
 			// Make certain that there are not too many classes to be displayed.	
 			
-	if (gImageFileInfoPtr->numberClasses > kMaxNumberDisplayClasses)
+	if (gImageFileInfoPtr->numberClasses >= kMaxNumberDisplayClasses)
 		{															
 				// Display an alert.																
 		
@@ -1858,7 +1790,7 @@ Boolean DisplayThematicImage (void)
 						kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert16, 0, NULL);
 																		return (imageDisplayedFlag);
 																							
-		}	// end "if (gFileInfoPtr->numberClasses > kMaxNumberDisplayClasses)" 
+		}	// end "if (gFileInfoPtr->numberClasses >= kMaxNumberDisplayClasses)" 
 	
 			// Load in the default display specifications.								
 			  				
@@ -1912,11 +1844,11 @@ Boolean DisplayThematicImage (void)
 				if (!displaySpecsPtr->imageWindowIsUpToDateFlag)
 					displayChangedFlag = TRUE;
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 							// Be sure scale is set for ImageView. This is put here
 							// in case the dialog is not called.
 					gActiveImageViewCPtr->m_Scale = displaySpecsPtr->magnification;
-				#endif	// defined multispec_lin
+				#endif	// defined multispec_wx
 					
 						// Draw the image as requested. 										
 						// Remove the selection rectangle if it exists and the		
@@ -2068,7 +2000,7 @@ Boolean DisplayThematicImage (void)
 /*
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2084,7 +2016,7 @@ Boolean DisplayThematicImage (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayThematicDialog in displayThematic.c
+// Called By:			DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1991
 //	Revised By:			Larry L. Biehl			Date: 03/18/1996
@@ -2151,7 +2083,7 @@ pascal void DrawBackgroundColorBox (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2169,7 +2101,7 @@ pascal void DrawBackgroundColorBox (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayThematicDialog in displayThematic.c
+// Called By:			DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/1990
 //	Revised By:			Larry L. Biehl			Date: 11/26/1990	
@@ -2194,7 +2126,7 @@ pascal void DrawDisplayAllSubsetClassesGroupsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2212,7 +2144,7 @@ pascal void DrawDisplayAllSubsetClassesGroupsPopUp (
 //
 // Value Returned:	None			
 // 
-// Called By:			DisplayThematicDialog in displayThematic.c
+// Called By:			DisplayThematicDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/26/1990
 //	Revised By:			Larry L. Biehl			Date: 11/26/1990	
@@ -2236,7 +2168,7 @@ pascal void DrawDisplayClassesGroupsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2453,7 +2385,7 @@ Boolean HistogramThematicVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2470,7 +2402,7 @@ Boolean HistogramThematicVector (
 //
 // Value Returned:	None
 //
-// Called By:			ThematicDialog   in displayThematic.c
+// Called By:			ThematicDialog   in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/25/1991
 //	Revised By:			Larry L. Biehl			Date: 01/25/1991	
@@ -2563,7 +2495,7 @@ void LoadClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2653,7 +2585,7 @@ void LoadClassGroupVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2671,7 +2603,7 @@ void LoadClassGroupVector (
 //
 // Value Returned:	None
 //
-// Called By:			ThematicDialog   in displayThematic.c
+// Called By:			ThematicDialog   in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/25/1991
 //	Revised By:			Larry L. Biehl			Date: 07/01/1997	
@@ -2745,7 +2677,7 @@ void LoadLocalClassGroupDisplayInfo (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2760,7 +2692,7 @@ void LoadLocalClassGroupDisplayInfo (
 //
 // Value Returned:	None	
 // 
-// Called By:			ClassGroupDialog in SDisThem.cpp
+// Called By:			ClassGroupDialog in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/1991
 //	Revised By:			Larry L. Biehl			Date: 09/18/2006	
@@ -2769,7 +2701,7 @@ void LoadLocalClassGroupDisplayInfo (
 	void LoadThematicClassNamesIntoList (
 				ListHandle							listHandle)
 #endif
-#if defined multispec_lin
+#if defined multispec_wx
 	void LoadThematicClassNamesIntoList (
 				wxListBox*							listHandle)
 #endif
@@ -2801,11 +2733,9 @@ void LoadLocalClassGroupDisplayInfo (
 		classNamePtr = (HCharPtr)GetHandlePointer (classNameHandle, kLock);
 		
 				// Delete any rows that are presently in the list.						
-				
-		//row = ((ListPtr)*listHandle)->dataBounds.bottom;
-		//LDelRow (row, 0, listHandle);
-
+			
 		#if defined multispec_mac || defined multispec_win
+					// This is not needed for wxWidgets version
 			RemoveListCells (listHandle);
 		#endif
 		
@@ -2838,7 +2768,7 @@ void LoadLocalClassGroupDisplayInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2899,7 +2829,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 				
 				// Get pointer to palette class with space for 256 entries. 
 		
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			displaySpecsPtr->paletteObject = new CMPalette;
 			if (displaySpecsPtr->paletteObject == NULL)
 																						return (NULL);
@@ -2907,7 +2837,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 			displaySpecsPtr->backgroundPaletteObject = new CMPalette;
 			if (displaySpecsPtr->backgroundPaletteObject == NULL)
 																						return (NULL);
-		#endif	// defined multispec_win || defined multispec_lin													
+		#endif	// defined multispec_win || defined multispec_wx													
 		
 		displaySpecsPtr->numberDisplayClasses = gImageFileInfoPtr->numberClasses;
 		displaySpecsPtr->classGroupCode = kClassDisplay;
@@ -2916,47 +2846,17 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 		
 		if (InitializeClassGroupsVector (gImageFileInfoPtr, displaySpecsPtr) != noErr)
 																						return (NULL);
-		/*	
-		numberBytes = (SInt32)gImageFileInfoPtr->numberClasses * sizeof (short int);
-		
-		displaySpecsPtr->displayClassGroupsHandle = MNewHandleClear (numberBytes);
-									
-		if (displaySpecsPtr->displayClassGroupsHandle == NULL)
-																				return (NULL);
-			
-				// Indicate that all classes are to be displayed.						
-				
-		LoadClassGroupVector (
-					&displaySpecsPtr->numberDisplayClasses,
-					displaySpecsPtr->displayClassGroupsHandle,
-					gImageFileInfoPtr->numberClasses,
-					gImageFileInfoPtr->numberGroups, 
-					kClassDisplay);
-			
-				// Indicate that all groups are to be displayed.						
-				
-		LoadClassGroupVector (
-					&displaySpecsPtr->numberDisplayGroups,
-					displaySpecsPtr->displayClassGroupsHandle,
-					gImageFileInfoPtr->numberClasses,
-					gImageFileInfoPtr->numberGroups, 
-					kGroupDisplay);
-		*/		
-				// Force pixel size to be no larger than 8 bits.						
+
+				// Force pixel size to be no larger than 8 bits.
 				
 		if (gOSXCoreGraphicsFlag)	
 			//displaySpecsPtr->pixelSize = 32;
 			displaySpecsPtr->pixelSize = 8;
+			
 		else	// !gOSXCoreGraphicsFlag
 			displaySpecsPtr->pixelSize = MIN (8, displaySpecsPtr->pixelSize);
 			
-		displaySpecsPtr->displayType = 2;
-		if (displaySpecsPtr->pixelSize == 1)
-					// Display element is B&W pattern										
-					// Color quick draw is not available; force display type to 	
-					// be a pattern.																
-		
-			displaySpecsPtr->displayType = 1;
+		displaySpecsPtr->displayType = k1_ChannelGrayLevelDisplayType;
 			
 		displaySpecsPtr->numberLevels = gImageFileInfoPtr->numberClasses;
 		displaySpecsPtr->numberPaletteLevels = gImageFileInfoPtr->numberClasses;
@@ -2990,11 +2890,8 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 					// .STI is in the file name.  If so then make the default		
 					// palette the correlation palette.										
 			
-			FileStringPtr fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
-			//fileNamePtr[fileNamePtr[0]+1] = 0;
-	 		//sprintf ((char*)gTextString, ".STI\0");
-			//strPtr = (char*)strstr ((char*)fileNamePtr, (char*)gTextString);
-			//if (strPtr != NULL)
+			FileStringPtr fileNamePtr =
+						(FileStringPtr)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
 			if (CompareSuffixNoCase ((char*)"\0.sti", fileNamePtr, NULL))
 				{
 				displaySpecsPtr->thematicClassPaletteType = kCorrelationMatrixColors;
@@ -3044,7 +2941,8 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 		if (displaySpecsPtr->columnInterval > gImageWindowInfoPtr->maxNumberColumns)
 			displaySpecsPtr->columnInterval = 1;
 		
-		if ((UInt16)displaySpecsPtr->channelNumber > gImageWindowInfoPtr->totalNumberChannels)
+		if ((UInt16)displaySpecsPtr->channelNumber >
+														gImageWindowInfoPtr->totalNumberChannels)
 			displaySpecsPtr->channelNumber = 1;
 		
 				// Do not load user selected rectangle information into display 			
@@ -3054,16 +2952,15 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 				// for zooming and otherwise and does not really want to display
 				// a subset of the image.				
 
-		GetSelectedAreaInfo (
-							gActiveImageWindow,
-							gImageWindowInfoPtr,
-							(SInt32*)&longRect.top,
-							(SInt32*)&longRect.bottom,
-							(SInt32*)&longRect.left,
-							(SInt32*)&longRect.right,
-							kDontClearSelectionArea,
-							kUseThreshold,
-							kDontAdjustToBaseImage);
+		GetSelectedAreaInfo (gActiveImageWindow,
+									gImageWindowInfoPtr,
+									(SInt32*)&longRect.top,
+									(SInt32*)&longRect.bottom,
+									(SInt32*)&longRect.left,
+									(SInt32*)&longRect.right,
+									kDontClearSelectionArea,
+									kUseThreshold,
+									kDontAdjustToBaseImage);
 		
 		}	// End "else !displaySpecsPtr->firstTime"
 	
@@ -3074,7 +2971,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3098,7 +2995,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 	void LoadThematicGroupNamesIntoList (
 				ListHandle							listHandle)
 #endif
-#if defined multispec_lin
+#if defined multispec_wx
 	void LoadThematicGroupNamesIntoList (
 				wxListBox*							listHandle)
 #endif
@@ -3122,7 +3019,8 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 	
 	displaySpecsH = GetDisplaySpecsHandle (gImageWindowInfoPtr);
 	if (displaySpecsH == NULL)
-																							return;
+																								return;
+	
 	displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsH);
 	
 			// Initialize local variables.													
@@ -3174,7 +3072,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3189,7 +3087,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 //
 // Value Returned:	None			
 // 
-// Called By:			OpenFieldStatistics in statistics.c
+// Called By:			OpenFieldStatistics in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1996
 //	Revised By:			Larry L. Biehl			Date: 04/09/1996	
@@ -3219,7 +3117,7 @@ void RemoveListCells (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3234,7 +3132,7 @@ void RemoveListCells (
 //
 // Value Returned:	None
 //
-// Called By:			in SDisThem.cpp
+// Called By:			in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/09/2016
 //	Revised By:			Larry L. Biehl			Date: 05/09/2016
@@ -3282,7 +3180,8 @@ void UpdateLegendWidth ()
       #endif	// defined multispec_mac
       
       #if defined multispec_win
-            CMImageDoc* imageDocCPtr = (CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
+            CMImageDoc* imageDocCPtr =
+											(CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
             CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
             imageFrameCPtr->SetLegendWidth (gImageWindowInfoPtr->legendWidth);
       #endif	// defined multispec_win

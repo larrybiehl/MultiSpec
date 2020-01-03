@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2018
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -23,27 +23,14 @@
 //								training/test pixels and the class number for all selected
 //								project training/test pixels.
 //
-//	Functions in file:	void 				AreasToThematicFileControl
-//								Boolean 			ConvertImagePixelsToClassNumbers
-//								Boolean 			CovertMultispectralToThematic
-//								void 				CovertMultispectralToThematicControl
-//								Boolean 			LoadAreasToThematicDialog
-//								void 				LoadAreasToThematicDialogInitialize
-//								void 				LoadAreasToThematicDialogOK
-//								Boolean 			LoadAreasToThematicSpecs
-//								Boolean 			MultispectralToThematicDialog
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h"  
+#include "SMultiSpec.h"
+#include "SFileStream_class.h"
 
-#if defined multispec_lin
-	#include "CFileStream.h"
-	#include "LFieldsToThematicDialog.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+	#include "xFieldsToThematicDialog.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_TrainingAreas		15 
@@ -51,12 +38,9 @@
 	#define	IDS_Reform29			29
 #endif	// defined multispec_mac || defined multispec_mac_swift
   
-#if defined multispec_win 
-	#include "CFileStream.h"
+#if defined multispec_win
 	#include "WFieldsToThematicDialog.h"
-#endif	// defined multispec_win 
- 
-//#include "SExtGlob.h" 
+#endif	// defined multispec_win
 
 #define	kFieldsToThematicNoHeaderOutputFormat		1
 #define	kFieldsToThematicERDAS74OutputFormat		2
@@ -67,71 +51,71 @@
 		// Prototypes for routines in this file that are only called by			
 		// other routines in this file.														
 		
-Boolean 					ConvertImagePixelsToClassNumbers (
-								FileInfoPtr, 
-								ReformatOptionsPtr);
-									
-Boolean					CovertMultispectralToThematic (
-								WindowInfoPtr						inputWindowInfoPtr,
-								FileInfoPtr							outFileInfoPtr,
-								ReformatOptionsPtr				reformatOptionsPtr);
-		
+Boolean ConvertImagePixelsToClassNumbers (
+				FileInfoPtr							outFileInfoPtr, 
+				ReformatOptionsPtr				reformatOptionsPtr);
+
+Boolean CovertMultispectralToThematic (
+				WindowInfoPtr						inputWindowInfoPtr,
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr);
+
 #if defined multispec_mac
-	pascal void				DrawDiskFileFormatPopUp (
-									DialogPtr							dialogPtr,
-									SInt16								itemNumber);
+	pascal void	DrawDiskFileFormatPopUp (
+					DialogPtr							dialogPtr,
+					SInt16								itemNumber);
 #endif
 
-Boolean 					ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
-								FileInfoPtr							outFileInfoPtr, 
-								ReformatOptionsPtr				reformatOptionsPtr,
-								HParamBlockRec*					paramBlockPtr,
-								UCharPtr								inputBuffer,
-								UCharPtr								inputStringPtr,
-								UCharPtr								classNamePtr,
-								ColorSpec*							colorSpecPtr);
-		
-Boolean 					ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
-								FileInfoPtr							outFileInfoPtr, 
-								ReformatOptionsPtr				reformatOptionsPtr,
-								HParamBlockRec*					paramBlockPtr,
-								UCharPtr								inputBuffer,
-								UCharPtr								inputStringPtr,
-								UCharPtr								classNamePtr,
-								ColorSpec*							colorSpecPtr);
+Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				HParamBlockRec*					paramBlockPtr,
+				UCharPtr								inputBuffer,
+				UCharPtr								inputStringPtr,
+				UCharPtr								classNamePtr,
+				ColorSpec*							colorSpecPtr);
 
-Boolean					ENVI_ROIToThematicGetASCIIFile (
-								CMFileStream*						inputFileStreamPtr,
-								FileInfoPtr							outFileInfoPtr, 
-								ReformatOptionsPtr				reformatOptionsPtr,
-								HParamBlockRec*					paramBlockPtr,
-								UCharPtr								bufferPtr,
-								UInt32								bufferLength,
-								UCharPtr*							inputStringPtrPtr,
-								SInt16*								endOfLineCodePtr,
-								UInt32*								numberEndOfLineBytesPtr,
-								SInt16*								asciiFormatCodePtr);
-								
-void						ENVI_ROIToThematicGetClassName (
-								UCharPtr								inputStringPtr,
-								UCharPtr								classNamePtr);
-								
-Boolean 					ENVI_ROIToThematicLoadSpecs (
-								Handle*								reformatOptionsHPtr);
+Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				HParamBlockRec*					paramBlockPtr,
+				UCharPtr								inputBuffer,
+				UCharPtr								inputStringPtr,
+				UCharPtr								classNamePtr,
+				ColorSpec*							colorSpecPtr);
+
+Boolean ENVI_ROIToThematicGetASCIIFile (
+				CMFileStream*						inputFileStreamPtr,
+				FileInfoPtr							outFileInfoPtr, 
+				ReformatOptionsPtr				reformatOptionsPtr,
+				HParamBlockRec*					paramBlockPtr,
+				UCharPtr								bufferPtr,
+				UInt32								bufferLength,
+				UCharPtr*							inputStringPtrPtr,
+				SInt16*								endOfLineCodePtr,
+				UInt32*								numberEndOfLineBytesPtr,
+				SInt16*								asciiFormatCodePtr);
+
+void ENVI_ROIToThematicGetClassName (
+				UCharPtr								inputStringPtr,
+				UCharPtr								classNamePtr);
+
+Boolean ENVI_ROIToThematicLoadSpecs (
+				Handle*								reformatOptionsHPtr);
 				
-Boolean 					LoadAreasToThematicSpecs (
-								Handle*);
+Boolean LoadAreasToThematicSpecs (
+				Handle*								reformatOptionsHPtr);
 
-Boolean 					LoadAreasToThematicDialog (
-								ReformatOptionsPtr);
+Boolean LoadAreasToThematicDialog (
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-Boolean 					MultispectralToThematicDialog (
-								ReformatOptionsPtr				reformatOptionsPtr);
+Boolean MultispectralToThematicDialog (
+				ReformatOptionsPtr				reformatOptionsPtr);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -150,7 +134,7 @@ Boolean 					MultispectralToThematicDialog (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
-//	Revised By:			Larry L. Biehl			Date: 12/08/2014	
+//	Revised By:			Larry L. Biehl			Date: 11/07/2019
 
 void AreasToThematicFileControl (void)
 
@@ -218,11 +202,11 @@ void AreasToThematicFileControl (void)
 					// Update parameters in the structure for the output file.		
 					
 			UpdateOutputFileStructure (
-								outFileInfoPtr,
-								reformatOptionsPtr,
-								gProjectInfoPtr->startLine, 
-								gProjectInfoPtr->startColumn,
-								GetFileMapProjectionHandle2 (gProjectInfoPtr->windowInfoHandle));
+							outFileInfoPtr,
+							reformatOptionsPtr,
+							gProjectInfoPtr->startLine, 
+							gProjectInfoPtr->startColumn,
+							GetFileMapProjectionHandle2 (gProjectInfoPtr->windowInfoHandle));
 			
 					// Get buffer for output data.													
 					
@@ -249,10 +233,10 @@ void AreasToThematicFileControl (void)
 				//	Title for creating background image.										
 	
 		LoadDItemStringNumber (kReformatStrID,
-											IDS_Reform13, 	// "\pCreating Thematic Image Background"
-											gStatusDialogPtr, 
-											IDC_Status11,
-											(Str255*)gTextString);
+										IDS_Reform13, 	// "\pCreating Thematic Image Background"
+										gStatusDialogPtr, 
+										IDC_Status11,
+										(Str255*)gTextString);
 				
 				// Create the base Thematic Image file with all background values.	
 				
@@ -288,9 +272,11 @@ void AreasToThematicFileControl (void)
 		if (continueFlag)	
 			continueFlag = ConvertImagePixelsToClassNumbers (
 																outFileInfoPtr, reformatOptionsPtr);
-																
-				// Create the trailer file if needed.									
 		
+				// Create the trailer file if needed.									
+				// This is not needed the trailer file was created with the
+				// background image file.
+				
 		if (continueFlag && reformatOptionsPtr->headerFormat != kNoneType)
 			{
 			supportFileType = kICLRFileType;
@@ -298,25 +284,25 @@ void AreasToThematicFileControl (void)
 				supportFileType = kITRLFileType;
 			
 			continueFlag = CreateThematicSupportFile (
-										outFileInfoPtr,
-										NULL,
-										(UInt16)reformatOptionsPtr->numberClasses,
-										reformatOptionsPtr->classPtr,
-										(UInt16)reformatOptionsPtr->numberClasses,
-										NULL,
-										NULL,
-										NULL,
-										kDefaultColors,
-										(UInt16)reformatOptionsPtr->numberClasses,
-										0,
-										kPaletteHistogramClassNames,
-										kClassDisplay,
-										kCollapseClass,
-										supportFileType);
+														outFileInfoPtr,
+														NULL,
+														(UInt16)reformatOptionsPtr->numberClasses,
+														reformatOptionsPtr->classPtr,
+														(UInt16)reformatOptionsPtr->numberClasses,
+														NULL,
+														NULL,
+														NULL,
+														kDefaultColors,
+														(UInt16)outFileInfoPtr->numberClasses,
+														0,
+														kPaletteHistogramClassNames,
+														kClassDisplay,
+														kCollapseClass,
+														supportFileType);
 										
-			}	// end "if (continueFlag && ...)" 
-				  		
-	  					// Close the output file.													
+			}	// end "if (continueFlag && ...)"
+			
+				// Close the output file.
 	  				
 		CloseFile (outFileInfoPtr);
 					
@@ -351,7 +337,7 @@ void AreasToThematicFileControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -369,7 +355,7 @@ void AreasToThematicFileControl (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			AreasToThematicFileControl in fieldsToThematicFile.c
+// Called By:			AreasToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
 //	Revised By:			Larry L. Biehl			Date: 03/16/2014
@@ -544,7 +530,8 @@ Boolean ConvertImagePixelsToClassNumbers (
 			
 			if (TickCount () >= gNextTime)
 				{
-				continueFlag = CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask);
+				continueFlag = CheckSomeEvents (
+												osMask+keyDownMask+updateMask+mDownMask+mUpMask);
 				if (!continueFlag)
 					break;
 					
@@ -579,11 +566,11 @@ Boolean ConvertImagePixelsToClassNumbers (
 					
 					fieldLineStart = 
 						((fieldLineStart-1)/lineInterval) * lineInterval + lineInterval;
-					fieldColumnStart = 
-						((fieldColumnStart-1)/columnInterval) * columnInterval + columnInterval;
+					fieldColumnStart = ((fieldColumnStart-1)/columnInterval) *
+																	columnInterval + columnInterval;
 					
-					numberFieldColumns = 
-							(fieldColumnEnd - fieldColumnStart + columnInterval)/columnInterval;
+					numberFieldColumns = (fieldColumnEnd -
+											fieldColumnStart + columnInterval)/columnInterval;
 					numberFieldColumns = MAX (0, numberFieldColumns);
 					
 					imageLineNumber = (fieldLineStart - lineStart)/lineInterval;
@@ -632,8 +619,8 @@ Boolean ConvertImagePixelsToClassNumbers (
 										fieldLineStart - areaDescription.lineStart - 1) * 
 																						numberMaskColumns;
 																						
-								// Now make 'numberMaskColumns' represent the number of columns
-								// to skip taking into account the line interval.
+								// Now make 'numberMaskColumns' represent the number of
+								// columns to skip taking into account the line interval.
 								
 						numberMaskColumns *= lineInterval;
 						
@@ -706,7 +693,7 @@ Boolean ConvertImagePixelsToClassNumbers (
 									includePixelFlag = TRUE;
 								
 								else if (pointType == kMaskType && 
-																	*maskBufferPtr == maskRequestValue)
+																*maskBufferPtr == maskRequestValue)
 									includePixelFlag = TRUE;
 									
 								if (includePixelFlag)
@@ -797,7 +784,7 @@ Boolean ConvertImagePixelsToClassNumbers (
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1044,15 +1031,15 @@ Boolean CovertMultispectralToThematic (
 				// file.  Write a header if requested.									
 			
 		continueFlag = WriteNewImageHeader (NULL,
-															outFileInfoPtr, 
-															(char*)gTextString,
-															displaySpecsPtr,
-															kFromReformat,
-															reformatOptionsPtr->outputFileCode, 
-															reformatOptionsPtr->lineInterval,
-															reformatOptionsPtr->columnInterval,
-															kClassDisplay,
-															kNoPaletteColorsDefined);
+														outFileInfoPtr,
+														(char*)gTextString,
+														displaySpecsPtr,
+														kFromReformat,
+														reformatOptionsPtr->outputFileCode, 
+														reformatOptionsPtr->lineInterval,
+														reformatOptionsPtr->columnInterval,
+														kClassDisplay,
+														kNoPaletteColorsDefined);
 		
 		gCharBufferHandle3 = NULL;
 					
@@ -1219,7 +1206,7 @@ Boolean CovertMultispectralToThematic (
 	
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1410,7 +1397,7 @@ void CovertMultispectralToThematicControl (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1451,7 +1438,7 @@ pascal void DrawDiskFileFormatPopUp (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1604,7 +1591,7 @@ void ENVI_ROIToThematicFileControl (void)
 						// Set the background color to white.
 						
 				colorSpecPtr[0].value = 0;
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					colorSpecPtr[0].rgb.red = (255 << 8);
 					colorSpecPtr[0].rgb.green = (255 << 8);
 					colorSpecPtr[0].rgb.blue = (255 << 8);
@@ -1705,23 +1692,23 @@ void ENVI_ROIToThematicFileControl (void)
 																				
 			if (asciiFormatCode == 1)
 				continueFlag = ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
-															outFileInfoPtr, 
-															reformatOptionsPtr,
-															&paramBlock,
-															inputBuffer,
-															inputStringPtr,
-															classNamePtr,
-															colorSpecPtr);
-															
+																						outFileInfoPtr,
+																						reformatOptionsPtr,
+																						&paramBlock,
+																						inputBuffer,
+																						inputStringPtr,
+																						classNamePtr,
+																						colorSpecPtr);
+			
 			else	// asciiFormatCode == 2
 				continueFlag = ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
-															outFileInfoPtr, 
-															reformatOptionsPtr,
-															&paramBlock,
-															inputBuffer,
-															inputStringPtr,
-															classNamePtr,
-															colorSpecPtr);
+																						outFileInfoPtr,
+																						reformatOptionsPtr,
+																						&paramBlock,
+																						inputBuffer,
+																						inputStringPtr,
+																						classNamePtr,
+																						colorSpecPtr);
 			
 			}	// end "if (continueFlag)" 
 		
@@ -1760,22 +1747,22 @@ void ENVI_ROIToThematicFileControl (void)
 		if (continueFlag && reformatOptionsPtr->headerFormat == kErdas74Type)
 			{
 			continueFlag = CreateThematicSupportFile (
-										outFileInfoPtr,
-										NULL,
-										(UInt16)outFileInfoPtr->numberClasses,
-										NULL,
-										0,
-										colorSpecPtr,
-										NULL,
-										NULL,
-										0,
-										(UInt16)outFileInfoPtr->numberClasses,
-										kFromDescriptionCode,
-										kPaletteHistogramClassNames,
-										kClassDisplay,
-										kCollapseClass,
-										kITRLFileType);
-										
+														outFileInfoPtr,
+														NULL,
+														(UInt16)outFileInfoPtr->numberClasses,
+														NULL,
+														0,
+														colorSpecPtr,
+														NULL,
+														NULL,
+														0,
+														(UInt16)outFileInfoPtr->numberClasses,
+														kFromDescriptionCode,
+														kPaletteHistogramClassNames,
+														kClassDisplay,
+														kCollapseClass,
+														kITRLFileType);
+			
 			}	// end "if (continueFlag && ...)" 
 			
 		CheckAndDisposePtr ((Ptr)colorSpecPtr);
@@ -1798,10 +1785,6 @@ void ENVI_ROIToThematicFileControl (void)
 				
 	
 	ReleaseReformatOutputFileInfoAndBuffers (reformatOptionsPtr, NULL);
-			
-			// Release memory used for the reformat structure.							
-			
-	//ReleaseReformatSpecsMemory (&reformatOptionsHandle, NULL);
 					
 			// Dispose of updating statistics status dialog box.						
 		
@@ -1814,7 +1797,7 @@ void ENVI_ROIToThematicFileControl (void)
 
 							
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1833,7 +1816,7 @@ void ENVI_ROIToThematicFileControl (void)
 //
 // Value Returned:	None				
 // 
-// Called By:			ENVI_ROIToThematicFileControl in SFieldT.cpp
+// Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 07/24/2011
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -1865,7 +1848,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 			// Check input parameters.															
 			
 	if (outFileInfoPtr == NULL || reformatOptionsPtr == NULL)
-																				return (FALSE);
+																					return (FALSE);
 																				
 	continueFlag = TRUE;
 	errCode = noErr;
@@ -1927,7 +1910,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 				// Check if a File Dimension line is at the beginning of the file.
 				
 		returnCode = sscanf ((char*)*inputStringPtrPtr,
-										#ifndef multispec_lin
+										#ifndef multispec_wx
 											"File Dimension: %ld x %ld",
 										#else
 											"File Dimension: %d x %d",
@@ -1951,7 +1934,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 				paramBlockPtr->ioParam.ioPosOffset = 0;
 			#endif	// defined multispec_mac
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				paramBlockPtr->ioPosOffset = 0;
 			#endif	// defined multispec_win 
 			
@@ -1971,7 +1954,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 		if (continueFlag)
 			{
 			returnCode = sscanf ((char*)*inputStringPtrPtr, 											
-											#ifndef multispec_lin
+											#ifndef multispec_wx
 												"; Number of ROIs: %ld",
 											#else
 												"; Number of ROIs: %d",
@@ -1990,7 +1973,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 			if (continueFlag)
 				{
 				returnCode = sscanf ((char*)*inputStringPtrPtr,
-												#ifndef multispec_lin
+												#ifndef multispec_wx
 													"; File Dimension: %ld x %ld",
 												#else
 													"; File Dimension: %d x %d",
@@ -2023,7 +2006,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2042,7 +2025,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 //
 // Value Returned:	None				
 // 
-// Called By:			ENVI_ROIToThematicFileControl in SFieldsT.cpp
+// Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1997
 //	Revised By:			Larry L. Biehl			Date: 03/15/2017
@@ -2084,7 +2067,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 			// Check input parameters.															
 			
 	if (outFileInfoPtr == NULL || reformatOptionsPtr == NULL)
-																				return (FALSE);
+																					return (FALSE);
 																				
 	continueFlag = TRUE;
 	errCode = noErr;
@@ -2147,7 +2130,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 				if (returnCode == 3)	
 					{
 					colorSpecPtr[classNumber].value = (SInt16)classNumber;
-					#ifndef multispec_lin
+					#ifndef multispec_wx
 						colorSpecPtr[classNumber].rgb.red = (red << 8);
 						colorSpecPtr[classNumber].rgb.green = (green << 8);
 						colorSpecPtr[classNumber].rgb.blue = (blue << 8);
@@ -2167,7 +2150,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 			else if (strncmp ((char*)inputStringPtr, (char*)roiPixel, 1) == 0)
 				{
 				returnCode = sscanf ((char*)inputStringPtr, 
-											#ifndef multispec_lin
+											#ifndef multispec_wx
 												"(%ld) , (%ld)",
 											#else
 												"(%d) , (%d)",
@@ -2217,7 +2200,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 
 							
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2236,7 +2219,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 //
 // Value Returned:	None				
 // 
-// Called By:			ENVI_ROIToThematicFileControl in SFieldsT.cpp
+// Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/2011
 //	Revised By:			Larry L. Biehl			Date: 02/28/2018
@@ -2283,7 +2266,8 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 	outputImageBuffer = reformatOptionsPtr->ioOutBufferPtr;
 	continueFlag = TRUE;
 
-			// Get memory for storage of the number of points per class and the class color.
+			// Get memory for storage of the number of points per class and the
+			// class color.
 	
 	pointsPerClassVector = (UInt32*)MNewPointer (numberClasses*sizeof (UInt32));
 	
@@ -2335,7 +2319,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 					if (returnCode == 3)
 						{
 						colorSpecPtr[index+1].value = (SInt16)(index + 1);
-						#ifndef multispec_lin
+						#ifndef multispec_wx
 							colorSpecPtr[index+1].rgb.red = (red << 8);
 							colorSpecPtr[index+1].rgb.green = (green << 8);
 							colorSpecPtr[index+1].rgb.blue = (blue << 8);
@@ -2398,7 +2382,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 				if (errCode == noErr)
 					{
 					returnCode = sscanf ((char*)inputStringPtr, 
-												#ifndef multispec_lin
+												#ifndef multispec_wx
 													"%ld %ld\r",
 												#else
 													"%d %d\r",
@@ -2506,7 +2490,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2579,7 +2563,7 @@ void ENVI_ROIToThematicGetClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2682,7 +2666,7 @@ Boolean ENVI_ROIToThematicLoadSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2940,7 +2924,7 @@ Boolean LoadAreasToThematicDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
 	
-   #if defined multispec_lin
+   #if defined multispec_wx
 		CMFieldsToThematicDialog*		dialogPtr = NULL;
 		
 		try{ 
@@ -2956,7 +2940,7 @@ Boolean LoadAreasToThematicDialog (
 			MemoryMessage (0, kObjectMessage);
 			returnFlag = FALSE;
 			}			
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
 
 	CheckAndUnlockHandle (gProjectInfoPtr->windowInfoHandle);
 	
@@ -3051,12 +3035,6 @@ void LoadAreasToThematicDialogInitialize (
 	*localClassPtrPtr = (UInt16*)reformatOptionsPtr->classPtr;
 	*localNumberClassesPtr = reformatOptionsPtr->numberClasses;	
 													
-			// Set text indicating whether the output file format could be GeoTIFF
-			// or TIFF
-
-	//	projectWindowInfoPtr = (WindowInfoPtr)GetHandlePointer (
-	//												gProjectInfoPtr->windowInfoHandle, kLock);
-			
 	SetTIFF_GeoTIFF_MenuItemString (dialogSelectAreaPtr->imageWindowInfoPtr,
 												dialogPtr,
 												#if defined multispec_mac  
@@ -3065,9 +3043,9 @@ void LoadAreasToThematicDialogInitialize (
 												#if defined multispec_win  
 													IDC_OutputFormatCombo,
 												#endif	// defined multispec_win
-												#if defined multispec_lin
+												#if defined multispec_wx
                                        NULL,
-												#endif	// defined multispec_lin  
+												#endif	// defined multispec_wx  
 												kFieldsToThematicTIFFGeoTIFFMenuItem);
 		
 			// Set the default output format file type.
@@ -3128,7 +3106,7 @@ void LoadAreasToThematicDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3304,7 +3282,7 @@ Boolean LoadAreasToThematicSpecs (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

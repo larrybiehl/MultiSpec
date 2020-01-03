@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
 // File:						SMultiSpec.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -28,15 +26,7 @@
 //------------------------------------------------------------------------------------
 
 #ifndef __SMulSpec__
-#define __SMulSpec__
-
-#if defined __MWERKS__ 
-	#pragma once
-#endif	// defined __MWERKS__ 
-
-//#if !defined __MWERKS__
-//	#define _X86_ 
-//#endif	// !defined __MWERKS__
+	#define __SMulSpec__
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#include "wchar.h"
@@ -78,7 +68,7 @@
 	void AFXAPI DDX_Text2(CDataExchange* pDX, int nIDC, double& value);
 #endif	// defined multispec_win 
 
-#if defined multispec_lin
+#if defined multispec_wx
          // GDAL capability
 	#ifdef NetBeansProject
 		#define include_hdf_capability 1
@@ -95,7 +85,9 @@
 			#define include_hdf5_capability 1
 		#endif
 	#endif
-#endif	// end "defined multispec_lin"
+#endif	// end "defined multispec_wx"
+
+#define use_mlte_for_text_window  0
 
 #include "SConstants.h"
 #include "SDefines.h" 
@@ -104,10 +96,8 @@
 #include "SResourceConstants.h"
 #include "SPrototypes.h"  
 
-#if defined multispec_lin
-	//#include "SDeclareGlobals.h" // DO NOT include this. SExternalGlobals.h is sufficient
-	#include "LResource.h"
-	//#include "SGraphView.h"
+#if defined multispec_wx
+	#include "xResource.h"
 	#include <time.h>
 	#include <cmath>
 	#include <cfloat>
@@ -119,6 +109,6 @@
 	#include <iostream>
 	#include <string>
 	#include "wx/gdicmn.h"
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 #endif // __SMulSpec__             

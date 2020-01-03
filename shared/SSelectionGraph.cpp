@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/07/2019
+//	Revision date:			11/20/2019
 //
 //	Language:				C
 //
@@ -20,39 +20,25 @@
 //	Brief description:	This file contains functions that handle placing
 //								a graph of the selected area into the graph window.
 //
-//	Functions in file:	Boolean 			CheckMemoryForStatisticsIO
-//								Boolean			SelectionGraphControl
-//								void				SetDefaultSelectionGraphWindowTitle
-//								void				ShowGraphWindowSelection
-//
-//	Diagram of MultiSpec routine calls for the routine in the file.
-//
-//
-//
-//	Include files:			"MultiSpec Headers"
-//								"multiSpec.h"
-//	
-//	Software change notice:
-//
 //------------------------------------------------------------------------------------
   
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include	"SGraphic.h"
-	#include "LDrawObjects.h"
-	#include	"LGraphView.h"
-	#include "LImageDoc.h"
-	#include	"LImageFrame.h"
-	#include "LImageView.h"
-#endif	// defined multispec_lin
+	#include "xDrawObjects.h"
+	#include	"xGraphView.h"
+	#include "xImageDoc.h"
+	#include	"xImageFrame.h"
+	#include "xImageView.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac
 	#include	"MGraphView.h"
 #endif	// defined multispec_mac 
                              
 #if defined multispec_win
-	#include	"CImageWindow.h"
+	#include	"SImageWindow_class.h"
 	
 	#include	"SGraphic.h"
 	#include	"WGraphView.h"
@@ -73,7 +59,7 @@ Boolean 	CheckMemoryForStatisticsIO  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -89,7 +75,7 @@ Boolean 	CheckMemoryForStatisticsIO  (
 // Value Returned:	TRUE, if memory is okay
 //							FALSE, if there is not enough memory.
 // 
-// Called By:			ShowGraphWindowSelection in selectionGraph.c
+// Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/27/1992
 //	Revised By:			Larry L. Biehl			Date: 07/27/1992			
@@ -137,7 +123,7 @@ Boolean CheckMemoryForStatisticsIO  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -174,7 +160,7 @@ void HandleSelectionGraphImageWindowClosing  (
 					// default.
 			SetDefaultSelectionGraphWindowTitle (gSelectionGraphViewCPtr);
 			
-			graphRecordHandle = gSelectionGraphViewCPtr->GetGraphRecordHandle();
+			graphRecordHandle = gSelectionGraphViewCPtr->GetGraphRecordHandle ();
 			graphRecordPtr = (GraphPtr)GetHandlePointer (graphRecordHandle);
 			graphRecordPtr->imageWindow = NULL;
 			graphRecordPtr->imageViewCPtr = NULL;
@@ -190,7 +176,7 @@ void HandleSelectionGraphImageWindowClosing  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -249,11 +235,7 @@ Boolean SelectionGraphControl (
 	#if defined multispec_mac
 		newSelectionGraphViewCPtr = CreateGraphWindow ();
 	#endif	// defined multispec_mac
-                               
-	#if defined multispec_lin || defined multispec_win
-		CMImageWindow* imageWindowCPtr = gActiveImageViewCPtr->GetImageWindowCPtr ();
-	#endif	// defined multispec_lin || defined multispec_win	
-	
+                               	
 	Handle activeImageWindowInfoH = GetActiveImageWindowInfoHandle ();
 	
 	continueFlag = (newSelectionGraphViewCPtr != NULL);
@@ -281,7 +263,8 @@ Boolean SelectionGraphControl (
 				// If the image window for the new selection graph is the same as for
 				// the previous one, set the xAxisCode to be the same.
 		
-		oldSelectionGraphRecordPtr = (GraphPtr)GetHandlePointer (oldSelectionGraphRecHandle);
+		oldSelectionGraphRecordPtr =
+									(GraphPtr)GetHandlePointer (oldSelectionGraphRecHandle);
 		
 		selectionGraphRecHandle = newSelectionGraphViewCPtr->GetGraphRecordHandle ();
 		selectionGraphRecordPtr = (GraphPtr)GetHandlePointer (selectionGraphRecHandle);
@@ -331,7 +314,7 @@ Boolean SelectionGraphControl (
 
                            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -357,17 +340,14 @@ void SetDefaultSelectionGraphWindowTitle (
 	//SInt16								savedProcessorCode;
 	
 	
-	//savedProcessorCode = gProcessorCode;
-	//gProcessorCode = kSelectionGraphProcessor;
 	SetGraphWindowTitle (graphViewCPtr, TRUE);
-	//gProcessorCode = savedProcessorCode;
 
 }	// end "SetDefaultSelectionGraphWindowTitle"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -382,11 +362,10 @@ void SetDefaultSelectionGraphWindowTitle (
 //
 // Value Returned:	None
 // 
-// Called By:			Menus in menus.c
-//							ShowGraphSelection in selectionArea.c
+// Called By:			ShowGraphSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/1991
-//	Revised By:			Larry L. Biehl			Date: 01/07/2019
+//	Revised By:			Larry L. Biehl			Date: 11/14/2019
 
 void ShowGraphWindowSelection (
 				Handle								oldSelectionGraphRecHandle)
@@ -483,7 +462,7 @@ void ShowGraphWindowSelection (
 		
 		gTextString[0] = 0;
 		gTextString[1] = 0;
-		#if defined multispec_lin
+		#if defined multispec_wx
 			ConcatPStrings (
 							(UCharPtr)gTextString, (StringPtr)"\0Selection Window\0", 254);
 		#endif
@@ -557,12 +536,11 @@ void ShowGraphWindowSelection (
 					gSelectionGraphViewCPtr->Invalidate ();
 				#endif	// defined multispec_win
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 				  gSelectionGraphViewCPtr->m_frame->Refresh ();            
 				#endif
 				
 				}	// end "if (...->drawGraphCode & 0x8000)" 
-			
 			
 			}	// end "if (...->imageWindow == gActiveImageWindow ..." 
 				
@@ -614,10 +592,10 @@ void ShowGraphWindowSelection (
 			
 					// Update the x-axis popup menu
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				CMGraphView* graphViewCPtr = selectionGraphRecordPtr->graphViewCPtr;
-				wxComboBox* comboBoxPtr = (wxComboBox*)graphViewCPtr->GetXAxisComboBoxPtr();
-				menuHandle = (MenuHandle)comboBoxPtr;
+				wxChoice* choicePtr = (wxChoice*)graphViewCPtr->GetXAxisComboBoxPtr ();
+				menuHandle = (MenuHandle)choicePtr;
 				controlHandle = (ControlHandle)menuHandle;
 			#endif
 
@@ -799,6 +777,9 @@ void ShowGraphWindowSelection (
 						
 				gAreaDescription.lineInterval = 1;
 				gAreaDescription.columnInterval = 1;
+				
+				SInt16 savedProcessorCode = gProcessorCode;
+				gProcessorCode = kSelectionGraphStatsProcess;
 		
 				errCode = GetAreaStats (fileIOInstructionsPtr, 
 													channelStatsPtr, 
@@ -808,7 +789,10 @@ void ShowGraphWindowSelection (
 													FALSE, 
 													kMeanStdDevOnly,
 													NULL,
-													NULL); 
+													NULL);
+				
+				gProcessorCode = savedProcessorCode;
+				gOperationCanceledFlag = FALSE;
 				
 				if (errCode != 1)
 					vectorLength = 0;
@@ -907,7 +891,7 @@ void ShowGraphWindowSelection (
 		{
 		selectionGraphRecordPtr->drawGraphCode = (SInt16)0x8000;
 		                   
-		#if defined multispec_lin
+		#if defined multispec_wx
          gSelectionGraphViewCPtr->m_frame->Refresh ();
       #endif
 		
@@ -948,8 +932,7 @@ void ShowGraphWindowSelection (
 		
 	if (selectionGraphRecHandle != NULL)
 		MHSetState (selectionGraphRecHandle, graphRecordHandleStatus);
- 
-
+	
 	UnlockActiveImageInformationGlobals (activeImageGlobalHandleStatus);
 	
 	gImageWindowInfoPtr = NULL;

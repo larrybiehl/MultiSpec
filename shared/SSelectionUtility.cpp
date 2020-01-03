@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			04/24/2019
+//	Revision date:			11/13/2019
 //
 //	Language:				C
 //
@@ -21,32 +21,6 @@
 //								to support selection area. These routines are shared
 //								between the Mac and Windows versions.
 //
-//	Functions in file:	void						ClearNewFieldList
-//								void 						ClearSelectionArea
-//								void 						ClosePolygonSelection
-//								void 						ComputeSelectionCoordinates
-//								void 						ComputeSelectionOffscreenRectangle
-//								void 						DrawSelectionArea
-//								void 						DrawSelectionPolygon
-//								void 						DrawSelectionRectangle
-//								Boolean 					EditSelectionDialog
-//								Boolean 					EditCoordinatesDialog
-//								Boolean 					EditCoordinatesDialogOK
-//								void 						GetBoundingSelectionRectangles
-//								SInt64 					GetNumberPixelsInSelection
-//								Boolean 					GetSelectedAreaInfo
-//								Boolean 					GetSelectedOffscreenRectangle
-//								Boolean 					GetSelectionCoordinates
-//								Boolean 					GetSelectionOffscreenRectangle
-//								Boolean 					GetSelectionRectangle
-//								SInt16 	 				GetSelectionRectangleLimits
-//								SInt16 					GetSelectionTypeCode
-//								Boolean 					InitializePolygonSelection	
-//								void						OutlineSelectionArea	
-//								void 						SetSelectionForAllWindows
-//								void 						SetSelectionInformation
-//								void 						ShowGraphSelection
-//                     
 /*
 	int numberChars = sprintf ((char*)gTextString3,
 			" SSelectionUtility.cpp: (): %s",
@@ -57,15 +31,13 @@
 
 #include "SMultiSpec.h"      
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-
-	#include "LDrawObjects.h"
-	#include "LEditSelectionDialog.h"
-	#include "LGraphView.h"
-	#include "LImageView.h"
-	#include "LTools.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+	#include "xDrawObjects.h"
+	#include "xEditSelectionDialog.h"
+	#include "xGraphView.h"
+	#include "xImageView.h"
+	#include "xTools.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#include "MGraphView.h"
@@ -94,8 +66,8 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift   
 
 #if defined multispec_win
-	#include "CProcessor.h"
-	#include	"CImageWindow.h"
+	//#include "CProcessor.h"
+	#include	"SImageWindow_class.h"
 
 	#include "WDrawObjects.h"
 	#include "WEditSelectionDialog.h"
@@ -103,8 +75,6 @@
 	#include "WImageView.h"
 	#include "WImageDoc.h"	
 #endif	// defined multispec_win
-
-//#include	"SExtGlob.h"				
 
 
 
@@ -148,11 +118,7 @@ Boolean ConvertCoordinateRectToLCRect (
 
                
 			// Prototypes for routines in this file that are only called by		
-			// other routines in this file.	
-				
-void		ConvertMapRectByGivenFactor (
-				double								factor,
-				DoubleRect*							inputCoordinateRectanglePtr);
+			// other routines in this file.
 
 void		DrawSelectionPolygon (
 				SelectionInfoPtr					selectionInfoPtr,
@@ -169,7 +135,7 @@ PascalVoid DrawSelectionUnitsPopUp (
 				DialogPtr							dialogPtr,
 				SInt16								itemNumber);
 
-void		EditLineColumnDialogOK (
+void EditLineColumnDialogOK (
 				Handle								windowInfoHandle,
 				LongRect*							inputSelectionRectanglePtr,
 				LongRect*							selectionRectanglePtr,
@@ -202,7 +168,7 @@ SInt16		gSelectionDisplayUnits = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -217,8 +183,7 @@ SInt16		gSelectionDisplayUnits = 0;
 //
 // Value Returned:	None		
 // 
-// Called By:			ClearSelectionArea in selectionArea.c
-//							CloseImageWindow in window.c
+// Called By:			ClearSelectionArea in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1989
 //	Revised By:			Larry L. Biehl			Date: 08/31/1989	
@@ -260,7 +225,7 @@ void ClearNewFieldList (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -277,16 +242,16 @@ void ClearNewFieldList (void)
 //
 // Value Returned:	None
 // 
-// Called By:			DisplayMultispectralImage in displayMultiSpec.c
-//							DisplayThematicImage displayThematic.c
-//							DoEdit in menus.c
-//							Menus in menus.c
-//							ModalFileSpecification in openImages.c
-//							RectangleSelection in selectionArea.c
-//							PolygonSelection in selectionArea.c
-//							GetSelectionRectangle in selectionArea.c
-//							AddFieldToProject in statistics.c
-//							StatisticsWControlEvent in statistics.c
+// Called By:			DisplayMultispectralImage in SDisplayMultiSpectral.cpp
+//							DisplayThematicImage SDisplayThematic.cpp
+//							DoEdit in MMenus.c
+//							Menus in MMenus.c
+//							ModalFileSpecification in SOpenImages.cpp
+//							RectangleSelection in SSelectionUtility.cpp
+//							PolygonSelection in SSelectionUtility.cpp
+//							GetSelectionRectangle in SSelectionUtility.cpp
+//							AddFieldToProject in SStatistics.cpp
+//							StatisticsWControlEvent in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
 //	Revised By:			Larry L. Biehl			Date: 03/31/2019
@@ -383,7 +348,7 @@ void ClearSelectionArea (
 					tempRect.right = (int)(selectionRect.right + 1 - scrollOffset.h);
 				#endif	// defined multispec_win  	     
 
-				#if defined multispec_lin   			
+				#if defined multispec_wx   			
 					wxRect tempRect;
 
 					tempRect.x = (int)selectionRect.left - 3;
@@ -395,19 +360,19 @@ void ClearSelectionArea (
 					windowPtr->m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
 					tempRect.x -= scrollOffset.x;
 					tempRect.y -= scrollOffset.y;
-				#endif	// defined multispec_lin     
+				#endif	// defined multispec_wx     
 
 				#if defined multispec_mac || defined multispec_win
 					if (tempRect.top <= gViewRect.bottom && 
 																	tempRect.bottom >= gViewRect.top)
 				#endif	// defined multispec_mac || defined multispec_win    
-				#if defined multispec_lin  
+				#if defined multispec_wx  
 							// Modify tempRect.x to tempRect.y in the first condition 
 							// 01.06.2016 Wei
 						
 					if (tempRect.y <= gViewRect.bottom &&
 													tempRect.y + tempRect.height >= gViewRect.top)
-				#endif	// defined multispec_lin 
+				#endif	// defined multispec_wx 
 						{
 						for (channel=gStartChannel; channel<gSideBySideChannels; channel++) 
 							{
@@ -434,7 +399,7 @@ void ClearSelectionArea (
 									break;
 							#endif	// defined multispec_win      
 
-							#if defined multispec_lin    
+							#if defined multispec_wx    
 								if (tempRect.x + tempRect.width >= gViewRect.left)
 									(windowPtr->m_Canvas)->RefreshRect (tempRect, FALSE);
 
@@ -442,7 +407,7 @@ void ClearSelectionArea (
 
 								if (tempRect.x > gViewRect.right)
 									break;
-							#endif	// defined multispec_lin     
+							#endif	// defined multispec_wx     
 
 							}	// end "for (channel=gStartChannel; channel<..."
 
@@ -504,7 +469,7 @@ void ClearSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -555,7 +520,7 @@ void ClosePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -618,7 +583,7 @@ void ComputeMapCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -632,7 +597,7 @@ void ComputeMapCoordinates (
 //
 //	Value Returned:	None
 // 
-// Called By:			PolygonSelection in selectionArea.c
+// Called By:			PolygonSelection in SSelectionUtility.cpp
 //							SetSelectionForAllWindows in SSelectionUtility.cpp
 //							UpdateSelectionCoordinates in SSelectionUtility.cpp
 //
@@ -671,7 +636,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -686,7 +651,7 @@ void ComputeSelectionCoordinates (
 //
 // Value Returned:	None
 // 
-// Called By:			PolygonSelection in selectionArea.c
+// Called By:			PolygonSelection in SSelectionUtility.cpp
 //							ComputeSelectionLineColumns in SSelectionUtility.cpp
 //							SetSelectionForAllWindows in SSelectionUtility.cpp
 //							UpdateSelectionCoordinates in SSelectionUtility.cpp
@@ -748,7 +713,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -763,7 +728,7 @@ void ComputeSelectionCoordinates (
 //
 // Value Returned:	None
 // 
-// Called By:			PolygonSelection in selectionArea.c
+// Called By:			PolygonSelection in SSelectionUtility.cpp
 //							ComputeSelectionLineColumns in SSelectionUtility.cpp
 //							SetSelectionForAllWindows in SSelectionUtility.cpp
 //							UpdateSelectionCoordinates in SSelectionUtility.cpp
@@ -929,7 +894,7 @@ void ComputeSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1021,7 +986,7 @@ void ComputeSelectionLineColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1040,8 +1005,8 @@ void ComputeSelectionLineColumns (
 //
 // Value Returned:	None
 // 
-// Called By:			GetBoundingSelectionRectangles in SSelUtil.cpp
-//							SetSelectionInformation in SSelUtil.cpp
+// Called By:			GetBoundingSelectionRectangles in SSelectionUtility.cpp
+//							SetSelectionInformation in SSelectionUtility.cpp
 //
 //	Revised By:			Larry L. Biehl			Date: 10/01/1998	
 //	Revised By:			Larry L. Biehl			Date: 03/22/1999				
@@ -1063,13 +1028,13 @@ void ComputeSelectionOffscreenRectangle (
 		{
 				// Get the selection rectangle location relative to the offscreen		
 				// bit/pix map																																						
-		#ifndef multispec_lin	
+		#ifndef multispec_wx	
 			ConvertLCToOffscreenPoint (displaySpecsPtr,
 												(LongPoint*)lineColumnRectanglePtr,
 												&offscreenPoint);
 		#endif
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			LongPoint lineColumntopleft;
 			LongPoint lineColumnbottomright;
 			lineColumntopleft.h = lineColumnRectanglePtr->left;
@@ -1086,18 +1051,18 @@ void ComputeSelectionOffscreenRectangle (
 			offScreenRectanglePtr->left = (SInt16)offscreenPoint.h;
 		#endif	// defined multispec_mac
 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 			offScreenRectanglePtr->top = (int)offscreenPoint.v;
 			offScreenRectanglePtr->left = (int)offscreenPoint.h;
-		#endif	// defined multispec_win || defined multispec_lin 
+		#endif	// defined multispec_win || defined multispec_wx 
 
-		#ifndef multispec_lin										
+		#ifndef multispec_wx										
 			ConvertLCToOffscreenPoint (displaySpecsPtr,
 												(LongPoint*)&lineColumnRectanglePtr->bottom,
 												&offscreenPoint);
 		#endif
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			ConvertLCToOffscreenPoint (displaySpecsPtr,
 												(LongPoint*)&lineColumnbottomright,
 												&offscreenPoint);
@@ -1108,10 +1073,10 @@ void ComputeSelectionOffscreenRectangle (
 			offScreenRectanglePtr->right = (SInt16)offscreenPoint.h;
 		#endif	// defined multispec_mac
 
-		#if defined multispec_win || defined multispec_lin 
+		#if defined multispec_win || defined multispec_wx 
 			offScreenRectanglePtr->bottom = (int)offscreenPoint.v;
 			offScreenRectanglePtr->right = (int)offscreenPoint.h;
-		#endif	// defined multispec_win || defined multispec_lin 
+		#endif	// defined multispec_win || defined multispec_wx 
 
 
 		#if defined multispec_mac 										
@@ -1135,7 +1100,7 @@ void ComputeSelectionOffscreenRectangle (
 							(SInt16)(startChannel * displaySpecsPtr->offscreenChannelWidth);
 		#endif	// defined multispec_mac
 
-		#if defined multispec_win || defined multispec_lin					
+		#if defined multispec_win || defined multispec_wx					
 					// Now adjust the lower right point to represent the bottom right of
 					// the pixel.
 
@@ -1154,7 +1119,7 @@ void ComputeSelectionOffscreenRectangle (
 								(int)(startChannel * displaySpecsPtr->offscreenChannelWidth);
 			offScreenRectanglePtr->right +=
 								(int)(startChannel * displaySpecsPtr->offscreenChannelWidth);
-		#endif	// defined multispec_win || defined multispec_lin 
+		#endif	// defined multispec_win || defined multispec_wx 
 
 		}	// end "if (displaySpecsPtr != NULL)"
 
@@ -1172,7 +1137,7 @@ void ComputeSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1245,7 +1210,7 @@ Boolean ConvertCoordinateRectToLCRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1302,7 +1267,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1348,7 +1313,7 @@ Boolean ConvertLatLongRectToMapRectinNativeImageUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1431,7 +1396,7 @@ void DrawSelectionArea (
 
 		GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
 
-		#if defined multispec_win || defined multispec_lin
+		#if defined multispec_win || defined multispec_wx
 					// Windows requires the view rectangle to be offset by the scroll 
 					// offset.
 
@@ -1443,7 +1408,7 @@ void DrawSelectionArea (
 			viewRect.left = (SInt32)gViewRect.left + scrollOffset.h;
 			viewRect.right = (SInt32)gViewRect.right + scrollOffset.h; 
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				wxPoint savedDeviceOrigin = gCDCPointer->GetDeviceOrigin ();
 				wxPoint deviceOrigin = savedDeviceOrigin;
 				if (deviceOrigin.x > 0 || deviceOrigin.y > 0)
@@ -1461,8 +1426,8 @@ void DrawSelectionArea (
 				//				deviceOrigin.x, 
 				//				deviceOrigin.y); 
 				gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);   
-			#endif	// defined multispec_lin
-		#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_wx
+		#endif	// defined multispec_win || defined multispec_wx
 
 		#if defined multispec_mac
 			viewRect.top = gViewRect.top;
@@ -1484,7 +1449,7 @@ void DrawSelectionArea (
 						
 		if (selectionInfoPtr->typeFlag == kRectangleType)
 			{
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				DrawSelectionRectangle (selectionInfoPtr, &selectionRect, &viewRect);
 			#else                
 				DrawSelectionRectangle (selectionInfoPtr, &selectionRect, &selectionRect);
@@ -1499,14 +1464,14 @@ void DrawSelectionArea (
 			DrawSelectionPolygon (selectionInfoPtr,
 											&selectionRect,
 											&lcToWindowUnitsVariables,
-											#ifndef multispec_lin
+											#ifndef multispec_wx
 												&viewRect);
 											#else
 												&viewRect);
 											#endif
 			}
 		
-		#ifdef multispec_lin
+		#ifdef multispec_wx
 			gCDCPointer->SetDeviceOrigin (savedDeviceOrigin.x, savedDeviceOrigin.y);
 		#endif
 
@@ -1528,7 +1493,7 @@ void DrawSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1582,7 +1547,7 @@ void DrawSelectionPolygon (
 	if (selectionRectPtr->top <= viewRectPtr->bottom &&
 													selectionRectPtr->bottom >= viewRectPtr->top)
 		{
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			for (SInt32 channel=gStartChannel; channel<gSideBySideChannels; channel++)
 				{
 				if (selectionRectPtr->left <= viewRectPtr->right &&
@@ -1642,9 +1607,9 @@ void DrawSelectionPolygon (
 					break;
 
 				}	// end "for (channel=gStartChannel; channel<..."
-		#endif	// ifndef multispec_lin
+		#endif	// ifndef multispec_wx
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			Handle windowInfoHandle = GetWindowInfoHandle (gProjectSelectionWindow);
 			SetChannelWindowVariables (
 									kToImageWindow, gProjectSelectionWindow, kNotCoreGraphics);    
@@ -1762,7 +1727,7 @@ void DrawSelectionPolygon (
 				delete[] pointlist;
 				
 				}
-		#endif	// end "defined multispec_lin"
+		#endif	// end "defined multispec_wx"
 
 		}	// end "if (selectionRectPtr->top <= viewRectPtr->bottom && ..." 
 
@@ -1778,7 +1743,7 @@ void DrawSelectionPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1842,7 +1807,7 @@ void DrawSelectionRectangle (
 													(int)selectionRectPtr->bottom);
 				#endif	// defined multispec_win
 
-				#if defined multispec_lin      
+				#if defined multispec_wx      
 							// Draw rectangle such that the right side is one pixel outside of
 							// the right and bottom border.
 				
@@ -1890,7 +1855,7 @@ void DrawSelectionRectangle (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1932,7 +1897,7 @@ pascal void DrawSelectionUnitsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1948,8 +1913,8 @@ pascal void DrawSelectionUnitsPopUp (
 //
 // Value Returned:  	None
 //
-// Called By:			Menus in menus.c
-//							StatisticsWControlEvent in SStatist.cpp
+// Called By:			Menus in MMenus.c
+//							StatisticsWControlEvent in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/06/1989
 //	Revised By:			Larry L. Biehl			Date: 03/17/2005
@@ -2132,7 +2097,7 @@ Boolean EditSelectionDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2249,9 +2214,9 @@ void EditSelectionDialogShowSelection (
 	#endif	// defined multispec_mac 
 
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		ShowSelection (windowPtr);
-	#endif	// defined multispec_win || defined multispec_lin 
+	#endif	// defined multispec_win || defined multispec_wx 
 
 			// Set this selection for all image windows if requested. If the shift key
 			// was down when the selection was made, then do not use the start line
@@ -2284,7 +2249,7 @@ void EditSelectionDialogShowSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2536,7 +2501,7 @@ void EditSelectionDialogSetCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2552,7 +2517,7 @@ void EditSelectionDialogSetCoordinates (
 //
 // Value Returned:  	None
 //
-// Called By:			StatisticsWControlEvent   in statistics.c
+// Called By:			StatisticsWControlEvent   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/16/1998
 //	Revised By:			Larry L. Biehl			Date: 12/16/2016
@@ -2903,7 +2868,7 @@ Boolean EditLineColumnDialog (
 					HiliteControl ((ControlHandle)okHandle, hiliteSetting);
 					SetDLogControlHilite (dialogPtr, 8, hiliteSetting);
 
-					}		// end "if (itemHit <= 6)"
+					}	// end "if (itemHit <= 6)"
 				*/
 				}	// end "if (itemHit > 2)" 
 
@@ -2963,7 +2928,7 @@ Boolean EditLineColumnDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin			
+	#if defined multispec_wx			
 		CMEditCoordinatesDlg* dialogPtr = NULL;
 
 		try
@@ -3044,7 +3009,7 @@ Boolean EditLineColumnDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3224,7 +3189,7 @@ void EditLineColumnDialogInitialize (
 
     MGetString ((UCharPtr)&gTextString, kDialogStrID, stringID);
 	 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SetWTitle (GetDialogWindow (dialogPtr), ((UCharPtr)gTextString)+1);
 	#else 
 		SetWTitle (GetDialogWindow (dialogPtr), (UCharPtr)&gTextString);
@@ -3334,7 +3299,7 @@ void EditLineColumnDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3396,7 +3361,7 @@ void EditLineColumnDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3433,7 +3398,7 @@ void EditLineColumnDialogSetStartLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3750,7 +3715,7 @@ SInt16 EditLineColumnDialogCheckCoordinates (
 
 		RealNumberErrorAlert (theRealNum, dialogPtr, valueItemHit, numberDecimals);
 
-		}		// end "if (errorAlertFlag)"
+		}	// end "if (errorAlertFlag)"
 	*/
 	return (itemError);
 
@@ -3759,7 +3724,7 @@ SInt16 EditLineColumnDialogCheckCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3773,8 +3738,8 @@ SInt16 EditLineColumnDialogCheckCoordinates (
 //
 //	Value Returned:	None
 // 
-// Called By:			PolygonSelection in seletionArea.c
-//							SetPolygonSelection in SSelUtil.cpp
+// Called By:			AddPolygonPoint in xTools.cpp
+//							SetPolygonSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/28/1998
 //	Revised By:			Larry L. Biehl			Date: 09/28/1998			
@@ -3832,7 +3797,7 @@ void GetBoundingSelectionRectangles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3850,8 +3815,8 @@ void GetBoundingSelectionRectangles (
 //
 // Value Returned:	None				
 // 
-// Called By:			ClosePolygonSelection in SSelUtil.cpp
-//							SetSelectionInformation in SSelUtil.cpp
+// Called By:			ClosePolygonSelection in SSelectionUtility.cpp
+//							SetSelectionInformation in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1998
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
@@ -3964,7 +3929,7 @@ SInt64 GetNumberPixelsInSelection (
 			CheckAndDisposePtr ((Ptr)pointsPtr);
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin 
+		#if defined multispec_wx 
 			wxPoint* pointsPtr = NULL;
 
 			pointsPtr = (wxPoint*)MNewPointer (
@@ -3997,7 +3962,7 @@ SInt64 GetNumberPixelsInSelection (
 				}	// end "if (rgnHandle->IsEmpty ())"
 
 			CheckAndDisposePtr ((Ptr)pointsPtr);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 	  
 		if (rgnHandle != NULL && gMemoryError == noErr) 
 			{
@@ -4110,7 +4075,7 @@ SInt64 GetNumberPixelsInSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4177,7 +4142,7 @@ Handle GetNewSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4247,7 +4212,7 @@ Boolean GetSelectedAreaInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4271,10 +4236,10 @@ Boolean GetSelectedAreaInfo (
 // Value Returned:	TRUE if selected offscreen area was set up
 //							FALSE if no selected offscreen area was set up
 // 
-// Called By:			UpdateFileMenuImageItems in menus.c
-//							PrintImageWindow in print.c
-//							SetUpPrintedImageInfo in print.c
-//							SaveImageWindowAs in SSaveWrt.cpp
+// Called By:			UpdateFileMenuImageItems in MMenus.c
+//							PrintImageWindow in MPrint.c
+//							SetUpPrintedImageInfo in MPrint.c
+//							SaveImageWindowAs in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
 //	Revised By:			Larry L. Biehl			Date: 06/24/1999			
@@ -4353,7 +4318,7 @@ Boolean GetSelectedOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4471,7 +4436,7 @@ void GetSelectionBoundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4540,7 +4505,7 @@ SInt16 GetSelectionCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4595,7 +4560,7 @@ SInt64 GetSelectionNumberPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4654,7 +4619,7 @@ Boolean GetSelectionOffscreenRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4678,10 +4643,10 @@ Boolean GetSelectionOffscreenRectangle (
 // Value Returned:	TRUE if selected offscreen area was set up
 //							FALSE if no selected offscreen area was set up
 // 
-// Called By:			UpdateFileMenuImageItems in menus.c
-//							PrintImageWindow in print.c
-//							SetUpPrintedImageInfo in print.c
-//							SaveImageWindowAs in SSaveWrt.cpp
+// Called By:			UpdateFileMenuImageItems in MMenus.c
+//							PrintImageWindow in MPrint.c
+//							SetUpPrintedImageInfo in MPrint.c
+//							SaveImageWindowAs in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/08/1988
 //	Revised By:			Larry L. Biehl			Date: 02/23/2018
@@ -4838,7 +4803,7 @@ Boolean GetSelectionRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4854,11 +4819,11 @@ Boolean GetSelectionRectangle (
 //
 // Value Returned:	None
 // 
-// Called By:			PolygonSelection in selectionArea.c
-//							RectangleSelection in selectionArea.c
+// Called By:			PolygonSelection in SSelectionUtility.cpp
+//							RectangleSelection in SSelectionUtility.cpp
 //
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
-//	Revised By:			Larry L. Biehl			Date: 04/24/2019
+//	Revised By:			Larry L. Biehl			Date: 11/13/2019
 
 SInt16 GetSelectionRectangleLimits (
 				Boolean								firstTimeFlag,
@@ -4886,11 +4851,11 @@ SInt16 GetSelectionRectangleLimits (
 			// view. It is not the same as that used for the image. Therefore
 			// the legend width is always 0 within the image view.
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		legendWidth = 0;
 		displayOrigin[kHorizontal] = 0;
 		displayOrigin[kVertical] = 0;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 
 	#if defined multispec_mac
 		legendWidth = gActiveLegendWidth;
@@ -4899,8 +4864,8 @@ SInt16 GetSelectionRectangleLimits (
 
 	#if defined multispec_win
 		legendWidth = 0;
-		displayOrigin[0] = displaySpecsPtr->origin[0];
-		displayOrigin[1] = displaySpecsPtr->origin[1];
+		displayOrigin[kVertical] = displaySpecsPtr->origin[kVertical];
+		displayOrigin[kHorizontal] = displaySpecsPtr->origin[kHorizontal];
 	#endif	// defined multispec_win
 
 			//	Find the rectangle which defines the limits that the cursor can	
@@ -4933,7 +4898,7 @@ SInt16 GetSelectionRectangleLimits (
 	if (firstTimeFlag) 
 		{
 		startChannel = 0;
-		if (imageSize > 0 && displaySpecsPtr->displayType == 7) 
+		if (imageSize > 0 && displaySpecsPtr->displayType == kSideSideChannelDisplayType) 
 			{
 			startChannel = (SInt16)(
 					  (displayHOrigin + inputStartPointPtr->h - legendWidth) / imageSize);
@@ -4952,7 +4917,7 @@ SInt16 GetSelectionRectangleLimits (
 			// channel within which the selection is taking place.				
 
 	rightEdge = leftEdge + imageSize;
-	if (displaySpecsPtr->displayType == 7)
+	if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 		rightEdge -= 2;
 
 	//limitRectanglePtr->left = (SInt16)MAX (leftEdge, 0);
@@ -4964,7 +4929,7 @@ SInt16 GetSelectionRectangleLimits (
 		outputStartPointPtr->h = leftEdge;
 		outputStartPointPtr->v = topEdge;
 	#endif
-	#if defined multispec_lin
+	#if defined multispec_wx
 		//outputStartPointPtr->h = 0;
 		outputStartPointPtr->h = limitRectanglePtr->left;
 		outputStartPointPtr->v = 0;
@@ -4977,7 +4942,7 @@ SInt16 GetSelectionRectangleLimits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5051,7 +5016,7 @@ SInt16 GetSelectionTypeCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5111,7 +5076,7 @@ Boolean InitializePolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5127,9 +5092,9 @@ Boolean InitializePolygonSelection (
 //
 // Value Returned:	None
 // 
-// Called By:			DoEdit in menus.c
-//							CopyOffScreenImage in multiSpec.c
-//							RectangleSelection in selectionArea.c
+// Called By:			DoEdit in MMenus.c
+//							CopyOffScreenImage in MMultiSpec.c
+//							RectangleSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1989
 //	Revised By:			Larry L. Biehl			Date: 03/28/2019
@@ -5188,7 +5153,7 @@ void OutlineSelectionArea (
 			selectionAreaCPtr->Invalidate (windowPtr);
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			CMOutlineArea* selectionAreaCPtr =
 						((CMImageView*)windowPtr)->GetDocument()->GetSelectionAreaCPtr ();
 			selectionAreaCPtr->Invalidate (windowPtr);
@@ -5202,7 +5167,7 @@ void OutlineSelectionArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5287,7 +5252,7 @@ void SetPolygonSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5414,7 +5379,7 @@ void SetRectangleSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5431,7 +5396,7 @@ void SetRectangleSelection (
 //
 // Value Returned:	None
 // 
-// Called By:			SelectArea in selectionArea.c
+// Called By:			SelectArea in SSelectionUtility.cpp
 //							EditSelectionDialogShowSelection
 //
 //	Revised By:			Larry L. Biehl			Date: 06/03/1993	
@@ -5680,9 +5645,9 @@ void SetSelectionForAllWindows (
 						SetPortWindowPort (gWindowList[windowIndex]);
 						OutlineSelectionArea (gWindowList[windowIndex]);
 
-						#if defined multispec_win || defined multispec_lin
+						#if defined multispec_win || defined multispec_wx
 							gWindowList[windowIndex]->UpdateSelectionCoordinates ();
-						#endif	// defined multispec_win || defined multispec_lin
+						#endif	// defined multispec_win || defined multispec_wx
 
 						}	// end "if (selectionInfoPtr->typeFlag > 0)" 
 
@@ -5714,7 +5679,7 @@ void SetSelectionForAllWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5728,8 +5693,8 @@ void SetSelectionForAllWindows (
 //
 //	Value Returned:	None
 // 
-// Called By:			RectangleSelection in selectionArea.c
-//							EditSelectionDialog in SSelUtil.cpp
+// Called By:			RectangleSelection in SSelectionUtility.cpp
+//							EditSelectionDialog in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/13/1998
 //	Revised By:			Larry L. Biehl			Date: 11/08/2000			
@@ -5763,7 +5728,7 @@ void SetSelectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5794,7 +5759,7 @@ void ShowGraphSelection (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5808,13 +5773,13 @@ void ShowGraphSelection (void)
 //
 //	Value Returned:	None
 // 
-// Called By:			CoordinateUnitsControlEvent in controls.c
+// Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
 //	Revised By:			Larry L. Biehl			Date: 12/28/2000			
 
 void UpdateSelectionCoordinates (
-							Handle					windowInfoHandle)
+				Handle								windowInfoHandle)
 							
 {
 	SelectionInfoPtr					selectionInfoPtr;

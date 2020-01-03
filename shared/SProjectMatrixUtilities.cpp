@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2018)
+//							 Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //								All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/21/2017
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -21,29 +21,20 @@
 //								provide matrix utility type functions for MultiSpec 
 //								that are to be load at all time.
 //
-//	Functions in file:	SInt32	 				GetClassDataValues
-//								SInt32 					GetFieldDataValues
-//								double 					InvertLowerTriangularMatrix
-//								double 					InvertSymmetricMatrix
-//								void 						ReleaseMatrixInversionMemory
-//								Boolean 					SetupMatrixInversionMemory
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 	
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 #endif	// defined multispec_win
 
-//#include "SExtGlob.h"	
 
 
 double FindMaxDiagonalValueInSquareMatrix (
@@ -53,7 +44,7 @@ double FindMaxDiagonalValueInSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -103,7 +94,7 @@ double FindMaxDiagonalValueInSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -120,7 +111,7 @@ double FindMaxDiagonalValueInSquareMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			FeatureExtraction in featureExtraction.c
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/05/1997
 //	Revised By:			Larry L. Biehl			Date: 09/05/1997	
@@ -163,7 +154,7 @@ UInt32 FindMaxValueInVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -180,7 +171,7 @@ UInt32 FindMaxValueInVector (
 //
 // Value Returned:	None
 // 
-// Called By:			FeatureExtraction in featureExtraction.c
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/1997
 //	Revised By:			Larry L. Biehl			Date: 10/01/1997	
@@ -223,7 +214,7 @@ UInt32 FindMinValueInVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -239,8 +230,8 @@ UInt32 FindMinValueInVector (
 //
 // Value Returned:	None
 // 
-// Called By:			FeatureExtraction in featureExtraction.c
-//							UpdateClassLOOStats in SLooCov.cpp
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
+//							UpdateClassLOOStats in SLOOCovariance.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1992
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010	
@@ -385,7 +376,7 @@ SInt64 GetClassDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -401,8 +392,8 @@ SInt64 GetClassDataValues (
 //
 // Value Returned:	None
 // 
-// Called By:			GetClassDataValues in featureExtraction.c
-//							StatisticsEnhance in statisticsEnhancement.c
+// Called By:			GetClassDataValues in SFeatureExtraction.cpp
+//							StatisticsEnhance in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1992
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006
@@ -540,7 +531,7 @@ SInt32 GetFieldDataValues (
 							// being used for training. This option is used by the Statistics 
 							// Enhancement processor.
 							
-					//#ifndef multispec_lin
+					//#ifndef multispec_wx
 						// TODO: For Linux, add when IsProjectData function has been defined
 					includeSampleFlag = !IsProjectData (&maskAreaDescription,
 																		&projectAreaDescription,
@@ -645,7 +636,7 @@ SInt32 GetFieldDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -664,9 +655,9 @@ SInt32 GetFieldDataValues (
 //
 // Value Returned: 	The determinant of the matrix.
 //
-// Called By:			LoadSeparabilityStatistics in separability.c
-//							behzad_ModifyStatistics in statisticsEnhancement.c
-//							LoadStatEnhanceClassStatistics in statisticsEnhancement.c
+// Called By:			LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							behzad_ModifyStatistics in SStatisticsEnhancement.cpp
+//							LoadStatEnhanceClassStatistics in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1993
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006
@@ -723,7 +714,7 @@ Boolean InvertLowerTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -741,12 +732,12 @@ Boolean InvertLowerTriangularMatrix (
 //
 // Value Returned: 	The determinant of the matrix.
 //
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							FS_decision_boundary in mul.c
-//							FS_optimize_2_class in mul.c
-//							EvaluateCovariancesControl in other.c
-//							Bhattacharyya in separability.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							FS_decision_boundary in SFeatureExtractionMath.cpp
+//							FS_optimize_2_class in SFeatureExtractionMath.cpp
+//							EvaluateCovariancesControl in SOther.cpp
+//							Bhattacharyya in SFeatureSelection.cpp
 //
 //       written ??/??/?? by ?
 //	Coded By:			C.H. LEE					Date: 11/03/1988
@@ -877,13 +868,13 @@ Boolean InvertSymmetricMatrix (
 				determinant *= temp;
 			#endif	// defined multispec_mac        
 	      
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				if (logDeterminant <= gMaximumNaturalLogValue)       
 					determinant *= temp;
 					
 				else	// logDeterminant > gMaximumNaturalLogValue       
 					determinant = DBL_MAX;
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 		
 					// The following statements divide pivot row by pivot element. 	
 		
@@ -977,7 +968,7 @@ Boolean InvertSymmetricMatrix (
 		{
 		if (inverseRequestedFlag)
 			{		
-			for (j=matrixSize-1; j>= 0; j--)
+			for (j=matrixSize-1; j<matrixSize; j--)
 				{              
 				if (indexRow[j] != indexCol[j])
 					{
@@ -1031,7 +1022,7 @@ Boolean InvertSymmetricMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1046,10 +1037,10 @@ Boolean InvertSymmetricMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			LoadBiPlotClassStats in biPlotData.c
-//							FS_decision_boundary in mul.c
-//							CalculateSeparabilityControl in separability.c
-//							StatisticsEnhance in statisticsEnhancement.c
+// Called By:			LoadBiPlotClassStats in SBiPlotData.cpp
+//							FS_decision_boundary in SFeatureExtractionMath.cpp
+//							CalculateSeparabilityControl in SFeatureSelection.cpp
+//							StatisticsEnhance in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/16/1994
 //	Revised By:			Larry L. Biehl			Date: 05/16/1994	
@@ -1073,7 +1064,7 @@ void ReleaseMatrixInversionMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1088,12 +1079,12 @@ void ReleaseMatrixInversionMemory (void)
 //
 // Value Returned:	None
 // 
-// Called By:			SetupClsfierMemory in classifier.c
-//							FS_discriminant_analysis in mul.c
-//							FS_decision_boundary in mul.c
-//							EvaluateCovariancesControl in other.c
-//							SetupSeparabilityStatMemory in separability.c
-//							StatisticsEnhance in statisticsEnhancement.c
+// Called By:			SetupClsfierMemory in SClassify.cpp
+//							FS_discriminant_analysis in SFeatureExtractionMath.cpp
+//							FS_decision_boundary in SFeatureExtractionMath.cpp
+//							EvaluateCovariancesControl in SOther.cpp
+//							SetupSeparabilityStatMemory in SFeatureSelection.cpp
+//							StatisticsEnhance in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1990
 //	Revised By:			Larry L. Biehl			Date: 02/12/2002	

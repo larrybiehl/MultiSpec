@@ -3,15 +3,13 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 // File:						SGraphic.h
 //
 //	Authors:					Larry L. Biehl
-//
-//	Revision number:		3.0
 //
 //	Language:				C
 //
@@ -92,7 +90,7 @@
 class	CMImageView;
 class	CMGraphView;
 
-#if defined multispec_lin
+#if defined multispec_wx
 	class LCMGraphView;
 #endif
 
@@ -113,10 +111,10 @@ typedef	double	elem_type;
 
 typedef struct 
 	{
-	SInt32		numberPoints;
-	SInt32		size;
-	Handle		baseHandle;
-	GRAPHDATA*	basePtr;
+	SInt32			numberPoints;
+	SInt32			size;
+	Handle			baseHandle;
+	GRAPHDATA*		basePtr;
 	
 	} vector;
 
@@ -173,10 +171,10 @@ typedef struct
 	double			origHistogramBinWidth;
 	
 			// Pointer to the Windows and Linux DC class
-	#ifndef multispec_lin
+	#ifndef multispec_wx
 		CDC*				pDC;
 	#endif
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		wxDC*          pDC;
 	#endif	
 	

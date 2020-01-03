@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -19,14 +19,14 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 01/26/2019
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
 //
 //------------------------------------------------------------------------------------
 
 #ifndef __SDECGLOBAL__
 #define __SDECGLOBAL__
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/pen.h"
 	#include "wx/region.h"
 	#include <math.h>
@@ -39,6 +39,12 @@
 	
 			// Storage for default (last used directory) for file input
    wxString		gDefaultDataDirectory;
+	
+			// Storage for file output. This is used when the output directory is
+			// changed because the original directory is not writeable.
+			// This is used for PutFile. If the parameter is empty, then one does not
+			// need to change the output directory for PutFile.
+   wxString		gOutputDirectory = wxEmptyString;
 
 			// Data to assign to each entry in wxCombo in coordinatebar
 	SInt16      gLineColumnUnitsMenuItem = 1;
@@ -108,7 +114,7 @@
 	#if !defined multispec_wxmac
 		int			gFontSize = 9;
 	#endif
-#endif   // defined multispec_lin
+#endif   // defined multispec_wx
 
 typedef struct 	DecisionTreeVar 
 	{
@@ -168,7 +174,7 @@ Boolean							gAppleEventsFlag = FALSE;
 	Boolean							gBigEndianFlag = FALSE;
 #endif	// defined multispec_win
    
-#if defined multispec_lin
+#if defined multispec_wx
    Boolean							gBigEndianFlag = FALSE;
 #endif
 
@@ -281,10 +287,7 @@ Boolean							gIncludeTestMenuItemFlag = FALSE;
 		// listed thousands of times.
 Boolean							gListOnlyOneMessagePerClassFlag = FALSE;
 
-		// Flag indicating whether the file IO error message is to be given.
-//Boolean							gIOErrorMessageFlag = TRUE; 
-
-		// Flag indicating whether map coordinates should be displayed in the	
+		// Flag indicating whether map coordinates should be displayed in the
 		// coordinate dialog window.															
 Boolean							gMapCoordinateFlag = FALSE;
 
@@ -425,9 +428,6 @@ DateTimeRec						gDateTimeRecord;
 
 		// Pointer to the decision tree classifier variable structure.				
 DecisionTreeVarPtr 			gDecisionTreeVarPtr = NULL;
-
-		// dialog pointer to grag gray rgn coordinate dialog box
-// DialogPtr						gCoordinatePtr = NULL;
 
 		// Dialog pointer to the status dialog window.  This is used by several	
 		// of the processors.																	
@@ -601,7 +601,7 @@ ListHandle						gDialogListHandle2 = NULL;
 	CListBox*						gStatisticsListHandle = NULL;
 #endif	// defined multispec_win
 
-#if defined multispec_lin
+#if defined multispec_wx
    wxListBox*		gStatisticsListHandle = NULL;  
 #endif
 
@@ -857,7 +857,7 @@ ReformatOptionsPtr			gReformatOptionsPtr = NULL;
 	COLORREF							gRGBColorList[8];
 #endif	// defined multispec_win
 
-#if defined multispec_lin
+#if defined multispec_wx
    // pen structure to be used for storing some standard color pens.
         // Later on also check whether to use default wxwidgets or not
 	wxPen								gBlackPen;
@@ -898,10 +898,10 @@ RgnHandle						gTempRegion2 = NULL;
 		// Pointer to the statistics enhancement information structure.
 StatEnhanceSpecsPtr			gStatEnhanceSpecsPtr = NULL;
 
-			// Pointer to statistics histogram information.								
+		// Pointer to statistics histogram information.
 StatHistogramSpecsPtr		gStatHistogramSpecsPtr = NULL;
 
-			// Pointer to the create statistics images information structure.		
+		// Pointer to the create statistics images information structure.
 StatisticsImageSpecsPtr		gStatisticsImageSpecsPtr = NULL;
 
 		// Location to store the name of the file to be handled by MultiSpec.													
@@ -917,20 +917,13 @@ Str255							gTextString3;
 
 		// Date version string
 		// Application identifier string
-//#if defined multispec_mac
-	char								gDateVersionString[64];
-	char								gApplicationIdentifierString[64];
-//#else
-//	wchar_t							gDateVersionString[16];
-//	wchar_t							gApplicationIdentifierString[64];
-//#endif
+char								gDateVersionString[64];
+char								gApplicationIdentifierString[64];
 
 		// buffer to be used to manipulate text strings		
-//TBYTE								gWideTextString[256];							
-wchar_t							gWideTextString[256];									
+wchar_t							gWideTextString[256];
 wchar_t							gWideTextString2[256];								
 wchar_t							gWideTextString3[256];
-
 
 		// Structure containing information for a transformation matrix.
 TransformationSpecs			gTransformationMatrix;
@@ -1060,10 +1053,16 @@ UInt16*							gDialogItemDescriptorPtr = NULL;
 	wchar_t							gWideEndOfLine[3] = {'\015', '\012', '\000'};
 #endif	// defined multispec_win  
 
-#if defined multispec_lin     
+#if defined multispec_wxlin
 	char								gEndOfLine[3] = {'\012', '\000', '\000'};
 	wchar_t							gWideEndOfLine[3] = {'\012', '\000', '\000'};
-#endif	// defined multispec_lin  
+#endif	// defined multispec_wxlin
+
+#if defined multispec_wxmac
+			// wxWidgets will handle converting to carriage return for MacOS
+	char								gEndOfLine[3] = {'\012', '\000', '\000'};
+	wchar_t							gWideEndOfLine[3] = {'\012', '\000', '\000'};
+#endif	// defined multispec_wxmac
 
 		// Define the decimal separator for numbers
 char								gDecimalSeparator = '.';
@@ -1122,15 +1121,13 @@ double							gStatusBoxIncrement = 0.;
 		// portion of the work that has been completed.									
 double							gStatusGraphicsRight = 0.;
 
-//int								szip_allow_encoding = 0;		// Added 10/23/2007
-            
-#if defined multispec_win                              						
+#if defined multispec_win
 	int							gCrossCursorID = IDC_CROSS_CURSOR;
 #endif	// defined multispec_win
    
-#if defined multispec_lin                              						
+#if defined multispec_wx                              						
 	int							gCrossCursorID = IDC_CROSS_CURSOR;
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 		// Variables used when converting between line-column units and window	
 		// units.																					
@@ -1221,11 +1218,11 @@ UInt32							gMaxNumberChannelCombinations = UInt32_MAX;
 		// 0x8000 if the origin was change each time for the offscreen bit maps. 
 UInt32							gMaxRowBytes = kMaxRowBytes;   
                       
-#if defined multispec_win || defined multispec_lin 
+#if defined multispec_win || defined multispec_wx 
 			// Maximum number of row bytes possible for 24 bit offscreen maps.
 			// This variable is only used for the Windows and Linux systems.
 	UInt32							gMaxRowBytesFor24Bits = kMaxRowBytes * 3; 
-#endif	// defined multispec_win || multispec_lin									
+#endif	// defined multispec_win || multispec_wx									
 
 		// Uses for storage of next time to list minutes left information.
 UInt32							gNextMinutesLeftTime = 0;
@@ -1243,9 +1240,9 @@ UInt32							gNextMinutesLeftTime = 0;
 	UInt32							gNextMinutesLeftTimeOffset = 3000;
 #endif	// defined multispec_win									
 
-#if defined multispec_lin                                    
+#if defined multispec_wx                                    
 	UInt32							gNextMinutesLeftTimeOffset = 3000;
-#endif	// defined multispec_lin		
+#endif	// defined multispec_wx		
 		// Uses for storage of next time to list status information.				
 UInt32							gNextStatusTime = 0;
 
@@ -1261,9 +1258,9 @@ UInt32							gNextStatusTime = 0;
 	UInt32							gNextStatusTimeOffset = 330;
 #endif	// defined multispec_win									   
    
-#if defined multispec_lin                                    
+#if defined multispec_wx                                    
 	UInt32							gNextStatusTimeOffset = 333;
-#endif	// defined multispec_lin									   
+#endif	// defined multispec_wx									   
 
 		// Uses for storage of next time to check for command-. for stopping.	
 #if defined multispec_mac || defined multispec_mac_swift
@@ -1274,9 +1271,9 @@ UInt32							gNextStatusTime = 0;
 	UInt32							gNextTime = 330;
 #endif	// defined multispec_win
 
-#if defined multispec_lin
+#if defined multispec_wx
 	time_t							gNextTime = 333;
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
 
 		// Count of the number of shape files that have been loaded in.
 UInt32							gNumberImageOverlayFiles = 0;
@@ -1338,10 +1335,6 @@ SInt16							gBlinkProcedure = kBlink1;
 		// is.																						
 SInt16							gBitsPerDataValueSelection = 0;
 
-		// Variable indicating what the current bytes per data value selection 	
-		// is.																						
-// SInt16							gBytesPerDataValueSelection = 0;
-
 		// Variable indicating what the current channel description selection 	
 		// is.																						
 SInt16							gChanDescriptionSelection = 0;
@@ -1398,9 +1391,9 @@ SInt16							gDefaultAreaUnits = kHectareUnitsMenuItem;
 	SInt16						gDefaultLegendWidth = 170;
 #endif	// defined multispec_win									
    
-#if defined multispec_lin		                               	
+#if defined multispec_wx		                               	
 	SInt16						gDefaultLegendWidth = 170;
-#endif	// defined multispec_lin									
+#endif	// defined multispec_wx									
 
 		// Variable containing the working default titleHeight.
 #if defined multispec_mac || defined multispec_mac_swift
@@ -1411,9 +1404,9 @@ SInt16							gDefaultAreaUnits = kHectareUnitsMenuItem;
 	SInt16						gDefaultTitleHeight = 15;
 #endif	// defined multispec_win										
    
-#if defined multispec_lin		
+#if defined multispec_wx		
 	SInt16						gDefaultTitleHeight = 15;
-#endif	// defined multispec_lin										
+#endif	// defined multispec_wx										
 
 		// Variable containing the default palette to use for the TRL file		
 		// associated with new classification images.									
@@ -1434,26 +1427,26 @@ SInt16							gDialogItemTableSet = -1;
 	UInt16							gDisplayBitsPerPixel = 8; 
 #endif	// defined multispec_win
 
-#if defined multispec_lin 
+#if defined multispec_wx 
  			// Indicates what the bits per pixel is for the display. This is
  			// Defining for linux for now. See later if necessary
 	UInt16							gDisplayBitsPerPixel = 8; 
-#endif	// defined multispec_lin
+#endif	// defined multispec_wx
    
 		// Variable containing the time interval to use to copy portions
 		// of an offscreen bit/pix map to the screen as the offscreen map
 		// is being loaded. The units are ticks (1/60 second)
 SInt16							gDisplayIntervalTime = 120;
 
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 			// File filter index to use in the windows version for opening
 			// files.
 	SInt16							gFileFilterIndex = 1;
-#endif	// defined multispec_win | defined multispec_lin
+#endif	// defined multispec_win | defined multispec_wx
                    
 		// File filter index to use for opening
 		// image or shape files.
-#if defined multispec_lin
+#if defined multispec_wx
 	SInt16							gImageFileFilterIndex = 1;
 #endif
 #if defined multispec_mac
@@ -1568,7 +1561,7 @@ SInt16							gNumberFileTypes = 8;
 	SInt16							gNumberOfEndOfLineCharacters = 2;
 #endif	// defined multispec_win
    
-#if defined multispec_lin
+#if defined multispec_wx
    // Number of End of Line characters for OS. (Linux only has Line Feed)
 	SInt16				gNumberOfEndOfLineCharacters = 1;
 #endif
@@ -1725,7 +1718,7 @@ SInt16							gWeightsSelection = 0;
 			// Font number to be used in the windows.										
 SInt16							gWindowTextFont = 0;
 
-#if defined multispec_lin 
+#if defined multispec_wx 
 			// Disable other windows when executing list Data graph window
 	wxWindowDisabler							*m_windowDisabler;
 #endif

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,7 +21,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 08/22/2019
+//	Revised By:				Larry L. Biehl			Date: 12/12/2019
 //	
 //------------------------------------------------------------------------------------
 
@@ -280,11 +280,11 @@
 #endif	// defined multispec_mac_swift
 
 //-----------------------------------------------------------------------------
-#if defined multispec_lin
+#if defined multispec_wx
 	#include "wx/combobox.h"
 	#include "wx/panel.h"
 
-			// Linux Routines in CStubs.cpp
+			// Linux Routines in SStubs.cpp
 		
 	extern void	AnimateEntry (
 					CMPaletteInfo						paletteObject,
@@ -549,8 +549,8 @@
 					Point									point,
 					RgnHandle							rgnHandle);
 
-	extern SInt16 ReformatDialog (
-					SInt16*								channelDescriptionRequestPtr);
+	//extern SInt16 ReformatDialog (
+	//				SInt16*								channelDescriptionRequestPtr);
 
 	extern void ReleaseResource (
 					Handle								handle);
@@ -666,10 +666,10 @@
 	extern SInt16 YieldToThread (
 					UInt32								wakeUpThread);
 
-			//	end CStubs.cpp 
+			//	end SStubs.cpp 
 
 
-			//	Routines in LUtilities.cpp
+			//	Routines in xUtilities.cpp
 
 	extern void* BeginBitMapRawDataAccess (
 					WindowInfoPtr						windowInfoPtr,
@@ -684,7 +684,7 @@
 					SInt16								copyType);
 
 	extern void CreateClassNameComboBoxList (
-					wxComboBox*							comboBoxCPtr);
+					wxChoice*							comboBoxCPtr);
 
 	extern void EndBitMapRawDataAccess (
 					wxBitmap* 							bitMapPtr);
@@ -758,10 +758,10 @@
 					wxControl*							control,
 					SInt16								stringnumber);
 
-			//	end LUtilities.cpp
+			//	end xUtilities.cpp
 
 
-			//	Routines in LMultiSpec.cpp
+			//	Routines in xMultiSpec.cpp
 	
 	extern time_t LinGetTime (void);
 
@@ -805,7 +805,7 @@
 
 			//	end SStrings.cpp
 
-#endif // defined multispec_lin
+#endif // defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 				// Routines in MAppleEvents.c
@@ -1671,7 +1671,7 @@
 
 //-----------------------------------------------------------------------------
 #if defined multispec_win
-					//	Windows Routines in CStubs.cpp
+					//	Windows Routines in SStubs.cpp
 
 			extern void AnimateEntry (
 							CMPaletteInfo						paletteObject,
@@ -1896,9 +1896,6 @@
 							Point									point,
 							RgnHandle							rgnHandle);
 
-			extern SInt16 ReformatDialog (
-							SInt16*								channelDescriptionRequestPtr);
-
 			extern void ReleaseResource (
 							Handle								handle);
 
@@ -2013,7 +2010,7 @@
 			extern SInt16 YieldToThread (
 							UInt32								wakeUpThread);
 
-					//	end CStubs.cpp
+					//	end SStubs.cpp
 
 
 					//	Windows Routines in CUtility.c
@@ -2322,6 +2319,10 @@ extern void BiPlotDataDialogHideShowClassItems (
 				SInt16								plotDataCode,
 				SInt16								outlineClassCode);
 
+extern Boolean	CheckIfStatisticsChannel (
+				SInt16								channelNumber,
+				Boolean								featureTransformationFlag);
+
 extern void GetBiPlotGraphTitle (
 				GraphPtr								graphRecordPtr);
 
@@ -2503,6 +2504,7 @@ extern SInt16 ClassifyDialogOnClassificationProcedure (
 				SInt16								numberEigenvectors,
 				SInt16*								nearestNeighborKValuePtr,
 				UInt16*								classifyProcedureEnteredCodePtr,
+				SInt16								correlationComboListItem,
 				Boolean								optionKeyFlag);
 	                
 extern void ClassifyDialogOnOverlay (
@@ -2548,6 +2550,11 @@ extern void ListResultsOptionsDialog (
 								
 extern void SetUpPalettePopUpMenu (
 				DialogPtr							dialogPtr);
+
+extern void SVMClassifyDialogShowHideParameters (
+				DialogPtr							dialogPtr,
+				int									svmType,
+				int									svmKernel);
 
 		// end SClassifyDialogs.cpp    	
 
@@ -2806,10 +2813,10 @@ extern void ActivateDialogItem (
 				SInt16								itemNumber);
 
 extern SInt32 AddChannelsToDialogList (
-				#ifdef multispec_lin
+				#ifdef multispec_wx
 					wxListBox*							listHandle,
 				#endif
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					ListHandle							listHandle,
 				#endif
 				SInt16*								numberOutputFeatures,
@@ -2982,6 +2989,11 @@ extern void LoadDItemRealValue (
 				double								realValue,
 				SInt16								numberFDecimalDigits,
 				SInt16								numberEDecimalDigits);
+
+extern void LoadDItemString (
+				DialogPtr							dialogPtr,
+				SInt16								itemNumber,
+				CharPtr								theStringPtr);
 
 extern void LoadDItemString (
 				DialogPtr							dialogPtr,
@@ -3428,6 +3440,15 @@ extern SInt16 GetMinMaxPopupCode (
 				SInt16								minMaxCode,
 				SInt16								percentClip);
 
+extern Boolean MinMaxEnhancementDialog (
+				SInt16*	 							channelsPtr,
+				SInt16 								rgbColors,
+				SInt16 								displayType,
+				SInt16								numberLevels,
+				SInt16* 								percentTailsClippedPtr, 
+				SInt16* 								minMaxSelectionPtr, 
+				double*	 							minMaxValuesPtr);
+
 extern void MinMaxEnhancementDialogInitialize (
 				DialogPtr							dialogPtr,
 				SInt16*								channelsPtr,
@@ -3482,6 +3503,22 @@ extern void UnSetDialogItemDrawRoutine (
 				UserItemUPP							userItemProcPtr,
 				SInt16								appearanceItemNumber,
 				MenuHandle							inputPopupMenuHandle);
+
+extern void UpdateDialogChannelItems (
+				DialogPtr 							dialogPtr, 
+				//SInt16								displayTypeSelection,
+				SInt16 								rgbColors, 
+				SInt16 								displayType);
+													
+extern void UpdateEnhancementMinMaxes (
+				HistogramSpecsPtr 				histogramSpecsPtr,
+				DialogPtr 							dialogPtr, 
+				SInt16	 							localMinMaxCode, 
+				SInt16	 							percentTailsClipped,
+				SInt16								numberLevels,
+				double*	 							minMaxValuesPtr, 
+				SInt16* 								channels,
+				Boolean 								updateUserDefinedFlag);
 
 		// end SDisplayMultispectral.cpp
 
@@ -3554,6 +3591,9 @@ extern void LoadThematicClassNamesIntoList (
 
 extern void LoadThematicGroupNamesIntoList (
 				ListHandle							listHandle);
+
+SInt16 Update8_16_24BitsOfColorIndex (
+				SInt16 								menuBitsOfColorIndex);
 
 		// end SDisplayThematic.cpp
 
@@ -4000,7 +4040,7 @@ extern void ChannelCombinationsDialogInitialize (
 
 extern Boolean ChannelCombinationsDialogLoadList (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							dialogListHandle,
 				#else
 					ListHandle							dialogListHandle,
@@ -4307,6 +4347,9 @@ extern void UnlockHierarchalFileHandles (
 
 		// Routines in SFileIO.cpp
 
+extern void CheckIfDirectoryIsWriteable (
+				CMFileStream*						fileStreamPtr);
+
 extern Boolean CheckIfSpecifiedFileExists (
 				CMFileStream*						fileStreamPtr,
 				char*									suffixToCheckPtr);
@@ -4573,7 +4616,7 @@ extern SInt64 GetSizeOfImage (
 				FileInfoPtr							fileInfoPtr);
 
 extern SInt16 GetVolumeFreeSpace (
-				Str255*								fileNamePtr,
+				CMFileStream*						fileStreamPtr,
 				SInt16								vRefNum,
 				SInt64*								freeBytesPtr);
 
@@ -4672,6 +4715,8 @@ extern SInt16 PutFile (
 				SInt16								promptStringIndex,
 				SInt32								creator);
 
+extern void ResetOutputDirectory (void);
+
 extern SInt16 ResolveAnyAliases (
 				CMFileStream*						fileStreamPtr,
 				Boolean*								wasAliasedFlagPtr);
@@ -4759,7 +4804,7 @@ extern void SetVolumeReference (
 
 extern void SwapBytes (
 				SInt16								numberBytes,
-				HUInt8Ptr fileIOBufferPtr,
+				HUInt8Ptr 							fileIOBufferPtr,
 				UInt32								numberSamples);
 
 extern void Swap2Bytes (
@@ -6252,8 +6297,8 @@ extern void SetTransverseMercatorParameters (
 				double								falseEasting,
 				double								falseNorthing);
 
-extern void SetUpHorizontalDatumPopUpMenu (
-				DialogPtr							dialogPtr);
+//extern void SetUpHorizontalDatumPopUpMenu (
+//				DialogPtr							dialogPtr);
 
 extern Boolean SetUTMParametersFromZone (
 				SInt16								gridZone,
@@ -6365,7 +6410,17 @@ extern void GetProjectionParameters (
 				double*								projScaleAtNatOriginPtr,
 				double*								projAzimuthAnglePtr,
 				double*								projStraightVertPoleLongGeoKeyPtr);
-		  
+
+extern double msfnz (
+				double								eccent,
+				double								sinphi,
+				double								cosphi);
+								
+extern double tsfnz (
+				double								eccent,
+				double								phi,
+				double								sinphi);
+
 		// end SMapProjectionAlgorithms.cpp
 
 
@@ -6457,6 +6512,9 @@ extern SInt16 LoadMask (
 				MaskInfoPtr							maskInfoPtr,
 				UInt32								maskFileLayer,
 				SInt16								loadTypeCode);
+				
+extern Handle LoadMaskFileInfo (
+				CMFileStream*						maskFileStreamPtr);
 
 extern void SetUpMaskAreaDescriptionParameters (
 				AreaDescriptionPtr				maskAreaDescriptionPtr,
@@ -6956,7 +7014,7 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 				#if defined multispec_mac
 					MenuHandle							menuResource,
 				#endif	// defined multispec_mac
-				#if defined multispec_win || defined multispec_lin
+				#if defined multispec_win || defined multispec_wx
 					UInt32								diskFileComboID,
 				#endif	// defined multispec_win
 				SInt16								menuItem);
@@ -7470,7 +7528,30 @@ extern Boolean UpdateLayerInfoStructure (
 
 extern void EvaluateCovariancesControl (void);
 
+extern void EvaluateCovariancesDialogOK (
+				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr,
+				Boolean								listOriginalMatrixFlag,
+				Boolean								listInvertedMatrixFlag,
+				Boolean								listOriginalXInvertedMatrixFlag,
+				Boolean								listInvertedInvertedMatrixFlag,
+				Boolean								featureTransformationFlag);
+
 extern void EvaluateTransformationControl (void);
+
+extern void EvaluateTransformationInitialize (
+				DialogPtr							dialogPtr,
+				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
+				Boolean*								listEigenvaluesFlagPtr,
+				Boolean*								listOriginalMatrixFlagPtr,
+				Boolean*								checkTransformationFlagPtr,
+				Boolean*								listOriginalXInvertedMatrixFlagPtr);
+							
+extern void EvaluateTransformationOK (
+				EvaluateTransformSpecsPtr		evaluateTransformSpecsPtr,
+				Boolean								listEigenvaluesFlag,
+				Boolean								listOriginalMatrixFlag,
+				Boolean								checkTransformationFlag,
+				Boolean								listOriginalXInvertedMatrixFlag);
 
 extern void ListCovarianceMatrix (
 				HDoublePtr							covariancePtr,
@@ -7746,6 +7827,13 @@ extern void* GetFileNamePPointerFromProjectInfo (
 				ProjectInfoPtr						projectInfoPtr);
 
 extern void* GetFileNamePPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr,
+				SInt16								returnCode);
+
+extern void* GetFilePathPPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr);
+
+extern void* GetFilePathPPointerFromProjectInfo (
 				ProjectInfoPtr						projectInfoPtr,
 				SInt16								returnCode);
 
@@ -8328,7 +8416,7 @@ extern SInt16 ClassPairWeightsDialog (
 
 extern void ClassPairWeightsDialogChangeWeight (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							classListHandle,
 					wxListBox*							weightListHandle,
 				#else
@@ -8339,7 +8427,7 @@ extern void ClassPairWeightsDialogChangeWeight (
 
 extern SInt16 ClassPairWeightsDialogClassSelectionChange (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8353,7 +8441,7 @@ extern void ClassPairWeightsDialogInitialize (
 				
 extern void ClassPairWeightsDialogOK (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8365,7 +8453,7 @@ extern void ClassPairWeightsDialogOK (
 
 extern SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8374,7 +8462,7 @@ extern SInt16 ClassPairWeightsDialogRemoveWeightSelection (
 
 extern SInt16 ClassPairWeightsDialogWeightSelectionChange(
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle);
 				#else
 					ListHandle							listHandle);
@@ -8389,7 +8477,7 @@ extern SInt16 ClassWeightsDialog (
 
 extern double ClassWeightsDialogChangeWeights (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8400,17 +8488,21 @@ extern double ClassWeightsDialogChangeWeights (
 
 extern SInt16 ClassWeightsDialogClassSelectionChange (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
 				#endif
 				double								newWeight);
 
+extern void ClassWeightsDialogInitialize (
+				DialogPtr							dialogPtr,
+				SInt16*								weightUnitsPtr);
+
 
 extern SInt16 ClassWeightsDialogOK (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8419,13 +8511,9 @@ extern SInt16 ClassWeightsDialogOK (
 				SInt16*								classPtr,
 				float*								weightsPtr);
 
-extern void ClassWeightsDialogInitialize (
-				DialogPtr							dialogPtr,
-				SInt16*								weightUnitsPtr);
-
 extern void ClassWeightsDialogSetEqualWeights (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8637,7 +8725,7 @@ extern Boolean ListProjectFieldsUsed (
 
 extern void LoadClassList (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listBoxPtr,
 				#else
 					ListHandle							listHandle,
@@ -8667,7 +8755,7 @@ extern void LoadClassVector (
 				SInt16*								classPtr);
 
 extern double LoadClassWeightsIntoList (
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8697,7 +8785,7 @@ extern void NoClassStatsAlert (
 
 extern void LoadClassWeightGroups (
 				DialogPtr							dialogPtr,
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							dialogListHandle,
 				#else
 					ListHandle							dialogListHandle,
@@ -8732,7 +8820,7 @@ extern void ReleaseStatisticsEnhanceSpecsMemory (
 				Handle*								statisticsEnhanceSpecsH);
 
 extern SInt32 SetClassListSelections (
-				#if defined multispec_lin
+				#if defined multispec_wx
 					wxListBox*							listHandle,
 				#else
 					ListHandle							listHandle,
@@ -8855,6 +8943,11 @@ extern SInt16 SetUpHDF_FileInformation (
 				HdfDataSets*						hdfDataSetsPtr,
 				SInt32								dataSetIndex,
 				Boolean								useGroupedDataSetsFlag);
+
+#if include_hdf_capability
+	extern void SetHDF4HasHFSPlusAPISetting (
+					Boolean								hasHFSPlusAPIsFlag);
+#endif	//
 
 		// end SReadHDFHeader.cpp 
 
@@ -9116,6 +9209,13 @@ extern void ReleaseReformatOutputFileInfoAndBuffers (
 
 extern void ChangeErdasHeader (void);
 
+extern void	GetOutputBufferParameters (
+				FileInfoPtr							outFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				UInt32*								outChannelByteIncrementPtr,
+				UInt32*								outLineByteIncrementPtr,
+				UInt32*								outNumberBytesPerLineAndChannelPtr);
+
 extern Boolean GetReformatOutputFile (
 				FileInfoPtr							outFileInfoPtr,
 				ReformatOptionsPtr				reformatOptionsPtr);
@@ -9225,6 +9325,16 @@ extern Boolean WriteErdasHeader (
 				UInt8*								headerRecordPtr, 
 				SInt16								ERDASVersion);
 
+extern Boolean WriteKMLFile (
+				FileInfoPtr							fileInfoPtr, 
+				CMFileStream*						fileStreamPtr,
+				UInt32								columnInterval,
+				UInt32								lineInterval,
+				UInt32								startMapColumn,
+				UInt32								startMapLine,
+				UInt32								endMapColumn,
+				UInt32								endMapLine);
+
 extern Boolean WriteNewErdasHeader (
 				FileInfoPtr							fileInfoPtr,
 				SInt16*								headerRecordPtr,
@@ -9268,7 +9378,7 @@ extern Boolean WriteTIFFImageFile (
 
 extern void WriteTransformationFile (void);
 
-		// end SSaveWrt.cpp
+		// end SSaveWrite.cpp
 
 
 		// Routines in SSelectionGraph.cpp
@@ -9322,6 +9432,10 @@ extern void ComputeSelectionOffscreenRectangle (
 				LongRect*							lineColumnRectanglePtr,
 				Rect*									offScreenRectanglePtr,
 				SInt16								startChannel);
+
+extern void ConvertMapRectByGivenFactor (
+				double								factor,
+				DoubleRect*							coordinateRectPtr);
 
 extern void DrawSelectionArea (
 				WindowPtr							windowPtr);
@@ -9506,10 +9620,23 @@ extern void UpdateSelectionCoordinates (
 
 		// Routines in SShapeToThematicFile.cpp
 
+extern Boolean IsPointInPolygon (
+				UInt32								nvert,
+				ArcViewDoublePoint*				vert,
+				double								testx,
+				double								testy);
+
+extern Boolean	ListShapeDBFFieldNames (
+				ShapeInfoPtr						shapeInfoPtr);
+
 extern void LoadShapeToThematicClassNames (
 				ShapeInfoPtr						shapeInfoPtr,
 				char*									classNameTablePtr,
 				UInt32								numberClasses);
+
+extern Boolean PointInRectangle (
+				DoublePoint*						doublePointPtr,
+				DoubleRect*							boundingRectanglePtr);
 
 extern void ShapeToThematicFileControl (void);
 
@@ -9519,6 +9646,65 @@ extern void ShapeToThematicFileControl (void);
 		// Routines in SStatisticsEnhancement.cpp
 
 extern void StatisticsEnhanceControl (void);
+
+extern void StatisticsEnhanceDialogInitialize (
+				DialogPtr							dialogPtr,
+				StatEnhanceSpecsPtr				statEnhanceSpecsPtr,
+				DialogSelectAreaPtr				dialogSelectAreaPtr,
+				UInt16*								localClassPtr,
+				SInt16*								classSelectionPtr,
+				UInt32*								localNumberClassesPtr,
+				Boolean*								useEnhancedStatisticsFlagPtr,
+				SInt16*								classWeightSetPtr,
+				SInt16*								weightsSelectionPtr,
+				SInt16*								softThresholdSelectionPtr,
+				double*								softChiChiThresholdPtr,
+				double*								softPercentThresholdPtr,
+				SInt16*								hardThresholdSelectionPtr,
+				double*								hardChiChiThresholdPtr,
+				double*								hardPercentThresholdPtr,
+				Boolean*								weightLabeledFlagPtr,
+				double*								labelWeightPtr,
+				SInt32*								iterationMaxPtr,
+				SInt32*								iterationStopLengthPtr,
+				double*								logLikeStopPercentPtr);
+
+extern void StatisticsEnhanceDialogOK (
+				StatEnhanceSpecsPtr				statEnhanceSpecsPtr,
+				DialogSelectAreaPtr				dialogSelectAreaPtr,
+				UInt16*								localClassPtr,
+				SInt16								classSelection,
+				UInt32								localNumberClasses,
+				Boolean								useEnhancedStatisticsFlag,
+				SInt16								weightsSelection,
+				float*								classWeightsPtr,
+				SInt16								softThresholdSelection,
+				double								softChiChiThreshold,
+				double								softPercentThreshold,
+				SInt16								hardThresholdSelection,
+				double								hardChiChiThreshold,
+				double								hardPercentThreshold,
+				Boolean								weightLabeledFlag,
+				double								labelWeight,
+				SInt32								iterationMax,
+				SInt32								iterationStopLength,
+				double								logLikeStopPercent);
+
+extern void StatisticsEnhanceDialogUpdateChiSquaredValue (
+				DialogPtr							dialogPtr,
+				SInt16								thresholdCode,
+				SInt16								chiChiThresholdItemNumber,
+				double								thresholdPercent,
+				double*								chiChiThresholdPtr);
+
+extern void StatisticsEnhanceDialogUpdateThresholdItems (
+				DialogPtr							dialogPtr,
+				SInt16								thresholdCode,
+				SInt16								chiChiThresholdItemNumber,
+				SInt16								percentThresholdPromptItemNumber,
+				SInt16								percentThresholdItemNumber,
+				double								thresholdPercent,
+				double*								chiChiThresholdPtr);
 
 extern void UpdateNumberLabeledSamples (
 				DialogPtr							dialogPtr,
@@ -9698,6 +9884,13 @@ extern void SetProjectWindowBoxes (
 				SInt16*								windowCenterPtr,
 				SInt16*								windowWidthPtr);
 
+extern void SetProjectWindowBoxes (
+				SInt16*								borderPtr,
+				SInt16*								windowCenterPtr,
+				SInt16*								windowWidthPtr,
+				SInt16*								topStartPtr,
+				SInt16								pushButtonSpacing);
+
 extern void SetProjectWTitle (void);
 
 extern void StatisticsControl (void);
@@ -9820,6 +10013,7 @@ extern void StatisticsImageDialogInitialize (
 				double*								userMinimumPtr,
 				double*								userMaximumPtr,
 				SInt16*								areaCodePtr,
+				SInt16*								perFieldClassCodePtr,
 				SInt16*								selectItemPtr,
 				Boolean*								featureTransformationFlagPtr,
 				Boolean*								featureTransformAllowedFlagPtr);
@@ -9828,8 +10022,6 @@ extern void StatisticsImageDialogOK (
 				DialogPtr							dialogPtr,
 				StatisticsImageSpecsPtr			statisticsImageSpecsPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
-				SInt16								classCode,
-				SInt16								areaCode,
 				SInt16								channelSelection,
 				Boolean								featureTransformationFlag,
 				SInt16*								featurePtr,
@@ -9838,8 +10030,8 @@ extern void StatisticsImageDialogOK (
 				SInt16								classSelection,
 				SInt32                        localNumberClasses,
 				SInt16*								classListPtr,
-				SInt16								perClassCode,
-				SInt16								perFieldCode,
+				SInt16								areaCode,
+				SInt16								perClassFieldCode,
 				SInt16								overallMinMaxCode,
 				SInt16								individualMinMaxCode,
 				SInt16								userMinMaxCode,
@@ -9865,6 +10057,7 @@ extern void FS_make_stat_image_same_scale (
 				SInt32								numberFeatures,
 				FileInfoPtr							newFileInfoPtr,
 				SInt32*								ERROR_FLAG,
+				SInt16								areaCode,
 				SInt16								minMaxSettingCode,
 				double								user_mean_minimum,
 				double								user_mean_maximum);
@@ -10263,7 +10456,7 @@ extern Boolean MGetString (
 					UCharPtr								titleStringPtr);
 #endif	
 
-	extern void MSetWindowTitle (
+extern void MSetWindowTitle (
 				WindowPtr							windowPtr,
 				UCharPtr								titleStringPtr);
 
@@ -10368,6 +10561,10 @@ extern int StringLength (
 				void* 								stringPtr,
 				Boolean								asciiCharStringFlag);	// default is false
 
+extern void ThematicImageWBlink (
+				LongPoint							mousePt,
+				SInt16								code);
+
 extern SInt16 UpdateFileNameInformation (
 				CMFileStream*						fileStreamPtr,
 				FileStringPtr						fileNamePtr);
@@ -10428,6 +10625,10 @@ extern UInt16 CheckForDuplicateName (
 				UCharPtr								textStringPtr,
 				SInt16*								classGroupIndexPtr,
 				Boolean*								noChangeFlagPtr);
+				
+extern void CreateDefaultGroupTable (
+				FileInfoPtr							fileInfoPtr,
+				DisplaySpecsPtr					displaySpecsPtr);
 
 extern Boolean DoBlinkCursor1 (
 				LegendListHandle					legendListHandle,
@@ -10461,10 +10662,10 @@ extern void EditGroupClassDialogOK (
 				Boolean								noChangeFlag);
 
 extern void EditGroups (
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					LegendListHandle					legendListHandle);
 				#endif
-				#ifdef multispec_lin
+				#ifdef multispec_wx
 					LegendListHandle					legendListHandle,
 					wxMouseEvent&						event);
 				#endif
@@ -10484,6 +10685,9 @@ extern Boolean GetGroupStructureMemory (
 				CharPtr*								groupNamePtrPtr,
 				Boolean*								groupChangedFlagPtr,
 				Boolean*								groupNameChangedFlagPtr);
+
+extern UInt16 GetPaletteEntry (
+				UInt16								paletteIndex);
 
 extern void LoadThematicLegendList (
 				LegendListHandle legendListHandle,
@@ -10544,6 +10748,11 @@ extern SInt16 StartFileIOThread (
 extern Boolean CheckIfOffscreenImageExists (
 				WindowInfoPtr						windowInfoPtr);
 
+extern SInt16		CheckIfValueInList (
+				SInt16*								listPtr,
+				SInt16								numberValuesInList,
+				SInt16								value);
+
 extern void ClearAreaDescriptionOffsetVariables (
 				AreaDescriptionPtr				areaDescriptionPtr);
 
@@ -10599,10 +10808,6 @@ extern Boolean CreateResultsDiskFiles (
 				SInt16								lOutputStorageType,
 				SInt16								numberClasses,
 				SInt16								numberProbabilityClasses);
-
-extern UInt16 DefaultBitsPerDataValueSelection (
-				UInt16								numberBits,
-				SInt16*								eightBitsPerDataValuePtr);
 
 extern double DetermineHistogramBinWidth (
 				double								inMinValue,
@@ -10930,7 +11135,7 @@ extern void SetMapToWindowUnitsVariables (
 extern void SetUpAreaUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					DialogPtr							dialogPtr);
 				#else
 					wxPanel*								dialogPtr);
@@ -10939,7 +11144,7 @@ extern void SetUpAreaUnitsPopUpMenu (
 extern void SetUpCoordinateUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
-				#ifndef multispec_lin
+				#ifndef multispec_wx
 					DialogPtr							dialogPtr);
 				#else
 					wxPanel*								dialogPtr);
@@ -11301,11 +11506,11 @@ extern void SetCoordinateViewUnits (
 extern void SetCoordinateViewUnitsControl (
 				Handle								windowInfoHandle,
 				ControlHandle						coordinateUnitsControl);
-/*
-extern void SetHasWavelengthValuesFlag (
-				Handle 								windowInfoHandle,
-				Boolean								hasWavelengthValuesFlag);
-*/
+
+extern void SetFileMapProjectionHandle2 (
+				Handle								windowInfoHandle,
+				Handle								mapProjectionHandle);
+
 extern void SetHistogramSpecsHandle (
 				WindowInfoPtr						windowInfoPtr,
 				Handle								histogramSpecsHandle);
@@ -11365,7 +11570,7 @@ extern void UnlockSupportFileStream (
 		// end SWindowInfo.cpp
 
 //-----------------------------------------------------------------------------
-#if defined multispec_win || defined multispec_lin
+#if defined multispec_win || defined multispec_wx
 inline void CopyPascalStringToC (ConstStr255Param src, char* dst) 
 	{
 	PtoCstring ((char*) src, (char*) dst);

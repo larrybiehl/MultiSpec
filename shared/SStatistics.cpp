@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/15/2019
+//	Revision date:			01/03/2020
 //
 //	Language:				C
 //
@@ -20,74 +20,26 @@
 //	Brief description:	This file contains functions that compute and operate 
 //								on field and class statistics.
 //
-//	Functions in file:	void 					ActivateStatControls
-//								Boolean				AddClassToProject
-//								Boolean				AddFieldToProject
-//								Boolean				AddPointsToProject
-//								void					AddPolyPointStatNewFieldW
-//								Boolean 				CheckForDuplicateClassName
-//								Boolean 				CheckForDuplicateFieldName
-//								void 					ClassListStatMode
-//								void					CloseProjectWindow
-//								Boolean				CreateProjectWControls
-//								void 					CreateProjectWindow
-//								void 					DeletePolyPointStatNewFieldW
-//								void					DoStatWActivateEvent
-//								void 					DoStatWUpdateEvent
-//								pascal void 		DrawDialogClassPopUp2
-//								void 					DrawClassPopUp
-//								void 					DrawClassPrompt
-//								void 					DrawFieldPrompt
-//								void 					DrawStatPopUp
-//								void 					DrawStatPrompt
-//								void 					FieldListStatMode
-//								void					ForceStatisticsCodeResourceLoad
-//								SInt16 	 			GetCurrentField
-//								void					GetFieldNameWithType
-//								void 					GetLineColFromList
-//								SInt16 				GetCovarianceStatsFromMenuItem
-//								SInt16 				GetClassStatisticsTypeMenuItem
-//								SInt16 				GetProjectStatisticsTypeMenuItem
-//								void 					GetProjectStatisticsTypeText
-//								UInt32				GetTotalNumberPixelsInField
-//								void					LoadClassNamesIntoList
-//								void					LoadNewFieldListBox
-//								void 					LoadPolyStatNewFieldW
-//								void 					LoadRectStatNewFieldW
-//								Boolean 				NewClassFieldDialog
-//								void 					NewFieldStatMode
-//								void 					PolygonListStatMode
-//								void 					RemoveListCells
-//								void	 				SetNumberClassTrainPixels
-//								void 					StatisticsControl
-//								SInt16 	  			StatisticsDialog
-//								SInt16 				StatisticsDialogMaskCheck
-//								Boolean	 			StatisticsOptionsDialog
-//								void 					StatisticsWControlEvent
-//								void 					StatisticsWMouseDn
-//								void 					UpdateStatisticsWindow
-//								void 					UpdateToClassControl
-//
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
 //		StatisticsControl
-//			InitializeNewProject (in project.c)
+//			InitializeNewProject (in SProject.cpp)
 //
 //			StatisticsDialog
-//				SetDLogControl	(in multiSpecUtilities.c)
-//				SetDLogControlHilite	(in multiSpecUtilities.c)
-//				ShowDialogWindow (in multiSpecUtilities.c)
-//				CheckSomeEvents (in multiSpec.c)
+//				SetDLogControl	(in SUtilities.cpp)
+//				SetDLogControlHilite	(in SUtilities.cpp)
+//				ShowDialogWindow (in SUtilities.cpp)
+//				CheckSomeEvents (in MMultiSpec.c)
 //				HiliteOKButton (in dialogUtilities.c)
-//				ChangeDLogCheckBox (in multiSpecUtilities.c)
-//				GetDLogControl (in multiSpecUtilities.c)
+//				ChangeDLogCheckBox (in SUtilities.cpp)
+//				GetDLogControl (in SUtilities.cpp)
 //
 //			CreateProjectWindow
 //		
 //			NewFieldStatMode
 //				(see below under "StatisticsWControlEvent")
 //
-//			CloseProjectStructure (in project.c)
+//			CloseProjectStructure (in SProject.cpp)
 //
 //		UpdateStatisticsWindow
 //			DrawClassPopUp
@@ -116,16 +68,16 @@
 //				GetLineColFromList
 //				CopyPToP
 //				RemoveListCells
-//				ClearSelectionArea (in multiSpec.c)
+//				ClearSelectionArea (in MMultiSpec.c)
 //
 //			ClassListStatMode
 //				RemoveListCells
 //				LoadClassNamesIntoList
 //				DoStatWActivateEvent
 //
-//			EditClassFieldDialog (in editStatistics.c)
+//			EditClassFieldDialog (in SEditStatistics.cpp)
 //
-//			EditCoordinatesDialog (in editStatistics.c)
+//			EditCoordinatesDialog (in SEditStatistics.cpp)
 //
 //			FieldListStatMode
 //				RemoveListCells
@@ -153,24 +105,20 @@
 //		LoadPolyStatNewFieldW
 //		LoadRectStatNewFieldW
 //
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
 
-#if defined multispec_lin
+#if defined multispec_wx
 	#define	IDOK	1
-	#include "LImageView.h"
-   #include "LLeaveOneOutMixingDialog.h"   
-	#include	"LMultiSpec.h"
-	#include "LNewClassFieldDialog.h"
-	#include "LStatisticsDialog.h"
-	#include "LStatisticsOptionsDialog.h"
-	#include "LStatisticsFrame.h"
-	#include "LStatisticsView.h"
+	#include "xImageView.h"
+   #include "xLeaveOneOutMixingDialog.h"   
+	#include	"xMultiSpec.h"
+	#include "xNewClassFieldDialog.h"
+	#include "xStatisticsDialog.h"
+	#include "xStatisticsOptionsDialog.h"
+	#include "xStatisticsFrame.h"
+	#include "xStatisticsView.h"
 	#include "wx/wx.h"
 	#include "wx/docview.h"
 #endif
@@ -210,31 +158,11 @@
 	#include "WStatisticsDialog.h"
 	#include "WStatisticsOptionsDialog.h"
 	#include "WStatisticsView.h"
-#endif	// defined multispec_win    
+#endif	// defined multispec_win
 
-//#include "SExtGlob.h"	
 
-extern Handle LoadMaskFileInfo (
-				CMFileStream*						maskFileStreamPtr);
 
-extern SInt16 HistogramStatsControl (
-				SInt16								statsWindowMode,
-				SInt16								histogramRequest);
-
-extern void SetProjectWindowBoxes (
-				SInt16*								borderPtr,
-				SInt16*								windowCenterPtr,
-				SInt16*								windowWidthPtr,
-				SInt16*								topStartPtr,
-				SInt16								pushButtonSpacing);
-
-extern Boolean	CheckMaskFileInfo (
-				Handle								fileInfoHandle,
-				SInt16*								errCodePtr);
-
-extern void ForceStatHistogramCodeResourceLoad (void);
-
-#define	kStatisticsWindowWidth		169 // 134 
+#define	kStatisticsWindowWidth		169 // 134
 
 
 
@@ -339,7 +267,7 @@ SInt16 StatisticsDialogSetMaskItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -355,10 +283,10 @@ SInt16 StatisticsDialogSetMaskItems (
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ClassListStatMode
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
-//	Revised By:			Larry L. Biehl			Date: 01/25/2019
+//	Revised By:			Larry L. Biehl			Date: 12/05/2019
 
 void ActivateStatControls (void) 
 {
@@ -403,7 +331,7 @@ void ActivateStatControls (void)
          ShowStatControl (gProjectInfoPtr->toProjectControlH);
          ShowStatControl (gProjectInfoPtr->toClassControlH);
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				ShowStatControl ((ControlHandle)IDC_STATIC_Class);
 				ShowStatControl ((ControlHandle)IDC_ClassList);
 				HideStatControl ((ControlHandle)IDC_ClassName);
@@ -420,7 +348,7 @@ void ActivateStatControls (void)
 									gProjectInfoPtr->editNameControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 		
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				CtoPstring ((UCharPtr)"Edit Selection...", gTextString);
 				SetStatControlTitle (
 									gProjectInfoPtr->editNameControlH, (char*)gTextString);
@@ -443,7 +371,7 @@ void ActivateStatControls (void)
          HideStatControl (gProjectInfoPtr->addToControlH);
          HideStatControl (gProjectInfoPtr->polygonTypeControlH);
 
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				HideStatControl ((ControlHandle)IDC_STATIC_Class);
 				HideStatControl ((ControlHandle)IDC_ClassList);
 				HideStatControl ((ControlHandle)IDC_ClassName);
@@ -472,7 +400,7 @@ void ActivateStatControls (void)
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 			
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 				CtoPstring ((UCharPtr)"Update Project Stats", gTextString);
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_win || ...
@@ -493,9 +421,8 @@ void ActivateStatControls (void)
 				SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win  || multispec_lin
-				//CtoPstring ((char*)"List Classes Stats", (char*)gTextString);
-				//SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)gTextString);
+			#if defined multispec_win  || multispec_wx
+				// This is handled by WStatisticsFrame and xStatisticsFrame
 			#endif	// defined multispec_win
 			
          ShowStatControl (gProjectInfoPtr->listControlH);
@@ -508,20 +435,19 @@ void ActivateStatControls (void)
 									gProjectInfoPtr->histogramControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win  || multispec_lin
-				//CtoPstring ((char*)"Histogram Classes", (char*)gTextString);
-				//SetStatControlTitle (
-				//						gProjectInfoPtr->histogramControlH, (char*)gTextString);
+			#if defined multispec_win  || defined multispec_wx
+				// This is handled by WStatisticsFrame and xStatisticsFrame
 			#endif	// defined multispec_win
          ShowStatControl (gProjectInfoPtr->histogramControlH);
          hiliteValue = 255;
          if (gProjectInfoPtr->numberStatTrainFields > 0)
             hiliteValue = 0;
-         //#if defined multispec_win
-         //   hiliteValue = 255;
-         //#endif	// defined multispec_win
          MHiliteControl (
 							gProjectWindow, gProjectInfoPtr->histogramControlH, hiliteValue);
+			
+			if (hiliteValue == 0 && gProjectInfoPtr->keepClassStatsOnlyFlag)
+				gProjectInfoPtr->histogramClassFieldCode =
+											gProjectInfoPtr->histogramClassListClassFieldCode;
 
 					// set edit class name control.
 
@@ -531,7 +457,7 @@ void ActivateStatControls (void)
 									gProjectInfoPtr->editNameControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				CtoPstring ((UCharPtr)"Edit Class Name...", gTextString);
 				SetStatControlTitle (
 										gProjectInfoPtr->editNameControlH, (char*)gTextString);
@@ -554,7 +480,7 @@ void ActivateStatControls (void)
          HideStatControl (gProjectInfoPtr->polygonTypeControlH);
          HideStatControl (gProjectInfoPtr->toClassControlH);
 
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				ShowStatControl ((ControlHandle)IDC_STATIC_Class);
 				HideStatControl ((ControlHandle)IDC_ClassList);
 				ShowStatControl ((ControlHandle)IDC_ClassName);
@@ -586,7 +512,7 @@ void ActivateStatControls (void)
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
 
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				CtoPstring ((UCharPtr)"Update Class Stats", gTextString);
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_win
@@ -612,10 +538,6 @@ void ActivateStatControls (void)
 				CtoPstring ((UCharPtr)"List Class Stats", gTextString);
 				SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win
-				//CtoPstring ((char*)"List Class Stats", (char*)gTextString);
-				//SetStatControlTitle (gProjectInfoPtr->listControlH, (char*)gTextString);
-			#endif	// defined multispec_win
 			
          ShowStatControl (gProjectInfoPtr->listControlH);
          if (!classNamesPtr[currentStorageClass].numberOfTrainFields)
@@ -628,28 +550,24 @@ void ActivateStatControls (void)
 				SetStatControlTitle (
 									gProjectInfoPtr->histogramControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win
-				//CtoPstring ((char*)"Histogram Class", (char*)gTextString);
-				//SetStatControlTitle (
-				//						gProjectInfoPtr->histogramControlH, (char*)gTextString);
-			#endif	// defined multispec_win
 		
          ShowStatControl (gProjectInfoPtr->histogramControlH);
          hiliteValue = 255;
          if (classNamesPtr[currentStorageClass].numberOfTrainFields > 0)
             hiliteValue = 0;
-         //#if defined multispec_win
-         //	hiliteValue = 255;
-         //#endif	// defined multispec_win
          MHiliteControl (
 							gProjectWindow, gProjectInfoPtr->histogramControlH, hiliteValue);
+			
+		  if (hiliteValue == 0 && gProjectInfoPtr->keepClassStatsOnlyFlag)
+				gProjectInfoPtr->histogramClassFieldCode =
+											gProjectInfoPtr->histogramFieldListClassFieldCode;
 
 			#if defined multispec_mac
 				CtoPstring ((UCharPtr)"Edit Field Name...", gTextString);
 				SetStatControlTitle (
 										gProjectInfoPtr->editNameControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				CtoPstring ((UCharPtr)"Edit Field Name...", gTextString);
 				SetStatControlTitle (
 										gProjectInfoPtr->editNameControlH, (char*)gTextString);
@@ -672,7 +590,7 @@ void ActivateStatControls (void)
          HideStatControl (gProjectInfoPtr->addToControlH);
          HideStatControl (gProjectInfoPtr->polygonTypeControlH);
 
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				ShowStatControl ((ControlHandle)IDC_STATIC_Class);
 				HideStatControl ((ControlHandle)IDC_ClassList);
 				ShowStatControl ((ControlHandle)IDC_ClassName);
@@ -692,7 +610,7 @@ void ActivateStatControls (void)
 				CtoPstring ((UCharPtr)"Update Field Stats", gTextString);
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win || multispec_lin
+			#if defined multispec_win || multispec_wx
 				CtoPstring ((UCharPtr)"Update Field Stats", gTextString);
 				SetStatControlTitle (gProjectInfoPtr->updateControlH, (char*)gTextString);
 			#endif	// defined multispec_win
@@ -737,35 +655,26 @@ void ActivateStatControls (void)
 				SetStatControlTitle (
 									gProjectInfoPtr->histogramControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win
-				//CtoPstring ((char*)"Histogram Field", (char*)gTextString);
-				//SetStatControlTitle (
-				//						gProjectInfoPtr->histogramControlH, (char*)gTextString);
+			#if defined multispec_win || defined multispec_wx
+				// Not done here.
 			#endif	// defined multispec_win
 		
          ShowStatControl (gProjectInfoPtr->histogramControlH);
          hiliteValue = 255;
          if (fieldIdentPtr[gProjectInfoPtr->currentField].fieldType == kTrainingType)
             hiliteValue = 0;
-         //#if defined multispec_win
-         //	hiliteValue = 255;
-         //#endif	// defined multispec_win
          MHiliteControl (
 							gProjectWindow, gProjectInfoPtr->histogramControlH, hiliteValue);
 
          if (hiliteValue == 0)
-				{
-            gProjectInfoPtr->histogramFieldFlag = TRUE;
-            gProjectInfoPtr->histogramClassFlag = FALSE;
-
-				}	// end "if (hiliteValue == 0)"
+				gProjectInfoPtr->histogramClassFieldCode = kHistogramField;
 
 			#if defined multispec_mac
 				CtoPstring ((UCharPtr)"Edit Coordinates...", gTextString);
 				SetStatControlTitle (
 										gProjectInfoPtr->editNameControlH, (char*)gTextString);
 			#endif	// defined multispec_mac
-			#if defined multispec_win   || multispec_lin
+			#if defined multispec_win   || multispec_wx
 				CtoPstring ((UCharPtr)"Edit Coordinates...", gTextString);
 				SetStatControlTitle (
 										gProjectInfoPtr->editNameControlH, (char*)gTextString);
@@ -779,7 +688,7 @@ void ActivateStatControls (void)
          MHiliteControl (
 							gProjectWindow, gProjectInfoPtr->editNameControlH, hiliteValue);
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				// Load the current field name
 				SInt16 currentfield = gProjectInfoPtr->currentField; 
 				CtoPstring ((UCharPtr)fieldIdentPtr[currentfield].name, gTextString);
@@ -789,9 +698,9 @@ void ActivateStatControls (void)
 
 		}	// end "switch (gProjectInfoPtr->statsWindowMode)"
 	
-	#if defined multispec_lin
-		((CMStatisticsView*)gProjectWindow)->GetFrame ()->Layout ();
-		((CMStatisticsView*)gProjectWindow)->GetFrame ()->Refresh ();
+	#if defined multispec_wx
+		((CMStatisticsView*)gProjectWindow)->GetFrame()->Layout ();
+		((CMStatisticsView*)gProjectWindow)->GetFrame()->Refresh ();
 	#endif
 	
 }	// end "ActivateStatControls" 
@@ -799,7 +708,7 @@ void ActivateStatControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -814,11 +723,11 @@ void ActivateStatControls (void)
 // Value Returned:	None
 // 
 // Called By:			SaveClusterStatistics in SCluster.cpp
-//							PasteFieldToNewClass in editStatistics.c
+//							PasteFieldToNewClass in SEditStatistics.cpp
 //							AddFieldToProject in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1989
-//	Revised By:			Larry L. Biehl			Date: 03/29/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/21/2019
 
 Boolean AddClassToProject (
 				UCharPtr								classNamePtr)
@@ -939,11 +848,11 @@ Boolean AddClassToProject (
 			//comboBoxPtr->AddString ((LPCTSTR)A2T((LPSTR)stringPtr));
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin                                   
-			((wxComboBox*)gProjectWindow->GetFrame ()->FindWindow (IDC_ClassList))->
+		#if defined multispec_wx                                   
+			((wxChoice*)gProjectWindow->GetFrame()->FindWindow (IDC_ClassList))->
 														AppendString (&((char*)classNamePtr)[1]);
 			//AddString (&((char*)classNamePtr)[1]);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
       
 				// Hilite the "to Class Field List" button.								
 
@@ -966,7 +875,7 @@ Boolean AddClassToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1177,7 +1086,6 @@ Boolean AddFieldToProject (
       if (fieldIdentPtr[currentStorageField].pointType < kClusterType)
          fieldIdentPtr[currentStorageField].numberPixels =
 											GetSelectionNumberPixels (gProjectSelectionWindow);
-      //							(SInt32)GetTotalNumberPixelsInField (currentStorageField);
 
       fieldIdentPtr[currentStorageField].loadedIntoClassStats = FALSE;
       fieldIdentPtr[currentStorageField].statsUpToDate = FALSE;
@@ -1212,7 +1120,7 @@ Boolean AddFieldToProject (
       		{
       		fieldIdentPtr[currentStorageField].loadedIntoClassStats = TRUE;
       		fieldIdentPtr[currentStorageField].numberPixelsUsedForStats =
-      											fieldIdentPtr[currentStorageField].numberPixels;
+												fieldIdentPtr[currentStorageField].numberPixels;
 				
       		}	// end "if (pointType == kMaskType)"
 			*/
@@ -1284,7 +1192,7 @@ Boolean AddFieldToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1387,7 +1295,7 @@ Boolean AddPointsToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1403,7 +1311,7 @@ Boolean AddPointsToProject (
 //
 // Value Returned:	None
 // 
-// Called By:			PolygonSelection.c in selectionArea.c
+// Called By:			PolygonSelection.c in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
 //	Revised By:			Larry L. Biehl			Date: 04/28/2017
@@ -1583,7 +1491,7 @@ void AddPolyPointStatNewFieldW (
 			MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 255);
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt16 index;
 
 		index = (SInt16)gStatisticsListHandle->GetCount ();
@@ -1613,7 +1521,7 @@ void AddPolyPointStatNewFieldW (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1670,7 +1578,7 @@ SInt16 AddSpecifiedStringToClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1767,7 +1675,7 @@ SInt16 CheckForDuplicateClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1879,7 +1787,7 @@ SInt16 CheckForDuplicateFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1989,12 +1897,12 @@ void ClassListStatMode (void)
 		((CMStatisticsForm*)gProjectWindow)->UpdateListStatsCombo ();
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin 
+   #if defined multispec_wx 
 		wxStaticText* list_title =
-				(wxStaticText*)gProjectWindow->GetFrame ()->FindWindow (IDC_ListTitle);
+				(wxStaticText*)gProjectWindow->GetFrame()->FindWindow (IDC_ListTitle);
 		list_title->SetLabel (wxT("Classes"));
 
-		(gProjectWindow->GetFrame ()->
+		(gProjectWindow->GetFrame()->
 						FindWindow (IDC_ProjectWindowMode))->SetLabel (wxT("CLASS LIST"));
 
 		((CMStatisticsView*)gProjectWindow)->
@@ -2003,7 +1911,7 @@ void ClassListStatMode (void)
 		((CMStatisticsView*)gProjectWindow)->m_frame->UpdateHistogramStatsCombo ();
 
 		((CMStatisticsView*)gProjectWindow)->m_frame->UpdateListStatsCombo ();
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
 			// Change the window title
 
@@ -2041,7 +1949,7 @@ void ClassListStatMode (void)
 			gStatisticsListHandle->SetCurSel (gProjectInfoPtr->currentClass);
 		#endif	// defined multispec_win
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			gStatisticsListHandle->SetSelection (gProjectInfoPtr->currentClass);
 		#endif
 		
@@ -2062,7 +1970,7 @@ void ClassListStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2079,7 +1987,7 @@ void ClassListStatMode (void)
 // Value Returned:	None			
 // 
 // Called By:			ClusterControl in SCluster.cpp
-//							CloseTheProject in menus.c
+//							CloseTheProject in MMenus.c
 //							StatisticsControl in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1988
@@ -2126,7 +2034,7 @@ void CloseProjectWindow (void)
 			statisticsFrameCPtr->MDIDestroy ();
 		#endif	// defined multispec_win 	
 
-		#if defined multispec_lin	
+		#if defined multispec_wx	
 			if (gProjectWindow != NULL)
 				{
 				CMStatisticsDoc* statisticsDocPtr =
@@ -2185,7 +2093,7 @@ void CloseProjectWindow (void)
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2281,7 +2189,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											checkBoxProc + kControlUsesOwningWindowsFontVariant,
-											//checkBoxProc,
 											kPolygonEnterControl);
 
    if (gProjectInfoPtr->polygonTypeControlH == NULL)
@@ -2305,7 +2212,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//pushButProc,
 											kEditNameControl);
 
    if (gProjectInfoPtr->editNameControlH == NULL)
@@ -2327,7 +2233,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kStatHistogramControl);
 
    if (gProjectInfoPtr->histogramControlH == NULL)
@@ -2351,7 +2256,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kStatPrintControl);
 
    if (gProjectInfoPtr->listControlH == NULL)
@@ -2376,7 +2280,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kAddToListControl);
 
    if (gProjectInfoPtr->addToControlH == NULL)
@@ -2393,7 +2296,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kUpdateStatsControl);
 
    if (gProjectInfoPtr->updateControlH == NULL)
@@ -2415,7 +2317,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kToProjectControl);
 
    if (gProjectInfoPtr->toProjectControlH == NULL)
@@ -2435,7 +2336,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kToClassControl);
 
    if (gProjectInfoPtr->toClassControlH == NULL)
@@ -2457,7 +2357,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kNewFieldControl);
 
    if (gProjectInfoPtr->newFieldControlH == NULL)
@@ -2477,7 +2376,6 @@ Boolean CreateProjectWControls (void)
 											0,
 											1,
 											pushButProc + kControlUsesOwningWindowsFontVariant,
-											//						pushButProc, 
 											kToFieldControl);
 
    if (gProjectInfoPtr->toFieldControlH == NULL)
@@ -2491,7 +2389,7 @@ Boolean CreateProjectWControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2506,7 +2404,7 @@ Boolean CreateProjectWControls (void)
 //
 // Value Returned:	None			
 // 
-// Called By:			DoOpenProjectFile in menus.c
+// Called By:			DoOpenProjectFile in MMenus.c
 //							StatisticsControl in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/27/1988
@@ -2719,7 +2617,7 @@ void CreateProjectWindow (void)
 			gProjectWindow = NULL;
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// Open a project window
 
 		gProjectInfoPtr->toFieldControlH = (Handle)IDC_Field;
@@ -2734,7 +2632,7 @@ void CreateProjectWindow (void)
 		gProjectInfoPtr->toClassControlH = (Handle)IDC_Class;
 		
 		((CMultiSpecApp*)wxTheApp)->ActivateProjectView ();
-		((CMStatisticsView*)gProjectWindow)->GetFrame ()->Update ();
+		((CMStatisticsView*)gProjectWindow)->GetFrame()->Update ();
 	#endif
    
 			// Set the project window title	
@@ -2762,7 +2660,7 @@ void CreateProjectWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2807,7 +2705,7 @@ void DeletePolyPointStatNewFieldW (
 	#if defined multispec_mac
 		if (((ListPtr)* gStatisticsListHandle)->dataBounds.bottom < 3)
 	#endif	// defined multispec_mac
-	#if defined multispec_win || multispec_lin 
+	#if defined multispec_win || multispec_wx 
 		if (gStatisticsListHandle->GetCount () < 3)
 	#endif	// defined multispec_win     
 			MHiliteControl (gProjectWindow, gProjectInfoPtr->addToControlH, 255);
@@ -2822,7 +2720,7 @@ void DeletePolyPointStatNewFieldW (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2870,7 +2768,7 @@ void DoProjectWindowGrow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2924,7 +2822,7 @@ void DoStatWActivateEvent (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2966,7 +2864,7 @@ void DoStatWUpdateEvent (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3014,7 +2912,7 @@ void DrawClassPopUp (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3090,7 +2988,7 @@ void DrawClassPrompt (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3132,7 +3030,7 @@ pascal void DrawDialogClassPopUp2 (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3193,7 +3091,7 @@ void DrawFieldPrompt (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3234,7 +3132,7 @@ pascal void DrawOutlineColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3275,7 +3173,7 @@ pascal void DrawSelectTestImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3316,7 +3214,7 @@ pascal void DrawSelectTrainImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3372,7 +3270,7 @@ void DrawStatPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3422,9 +3320,8 @@ void DrawStatPrompt (
 #endif	// defined multispec_mac  
 
 
-
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3439,7 +3336,7 @@ void DrawStatPrompt (
 //
 // Value Returned:	None				
 // 
-// Called By:			MouseDnEvents  in multiSpec.c
+// Called By:			MouseDnEvents  in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1988
 //	Revised By:			Larry L. Biehl			Date: 04/08/2019
@@ -3574,18 +3471,18 @@ void FieldListStatMode (
 														SetWindowText ((LPCTSTR)_T("FIELD LIST"));
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
-			(gProjectWindow->GetFrame ()->
+		#if defined multispec_wx
+			(gProjectWindow->GetFrame()->
 												FindWindow (IDC_ListTitle))->SetLabel ("Fields");
 
-			(gProjectWindow->GetFrame ()->FindWindow (IDC_ProjectWindowMode))->
+			(gProjectWindow->GetFrame()->FindWindow (IDC_ProjectWindowMode))->
 																				SetLabel ("FIELD LIST");
 			
 					// Load the current class name
 		
 			 CtoPstring (gProjectInfoPtr->classNamesPtr[classStorage].name, gTextString);
 			 SetStatControlTitle ((Handle)IDC_ClassName, (char*)&gTextString[1]);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
       
 				// Change the window title														
 
@@ -3621,9 +3518,9 @@ void FieldListStatMode (
 				gStatisticsListHandle->SetCurSel (currentClassField);
 			#endif	// defined multispec_win
 
-			#if defined multispec_lin                         
+			#if defined multispec_wx                         
 				gStatisticsListHandle->SetSelection (currentClassField);
-			#endif	// defined multispec_lin 
+			#endif	// defined multispec_wx 
          
 			}	// end "if (gProjectInfoPtr->currentClass >= 0)"	
 
@@ -3655,7 +3552,7 @@ void FieldListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3694,7 +3591,7 @@ void ForceStatisticsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3709,7 +3606,7 @@ void ForceStatisticsCodeResourceLoad (void)
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ClassListStatMode
 //
 //	Coded By:			Larry L. Biehl			Date: 02/08/1996
 //	Revised By:			Larry L. Biehl			Date: 02/08/1996	
@@ -3734,18 +3631,19 @@ SInt16 GetControlValue (
 		return ((SInt16)((CButton*)windowPtr->GetDlgItem (nID))->GetCheck ());
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt64 windowid64 = (SInt64)((int*)controlHandle);
 		SInt64 data_value = (SInt64)((int*)(windowPtr->
-						GetFrame ()->FindWindow ((SInt16)windowid64)->GetClientData ()));
+						GetFrame()->FindWindow ((SInt16)windowid64)->GetClientData ()));
 		return (SInt16)(data_value);
 	#endif
+	
 }	// end "GetControlValue"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3830,7 +3728,7 @@ SInt16 GetCurrentClassField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3916,7 +3814,7 @@ SInt16 GetCurrentField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3934,7 +3832,7 @@ SInt16 GetCurrentField (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1996
-//	Revised By:			Larry L. Biehl			Date: 02/15/2000	
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019	
 
 void GetDefaultClassName (
 				char*									stringPtr)
@@ -3947,7 +3845,7 @@ void GetDefaultClassName (
 
    do
 		{
-      sprintf (&stringPtr[1], "Class %ld", classNumber);
+      sprintf (&stringPtr[1], "Class %d", (int)classNumber);
       stringPtr[0] = (char)strlen (&stringPtr[1]);
       classNumber++;
 
@@ -3958,7 +3856,7 @@ void GetDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3989,7 +3887,7 @@ void GetDefaultFieldName (
 
    do
 		{
-      sprintf (&stringPtr[1], "Field %ld", fieldNumber);
+      sprintf (&stringPtr[1], "Field %d", (int)fieldNumber);
       stringPtr[0] = (char)strlen (&stringPtr[1]);
       fieldNumber++;
 
@@ -4000,7 +3898,7 @@ void GetDefaultFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4049,7 +3947,7 @@ void GetFieldNameWithType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4065,7 +3963,8 @@ void GetFieldNameWithType (
 //
 // Value Returned:	None			
 // 
-// Called By:			in SStatistics.cpp
+// Called By:			EditSelectionDialog in SSelectionUtility.cpp
+//							AddPointsToProject in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
 //	Revised By:			Larry L. Biehl			Date: 03/02/2017	
@@ -4128,7 +4027,7 @@ void GetLineColFromList (
 			}	// end "else ...<= 0)" 
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (gStatisticsListHandle->GetCount () > 0)
 			{
 			wxString text = gStatisticsListHandle->GetString (listLine);
@@ -4146,14 +4045,14 @@ void GetLineColFromList (
 			lineColPoint->h = 0;
 			
 			}	// end "else ...<= 0)" 
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
 }	// end "GetLineColFromList"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4168,7 +4067,8 @@ void GetLineColFromList (
 //
 // Value Returned:	None		
 // 
-// Called By:			ClassListStatMode
+// Called By:			EditSelectionDialog in SSelectionUtility.cpp
+//							AddPointsToProject in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1996
 //	Revised By:			Larry L. Biehl			Date: 11/30/2017
@@ -4179,7 +4079,7 @@ SInt16 GetNumberListLines (
 {
 			// Declare local variables and structures
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt16 numberLines = (SInt16)listHandle->GetCount ();
 		if (numberLines == wxNOT_FOUND)
 			numberLines = 0;
@@ -4201,22 +4101,10 @@ SInt16 GetNumberListLines (
 
 }	// end "GetNumberListLines"
 
-/*
-#if defined multispec_lin
-SInt16 GetNumberListLines (
-				wxListBox*							listHandle)
 
-{
-   SInt16 numberLines = (SInt16)listHandle->GetCount ();
-   if (numberLines == wxNOT_FOUND)
-      numberLines = 0;
 
-   return (numberLines);
-}
-#endif
-*/
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4259,7 +4147,7 @@ SInt16 GetCovarianceStatsFromMenuItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4274,7 +4162,7 @@ SInt16 GetCovarianceStatsFromMenuItem (
 //
 // Value Returned:	None			
 // 
-// Called By:			StatisticsPopUpMenu in SProjUtl.cpp
+// Called By:			StatisticsPopUpMenu in SProjectUtilities.cpp
 // 						DrawStatPopUp in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1997
@@ -4302,7 +4190,7 @@ SInt16 GetClassStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4343,7 +4231,7 @@ SInt16 GetProjectStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4383,7 +4271,7 @@ void GetProjectStatisticsTypeText (
 				break;
 		#endif	// defined multispec_mac 				
 
-		#if defined multispec_win || multispec_lin
+		#if defined multispec_win || multispec_wx
 			case 1:
 				CopyPToP (textStringPtr, (UCharPtr)"\0Original");
 				break;
@@ -4408,7 +4296,7 @@ void GetProjectStatisticsTypeText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4492,7 +4380,7 @@ void GetUniqueClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4547,7 +4435,7 @@ void GetUniqueFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4562,7 +4450,7 @@ void GetUniqueFieldName (
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ActivateStatControls
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/1996
 //	Revised By:			Larry L. Biehl			Date: 02/28/2017	
@@ -4583,24 +4471,24 @@ void HideStatControl (
 										GetDlgItem ((int)controlHandle)->ShowWindow (SW_HIDE);
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		if (controlHandle != NULL)
 			{
 			SInt64 windowid64 = (SInt64)((int*)(controlHandle));
 			SInt16 windowid = (SInt16)windowid64;
-			((CMStatisticsView*)gProjectWindow)->GetFrame ()->
+			((CMStatisticsView*)gProjectWindow)->GetFrame()->
 																FindWindow (windowid)->Show (false);
-			//((CMStatisticsView*)gProjectWindow)->GetFrame ()->Layout ();
+			//((CMStatisticsView*)gProjectWindow)->GetFrame()->Layout ();
    
 			}
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
    
 }	// end "HideStatControl" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4618,7 +4506,7 @@ void HideStatControl (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1997
-//	Revised By:			Larry L. Biehl			Date: 03/29/2016
+//	Revised By:			Larry L. Biehl			Date: 01/03/2020
 
 void InvalPopUpCovarianceToUse (void)
 
@@ -4639,25 +4527,25 @@ void InvalPopUpCovarianceToUse (void)
 		#endif	// defined multispec_mac	
 
 		#if defined multispec_win
-			//gProjectWindow->InvalidateRect (
-			//					(tagRect*)&gProjectInfoPtr->popUpCovarianceToUseBox, FALSE);
 			gProjectWindow->Invalidate (TRUE);
 		#endif	// defined multispec_win
 	
-		#if defined multispec_lin
+		#if defined multispec_wx
 			((CMStatisticsView*)gProjectWindow)->m_frame->
-										UpdateStatsTypeCombo (gProjectInfoPtr->statsWindowMode);
-			wxComboBox* statsTypeComboPtr =
-					(wxComboBox*)gProjectWindow->GetFrame ()->FindWindow (IDC_StatsCombo);
-         
-         
-			//statsTypeComboPtr->SetSelection (gProjectInfoPtr->covarianceStatsToUse-1);
+									UpdateStatsTypeCombo (gProjectInfoPtr->statsWindowMode);
+		
+			#if defined multispec_wxlin
+				wxComboBox* statsTypeCntrlPtr =
+					(wxComboBox*)gProjectWindow->GetFrame()->FindWindow (IDC_StatsCombo);
+			#endif
+			#if defined multispec_wxmac
+				wxChoice* statsTypeCntrlPtr =
+					(wxChoice*)gProjectWindow->GetFrame()->FindWindow (IDC_StatsCombo);
+			#endif
+		
          int menuItem = GetProjectStatisticsTypeMenuItem();
-         statsTypeComboPtr->SetSelection (menuItem - 1);
-         
-			//gProjectWindow->GetFrame ()->Refresh ();
-			//gProjectWindow->GetFrame ()->Update ();
-		#endif	// defined multispec_lin
+         statsTypeCntrlPtr->SetSelection (menuItem - 1);
+		#endif	// defined multispec_wx
 
 		}	// end "if (gProjectWindow != NULL && ...)"
 
@@ -4666,7 +4554,7 @@ void InvalPopUpCovarianceToUse (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4737,59 +4625,9 @@ void LoadClassNamesIntoList (
 }	// end "LoadClassNamesIntoList" 
 
 
-/*
-#if defined multispec_lin
-void LoadClassNamesIntoList (
-				wxListBox*							listHandle)
-
-{
-	Cell									cell;
-   HPClassNamesPtr					classNamesPtr;
-
-   UInt32								classIndex,
-											classStorage,
-											numberOfClasses,
-											row;
-											
-			//	Continue if list handle is not null.										
-
-   if (listHandle != NULL)
-		{
-				// Put the class names into the list										
-
-      numberOfClasses = gProjectInfoPtr->numberStatisticsClasses;
-      classNamesPtr = gProjectInfoPtr->classNamesPtr;
-
-      if (numberOfClasses > 0)
-			{
-         row = LAddRow ((SInt16)numberOfClasses, 0, listHandle);
-         cell.h = 0;
-         for (classIndex = 0; classIndex < numberOfClasses; classIndex++)
-				{
-						// Get the class storage number.										
-
-            classStorage = gProjectInfoPtr->storageClass[classIndex];
-				
-						// Add name to the class list											
-
-            cell.v = (SInt16)classIndex;
-            LSetCell ((Ptr)&(classNamesPtr[classStorage].name[1]),
-								(short int)(classNamesPtr[classStorage].name[0]),
-								cell,
-								listHandle);
-
-				}	// end "for (classIndex=0; ... 
-				
-			}	// end "if (numberOfClasses > 0)" 
-			
-		}	// end "if (listHandle != NULL)" 
-		
-}	// end "LoadClassNamesIntoList" 
-#endif	// defined multispec_lin
-*/
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4805,8 +4643,8 @@ void LoadClassNamesIntoList (
 //
 // Value Returned:	None
 // 
-// Called By:			NewFieldStatMode
-//							DoImageWActivateEvent in multiSpec.c
+// Called By:			LoadNewFieldListBox
+//							DoImageWActivateEvent in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/05/1989
 //	Revised By:			Larry L. Biehl			Date: 04/28/2017
@@ -4963,14 +4801,14 @@ void LoadPolyStatNewFieldW (void)
 							InsertString (cell.v, (LPCTSTR)A2T((char*)gTextString));
 				#endif	// defined multispec_win 
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					sprintf ((char*)gTextString,
 									"%d\t%d",
 									line,
 									column);
 					cell.v = (SInt16)gStatisticsListHandle->Insert (
 																			(char*)gTextString, cell.v);
-				#endif	// defined multispec_lin 
+				#endif	// defined multispec_wx 
             
             selectionPointsPtr++;
 
@@ -5026,7 +4864,7 @@ void LoadPolyStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5042,7 +4880,7 @@ void LoadPolyStatNewFieldW (void)
 //
 // Value Returned:	None
 // 
-// Called By:			DoImageWActivateEvent in multiSpec.c
+// Called By:			DoImageWActivateEvent in MMultiSpec.c
 //							NewFieldStatMode in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/03/1988
@@ -5084,7 +4922,7 @@ void LoadRectStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5100,9 +4938,9 @@ void LoadRectStatNewFieldW (void)
 //
 // Value Returned:	None
 // 
-// Called By:			EditCoordinatesDialog in SEdtStat.cpp
+// Called By:			EditCoordinatesDialog in SEditStatistics.cpp
 //							DoEditSelectAllImage in SMenus.cpp
-//							EditSelectionDialog in SSelUtil.cpp
+//							EditSelectionDialog in SSelectionUtility.cpp
 //							LoadRectStatNewFieldW in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/13/1998
@@ -5216,7 +5054,7 @@ void LoadRectangleInStatList (
 		gStatisticsListHandle->InsertString (index, (LPCTSTR)A2T((char*)gTextString));
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt16								index;
 
 				// Remove cells from previous list in case any existed
@@ -5240,14 +5078,14 @@ void LoadRectangleInStatList (
 					selectionRectanglePtr->bottom,
 					selectionRectanglePtr->right);
 					gStatisticsListHandle->AppendString ((wxString)gTextString);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
 }	// end "LoadRectangleInStatList"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5263,7 +5101,7 @@ void LoadRectangleInStatList (
 //
 // Value Returned:	None
 // 
-// Called By:			DoImageWActivateEvent in multiSpec.c
+// Called By:			DoImageWActivateEvent in MMultiSpec.c
 //							NewFieldStatMode in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1996
@@ -5285,7 +5123,7 @@ void LoadNewFieldListBox (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5473,7 +5311,7 @@ Boolean LOOCOptionsDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win 
 
-   #if defined multispec_lin
+   #if defined multispec_wx
       CMLOOMixingDialog* dialogPtr = NULL;
 
 		try
@@ -5492,7 +5330,7 @@ Boolean LOOCOptionsDialog (
 			}
 	
    
-   #endif	// defined multispec_lin    
+   #endif	// defined multispec_wx    
       
    return (returnFlag);
 
@@ -5572,7 +5410,7 @@ void LOOCOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5587,7 +5425,9 @@ void LOOCOptionsDialogOK (
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ReadArcViewShapeFile in SArcView.cpp
+//							GetNumberPixelsInSelection in SSelectionUtility.cpp
+//							StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/1996
 //	Revised By:			Larry L. Biehl			Date: 03/16/2018
@@ -5611,11 +5451,12 @@ void MSetControlValue (
 			((CButton*)windowPtr->GetDlgItem ((int)controlHandle))->SetCheck (value);
 		#endif	// defined multispec_win
 			
-		#if defined multispec_lin   
+		#if defined multispec_wx   
 			SInt64 windowid64 = (SInt64)((int*)(controlHandle));
 			SInt16 windowid = (SInt16)windowid64;
-			windowPtr->GetFrame ()->FindWindow (windowid)->SetClientData ((void*)value);
-		#endif	// defined multispec_lin
+			windowPtr->GetFrame()->FindWindow (windowid)->
+															SetClientData ((void*)(SInt64)value);
+		#endif	// defined multispec_wx
 			
 		}	// end "if (controlHandle != NULL)"
 
@@ -5624,7 +5465,7 @@ void MSetControlValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5641,7 +5482,7 @@ void MSetControlValue (
 // Value Returned:	None
 //
 // Called By:			AddFieldToProject   in SStatistics.cpp
-//							PasteFieldToNewClass in editStatistics.c
+//							PasteFieldToNewClass in SEditStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:  09/27/1988
 //	Revised By:			Larry L. Biehl			Date:  03/15/2017
@@ -5949,7 +5790,7 @@ Boolean NewClassFieldDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMNewClassFieldDlg* dialogPtr = NULL;
 
 		try
@@ -5981,7 +5822,7 @@ Boolean NewClassFieldDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6041,7 +5882,7 @@ void NewClassFieldDialogChangeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6156,7 +5997,7 @@ void NewClassFieldDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6195,14 +6036,7 @@ void SetNumberClassTrainPixels (
       numberClassTrainPixels += numberSelectionPixels;
 
    CreateNumberWithCommasInString ((char*)gTextString2, numberClassTrainPixels);
-   /*		
-	numberChars = sprintf (string, "%ld", numberClassTrainPixels);
-		
-	InsertCommasInNumberString (string, 
-											numberChars, 
-											-1,
-											numberChars);
-	*/
+
    gTextString[0] = (UInt8)sprintf ((char*)&gTextString[1],
 												"Number train pixels in class: %s",
 												(char*)gTextString2);
@@ -6216,7 +6050,7 @@ void SetNumberClassTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6232,7 +6066,7 @@ void SetNumberClassTrainPixels (
 // Value Returned:	None			
 // 
 // Called By:			SaveClusterStatistics in SCluster.cpp
-//							CreateNewProject in project.c
+//							CreateNewProject in SProject.cpp
 //							StatisticsControl in SStatistics.cpp
 //							StatisticsWControlEvent in SStatistics.cpp
 //
@@ -6289,12 +6123,6 @@ void NewFieldStatMode (void)
 
    UpdateToClassControl ();
 
-			// Change the window title
-
-   //CtoPstring ("Select Field", (char*)gTextString);
-   //MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow,
-   //							(UChar*)gTextString);
-
 			// Remove cells from previous list
 
    LSetDrawingMode (FALSE, gStatisticsListHandle);
@@ -6331,13 +6159,13 @@ void NewFieldStatMode (void)
 												SetWindowText ((LPCTSTR)_T("SELECT FIELD"));
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin 
-		(gProjectWindow->GetFrame ()->FindWindow (IDC_ListTitle))->
+	#if defined multispec_wx 
+		(gProjectWindow->GetFrame()->FindWindow (IDC_ListTitle))->
 																		SetLabel ("Coordinates (L,C)");
 
-		(gProjectWindow->GetFrame ()->FindWindow (IDC_ProjectWindowMode))->
+		(gProjectWindow->GetFrame()->FindWindow (IDC_ProjectWindowMode))->
 																		SetLabel ("SELECT FIELD");
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 			// Set processor mode to indicate that Statistics processor is
 			// active in New Field mode and rectangle or polygonon selection		
@@ -6376,7 +6204,7 @@ void NewFieldStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6392,7 +6220,7 @@ void NewFieldStatMode (void)
 //
 // Value Returned:	None
 // 
-// Called By:			MouseDnEvents  in multiSpec.c
+// Called By:			MouseDnEvents  in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/30/1988
 //	Revised By:			Larry L. Biehl			Date: 03/02/2017	
@@ -6515,14 +6343,14 @@ void PolygonListStatMode (
 							InsertString (cell.v, (LPCTSTR)A2T((LPCSTR)gTextString));
 				#endif	// defined multispec_win 
 
-				#if defined multispec_lin
+				#if defined multispec_wx
 					sprintf ((char*)gTextString,
 								"%d\t%d",
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].line,
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].col);
 					cell.v = (SInt16)gStatisticsListHandle->
 						Insert ((char*)gTextString , cell.v);
-				#endif	// defined multispec_lin 
+				#endif	// defined multispec_wx 
             
             pointIndex++;
 
@@ -6557,20 +6385,14 @@ void PolygonListStatMode (
 												SetWindowText ((LPCTSTR)_T("COORDINATE LIST"));
 		#endif	// defined multispec_win 
 
-		#if defined multispec_lin 
-			(gProjectWindow->GetFrame ()->FindWindow (IDC_ListTitle))->
+		#if defined multispec_wx 
+			(gProjectWindow->GetFrame()->FindWindow (IDC_ListTitle))->
 																		SetLabel ("Coordinates (L,C)");
 
-			(gProjectWindow->GetFrame ()->FindWindow (IDC_ProjectWindowMode))->
+			(gProjectWindow->GetFrame()->FindWindow (IDC_ProjectWindowMode))->
 																			SetLabel ("COORDINATE LIST");
-		#endif	// defined multispec_lin 
-      
-				// Change the window title														
-
-      //CtoPstring ("Field", (char*)gTextString);
-      //MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow, 
-      //								(UChar*)gTextString);
-
+		#endif	// defined multispec_wx 
+		
 				// Set processor mode to indicate that Statistics processor is 	
 				// active in "Field Coordinate List" mode. 								
 
@@ -6593,7 +6415,7 @@ void PolygonListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6608,7 +6430,7 @@ void PolygonListStatMode (
 //
 // Value Returned:	None			
 // 
-// Called By:			ClearNewFieldList in SSelUtil.cpp
+// Called By:			ClearNewFieldList in SSelectionUtility.cpp
 //							AddPolyPointStatNewFieldW in SStatistics.cpp
 //							ClassListStatMode in SStatistics.cpp
 //							FieldListStatMode in SStatistics.cpp
@@ -6659,17 +6481,17 @@ void RemoveListCells (void)
 		gStatisticsListHandle->ResetContent ();
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 		if (gStatisticsListHandle != NULL)
 			gStatisticsListHandle->Clear ();
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
 }	// end "RemoveListCells"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6706,7 +6528,7 @@ void SetListControlHilite (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6775,7 +6597,7 @@ void SetOutlineAreaOptions (
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6911,7 +6733,7 @@ void SetProjectWindowBoxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6928,29 +6750,27 @@ void SetProjectWindowBoxes (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/19/2001
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 11/27/2019
 
 void SetProjectWTitle (void)
 
 {
-			// TODO: For Linux
-	#ifndef multispec_lin
-				// Set the project window title
+			// Set the project window title
 
-		//GetCopyOfPFileNameFromProjectInfo (gProjectInfoPtr, (UCharPtr)gTextString);
+	//GetCopyOfPFileNameFromProjectInfo (gProjectInfoPtr, (UCharPtr)gTextString);
 
-		gTextString[0] = 0;
-		ConcatPStrings (gTextString, (StringPtr)"\0Project\0", 255);
+	gTextString[0] = 0;
+	ConcatPStrings (gTextString, (StringPtr)"\0Project\0", 255);
 
-		MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow,
-								(UChar*)gTextString);
-	#endif
-}	// end "SetProjectWTitle"          
+	MSetWindowTitle ((StatisticsWindowPtr)gProjectWindow,
+							(UChar*)gTextString);
+
+}	// end "SetProjectWTitle"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6965,7 +6785,8 @@ void SetProjectWTitle (void)
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ActivateStatControls
+//							FieldListStatMode
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/1996
 //	Revised By:			Larry L. Biehl			Date: 10/19/2018
@@ -6989,20 +6810,20 @@ void SetStatControlTitle (
 					SetDlgItemText ((int)controlHandle, (LPCTSTR)A2T(&titleStringPtr[1]));
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		SInt64 windowid64 = (SInt64)((int*)(controlHandle));
 		SInt16 windowid = (SInt16)windowid64;
 		wxString titlestring (&titleStringPtr[1], wxConvUTF8);
-		((CMStatisticsView*)gProjectWindow)->GetFrame ()->
+		((CMStatisticsView*)gProjectWindow)->GetFrame()->
 													FindWindow (windowid)->SetLabel (titlestring);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
    
 }	// end "SetStatControlTitle"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7017,7 +6838,7 @@ void SetStatControlTitle (
 //
 // Value Returned:	None		
 // 
-// Called By:						ClassListStatMode
+// Called By:			ActivateStatControls
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/1996
 //	Revised By:			Larry L. Biehl			Date: 02/01/1996	
@@ -7037,19 +6858,19 @@ void ShowStatControl (
 										GetDlgItem ((int)controlHandle)->ShowWindow (SW_SHOW);
 	#endif	// defined multispec_win
 
-  #if defined multispec_lin
+  #if defined multispec_wx
 		SInt64 windowid64 = (SInt64)((int*)(controlHandle));
 		SInt16 windowid = (SInt16)windowid64;
-		((CMStatisticsView*)gProjectWindow)->GetFrame ()->
+		((CMStatisticsView*)gProjectWindow)->GetFrame()->
 																FindWindow (windowid)->Show (true);
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 }	// end "ShowStatControl"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7087,15 +6908,7 @@ void StatisticsControl (void)
    if (gProjectInfoPtr == NULL)
 		{
       OpenNewProject ();
-      /*	
-				// Make certain that the project window is closed at this point.																			
-				
-		CloseStatisticsWindow ();
-		
-		Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
-		
-		InitializeNewProject (NULL, windowInfoHandle);
-		*/
+ 
 		}	// end "if gProjectInfoPtr == NULL)"
 
 			// Display statistics dialog for user settings.
@@ -7166,7 +6979,7 @@ void StatisticsControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7253,7 +7066,7 @@ SInt16 StatisticsDialog (
 
    dialogPtr = LoadRequestedDialog (kStatisticsSpecificationID, kCopyScrap, 1, 2);
    if (dialogPtr == NULL)
-																									return (0);
+																								return (0);
 
 	checkChannelNumberFlag = FALSE;
 	
@@ -7549,7 +7362,9 @@ SInt16 StatisticsDialog (
 					// Check channels used for train and test mask
 			
 			trainLayerNumber = 1;
-			if (itemHit == 1 && gMaskTrainImageSelection == 3 && maxNumberTrainLayers > 1)
+			if (itemHit == 1 &&
+					gMaskTrainImageSelection == 3 &&
+							maxNumberTrainLayers > 1)
 				{
 				itemHit = CheckMaxValue (dialogPtr,
 												  IDC_TrainMaskLayer,
@@ -7660,7 +7475,7 @@ SInt16 StatisticsDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMStatisticsDialog* dialogPtr = NULL;
 
 		dialogPtr = new CMStatisticsDialog (NULL);
@@ -7670,7 +7485,7 @@ SInt16 StatisticsDialog (
 																&testMaskFileInfoHandle);
 
 		delete dialogPtr;
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 
 			// Dispose of temporary handle for mask file structures if needed.
 
@@ -7699,7 +7514,8 @@ SInt16 StatisticsDialog (
          ForceFieldOutlineUpdate (TRUE);
 
       else	// Just draw in the changes to what is already there. 
-         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode, kDoClearArea);
+         OutlineFieldsInProjectWindows (gProjectInfoPtr->statsWindowMode,
+														kDoClearArea);
 
 		}	// end "if (outlineFieldType != ..."
 
@@ -7807,7 +7623,7 @@ void StatisticsDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7978,7 +7794,8 @@ SInt16 StatisticsDialogMaskCheck (
 			{
 					// Get pointer to the project file name and list a message in the
 					// output text window that mask file(s) were read in.
-					// The project file name is the same as that for the output text window.
+					// The project file name is the same as that for the output text
+					// window.
 
 			GetProjectWindowTitle ((UCharPtr)gTextString);
 
@@ -8127,16 +7944,12 @@ void StatisticsDialogSetMaskFileName (
 													count+1,
 													&fileNamePPointer[1],
 													kUTF8CharString);
-
-		//if (((CComboBox*)dialogPtr->GetDlgItem (maskPopupItemNumber))->GetCount () < 3)
-		//	((CComboBox*)dialogPtr->GetDlgItem (maskPopupItemNumber))->
-		//												AddString ((LPCTSTR)&fileNamePPointer[1]);
 	#endif	// defined multispec_win
    
-	#if defined multispec_lin
-		wxComboBox* maskpop = (wxComboBox*)(dialogPtr->FindWindow (maskPopupItemNumber));
-		if (maskpop->GetCount () < 3)
-			maskpop->Append (&fileNamePPointer[1]);
+	#if defined multispec_wx
+		wxChoice* m_maskCtrl = (wxChoice*)(dialogPtr->FindWindow (maskPopupItemNumber));
+		if (m_maskCtrl->GetCount () < 3)
+			m_maskCtrl->Append (&fileNamePPointer[1]);
 	#endif	// defined multispec_win
 
 }	// end "StatisticsDialogSetMaskFileName"
@@ -8222,7 +8035,7 @@ SInt16 StatisticsDialogSelectMaskItem (
 		if (*maxNumberLayersPtr == 1)
 			SetDialogItemToStaticText (dialogPtr, layerItemNumber);
 			
-		else		// *maxNumberLayersPtr > 1
+		else	// *maxNumberLayersPtr > 1
 			SetDialogItemToEditText (dialogPtr, layerItemNumber);
 			
 		LoadDItemValue (dialogPtr, layerItemNumber, layerSetting);
@@ -8239,7 +8052,7 @@ SInt16 StatisticsDialogSelectMaskItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8422,7 +8235,7 @@ void StatisticsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8630,7 +8443,8 @@ Boolean StatisticsOptionsDialog (
 
             case 11: // Minimum log determinant 
                theNum = GetDItemRealValue (dialogPtr, 11);
-               if (theNum < gMinimumNaturalLogValue || theNum > gMaximumNaturalLogValue)
+               if (theNum < gMinimumNaturalLogValue ||
+																theNum > gMaximumNaturalLogValue)
                   RealNumberErrorAlert (localMinLogDeterminant, dialogPtr, itemHit, 1);
 
                else	// theNum is okay
@@ -8701,7 +8515,7 @@ Boolean StatisticsOptionsDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win  
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMStatOptionsDlg* dialogPtr = NULL;
 
 		try
@@ -8721,7 +8535,7 @@ Boolean StatisticsOptionsDialog (
 			{
 			MemoryMessage (0, kObjectMessage);
 			}
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
    
    return (returnFlag);
 
@@ -8764,7 +8578,7 @@ void StatisticsOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9019,7 +8833,7 @@ Boolean StatisticsWControlEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9034,7 +8848,7 @@ Boolean StatisticsWControlEvent (
 //
 // Value Returned:	None				
 // 
-// Called By:			MouseDnEvents  in multiSpec.c
+// Called By:			MouseDnEvents  in MMultiSpec.c
 //
 //	Coded By:			Larry L. Biehl			Date: 09/27/1988
 //	Revised By:			Larry L. Biehl			Date: 02/28/2017
@@ -9075,13 +8889,13 @@ void StatisticsWMouseDn (
          listNumber = cellLocation.v;
          savedStatsMode = gProjectInfoPtr->statsWindowMode;
 
-         if (savedStatsMode == 2)
+         if (savedStatsMode == kClassListMode)
             FieldListStatMode (listNumber);
 
-         else if (savedStatsMode == 3)
+         else if (savedStatsMode == kFieldListMode)
             PolygonListStatMode (listNumber);
 
-         else if (savedStatsMode == 4)
+         else if (savedStatsMode == kCoordinateListMode)
 				{
             EditCoordinatesDialog (gProjectInfoPtr->currentClass,
 												gProjectInfoPtr->currentField,
@@ -9120,7 +8934,7 @@ void StatisticsWMouseDn (
 
                HiliteControl (gProjectInfoPtr->editNameControlH, 0);
 
-					}	// end "else if (gProjectInfoPtr->statsWindowMode == kFieldListMode)"
+					}	// end "else if (gProjectInfoPtr->statsWindowMode == ..."
 
             else if (gProjectInfoPtr->statsWindowMode == kCoordinateListMode)
 					{
@@ -9259,7 +9073,7 @@ void StatisticsWMouseDn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9291,7 +9105,7 @@ void UpdateStatisticsWindow (void)
 
 
    if (gProjectInfoPtr == NULL)
-																										return;
+																									return;
 
    listTitleHeightLocation = gStatisticsWindowControlHeight - 6;
 
@@ -9425,7 +9239,7 @@ void UpdateStatisticsWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9475,8 +9289,9 @@ void UpdateToClassControl (void)
 }	// end "UpdateToClassControl"
 
 
+
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9519,11 +9334,11 @@ void WriteProjectName (void)
 									kUnicodeCharString);
 	#endif	// defined multispec_win 
 
-	#if defined multispec_lin 
+	#if defined multispec_wx 
 		GetCopyOfPFileNameFromProjectInfo (gProjectInfoPtr, (UCharPtr)gTextString);
 
-		(gProjectWindow->GetFrame ()->FindWindow (IDC_ProjectName))->
+		(gProjectWindow->GetFrame()->FindWindow (IDC_ProjectName))->
 																SetLabel ((char*)&gTextString[1]);
-	#endif	// defined multispec_lin 
+	#endif	// defined multispec_wx 
    
 }	// end "WriteProjectName" 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/04/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -20,34 +20,6 @@
 //	Brief description:	This file contains routines that open, close, save and read
 //								project files.
 //
-//	Functions in file:	void						ComputeSumSquaresMatrix
-//								void						ComputeSumVector
-//								UInt32				 	GetBufferForProjectReadWrites
-//								void 						GetCopyOfPFileNameFromProjectInfo
-//								UInt16				 	GetLengthOfMaxSum
-//								UInt16				 	GetLengthOfMaxSumOfSquares
-//								Boolean 					GetProjectFileName
-//								SInt32	 				GetSizeOfProjectFile
-//								Handle 					GetSpecifiedImageFile
-//								SInt16 	 				ReadChannelInformation
-//								SInt16 	 				ReadCovarianceInformation
-//								SInt16 					ReadMaskInformation
-//								SInt16 	 				ReadModifiedStats
-//								SInt16 	 				ReadProjectFile
-//								SInt16 	 				ReadStatistics
-//								char*		 				ReadStringFromFile
-//								SInt16 	 				SaveProjectFile
-//								Boolean 					SetupClassFieldPointMemory
-//								HPtr 						SkipNTabs
-//								void						UpdateGraphicStatusBox
-//								void 						VerifyClassAndFieldParameters
-//								Boolean 					WriteChannelInformation
-//								Boolean 					WriteCovarianceInformation
-//								SInt16 					WriteStatistics
-//								SInt16 	 				WriteProjectFile
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 /*
 Template for debugging
    int numberChars = sprintf ((char*)gTextString3,
@@ -55,22 +27,19 @@ Template for debugging
                               gEndOfLine);
    ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WMultiSpec.h"
 #endif	// defined multispec_win    
 
-#if defined multispec_lin
-#include "CImageWindow.h"
-#include "CFileStream.h"
-#endif
-
-//#include "SExtGlob.h"	
+#if defined multispec_wx
+	#include "SImageWindow_class.h"
+	#include "SFileStream_class.h"
+#endif	// defined multispec_wx
 
 #include "errno.h"
 
@@ -87,157 +56,157 @@ Template for debugging
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 
-void 						ComputeSumSquaresMatrix (
-								UInt32								numberChannels, 
-								HChannelStatisticsPtr			channelStatsPtr, 
-								HCovarianceStatisticsPtr		covariancePtr, 
-								SInt64								numberPixels);
+void ComputeSumSquaresMatrix (
+				UInt32								numberChannels,
+				HChannelStatisticsPtr			channelStatsPtr, 
+				HCovarianceStatisticsPtr		covariancePtr, 
+				SInt64								numberPixels);
 
-void 						ComputeSumVector (
-								HChannelStatisticsPtr			channelStatsPtr, 
-								UInt32								numberChannels, 
-								SInt64								numberPixels);
+void ComputeSumVector (
+				HChannelStatisticsPtr			channelStatsPtr,
+				UInt32								numberChannels,
+				SInt64								numberPixels);
 
-void 						FinishUpStatisticsRead (
-								ParmBlkPtr							paramBlockPtr,
-								UCharPtr*							inputStringPtrPtr,
-								SInt32								savedIoPosMode, 
-								SInt32								savedIoReqCount);
+void FinishUpStatisticsRead (
+				ParmBlkPtr							paramBlockPtr,
+				UCharPtr*							inputStringPtrPtr,
+				SInt32								savedIoPosMode,
+				SInt32								savedIoReqCount);
 
-UInt32				 	GetBufferForProjectReadWrites (
-								WindowInfoPtr						projectWindowInfoPtr,
-								UInt32								currentBufferBytes,
-								UCharPtr*							inputStringPtrPtr);
+UInt32 GetBufferForProjectReadWrites (
+				WindowInfoPtr						projectWindowInfoPtr,
+				UInt32								currentBufferBytes,
+				UCharPtr*							inputStringPtrPtr);
 
-UInt16				 	GetLengthOfMaxSum (
-								WindowInfoPtr						projectWindowInfoPtr);
+UInt16 GetLengthOfMaxSum (
+				WindowInfoPtr						projectWindowInfoPtr);
 
-UInt16				  	GetLengthOfMaxSumOfSquares (
-								WindowInfoPtr						projectWindowInfoPtr);
+UInt16 GetLengthOfMaxSumOfSquares (
+				WindowInfoPtr						projectWindowInfoPtr);
 
-Boolean 					GetProjectFileName (
-								SInt16								saveCode);
+Boolean GetProjectFileName (
+				SInt16								saveCode);
 
-SInt16	 				ReadChannelInformation (
-								HChannelStatisticsPtr			chanStatsPtr, 
-								UCharPtr* 							inputStringPtrPtr, 
-								SInt16								numberStatisticsChannels, 
-								UInt32								type);
+SInt16 ReadChannelInformation (
+				HChannelStatisticsPtr			chanStatsPtr,
+				UCharPtr* 							inputStringPtrPtr,
+				SInt16								numberStatisticsChannels,
+				UInt32								type);
 																			
-SInt16	 				ReadCovarianceInformation (
-								HSumSquaresStatisticsPtr		sumSquaresStatsPtr, 
-								ParmBlkPtr 							paramBlockPtr,
-								UCharPtr*							inputStringPtrPtr,
-								UInt32								numberStatisticsChannels, 
-								UCharPtr								fieldClassStringPtr,
-								UInt32								binaryListingCode,
-								UInt32								numberEndOfLineBytes,
-								double*								boxRightPtr,
-								double								boxIncrement);
+SInt16 ReadCovarianceInformation (
+				HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
+				ParmBlkPtr 							paramBlockPtr,
+				UCharPtr*							inputStringPtrPtr,
+				UInt32								numberStatisticsChannels,
+				UCharPtr								fieldClassStringPtr,
+				UInt32								binaryListingCode,
+				UInt32								numberEndOfLineBytes,
+				double*								boxRightPtr,
+				double								boxIncrement);
 
-SInt16 					ReadMaskInformation (
-								Str255*								maskFileNamePtr,
-								MaskInfoPtr 						maskInfoPtr,
-								UCharPtr*							inputStringPtrPtr);
+SInt16 ReadMaskInformation (
+				Str255*								maskFileNamePtr,
+				MaskInfoPtr 						maskInfoPtr,
+				UCharPtr*							inputStringPtrPtr);
 								
-SInt16	 				ReadModifiedStats (
-								ParmBlkPtr 							paramBlockPtr,
-								UCharPtr*							inputStringPtrPtr,
-								SInt16	 							numberChannels,
-								HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
-								HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr,
-								UInt32								numberOfEndOfLineCharacters,
-								SInt16								formatArchitectureCode);
+SInt16 ReadModifiedStats (
+				ParmBlkPtr 							paramBlockPtr,
+				UCharPtr*							inputStringPtrPtr,
+				SInt16	 							numberChannels,
+				HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
+				HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr,
+				UInt32								numberOfEndOfLineCharacters,
+				SInt16								formatArchitectureCode);
 																	
-SInt16	 				ReadProjectFile (void);
+SInt16 ReadProjectFile (void);
 
-SInt16	 				ReadStatistics (
-								HPClassNamesPtr 					classNamesPtr, 
-								SInt16	 							storageIndex, 
-								ParmBlkPtr 							paramBlockPtr,
-								UCharPtr*							inputStringPtrPtr, 
-								SInt16	 							classFieldCode,
-								UInt32								binaryListingCode, 
-								double* 								boxRightPtr, 
-								double 								boxIncrement,
-								Boolean*								statsLoadedFlagPtr,
-								Boolean*								sumsSquaresFlagPtr,
-								Boolean*								meansCovFlagPtr,
-								UInt32								numberEndOfLineBytes,
-								SInt16								formatArchitectureCode);
+SInt16 ReadStatistics (
+				HPClassNamesPtr 					classNamesPtr,
+				SInt16	 							storageIndex,
+				ParmBlkPtr 							paramBlockPtr,
+				UCharPtr*							inputStringPtrPtr,
+				SInt16	 							classFieldCode,
+				UInt32								binaryListingCode,
+				double* 								boxRightPtr,
+				double 								boxIncrement,
+				Boolean*								statsLoadedFlagPtr,
+				Boolean*								sumsSquaresFlagPtr,
+				Boolean*								meansCovFlagPtr,
+				UInt32								numberEndOfLineBytes,
+				SInt16								formatArchitectureCode);
 
-UCharPtr	 				ReadStringFromFile (
-								UCharPtr								inputStringPtr, 
-								UCharPtr								outputStringPtr, 
-								SInt16								numberSkipTabs,
-								SInt16								maxStringLength);
+UCharPtr ReadStringFromFile (
+				UCharPtr								inputStringPtr,
+				UCharPtr								outputStringPtr,
+				SInt16								numberSkipTabs,
+				SInt16								maxStringLength);
 
-SInt16					SetupForStatisticsRead (
-								ParmBlkPtr							paramBlockPtr,
-								UCharPtr								inputStringPtr,
-								UInt32								numberEndOfLineBytes,
-								UInt32								numberChannels,
-								SInt16								formatArchitectureCode,
-								SInt32*								savedIoPosModePtr, 
-								SInt32*								savedIoReqCountPtr,
-								Boolean*								swapBytesFlagPtr);
+SInt16 SetupForStatisticsRead (
+				ParmBlkPtr							paramBlockPtr,
+				UCharPtr								inputStringPtr,
+				UInt32								numberEndOfLineBytes,
+				UInt32								numberChannels,
+				SInt16								formatArchitectureCode,
+				SInt32*								savedIoPosModePtr,
+				SInt32*								savedIoReqCountPtr,
+				Boolean*								swapBytesFlagPtr);
 								
-UCharPtr					SkipNTabs (
-								UCharPtr								inputStringPtr, 
-								SInt16								numberTabs);
+UCharPtr SkipNTabs (
+				UCharPtr								inputStringPtr,
+				SInt16								numberTabs);
 
-Boolean 					SetupClassFieldPointMemory (void);
+Boolean SetupClassFieldPointMemory (void);
 
-void						UpdateGraphicStatusBox (
-								double*								rightBoxPtr,
-								double								boxIncrement);
+void UpdateGraphicStatusBox (
+				double*								rightBoxPtr,
+				double								boxIncrement);
 								
-void 						VerifyClassAndFieldParameters (
-								Boolean								differentFileSourceFlag);
+void VerifyClassAndFieldParameters (
+				Boolean								differentFileSourceFlag);
 
-Boolean 					WriteChannelInformation (
-								HChannelStatisticsPtr			chanStatsPtr, 
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberStatisticsChannels, 
-								UInt32								type, 
-								UCharPtr								stringPtr);
+Boolean WriteChannelInformation (
+				HChannelStatisticsPtr			chanStatsPtr,
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberStatisticsChannels,
+				UInt32								type,
+				UCharPtr								stringPtr);
 										
-Boolean 					WriteCovarianceInformation (
-								HCovarianceStatisticsPtr		matrixStatsPtr, 
-								HChannelStatisticsPtr			channelStatsPtr,
-								SInt64								numberPixelsUsedForStats, 
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberStatisticsChannels, 
-								UInt32								type, 
-								UCharPtr								stringPtr, 
-								double*								boxRightPtr, 
-								double								boxIncrement);
+Boolean WriteCovarianceInformation (
+				HCovarianceStatisticsPtr		matrixStatsPtr,
+				HChannelStatisticsPtr			channelStatsPtr,
+				SInt64								numberPixelsUsedForStats,
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberStatisticsChannels,
+				UInt32								type,
+				UCharPtr								stringPtr,
+				double*								boxRightPtr,
+				double								boxIncrement);
 									
-Boolean 					WriteModifiedStats (
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberChannels,
-								HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
-								HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
+Boolean WriteModifiedStats (
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberChannels,
+				HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
+				HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
 
-SInt16					WriteProjectFile (
-								SInt16								saveCode);
+SInt16 WriteProjectFile (
+				SInt16								saveCode);
 									
-SInt16	 				WriteStatistics (
-								HChannelStatisticsPtr			channelStatsPtr, 
-								HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
-								SInt64								numberPixelsUsedForStats,
-								CMFileStream* 						fileStreamPtr,
-								Boolean								saveMeansCovFlag, 
-								Boolean								saveSumsSquaresFlag,
-								SInt16								classFieldCode,
-								UInt32								binaryListingCode, 
-								double*								boxRightPtr, 
-								double								boxIncrement);
+SInt16 WriteStatistics (
+				HChannelStatisticsPtr			channelStatsPtr,
+				HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
+				SInt64								numberPixelsUsedForStats,
+				CMFileStream* 						fileStreamPtr,
+				Boolean								saveMeansCovFlag,
+				Boolean								saveSumsSquaresFlag,
+				SInt16								classFieldCode,
+				UInt32								binaryListingCode,
+				double*								boxRightPtr,
+				double								boxIncrement);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -276,7 +245,7 @@ void CloseFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -370,7 +339,7 @@ void ComputeSumSquaresMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -426,7 +395,7 @@ void ComputeSumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -502,7 +471,7 @@ UInt32 GetBufferForProjectReadWrites (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -536,7 +505,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								c Purdue Research Foundation
 //									All rights reserved.
 //
@@ -607,7 +576,7 @@ void GetCopyOfPFileNameFromProjectInfo (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -664,7 +633,7 @@ UInt16 GetLengthOfMaxSum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -722,7 +691,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -737,7 +706,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 //
 // Value Returned:	None
 //
-// Called By:			OpenProjectFile in project.c
+// Called By:			OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1988
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017	
@@ -850,7 +819,7 @@ Boolean GetProjectFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -865,10 +834,10 @@ Boolean GetProjectFile (
 //
 // Value Returned:	None			
 // 
-// Called By:			SaveProjectFile in project.c
+// Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 Boolean GetProjectFileName (
 				SInt16								saveCode)
@@ -912,7 +881,7 @@ Boolean GetProjectFileName (
 	bytesSpaceNeeded = (UInt32)GetSizeOfProjectFile ();
 	
 			// If the saveCode flag is 0, then we already have the file name.		
-			// Now check if there is enough space on the current to rewrite the	
+			// Now check if there is enough space on the current volumne to rewrite the	
 			// file.  If not then do a "Save As" to allow the user to write to	
 			// another volume.																	
 			
@@ -920,25 +889,13 @@ Boolean GetProjectFileName (
 		{
 				// Get space left on the volume.												
 		
-		char* projectASCIIFileNamePtr =
-							(char*)GetFileNamePPointerFromFileStream (projectFileStreamPtr);
+		//char* projectASCIIFileNamePtr =
+		//					(char*)GetFileNamePPointerFromFileStream (projectFileStreamPtr);
 		errCode = GetVolumeFreeSpace (
-									(Str255*)projectASCIIFileNamePtr,
+									projectFileStreamPtr,
 									GetVolumeReferenceNumber (projectFileStreamPtr),
 									&freeBytes);
-		/*
-		// The following needs more work.
-		#if defined multispec_lin	
-			wxLongLong wxFreeBytes;
-			char* projectFilePathPtr = (char*)projectFileStreamPtr->GetFilePathPtr ();
-			bool returnFlag = wxGetDiskSpace (wxString::FromAscii (projectFilePathPtr),
-															NULL,
-															&wxFreeBytes);
-			freeBytes = wxFreeBytes.GetValue ();
-			//if (!returnFlag)
-			errCode = noErr;
-		#endif
-		*/
+
 		if (errCode != noErr)														
 																								return (0);
 		
@@ -1018,10 +975,10 @@ Boolean GetProjectFileName (
 				projectFileStreamPtr->SetFileName (projectFileNamePtr);
 			#endif	// defined multispec_win                   
 			  
-         #if defined multispec_lin
+         #if defined multispec_wx
 				ConcatFilenameSuffix (projectFileNamePtr, (StringPtr)"\0.prj\0");
 				projectFileStreamPtr->SetFileName (projectFileNamePtr);
-			#endif	// defined multispec_lin 
+			#endif	// defined multispec_wx 
 			
 			}	// end "if (gProjectInfoPtr->fileName[0] == 0)" 
 
@@ -1070,7 +1027,7 @@ Boolean GetProjectFileName (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1109,7 +1066,7 @@ SInt32 GetSizeOfProjectFile (void)
 			// Get the project window pointer.												
 			
 	projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-							gProjectInfoPtr->windowInfoHandle, &handleStatus, kNoMoveHi);
+											gProjectInfoPtr->windowInfoHandle, &handleStatus);
 	
 			// Initialize local variables														
 	
@@ -1229,7 +1186,7 @@ SInt32 GetSizeOfProjectFile (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1251,10 +1208,10 @@ SInt32 GetSizeOfProjectFile (void)
 //	Revised By:			Larry L. Biehl			Date: 03/26/2006	
 
 SInt16 ReadChannelInformation (
-				HChannelStatisticsPtr		chanStatsPtr, 
-				UCharPtr* 						inputStringPtrPtr, 
-				SInt16							numberStatisticsChannels, 
-				UInt32							type)
+				HChannelStatisticsPtr			chanStatsPtr,
+				UCharPtr* 							inputStringPtrPtr,
+				SInt16								numberStatisticsChannels,
+				UInt32								type)
 
 {			
 	UCharPtr								inputStringPtr;
@@ -1401,7 +1358,7 @@ SInt16 ReadChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1526,7 +1483,7 @@ SInt16 ReadCovarianceInformation (
 						}	// end "if (paramBlockPtr->ioParam.ioActCount == ..."
 				#endif	// defined multispec_mac
 						
-            #if defined multispec_win || defined multispec_lin
+            #if defined multispec_win || defined multispec_wx
 					while (paramBlockPtr->ioActCount == paramBlockPtr->ioReqCount)
 						{
 						returnCode = GetNextLine (paramBlockPtr, inputStringPtrPtr);
@@ -1561,7 +1518,7 @@ SInt16 ReadCovarianceInformation (
 				paramBlockPtr->ioParam.ioReqCount = numberBytesToBeRead + sizeDouble;
 			#endif	// defined multispec_mac 
 
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				paramBlockPtr->ioPosOffset -= 
 											(paramBlockPtr->ioReqCount - numberBytesToBeRead);
 				paramBlockPtr->ioReqCount = numberBytesToBeRead + sizeDouble; 
@@ -1588,7 +1545,7 @@ SInt16 ReadCovarianceInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1651,7 +1608,7 @@ SInt16 ReadMaskInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1713,7 +1670,7 @@ SInt16 ReadModifiedStats (
 		savedIoReqCount = paramBlockPtr->ioParam.ioReqCount;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin	
+   #if defined multispec_win || defined multispec_wx	
 		savedIoPosMode = paramBlockPtr->ioPosMode;
 		savedIoReqCount = paramBlockPtr->ioReqCount;
 	#endif	// defined multispec_win 
@@ -1743,7 +1700,7 @@ SInt16 ReadModifiedStats (
 					4 + numberEndOfLineBytes + localNumberChannels * numberValueBytes;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin		 		
+   #if defined multispec_win || defined multispec_wx		 		
 		UInt32 numberCharsToReread = (UInt32)(paramBlockPtr->ioActCount - 
 								(*inputStringPtrPtr - paramBlockPtr->ioBuffer));							
 				
@@ -1804,7 +1761,7 @@ SInt16 ReadModifiedStats (
 	else if (formatArchitectureCode == kMacintoshMotorola)
 		swapBytesFlag = !gBigEndianFlag;
 		
-	else // formatArchitectureCode == kMacintoshIntel || 
+	else	// formatArchitectureCode == kMacintoshIntel || 
 			//		formatArchitectureCode == kWindowsIntel)
 		swapBytesFlag = gBigEndianFlag;
 		
@@ -1834,7 +1791,7 @@ SInt16 ReadModifiedStats (
 				#endif		// _MC68881_ 
 			#endif	// defined multispec_mac 
 	
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				modifiedClassChanStatsPtr->mean = 0;
 				returnCode = -1;
 			#endif	// defined multispec_win 
@@ -1867,7 +1824,7 @@ SInt16 ReadModifiedStats (
 			paramBlockPtr->ioParam.ioReqCount = 4 + numberEndOfLineBytes + count;
 		#endif	// defined multispec_mac 
 
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			paramBlockPtr->ioReqCount = 4 + numberEndOfLineBytes + count; 
 		#endif	// defined multispec_win  
 
@@ -1919,14 +1876,14 @@ SInt16 ReadModifiedStats (
 				#endif		// _MC68881_ 
 			#endif	// defined multispec_mac 
 	
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				UInt32					j;
 
 				for (j=0; j<i; j++)
 					*inputStringPtrPtr += k68881Bytes;
 
 				returnCode = -1;
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 			
 			}	// end "if (numberValueBytes == k68881Bytes)"
 			
@@ -1975,7 +1932,7 @@ SInt16 ReadModifiedStats (
 		paramBlockPtr->ioParam.ioReqCount = savedIoReqCount;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin																	
+   #if defined multispec_win || defined multispec_wx																	
 		paramBlockPtr->ioPosMode = savedIoPosMode;
 		paramBlockPtr->ioReqCount = savedIoReqCount;
 	#endif	// defined multispec_win 
@@ -1992,7 +1949,7 @@ SInt16 ReadModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2143,7 +2100,7 @@ SInt16 ReadProjectFile (void)
 				differentFileSourceFlag = TRUE;
 		#endif	// defined multispec_mac
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			paramBlock.ioPosOffset = 0;
 			paramBlock.fileStreamPtr = projectFileStreamPtr;
 			paramBlock.ioBuffer = (UCharPtr)gCharBufferPtr1;
@@ -2163,7 +2120,7 @@ SInt16 ReadProjectFile (void)
 														
 			if (endOfLineCode == kMacNewLinePosMode)
 				differentFileSourceFlag = TRUE;
-		#endif	// defined multispec_win || defined multispec_lin 
+		#endif	// defined multispec_win || defined multispec_wx 
 		
 		if (returnCode != noErr)
 																							return (1);
@@ -2183,7 +2140,7 @@ SInt16 ReadProjectFile (void)
 					#if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
 						"PROJECT FORMAT VERSION %ld %ld\r",
 					#endif
-					#if defined multispec_lin
+					#if defined multispec_wx
 						"PROJECT FORMAT VERSION %d %d\r",
 					#endif
 					&versionNumber, 
@@ -2286,8 +2243,8 @@ SInt16 ReadProjectFile (void)
 						"P2\t%ld\t%ld\t%hd\t%hd\t%ld\t%ld\t%hd\t%hd\t%hd\t%ld\t%ld\t%ld\t%ld"
 						"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\r",
 					#endif
-					#if defined multispec_lin
-						"P2\t%d\t%d\t%d\t%hd\t%d\t%d\t%hd\t%hd\t%hd\t%d\t%d\t%d\t%d"
+					#if defined multispec_wx
+						"P2\t%d\t%d\t%hd\t%hd\t%d\t%d\t%hd\t%hd\t%hd\t%d\t%d\t%d\t%d"
 						"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\r",
 					#endif
 					&projectWindowInfoPtr->maxNumberLines, 
@@ -2410,7 +2367,7 @@ SInt16 ReadProjectFile (void)
 			paramBlock.ioParam.ioReqCount = bufferBytes - 1;
 		#endif	// defined multispec_mac
 										
-      #if defined multispec_win || defined multispec_lin											
+      #if defined multispec_win || defined multispec_wx											
 			paramBlock.ioBuffer = (UCharPtr)gCharBufferPtr1;
 			paramBlock.ioReqCount = bufferBytes - 1;
 		#endif	// defined multispec_win                                                                  
@@ -2644,7 +2601,7 @@ SInt16 ReadProjectFile (void)
 						#if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
 							"\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%f\t%f\t%f\t%lf\t%hd\r",
 						#endif
-						#if defined multispec_lin
+						#if defined multispec_wx
 							"\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%f\t%f\t%f\t%lf\t%hd\r",
 						#endif
 						&classNamesPtr->numberOfFields,
@@ -2826,22 +2783,23 @@ SInt16 ReadProjectFile (void)
 				fieldIdentPtr->maskValue = 0;
 				fieldIdentPtr->numberPixelsUsedForStats = 0;
 			
-            sscanfReturnCode = sscanf ((char*)inputStringPtr,
-                        #if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
-                           "\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
-                        #endif
-                        #if defined multispec_lin
-                           "\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
-                        #endif
-								&fieldIdentPtr->numberOfPolygonPoints,
-								&fieldIdentPtr->classStorage,
-								&fieldIdentPtr->fieldType,
-								&fieldIdentPtr->pointType,
-								&fieldIdentPtr->numberPixels,
-								&intTemp,
-								&intTemp2,
-								&fieldIdentPtr->maskValue,
-								&fieldIdentPtr->numberPixelsUsedForStats);	// Added for 20130424 version);
+            sscanfReturnCode = sscanf (
+            			(char*)inputStringPtr,
+							#if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
+								"\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
+							#endif
+							#if defined multispec_wx
+								"\t%hd\t%hd\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld\r",
+							#endif
+							&fieldIdentPtr->numberOfPolygonPoints,
+							&fieldIdentPtr->classStorage,
+							&fieldIdentPtr->fieldType,
+							&fieldIdentPtr->pointType,
+							&fieldIdentPtr->numberPixels,
+							&intTemp,
+							&intTemp2,
+							&fieldIdentPtr->maskValue,
+							&fieldIdentPtr->numberPixelsUsedForStats);	// Added for 20130424 version);
 				
 				if (gProjectInfoPtr->version < 990107 && sscanfReturnCode != 7)
 																							return (31);
@@ -3239,7 +3197,7 @@ SInt16 ReadProjectFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3583,7 +3541,7 @@ SInt16 ReadStatistics (
 				paramBlockPtr->ioParam.ioPosOffset -= 1;
 			#endif	// defined multispec_mac 
 
-         #if defined multispec_win || defined multispec_lin	
+         #if defined multispec_win || defined multispec_wx	
 				paramBlockPtr->ioPosOffset -= 1;
 			#endif	// defined multispec_win 
 			
@@ -3622,9 +3580,9 @@ SInt16 ReadStatistics (
 		if (!(statsLoadedCode & 0x0003))
 			fieldIdentPtr->statsUpToDate = FALSE;
 				
-				// If returnCode is -1, then the data for the statistics could be corrupted.
-				// This usually means that the data could not be read correctly from the
-				// project file. Force the statistics to be recomputed.
+				// If returnCode is -1, then the data for the statistics could be
+				// corrupted. This usually means that the data could not be read
+				// correctly from the project file. Force the statistics to be recomputed.
 		
 		if (statisticsBadFlag)						
 			fieldIdentPtr->numberPixels = 0;
@@ -3678,9 +3636,9 @@ SInt16 ReadStatistics (
 		if (!(statsLoadedCode & 0x0003))
 			classNamesPtr->statsUpToDate = FALSE;
 				
-				// If returnCode is -1, then the data for the statistics could be corrupted.
-				// This usually means that the data could not be read correctly from the
-				// project file. Force the statistics to be recomputed.
+				// If returnCode is -1, then the data for the statistics could be
+				// corrupted. This usually means that the data could not be read
+				// correctly from the project file. Force the statistics to be recomputed.
 		
 		if (statisticsBadFlag)						
 			classNamesPtr->numberTrainPixels = 0;
@@ -3701,10 +3659,10 @@ SInt16 ReadStatistics (
 				// Get the number of training pixels. After the entire project file has
 				// been read, the number of training pixels used for calculating the
 				// statistics will be "classNamesPtr->numberStatisticsPixels". At this
-				// point we must assume that the number is "classNamesPtr->numberTrainPixels".
-				// If this is not correct, the situation will be corrected in the
-				// "VerifyClassAndFieldParameters" routine which is called at the end
-				// of the "ReadProjectFile" routine.
+				// point we must assume that the number is
+				// "classNamesPtr->numberTrainPixels". If this is not correct, the
+				// situation will be corrected in the "VerifyClassAndFieldParameters"
+				// routine which is called at the end of the "ReadProjectFile" routine.
 				
 		numberPixels = classNamesPtr->numberTrainPixels;
 		statsUpToDate = classNamesPtr->statsUpToDate;
@@ -3755,15 +3713,16 @@ SInt16 ReadStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		SInt16 SetupForStatisticsRead
 //
-//	Software purpose:	The purpose of this routine is to set up the parameter instruction
-//                   blocks to read the statistics information correctly depending on
-//							whether the date are listed as ascii characters or in binary. 
+//	Software purpose:	The purpose of this routine is to set up the parameter
+//							instruction blocks to read the statistics information correctly
+//							depending on whether the date are listed as ascii characters or
+//							in binary.
 //							Note that pre PowerPC processors are not being handled. I.e. 80
 //							bit doubles.
 //
@@ -3791,8 +3750,6 @@ SInt16 SetupForStatisticsRead (
 {	
 	UInt32								numberValueBytes = 8;
 	
-	//SInt16								returnCode;
-	
 	
 			// Save the position mode and the requested count.	
 				
@@ -3801,16 +3758,15 @@ SInt16 SetupForStatisticsRead (
 		*savedIoReqCountPtr = paramBlockPtr->ioParam.ioReqCount;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin	
+   #if defined multispec_win || defined multispec_wx	
 		*savedIoPosModePtr = paramBlockPtr->ioPosMode;
 		*savedIoReqCountPtr = paramBlockPtr->ioReqCount;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 				
 			// Read the last line again with different parameters so that the		
 			// binary data will be handled properly.										
 			
 	#if defined multispec_mac 
-		//paramBlockPtr->ioParam.ioPosOffset -= paramBlockPtr->ioParam.ioActCount;
 		paramBlockPtr->ioParam.ioPosMode = fsFromStart;
 		
 				// Set count to read vector of channels bytes to the project file.								
@@ -3819,7 +3775,7 @@ SInt16 SetupForStatisticsRead (
 				3 + numberEndOfLineBytes + numberChannels * numberValueBytes;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin	
+   #if defined multispec_win || defined multispec_wx	
 		if (paramBlockPtr->ioPosMode == kNewLinePosMode ||
 								paramBlockPtr->ioPosMode == kIBMNewLinePosMode)
 			{
@@ -3850,7 +3806,7 @@ SInt16 SetupForStatisticsRead (
 				
 		paramBlockPtr->ioReqCount = 
 				3 + numberEndOfLineBytes + numberChannels * numberValueBytes;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	/*
 	returnCode = GetNextLine (paramBlockPtr, inputStringPtrPtr);
 	
@@ -3863,8 +3819,7 @@ SInt16 SetupForStatisticsRead (
 																							
 		}	// end "if (returnCode != noErr)"
 	*/
-			// Set up swap bytes flag depending upon the system
-			// architecture
+			// Set up swap bytes flag depending upon the system architecture
 	                        
 	if (formatArchitectureCode == kArchitectureNotKnown)
 		{	        
@@ -3883,7 +3838,7 @@ SInt16 SetupForStatisticsRead (
 	else if (formatArchitectureCode == kMacintoshMotorola)
 		*swapBytesFlagPtr = !gBigEndianFlag;
 		
-	else // formatArchitectureCode == kMacintoshIntel || 
+	else	// formatArchitectureCode == kMacintoshIntel || 
 			//		formatArchitectureCode == kWindowsIntel)
 		*swapBytesFlagPtr = gBigEndianFlag;
 		
@@ -3896,7 +3851,7 @@ SInt16 SetupForStatisticsRead (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3937,7 +3892,7 @@ void FinishUpStatisticsRead (
 		paramBlockPtr->ioParam.ioReqCount = savedIoReqCount;
 	#endif	// defined multispec_mac 
 
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		UInt32 numberCharsToReread = (UInt32)(paramBlockPtr->ioActCount - 
 										(*inputStringPtrPtr - paramBlockPtr->ioBuffer));							
 				
@@ -3947,20 +3902,20 @@ void FinishUpStatisticsRead (
 				// Force the current line to be read again.
 
 		*inputStringPtrPtr = 0;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	                                             
 	returnCode = GetNextLine (paramBlockPtr, inputStringPtrPtr);
 
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		paramBlockPtr->ioPosMode = (SInt16)savedIoPosMode;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 }	// end "FinishUpStatisticsRead"	
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4025,7 +3980,7 @@ UCharPtr ReadStringFromFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4040,11 +3995,11 @@ UCharPtr ReadStringFromFile (
 //
 // Value Returned:	None			
 // 
-// Called By:			ClusterDialog in menus.c
-//							CloseTheProject in menus.c
-//							Menus in menus.c
-//							CreateNewProject in project.c
-//							ProjectMenuClearStatistics in projectUtilities.c
+// Called By:			ClusterDialog in MMenus.c
+//							CloseTheProject in MMenus.c
+//							Menus in MMenus.c
+//							CreateNewProject in SProject.cpp
+//							ProjectMenuClearStatistics in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -4115,8 +4070,7 @@ SInt16 SaveProjectFile (
 					// saving due to a memory limit.										
 				
 			if (gGetMemoryTries == 0)	
-				gStatusDialogPtr = GetStatusDialog (
-												kGraphicStatusDialogID, FALSE);
+				gStatusDialogPtr = GetStatusDialog (kGraphicStatusDialogID, FALSE);
 		
 			GetPort (&savedPort);
 			
@@ -4176,7 +4130,7 @@ SInt16 SaveProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4253,7 +4207,7 @@ Boolean SetupClassFieldPointMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2019)
+//								 	Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4307,7 +4261,7 @@ UCharPtr SkipNTabs (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4322,7 +4276,7 @@ UCharPtr SkipNTabs (
 //
 // Value Returned:	None			
 // 
-// Called By:			SaveProjectFile in project.c
+// Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/21/1992
 //	Revised By:			Larry L. Biehl			Date: 01/28/2001	
@@ -4366,7 +4320,7 @@ void UpdateGraphicStatusBox (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4382,7 +4336,7 @@ void UpdateGraphicStatusBox (
 //
 //	Value Returned:	None
 //
-// Called By:			ReadProjectFile in SProjFIO.cpp
+// Called By:			ReadProjectFile in SProjectFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
 //	Revised By:			Larry L. Biehl			Date: 05/03/2019
@@ -4458,10 +4412,11 @@ void VerifyClassAndFieldParameters (
 				fieldIdentPtr = &gProjectInfoPtr->fieldIdentPtr[fieldNumber];
 				
 						// Get the number of pixels in the field if needed. Alway double 
-						// check the count for polygon fields in case a project file is being
-						// transferred back and forth between Mac and Windows machines.
-						// The pixels used in a polygon in the Windows version may be
-						// different than the pixels used in a polygon in the Mac version.
+						// check the count for polygon fields in case a project file is
+						// being transferred back and forth between Mac and Windows
+						// machines. The pixels used in a polygon in the Windows version
+						// may be different than the pixels used in a polygon in the Mac
+						// version.
 				
 				savedNumberPixels = fieldIdentPtr->numberPixels;
 				
@@ -4553,8 +4508,7 @@ void VerifyClassAndFieldParameters (
 				
 				}	// end "if (previousNumberTrainPixels != ..."
 			
-			if (!classNamesPtr->statsUpToDate && 
-														classNamesPtr->numberOfTrainFields > 0)
+			if (!classNamesPtr->statsUpToDate && classNamesPtr->numberOfTrainFields > 0)
 				{
 				gProjectInfoPtr->statsUpToDate = FALSE;
 				gProjectInfoPtr->pixelDataLoadedFlag = FALSE;
@@ -4623,7 +4577,7 @@ void VerifyClassAndFieldParameters (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4661,11 +4615,11 @@ Boolean WriteChannelInformation (
 	Boolean								continueFlag;
 									
 	              
-   #if defined multispec_win || defined multispec_lin 	
+   #if defined multispec_win || defined multispec_wx 	
 		      // Get string length. Have to do this for Windows and Linux versions.
 		      
 		stringLength = 2; 
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	 
 			// Write card identifier.															
 				
@@ -4835,7 +4789,7 @@ Boolean WriteChannelInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4889,11 +4843,11 @@ Boolean WriteCovarianceInformation (
 	
 	continueFlag = TRUE; 	
 	              
-   #if defined multispec_win || defined multispec_lin
+   #if defined multispec_win || defined multispec_wx
 		      // Get string length. Have to do this for Windows and Linux versions.
 		      
 		stringLength = 3; 
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 			
 	count = sizeof (double);
 	numberPixelsLessOne = numberPixelsUsedForStats - 1;
@@ -5146,7 +5100,7 @@ Boolean WriteCovarianceInformation (
 
            
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5228,7 +5182,7 @@ Boolean WriteModifiedStats (
 			#endif		// _MC68881_ 
 		#endif	// defined multispec_mac 
 
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			count = sizeof (double);
 			
 			if (errCode == noErr)		
@@ -5236,7 +5190,7 @@ Boolean WriteModifiedStats (
 												&count, 
 												&modifiedClassChanStatsPtr->mean, 
 												kErrorMessages);
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 			
 		modifiedClassChanStatsPtr++;
 		
@@ -5310,7 +5264,7 @@ Boolean WriteModifiedStats (
 				#endif		// _MC68881_ 
 			#endif	// defined multispec_mac 
 
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				count = i * sizeof (double);
 				if (errCode == noErr)			
 					errCode = MWriteData (fileStreamPtr, 
@@ -5319,7 +5273,7 @@ Boolean WriteModifiedStats (
 													kErrorMessages);
 			
 				modifiedClassCovStatsPtr += i;
-			#endif	// defined multispec_win || defined multispec_lin
+			#endif	// defined multispec_win || defined multispec_wx
 		
 					// Add a carriage return to the end of this line.					
 				
@@ -5344,7 +5298,7 @@ Boolean WriteModifiedStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5363,10 +5317,10 @@ Boolean WriteModifiedStats (
 //							2  = Error writing the project.
 //										
 // 
-// Called By:			SaveProjectFile in project.c
+// Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1998
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt16 WriteProjectFile (
 				SInt16								saveCode)
@@ -5430,7 +5384,7 @@ SInt16 WriteProjectFile (
 			formatArchitectureCode = kMacintoshMotorola;		
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		formatArchitectureCode = kWindowsIntel;
 	#endif	// defined multispec_win
 
@@ -5559,40 +5513,40 @@ SInt16 WriteProjectFile (
 					"P2\t%ld\t%ld\t%hd\t%hd\t%ld\t%ld\t%hd\t%d\t%hd\t%ld\t%ld\t%ld\t%ld"
 					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%d\t%hd\t%d\t%d\t%d\t%hd\t%hd\t%hd\t%hd%s",
 				#endif
-				#if defined multispec_lin
-					"P2\t%ld\t%ld\t%hd\t%hd\t%d\t%d\t%hd\t%d\t%hd\t%ld\t%ld\t%ld\t%ld"
+				#if defined multispec_wx
+					"P2\t%u\t%u\t%hd\t%hd\t%d\t%d\t%hd\t%d\t%hd\t%u\t%u\t%u\t%u"
 					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%d\t%hd\t%d\t%d\t%d\t%hd\t%hd\t%hd\t%hd%s",
 				#endif
-					projectWindowInfoPtr->maxNumberLines,
-					projectWindowInfoPtr->maxNumberColumns,
-					projectWindowInfoPtr->totalNumberChannels,
-					projectWindowInfoPtr->numberBytes,
-					gProjectInfoPtr->startLine,
-					gProjectInfoPtr->startColumn,
-					projectWindowInfoPtr->numberBits,
-					(int)(gProjectInfoPtr->swapBytesFlag),
-					projectWindowInfoPtr->bandInterleave,
-					gProjectInfoPtr->numberHeaderBytes,
-					gProjectInfoPtr->numberTrailerBytes,
-					gProjectInfoPtr->numberPreLineBytes,
-					gProjectInfoPtr->numberPostLineBytes,
-					gProjectInfoPtr->numberStatisticsClasses,
-					gProjectInfoPtr->numberStatTrainClasses,
-					gProjectInfoPtr->numberStatisticsFields,
-					gProjectInfoPtr->numberStatTrainFields,
-					gProjectInfoPtr->numberStatTestFields,
-					gProjectInfoPtr->numberTotalPoints,
-					gProjectInfoPtr->numberStatisticsChannels,
-					(int)gProjectInfoPtr->statsUpToDate,
-					gProjectInfoPtr->statisticsCode,
-					(int)gProjectInfoPtr->keepClassStatsOnlyFlag,
-					(int)gProjectInfoPtr->signedDataFlag,
-					(int)gProjectInfoPtr->useCommonCovarianceInLOOCFlag,
-					gProjectInfoPtr->covarianceStatsToUse,
-					projectWindowInfoPtr->dataTypeCode,
-					gProjectInfoPtr->hdfDataSetSelection,
-					formatArchitectureCode,
-					gEndOfLine);
+				(unsigned int)projectWindowInfoPtr->maxNumberLines,
+				(unsigned int)projectWindowInfoPtr->maxNumberColumns,
+				projectWindowInfoPtr->totalNumberChannels,
+				projectWindowInfoPtr->numberBytes,
+				gProjectInfoPtr->startLine,
+				gProjectInfoPtr->startColumn,
+				projectWindowInfoPtr->numberBits,
+				(int)(gProjectInfoPtr->swapBytesFlag),
+				projectWindowInfoPtr->bandInterleave,
+				(unsigned int)gProjectInfoPtr->numberHeaderBytes,
+				(unsigned int)gProjectInfoPtr->numberTrailerBytes,
+				(unsigned int)gProjectInfoPtr->numberPreLineBytes,
+				(unsigned int)gProjectInfoPtr->numberPostLineBytes,
+				gProjectInfoPtr->numberStatisticsClasses,
+				gProjectInfoPtr->numberStatTrainClasses,
+				gProjectInfoPtr->numberStatisticsFields,
+				gProjectInfoPtr->numberStatTrainFields,
+				gProjectInfoPtr->numberStatTestFields,
+				gProjectInfoPtr->numberTotalPoints,
+				gProjectInfoPtr->numberStatisticsChannels,
+				(int)gProjectInfoPtr->statsUpToDate,
+				gProjectInfoPtr->statisticsCode,
+				(int)gProjectInfoPtr->keepClassStatsOnlyFlag,
+				(int)gProjectInfoPtr->signedDataFlag,
+				(int)gProjectInfoPtr->useCommonCovarianceInLOOCFlag,
+				gProjectInfoPtr->covarianceStatsToUse,
+				projectWindowInfoPtr->dataTypeCode,
+				gProjectInfoPtr->hdfDataSetSelection,
+				formatArchitectureCode,
+				gEndOfLine);
 					
 		continueFlag = OutputString (projectFileStreamPtr,
 												(char*)gTextString, 
@@ -5645,10 +5599,10 @@ SInt16 WriteProjectFile (
 																	&maskFileStreamHandleStatus);
 			
 			sprintf ((char*)gTextString, 
-						"P4 TRAINING MASK NAME\t%hd\t%s\t%ld%s",
+						"P4 TRAINING MASK NAME\t%hd\t%s\t%u%s",
 						(SInt16)maskFileNamePPointer[0],
 						&maskFileNamePPointer[1],
-						gProjectInfoPtr->trainingMask.fileLayer,
+						(unsigned int)gProjectInfoPtr->trainingMask.fileLayer,
 						gEndOfLine);
 								
 			MHSetState (gProjectInfoPtr->trainingMask.fileStreamHandle,
@@ -5672,10 +5626,10 @@ SInt16 WriteProjectFile (
 																			&maskFileStreamHandleStatus);
 			
 			sprintf ((char*)gTextString, 
-						"P5 TEST MASK NAME\t%hd\t%s\t%ld%s",
+						"P5 TEST MASK NAME\t%hd\t%s\t%u%s",
 						(SInt16)maskFileNamePPointer[0],
 						&maskFileNamePPointer[1],
-						gProjectInfoPtr->testMask.fileLayer,
+						(unsigned int)gProjectInfoPtr->testMask.fileLayer,
 						gEndOfLine);
 								
 			MHSetState (gProjectInfoPtr->testMask.fileStreamHandle,
@@ -5938,9 +5892,9 @@ SInt16 WriteProjectFile (
 								point++)
 						{
 						sprintf ((char*)gTextString, 
-									"V1\t%ld\t%ld%s",
-									gProjectInfoPtr->fieldPointsPtr[index].line,
-									gProjectInfoPtr->fieldPointsPtr[index].col,
+									"V1\t%u\t%u%s",
+									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].line,
+									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].col,
 									gEndOfLine);
 						
 						continueFlag = OutputString (projectFileStreamPtr,
@@ -6038,9 +5992,9 @@ SInt16 WriteProjectFile (
 								point++)
 						{
 						sprintf ((char*)gTextString, 
-									"V1\t%ld\t%ld%s",
-									gProjectInfoPtr->fieldPointsPtr[index].line,
-									gProjectInfoPtr->fieldPointsPtr[index].col,
+									"V1\t%u\t%u%s",
+									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].line,
+									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].col,
 									gEndOfLine);
 						
 						continueFlag = OutputString (projectFileStreamPtr,
@@ -6103,7 +6057,7 @@ SInt16 WriteProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -21,49 +21,39 @@
 //	Brief description:	This file contains functions that control the
 //								echo classification processes.
 //
-//	Functions in file:	void 				ClassifyNonHomogeneousCells
-//								void 				classify_pixel_using_ML
-//								void 				loglik_echo
-//								short int 		phase1
-//
-//	Include files:		"MultiSpecHeaders"
-//							"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
 
-#if defined multispec_lin  
-	#include	"SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #include "SEcho.h"
-//#include "SExtGlob.h"
 
 				
-SInt16		ClassifyNonHomogeneousCells (
-					SInt32							numberLines, 
-					statistics*						class_stat, 
-					HDoublePtr						si_ptr1, 
-					HSInt32Ptr 						epix_ptr, 
-					HDoublePtr						wk1,
-					double*							thresholdTablePtr,
-					HUCharPtr						probabilityBufferPtr,
-					AreaDescriptionPtr 			areaDescriptionPtr);
+SInt16 ClassifyNonHomogeneousCells (
+				SInt32								numberLines,
+				statistics*							class_stat,
+				HDoublePtr							si_ptr1,
+				HSInt32Ptr 							epix_ptr,
+				HDoublePtr							wk1,
+				double*								thresholdTablePtr,
+				HUCharPtr							probabilityBufferPtr,
+				AreaDescriptionPtr 				areaDescriptionPtr);
 			
-void 			classify_pixel_using_ML (
-					statistics*						class_stat,
-					SInt16	 						nband,
-					UInt32	 						ncls,
-					HDoublePtr						si_ptr1,
-					double*							wk3,
-					HSInt32Ptr 						epix_ptr,
-					HDoublePtr						wk1);
+void classify_pixel_using_ML (
+				statistics*							class_stat,
+				SInt16	 							nband,
+				UInt32	 							ncls,
+				HDoublePtr							si_ptr1,
+				double*								wk3,
+				HSInt32Ptr 							epix_ptr,
+				HDoublePtr							wk1);
 					
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -97,7 +87,7 @@ void 			classify_pixel_using_ML (
 //
 // Value Returned:	error_code			
 // 
-// Called By:			EchoClassifier in SEchoSpc.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 // Coded By: 			Byeungwoo Jeon		Date: 01/01/1989
 // Revised By: 		Byeungwoo Jeon		Date: 09/28/1991
@@ -311,7 +301,7 @@ SInt16 phase1 (
     											echo_info->number_of_fields);
 			gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 		
-			}		// end "if (TickCount () >= gNextStatusTime)" 
+			}	// end "if (TickCount () >= gNextStatusTime)" 
    
       		// Read "Cell_width" Lines of Data											
    	
@@ -373,7 +363,7 @@ SInt16 phase1 (
 						//ibufn[2] = *(epix_ptr - nhd2) & 0xbfffffff;
 						ibufn[2] = *(epixPreviousLineCellPtr - nhd2) & 0xbfffffff;
 					
-			  	 	}		//	"if (ix > 1)"	
+			  	 	}	//	"if (ix > 1)"	
 	   
 	  			if (iy > 1) 
 					//ibufn[3] = *(epix_ptr - nhd3) & 0xbfffffff;
@@ -397,7 +387,7 @@ SInt16 phase1 (
 			   	if (maxRatioFoundFlag)
 			   		ibufn[cellLocation] = 0;
 			   	
-			   	else		// !maxRatioFoundFlag
+			   	else	// !maxRatioFoundFlag
 			   		{
 				   	if (cellBuf > 0) 
 				   		{
@@ -699,7 +689,7 @@ SInt16 phase1 (
 		    			ibufn[0] = *(epixPreviousLineCellPtr - nhd0) & 0xbfffffff;
 		    			ibufn[3] = *(epixCurrentLineCellPtr - nhd3) & 0xbfffffff;
 		
-		    			}		// end "if (iy > 1)" 
+		    			}	// end "if (iy > 1)" 
 		
 					if (iy < ncl_icel-cell_width) 
 		    			ibufn[2] = *(epixPreviousLineCellPtr - nhd2) & 0xbfffffff;
@@ -736,11 +726,12 @@ SInt16 phase1 (
 				    					if (field_number_table[inx] == (UInt32)cellBuf)
 				    						field_number_table[inx] = ibuf;
 				    	
-				    					}		// end "for (inx=1; inx<=..." 
+				    					}	// end "for (inx=1; inx<=..." 
 		
    								echo_info->number_of_fields--;
 						
-									BlockMoveData (auxlikn[0], baseFieldLikePtr, numberMoveBytes);
+									BlockMoveData (
+												auxlikn[0], baseFieldLikePtr, numberMoveBytes);
 		   
 									}	// "if (lik_ratio > ..."
 					
@@ -788,7 +779,7 @@ SInt16 phase1 (
    														field_number_table,
    														areaDescriptionPtr);
    														
-   		}		// end "if (probabilityBufferPtr != NULL && error_code == 0)"
+   		}	// end "if (probabilityBufferPtr != NULL && error_code == 0)"
 		
 		if (useTempDiskFileFlag && error_code == 0)
 			{
@@ -808,7 +799,7 @@ SInt16 phase1 (
 		
 		else	// !useTempDiskFileFlag
 			{
-//			epix_ptr0 += icel_linlen;	// num_col * cell_width
+			//epix_ptr0 += icel_linlen;	// num_col * cell_width
 			epixPreviousLineCell0Ptr = epixCurrentLineCell0Ptr;
 			epixCurrentLineCell0Ptr += icel_linlen;	// num_col * cell_width
 			
@@ -867,7 +858,7 @@ SInt16 phase1 (
 																	class_stat,
 																	probabilityBufferPtr,
 																	cellLikPtr, 
-																	epixCurrentLineCell0Ptr,		// epix_ptr0,
+																	epixCurrentLineCell0Ptr, // epix_ptr0,
 																	fieldClassNumberPtr,
 																	field_number_table,
 																	areaDescriptionPtr);
@@ -897,12 +888,12 @@ SInt16 phase1 (
 
    return (error_code);
    
-}		// end "phase1 
+}	// end "phase1 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -929,7 +920,7 @@ SInt16 ClassifyNonHomogeneousCells (
 				statistics*							class_stat, 
 				HDoublePtr							si_ptr1,
 				HSInt32Ptr							epix_ptr, 
-				HDoublePtr							wk1, 			// nband by nband work Space 	
+				HDoublePtr							wk1, 			// nband by nband work space
 				double*								thresholdTablePtr, 
 				HUCharPtr 							probabilityBufferPtr, 
 				AreaDescriptionPtr				areaDescriptionPtr)
@@ -1022,7 +1013,7 @@ SInt16 ClassifyNonHomogeneousCells (
 					
 						}	// end "if (savedProbabilityBufferPtr)"
 						
-					else		// !savedProbabilityBufferPtr 
+					else	// !savedProbabilityBufferPtr 
 						*epix_ptr &= 0xbfffffff;
 						
 					}	// end "if (!polygonFieldFlag || PtInRgn (..."
@@ -1263,7 +1254,7 @@ void loglik_echo (
 	   		d_ptr1++;
 	   		d_ptr++;
 	   		
-	   		}		// end "for (ky=kx+1; ky<=nband; ky++)"
+	   		}	// end "for (ky=kx+1; ky<=nband; ky++)"
 	 
 	 		d_ptr1 += kx;
 	 

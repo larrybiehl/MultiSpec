@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,39 +20,6 @@
 //	Brief description:	This file contains functions that relate to listing
 //								classification results.
 //
-//	Functions in file:	pascal void 			DrawDialogClassAreaPopUp
-//								void 						ForceListResultsCodeResourceLoad
-//								short int 				GetAreaResults
-//								Boolean 					GetListResultsStringBuffer
-//								Handle	 				GetProbabilityWindowInfoHandle
-//								HUInt16Ptr 				GetSymbolToClassVector
-//								void						GetTableColumnWidths
-//								Boolean 					ListClassificationSummary
-//								Boolean					ListFCGPerformanceTable
-//								Boolean 					ListLineOfResults
-//								Boolean 					ListOverallPerformanceValues
-//								void 						ListPerformanceTables
-//								Boolean 					ListPerformanceTableTotals
-//								Boolean					ListResultsAreasControl
-//								void 						ListResultsControl
-//								Boolean  				ListResultsDialog
-//								Boolean 					ListResultsThematicClasses
-//								short int 				ListResultsTrainTestFields
-//								void 						LoadAreaString
-//								void						LoadClassAreaVector
-//								void						LoadClassInGroupOrderVector
-//								void 						LoadListResultsSpecs
-//								void 						LoadListResultsString
-//								Boolean 					LoadListResultsTitle
-//								void 						LoadPercentString
-//								void 						LoadSamplesString
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 /* Template for debugging
 		int numberChars = sprintf ((char*)gTextString3,
 												" SLstRslt::xxx (entered routine. %s", 
@@ -64,9 +31,9 @@
 
 #include "SMultiSpec.h" 
    
-#if defined multispec_lin
-	#include "LListResultsDialog.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+	#include "xListResultsDialog.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_ProbabilityPrompt	32
@@ -79,7 +46,6 @@
 	#include "WListResultsDialog.h"
 #endif	// defined multispec_win 
 
-//#include "SExtGlob.h"
 								
 
 #define	kReferenceAccuracyWidth		9
@@ -101,207 +67,208 @@ ListResultsSpecsPtr						gListResultsSpecsPtr;
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.	
 			
-double 					ComputeKappaStatistic (
-								ClassifierVar*						clsfyVariablePtr,
-								SInt16*								columnClassPtr, 
-								UInt32								numberClasses,
-								double*								kappaVariancePtr);
+double	ComputeKappaStatistic (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16*								columnClassPtr, 
+				UInt32								numberClasses,
+				double*								kappaVariancePtr);
 
-Boolean 					DetermineIfLastClassForGroup (
-								ClassifierVar*						clsfyVariablePtr,
-								SInt16								groupIndex,
-								SInt16								classIndex,
-								SInt16*								classPtr, 
-								UInt32								numberClasses);										
-		
-SInt16	 				GetAreaResults (
-								SInt16								classPointer, 
-								AreaDescriptionPtr				areaDescriptionPtr,
-								FileIOInstructionsPtr			fileIOInstructions1Ptr,
-								FileIOInstructionsPtr			fileIOInstructions2Ptr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								HSInt64Ptr 							countVectorPtr);
+Boolean	DetermineIfLastClassForGroup (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16								groupIndex,
+				SInt16								classIndex,
+				SInt16*								classPtr, 
+				UInt32								numberClasses);										
 
-UInt32 					GetClassGroupNameMaxLength (
-								FileInfoPtr	 						fileInfoPtr,
-								Boolean								groupFlag,
-								HUInt32Ptr							nameLengthVectorPtr);
+SInt16	GetAreaResults (
+				SInt16								classPointer,
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileIOInstructionsPtr			fileIOInstructions1Ptr,
+				FileIOInstructionsPtr			fileIOInstructions2Ptr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				HSInt64Ptr 							countVectorPtr);
 
-SInt32 					GetCountVectorIndex (
-								ClassifierVar*						clsfyVariablePtr,
-								SInt16*								classAreaPtr,
-								UInt16								classIndex,
-								Boolean								groupOrderedFlag);
-								
-SInt64 					GetClassOrGroupNumberOfSamples (
-								ClassifierVar*						clsfyVariablePtr,
-								HSInt64Ptr							classCountVectorPtr,
-								SInt32								countVectorIndex,
-								Boolean								outputGroupedFlag,
-								Boolean								inputGroupedFlag);
-								
-SInt32 					GetGroupIndex (
-								ClassifierVar*						clsfyVariablePtr,
-								UInt32								statClassNumber);
+UInt32	GetClassGroupNameMaxLength (
+				FileInfoPtr	 						fileInfoPtr,
+				Boolean								groupFlag,
+				HUInt32Ptr							nameLengthVectorPtr);
+
+SInt32	GetCountVectorIndex (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16*								classAreaPtr,
+				UInt16								classIndex,
+				Boolean								groupOrderedFlag);
+
+SInt64	GetClassOrGroupNumberOfSamples (
+				ClassifierVar*						clsfyVariablePtr,
+				HSInt64Ptr							classCountVectorPtr,
+				SInt32								countVectorIndex,
+				Boolean								outputGroupedFlag,
+				Boolean								inputGroupedFlag);
+
+SInt32	GetGroupIndex (
+				ClassifierVar*						clsfyVariablePtr,
+				UInt32								statClassNumber);
+
+Handle	GetProbabilityWindowInfoHandle (void);
 																
-Handle	 				GetProbabilityWindowInfoHandle (void);
+HUInt16Ptr	GetSymbolToClassVector (
+				FileInfoPtr							fileInfoPtr);
 																
-HUInt16Ptr 				GetSymbolToClassVector (
-								FileInfoPtr							fileInfoPtr);
-																
-void						GetTableColumnWidths (
-								ClassifierVar*						clsfyVariablePtr,
-								SInt16*								classPtr,
-								UInt32								numberClasses);
+void	GetTableColumnWidths (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16*								classPtr,
+				UInt32								numberClasses);
 
-SInt16 					ListAreaValue (
-								char*									stringPtr,
-								ClassifierVar*						clsfyVariablePtr,
-								double								area,
-								SInt16								strLength,
-								SInt16								decimalPlaces,
-								SInt16								areaWidthWithCommas);
-													
-Boolean 					ListFCGPerformanceTable (
-								ClassifierVar*						clsfyVariablePtr, 
-								SInt16								fieldType, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr, 
-								SInt16*								classPtr, 
-								UInt32								numberClasses, 
-								SInt16*								classAreaPtr, 
-								UInt32								numberClassAreas,
-								UInt32								numberTableListColumns);
-										
-Boolean 					ListLineOfResults (
-								ClassifierVar*						clsfyVariablePtr, 
-								HSInt64Ptr							classifySubTotalVectorPtr, 
-								SInt64								totalNumberSamplesInLine, 
-								SInt16*								columnClassPtr, 
-								UInt32								numberColumns, 
-								SInt32								countVectorIndex, 
-								char*									columnNamePtr, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr, 
-								Boolean								countTotalFlag);
+SInt16	ListAreaValue (
+				char*									stringPtr,
+				ClassifierVar*						clsfyVariablePtr,
+				double								area,
+				SInt16								strLength,
+				SInt16								decimalPlaces,
+				SInt16								areaWidthWithCommas);
 
-Boolean 					ListOverallPerformanceValues (
-								ClassifierVar* 					clsfyVariablePtr, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr, 
-								SInt16*								classPtr, 
-								UInt32								numberClasses, 
-								SInt16*								classAreaPtr, 
-								UInt32								numberClassAreas,
-								UInt32								numberTableListColumns,
-								SInt16								classGroupCode);
-										
-Boolean 					ListPerformanceTableTotals (
-								ClassifierVar						*clsfyVariablePtr, 
-								HSInt64Ptr							countTotalVectorPtr, 
-								SInt16*								classPtr, 
-								UInt32								numberColumns, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr);
+Boolean	ListFCGPerformanceTable (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16								fieldType, 
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr, 
+				SInt16*								classPtr, 
+				UInt32								numberClasses, 
+				SInt16*								classAreaPtr, 
+				UInt32								numberClassAreas,
+				UInt32								numberTableListColumns);
 
-Boolean 					ListReliabilityAccuracyLine (
-								ClassifierVar*						clsfyVariablePtr,
-								SInt16*								columnClassPtr, 
-								UInt32								numberTableListColumns, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr);
-			
-Boolean					ListResultsAreasControl (
-								FileInfoPtr							fileInfoPtr, 
-								ClassifierVar*						clsfyVariablePtr);
+Boolean	ListLineOfResults (
+				ClassifierVar*						clsfyVariablePtr,
+				HSInt64Ptr							classifySubTotalVectorPtr, 
+				SInt64								totalNumberSamplesInLine, 
+				SInt16*								columnClassPtr, 
+				UInt32								numberColumns, 
+				SInt32								countVectorIndex, 
+				char*									columnNamePtr, 
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr, 
+				Boolean								countTotalFlag);
 
-Boolean  				ListResultsDialog (FileInfoPtr);
-										
-Boolean 					ListResultsThematicClasses (
-								ClassifierVar*						clsfyVariablePtr, 
-								FileInfoPtr							fileInfoPtr, 
-								SInt16*								classPtr, 
-								unsigned char*						symbolsPtr, 
-								float*								weightsPtr, 
-								UInt16								numberClasses, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*								outputCodePtr);
+Boolean	ListOverallPerformanceValues (
+				ClassifierVar* 					clsfyVariablePtr,
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr, 
+				SInt16*								classPtr, 
+				UInt32								numberClasses, 
+				SInt16*								classAreaPtr, 
+				UInt32								numberClassAreas,
+				UInt32								numberTableListColumns,
+				SInt16								classGroupCode);
 
-SInt16	 				ListResultsTrainTestFields (
-								AreaDescriptionPtr				areaDescriptionPtr,
-								FileIOInstructionsPtr			fileIOInstructions1Ptr,
-								FileIOInstructionsPtr			fileIOInstructions2Ptr,
-								ClassifierVarPtr					clsfyVariablePtr, 
-								SInt16								fieldType);
+Boolean	ListPerformanceTableTotals (
+				ClassifierVar						*clsfyVariablePtr,
+				HSInt64Ptr							countTotalVectorPtr, 
+				SInt16*								classPtr, 
+				UInt32								numberColumns, 
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr);
 
-Boolean 					ListTableFootNotes (
-								ClassifierVar*						clsfyVariablePtr, 
-								CMFileStream*						outputFileStreamPtr,
-								SInt16*								outputCodePtr);
-										
-void 						LoadAreaString (
-								Ptr*									stringPtrPtr, 
-								HSInt64Ptr 							countVectorPtr, 
-								SInt16*	 							classPtr, 
-								Boolean								thresholdFlag, 
-								SInt64								totalNumberPixels, 
-								SInt16								numberWidth, 
-								SInt16								columnPrec, 
-								UInt16								numberClasses, 
-								double								areaConversionFactor,
-								HUInt32Ptr 							columnWidthVectorPtr);
-								
-void						LoadClassInGroupOrderVector (
-								ClassifierVar*						clsfyVariablePtr,
-								FileInfoPtr							fileInfoPtr, 
-								SInt16*								classInGroupOrderPtr, 
-								SInt16*								classPtr, 
-								UInt32								numberClasses);
+Boolean	ListReliabilityAccuracyLine (
+				ClassifierVar*						clsfyVariablePtr,
+				SInt16*								columnClassPtr, 
+				UInt32								numberTableListColumns, 
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr);
 
-Boolean 					LoadListResultsSpecs (void);
+Boolean	ListResultsAreasControl (
+				FileInfoPtr							fileInfoPtr,
+				ClassifierVar*						clsfyVariablePtr);
+
+Boolean	ListResultsDialog (
+				FileInfoPtr							fileInfoPtr);
 										
-void 						LoadListResultsString (
-								ClassifierVar*						clsfyVariablePtr, 
-								Ptr*									stringPtrPtr, 
-								HSInt64Ptr 							countVectorPtr, 
-								SInt16*	 							columnClassPtr, 
-								SInt64								totalNumberPixels, 
-								UInt32								numberClasses);
-									
-Boolean 					LoadListResultsTitle (
-								ClassifierVar*						clsfyVariablePtr, 
-								CMFileStream*						outputFileStreamPtr, 
-								SInt16*	 							classPtr, 
-								UInt32								numberColumns,
-								SInt16								sampleNumberWidth,
-								SInt16								percentWidth, 
-								SInt16*								outputCodePtr);
+Boolean	ListResultsThematicClasses (
+				ClassifierVar*						clsfyVariablePtr,
+				FileInfoPtr							fileInfoPtr, 
+				SInt16*								classPtr, 
+				unsigned char*						symbolsPtr, 
+				float*								weightsPtr, 
+				UInt16								numberClasses, 
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*								outputCodePtr);
+
+SInt16	ListResultsTrainTestFields (
+				AreaDescriptionPtr				areaDescriptionPtr,
+				FileIOInstructionsPtr			fileIOInstructions1Ptr,
+				FileIOInstructionsPtr			fileIOInstructions2Ptr,
+				ClassifierVarPtr					clsfyVariablePtr, 
+				SInt16								fieldType);
+
+Boolean 	ListTableFootNotes (
+				ClassifierVar*						clsfyVariablePtr,
+				CMFileStream*						outputFileStreamPtr,
+				SInt16*								outputCodePtr);
+
+void	LoadAreaString (
+				Ptr*									stringPtrPtr,
+				HSInt64Ptr 							countVectorPtr, 
+				SInt16*	 							classPtr, 
+				Boolean								thresholdFlag, 
+				SInt64								totalNumberPixels, 
+				SInt16								numberWidth, 
+				SInt16								columnPrec, 
+				UInt16								numberClasses, 
+				double								areaConversionFactor,
+				HUInt32Ptr 							columnWidthVectorPtr);
+
+void	LoadClassInGroupOrderVector (
+				ClassifierVar*						clsfyVariablePtr,
+				FileInfoPtr							fileInfoPtr, 
+				SInt16*								classInGroupOrderPtr, 
+				SInt16*								classPtr, 
+				UInt32								numberClasses);
+
+Boolean	LoadListResultsSpecs (void);
 										
-void 						LoadPercentString (
-								Ptr*									stringPtrPtr, 
-								HSInt64Ptr 							countVectorPtr, 
-								SInt16*	 							classPtr,
-								Boolean								thresholdFlag, 
-								SInt64								totalNumberPixels, 
-								SInt16								numberWidth, 
-								SInt16								columnPrec, 
-								UInt16								numberClasses,
-								HUInt32Ptr 							columnWidthVectorPtr);
-										
-void 						LoadSamplesString (
-								Ptr*									stringPtrPtr, 
-								HSInt64Ptr 							countVectorPtr, 
-								SInt16*	 							classPtr,
-								Boolean								thresholdFlag, 
-								SInt64								totalNumberPixels, 
-								SInt16								numberWidth, 
-								UInt16								numberClasses,
-								HUInt32Ptr 							columnWidthVectorPtr);
+void	LoadListResultsString (
+				ClassifierVar*						clsfyVariablePtr,
+				Ptr*									stringPtrPtr, 
+				HSInt64Ptr 							countVectorPtr, 
+				SInt16*	 							columnClassPtr, 
+				SInt64								totalNumberPixels, 
+				UInt32								numberClasses);
+
+Boolean	LoadListResultsTitle (
+				ClassifierVar*						clsfyVariablePtr,
+				CMFileStream*						outputFileStreamPtr, 
+				SInt16*	 							classPtr, 
+				UInt32								numberColumns,
+				SInt16								sampleNumberWidth,
+				SInt16								percentWidth, 
+				SInt16*								outputCodePtr);
+
+void	LoadPercentString (
+				Ptr*									stringPtrPtr,
+				HSInt64Ptr 							countVectorPtr, 
+				SInt16*	 							classPtr,
+				Boolean								thresholdFlag, 
+				SInt64								totalNumberPixels, 
+				SInt16								numberWidth, 
+				SInt16								columnPrec, 
+				UInt16								numberClasses,
+				HUInt32Ptr 							columnWidthVectorPtr);
+
+void	LoadSamplesString (
+				Ptr*									stringPtrPtr,
+				HSInt64Ptr 							countVectorPtr, 
+				SInt16*	 							classPtr,
+				Boolean								thresholdFlag, 
+				SInt64								totalNumberPixels, 
+				SInt16								numberWidth, 
+				UInt16								numberClasses,
+				HUInt32Ptr 							columnWidthVectorPtr);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -462,7 +429,7 @@ double ComputeKappaStatistic (
 		for (index2=0; index2<numberColumns; index2++)
 			{
 			tempValue = (double)referenceTotalVectorPtr[index2] + 
-																			classifyTotalVectorPtr[index];
+																		classifyTotalVectorPtr[index];
 			
 			theta4 += (double)agreementMatrixPtr[index2] * tempValue * tempValue;
 							
@@ -518,7 +485,7 @@ double ComputeKappaStatistic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -591,7 +558,7 @@ Boolean DetermineIfLastClassForGroup (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -632,7 +599,7 @@ pascal void DrawDialogClassAreaPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -640,7 +607,7 @@ pascal void DrawDialogClassAreaPopUp (
 //
 //	Software purpose:	The purpose of this routine is to force the 
 //							'ListResults' code resource to be loaded into memory.  
-//							It is called by 'ClassifyControl' in the classify.c file.
+//							It is called by 'ClassifyControl' in the SClassify.cpp file.
 //
 //	Parameters in:		None
 //
@@ -672,7 +639,7 @@ void ForceListResultsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -782,8 +749,8 @@ SInt16 GetAreaResults (
 			// Get number of samples to be read in one line of image data.			
 	
 	numberSamples = (areaDescriptionPtr->columnEnd - areaDescriptionPtr->columnStart +
-						areaDescriptionPtr->columnInterval)/
-											areaDescriptionPtr->columnInterval;
+									areaDescriptionPtr->columnInterval) /
+													areaDescriptionPtr->columnInterval;
 	areaDescriptionPtr->numSamplesPerChan = numberSamples;
 																					  
 			// Load total number of lines in status information.						
@@ -985,7 +952,7 @@ SInt16 GetAreaResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1000,8 +967,8 @@ SInt16 GetAreaResults (
 //
 // Value Returned:
 //
-//	Called by:			GetTableColumnWidths in SLstRslt.cpp
-//							ListClassificationSummary in SLstRslt.cpp
+//	Called by:			GetTableColumnWidths in SListResults.cpp
+//							ListClassificationSummary in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/31/1997
 //	Revised By:			Larry L. Biehl			Date: 09/18/2006
@@ -1061,7 +1028,7 @@ UInt32 GetClassGroupNameMaxLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1119,7 +1086,7 @@ SInt64 GetClassOrGroupNumberOfSamples (
 				if (classToGroupPtr[classIndex] == groupIndex)
 					totalNumberSamples += classCountVectorPtr[classIndex+1];
 					
-				}	// end "for (	classIndex=0; ..."
+				}	// end "for (classIndex=0; ..."
 			
 			}	// end "if (outputGroupedFlag && !inputGroupedFlag)"
 			
@@ -1139,7 +1106,7 @@ SInt64 GetClassOrGroupNumberOfSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1212,7 +1179,7 @@ double GetDefaultAreaConversionFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1273,7 +1240,7 @@ SInt32 GetCountVectorIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1322,7 +1289,7 @@ SInt32 GetGroupIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1384,7 +1351,7 @@ Handle GetProbabilityWindowInfoHandle (void)
 		RemoveCharsNoCase ((char*)"\0.tif\0", gTextString3);
 	#endif	// defined multispec_mac
   		
-   #if defined multispec_win | defined multispec_lin   
+   #if defined multispec_win | defined multispec_wx   
 		RemoveCharsNoCase ((char*)"\0.gis\0", gTextString3);
 		RemoveCharsNoCase ((char*)"\0.GAI\0", gTextString3);
 		RemoveCharsNoCase ((char*)"\0.ech\0", gTextString3);
@@ -1503,7 +1470,7 @@ Handle GetProbabilityWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1520,8 +1487,8 @@ Handle GetProbabilityWindowInfoHandle (void)
 //
 // Value Returned:	None		
 // 
-// Called By:			ListResultsControl in listResults.c
-//							ClassifyAreasControl in classify.c
+// Called By:			ListResultsControl in SListResults.cpp
+//							ClassifyAreasControl in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/21/1991
 //	Revised By:			Larry L. Biehl			Date: 06/23/1998
@@ -1568,7 +1535,7 @@ Boolean GetListResultsStringBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1681,7 +1648,7 @@ HUInt16Ptr GetSymbolToClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1698,7 +1665,7 @@ HUInt16Ptr GetSymbolToClassVector (
 //
 // Value Returned:	None				
 // 
-// Called By:			GetListResultsStringBuffer in SLstRslt.cpp
+// Called By:			GetListResultsStringBuffer in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/26/1991
 //	Revised By:			Larry L. Biehl			Date: 12/21/2016	
@@ -1783,9 +1750,9 @@ void GetTableColumnWidths (
 				
 		else	// gProcessorCode != kClassifyProcessor 
 			maxNameLength = (SInt16)GetClassGroupNameMaxLength (
-														gImageFileInfoPtr, 
-														(clsfyVariablePtr->tableType == kGroupTable),
-														&columnWidthVectorPtr[1]);
+													gImageFileInfoPtr,
+													(clsfyVariablePtr->tableType == kGroupTable),
+													&columnWidthVectorPtr[1]);
 			
 		}	// end "if (classPtr != NULL)" 
 			
@@ -1802,7 +1769,7 @@ void GetTableColumnWidths (
 	maxNameLength = MAX (maxNameLength, clsfyVariablePtr->numberWidth);
 	for (index=0; index<clsfyVariablePtr->tableWidth; index++)
 		columnWidthVectorPtr[index] = 
-					MAX (columnWidthVectorPtr[index], (UInt32)clsfyVariablePtr->numberWidth);
+				MAX (columnWidthVectorPtr[index], (UInt32)clsfyVariablePtr->numberWidth);
 								
 			// Now make sure that the column width is at 'kMinTableWidth' columns.
 			
@@ -1818,7 +1785,7 @@ void GetTableColumnWidths (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1833,7 +1800,7 @@ void GetTableColumnWidths (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListClassificationSummary in listResults.c
+// Called By:			ListClassificationSummary in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2002
 //	Revised By:			Larry L. Biehl			Date: 11/01/2002
@@ -1873,7 +1840,7 @@ SInt16 ListAreaValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1890,8 +1857,8 @@ SInt16 ListAreaValue (
 //
 // Value Returned:	None				
 // 
-// Called By:			ClassifyAreasControl in classify.c
-//							ListResultsAreasControl in listResults.c
+// Called By:			ClassifyAreasControl in SClassify.cpp
+//							ListResultsAreasControl in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1989
 //	Revised By:			Larry L. Biehl			Date: 03/27/2012
@@ -2026,7 +1993,8 @@ Boolean ListClassificationSummary (
 	if (minimumNumberPixels == SInt32_MAX)
 		minimumNumberPixels = 1;
 		
-		// Get some variables needed for listing the number of pixels in text output window.
+			// Get some variables needed for listing the number of pixels in text
+			// output window.
 			
 	sampleNumberWidth = sprintf ((char*)gTextString, "%lld", totalNumberPixels);
 											
@@ -2063,7 +2031,7 @@ Boolean ListClassificationSummary (
 														outputCodePtr);
 									
 	if (!continueFlag)
-																				return (FALSE);
+																						return (FALSE);
 
 			// List class or group data.
 				
@@ -2086,7 +2054,7 @@ Boolean ListClassificationSummary (
 	if (summaryUnitsCode == kAreaUnits)
 		{
 		areaWidthWithCommas = clsfyVariablePtr->areaNumberWidth - 
-															clsfyVariablePtr->numberPrecision;
+																	clsfyVariablePtr->numberPrecision;
 		if (clsfyVariablePtr->numberPrecision > 0)
 			areaWidthWithCommas--;
 			
@@ -2147,8 +2115,8 @@ Boolean ListClassificationSummary (
 									(float)percent);
 		*/
 		strLength = sprintf (gCharBufferPtr1,  
-									"%5ld\t%*s",
-									classNumber,
+									"%5u\t%*s",
+									(unsigned int)classNumber,
 									-maxNameLength,
 									gTextString2);
 
@@ -2171,11 +2139,11 @@ Boolean ListClassificationSummary (
 			area = (double)count * areaConversionFactor;
 
 			strLength = ListAreaValue (gCharBufferPtr1,
-													clsfyVariablePtr,
-													area,
-													strLength,
-													decimalPlaces,
-													areaWidthWithCommas);
+												clsfyVariablePtr,
+												area,
+												strLength,
+												decimalPlaces,
+												areaWidthWithCommas);
 													
 			}	// end "if (summaryUnitsCode == kAreaUnits)"
 			
@@ -2329,7 +2297,7 @@ Boolean ListClassificationSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2513,8 +2481,8 @@ Boolean ListFCGPerformanceTable (
 		}	// end "for (classIndex=0; ..."
 	
 			// Get the length of the longest class or group name which will be listed in
-			// the first column. The column minimum will be 16 and the maximum will be the
-			// length of the longest name.
+			// the first column. The column minimum will be 16 and the maximum will be
+			// the length of the longest name.
 		
    maxNameLength = 0;
 	if (classPtr != NULL)
@@ -2546,7 +2514,7 @@ Boolean ListFCGPerformanceTable (
 														outputCodePtr);
 											
 	if (!continueFlag)
-																					return (FALSE);
+																						return (FALSE);
 		
 			// List results by field, class or group for the specificied field 	
 			// depending upon the requested grouping.										
@@ -2663,7 +2631,7 @@ Boolean ListFCGPerformanceTable (
 													outputFileStreamPtr, 
 													outputCodePtr, 
 													countTotalFlag))
-																		 			return (FALSE);
+																		 				return (FALSE);
 																		 			
 					totalNumberSamples = 0;
 																		 			
@@ -2725,16 +2693,16 @@ Boolean ListFCGPerformanceTable (
 						// List the line of data.												
 						
 				if (!ListLineOfResults (clsfyVariablePtr, 
-													classifySubTotalVectorPtr, 
-													totalNumberSamples, 
-													columnClassPtr, 
-													numberTableListColumns, 
-													(SInt16)classifyVectorIndex, 
-													localGroupNamePtr, 
-													outputFileStreamPtr, 
-													outputCodePtr, 
-													countTotalFlag))
-																			 			return (FALSE);
+												classifySubTotalVectorPtr,
+												totalNumberSamples, 
+												columnClassPtr, 
+												numberTableListColumns, 
+												(SInt16)classifyVectorIndex, 
+												localGroupNamePtr, 
+												outputFileStreamPtr, 
+												outputCodePtr, 
+												countTotalFlag))
+																					return (FALSE);
 																			 			
 				initializeFlag = TRUE;
 					
@@ -2856,7 +2824,7 @@ Boolean ListFCGPerformanceTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2927,8 +2895,8 @@ Boolean ListLineOfResults (
 			
 	if (identifier >= 0)
 		sprintf ((char*)gTextString3, 
-						"%4ld", 
-						identifier);
+						"%4d",
+						(int)identifier);
 		
 	else	// identifier < 0 
 		sprintf ((char*)gTextString3, "    ");
@@ -2975,7 +2943,7 @@ Boolean ListLineOfResults (
 
 				// Load rest of the string for this line.								
 				
-		LoadListResultsString (	clsfyVariablePtr, 
+		LoadListResultsString (clsfyVariablePtr, 
 										&stringPtr, 
 										classifySubTotalVectorPtr, 
 										columnClassPtr, 
@@ -3016,7 +2984,7 @@ Boolean ListLineOfResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3031,7 +2999,7 @@ Boolean ListLineOfResults (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListPerformanceTables in SLstRslt.cpp
+// Called By:			ListPerformanceTables in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/31/1997
 //	Revised By:			Larry L. Biehl			Date: 01/08/1998
@@ -3084,16 +3052,10 @@ Boolean ListOverallPerformanceValues (
 													"%lld", 
 													clsfyVariablePtr->totalCorrectSamples); 
 
-		//NumToString (clsfyVariablePtr->totalCorrectSamples, gTextString);
-		//correctNumberWidth = gTextString[0];
-		
-		totalNumberWidth = sprintf ((char*)gTextString, 
+		totalNumberWidth = sprintf ((char*)gTextString,
 													"%lld", 
 													clsfyVariablePtr->totalNumberSamples);
 				
-		//NumToString (clsfyVariablePtr->totalNumberSamples, gTextString);
-		//totalNumberWidth = gTextString[0];
-	
 		if (continueFlag)
 			sprintf ((char*)gCharBufferPtr1, 
 							//"   OVERALL PERFORMANCE (%*lld / %*lld) = %5.1f%%",
@@ -3145,7 +3107,7 @@ Boolean ListOverallPerformanceValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3160,8 +3122,8 @@ Boolean ListOverallPerformanceValues (
 //
 // Value Returned:	None				
 // 
-// Called By:			ClassifyTrainTestFields in classify.c
-//							ListResultsTrainTestFields in listResults.c
+// Called By:			ClassifyTrainTestFields in SClassify.cpp
+//							ListResultsTrainTestFields in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1990
 //	Revised By:			Larry L. Biehl			Date: 01/07/1998
@@ -3314,7 +3276,7 @@ Boolean ListPerformanceTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3386,7 +3348,7 @@ Boolean ListPerformanceTableTotals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3476,8 +3438,8 @@ Boolean ListReliabilityAccuracyLine (
 	extraSpaces = MAX (0, clsfyVariablePtr->numberWidth-7);
 	sprintf (stringPtr, "%s", &gTextString[1]);
 	stringPtr += MIN (gTextString[0], 
-			4 + clsfyVariablePtr->classGroupNameWidth + gNumberOfEndOfLineCharacters - 2 +
-				extraSpaces); 
+							4 + clsfyVariablePtr->classGroupNameWidth +
+												gNumberOfEndOfLineCharacters - 2 + extraSpaces);
 	
 	MGetString (gTextString, kListResultsStrID, IDS_ListResult45);
 	sprintf (stringPtr, "%s", &gTextString[1]);
@@ -3533,7 +3495,7 @@ Boolean ListReliabilityAccuracyLine (
 									
 			// Add carriage return to the end of the line.								
 
-	sprintf (stringPtr, gEndOfLine);
+	sprintf (stringPtr, "%s", gEndOfLine);
 		
 	continueFlag = OutputString (
 						outputFileStreamPtr, gCharBufferPtr1, 0, *outputCodePtr, TRUE);
@@ -3545,7 +3507,7 @@ Boolean ListReliabilityAccuracyLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3575,9 +3537,7 @@ Boolean ListResultsAreasControl (
 	FileIOInstructionsPtr			fileIOInstructions1Ptr,
 											fileIOInstructions2Ptr;
 	
-	Handle								countVectorHandle = NULL;			
-	
-	//SInt32								numberInputBytesNeeded;
+	Handle								countVectorHandle = NULL;
 	
 	UInt32								index;
 	
@@ -3712,14 +3672,15 @@ Boolean ListResultsAreasControl (
 		{
 				// List the threshold value used if being used.		
 
-		continueFlag = ListThresholdValue (gListResultsSpecsPtr->probabilityThreshold,
-														gListResultsSpecsPtr->probabilityThreshold,
-														gListResultsSpecsPtr->probabilityThreshold,
-														(SInt16)gListResultsSpecsPtr->probabilityThreshold,
-														listResultsFileStreamPtr,
-														&gOutputForce1Code,
-														gListResultsSpecsPtr->thresholdFlag,
-														gListResultsSpecsPtr->thresholdTypeCode);	
+		continueFlag = ListThresholdValue (
+											gListResultsSpecsPtr->probabilityThreshold,
+											gListResultsSpecsPtr->probabilityThreshold,
+											gListResultsSpecsPtr->probabilityThreshold,
+											(SInt16)gListResultsSpecsPtr->probabilityThreshold,
+											listResultsFileStreamPtr,
+											&gOutputForce1Code,
+											gListResultsSpecsPtr->thresholdFlag,
+											gListResultsSpecsPtr->thresholdTypeCode);	
 		
 				// Show status fields in status dialog that apply for training,	
 				// test and image results listings.											
@@ -3887,7 +3848,7 @@ Boolean ListResultsAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3936,7 +3897,7 @@ void ListResultsControl (void)
 			// routine.																				
 			
 	if (gMemoryTypeNeeded < 0)
-																							return;
+																								return;
 		    		
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
@@ -3949,7 +3910,7 @@ void ListResultsControl (void)
 	listProjectNameFlag = FALSE; 
 			
 	continueFlag = SetUpActiveImageInformationGlobals (
-					&windowInfoHandle, &activeImageHandleStatus, kDoNotUseProject);
+							&windowInfoHandle, &activeImageHandleStatus, kDoNotUseProject);
 	                                                    
 			// Set up list results specification structure
 			
@@ -4024,11 +3985,11 @@ void ListResultsControl (void)
 									kMoveHi);
 					*/
 					if (!GetImageInformationPointers (
-									&probabilityHandleStatus, 
-									gListResultsSpecsPtr->probabilityWindowInfoHandle,
-									&gImageWindowInfo2Ptr, 
-									&gImageLayerInfo2Ptr, 
-									&gImageFileInfo2Ptr))
+											&probabilityHandleStatus,
+											gListResultsSpecsPtr->probabilityWindowInfoHandle,
+											&gImageWindowInfo2Ptr, 
+											&gImageLayerInfo2Ptr, 
+											&gImageFileInfo2Ptr))
 						gListResultsSpecsPtr->thresholdFlag = FALSE;
 									
 					}	// end "if (gListResultsSpecsPtr->thresholdFlag)"
@@ -4247,7 +4208,7 @@ void ListResultsControl (void)
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4263,7 +4224,7 @@ void ListResultsControl (void)
 //
 // Value Returned:	None
 //
-// Called By:			ListResultsControl   in listResults.c
+// Called By:			ListResultsControl   in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/14/1991
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -4440,6 +4401,7 @@ Boolean ListResultsDialog (
 
 	if (gAppearanceManagerFlag)
 		HideDialogItem (dialogPtr, 10);
+	
 	else	// !gAppearanceManagerFlag
 		HideDialogItem (dialogPtr, 40);
 		
@@ -4853,7 +4815,8 @@ Boolean ListResultsDialog (
 						// Class areas																
 
 				gListResultsSpecsPtr->classAreaSet = abs (gClassAreaSelection);
-				if (gListResultsSpecsPtr->classAreaSet == kAllMenuItem && projectWindowFlag)
+				if (gListResultsSpecsPtr->classAreaSet ==
+																	kAllMenuItem && projectWindowFlag)
 					LoadClassAreaVector (&gListResultsSpecsPtr->numberClassAreas,
 												(SInt16*)*gListResultsSpecsPtr->classAreaHandle);
 					
@@ -4949,10 +4912,10 @@ Boolean ListResultsDialog (
 											gListResultsSpecsPtr->probabilityWindowInfoHandle);
 								
 					gListResultsSpecsPtr->probabilityThresholdCode = GetThresholdCode (
-													saveThresholdValue,
-													fileInfoHandle,
-													gListResultsSpecsPtr->thresholdTypeCode);
-															
+														saveThresholdValue,
+														fileInfoHandle,
+														gListResultsSpecsPtr->thresholdTypeCode);
+					
 					}	// end "if (gListResultsSpecsPtr->thresholdFlag)" 
 					
 						// Write list results to output window.							
@@ -5004,7 +4967,7 @@ Boolean ListResultsDialog (
 		END_CATCH_ALL
 	#endif	// defined multispec_win  
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
       CMListResultsDialog*		dialogPtr = NULL;		
 		try
 			{
@@ -5081,7 +5044,7 @@ void ListResultsDialogSetThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5203,7 +5166,7 @@ Boolean ListResultsThematicClasses (
 		
 		}	// end "if (symbolsPtr != NULL)" 
 		
-	sprintf (stringPtr, gEndOfLine);																					
+	sprintf (stringPtr, "%s", (char*)gEndOfLine);
 	continueFlag = OutputString (outputFileStreamPtr, 
 											(char*)&gTextString[1], 
 											0, 
@@ -5297,7 +5260,7 @@ Boolean ListResultsThematicClasses (
 													
 			}	// end "if (symbolsPtr != NULL)" 
 			
-		sprintf (stringPtr, gEndOfLine);
+		sprintf (stringPtr, "%s", (char*)gEndOfLine);
 																										
 		continueFlag = OutputString (outputFileStreamPtr, 
 												(char*)gTextString, 
@@ -5322,7 +5285,7 @@ Boolean ListResultsThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5544,7 +5507,7 @@ SInt16 ListResultsTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5600,7 +5563,7 @@ Boolean ListTableFootNotes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5680,7 +5643,7 @@ Boolean ListThresholdValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5695,7 +5658,7 @@ Boolean ListThresholdValue (
 //
 // Value Returned:	None				
 // 
-// Called By:			LoadListResultsString in SLstRslt.cpp
+// Called By:			LoadListResultsString in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/25/1991
 //	Revised By:			Larry L. Biehl			Date: 08/16/2010
@@ -5765,7 +5728,7 @@ void LoadAreaString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5858,7 +5821,7 @@ void LoadClassInGroupOrderVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5899,7 +5862,7 @@ void LoadClassAreaVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6207,7 +6170,7 @@ Boolean LoadListResultsSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6277,7 +6240,7 @@ void LoadListResultsString (
 									
 			// Add carriage return to the end of the line.								
 
-	sprintf (*stringPtrPtr, gEndOfLine);
+	sprintf (*stringPtrPtr, "%s", gEndOfLine);
 	*stringPtrPtr += gNumberOfEndOfLineCharacters;
 			
 }	// end "LoadListResultsString" 
@@ -6285,7 +6248,7 @@ void LoadListResultsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6394,7 +6357,7 @@ Boolean LoadListResultsTitle (
 		stringIndex1 = IDS_ListResult7;
 		
 	else if (areaCode == kAreaType && tableType == kGroupTable)
-		stringIndex1 =IDS_ListResult8;
+		stringIndex1 = IDS_ListResult8;
 		
 	MGetString (gTextString, kListResultsStrID, stringIndex1);
 								
@@ -6712,7 +6675,7 @@ Boolean LoadListResultsTitle (
 			vectorIndex = identifier = classPtr[column];
 			
 		columnWidth = (SInt16)columnWidthVectorPtr[vectorIndex];
-		sprintf (stringPtr,  "\t%*ld", columnWidth, identifier);
+		sprintf (stringPtr,  "\t%*u", columnWidth, (unsigned int)identifier);
 			
 		stringPtr += columnWidth + 1;
 		
@@ -6727,7 +6690,7 @@ Boolean LoadListResultsTitle (
 		
 		}	// end "if (thresholdFlag)" 
 		
-	sprintf (stringPtr, gEndOfLine);
+	sprintf (stringPtr, "%s", gEndOfLine);
 								
 	continueFlag = OutputString (outputFileStreamPtr, 
 											gCharBufferPtr1, 
@@ -6735,7 +6698,7 @@ Boolean LoadListResultsTitle (
 											*outputCodePtr, 
 											TRUE);
 	if (!continueFlag)
-																				return (FALSE);
+																						return (FALSE);
 		
 		
 			// Fourth line of title.															
@@ -6856,7 +6819,7 @@ Boolean LoadListResultsTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6941,7 +6904,7 @@ void LoadPercentString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

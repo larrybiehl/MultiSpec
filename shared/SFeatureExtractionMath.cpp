@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,19 +20,6 @@
 //
 //	Brief description:	The purpose of the routines in this file are to do the 
 //								math for the feature extraction algorithms.
-//
-//	Functions in file:	void			cal_h_X
-//								void			FS_decision_boundary
-//								void			FS_discriminant_analysis
-//								void			FS_eigen_inverse_SwSb_gen
-//								UInt32		FS_optimize_2_class
-//								void			FS_quick_feature_extraction
-//								void 			FS_sol_bnd_line
-//								Boolean 		FS_sol_bnd_line_2
-//								UInt32		FS_sub_find_edbfm_2_class
-//								void			FS_sub_linear_transform
-//								HPtr 			GetDecisionBoundaryMemoryBlock
-//								void			normalize_rows
 //
 // FS_quick_feature_selection  (should be feature_extraction)
 // 		Inputs: number of features
@@ -56,7 +43,7 @@
 // 				for each pair of classes.)
 // 				threshold_prob is a threshold to get rid of outliers.
 // 				threshold_prob2 is a threshold to find the effective decision boundary.
-// 			FS_sol_bnd_line	 (find DBFM from the pairs of points classified differently).
+// 			FS_sol_bnd_line	(find DBFM from the pairs of points classified differently).
 // 				FS_sol_bnd_line_2 (find normal vector to the decision boundary from a 
 // 						pair of points classified differently).
 // 					cal_h_X 
@@ -71,29 +58,18 @@
 // 	FS_steepest_ascent (do not include. FS_decision_boundary is always better for
 // 			the parametric case).
 //
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
   
-#if defined multispec_lin
-	#include	"SMultiSpec.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+#endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDS_FeatureExtract74		74
 	#define	IDS_FeatureExtract75		75
 	#define	IDS_FeatureExtract76		76
 #endif	// multispec_mac || defined multispec_mac_swift
-  
-#if defined multispec_lin
-	#define SIGN(a,b) ((b) >= 0.0 ? fabs (a) : -fabs (a))
-#endif	// defined multispec_lin    
-
-//#include "SExtGlob.h"
-//#include	"SFS.h"
 
 #define SDOUBLE	sizeof (double)
 
@@ -373,7 +349,7 @@ void TransposeMatrix (
 // UInt32		gSampleMultipleCount = 0;
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -443,7 +419,7 @@ void cal_h_X (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -882,8 +858,8 @@ void FS_decision_boundary (
 										#if defined multispec_mac || defined multispec_win
 											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
-										#if defined multispec_lin
-											"     %3d-%3d       %5d   %5d      %5d   %5d"
+										#if defined multispec_wx
+											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
 										"      %5d%c   %5d%c          %4d%s",
 										classPtr[i],
@@ -908,8 +884,8 @@ void FS_decision_boundary (
 										#if defined multispec_mac || defined multispec_win
 											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
-										#if defined multispec_lin
-											"     %3d-%3d       %5d   %5d      %5d   %5d"
+										#if defined multispec_wx
+											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
 										"      %5d%c   %5d%c%s",
 										classPtr[i],
@@ -1080,7 +1056,7 @@ void FS_decision_boundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1331,7 +1307,7 @@ void FS_discriminant_analysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1527,7 +1503,7 @@ void FS_eigen_inverse_SwSb_gen (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1903,7 +1879,7 @@ UInt32 FS_optimize_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2048,7 +2024,7 @@ void FS_quick_feature_extraction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2319,7 +2295,7 @@ void FS_sol_bnd_line (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2511,7 +2487,7 @@ Boolean FS_sol_bnd_line_2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2646,7 +2622,7 @@ UInt32 FS_sub_find_edbfm_2_class (
 		(cl_res+1)->mah_dis_the_other=(float*)memoryBlockPtr;
 		memoryBlockPtr += numberBytes;
 		
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			numberBytes = (UInt32)(sizeof (long)*samplesInClass);
 			array_index[0] = (SInt32*)memoryBlockPtr;
 			memoryBlockPtr += numberBytes;
@@ -2991,7 +2967,7 @@ UInt32 FS_sub_find_edbfm_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3054,7 +3030,7 @@ void FS_sub_linear_transform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3211,7 +3187,7 @@ HPtr GetDecisionBoundaryMemoryBlock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3276,7 +3252,7 @@ void normalize_rows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3752,7 +3728,7 @@ SInt32 NWFE (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3816,7 +3792,7 @@ void AddBxSymMatrixToSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3876,7 +3852,7 @@ void RegularizeSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3942,7 +3918,7 @@ void NWFE_AddToScatterMatrixForClass_i (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4080,7 +4056,7 @@ SInt32 NWFE_GetLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4144,7 +4120,7 @@ double NWFE_GetScatterMatrixWeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4252,7 +4228,7 @@ SInt32 NWFE_SumInvDistXLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4385,7 +4361,7 @@ void TransformLineOfCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4629,7 +4605,7 @@ L280:
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4759,7 +4735,7 @@ void balbak (
 
 #define SWAP(g,h) {y=(g);(g)=(h);(h)=y;}
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4909,7 +4885,7 @@ void elmhes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5030,7 +5006,7 @@ void eltran (
 
 static double c_b50 = 0.;
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5101,7 +5077,7 @@ static double c_b50 = 0.;
 //							Larry L. Biehl			Date: 02/12/2002
 //	Revised By:			Larry L. Biehl			Date: 02/15/2002	
 
-SInt32 hqr2(
+SInt32 hqr2 (
 				SInt32								nm, 
 				SInt32								n, 
 				SInt32								low, 
@@ -5325,7 +5301,7 @@ L150:
 		
 L170:
 		d__1 = sqrt (p*p + q*q + r*r);
-		s = SIGN(d__1, p);
+		s = SIGN (d__1, p);
 		if (k == m)
 			goto L180;
 		
@@ -5450,7 +5426,7 @@ L280:
 		
 			// real pair
 			
-	zz = p + SIGN(zz, p);
+	zz = p + SIGN (zz, p);
 	wr[na] = x + zz;
 	wr[en] = wr[na];
 	if (zz != 0.)
@@ -5831,7 +5807,7 @@ void cdiv (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5944,7 +5920,7 @@ void orthes (
 	            
 					}	// end "for (ii=m; ii<=igh; II++)"
 
-	         g = -SIGN(sqrt (h),ort[m]);
+	         g = -SIGN (sqrt (h),ort[m]);
 	         h -= ort[m] * g;
 	         ort[m] -= g;
 	         
@@ -6008,7 +5984,7 @@ void orthes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6143,7 +6119,7 @@ void ortran (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6374,7 +6350,7 @@ SInt32 MatlabEigFunction (
 //#include <math.h>
 //#include "nrutil.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6498,7 +6474,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 						{ 
 								// ...a real pair.
 	
-						z = p + SIGN(z,p);
+						z = p + SIGN (z,p);
 						wr[nn-1] = wr[nn] = x + z;
 						if (z) 
 							wr[nn] = x - w/z;
@@ -6611,7 +6587,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 							
 							}	// end "if (k != m)"
 							
-						if ((s = SIGN(sqrt (p*p+q*q+r*r), p)) != 0.0)
+						if ((s = SIGN (sqrt (p*p+q*q+r*r), p)) != 0.0)
 							{
 							if (k == m) 
 								{
@@ -6669,7 +6645,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 								
 								}	// end "for (i=l; i<=mmin; i++)"
 								
-							}	// end "if ((s = SIGN(sqrt (p*p+q*q+r*r), p)) != 0.0)"
+							}	// end "if ((s = SIGN (sqrt (p*p+q*q+r*r), p)) != 0.0)"
 		
 						}	// end "for (k=m; k<=nn-1; k++)"
 		
@@ -6690,7 +6666,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 //#include "nrutil.h"
 //#include "nr.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6790,7 +6766,7 @@ SInt32 ComputeEigenvectorsSVD (
 					}	// end "for (k=i; k<=m; k++)"
 					
 				f = a[i][i];
-				g = -SIGN(sqrt (s), f);
+				g = -SIGN (sqrt (s), f);
 				h = f*g - s;
 				a[i][i] = f - g;
 				for (j=l;j<=n;j++) 
@@ -6828,7 +6804,7 @@ SInt32 ComputeEigenvectorsSVD (
 					}	// end "for (k=l; k<=n; k++)"
 					
 				f = a[i][l];
-				g = -SIGN(sqrt (s), f);
+				g = -SIGN (sqrt (s), f);
 				h = f*g - s;
 				a[i][l] = f - g;
 				for (k=l; k<=n; k++)
@@ -7032,7 +7008,7 @@ SInt32 ComputeEigenvectorsSVD (
 			h = rv1Ptr[k];
 			f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y);
 			g = dpythag (f, 1.0);
-			f = ((x-z)*(x+z) + h*((y/(f + SIGN(g,f)))-h))/x;
+			f = ((x-z)*(x+z) + h*((y/(f + SIGN (g,f)))-h))/x;
 			c = s = 1.0;
 			for (j=l; j<=nm; j++)
 				{
@@ -7145,7 +7121,7 @@ double dpythag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

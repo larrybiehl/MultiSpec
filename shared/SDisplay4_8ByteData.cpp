@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -17,22 +17,13 @@
 //
 //	System:					Linux, Macintosh and Windows Operating Systems
 //
-//	Functions in file:	void 		Display2C16BImage
-//								void 		Display2C24BImage
-//								void 		Display3C1624BImage
-//								void		UpdatePaletteFor16and24BImage
-//
-//	Brief description:	 
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
+//	Brief description:
 //
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif	
 
 
@@ -42,7 +33,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -108,7 +99,7 @@ void Display1Channel4Byte8BitLine (
 			*offScreenPtr = dataDisplayPtr[binIndex];
 		#endif
 		
-		#if defined multispec_lin
+		#if defined multispec_wx
 			if (displayCode == 101)
 				{
 				#if defined multispec_wxmac_alpha
@@ -148,7 +139,7 @@ void Display1Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -164,7 +155,7 @@ void Display1Channel4Byte8BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -259,16 +250,17 @@ void Display2Channel4Byte8BitLine (
 }	// end "Display2Channel4Byte8BitLine"
 
 
-
+/*
+		Option removed in 11/2019
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void Display2Channel4Byte16BitLine
 //
 //	Software purpose:	The purpose of this routine is to copy the input
-//							line of data to the offscreen buffer for a 3-channel
+//							line of data to the offscreen buffer for a 2-channel
 //							color image.
 //							Note that this routine is only used by Mac version
 //
@@ -278,7 +270,7 @@ void Display2Channel4Byte8BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
 //	Revised By:			Larry L. Biehl			Date: 12/12/2018
@@ -308,10 +300,10 @@ void Display2Channel4Byte16BitLine (
 											j;
 	
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 				// 16-bit color is not used for wxWidgets version
 																								return;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	switch (rgbColors)
 		{
@@ -516,11 +508,13 @@ void Display2Channel4Byte16BitLine (
 		}	// end "switch (displayPalette.rgbColors)" 
 	
 }	// end "Display2Channel4Byte16BitLine"
+*/
 
 
-
+/*
+		Option removed in 11/2019
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -536,7 +530,7 @@ void Display2Channel4Byte16BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -575,7 +569,7 @@ void Display2Channel4Byte24BitLine (
 		case kGBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_lin
+				#if defined multispec_mac || defined multispec_wx
 					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 				
@@ -598,8 +592,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -620,8 +614,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -650,7 +644,7 @@ void Display2Channel4Byte24BitLine (
 						}	// end "if (backgroundValueCode && !backgroundValue)"
 		
 					offScreen4BytePtr++;					
-				#endif	// defined multispec_mac || defined multispec_lin
+				#endif	// defined multispec_mac || defined multispec_wx
 				
 				#if defined multispec_win 					
 							// Blue byte.						
@@ -664,8 +658,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -686,8 +680,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -737,7 +731,7 @@ void Display2Channel4Byte24BitLine (
 		case kRBColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_lin
+				#if defined multispec_mac || defined multispec_wx
 					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 						offScreenPtr++;
@@ -753,8 +747,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -780,8 +774,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -824,8 +818,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -851,8 +845,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -897,7 +891,7 @@ void Display2Channel4Byte24BitLine (
 		case kRGColor:	
 			for (j=0; j<numberSamples; j+=interval)
 				{
-				#if defined multispec_mac || defined multispec_lin
+				#if defined multispec_mac || defined multispec_wx
 					#if defined multispec_mac || defined multispec_wxmac_alpha
 								// Leave high order byte blank.
 						offScreenPtr++;
@@ -914,8 +908,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -936,8 +930,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -971,7 +965,7 @@ void Display2Channel4Byte24BitLine (
 						}	// end "if (backgroundValueCode && !backgroundValue)"
 		
 					offScreen4BytePtr++;					
-				#endif	// defined multispec_mac || defined multispec_lin
+				#endif	// defined multispec_mac || defined multispec_wx
 				
 				#if defined multispec_win 					
 							// Set Blue byte to zero.											
@@ -990,8 +984,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin1);
 						
@@ -1012,8 +1006,8 @@ void Display2Channel4Byte24BitLine (
 						{
 						binIndex = (UInt32)doubleBinIndex;
 						
-								// This will catch case when doubleBinIndex is nan or -nan. The
-								// conversion from this can be a large unsigned 32-bit int.
+								// This will catch case when doubleBinIndex is nan or -nan.
+								// The conversion from this can be a large unsigned 32-bit int.
 								
 						binIndex = MIN (binIndex, maxBin2);
 						
@@ -1058,11 +1052,11 @@ void Display2Channel4Byte24BitLine (
 		}	// end "switch (rgbColors)" 
 	
 }	// end "Display2Channel4Byte24BitLine"	
-
+*/
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1078,7 +1072,7 @@ void Display2Channel4Byte24BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -1111,7 +1105,7 @@ void Display3Channel4Byte8BitLine (
 											binIndex,
 											j;
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		UChar									offScreenValue;
 	#endif
 	
@@ -1190,12 +1184,14 @@ void Display3Channel4Byte8BitLine (
 				
 			}	// end "if (backgroundValueCode && !backgroundValue)"
 			
-		#if defined multispec_lin
+		#if defined multispec_wx
 			#if defined multispec_wxmac_alpha
 						// Leave high order byte blank.	
 				offScreenPtr++;
 			#endif
-					// linux version require red, green, blue bytes be filled with same value
+					// wxWidgets version require red, green, blue bytes be filled with
+					// same value
+		
 			offScreenValue = *offScreenPtr;
 			offScreenPtr++;
 			*offScreenPtr += offScreenValue;
@@ -1217,7 +1213,7 @@ void Display3Channel4Byte8BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1233,7 +1229,7 @@ void Display3Channel4Byte8BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/2006
 //	Revised By:			Larry L. Biehl			Date: 12/12/2018
@@ -1267,7 +1263,7 @@ void Display3Channel4Byte16BitLine (
 											j;
 							
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 			// 16-bit color not used in wxWidgets version
 																						return;
 	#endif
@@ -1358,7 +1354,7 @@ void Display3Channel4Byte16BitLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1374,7 +1370,7 @@ void Display3Channel4Byte16BitLine (
 //
 // Value Returned:	None				
 // 
-// Called By:			DisplayColorImage in display.c
+// Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2003
 //	Revised By:			Larry L. Biehl			Date: 03/11/2019
@@ -1414,7 +1410,7 @@ void Display3Channel4Byte24BitLine (
 		
 	for (j=0; j<numberSamples; j+=interval)
 		{
-		#if defined multispec_mac || defined multispec_lin
+		#if defined multispec_mac || defined multispec_wx
 			#if defined multispec_mac || defined multispec_wxmac_alpha
 						// Leave high order byte blank.
 		

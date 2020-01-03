@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Behzad M Shahshahani
 //								Larry L. Biehl
 //
-//	Revision date:			03/22/2019
+//	Revision date:			11/25/2019
 //
 //	Language:				C
 //
@@ -22,20 +22,6 @@
 //								the class statistics by adding information in from
 //								unlabeled sample.  Behzad M Shahshahani developed the 
 //								ideas for this processor and the code.
-//
-//	Functions in file:	SInt16	 			behzad_ModifyStatistics
-//								void 					CopyEnhancedStatsToProject
-//								Boolean 				Gaussian
-//								UInt32	 			GetStatisticsEnhancePixelInterval
-//								UInt32				GetTotalNumberTrainPixels
-//								UInt32	 			GetUnlabeledLogLikes
-//								Boolean 				LoadStatEnhanceClassStatistics
-//								Boolean	 			LoadStatisticsEnhanceSpecs
-//								Boolean	 			StatisticsEnhance
-//								void		 			StatisticsEnhanceControl
-//								Boolean				StatisticsEnhanceDialog
-//								void 					UpdateNumberLabeledSamples
-//								void					UpdateNumberUnlabeledSamples
 //
 //	Diagram of MultiSpec routine calls for the routines in the file.
 //
@@ -50,7 +36,7 @@
 ///			StatisticsEnhanceDialogOK
 //				
 //			VerifyProjectStatsUpToDate (in SProjectUtilities.cpp)*
-//			GetStatusDialog (in SDlgUtil.cpp)
+//			GetStatusDialog (in SDialogUtilities.cpp)
 //			ListHeaderInfo (in SStrings.cpp)
 //			CheckClassEnhancedStats (in SProjectUtilities.cpp)
 //			CheckNumberOfPixelsInClass (in SProjectUtilities.cpp)
@@ -60,15 +46,15 @@
 //				AssignClassInfoMemory (in SProjectUtilities.cpp)
 //				GetTotalNumberTrainPixels
 //				GetNumberPixelsInArea (in SUtility.cpp)
-//				GetIOBufferPointers (in SMemUtil.cpp)
+//				GetIOBufferPointers (in SMemoryUtilities.cpp)
 //				InitializeAreaDescription (in SUtilities.cpp)*
-//				GetFieldDataValues (in SPMatUtl.cpp)
-//				SetupMatrixInversionMemory (in SPMatUtl.cpp)
+//				GetFieldDataValues (in SProjectMatrixUtilities.cpp)
+//				SetupMatrixInversionMemory (in SProjectMatrixUtilities.cpp)
 //				InitializeStatisticsVariables
 //					LoadStatEnhanceClassStatistics
-//						GetClassCovarianceMatrix (in SStatCom.cpp)
-//						ReduceMeanVector (in SMatUtil.cpp)
-//						InvertLowerTriangularMatrix (in SPMatUtl.cpp)
+//						GetClassCovarianceMatrix (in SProjectComputeStatistics.cpp)
+//						ReduceMeanVector (in SMatrixUtilities.cpp)
+//						InvertLowerTriangularMatrix (in SProjectMatrixUtilities.cpp)
 //						ListClassInformationMessage (in SProjectUtilities.cpp)
 //						GetClassWeightsIndex (in SProjectUtilities.cpp)
 //						GetTotalProbability (in SProjectUtilities.cpp)
@@ -76,7 +62,7 @@
 //						
 //					GetUnlabeledLogLikes
 //						Gaussian
-//						CheckSomeEvents (in multiSpec.c and CStubs.cpp)
+//						CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
 //						
 //					LoadStatEnhanceClassStatistics
 //						(See above)
@@ -91,13 +77,13 @@
 //								CloseUpAreaDescription (in SUtility.cpp)
 //								Gaussian
 //								UpdateLabeledValueList
-//									BlockMoveData (in CStubs.cpp)
+//									BlockMoveData (in SStubs.cpp)
 //									
-//								CheckSomeEvents (in multiSpec.c and CStubs.cpp)
+//								CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
 //								CloseUpFileIOInstructions (in SFileIO.cpp)
 //								CloseUpAreaDescription (in SUtility.cpp)
 //
-//				DisposeIOBufferPointers (in SMemUtil.cpp)
+//				DisposeIOBufferPointers (in SMemoryUtilities.cpp)
 //				ListStatEnhanceSpecifications
 //
 //				behzad_ModifyStatistics
@@ -105,34 +91,31 @@
 //					GetUnlabeledLogLikes
 //						(See above)
 //
-//					GetClassSumsSquares (in SStatCom.cpp)
-//					CheckSomeEvents (in multiSpec.c and CStubs.cpp)
-//					UpdateOutputWScrolls (in controls.c and)
-//					CheckSomeEvents (in multiSpec.c and CStubs.cpp)
-//					GetClassSumsSquares (in SStatCom.cpp)
-//					CheckSomeEvents (in multiSpec.c and CStubs.cpp)
-//					ResetZeroVariances (in SStatCom.cpp)
-//					InvertLowerTriangularMatrix (in SPMatUtl.cpp)
+//					GetClassSumsSquares (in SProjectComputeStatistics.cpp)
+//					CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
+//					UpdateOutputWScrolls (in MControls.c and)
+//					CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
+//					GetClassSumsSquares (in SProjectComputeStatistics.cpp)
+//					CheckSomeEvents (in MMultiSpec.c and SStubs.cpp)
+//					ResetZeroVariances (in SProjectComputeStatistics.cpp)
+//					InvertLowerTriangularMatrix (in SProjectMatrixUtilities.cpp)
 //					ListClassInformationMessage (in SProjectUtilities.cpp)
 //					GetMaximumClassDistances
 //						(See above)
 //
 //				ClearGlobalAlertVariables (in SProjectUtilities.cpp)
-//				ReleaseMatrixInversionMemory (SPMatUtl.cpp)
+//				ReleaseMatrixInversionMemory (SProjectMatrixUtilities.cpp)
 //				CopyEnhancedStatsToProject
 //				ListClassesUsed (in SProjectUtilities.cpp)
 //				ReleaseClassInfoMemory (in SProjectUtilities.cpp)
 //				
 //			
 //			ListCPUTimeInformation (in SStrings.cpp)
-//			UpdateOutputWScrolls (in controls.c and)
-//			CloseStatusDialog (in SDlgUtil.cpp)
+//			UpdateOutputWScrolls (in MControls.c and)
+//			CloseStatusDialog (in SDialogUtilities.cpp)
 //			MInitCursor (in SUtility.cpp)
-//			CheckAndUnlockHandle (in SMemUtil.cpp)
+//			CheckAndUnlockHandle (in SMemoryUtilities.cpp)
 //			UnlockProjectWindowInfoHandles (in SProject.cpp)
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //
 //------------------------------------------------------------------------------------
 
@@ -156,13 +139,11 @@
 	#include "WEnhanceStatisticsDialog.h"   
 #endif	// defined multispec_win  
 
-#if defined multispec_lin 
-   #include "LMultiSpec.h"
-	#include "LEnhanceStatisticsDialog.h"   
-#endif	// defined multispec_lin
+#if defined multispec_wx 
+   #include "xMultiSpec.h"
+	#include "xEnhanceStatisticsDialog.h"   
+#endif	// defined multispec_wx
 
-
-//#include	"SExtGlob.h"
 
 		// Enhance Statistics constants												
 	
@@ -170,67 +151,6 @@
 #define	kUseChiChiThreshold				2
 #define	kUsePercentThreshold				3
 #define	kUseFarthestPixelThreshold		4
-
-
-	
-extern void StatisticsEnhanceDialogInitialize (
-				DialogPtr							dialogPtr,
-				StatEnhanceSpecsPtr				statEnhanceSpecsPtr,
-				DialogSelectAreaPtr				dialogSelectAreaPtr,
-				UInt16*								localClassPtr,
-				SInt16*								classSelectionPtr,
-				UInt32*								localNumberClassesPtr,
-				Boolean*								useEnhancedStatisticsFlagPtr,
-				SInt16*								classWeightSetPtr,
-				SInt16*								weightsSelectionPtr,
-				SInt16*								softThresholdSelectionPtr,
-				double*								softChiChiThresholdPtr,
-				double*								softPercentThresholdPtr,
-				SInt16*								hardThresholdSelectionPtr,
-				double*								hardChiChiThresholdPtr,
-				double*								hardPercentThresholdPtr,
-				Boolean*								weightLabeledFlagPtr,
-				double*								labelWeightPtr,
-				SInt32*								iterationMaxPtr,
-				SInt32*								iterationStopLengthPtr,
-				double*								logLikeStopPercentPtr);
-
-extern void StatisticsEnhanceDialogOK (
-				StatEnhanceSpecsPtr				statEnhanceSpecsPtr,
-				DialogSelectAreaPtr				dialogSelectAreaPtr,
-				UInt16*								localClassPtr,
-				SInt16								classSelection,
-				UInt32								localNumberClasses,
-				Boolean								useEnhancedStatisticsFlag,
-				SInt16								weightsSelection,
-				float*								classWeightsPtr,
-				SInt16								softThresholdSelection,
-				double								softChiChiThreshold,
-				double								softPercentThreshold,
-				SInt16								hardThresholdSelection,
-				double								hardChiChiThreshold,
-				double								hardPercentThreshold,
-				Boolean								weightLabeledFlag,
-				double								labelWeight,
-				SInt32								iterationMax,
-				SInt32								iterationStopLength,
-				double								logLikeStopPercent);
-
-extern void StatisticsEnhanceDialogUpdateChiSquaredValue (
-				DialogPtr							dialogPtr,
-				SInt16								thresholdCode,
-				SInt16								chiChiThresholdItemNumber,
-				double								thresholdPercent,
-				double*								chiChiThresholdPtr);
-
-extern void StatisticsEnhanceDialogUpdateThresholdItems (
-				DialogPtr							dialogPtr,
-				SInt16								thresholdCode,
-				SInt16								chiChiThresholdItemNumber,
-				SInt16								percentThresholdPromptItemNumber,
-				SInt16								percentThresholdItemNumber,
-				double								thresholdPercent,
-				double*								chiChiThresholdPtr);
 
 
 	
@@ -376,7 +296,7 @@ SInt16									gSoftThresholdSelection;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -394,7 +314,7 @@ SInt16									gSoftThresholdSelection;
 // Called By:
 //
 //	Coded By:			Behzad M Shahshahani	Date: ??/??/1993
-//	Revised By:			Larry L. Biehl			Date: 12/15/2010
+//	Revised By:			Larry L. Biehl			Date: 11/25/2019
 
 SInt16 behzad_ModifyStatistics (
 				StatEnhanceSpecsPtr 				statEnhanceSpecsPtr, 
@@ -746,8 +666,8 @@ SInt16 behzad_ModifyStatistics (
 			}	// end "else iount > 0" 
       	
 		sprintf ((char*)gTextString, 
-					"    %6ld          %.1f        %.2f%s",
-					iount,
+					"    %6d          %.1f        %.2f%s",
+					(int)iount,
 					xloglPtr[iount],
 					diff,
 					gEndOfLine);
@@ -1190,7 +1110,7 @@ SInt16 behzad_ModifyStatistics (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1356,10 +1276,9 @@ void CopyEnhancedStatsToProject (
 }	// end "CopyEnhancedStatsToProject" 
 
 
-
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1394,13 +1313,11 @@ pascal void DrawHardThresholdPopUp (
 								TRUE);
 	
 }	// end "DrawHardThresholdPopUp" 
-#endif	// defined multispec_mac 
-
-
+#endif	// defined multispec_mac
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1436,11 +1353,10 @@ pascal void DrawSoftThresholdPopUp (
 	
 }	// end "DrawSoftThresholdPopUp" 
 #endif	// defined multispec_mac
-											
-		
+
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1456,7 +1372,7 @@ pascal void DrawSoftThresholdPopUp (
 //
 // Value Returned:	None
 // 
-// Called By:			GetUnlabeledLogLikes in SStatEnh.cpp
+// Called By:			GetUnlabeledLogLikes in SStatisticsEnhancement.cpp
 //
 //	Coded By:			Behzad M Shahshahani	Date: ??/??/1993
 //	Revised By:			Larry L. Biehl			Date: 11/30/1999
@@ -1536,7 +1452,7 @@ double Gaussian (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1630,7 +1546,7 @@ SInt16 GetLongestDistanceClass (
 														classInfoPtr, 
 														classNumber+1, 
 														fieldNumber) == 0)
-																									return (0);
+																								return (0);
 				
 				fieldCount++;
 								
@@ -1656,7 +1572,7 @@ SInt16 GetLongestDistanceClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1912,7 +1828,7 @@ SInt16 GetLongestDistanceField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2023,7 +1939,7 @@ Boolean GetLongestDistanceProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2104,7 +2020,7 @@ void GetMaximumClassDistances (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2280,7 +2196,7 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 
 		
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2337,7 +2253,7 @@ SInt64 GetTotalNumberTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2430,7 +2346,7 @@ UInt32 GetUnlabeledLogLikes (
 							// exp (-11400) is the smallest number possible for the 68K macs
 							// for 'native' double based on example tests.  This computes to	
 							// be around 10e-4951.															
-							// Larry Biehl 2/27/95			
+							// Larry Biehl 2/27/1995
 				
 					classThresholdFlagPtr[i] = TRUE;
 					
@@ -2523,7 +2439,7 @@ UInt32 GetUnlabeledLogLikes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2658,7 +2574,7 @@ Boolean InitializeStatisticsVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2925,7 +2841,7 @@ Boolean ListStatEnhanceSpecifications (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3102,7 +3018,7 @@ Boolean LoadStatEnhanceClassStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3346,7 +3262,7 @@ Boolean LoadStatisticsEnhanceSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3766,7 +3682,7 @@ Boolean StatisticsEnhance (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3967,7 +3883,7 @@ void StatisticsEnhanceControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4622,10 +4538,9 @@ Boolean StatisticsEnhanceDialog (void)
 		END_CATCH_ALL
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMEnhanceStatisticsDialog*		dialogPtr = NULL;
-     
-		//dialogPtr = new CMEnhanceStatisticsDialog ((wxWindow*)GetMainFrame ());
+	
 		dialogPtr = new CMEnhanceStatisticsDialog (NULL);
 		
 		returnFlag = dialogPtr->DoDialog (gStatEnhanceSpecsPtr); 
@@ -4640,7 +4555,7 @@ Boolean StatisticsEnhanceDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4728,6 +4643,7 @@ void StatisticsEnhanceDialogInitialize (
 	#if defined multispec_mac 
 		if (gAppearanceManagerFlag)
 			HideDialogItem (dialogPtr, 7);
+			
 		else	// !gAppearanceManagerFlag
 			HideDialogItem (dialogPtr, 44);
 	#endif	// defined multispec_mac  
@@ -4849,7 +4765,7 @@ void StatisticsEnhanceDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4971,7 +4887,7 @@ void StatisticsEnhanceDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5040,7 +4956,7 @@ void StatisticsEnhanceDialogUpdateThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5086,7 +5002,7 @@ void StatisticsEnhanceDialogUpdateChiSquaredValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5131,7 +5047,7 @@ void UpdateNumberUnlabeledSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5178,7 +5094,7 @@ void UpdateNumberLabeledSamples (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of (c)Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/15/2019
+//	Revision date:			09/13/2019
 //
 //	Language:				C
 //
@@ -21,39 +21,12 @@
 //								provide matrix utility type functions for MultiSpec 
 //								that are to be loaded all the time.
 //
-//	Functions in file:	void 					AddToClassStatistics
-//								void 					AddVectors
-//								void 					ComputeCorrelationFromCovMatrix (statCompute.c)
-//								void 					ComputeCorrelationCoefficientMatrix
-//								void 					ComputeCovarianceMatrix
-//								void 					ComputeEigenvectors
-//								void					ComputeMeanStdDevVector
-//								void					ComputeMeanVector
-//								void					ComputeStdDevVector
-//								void 					CopyLowerToUpperSquareMatrix
-//								void	 				EigenvectorInfoExists
-//								SInt16	 			GetAreaStats
-//								void					GetDiagonalVectorFromMatrix
-//								UInt16* 				GetStatisticsFeatureVector
-//								Boolean 				GetTotalSumSquares
-//								void 					GetTransformedCovarianceMatrix
-//								void 					GetTransformedMeanVector
-//								Boolean 				ListEigenTransformationInformation
-//								Boolean				ListTransformationInformation
-//								void 					MatrixMultiply
-//								void					ReduceInputMatrix
-//								void 					ReduceMeanVector
-//								void 					ReleaseFeatureTransformationMemory
-//								Boolean 				SaveTransformationMatrix
-//								void 					SquareToTriangularMatrix
-//								void 					ZeroStatisticsMemory
-//
 //------------------------------------------------------------------------------------
 
-#include "SMultiSpec.h"  
+#include "SMultiSpec.h"
+#include "Ssvm.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_mac
@@ -61,51 +34,49 @@
 #endif	// defined multispec_mac    
 
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 #endif	// defined multispec_win
 
 #include 	"errno.h"
 
-//#include "SExtGlob.h"
 
 
+void ReduceMatrix1 (
+				HDoublePtr							inputMatrixPtr,
+				HDoublePtr							outputMatrixPtr, 
+				SInt16								inputSize1, 
+				SInt16								inputSize2, 
+				SInt16								inputSize3, 
+				SInt16*								featureListPtr);
 
-void 					ReduceMatrix1 (
-							HDoublePtr							inputMatrixPtr, 
-							HDoublePtr							outputMatrixPtr, 
-							SInt16								inputSize1, 
-							SInt16								inputSize2, 
-							SInt16								inputSize3, 
-							SInt16*								featureListPtr);
+void ReduceMatrix2 (
+				HDoublePtr							inputMatrixPtr,
+				HDoublePtr							outputMatrixPtr, 
+				UInt32								inputSize1, 
+				UInt32								inputSize2, 
+				SInt16*								featureListPtr);
 
-void 					ReduceMatrix2 (
-							HDoublePtr							inputMatrixPtr, 
-							HDoublePtr							outputMatrixPtr, 
-							UInt32								inputSize1, 
-							UInt32								inputSize2, 
-							SInt16*								featureListPtr);
-							
-Boolean 				ListEigenTransformationInformation (
-							HDoublePtr							covariancePtr, 
-							HDoublePtr							eigenVectorPtr, 
-							SInt32								numberIterations, 
-							double								smallestElement, 
-							UInt16*								channelsPtr, 
-							UInt16								numberChannels,
-							UInt16								numberComponents, 
-							Boolean								listEigenvalueFlag, 
-							Boolean								listEigenvectorFlag);
-							
-Boolean 				ListOffsetGainTransformationInformation (
-							HDoublePtr							offsetVectorPtr, 
-							HDoublePtr							gainVectorPtr,
-							UInt16								numberChannels,
-							Boolean								listOffsetGainFlag);
+Boolean ListEigenTransformationInformation (
+				HDoublePtr							covariancePtr,
+				HDoublePtr							eigenVectorPtr, 
+				SInt32								numberIterations, 
+				double								smallestElement, 
+				UInt16*								channelsPtr, 
+				UInt16								numberChannels,
+				UInt16								numberComponents, 
+				Boolean								listEigenvalueFlag, 
+				Boolean								listEigenvectorFlag);
+
+Boolean ListOffsetGainTransformationInformation (
+				HDoublePtr							offsetVectorPtr,
+				HDoublePtr							gainVectorPtr,
+				UInt16								numberChannels,
+				Boolean								listOffsetGainFlag);
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -121,8 +92,8 @@ Boolean 				ListOffsetGainTransformationInformation (
 //
 // Value Returned:	None
 // 
-// Called By:			GetTotalSumSquares in matrixUtilities
-//							GetClassSumsSquares in statCompute.c
+// Called By:			GetTotalSumSquares in SMatrixUtilities.cpp
+//							GetClassSumsSquares in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1988
 //	Revised By:			Larry L. Biehl			Date: 07/30/1992	
@@ -249,7 +220,7 @@ void AddToClassStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -297,7 +268,7 @@ void AddVectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -394,7 +365,7 @@ void ClearTransformationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -516,7 +487,7 @@ void ComputeCorrelationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -532,9 +503,9 @@ void ComputeCorrelationMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetEigenvectorClusterCenters in clusterISODATA.c
-//							PrincipalComponentAnalysis in principalComponent.c
-//							ListStatistics in statList.c
+// Called By:			GetEigenvectorClusterCenters in SClusterIsodata.cpp
+//							PrincipalComponentAnalysis in SPrincipalComponents.cpp
+//							ListStatistics in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/01/1989
 //	Revised By:			Larry L. Biehl			Date: 08/20/2010	
@@ -708,7 +679,7 @@ void ComputeCorrelationCoefficientMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -887,7 +858,7 @@ void ComputeCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -916,11 +887,11 @@ void ComputeCovarianceMatrix (
 //
 // Value Returned: 
 //
-// Called By:			GetEigenvectorClusterCenters in clusterISODATA.c
-//							FS_eigen_inverse_SwSb_gen in mul.c
-//							FS_decision_boundary in mul.c
-//							FS_optimize_2_class in mul.c
-//							PrincipalComponentAnalysis in principalComponent.c
+// Called By:			GetEigenvectorClusterCenters in SClusterIsodata.cpp
+//							FS_eigen_inverse_SwSb_gen in SFeatureExtractionMath.cpp
+//							FS_decision_boundary in SFeatureExtractionMath.cpp
+//							FS_optimize_2_class in SFeatureExtractionMath.cpp
+//							PrincipalComponentAnalysis in SPrincipalComponents.cpp
 //
 //	Coded By:			?							Date: ?
 //	Revised By:			C.H. LEE					Date: 11/03/1988
@@ -989,12 +960,12 @@ Boolean ComputeEigenvectors (
 	
 			// Initialize local variables.
 			// I tried different settings for epsi to 10-19 for 68881 and 10-15 for
-			// others. It did not make any difference in the precision for the eigenvectors
-			// but did make a significant difference in the time to compute.
+			// others. It did not make any difference in the precision for the
+			// eigenvectors but did make a significant difference in the time to compute.
 			// For 220 channels, PPC 8100/80 and computing SVD for matrix inversion. The
-			// average error represent the covariance time inverse as different from identity
-			// matrix. The 'standard' matrix inversion always had an ave error of an order
-			// of magnitude better.
+			// average error represent the covariance time inverse as different from
+			// identity matrix. The 'standard' matrix inversion always had an ave error
+			// of an order of magnitude better.
 			// 	10e-16 = 97 seconds, ave error = 4.41252e-13
 			//		10e-15 = 78 seconds, ave error = 4.41771e-13
 			//		10e-10 = 66 seconds, ave error = 5.86121e-13
@@ -1186,7 +1157,7 @@ Boolean ComputeEigenvectors (
 														
 		 	x[0] = iterationCount;
 		 	x[1] = xmax;
-																				return (!stopFlag);
+																					return (!stopFlag);
 		 	
 		 	}	// end "if (xmax<epsi || ...)" 
 	
@@ -1410,7 +1381,7 @@ Boolean ComputeEigenvectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1426,11 +1397,11 @@ Boolean ComputeEigenvectors (
 //
 // Value Returned:	None
 // 
-// Called By:			SaveClusterStatistics in cluster.c
-//							ComputeCorrelationCoefficientMatrix in matrixUtilities.c
-//							ComputeCovarianceMatrix in matrixUtilities.c
-//							ReadProjectFile in project.c
-//							UpdateFieldStats in statCompute.c
+// Called By:			SaveClusterStatistics in SCluster.cpp
+//							ComputeCorrelationCoefficientMatrix in SMatrixUtilities.cpp
+//							ComputeCovarianceMatrix in SMatrixUtilities.cpp
+//							ReadProjectFile in SProject.cpp
+//							UpdateFieldStats in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/1992
 //	Revised By:			Larry L. Biehl			Date: 08/20/2010	
@@ -1465,7 +1436,7 @@ void ComputeMeanStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1513,7 +1484,7 @@ void ComputeMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1529,7 +1500,7 @@ void ComputeMeanVector (
 //
 // Value Returned:	None
 // 
-// Called By:			ComputeMeanStdDevVector in SMatUtil.cpp
+// Called By:			ComputeMeanStdDevVector in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/1992
 //	Revised By:			Larry L. Biehl			Date: 08/20/2010	
@@ -1569,7 +1540,7 @@ void ComputeStdDevVector (
 				{
 				variance = 
 					(*sumSquaresPtr - channelStatsPtr->mean * channelStatsPtr->sum)/
-																				numberPixelsLessOne;
+																					numberPixelsLessOne;
 																				
 				channelStatsPtr->standardDev = sqrt (fabs (variance));
 				
@@ -1602,7 +1573,7 @@ void ComputeStdDevVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1625,13 +1596,14 @@ void ComputeStdDevVector (
 double ConvertToScientificFormat (
 				double								value, 
 				SInt32*								base10ExponentPtr)
+				
 {
 	double								exponent,
 											logValue,
 											mantissa;
 											
 
-	logValue = log10(value);
+	logValue = log10 (value);
 	mantissa = fabs (logValue);
 	exponent = floor (mantissa);
 	
@@ -1654,7 +1626,7 @@ double ConvertToScientificFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1729,7 +1701,7 @@ void CopyLowerToUpperSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1794,7 +1766,7 @@ void CopySquareToTriangleMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1869,7 +1841,7 @@ void CopyTriangleToSquareMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1914,7 +1886,7 @@ Boolean EigenvectorInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1957,7 +1929,7 @@ void EigenvectorInfoExists (
 			// Verify that the number of channels has been set and that the			
 			// transformation matrix handles exist.											
 	
-	if (	gTransformationMatrix.numberChannels <= 0 || 
+	if (gTransformationMatrix.numberChannels <= 0 || 
 			gTransformationMatrix.numberFeatures <= 0 || 
 			!gTransformationMatrix.eigenValueHandle ||
 			!gTransformationMatrix.eigenVectorHandle ||
@@ -1987,7 +1959,8 @@ void EigenvectorInfoExists (
 								index<(UInt32)gTransformationMatrix.numberChannels;
 								index++)
 							{
-							while ((index2 < (UInt16)gProjectInfoPtr->numberStatisticsChannels) &&
+							while ((index2 <
+										(UInt16)gProjectInfoPtr->numberStatisticsChannels) &&
 											(eigenFeaturePtr[index] != 
 															gProjectInfoPtr->channelsPtr[index2]))
 								{
@@ -2053,7 +2026,7 @@ void EigenvectorInfoExists (
 			eigenFeaturePtr = (UInt16*)GetHandlePointer (
 													gTransformationMatrix.eigenFeatureHandle);
 			if (gImageWindowInfoPtr->totalNumberChannels < 
-						(UInt16)eigenFeaturePtr[gTransformationMatrix.numberChannels-1]+1)
+						(UInt16)eigenFeaturePtr[gTransformationMatrix.numberChannels-1] + 1)
 				*numberEigenvectorsPtr = 0;
 				
 			}	// end "else !projectFlag" 
@@ -2065,7 +2038,7 @@ void EigenvectorInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2082,12 +2055,12 @@ void EigenvectorInfoExists (
 //							1 if okay.
 //							-1 if user requested to stop with 'command-.'.
 // 
-// Called By:			UpdateFieldStats in statCompute.c
-//							GetTotalSumSquares in matrixUtilities.c
-//							ShowGraphWindowSelection in selectionGraph.c
+// Called By:			UpdateFieldStats in SProjectComputeStatistics.cpp
+//							GetTotalSumSquares in SMatrixUtilities.cpp
+//							ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1988
-//	Revised By:			Larry L. Biehl			Date: 08/15/2019
+//	Revised By:			Larry L. Biehl			Date: 11/15/2019
 
 SInt16 GetAreaStats (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -2143,6 +2116,8 @@ SInt16 GetAreaStats (
 											errCode,
 											pointType,
 											returnCode;
+	
+	UInt16								eventCode;
 
 	Boolean								checkForBadDataFlag = FALSE,
 											checkForNoDataFlag = FALSE,
@@ -2182,6 +2157,10 @@ SInt16 GetAreaStats (
 	
 	pointType = gAreaDescription.pointType;
 	
+			// Initialize the event code for checking some events
+	
+	eventCode = osMask+keyDownMask+updateMask+mDownMask+mUpMask;
+	
 			// Check for case when this is a polygon point type but there are
 			// no pixels within the polygon because of shape and size of the 
 			// polygon. Do not give an error return. Just return.
@@ -2216,8 +2195,13 @@ SInt16 GetAreaStats (
 		if (minThresholdValuesPtr == NULL || maxThresholdValuesPtr == NULL)
 			checkForThresholdDataFlag = FALSE;
 		
-		}	// end "if (gProcessorCode != kClusterProcessor)"							
-			
+		}	// end "if (gProcessorCode != kClusterProcessor)"
+	
+	//else if (gProcessorCode == kSelectionGraphStatsProcess)
+				// Set eventCode for selection graph operations to only allow
+				// update events
+	//	eventCode = osMask+updateMask;
+	
 	else	// gProcessorCode != kClusterProcessor)
 		{
 		checkForBadDataFlag = checkForThresholdDataFlag;
@@ -2280,7 +2264,8 @@ SInt16 GetAreaStats (
 		{
 		//knnDataValuesPtr = gProjectInfoPtr->knnDataValuesPtr.data ();
 		knnDataValuesPtr =
-			&gProjectInfoPtr->knnDataValuesPtr [numberChannels * gProjectInfoPtr->knnCounter];
+			&gProjectInfoPtr->knnDataValuesPtr [
+													numberChannels * gProjectInfoPtr->knnCounter];
 		
 		}	// end "if (statCode == kPixelValuesOnly)"
 			
@@ -2325,7 +2310,7 @@ SInt16 GetAreaStats (
 		if (errCode < noErr)
 			{
 			CloseUpFileIOInstructions (fileIOInstructionsPtr, &gAreaDescription);										
-																						return (0);
+																							return (0);
 			
 			}	// end "if (errCode < noErr)"
 				
@@ -2420,9 +2405,10 @@ SInt16 GetAreaStats (
 
 							for (channel=0; channel<numberChannels; channel++)
 								{
-										// Move sample data of each channel to dlib variable for SVM training
+										// Move sample data of each channel to dlib variable
+										// for SVM training
 								
-								//samp(channel) = *bufferPtr;
+								//samp (channel) = *bufferPtr;
 								
 										// KNN sample data in the training
 								
@@ -2433,24 +2419,16 @@ SInt16 GetAreaStats (
 				      		knnDataValuesPtr++;
 								
 								}	// end "for (channel=1; channel<numberChannels..."
-						
-									// SVM labelling in the training phase
-							
-							//gProjectInfoPtr->svm_samples.push_back (samp);
-							//gProjectInfoPtr->svm_labels.push_back (classNumber);
 							
 									// KNN labelling in the training phase
 							
-							//knnSamp.label = classNumber;
-							//knnSamp.distance = 0;
-							//knnSamp.index = gProjectInfoPtr->knnCounter;
-							
 							knnSamp.distance = 0;
 							knnSamp.index = 0;
-							//gProjectInfoPtr->knn_distances.push_back (knnSamp);
-							//gProjectInfoPtr->knnLabelsPtr.push_back (classNumber);
-							gProjectInfoPtr->knnDistancesPtr[gProjectInfoPtr->knnCounter] = knnSamp;
-							gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] = classNumber;
+
+							gProjectInfoPtr->knnDistancesPtr[gProjectInfoPtr->knnCounter] =
+																									knnSamp;
+							gProjectInfoPtr->knnLabelsPtr[gProjectInfoPtr->knnCounter] =
+																								classNumber;
 							gProjectInfoPtr->knnCounter++;
 							
 							}	// end "if (statCode == kPixelValuesOnly)"
@@ -2511,7 +2489,7 @@ SInt16 GetAreaStats (
 						
 				if (TickCount () >= gNextTime)
 					{
-					if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+					if (!CheckSomeEvents (eventCode))
 						{
 						returnCode = -1;
 						break;
@@ -2520,7 +2498,7 @@ SInt16 GetAreaStats (
 						
 					}	// end "if (TickCount () >= nextTime)" 
 						
-				} 		// end "for (columnPtr=0; columnPtr<..."
+				} 	// end "for (columnPtr=0; columnPtr<..."
 				
 			}	// end "if (errCode != kSkipLine)"
 			
@@ -2555,7 +2533,7 @@ SInt16 GetAreaStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2572,7 +2550,7 @@ SInt16 GetAreaStats (
 //
 // Value Returned:	None
 // 
-// Called By:			CreateStatisticsImages in statisticsImage.c
+// Called By:			CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Chulee Lee				Date: 09/03/1992
 //	Revised By:			Larry L. Biehl			Date: 09/08/1992	
@@ -2592,9 +2570,9 @@ void GetDiagonalVectorFromMatrix (
 			// proper rangers																		
 			
 	if (matrixSize <= 0 || 
-					inputMatrixPtr == NULL || 
-									outputVectorPtr == NULL)  
-																							return;
+				inputMatrixPtr == NULL ||
+							outputVectorPtr == NULL)
+																								return;
 																							
 	indexSkip = 1;
 	if (squareInputMatrixFlag)
@@ -2618,7 +2596,7 @@ void GetDiagonalVectorFromMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2634,9 +2612,9 @@ void GetDiagonalVectorFromMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			FeatureExtraction in SFeatExt.cpp
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
 //							EvaluateTransformationControl in SOther.cpp
-//							PrincipalComponentControl in SPrinCom.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/17/1996
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006	
@@ -2664,7 +2642,7 @@ Boolean GetMemoryForListTransformation (
 				bytesNeeded = 15 * (numberChannels + 1); 
 			#endif	// defined multispec_mac 
 					
-			#if defined multispec_win || defined multispec_lin
+			#if defined multispec_win || defined multispec_wx
 						// Allow for E+xxx not E+xx                         
 				bytesNeeded = 16 * (numberChannels + 1);   
 			#endif	// defined multispec_win || lin
@@ -2685,7 +2663,7 @@ Boolean GetMemoryForListTransformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2728,7 +2706,7 @@ UInt16* GetStatisticsFeatureVector (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2747,7 +2725,7 @@ UInt16* GetStatisticsFeatureVector (
 //
 // Value Returned:	Flag indicated whether the vectors were filled.	
 //
-// Called By:			GetTotalSumSquares in SMatUtil.cpp
+// Called By:			GetTotalSumSquares in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/29/2012
 //	Revised By:			Larry L. Biehl			Date: 12/04/2014
@@ -2797,22 +2775,22 @@ Boolean GetDataThresholdValues (
 														
 					if (tailDifference > 3 * nonSatClusterDistance)
 						minThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].minNonSatValue;
+												histogramSummaryPtr[channelIndex].minNonSatValue;
 						
 					else	// tailDifference <= 3 * nonSatClusterDistance
 						minThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].minValue;
+												histogramSummaryPtr[channelIndex].minValue;
 
 					tailDifference = histogramSummaryPtr[channelIndex].maxValue - 
-													histogramSummaryPtr[channelIndex].maxNonSatValue;
+												histogramSummaryPtr[channelIndex].maxNonSatValue;
 														
 					if (tailDifference > 3 * nonSatClusterDistance)
 						maxThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].maxNonSatValue;
+												histogramSummaryPtr[channelIndex].maxNonSatValue;
 						
 					else	// tailDifference <= 3 * nonSatClusterDistance
 						maxThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].maxValue;
+												histogramSummaryPtr[channelIndex].maxValue;
 						
 					}	// end "if (nonSatClusterDistance > 0)"
 					
@@ -2823,32 +2801,32 @@ Boolean GetDataThresholdValues (
 							// min and max non-saturated and vice versa.
 							
 					tailDifference = histogramSummaryPtr[channelIndex].minNonSatValue - 
-														histogramSummaryPtr[channelIndex].minValue;
+												histogramSummaryPtr[channelIndex].minValue;
 														
 					tailDifference2 = histogramSummaryPtr[channelIndex].maxValue - 
-													histogramSummaryPtr[channelIndex].minNonSatValue;
+												histogramSummaryPtr[channelIndex].minNonSatValue;
 														
 					if (tailDifference > 3 * tailDifference2)
 						minThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].minNonSatValue;
+												histogramSummaryPtr[channelIndex].minNonSatValue;
 						
 					else	// tailDifference <= 3 * tailDifference2
 						minThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].minValue;
+												histogramSummaryPtr[channelIndex].minValue;
 
 					tailDifference = histogramSummaryPtr[channelIndex].maxValue - 
-													histogramSummaryPtr[channelIndex].maxNonSatValue;
+												histogramSummaryPtr[channelIndex].maxNonSatValue;
 														
 					tailDifference2 = histogramSummaryPtr[channelIndex].maxNonSatValue - 
-													histogramSummaryPtr[channelIndex].minValue;
+												histogramSummaryPtr[channelIndex].minValue;
 														
 					if (tailDifference > 3 * tailDifference2)
 						maxThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].maxNonSatValue;
+												histogramSummaryPtr[channelIndex].maxNonSatValue;
 						
 					else	// tailDifference <= 3 * tailDifference2
 						maxThresholdValuesPtr[channel] =
-													histogramSummaryPtr[channelIndex].maxValue;
+												histogramSummaryPtr[channelIndex].maxValue;
 														
 					}	// else noSatClusterDistance == 0
 				
@@ -2867,7 +2845,7 @@ Boolean GetDataThresholdValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2883,10 +2861,10 @@ Boolean GetDataThresholdValues (
 //
 // Value Returned:	None			
 // 
-// Called By:			CEMClsfierControl in SClassfy.cpp
-//							GetEigenvectorClusterCenters in SClustID.cpp
-//							PrincipalComponentAnalysis in SPrinCom.cpp
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			CEMClsfierControl in SClassify.cpp
+//							GetEigenvectorClusterCenters in SClusterIsodata.cpp
+//							PrincipalComponentAnalysis in SPrincipalComponents.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/07/1990
 //	Revised By:			Larry L. Biehl			Date: 01/31/2012	
@@ -3166,7 +3144,8 @@ Boolean GetTotalSumSquares (
 					else	// !...[fieldNumber].statsUpToDate 
 						{
 								// Get the boundary information for the field.	
-								// Note that 'gAreaDescription' was set up in the calling routine.		
+								// Note that 'gAreaDescription' was set up in the calling
+								// routine.
 								
 						GetFieldBoundary (gProjectInfoPtr, &gAreaDescription, fieldNumber);
 						
@@ -3191,8 +3170,8 @@ Boolean GetTotalSumSquares (
 																						
 							}	// end "if (returnCode == 0  || ..."
 							
-								// Verify that the number of pixels computed is the same as that
-								// given for the field.
+								// Verify that the number of pixels computed is the same as
+								// that given for the field.
 									
 						if (gProjectInfoPtr->fieldIdentPtr[fieldNumber].numberPixels !=
 																	gAreaDescription.numSamplesPerChan)
@@ -3308,7 +3287,7 @@ Boolean GetTotalSumSquares (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3323,7 +3302,7 @@ Boolean GetTotalSumSquares (
 //
 // Value Returned:	None	
 // 
-// Called By:			CreateStatisticsImages in statisticsImage.c
+// Called By:			CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/05/1993
 //	Revised By:			Larry L. Biehl			Date: 08/23/2010	
@@ -3389,7 +3368,7 @@ void GetTransformedCovarianceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3406,12 +3385,12 @@ void GetTransformedCovarianceMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			LoadBiPlotClassStats in biPlot.c
-//							FeatureExtraction in featureExtraction.c
-//							LoadSeparabilityStatistics in SFeatSel.cpp
-//							ListClassStats in SStatLst.cpp
-//							ListFieldStats in SStatLst.cpp
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			LoadBiPlotClassStats in SBiPlotData.cpp
+//							FeatureExtraction in SFeatureExtraction.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							ListClassStats in SProjectListStatistics.cpp
+//							ListFieldStats in SProjectListStatistics.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/30/1993
 //	Revised By:			Larry L. Biehl			Date: 10/09/1997	
@@ -3474,7 +3453,7 @@ void GetTransformedMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3489,7 +3468,7 @@ void GetTransformedMeanVector (
 //
 // Value Returned:	None				
 // 
-// Called By:			ListTransformationInformation in SMatUtil.cpp
+// Called By:			ListTransformationInformation in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/1991
 //	Revised By:			Larry L. Biehl			Date: 06/19/2006
@@ -3548,9 +3527,9 @@ Boolean ListEigenTransformationInformation (
 	if (numberIterations > 0)
 		{	
 		sprintf (gCharBufferPtr1, 
-					"%s    After %ld iterations, the largest off diagonal was %8.1e.%s",
+					"%s    After %d iterations, the largest off diagonal was %8.1e.%s",
 					gEndOfLine,
-					numberIterations, 
+					(int)numberIterations,
 					smallestElement,
 					gEndOfLine);
 		continueFlag = OutputString (resultsFileStreamPtr, 
@@ -3804,7 +3783,7 @@ Boolean ListEigenTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3819,7 +3798,7 @@ Boolean ListEigenTransformationInformation (
 //
 // Value Returned:	None	
 // 
-// Called By:			ListTransformationInformation in SMatUtil.cpp
+// Called By:			ListTransformationInformation in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1998
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -3914,7 +3893,7 @@ Boolean ListOffsetGainTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3929,8 +3908,8 @@ Boolean ListOffsetGainTransformationInformation (
 //
 // Value Returned:	None				
 // 
-// Called By:			FeatureExtraction in featureExtraction.c
-//							PrincipalComponentControl in principalComponent.c
+// Called By:			FeatureExtraction in SFeatureExtraction.cpp
+//							PrincipalComponentControl in SPrincipalComponents.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/1991
 //	Revised By:			Larry L. Biehl			Date: 04/20/1998
@@ -3989,7 +3968,7 @@ Boolean ListTransformationInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4028,14 +4007,14 @@ Boolean ListTransformationInformation (
 //
 // Value Returned:	None	
 // 
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							FS_eigen_inverse_SwSb_gen in mul.c
-//							EvaluateCovariancesControl in other.c
-//							EvaluateEigenvectorControl in other.c
-//							GetTransformedClassCovarianceMatrix in statCompute.c
-//							GetTransformedMeanVector in statCompute.c
-//							GetTransformedCovarianceMatrix in statisticsImage.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							FS_eigen_inverse_SwSb_gen in SFeatureExtractionMath.cpp
+//							EvaluateCovariancesControl in SFeatureExtraction.cpp
+//							EvaluateEigenvectorControl in SOther.cpp
+//							GetTransformedClassCovarianceMatrix in SProjectComputeStatistics.cpp
+//							GetTransformedMeanVector in SProjectComputeStatistics.cpp
+//							GetTransformedCovarianceMatrix in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/12/1993
 //	Revised By:			Larry L. Biehl			Date: 03/16/2012	
@@ -4123,7 +4102,7 @@ void MatrixMultiply (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4230,7 +4209,7 @@ void OrderEigenvaluesAndEigenvectors (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4248,9 +4227,9 @@ void OrderEigenvaluesAndEigenvectors (
 //
 // Value Returned:	None
 // 
-// Called By:			ComputeCorrelationCoefficientMatrix in matrixUtilities.c
-//							ComputeCovarianceMatrix in matrixUtilities.c
-//							LoadSeparabilityStatistics in separability.c
+// Called By:			ComputeCorrelationCoefficientMatrix in SMatrixUtilities.cpp
+//							ComputeCovarianceMatrix in SMatrixUtilities.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/03/1992
 //	Revised By:			Larry L. Biehl			Date: 02/05/1992	
@@ -4350,7 +4329,7 @@ void ReduceInputMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4374,10 +4353,10 @@ void ReduceInputMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							LoadBiPlotClassStats in biPlotData.c
-//							LoadSeparabilityStatistics in SFeatSel.cpp
-//							SetupFeatureTransformationMemory in SMatUtil.cpp
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							LoadBiPlotClassStats in SBiPlotData.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							SetupFeatureTransformationMemory in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1993
 //	Revised By:			Larry L. Biehl			Date: 10/10/1997
@@ -4412,7 +4391,7 @@ void ReduceMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4436,7 +4415,7 @@ void ReduceMatrix (
 //
 // Value Returned:	None
 // 
-// Called By:			ReduceMatrix in SMatUtil.cpp
+// Called By:			ReduceMatrix in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1997
 //	Revised By:			Larry L. Biehl			Date: 10/13/1997
@@ -4498,7 +4477,7 @@ void ReduceMatrix1 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4521,10 +4500,10 @@ void ReduceMatrix1 (
 //
 // Value Returned:	None
 // 
-// Called By:			BiPlotDataControl in biPlotData.c
-//							LoadBiPlotClassStats in biPlotData.c
-//							LoadSeparabilityStatistics in SFeatSel.cpp
-//							SetupFeatureTransformationMemory in SMatUtil.cpp
+// Called By:			BiPlotDataControl in SBiPlotData.cpp
+//							LoadBiPlotClassStats in SBiPlotData.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							SetupFeatureTransformationMemory in SMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1997
 //	Revised By:			Larry L. Biehl			Date: 10/14/1997
@@ -4587,7 +4566,7 @@ void ReduceMatrix2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4603,7 +4582,7 @@ void ReduceMatrix2 (
 //
 // Value Returned: 	None
 //
-// Called By:			GetClassMaximumVector in SStatCom.cpp
+// Called By:			GetClassMaximumVector in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2012
 //	Revised By:			Larry L. Biehl			Date: 03/29/2012
@@ -4642,7 +4621,7 @@ void ReduceMaximumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4658,11 +4637,11 @@ void ReduceMaximumVector (
 //
 // Value Returned: 	None
 //
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							FeatureExtraction in featureExtraction.c
-//							LoadSeparabilityStatistics in separability.c
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							FeatureExtraction in SFeatureExtraction.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
 //	Revised By:			Larry L. Biehl			Date: 07/19/1996
@@ -4701,7 +4680,7 @@ void ReduceMeanVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4717,7 +4696,7 @@ void ReduceMeanVector (
 //
 // Value Returned: 	None
 //
-// Called By:			GetClassMinimumVector in SStatCom.cpp
+// Called By:			GetClassMinimumVector in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2012
 //	Revised By:			Larry L. Biehl			Date: 03/29/2012
@@ -4756,7 +4735,7 @@ void ReduceMinimumVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4771,11 +4750,11 @@ void ReduceMinimumVector (
 //
 // Value Returned:	None
 // 
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							EvaluateCovariancesControl in other.c
-//							LoadSeparabilityStatistics in separability.c
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							EvaluateCovariancesControl in SOther.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/11/1994
 //	Revised By:			Larry L. Biehl			Date: 10/09/1997	
@@ -4800,7 +4779,7 @@ void ReleaseFeatureTransformationMemory (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4896,7 +4875,7 @@ Boolean SaveTransformationMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4975,7 +4954,7 @@ void SetIdentityMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4990,11 +4969,11 @@ void SetIdentityMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			MaxLikeClsfierControl in classify.c
-//							SetupClsfierStats in echo_classify.c
-//							EvaluateCovariancesControl in other.c
-//							LoadSeparabilityStatistics in separability.c
-//							CreateStatisticsImages in statisticsImage.c
+// Called By:			MaxLikeClsfierControl in SClassify.cpp
+//							SetupClsfierStats in SClassifyEchoControl.cpp
+//							EvaluateCovariancesControl in SOther.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
+//							CreateStatisticsImages in SStatisticsImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/28/1993
 //	Revised By:			Larry L. Biehl			Date: 02/02/1999
@@ -5118,7 +5097,7 @@ Boolean SetupFeatureTransformationMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5134,8 +5113,8 @@ Boolean SetupFeatureTransformationMemory (
 //
 // Value Returned: 	None
 //
-// Called By:			MaxLikeClsfierControl   	in classify.c
-//							LoadSeparabilityStatistics in separability.c
+// Called By:			MaxLikeClsfierControl   	in SClassify.cpp
+//							LoadSeparabilityStatistics in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1988
 //	Revised By:			Larry L. Biehl			Date: 04/30/1993
@@ -5175,7 +5154,7 @@ void SquareToTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5202,7 +5181,7 @@ void SquareToTriangularMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetFieldDataValues in SPMatUtl.cpp
+// Called By:			GetFieldDataValues in SProjectMatrixUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/12/1993
 //	Revised By:			Larry L. Biehl			Date: 06/17/2006	
@@ -5249,7 +5228,7 @@ void TransformDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5278,8 +5257,8 @@ void TransformDataVector (
 //
 // Value Returned:	None	
 // 
-// Called By:			CreatePCImage in SReform1.cpp
-//							HistogramFieldStats in statHistogram.c
+// Called By:			CreatePCImage in SReformatChangeImageFileFormat.cpp
+//							HistogramFieldStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1999
 //	Revised By:			Larry L. Biehl			Date: 01/12/2006	
@@ -5339,7 +5318,7 @@ double TransformDataVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5463,7 +5442,7 @@ void TransformSymmetricMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5479,9 +5458,9 @@ void TransformSymmetricMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetClusterProjectStatistics in cluster.c
+// Called By:			GetClusterProjectStatistics in SCluster.cpp
 //							GetTotalSumSquares
-//							UpdateFieldStats in statCompute.c
+//							UpdateFieldStats in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/1996
 //	Revised By:			Larry L. Biehl			Date: 09/05/1997	
@@ -5523,7 +5502,7 @@ void ZeroMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5538,9 +5517,9 @@ void ZeroMatrix (
 //
 // Value Returned:	None	
 // 
-// Called By:			GetClusterProjectStatistics in cluster.c
+// Called By:			GetClusterProjectStatistics in SCluster.cpp
 //							GetTotalSumSquares
-//							UpdateFieldStats in statCompute.c
+//							UpdateFieldStats in SProjectComputeStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1988
 //	Revised By:			Larry L. Biehl			Date: 12/31/2005	

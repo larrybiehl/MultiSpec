@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,17 +20,11 @@
 //	Brief description:	This file contains routine(s) that handle drawing 
 //								ellipses.
 //
-//	Functions in file:	void		 			EllipsePlotV
-//
-//	Include files:			"MultiSpec Headers"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 //#include "SGraphic.h"
@@ -73,7 +67,7 @@ void PlotSpecifiedEllipse (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -89,7 +83,7 @@ void PlotSpecifiedEllipse (
 // Value Returned:	True, if memory is okay
 //							False, if there is not enough memory.
 // 
-// Called By:			ShowGraphWindowSelection in selectionGraph.c
+// Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/12/1994
 //	Revised By:			Larry L. Biehl			Date: 06/02/2016			
@@ -137,11 +131,11 @@ void	EllipsePlotV (
 											x_point, 
 											y_point;
    
-	#ifndef multispec_lin	
+	#ifndef multispec_wx	
 		CDC*									pDC = graph->pDC;
 	#endif
 
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		SInt16                        x_point1, y_point1;
 		char									symbolString[2];
 		wxString								wx_sym;
@@ -165,7 +159,8 @@ void	EllipsePlotV (
 													graph->bottomInset - graph->topInset;
 													
 	x_scale = screen_width / (graph->xScaleMax - graph->xScaleMin);
-	x_offset = (SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
+	x_offset =
+			(SInt32)(graph->xScaleMin * x_scale - graph->leftInset - clientRectPtr->left);
 		
 	y_scale = screen_height / (graph->yScaleMax - graph->yScaleMin);
 	y_offset = (SInt32)(graph->yScaleMin * y_scale + screen_height + 
@@ -175,24 +170,20 @@ void	EllipsePlotV (
 	
 	classStatisticsPtr = (double*)GetHandlePointer (
 														graph->classStatisticsHandle,
-														kLock,
-														kNoMoveHi);
+														kLock);
 	classStatsIncrement = 5 + 3 * graph->numberStatisticsChannels;
 	
 	vectorPaletteColorPtr = (SInt32*)GetHandlePointer (
 														graph->vectorPaletteColorHandle,
-														kLock,
-														kNoMoveHi);
+														kLock);
 	
 	vectorDisplayPtr = (char*)GetHandlePointer (
 														graph->vectorDisplayHandle,
-														kLock,
-														kNoMoveHi);
+														kLock);
 	
 	vectorSymbolPtr = (char*)GetHandlePointer (
 														graph->vectorSymbolHandle,
-														kLock,
-														kNoMoveHi);
+														kLock);
 	
 	startFeature = 0;
 	endFeature = 0;
@@ -205,14 +196,9 @@ void	EllipsePlotV (
 		{
 		if (vectorDisplayPtr[lines] > 0)
 			{
-			//PmForeColor (vectorPaletteColorPtr[lines]);
-			//#if defined multispec_mac			
-			//	ForeColor (vectorPaletteColorPtr[lines]);
-			//#endif
-			//#if defined multispec_lin
-				MForeColor (pDC, vectorPaletteColorPtr[lines]);			
-			//#endif
-					// Draw ellipse in x-y plane of ellipsoid.						
+			MForeColor (pDC, vectorPaletteColorPtr[lines]);
+			
+					// Draw ellipse in x-y plane of ellipsoid.
 			
 			xMean = classStatisticsPtr[0];
 			yMean = classStatisticsPtr[1];
@@ -255,12 +241,12 @@ void	EllipsePlotV (
 						pDC->MoveTo (x_point, y_point);
 					#endif
 					
-					#if defined multispec_lin
+					#if defined multispec_wx
 						x_point1 = x_point;
 						y_point1 = y_point;   
 					#endif
 					}
-				else		// angle != 0 
+				else	// angle != 0 
 					{
 					#if defined multispec_mac
 						LineTo (x_point, y_point);
@@ -270,18 +256,18 @@ void	EllipsePlotV (
 						pDC->LineTo (x_point, y_point);
 					#endif
 
-					#if defined multispec_lin
+					#if defined multispec_wx
 						pDC->DrawLine (x_point1, y_point1, x_point, y_point);
 					#endif            
 					}
 					
 				angle += angleIncrement;
             
-				#if defined multispec_lin      
+				#if defined multispec_wx      
 					x_point1 = x_point;
 					y_point1 = y_point;
 				#endif				
-				}		// end "while (angle <= endAngle)" 
+				}	// end "while (angle <= endAngle)" 
 				
 			#if defined multispec_mac				
 				DrawChar (vectorSymbolPtr[lines]);
@@ -297,7 +283,7 @@ void	EllipsePlotV (
 				#endif
 			#endif	// defined multispec_win
 		
-			#if defined multispec_lin
+			#if defined multispec_wx
 				wxColour color;
 				color.Set (vectorPaletteColorPtr[lines]);
 				pDC->SetTextForeground (color);
@@ -316,21 +302,16 @@ void	EllipsePlotV (
 					PlotSpecifiedEllipse (graph, classStatisticsPtr, 
 						index1, index2, x_scale, x_offset, y_scale, y_offset);
 											
-				}		// end "for (index1=startFeature; index1<..."
+				}	// end "for (index1=startFeature; index1<..."
 			
-			}		// end "if (vectorDisplayPtr [lines] > 0)" 
+			}	// end "if (vectorDisplayPtr [lines] > 0)" 
 			
 		classStatisticsPtr += classStatsIncrement;
 			
-		}		// end "for (lines=1; lines<numberVectors; lines++)" 
+		}	// end "for (lines=1; lines<numberVectors; lines++)" 
 		
-	//#if defined multispec_mac		
-	//	ForeColor (blackColor);
-	//#endif
-	//#if defined multispec_lin
 	MForeColor (pDC, blackColor);
-	//#endif
-
+	
 	CheckAndUnlockHandle (graph->classStatisticsHandle);
 	CheckAndUnlockHandle (graph->vectorPaletteColorHandle);
 	CheckAndUnlockHandle (graph->vectorDisplayHandle);
@@ -338,12 +319,12 @@ void	EllipsePlotV (
 		
 	SetWindowClip (graph, error);
 	
-}		// end "EllipsePlotV" 
+}	// end "EllipsePlotV" 
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -358,7 +339,7 @@ void	EllipsePlotV (
 //
 // Value Returned:	None.
 //												
-// Called By:			EllipsePlotV in EllipsePlotV.c
+// Called By:			EllipsePlotV in SEllipsePlotV.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/12/1994
 //	Revised By:			Larry L. Biehl			Date: 05/22/2017			
@@ -401,7 +382,7 @@ void	PlotSpecifiedEllipse (
 		CDC*								pDC = graph->pDC;
 	#endif
 	
-	#ifdef multispec_lin
+	#ifdef multispec_wx
 		SInt16								x_point1, 
 												y_point1;
 		wxDC* pDC = graph->pDC;
@@ -462,7 +443,7 @@ void	PlotSpecifiedEllipse (
 				pDC->MoveTo (x_point, y_point);
 			#endif
 
-			#if defined multispec_lin
+			#if defined multispec_wx
             x_point1 = x_point;
             y_point1 = y_point;   
 			#endif
@@ -478,17 +459,18 @@ void	PlotSpecifiedEllipse (
 				pDC->LineTo (x_point, y_point);
 			#endif
 
-			#if defined multispec_lin
+			#if defined multispec_wx
 				pDC->DrawLine (x_point1, y_point1, x_point, y_point);
 			#endif
 			}	// end "else angle != 0"
       
 		angle += angleIncrement;
       
-		#if defined multispec_lin
+		#if defined multispec_wx
 			x_point1 = x_point;
 			y_point1 = y_point;   
 		#endif
-		}		// end "while (angle <= endAngle)" 
+		
+		}	// end "while (angle <= endAngle)" 
 	
-}		// end "PlotSpecifiedEllipse" 
+}	// end "PlotSpecifiedEllipse" 

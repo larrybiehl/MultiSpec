@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -12,7 +12,7 @@
 //	Authors:					Byeungwoo Jeon
 //								Larry L. Biehl
 //
-//	Revision date:			03/22/2019
+//	Revision date:			12/12/2019
 //
 //	Language:				C
 //
@@ -21,13 +21,6 @@
 //	Brief description:	This file contains functions that do echo classification
 //								processes.
 //
-//	Functions in file:	SInt16				EchoClassifier
-//								SInt16				SaveProbabilityInformation
-//								SInt16				Write_Classified_Fields_File
-//								SInt16				Write_Homogeneous_Fields_File
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
 //	Include files:			"MultiSpecHeaders"
 //								"multiSpec.h"
 //
@@ -35,56 +28,47 @@
 
 #include	"SMultiSpec.h" 
   
-#if defined multispec_lin  
+#if defined multispec_wx  
 	#include <stdio.h>
 	#include <iostream>
-
-	#include	"SMultiSpec.h"
-
-	//#define	kClassifyStrID 156
-	//#define TickCount()  0 //(UInt32)GetTickCount()
-	#define PtInRgn(a,b) 1
-	#define DrawDialog(c) NULL
-	#define ShowStatusDialogItemSet(d) NULL
-#endif	// defined multispec_lin
+	#include	"SFileStream_class.h"
+#endif	// defined multispec_wx
 
 #if defined multispec_win  
-	#include	"CFileStream.h"
+	#include	"SFileStream_class.h"
 #endif	// defined multispec_win
-
-//#include "SExtGlob.h"
 
 #include	"SEcho.h"
 
 
 		//	pointers to use for obtaining information about ECHO classifier		
-		// These are defined in echo_classify.c 											
+		// These are defined in SClassifyEchoControl.cpp 											
 		
-extern		common_classifier_informationPtr		gCommon_InfoVariablePtr;
+extern common_classifier_informationPtr		gCommon_InfoVariablePtr;
 
 
 		// Prototypes of functions defined and used in this file	
 
-SInt64 			GetMemoryNeededForEchoInfoParameters (
-						EchoClassifierVar*					echoInfoPtr);	
+SInt64  GetMemoryNeededForEchoInfoParameters (
+				EchoClassifierVar*					echoInfoPtr);
 
-Boolean			SetUseTempDiskFileFlag (
-						EchoClassifierVarPtr					echoInfoPtr);
+Boolean SetUseTempDiskFileFlag (
+				EchoClassifierVarPtr					echoInfoPtr);
 				
-SInt16			Write_Classified_Fields_File (
-						HUCharPtr 								ioBuffer1Ptr, 
-						common_classifier_information* 	common_info, 
-						EchoClassifierVar* 					echo_info);
+SInt16 Write_Classified_Fields_File (
+				HUCharPtr 								ioBuffer1Ptr,
+				common_classifier_information* 	common_info,
+				EchoClassifierVar* 					echo_info);
 				
-SInt16			Write_Homogeneous_Fields_File (
-						HUCharPtr 								ioBuffer1Ptr, 
-						common_classifier_information* 	common_info, 
-						EchoClassifierVar* 					echo_info);
+SInt16 Write_Homogeneous_Fields_File (
+				HUCharPtr 								ioBuffer1Ptr,
+				common_classifier_information* 	common_info,
+				EchoClassifierVar* 					echo_info);
 
 					
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -119,22 +103,22 @@ SInt16 EchoClassifier (
 				SInt64*								countVectorPtr)
 
 {
-	HUCharPtr						ioBuffer1Ptr,	
-										probabilityBufferPtr;
+	HUCharPtr							ioBuffer1Ptr,
+											probabilityBufferPtr;
    
-   CMFileStream					*clProbabilityFileStreamPtr,
-										*resultsFileStreamPtr;
+   CMFileStream						*clProbabilityFileStreamPtr,
+											*resultsFileStreamPtr;
    							
-   pixel_information				*pixel_info;
-   statistics						*class_stat;
+   pixel_information					*pixel_info;
+   statistics							*class_stat;
    
-   SInt32							num_row,
-										num_col;
+   SInt32								num_row,
+											num_col;
    
-   SInt16							cell_width,
-										error_code;
+   SInt16								cell_width,
+											error_code;
 	
-   Boolean							continueFlag;
+   Boolean								continueFlag;
    							
 
 			// Set up local Variables  
@@ -149,7 +133,7 @@ SInt16 EchoClassifier (
 	
 	if (gClassifySpecsPtr->createThresholdTableFlag)
 		probabilityBufferPtr = 
-					&ioBuffer1Ptr[gClassifySpecsPtr->probabilityBufferOffset];
+								&ioBuffer1Ptr[gClassifySpecsPtr->probabilityBufferOffset];
    
 			// Initialize variables related to the Image Selection
 			// and Set up echo variables related to the Image Selection
@@ -200,11 +184,12 @@ SInt16 EchoClassifier (
 										
 	fileIOInstructionsPtr->nextLineToRead = areaDescriptionPtr->lineStart;
 	fileIOInstructionsPtr->numberLinesAtOnce = cell_width;
-	fileIOInstructionsPtr->numberColumns = (SInt32)areaDescriptionPtr->numSamplesPerChan;
+	fileIOInstructionsPtr->numberColumns =
+												(SInt32)areaDescriptionPtr->numSamplesPerChan;
 	
 	ShowStatusDialogItemSet (kStatusLine);
 	LoadDItemValue (
-					gStatusDialogPtr, IDC_Status20, (SInt32)areaDescriptionPtr->numberLines);
+				gStatusDialogPtr, IDC_Status20, (SInt32)areaDescriptionPtr->numberLines);
 
 	LoadDItemStringNumber (kClassifyStrID,
 									IDS_Classify42,	// "\pCreating Homogeneous Fields:"
@@ -228,7 +213,7 @@ SInt16 EchoClassifier (
    		// needed any more.
    		
    gEchoClassifierVariablePtr->fldlikPtr = (HFldLikPtr)CheckAndDisposePtr (
-   								(Ptr)gEchoClassifierVariablePtr->fldlikPtr);
+   											(Ptr)gEchoClassifierVariablePtr->fldlikPtr);
    								
    gEchoClassifierVariablePtr->work1 = CheckAndDisposePtr (
    											gEchoClassifierVariablePtr->work1);
@@ -244,7 +229,7 @@ SInt16 EchoClassifier (
    				(Ptr)gEchoClassifierVariablePtr->fieldLikeIndicesPtr);
    				
    gEchoClassifierVariablePtr->fieldLikeFlagsPtr = CheckAndDisposePtr (
-   							gEchoClassifierVariablePtr->fieldLikeFlagsPtr);
+   										gEchoClassifierVariablePtr->fieldLikeFlagsPtr);
 
 			//	Save Homogeneous Fields and Classified Homogeneous Fields
 	   
@@ -276,10 +261,10 @@ SInt16 EchoClassifier (
 	if (gStatusDialogPtr)
 		{ 
 		LoadDItemStringNumber (kClassifyStrID,
-									IDS_Classify43,	// "\pWriting Classification Results"
-									gStatusDialogPtr,
-									IDC_Status21,
-									(Str255*)gTextString);
+										IDS_Classify43,	// "\pWriting Classification Results"
+										gStatusDialogPtr,
+										IDC_Status21,
+										(Str255*)gTextString);
 		LoadDItemString (gStatusDialogPtr, IDC_Status22,(Str255*)"\0");
 		LoadDItemValue (gStatusDialogPtr, IDC_Status20, (SInt32)num_row);
 		DrawDialog (gStatusDialogPtr);
@@ -290,16 +275,15 @@ SInt16 EchoClassifier (
    	{			
 		resultsFileStreamPtr = 			GetResultsFileStreamPtr (0);
 		clProbabilityFileStreamPtr = 	GetResultsFileStreamPtr (1);
-		error_code = PostEchoClassifier (
-											classPointer, 
-											areaDescriptionPtr, 
-											resultsFileStreamPtr,
-											clProbabilityFileStreamPtr, 
-											ioBuffer1Ptr, 
-											gEchoClassifierVariablePtr,
-											clsfyVariablePtr, 
-											countVectorPtr,
-											lcToWindowUnitsVariablesPtr);
+		error_code = PostEchoClassifier (classPointer,
+													areaDescriptionPtr, 
+													resultsFileStreamPtr,
+													clProbabilityFileStreamPtr, 
+													ioBuffer1Ptr, 
+													gEchoClassifierVariablePtr,
+													clsfyVariablePtr, 
+													countVectorPtr,
+													lcToWindowUnitsVariablesPtr);
 		
    	}	// "if (error_code == 0)..."
  
@@ -315,7 +299,7 @@ SInt16 EchoClassifier (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -331,7 +315,7 @@ SInt16 EchoClassifier (
 //
 // Value Returned:	Maximum number of homogeneous fields to allow for.
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/17/2010
 //	Revised By:			Larry L. Biehl			Date: 08/17/2010
@@ -370,7 +354,7 @@ UInt32 EstimateNumberOfHomogeneousFields (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -385,7 +369,7 @@ UInt32 EstimateNumberOfHomogeneousFields (
 //
 // Value Returned:	Estimate of total bytes needed
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/16/2010
 //	Revised By:			Larry L. Biehl			Date: 08/17/2010
@@ -394,14 +378,14 @@ SInt64 GetMemoryNeededForEchoInfoParameters (
 				EchoClassifierVar*				echoInfoPtr)
 
 {
-	SInt64					numberBytes;
+	SInt64								numberBytes;
   	
-	SInt32					ncls;  
+	SInt32								ncls;
 								
-	UInt32					current_max_field_number,
-								numberVectorElements;
+	UInt32								current_max_field_number,
+											numberVectorElements;
    
-  	UInt16					nband;
+  	UInt16								nband;
    							
 
    ncls    = echoInfoPtr->ncls;
@@ -459,7 +443,7 @@ SInt64 GetMemoryNeededForEchoInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -476,7 +460,7 @@ SInt64 GetMemoryNeededForEchoInfoParameters (
 //	Calls to the functions in other files:
 //							setup_echo_image_selection ()	in SAux_echo.cpp
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 // Globals:				gEchoClassifierVariable
 //							gCommon_InfoVariablePtr
@@ -496,8 +480,6 @@ SInt16 SaveProbabilityInformation (
 				AreaDescriptionPtr				areaDescriptionPtr)
 				
 {
-	Boolean						polygonFieldFlag;
-	CMFileStream*				clProbabilityFileStreamPtr;
 	Point							point;
 	RgnHandle					rgnHandle;
 	                  
@@ -505,11 +487,13 @@ SInt16 SaveProbabilityInformation (
 	
 	UInt32						numberClasses;
 	
+	CMFileStream*				clProbabilityFileStreamPtr;
+	SInt16*						thresholdProbabilityPtr;
+	
    SInt16						cellWidth,
    								errorCode,
    								maxClass,     
-   								thresholdCode,
-   								*thresholdProbabilityPtr;
+   								thresholdCode;
    
 	SInt32						column,
 									line,
@@ -520,7 +504,9 @@ SInt16 SaveProbabilityInformation (
 	HUCharPtr	 				savedProbabilityBufferPtr;
 	
 	SInt16						ix,
-									index; 
+									index;
+									
+	Boolean						polygonFieldFlag;
 
 
 	if (probabilityBufferPtr == NULL)
@@ -637,7 +623,7 @@ SInt16 SaveProbabilityInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -655,7 +641,7 @@ SInt16 SaveProbabilityInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/12/2010
-//	Revised By:			Larry L. Biehl			Date: 03/22/2019
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
 
 Boolean SetUseTempDiskFileFlag (
 				EchoClassifierVarPtr				echoInfoPtr)
@@ -702,7 +688,8 @@ Boolean SetUseTempDiskFileFlag (
 			{
 			echoInfoPtr->tempFileStreamPtr = tempFileStreamPtr;
 
-					// Put the temp file in the same directory/folder as the input image file.
+					// Put the temp file in the same directory/folder as the input image
+					// file.
 					
 			volRefNum = GetVolumeReferenceNumber (gImageFileInfoPtr);
 			parID = GetParID (gImageFileInfoPtr);
@@ -721,24 +708,54 @@ Boolean SetUseTempDiskFileFlag (
 				tempFileStreamPtr->parentFSRef = fileStreamPtr->parentFSRef;	
 			#endif	// defined multispec_mac
 			
-			tempFileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileStream (tempFileStreamPtr);
+			#if defined multispec_win || defined multispec_wx
+				FileStringPtr filePathPointer =
+					(FileStringPtr)GetFilePathPPointerFromFileInfo (gImageFileInfoPtr);
+			
+				FileStringPtr tempFilePathPtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (tempFileStreamPtr);
+					
+				CopyPToP (tempFilePathPtr,  filePathPointer);
+
+						// Now get wide character and unicode names.
+
+				SetFileDoesNotExist (tempFileStreamPtr, kKeepUTF8CharName);
+				UpdateFileNameInformation (tempFileStreamPtr, NULL);
+			
+						// This will force the path info in tempFileSreamPtr to be set.
+			
+				//tempFileStreamPtr->GetFileUTF8PathLength ();
+			#endif	// defined multispec_win || defined multispec_wx
+			
+			tempFileNamePtr =
+					(FileStringPtr)GetFileNamePPointerFromFileStream (tempFileStreamPtr);
 			CopyPToP (tempFileNamePtr,  (UCharPtr)"\0tempEcho0000.tmp");
 			  
-			#if defined multispec_win 
-						// for Windows version, now copy the proposed file name to the
-						// file path string.                                               
+			#if defined multispec_win || defined multispec_wx
+						// Now copy the proposed file name to the file path string.
+			
 				tempFileStreamPtr->SetFileName (tempFileNamePtr);
-			#endif	// defined multispec_win 
+			
+						// GetVolumeFreeSpace requires the full path name
+			
+				//tempFileNamePtr = tempFilePathPtr;
+			#endif	// defined multispec_win || defined multispec_wx
+			
+					// The following will verify that the direcctory specified is
+					// writable and if not change it to the working directory. Only
+					// done for wxWidgets interface versions.
+			
+			CheckIfDirectoryIsWriteable (tempFileStreamPtr);
 			
 					// Check if enough space on the volume.									
 			
-			errCode = GetVolumeFreeSpace ((Str255*)tempFileNamePtr, 
+			errCode = GetVolumeFreeSpace (tempFileStreamPtr,
 													volRefNum, 
 													&freeBytes);
 			
-					// Allow for space for temporary file, classification, probability image,
-					// echo class image and echo field image. Also allow for 500 megabyte
-					// minimum space to be left.
+					// Allow for space for temporary file, classification, probability
+					// image, echo class image and echo field image. Also allow for 1
+					// gigabyte minimum space to be left.
 			
 			bytesNeeded = 0;
 			if (GetResultsFileStreamPtr (0) != NULL)
@@ -758,8 +775,10 @@ Boolean SetUseTempDiskFileFlag (
 
 				if (current_max_field_number < 256)
 					bytesNeeded += sizeof (UInt8);
+				
 				else if (current_max_field_number < UInt16_MAX)
 					bytesNeeded += sizeof (UInt16);
+				
 				else	// current_max_field_number > UInt16_MAX
 					bytesNeeded += sizeof (UInt32);
 
@@ -774,6 +793,9 @@ Boolean SetUseTempDiskFileFlag (
 			bytesNeeded += sizeof (SInt32);
 			
 			bytesNeeded *= echoInfoPtr->ipixels;
+			
+					// Allow for 1 GB space to be left.
+			
 			bytesNeeded += 1000000000;
 			
 			bytesNeeded -= freeBytes;
@@ -794,7 +816,8 @@ Boolean SetUseTempDiskFileFlag (
 	
 					// Now check if a file name was entered.
 
-			tempFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (tempFileStreamPtr);
+			tempFileNamePtr =
+					(FileStringPtr)GetFilePathPPointerFromFileStream (tempFileStreamPtr);
 			continueFlag = (errCode == noErr) && (tempFileNamePtr[0] > 0);
 			
 			if (continueFlag)
@@ -803,6 +826,10 @@ Boolean SetUseTempDiskFileFlag (
 				echoInfoPtr->tempDiskFileWasUsedFlag = TRUE;
 				
 				}	// end "if (continueFlag)"
+		
+					// Make sure the output directory variable is set to empty.
+			
+			ResetOutputDirectory ();
 			
 			}	// end "if (continueFlag)"
 		
@@ -815,7 +842,7 @@ Boolean SetUseTempDiskFileFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -835,7 +862,7 @@ Boolean SetUseTempDiskFileFlag (
 //	Calls to the functions in other files:
 //							setup_echo_image_selection ()	in SAux_echo.cpp
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 //	Revised By:			Byeungwoo Jeon			Date: 09/28/1991
@@ -881,10 +908,10 @@ SInt16 Write_Homogeneous_Fields_File (
 	resultsFilePtr = GetResultsFilePtr (2);
 	
 	if (resultsFilePtr == NULL || ioBuffer1Ptr == NULL)
-																				return (1);
+																						return (1);
 																				
 	resultsFileStreamPtr = GetFileStreamPointer (resultsFilePtr);
-   
+	
 	LoadDItemStringNumber (kClassifyStrID,
 								 IDS_Classify44,		// "\pSaving Homogeneous Fields"
 									gStatusDialogPtr,
@@ -909,41 +936,21 @@ SInt16 Write_Homogeneous_Fields_File (
    		// Get byte code for the number of bytes to use to represent
    		// the output field numbers.
    	
-   //if (resultsFilePtr->numberClasses <= 512)	//
    if (resultsFilePtr->numberClasses <= 256)	//
    	{
   		byteCode = 1;
   		numberBytes = (SInt32)num_col;
   		
   		}	// end "if (resultsFilePtr->numberClasses <= 256)"
-	/*
-	else	// ...numberClasses > 256
-		{
-		resultsFilePtr->numberChannels = 1;
-		resultsFilePtr->format = kTIFFType;
-		resultsFilePtr->thematicType = FALSE;
-		
-		resultsFileNamePtr = (FileStringPtr)GetFilePathPPointer (resultsFilePtr);
-		RemoveCharsNoCase ((char*)"\0.gis\0", resultsFileNamePtr);
-		RemoveCharsNoCase ((char*)"\0.tif\0", resultsFileNamePtr);
-		ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0.tif\0");
-		
-		SetFileDoesNotExist (resultsFileStreamPtr, kKeepUTF8CharName);
-		
-		//#if defined multispec_win
-		//			// for Windows version, now copy the proposed file name to the
-		//			// file path string.
-		//	resultsFileStreamPtr->SetFileName (resultsFileNamePtr);
-		//#endif	// defined multispec_win
-	*/
+
 	else if (resultsFilePtr->numberClasses <= UInt16_MAX)
-			{
-			byteCode = 2;
-			numberBytes = (SInt32)num_col * 2;
-			resultsFilePtr->numberBytes = 2;
-			resultsFilePtr->numberBits	= 16;
-			
-			}	// end "else if (resultsFilePtr->numberClasses <= UInt16_Max)"
+		{
+		byteCode = 2;
+		numberBytes = (SInt32)num_col * 2;
+		resultsFilePtr->numberBytes = 2;
+		resultsFilePtr->numberBits	= 16;
+		
+		}	// end "else if (resultsFilePtr->numberClasses <= UInt16_Max)"
 				
 	else	// resultsFilePtr->numberClasses > UInt16_Max)
 		{
@@ -958,7 +965,8 @@ SInt16 Write_Homogeneous_Fields_File (
 			resultsFilePtr->format = kTIFFType;
 			resultsFilePtr->thematicType = FALSE;
 		
-			resultsFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (resultsFilePtr);
+			resultsFileNamePtr =
+							(FileStringPtr)GetFilePathPPointerFromFileInfo (resultsFilePtr);
 			RemoveCharsNoCase ((char*)"\0.gis\0", resultsFileNamePtr);
 			RemoveCharsNoCase ((char*)"\0.tif\0", resultsFileNamePtr);
 			ConcatFilenameSuffix (resultsFileNamePtr, (StringPtr)"\0.tif\0");
@@ -983,7 +991,7 @@ SInt16 Write_Homogeneous_Fields_File (
 									 kReplaceFlag);
 	
 	if (errCode != noErr)
-																					return (1);	
+																							return (1);
 							
 			// Now write the header.
    	
@@ -997,16 +1005,8 @@ SInt16 Write_Homogeneous_Fields_File (
 										1,
 										kClassDisplay,
 										kDefaultColors))
-																					return (1);								
-	/*
-	if (resultsFilePtr->format == kErdas74Type)
-		{
-		if (!WriteNewErdasHeader (
-					resultsFilePtr, (unsigned char*)gTextString, kErdas74Type))
-																					return (1);
-																					
-		}	// end "errCode == noErr && resultsFilePtr->format == ..."
-	*/
+																							return (1);
+
 			//   The field number of each homogeneous field is written to the disk
 			//   file. The values of Inhomogeneous cells are set to 0.
 			//
@@ -1039,7 +1039,7 @@ SInt16 Write_Homogeneous_Fields_File (
 										kErrorMessages);
 		
 		if (errCode != noErr)
-																				return (errCode);
+																					return (errCode);
 		
 		}	// end "if (useTempDiskFileFlag)"
 					
@@ -1063,7 +1063,7 @@ SInt16 Write_Homogeneous_Fields_File (
 			{
 			if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 				{
-																											return (1);
+																							return (1);
 				
 				}	// end "if (!CheckSomeEvents..." 
 			
@@ -1079,7 +1079,7 @@ SInt16 Write_Homogeneous_Fields_File (
 											kErrorMessages);
 			
 			if (errCode != noErr)
-																					return (1);
+																							return (1);
 			
 			}	// end "if (useTempDiskFileFlag)"
 			
@@ -1093,7 +1093,8 @@ SInt16 Write_Homogeneous_Fields_File (
 		   		if (*epix_ptr > 0)		// Homogeneous cell 
 		   			{
 						ibuf = *epix_ptr & 0xbfffffff;
-	      			*c1_ptr = (UInt8)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
+	      			*c1_ptr =
+							(UInt8)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
 	      								
 	      			}	// end "if (*epix_ptr > ZERO)" 
 	      			
@@ -1114,7 +1115,8 @@ SInt16 Write_Homogeneous_Fields_File (
 		   		if (*epix_ptr > 0)		// Homogeneous cell 
 		   			{
 						ibuf = *epix_ptr & 0xbfffffff;
-	      			*si_ptr1 = (UInt16)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
+	      			*si_ptr1 =
+							(UInt16)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
 	      			
 	      			}	// end "if (*epix_ptr > ZERO)" 
 	      			
@@ -1135,7 +1137,8 @@ SInt16 Write_Homogeneous_Fields_File (
 		   		if (*epix_ptr > 0)		// Homogeneous cell 
 		   			{
 						ibuf = *epix_ptr & 0xbfffffff;
-	      			*li_ptr = (SInt32)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
+	      			*li_ptr =
+							(SInt32)fieldLikelihoodTableIndexPtr[field_number_table[ibuf]];
 	      			
 	      			}	// end "if (*epix_ptr > ZERO)" 
 	      			
@@ -1168,7 +1171,7 @@ SInt16 Write_Homogeneous_Fields_File (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2019)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1193,7 +1196,7 @@ SInt16 Write_Homogeneous_Fields_File (
 //	Calls to the functions in other files:
 //							setup_echo_image_selection ()	in SAux_echo.cpp
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 //	Revised By:			Byeungwoo Jeon			Date: 09/28/1991
@@ -1235,10 +1238,10 @@ SInt16 Write_Classified_Fields_File (
 	resultsFilePtr = GetResultsFilePtr (3);
 	
 	if (!resultsFilePtr || !ioBuffer1Ptr)
-																				return (1);
+																						return (1);
 																				
 	resultsFileStreamPtr = GetFileStreamPointer (resultsFilePtr);
-   
+	
    pixel_info 	= &(common_info->pixel_info);
 
 			// Set up Local Variables 
@@ -1249,7 +1252,7 @@ SInt16 Write_Classified_Fields_File (
    numberBytes 	= (SInt32)num_col;
    
 	LoadDItemStringNumber (kClassifyStrID,
-								 IDS_Classify45,		// "\pSaving Classified Homogeneous Fields"
+								 	IDS_Classify45,	// "Saving Classified Homogeneous Fields"
 									gStatusDialogPtr,
 									IDC_Status21,
 									(Str255*)gTextString);
@@ -1354,7 +1357,7 @@ SInt16 Write_Classified_Fields_File (
      									kErrorMessages);	
      									
 		if (errCode != noErr)
-																				return (1);
+																					return (1);
    	
    	}	// end for "(ix=0; ix<num_row; ix++)" 
 		
@@ -1362,6 +1365,6 @@ SInt16 Write_Classified_Fields_File (
    
    return (errCode);
 
-}	// End of Write_Classified_Fields_File 
+}	// end "Write_Classified_Fields_File"
 
 			

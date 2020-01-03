@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//										Copyright (1988-2019)
+//										Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,26 +20,12 @@
 //	Brief description:	This file contains functions that list field and class 
 //								statistics.
 //
-//	Functions in file:	SInt16			GetMeanStdDevLength
-//								SInt16			GetVarianceLength
-//								Boolean 			ListClassInformation
-//								void 				ListClassStats
-//								Boolean 			ListFieldInformation
-//								void 				ListFieldStats
-//								Boolean 			ListLowerTriangularMatrix
-//								void 				ListProjectStats
-//								void 				ListStatistics
-//								void 				ListStatsControl
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h" 
  
-#if defined multispec_lin
-	#include "LStatisticsListDialog.h"
+#if defined multispec_wx
+	#include "xStatisticsListDialog.h"
 #endif
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -130,7 +116,7 @@ char*			l_CharBufferPtr5 = NULL;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -209,7 +195,7 @@ SInt16 GetMeanStdDevLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -288,7 +274,7 @@ SInt16 GetVarianceLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -547,7 +533,7 @@ Boolean ListClassInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -724,7 +710,7 @@ void ListClassStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -877,6 +863,8 @@ Boolean ListFieldInformation (
 											gOutputForce1Code, 
 											continueFlag);
 		/*
+				// Format not quite right in the function below. Needs to be made more
+				// general.
 		continueFlag = ListLineColumnIntervalString (NULL,
 																	gOutputForce1Code,
 																	fieldPointsPtr[pointIndex].line, 
@@ -1050,7 +1038,7 @@ Boolean ListFieldInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1152,16 +1140,7 @@ void ListFieldStats (
 													&fieldSumSquaresPtr,
 													NULL,
 													NULL);
-			/*
-			ComputeCovarianceMatrix (numberChannels, 
-												fieldCovariancePtr,
-												numberChannels, 
-												NULL, 
-												fieldChanPtr, 
-												fieldSumSquaresPtr, 
-												fieldIdentPtr[fieldNumber].numberPixels, 
-												kTriangleOutputMatrix);
-			*/
+
 			GetTransformedCovarianceMatrix (numberChannels,
 														fieldCovariancePtr,
 														numberChannels, 
@@ -1226,7 +1205,7 @@ void ListFieldStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1278,7 +1257,7 @@ Boolean ListLowerTriangularMatrix (
 			
 		}	// end "for (channel=0; channel<numberChannels; ..." 
 				
-	sprintf (stringPtr1, gEndOfLine);
+	sprintf (stringPtr1, "%s", gEndOfLine);
 	stringLength = (SInt32)((Ptr)stringPtr1 - (Ptr)gCharBufferPtr1 + 
 																		gNumberOfEndOfLineCharacters);
 	
@@ -1306,7 +1285,7 @@ Boolean ListLowerTriangularMatrix (
 			
 			}	// end "for (covChan=0; ..." 
 			
-		sprintf (stringPtr1, gEndOfLine);
+		sprintf (stringPtr1, "%s", gEndOfLine);
 		stringLength = (SInt32)((Ptr)stringPtr1 - (Ptr)gCharBufferPtr1 + 
 																	gNumberOfEndOfLineCharacters);
 		
@@ -1315,7 +1294,7 @@ Boolean ListLowerTriangularMatrix (
 			
 		}	// end "for (channel=0; channel<numberChannels..." 
 		
-	sprintf (gCharBufferPtr1, gEndOfLine);
+	sprintf (gCharBufferPtr1, "%s", gEndOfLine);
 	if (!ListString (gCharBufferPtr1, 
 							gNumberOfEndOfLineCharacters, 
 							gOutputTextH))
@@ -1328,7 +1307,7 @@ Boolean ListLowerTriangularMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1395,7 +1374,7 @@ void ListProjectStats (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1683,7 +1662,7 @@ void ListStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2124,7 +2103,7 @@ void ListStatsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2350,7 +2329,7 @@ Boolean ListStatsDialog (
 		END_CATCH_ALL
 	#endif // defined multispec_win
       
-	#if defined multispec_lin
+	#if defined multispec_wx
       CMListStatsDialog*		dialogPtr = NULL;
       
       dialogPtr = new CMListStatsDialog (); 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/25/2018
+//	Revision date:			11/08/2019
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -22,30 +22,15 @@
 //	Brief description:	This file contains routine to handle the processor Reformat->
 //								rectify image processor.
 //
-//	Functions in file:	void 					ConcateMapping
-//								Boolean 				DetermineIfIdentityMatrix
-//								void 					ExtendRealRect
-//								void					GetMappingMatrix
-//								Boolean 				InvertMappingMatrix
-//								void 					MapLineColumn
-//								void					MapNearestNeighborLineColumn
-//								void 					MapOutputImageRectangle
-//								void					OffsetMappingMatrix
-//								Boolean 				RectifyImage
-//								void					RectifyImageControl
-//								Boolean 				RectifyImageDialog
-//								void 					ScaleMappingMatrix
-//								void 					SetIdentityMappingMatrix	 
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	 #include "LImageView.h"
-	 #include "LMultiSpec.h"
-	 #include "LReformatRectifyDialog.h"
-#endif	// defined multispec_lin 
+#if defined multispec_wx
+	 #include "xImageView.h"
+	 #include "xMultiSpec.h"
+	 #include "xReformatRectifyDialog.h"
+#endif	// defined multispec_wx 
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_LineInterval						11
@@ -74,9 +59,7 @@
                              
 #if defined multispec_win
 	 #include "WReformatRectifyDialog.h"
-#endif	// defined multispec_win 
- 
-//#include	"SExtGlob.h"	
+#endif	// defined multispec_win 	
 
 #define	kNearestNeighbor				1
 #define	kMajorityRule					2
@@ -89,161 +72,180 @@ SInt16							gResampleSelection;
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 			
-void 					ConcateMapping (
-							TransMapMatrix* 					dstMapMatrixPtr,
-							TransMapMatrix* 					mapMatrixPtr);
+void ConcatenateMapping (
+				TransMapMatrix* 					dstMapMatrixPtr,
+				TransMapMatrix* 					mapMatrixPtr);
 
-Boolean 				DetermineIfIdentityMatrix (
-							TransMapMatrix* 					mapMatrixPtr);
+Boolean DetermineIfIdentityMatrix (
+				TransMapMatrix* 					mapMatrixPtr);
 
 #if defined multispec_mac
-	pascal void			DrawResamplePopUp (
-								DialogPtr							dialogPtr,
-								SInt16								itemNumber);
+	pascal void DrawResamplePopUp (
+					DialogPtr							dialogPtr,
+					SInt16								itemNumber);
 #endif
 
-void 					ExtendRealRect (
-							DoubleRect* 						realRectPtr,
-							double 								line, 
-							double 								column);
+void ExtendRealRect (
+				DoubleRect* 						realRectPtr,
+				double 								line, 
+				double 								column);
 
-void					GetMappingMatrix (
-							RectifyImageOptionsPtr			rectifyImageOptionsPtr);
+void GetMappingMatrix (
+				RectifyImageOptionsPtr			rectifyImageOptionsPtr);
 
-SInt16 				GetReprojectToImageList (
-							DialogPtr							dialogPtr,
-							Handle								windowInfoHandle, 
-							Boolean								loadListFlag,
-							Handle*								referenceWindowInfoHandlePtr, 
-							SInt16*								listCountPtr);
+SInt16 GetReprojectToImageList (
+				DialogPtr							dialogPtr,
+				Handle								windowInfoHandle, 
+				Boolean								loadListFlag,
+				Handle*								referenceWindowInfoHandlePtr, 
+				SInt16*								listCountPtr);
 
-void 					InitializeLineToBackgroundValue (
-							FileInfoPtr							outFileInfoPtr,
-							HUInt8Ptr							outputBufferPtr,
-							UInt32								countOutBytes,
-							double								backgroundValue);
+void InitializeLineToBackgroundValue (
+				FileInfoPtr							outFileInfoPtr,
+				HUInt8Ptr							outputBufferPtr,
+				UInt32								countOutBytes,
+				double								backgroundValue);
 
-Boolean 				InvertMappingMatrix (
-							TransMapMatrix* 					mapMatrixPtr,
-							TransMapMatrix* 					inverseMapMatrixPtr);
+Boolean InvertMappingMatrix (
+				TransMapMatrix* 					mapMatrixPtr,
+				TransMapMatrix* 					inverseMapMatrixPtr);
 
-Boolean				IsPointInPolygon (
-							UInt32								nvert,
-							double*								vertx, 
-							double*								verty, 
-							double								testx, 
-							double								testy);
+Boolean IsPointInPolygon (
+				UInt32								nvert,
+				double*								vertx, 
+				double*								verty, 
+				double								testx, 
+				double								testy);
 
-Boolean 				ListRectifyResultsInformation (
-							ReformatOptionsPtr				reformatOptionsPtr,
-							FileInfoPtr							outFileInfoPtr);
+Boolean ListRectifyResultsInformation (
+				ReformatOptionsPtr				reformatOptionsPtr,
+				FileInfoPtr							outFileInfoPtr);
 
-void 					MapControlPoints (
-							FileInfoPtr 						fileInfoPtr,
-							TransMapMatrix*					mapMatrixPtr);
+void MapControlPoints (
+				FileInfoPtr 						fileInfoPtr,
+				TransMapMatrix*					mapMatrixPtr);
 
-void 					MapLineColumn (
-							TransMapMatrix* 					mapMatrixPtr,
-							double* 								linePtr, 
-							double* 								columnPtr);
+void MapLineColumn (
+				TransMapMatrix* 					mapMatrixPtr,
+				double* 								linePtr, 
+				double* 								columnPtr);
 
-void					MapNearestNeighborLineColumn (
-							TransMapMatrix* 					mapMatrixPtr,
-							SInt32	 							line, 
-							SInt32	 							column, 
-							SInt32* 								inputLinePtr, 
-							SInt32* 								inputColumnPtr);
+void MapNearestNeighborLineColumn (
+				TransMapMatrix* 					mapMatrixPtr,
+				SInt32	 							line, 
+				SInt32	 							column, 
+				SInt32* 								inputLinePtr, 
+				SInt32* 								inputColumnPtr);
 
-void 					MapOutputImageRectangle (
-							TransMapMatrix* 					mapMatrixPtr,
-							LongRect* 							inputRectanglePtr, 
-							LongRect* 							outputRectanglePtr);
+void MapOutputImageRectangle (
+				TransMapMatrix* 					mapMatrixPtr,
+				LongRect* 							inputRectanglePtr, 
+				LongRect* 							outputRectanglePtr);
 
-void					OffsetMappingMatrix (
-							TransMapMatrix* 					mapMatrixPtr,
-							SInt32	 							columnOffset, 
-							SInt32	 							lineOffset);
+void OffsetMappingMatrix (
+				TransMapMatrix* 					mapMatrixPtr,
+				SInt32	 							columnOffset, 
+				SInt32	 							lineOffset);
 
-Boolean 				RectifyImage (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							FileInfoPtr 						outFileInfoPtr, 
-							ReformatOptionsPtr 				reformatOptionsPtr);
+Boolean RectifyImage (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				FileInfoPtr 						outFileInfoPtr, 
+				ReformatOptionsPtr 				reformatOptionsPtr);
 
-Boolean 				RectifyImageDialog (
-							FileInfoPtr 						fileInfoPtr,
-							FileInfoPtr 						outFileInfoPtr, 
-							ReformatOptionsPtr 				reformatOptionsPtr,
-							double								minBackgroundValue,
-							double								maxBackgroundValue);
+Boolean RectifyImageDialog (
+				FileInfoPtr 						fileInfoPtr,
+				FileInfoPtr 						outFileInfoPtr, 
+				ReformatOptionsPtr 				reformatOptionsPtr,
+				double								minBackgroundValue,
+				double								maxBackgroundValue);
 
-void 					RectifyUpdateMapProjectionStructure (
-							Handle								inputWindowInfoHandle,
-							FileInfoPtr							outFileInfoPtr,
-							SInt32								columnStart, 
-							SInt32								lineStart,
-							SInt16								procedureCode,
-							Handle								referenceWindowInfoHandle,
-							SInt32								columnShift, 
-							SInt32								lineShift,
-							double								columnScaleFactor,
-							double								lineScaleFactor,
-							TransMapMatrix*					mapMatrixPtr,
-							TransMapMatrix*					inverseMapMatrixPtr,
-							double								rotationAngle);
+void RectifyUpdateMapProjectionStructure (
+				Handle								inputWindowInfoHandle,
+				FileInfoPtr							outFileInfoPtr,
+				SInt32								columnStart, 
+				SInt32								lineStart,
+				SInt16								procedureCode,
+				Handle								referenceWindowInfoHandle,
+				SInt32								columnShift, 
+				SInt32								lineShift,
+				double								columnScaleFactor,
+				double								lineScaleFactor,
+				TransMapMatrix*					mapMatrixPtr,
+				TransMapMatrix*					inverseMapMatrixPtr,
+				double								rotationAngle);
 
-Boolean 				ReprojectImage (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							FileInfoPtr							outFileInfoPtr, 
-							ReformatOptionsPtr				reformatOptionsPtr);
+Boolean ReprojectImage (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				FileInfoPtr							outFileInfoPtr, 
+				ReformatOptionsPtr				reformatOptionsPtr);
 
-void 					ReprojectNearestNeighborLineColumn (
-							MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							DoubleRect*							boundingRectPtr,
-							SInt32								line, 
-							SInt32								column, 
-							SInt32*								inputLinePtr, 
-							SInt32*								inputColumnPtr);
+void ReprojectNearestNeighborLineColumn (
+				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				DoubleRect*							boundingRectPtr,
+				SInt32								line, 
+				SInt32								column, 
+				SInt32*								inputLinePtr, 
+				SInt32*								inputColumnPtr);
 
-void					ReprojectWithMajorityRule (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,
-							MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-							MapProjectionInfoPtr				mapProjectionInfoPtr,
-							UInt32*								histogramVector,
-							SInt32								outputLine, 
-							SInt32								outputColumn,
-							SInt32								maxNumberInputColumns,
-							SInt32								maxNumberInputLines,
-							SInt16								backgroundValue, 
-							SInt32*								outputPixelValuePtr);
+void ReprojectWithMajorityRule (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
+				MapProjectionInfoPtr				mapProjectionInfoPtr,
+				UInt32*								histogramVector,
+				SInt32								outputLine, 
+				SInt32								outputColumn,
+				SInt32								maxNumberInputColumns,
+				SInt32								maxNumberInputLines,
+				SInt16								backgroundValue, 
+				SInt32*								outputPixelValuePtr);
 
-void 					ScaleMappingMatrix (
-							TransMapMatrix* 					mapMatrixPtr,
-							TransMapMatrix* 					scaleMapMatrixPtr,
-							double 								columnScale, 
-							double 								lineScale, 
-							double 								aboutColumn, 
-							double 								aboutLine);
+void ScaleMappingMatrix (
+				TransMapMatrix* 					mapMatrixPtr,
+				TransMapMatrix* 					scaleMapMatrixPtr,
+				double 								columnScale, 
+				double 								lineScale, 
+				double 								aboutColumn, 
+				double 								aboutLine);
 
-void 					SetIdentityMappingMatrix (
-							TransMapMatrix* 					mapMatrixPtr);
+void SetIdentityMappingMatrix (
+				TransMapMatrix* 					mapMatrixPtr);
 
-void					SetUpResampleMethodPopupMenu (
-							DialogPtr							dialogPtr,
-							MenuHandle							popUpResampleSelectionMenu,
-							Boolean								thematicTypeFlag);
-
-
-//double							gCentralLongitudeSetting = -90;
+void SetUpResampleMethodPopupMenu (
+				DialogPtr							dialogPtr,
+				MenuHandle							popUpResampleSelectionMenu,
+				Boolean								thematicTypeFlag);
 
 
 
-void ConcateMapping (
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		Boolean ConcatenateMapping
+//
+//	Software purpose:	The purpose of this routine is to concatenate two input matrices.
+//							The new matrix is returned in the dstMapMatrix location.
+//
+//	Parameters in:		two input matrices
+//
+//	Parameters out:	the output of the concatenate process.
+//
+// Value Returned:	None				
+// 
+// Called By:	
+//
+//	Coded By:			Larry L. Biehl			Date: 08/12/1992
+//	Revised By:			Larry L. Biehl			Date: 08/12/1992	
+
+void ConcatenateMapping (
 				TransMapMatrix*					dstMapMatrixPtr,
 				TransMapMatrix*					mapMatrixPtr)				
 
 {
 	TransMapMatrix						concat;
+	
 
 	concat.map[0][0] = dstMapMatrixPtr->map[0][0] * mapMatrixPtr->map[0][0] + 
 										dstMapMatrixPtr->map[0][1] * mapMatrixPtr->map[1][0];
@@ -262,12 +264,12 @@ void ConcateMapping (
 
 	*dstMapMatrixPtr = concat;
 	
-}	// end "ConcateMapping"
+}	// end "ConcatenateMapping"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -312,7 +314,7 @@ Boolean DetermineIfIdentityMatrix (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -374,7 +376,7 @@ void ExtendRealRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -448,14 +450,14 @@ void GetMappingMatrix (
 		*mapMatrixPtr = *rotateMapMatrixPtr;
 		
 	else	// *mapMatrixPtr is not an identity matrix
-		ConcateMapping (mapMatrixPtr, rotateMapMatrixPtr);
+		ConcatenateMapping (mapMatrixPtr, rotateMapMatrixPtr);
 
 }	// end "GetMappingMatrix"  
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -481,7 +483,7 @@ void GetMappingMatrix (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/15/2007
-//	Revised By:			Larry L. Biehl			Date: 09/18/2017	
+//	Revised By:			Larry L. Biehl			Date: 11/08/2019
 
 SInt16 GetReprojectToImageList (
 				DialogPtr							dialogPtr, 
@@ -495,9 +497,9 @@ SInt16 GetReprojectToImageList (
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
 
-   #if defined multispec_lin
-		wxComboBox*							comboBoxPtr;
-   #endif	// defined multispec_lin
+   #if defined multispec_wx
+		wxChoice*							referenceListCtrl;
+   #endif	// defined multispec_wx
 	
 	FileInfoPtr							fileInfoPtr;
 	
@@ -537,8 +539,9 @@ SInt16 GetReprojectToImageList (
 		boundingInputRect.bottom = gImageWindowInfoPtr->boundingLatLongRectangle.bottom;
 		boundingInputRect.right = gImageWindowInfoPtr->boundingLatLongRectangle.right;
 		
-		#if defined multispec_lin
-			comboBoxPtr = (wxComboBox*) wxWindow::FindWindowById (IDC_ReferenceFileList);
+		#if defined multispec_wx
+			referenceListCtrl =
+								(wxChoice*)wxWindow::FindWindowById (IDC_ReferenceFileList);
 		#endif
 
 		window = 0;
@@ -553,8 +556,7 @@ SInt16 GetReprojectToImageList (
 			
 			compareWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 																compareWindowInfoHandle,
-																&handleStatus2,
-																kNoMoveHi);
+																&handleStatus2);
 			
 			if (compareWindowInfoPtr != NULL &&
 						windowInfoHandle != compareWindowInfoHandle && 
@@ -572,14 +574,14 @@ SInt16 GetReprojectToImageList (
 			if (loadListFlag)
 				{													
 				fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
-																	compareWindowInfoPtr->fileInfoHandle,
-																	&handleStatus3,
-																	kNoMoveHi);
+																compareWindowInfoPtr->fileInfoHandle,
+																&handleStatus3);
 					
 				#if defined multispec_mac  
 					imageListLength++;
 					AppendMenu (gPopUpTemporaryMenu, "\pNewFile");
-					UCharPtr fileNamePtr = (UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
+					UCharPtr fileNamePtr =
+										(UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
 					MSetMenuItemText (gPopUpTemporaryMenu,
 											imageListLength, 
 											fileNamePtr,
@@ -590,9 +592,11 @@ SInt16 GetReprojectToImageList (
 					if (includeFlag) 
 						{
 						imageListLength++;
-						comboBoxPtr = (CComboBox*)dialogPtr->GetDlgItem (IDC_ReferenceFileList);
+						comboBoxPtr =
+									(CComboBox*)dialogPtr->GetDlgItem (IDC_ReferenceFileList);
 						comboBoxPtr->AddString ((LPCTSTR)_T("\0NewFile\0"));
-						UCharPtr fileNamePtr = (UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
+						UCharPtr fileNamePtr =
+									(UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
 						dialogPtr->SetComboItemText (IDC_ReferenceFileList, 
 																imageListLength-1, 
 																&fileNamePtr[1],
@@ -602,22 +606,16 @@ SInt16 GetReprojectToImageList (
 						}	// end "if (includeFlag)"
 				#endif	// defined multispec_win   
 				
-				#if defined multispec_lin
+				#if defined multispec_wx
 					if (includeFlag) 
 						{
 						imageListLength++;
-						FileStringPtr fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-						comboBoxPtr->SetValue (&fileNamePtr[1]);
-						comboBoxPtr->Append (&fileNamePtr[1]);
-						//comboBoxPtr->SetValue (wxString::Format (wxT("%s"), (char*)&fileNamePtr[1]));
-						//comboBoxPtr->Append (wxString::Format (wxT("%s"), (char*)&fileNamePtr[1]));
-						//int width;
-						//comboBoxPtr->GetTextExtent (comboBoxPtr->GetString (imageListLength-1), &width, NULL);
-						//printf ("width:%d\n", width);
-						//comboBoxPtr->SetBestFittingSize (wxSize (width+40, -1));
-						//comboBoxPtr->SetClientSize (wxSize (260, -1));
+						FileStringPtr fileNamePtr =
+								(FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
+						referenceListCtrl->Append (&fileNamePtr[1]);
 						SInt64 windowIndex64 = windowIndex;
-						comboBoxPtr->SetClientData (imageListLength-1, (void*)windowIndex64);
+						referenceListCtrl->SetClientData (
+														imageListLength-1, (void*)windowIndex64);
 
 						}
 				#endif
@@ -647,16 +645,11 @@ SInt16 GetReprojectToImageList (
 			window++;
 			windowIndex++;
 														
-			}		while (window<gNumberOfIWindows);
-			
-		#if defined multispec_lin
-			//comboBoxPtr->Fit ();
-			//comboBoxPtr->Layout ();
-		#endif
+			}	while (window<gNumberOfIWindows);
 			
 		}	// end "if (gNumberOfIWindows >= 2 && ..."
 		
-	if (loadListFlag)
+	if (loadListFlag && firstEnabledMenuItem != SHRT_MAX)
 		imageListLength = firstEnabledMenuItem;
 		
 	return (imageListLength);
@@ -666,7 +659,7 @@ SInt16 GetReprojectToImageList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -697,10 +690,11 @@ void InitializeLineToBackgroundValue (
 	HUInt16Ptr							outputBufferUInt16Ptr;
 	HUInt32Ptr							outputBufferUInt32Ptr;
 	
+	float									backgroundFloatValue;
+	
 	UInt32								count,
 											numberSamples;
 	
-	float									backgroundFloatValue;
 	SInt32								backgroundSInt32Value;
 	UInt32								backgroundUInt32Value;
 	SInt16								backgroundSInt16Value;
@@ -848,7 +842,7 @@ Boolean InvertMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -902,7 +896,7 @@ Boolean IsPointInPolygon (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -968,11 +962,11 @@ Boolean ListRectifyResultsInformation (
 					
 		sprintf ((char*)gTextString,
 					"%s"
-					#ifndef multispec_lin
+					#ifndef multispec_wx
 						"    Column shift:        %ld%s"
 						"    Line shift:          %ld%s"
 					#endif
-					#if defined multispec_lin				
+					#if defined multispec_wx				
 						"    Column shift:        %d%s"
 						"    Line shift:          %d%s"
 					#endif
@@ -1163,7 +1157,7 @@ Boolean ListRectifyResultsInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1229,6 +1223,7 @@ void MapControlPoints (
 
 
 
+//------------------------------------------------------------------------------------
 //	[x  y] [a  b] = [newX  newY]
 //		    [c  d]
 
@@ -1252,6 +1247,7 @@ void MapLineColumn (
 
 
 
+//------------------------------------------------------------------------------------
 //	[x  y] [a  b] = [newX  newY]
 //		    [c  d]
 
@@ -1276,7 +1272,7 @@ void MapNearestNeighborLineColumn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1339,6 +1335,8 @@ void MapOutputImageRectangle (
 
 
 
+//------------------------------------------------------------------------------------
+
 void OffsetMappingMatrix (
 				TransMapMatrix*					mapMatrixPtr, 
 				SInt32								columnOffset, 
@@ -1353,7 +1351,7 @@ void OffsetMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1493,7 +1491,6 @@ Boolean RectifyImage (
 		startColumn = reformatOptionsPtr->startColumn;
 		stopColumn = reformatOptionsPtr->stopColumn;
 		
-		//rectifiedInputOffset = MAX (0, rectifyImageOptionsPtr->columnShift);
 		rectifiedInputOffset = MIN (
 						(SInt32)(startColumn-1), rectifyImageOptionsPtr->columnShift);
 		rectifiedInputOffset = MAX (0, rectifiedInputOffset);
@@ -1624,7 +1621,8 @@ Boolean RectifyImage (
 				// Get the number of bytes per line (all columns) and one band 
 				// of data.
 		
-		outNumberBytesPerLineAndChannel = (countOutBytes-preLineBytes)/numberOutChannels;
+		outNumberBytesPerLineAndChannel =
+												(countOutBytes-preLineBytes)/numberOutChannels;
 		if (outFileInfoPtr->bandInterleave == kBIS)
 			outNumberBytesPerLineAndChannel /= numberOutputColumns;
 	
@@ -1818,7 +1816,7 @@ Boolean RectifyImage (
 							if (errCode != noErr)		
 								{
 								continueFlag = FALSE;
-																										break;
+																									break;
 								
 								}	// end "if (errCode != noErr)"	
 																					
@@ -2100,7 +2098,7 @@ Boolean RectifyImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2293,9 +2291,9 @@ void RectifyImageControl (void)
 													kKeepSameFormatAsInput);
 													
 				// The output file will not need to have the bytes swapped.  If the input
-				// file contains data with bytes swapped, they will be swapped when read in
-				// before writing to the new file.  The user does not have the option to
-				// force the output file to have bytes swapped.
+				// file contains data with bytes swapped, they will be swapped when read
+				// in before writing to the new file.  The user does not have the option
+				// to force the output file to have bytes swapped.
 													
 		outFileInfoPtr->swapBytesFlag = FALSE;
 													
@@ -2351,8 +2349,8 @@ void RectifyImageControl (void)
 											rectifyImageOptionsPtr->lineShift);
 											
 						// Now adjust the output rectangle so that it includes all of the
-						// requested input rectangle allowing for any user requested line and
-						// column shifts.
+						// requested input rectangle allowing for any user requested line
+						// and column shifts.
 						
 				if (rectifyImageOptionsPtr->lineShift > 0)
 					outputRectangle.bottom += rectifyImageOptionsPtr->lineShift;
@@ -2472,11 +2470,6 @@ void RectifyImageControl (void)
 							// the output file are reflected in the outFileInfoPtr
 							// structure.
 							
-					//reformatOptionsPtr->columnStart = 1;
-					//reformatOptionsPtr->columnEnd = gImageFileInfoPtr->numberColumns;
-					//reformatOptionsPtr->lineStart = 1;
-					//reformatOptionsPtr->lineEnd = gImageFileInfoPtr->numberLines;
-							
 					reformatOptionsPtr->columnStart = reformatOptionsPtr->startColumn;
 					reformatOptionsPtr->columnEnd = reformatOptionsPtr->stopColumn;
 					reformatOptionsPtr->lineStart = reformatOptionsPtr->startLine;
@@ -2553,8 +2546,8 @@ void RectifyImageControl (void)
 											
 					}	// end "if (...->procedureCode == kTranslateScaleRotate)"
 				
-					// Get pointer to memory to use to read an image file line		
-					// into. 																		
+						// Get pointer to memory to use to read an image file line
+						// into.
 			 						
 				continueFlag = GetIOBufferPointers (&gFileIOInstructions[0],
 																gImageWindowInfoPtr,
@@ -2606,7 +2599,8 @@ void RectifyImageControl (void)
 				if (gStatusDialogPtr)
 					{
 					MGetString (gTextString, kReformatStrID, IDS_PercentComplete);
-					LoadDItemString (gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
+					LoadDItemString (
+								gStatusDialogPtr, IDC_ShortStatusText, (Str255*)gTextString);
 					LoadDItemValue (gStatusDialogPtr, IDC_ShortStatusValue, (SInt32)0);
 					ShowStatusDialogWindow (kShortStatusInfoID);
 					
@@ -2669,7 +2663,7 @@ void RectifyImageControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2901,20 +2895,11 @@ Boolean RectifyImageDialog (
 				case 10:			//	 lineEnd
 				case 12:			//	 columnStart
 				case 13:			//	 columnEnd
-					/*
-					dialogSelectArea.imageWindowInfoPtr = (WindowInfoPtr)
-								GetHandleStatusAndPointer (referenceWindowInfoHandle,
-																		&handleStatus,
-																		kNoMoveHi);
-					*/
 					DialogLineColumnHits (&dialogSelectArea,
 													dialogPtr, 
 													itemHit,
 													theHandle,
 													theNum);
-					
-					//MHSetState (referenceWindowInfoHandle, handleStatus);
-					//dialogSelectArea.imageWindowInfoPtr = NULL;
 					break;
 					
 				case 17:				// "Write Erdas Header" popup box
@@ -2971,7 +2956,7 @@ Boolean RectifyImageDialog (
 					
 				case 25:				//	 line shift  
 					if (labs (theNum) >
-											kMaxNumberLines - gImageWindowInfoPtr->maxNumberLines)
+										kMaxNumberLines - gImageWindowInfoPtr->maxNumberLines)
 						NumberErrorAlert (lastLineShift, dialogPtr, itemHit);
 										
 					else	// labs (theNum) <= ...->maxNumberColumns 
@@ -2980,7 +2965,7 @@ Boolean RectifyImageDialog (
 					
 				case 26:				//	 column shift  
 					if (labs (theNum) >
-										kMaxNumberLines - gImageWindowInfoPtr->maxNumberColumns)
+									kMaxNumberLines - gImageWindowInfoPtr->maxNumberColumns)
 						NumberErrorAlert (lastColumnShift, dialogPtr, itemHit);
 										
 					else	// labs (theNum) <= ...->maxNumberColumns 
@@ -3065,7 +3050,8 @@ Boolean RectifyImageDialog (
 						
 						}	// end "if (GetDLogControl (dialogPtr, 34))"
 						
-					LoadDItemRealValue (dialogPtr, 31, lastRotationAngle, numberDecimalPlaces);
+					LoadDItemRealValue (
+									dialogPtr, 31, lastRotationAngle, numberDecimalPlaces);
 					SelectDialogItemText (dialogPtr, 31, 0, INT16_MAX);
 					break;
 					
@@ -3241,9 +3227,9 @@ Boolean RectifyImageDialog (
 		END_CATCH_ALL 
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMReformatRectifyDlg*		dialogPtr = NULL;
-		//dialogPtr = new CMReformatRectifyDlg ((wxWindow*)GetMainFrame ());
+	
 		dialogPtr = new CMReformatRectifyDlg (NULL);
 		
 		OKFlag = dialogPtr->DoDialog (outFileInfoPtr,
@@ -3255,7 +3241,7 @@ Boolean RectifyImageDialog (
 														maxBackgroundValue); 
 			
 		delete dialogPtr;
-	#endif	// defined multispec_lin
+	#endif	// defined multispec_wx
 	
 	return (OKFlag);
 	
@@ -3264,7 +3250,7 @@ Boolean RectifyImageDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3306,7 +3292,6 @@ void RectifyImageDialogInitialize (
 {
 	RectifyImageOptionsPtr			rectifyImageOptionsPtr;
 	SInt16								*rectifyChannelPtr;
-	//WindowPtr							windowPtr;
 	
 	SInt16								entireIconItem,
 											listCount;
@@ -3382,7 +3367,7 @@ void RectifyImageDialogInitialize (
 	*lastRotationAnglePtr = rectifyImageOptionsPtr->rotationAngle;
 	
 	*mapOrientationAnglePtr =
-			GetMapOrientationAngle (fileInfoPtr->mapProjectionHandle) * kRadiansToDegrees;
+		GetMapOrientationAngle (fileInfoPtr->mapProjectionHandle) * kRadiansToDegrees;
 
 			//	Set the draw routine for the rectification channel popup box.		
 			
@@ -3439,7 +3424,7 @@ void RectifyImageDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3626,10 +3611,10 @@ void RectifyImageDialogOK (
 		
 		reformatOptionsPtr->columnStart = 1;
 		reformatOptionsPtr->columnEnd = GetMaxNumberColumns (
-												rectifyImageOptionsPtr->referenceWindowInfoHandle);
+											rectifyImageOptionsPtr->referenceWindowInfoHandle);
 		reformatOptionsPtr->lineStart = 1;
 		reformatOptionsPtr->lineEnd = GetMaxNumberLines (
-												rectifyImageOptionsPtr->referenceWindowInfoHandle);
+											rectifyImageOptionsPtr->referenceWindowInfoHandle);
 	
 		rectifyImageOptionsPtr->columnScaleFactor = 1.0;
 		rectifyImageOptionsPtr->lineScaleFactor = 1.0;
@@ -3646,7 +3631,7 @@ void RectifyImageDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3680,10 +3665,10 @@ void RectifyImageDialogOnRectifyCode (
 	if (rectifyCode == kTranslateScaleRotate)
 		{
 		ShowDialogItem (dialogPtr, IDC_TranslateScaleTitle);
-		#if defined multispec_lin
+		#if defined multispec_wx
 			ShowDialogItem (dialogPtr, IDC_TranslateScaleTitle2);
 			ShowDialogItem (dialogPtr, IDC_TranslateScaleTitle3);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		ShowDialogItem (dialogPtr, IDC_LineTranslateScalePrompt);
 		ShowDialogItem (dialogPtr, IDC_ColumnTranslateScalePrompt);
 		ShowDialogItem (dialogPtr, IDC_LineOffset);
@@ -3712,10 +3697,10 @@ void RectifyImageDialogOnRectifyCode (
 	else	// rectifyCode != kTranslateScaleRotate
 		{
 		HideDialogItem (dialogPtr, IDC_TranslateScaleTitle);
-		#if defined multispec_lin
+		#if defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_TranslateScaleTitle2);
 			HideDialogItem (dialogPtr, IDC_TranslateScaleTitle3);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		HideDialogItem (dialogPtr, IDC_LineTranslateScalePrompt);
 		HideDialogItem (dialogPtr, IDC_ColumnTranslateScalePrompt);
 		HideDialogItem (dialogPtr, IDC_LineOffset);
@@ -3741,7 +3726,7 @@ void RectifyImageDialogOnRectifyCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3759,7 +3744,7 @@ void RectifyImageDialogOnRectifyCode (
 // Called By:			RectifyImageDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 02/20/2007
-//	Revised By:			Larry L. Biehl			Date: 01/05/2018	
+//	Revised By:			Larry L. Biehl			Date: 11/08/2019
 	                
 SInt16 RectifyImageDialogOnReferenceFile (
 				DialogPtr							dialogPtr,
@@ -3772,13 +3757,11 @@ SInt16 RectifyImageDialogOnReferenceFile (
 	#if defined multispec_win                                
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
-   #if defined multispec_lin                                
-		wxComboBox* 						comboBoxPtr;
-	#endif	// defined multispec_lin
+   #if defined multispec_wx                                
+		wxChoice* 							referenceListCtrl;
+	#endif	// defined multispec_wx
 	
 	UInt32								windowIndex;
-											
-	//SignedByte							handleStatus;
 	
 	  
 	if (procedureCode == kTranslateScaleRotate)
@@ -3800,16 +3783,17 @@ SInt16 RectifyImageDialogOnReferenceFile (
 				windowIndex = (UInt32)comboBoxPtr->GetItemData (fileNamesSelection - 1);
 			#endif	// defined multispec_win 
 			
-         #if defined multispec_lin
-				comboBoxPtr = (wxComboBox*)wxWindow::FindWindowById (IDC_ReferenceFileList);
+         #if defined multispec_wx
+				referenceListCtrl =
+								(wxChoice*)wxWindow::FindWindowById (IDC_ReferenceFileList);
 				SInt64 windowIndex64 =
-						(SInt64)((int*)comboBoxPtr->GetClientData (fileNamesSelection - 1));
+						(SInt64)((int*)referenceListCtrl->GetClientData (
+																				fileNamesSelection - 1));
 				windowIndex = (UInt32)windowIndex64;
-				//if (windowIndex > kImageWindowStart+gNumberOfIWindows)
-				//	windowIndex = kImageWindowStart + fileNamesSelection - 1;
-			#endif  // defined multispec_lin
+			#endif  // defined multispec_wx
 					
-			*referenceWindowInfoHandlePtr = GetWindowInfoHandle (gWindowList[windowIndex]);
+			*referenceWindowInfoHandlePtr =
+													GetWindowInfoHandle (gWindowList[windowIndex]);
 			
 			}	// end "if (fileNamesSelection > 0)"
 			
@@ -3830,8 +3814,7 @@ SInt16 RectifyImageDialogOnReferenceFile (
 
 	dialogSelectAreaPtr->imageWindowInfoPtr = 
 				(WindowInfoPtr)GetHandleStatusAndPointer (*referenceWindowInfoHandlePtr,
-																		&handleStatus,
-																		kNoMoveHi);	
+																		&handleStatus);	
 		
 			// Get any selected area for the target image.																	
 	
@@ -3876,7 +3859,7 @@ SInt16 RectifyImageDialogOnReferenceFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3931,7 +3914,8 @@ void RectifyUpdateMapProjectionStructure (
 	
 	inputMapProjectionHandle = GetFileMapProjectionHandle2 (inputWindowInfoHandle);
 	if (procedureCode == kReprojectToReferenceImage)
-		inputMapProjectionHandle = GetFileMapProjectionHandle2 (referenceWindowInfoHandle);
+		inputMapProjectionHandle =
+										GetFileMapProjectionHandle2 (referenceWindowInfoHandle);
 	
 	if (inputMapProjectionHandle != NULL && outFileInfoPtr != NULL)
 		{
@@ -3947,7 +3931,8 @@ void RectifyUpdateMapProjectionStructure (
 		if (mapProjectionInfoPtr != NULL)
      		{
 			/*
-					This is just for some special processing. Take out when done.
+					This is just for some special processing. Take out or comment out 
+					when done.
 									
 			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 
 																				gCentralLongitudeSetting;
@@ -3981,10 +3966,10 @@ void RectifyUpdateMapProjectionStructure (
 								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
 					
 					mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize /= 
-																							columnScaleFactor;
+																						columnScaleFactor;
 					
 					mapProjectionInfoPtr->planarCoordinate.verticalPixelSize /= 
-																							lineScaleFactor;
+																						lineScaleFactor;
 					
 							// Now take into account the new center of pixel because of the 
 							// scale change.  We are assuming that any translation of the
@@ -4051,20 +4036,20 @@ void RectifyUpdateMapProjectionStructure (
 									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
 																													 
 					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-													xOffset*cosOrientAngle + yOffset*sinOrientAngle;
+												xOffset*cosOrientAngle + yOffset*sinOrientAngle;
 																											
 					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-													xOffset*sinOrientAngle - yOffset*cosOrientAngle;
+												xOffset*sinOrientAngle - yOffset*cosOrientAngle;
 					
 					mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize /= 
-																							columnScaleFactor;
+																						columnScaleFactor;
 					
 					mapProjectionInfoPtr->planarCoordinate.verticalPixelSize /= 
-																							lineScaleFactor;
+																						lineScaleFactor;
 					
 					rotationAngle *= kDegreesToRadians;
 					mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle -=
-																								rotationAngle;
+																							rotationAngle;
 					if (fabs (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle) < 
 																										0.00001)
 						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 0.;
@@ -4106,7 +4091,7 @@ void RectifyUpdateMapProjectionStructure (
 									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 				
 				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-									-mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
+								-mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
 							
 				}	// end "if (rightToLeftFlag)"
 															
@@ -4130,7 +4115,7 @@ void RectifyUpdateMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4584,7 +4569,7 @@ Boolean ReprojectImage (
 									// Set input buffer pointer.												
 					
 							ioIn1ByteBufferPtr = (unsigned char*)
-															&gOutputBufferPtr[inputColumn*numberBytes];
+														&gOutputBufferPtr[inputColumn*numberBytes];
 							
 									// Set output buffer pointers.								
 			
@@ -4593,7 +4578,9 @@ Boolean ReprojectImage (
 							while (channelCount<numberOutChannels)
 								{
 								if (rectifyChannelPtr[channelCount])
-									memcpy (ioOut1ByteBufferPtr, ioIn1ByteBufferPtr, numberBytes);
+									memcpy (ioOut1ByteBufferPtr,
+												ioIn1ByteBufferPtr,
+												numberBytes);
 							
 								channelCount++;
 							
@@ -4789,7 +4776,7 @@ Boolean ReprojectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5076,7 +5063,7 @@ void ReprojectWithMajorityRule (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5182,7 +5169,7 @@ void ScaleMappingMatrix (
 	scaleMapMatrixPtr->map[2][0] = aboutColumn - columnScale * aboutColumn;
 	scaleMapMatrixPtr->map[2][1] = aboutLine - lineScale * aboutLine;
 
-	ConcateMapping (mapMatrixPtr, scaleMapMatrixPtr);
+	ConcatenateMapping (mapMatrixPtr, scaleMapMatrixPtr);
 	
 }	// end "ScaleMappingMatrix" 
 
@@ -5204,7 +5191,7 @@ void SetIdentityMappingMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //							  (c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5222,7 +5209,7 @@ void SetIdentityMappingMatrix (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 06/07/2012
-//	Revised By:			Larry L. Biehl			Date: 12/01/2016
+//	Revised By:			Larry L. Biehl			Date: 11/08/2019
 
 void SetUpResampleMethodPopupMenu (
 				DialogPtr							dialogPtr,
@@ -5262,24 +5249,23 @@ void SetUpResampleMethodPopupMenu (
 			comboBoxPtr->DeleteString (1);
 	#endif	// defined multispec_win
 
-	#if defined multispec_lin
-		wxComboBox* comboBoxPtr =
-								(wxComboBox*)wxWindow::FindWindowById (IDC_ResampleMethod);
+	#if defined multispec_wx
+		wxChoice* resampleCtrl =
+								(wxChoice*)wxWindow::FindWindowById (IDC_ResampleMethod);
 		
-		comboBoxPtr->SetValue (wxString::Format (wxT("%s"), "Nearest Neighbor"));
-		comboBoxPtr->Append ("Nearest Neighbor");
+		resampleCtrl->Append ("Nearest Neighbor");
 
       int m_NearestNeighbor = kNearestNeighbor;
-		comboBoxPtr->SetClientData (0, (void*)m_NearestNeighbor);
+		resampleCtrl->SetClientData (0, (void*)(SInt64)m_NearestNeighbor);
 		
 		if (thematicTypeFlag)
 			{
 			int m_kMajorityRule = kMajorityRule;
-			comboBoxPtr->Append ("Majority");
-			//comboBoxPtr->SetString (1, wxString::Format (wxT("%s"), "Majority"));
-			comboBoxPtr->SetClientData (1, (void*)m_kMajorityRule);
-			}			
-   #endif	// defined multispec_lin
+			resampleCtrl->Append ("Majority");
+			resampleCtrl->SetClientData (1, (void*)(SInt64)m_kMajorityRule);
+			
+			}	// end "if (thematicTypeFlag)"
+   #endif	// defined multispec_wx
 	
 }	// end "SetUpResampleMethodPopupMenu" 
 

@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,41 +11,11 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			03/22/2019
+//	Revision date:			01/02/2020
 //
 //	Language:				C
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
-//
-//	Functions in file:	Boolean 					CheckHistogramTextWindowSpaceNeeded
-//								void 						CloseUpHistogramArrayReadParameters
-//								Boolean 					ComputeHistogram
-//								SInt32					CountTotalNumberHistogramPixels
-//								void 						CreateERDAS_staFile
-//								void 						DecodeERDAS_staFile
-//								SInt32					DetermineBytesForHistogramText
-//								pascal void 			DrawHistogramMethodPopUp
-//								Boolean 					DoHistogramRequests
-//								void						ForceHistogramCodeResourceLoad
-//								char* 					GetERDAS_staBuffer
-//								Boolean 					GetERDAS_staFile
-//								UInt32*					GetHistogramValuesMemory
-//								void 						HistogramControl
-//								Boolean 					HistogramDialog
-//								void 						HistogramDialogStatisticsFile
-//								Handle				 	InitializeHistogramInfoStructure
-//								Boolean 					ListHistogram
-//								Boolean 					ListHistogramTitle
-//								Boolean 					ListHistogramValues
-//								Boolean 					ListHistogramValuesInColumns
-//								Boolean 					ListHistogramValuesInLines
-//								void 						LoadERDAS_staFile
-//								void 						LoadHistogramSpecs
-//								FileInfoPtr 			OpenERDAS_staFile		
-//								Boolean 					ReadERDAS_statFile
-//								void 						HistogramDialogSetListAndEmptyBins
-//								Boolean 					SetUpToReadHistogramArray
-//								Boolean 					HistogramDialogUpdateAllChannelsAtOnceFlag
 //
 //	Brief description:	The purpose of the routines in this file is to
 //								determine the user specifications for the image 
@@ -57,50 +27,45 @@
 //
 //		HistogramControl
 //			LoadHistogramSpecs
-//				GetSelectedAreaInfo (in selectionArea.c)
+//				GetSelectedAreaInfo (in SSelectionUtility.cpp)
 //			HistogramDialog
-//				LoadDItemValue (in multiSpecUtilities.c)
-//				CheckSomeEvents (in multiSpec.c)
-//				HiliteOKButton (in dialogUtilities.c)
+//				LoadDItemValue (in SUtilities.cpp)
+//				CheckSomeEvents (in MMultiSpec.c)
+//				HiliteOKButton (in MDialogUtilities.c)
 //				GetERDAS_staFile
-//					GetFile (in fileIO.c)
-//					IOCheck (fileIO.c)
-//			CheckSomeEvents (in multiSpec.c)
+//					GetFile (in SFileIO.cpp)
+//					IOCheck (SFileIO.cpp)
+//			CheckSomeEvents (in MMultiSpec.c)
 //			ReadERDAS_staFile
 //				ConvertATRealtoReal (in SFileIO.cpp)
 //				ConvertATRealtoInt (in SFileIO.cpp)
-//				MoveBytes (in multiSpecUtilities.c)
-//				CloseFile (in fileIO.c)
-//				UnlockAndDispose (in multiSpecUtilities.c)
-//			LoadDItemString (in multiSpecUtilities.c)
+//				MoveBytes (in SUtilities.cpp)
+//				CloseFile (in SFileIO.cpp)
+//				UnlockAndDispose (in SUtilities.cpp)
+//			LoadDItemString (in SUtilities.cpp)
 //			ComputeHistogram
-//				UnlockAndDispose (in multiSpecUtilities.c)
+//				UnlockAndDispose (in SUtilities.cpp)
 //			CreateERDAS_staFile
-//				CloseFile (in fileIO.c)
-//				CopyPToP (in multiSpecUtilities.c)
+//				CloseFile (in SFileIO.cpp)
+//				CopyPToP (in SUtilities.cpp)
 //				ConcatPStrings (in SUtility.cpp)
-//				PutFile (in fileIO.c)
-//				IOCheck (in fileIO.c)
-//				MoveBytes (in multiSpecUtilities.c)
-//				ConvertRealAT (in fileIO.c)
-//				UnlockAndDispose (in multiSpecUtilities.c)
+//				PutFile (in SFileIO.cpp)
+//				IOCheck (in SFileIO.cpp)
+//				MoveBytes (in SUtilities.cpp)
+//				ConvertRealAT (in SFileIO.cpp)
+//				UnlockAndDispose (in SUtilities.cpp)
 //			ListHistogram
-//				OutputString (in multiSpecUtilities.c)
+//				OutputString (in SUtilities.cpp)
 //			ListHistogramValues
-//				OutputString (in multiSpecUtilities.c)
-//				UnlockAndDispose (in multiSpecUtilities.c)
+//				OutputString (in SUtilities.cpp)
+//				UnlockAndDispose (in SUtilities.cpp)
 //			UpdateOutputWScrolls
-//			UnlockAndDispose (in multiSpecUtilities.c)
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
+//			UnlockAndDispose (in SUtilities.cpp)
 //
 /* Template for debugging.
 		int numberChars = sprintf (
 				(char*)gTextString3,
-				" SHistogram:ComputeHistorgram (gauge_range, gStatusGraphicsRight): %d, %f%s",
-				gauge_range,
-				gStatusGraphicsRight,
+				" SHistogram:ComputeHistorgram (=): %s",
 				gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
@@ -108,13 +73,13 @@
 
 #include "SMultiSpec.h"
 	 
-#if defined multispec_lin
-	#include "CHistogram.h"
-	#include "CImageWindow.h"
+#if defined multispec_wx
+	#include "SHistogram_class.h"
+	#include "SImageWindow_class.h"
 
-	#include "LHistogramDialog.h"
-	#include "LImageView.h"
-	#include "LMultiSpec.h"
+	#include "xHistogramDialog.h"
+	#include "xImageView.h"
+	#include "xMultiSpec.h"
 	typedef wxString CString;
 #endif
 
@@ -144,184 +109,182 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
                              
 #if defined multispec_win
-	#include "CHistogram.h"
+	#include "SHistogram_class.h"
 	#include "WImageView.h"
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	
 	#include <afxcmn.h>
 	#include "WHistogramDialog.h"
 #endif	// defined multispec_win
-
-//#include	"SExtGlob.h"
 
 		
 
 			// Prototype descriptions for routines in this file that are only		
 			// called by routines in this file.
 																			
-Boolean 				CreateSTASupportFile (
-							FileInfoPtr 						fileInfoPtr, 
-							HistogramSpecsPtr 				histogramSpecsPtr,
-							HUInt32Ptr			 				histogramArrayPtr,
-							short int 							channelIndex);
+Boolean	CreateSTASupportFile (
+				FileInfoPtr 						fileInfoPtr,
+				HistogramSpecsPtr 				histogramSpecsPtr,
+				HUInt32Ptr			 				histogramArrayPtr,
+				short int 							channelIndex);
 
-Boolean 				CheckHistogramTextWindowSpaceNeeded (
-							HistogramSpecsPtr					histogramSpecsPtr);
+Boolean	CheckHistogramTextWindowSpaceNeeded (
+				HistogramSpecsPtr					histogramSpecsPtr);
 			
-Boolean 				ComputeHistogram (
-							FileIOInstructionsPtr			fileIOInstructionsPtr, 
-							HistogramSpecsPtr					histogramSpecsPtr, 
-							HUInt32Ptr							histogramArrayPtr, 
-							SInt16								channelIndex, 
-							SInt16								computeCode);
+Boolean	ComputeHistogram (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				SInt16								channelIndex,
+				SInt16								computeCode);
 							
-UInt32 				DetermineBytesForHistogramText (
-							HistogramSpecsPtr					histogramSpecsPtr, 
-							Boolean								textWindowFlag);
+UInt32	DetermineBytesForHistogramText (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				Boolean								textWindowFlag);
 
-Boolean 				DetermineIfEFormatRequired (
-							HistogramSummaryPtr				histogramSummaryPtr,
-							UInt32								numberChannels,
-							SInt16*								channelsPtr);
+Boolean	DetermineIfEFormatRequired (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				UInt32								numberChannels,
+				SInt16*								channelsPtr);
 
-Boolean 				DetermineMinAndMaxValuesForEachChannel (
-							FileIOInstructionsPtr			fileIOInstructionsPtr,  
-							HistogramSpecsPtr					histogramSpecsPtr,
-							HistogramSummaryPtr				histogramSummaryPtr,
-							UInt16								*channelListPtr,
-							SInt16								channelOffset,
-							double								maxSaturatedValue,
-							Boolean								BISFlag,
-							UInt32								interval,
-							UInt32								numberSamples,
-							UInt16								imageFileNumberChannels);
+Boolean	DetermineMinAndMaxValuesForEachChannel (
+				FileIOInstructionsPtr			fileIOInstructionsPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				UInt16								*channelListPtr,
+				SInt16								channelOffset,
+				double								maxSaturatedValue,
+				Boolean								BISFlag,
+				UInt32								interval,
+				UInt32								numberSamples,
+				UInt16								imageFileNumberChannels);
 																			
-Boolean 				DoHistogramRequests (
-							HistogramSpecsPtr					histogramSpecsPtr);
+Boolean	DoHistogramRequests (
+				HistogramSpecsPtr					histogramSpecsPtr);
 			
-PascalVoid	 		DrawHistogramMethodPopUp (
-							DialogPtr 							dialogPtr, 
-							SInt16	 							itemNumber);
+PascalVoid	DrawHistogramMethodPopUp (
+				DialogPtr 							dialogPtr,
+				SInt16	 							itemNumber);
 
-void 					GetDataFormatString (
-							char*									stringPtr,
-							double								value,
-							UInt16								fieldSize,
-							UInt16								ePrecision,
-							UInt16								fPrecision,
-							Boolean								forceEFormatFlag);
+void	GetDataFormatString (
+				char*									stringPtr,
+				double								value,
+				UInt16								fieldSize,
+				UInt16								ePrecision,
+				UInt16								fPrecision,
+				Boolean								forceEFormatFlag);
 							
-Handle* 				GetHistogramSummaryHandlePtr (
-							WindowInfoPtr						windowInfoPtr);
+Handle*	GetHistogramSummaryHandlePtr (
+				WindowInfoPtr						windowInfoPtr);
 
-UInt32 				GetNumberOfMaximumDataValues (
-							HistogramSummaryPtr				histogramSummaryPtr,
-							HUInt32Ptr							histogramArrayPtr,
-							SInt32								signedValueOffset);
+UInt32	GetNumberOfMaximumDataValues (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				SInt32								signedValueOffset);
 
-UInt32 				GetNumberOfMinimumDataValues (
-							HistogramSummaryPtr				histogramSummaryPtr,
-							HUInt32Ptr							histogramArrayPtr,
-							SInt32								signedValueOffset);
+UInt32	GetNumberOfMinimumDataValues (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				SInt32								signedValueOffset);
 
-Boolean	 			GetStatFileBuffer (
-							FileInfoPtr							fileInfoPtr,
-							HistogramSpecsPtr					histogramSpecsPtr,
-							UInt16*								channelListPtr, 
-							SInt16								numberChannels);
+Boolean	GetStatFileBuffer (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				UInt16*								channelListPtr,
+				SInt16								numberChannels);
 
-Boolean 				HistogramDialog (
-							FileInfoPtr							fileInfoPtr, 
-							HistogramSpecsPtr					histogramSpecsPtr);
+Boolean	HistogramDialog (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr);
 
-void 					InitializeHistogramSummaryStructure (
-							HistogramSummaryPtr 				histogramSummaryPtr,
-							UInt32								numberChannels);
+void	InitializeHistogramSummaryStructure (
+				HistogramSummaryPtr 				histogramSummaryPtr,
+				UInt32								numberChannels);
 
 
-Boolean 				ListHistogramValuesInColumns (
-							HistogramSpecsPtr					histogramSpecsPtr,
-							CMFileStream* 						resultsFileStreamPtr,
-							FileInfoPtr							fileInfoPtr,
-							double	 							minValue, 
-							double	 							maxValue, 
-							Boolean 								includeEmptyBinsFlag,
-							HistogramSummaryPtr				histogramSummaryPtr,  
-							HUInt32Ptr			 				medianArrayPtr, 
-							UInt32								startChannelIndex,
-							UInt32	 							lastChannelIndex,
-							SInt16*								featurePtr,
-							UInt16								valueCountTextWidth,
-							UInt16								columnCountTextWidth,
-							UInt16								ePrecision,
-							UInt16								fPrecision);
+Boolean	ListHistogramValuesInColumns (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				CMFileStream* 						resultsFileStreamPtr,
+				FileInfoPtr							fileInfoPtr,
+				double	 							minValue,
+				double	 							maxValue,
+				Boolean 								includeEmptyBinsFlag,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr			 				medianArrayPtr,
+				UInt32								startChannelIndex,
+				UInt32	 							lastChannelIndex,
+				SInt16*								featurePtr,
+				UInt16								valueCountTextWidth,
+				UInt16								columnCountTextWidth,
+				UInt16								ePrecision,
+				UInt16								fPrecision);
 												
-Boolean 				ListHistogramValuesInLines (
-							HistogramSpecsPtr					histogramSpecsPtr,
-							CMFileStream*						resultsFileStreamPtr,
-							FileInfoPtr							fileInfoPtr,
-							double								minValue, 
-							double								maxValue, 
-							HistogramSummaryPtr				histogramSummaryPtr,
-							HUInt32Ptr							medianArrayPtr, 
-							UInt32								channelIndex,
-							UInt32								lastChannel,
-							SInt16*								featurePtr,
-							UInt16								channelTextWidth,
-							UInt16								minValueCountTextWidth,
-							UInt16								valueCountTextWidth,
-							UInt16								maxValueCountTextWidth,
-							UInt16								ePrecision,
-							UInt16								fPrecision);							
+Boolean 	ListHistogramValuesInLines (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				CMFileStream*						resultsFileStreamPtr,
+				FileInfoPtr							fileInfoPtr,
+				double								minValue,
+				double								maxValue,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							medianArrayPtr,
+				UInt32								channelIndex,
+				UInt32								lastChannel,
+				SInt16*								featurePtr,
+				UInt16								channelTextWidth,
+				UInt16								minValueCountTextWidth,
+				UInt16								valueCountTextWidth,
+				UInt16								maxValueCountTextWidth,
+				UInt16								ePrecision,
+				UInt16								fPrecision);
 
-void 					LoadHistogramSpecs (
-							FileInfoPtr							fileInfoPtr, 
-							HistogramSpecsPtr					histogramSpecsPtr);	
+void	LoadHistogramSpecs (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr);
 											
-Boolean 				LoadSTASupportFile (
-							FileInfoPtr							fileInfoPtr, 
-							HistogramSpecsPtr					histogramSpecsPtr,
-							HUInt32Ptr							histogramArrayPtr, 
-							UInt32								channelIndex, 
-							Boolean								summaryFlag);
+Boolean	LoadSTASupportFile (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				UInt32								channelIndex,
+				Boolean								summaryFlag);
 
-Boolean 				LoadSupportFile (
-							WindowInfoPtr						windowInfoPtr,
-							FileInfoPtr							fileInfoPtr, 
-							HistogramSpecsPtr					histogramSpecsPtr,
-							HUInt32Ptr							histogramArrayPtr, 
-							UInt32								channelIndex, 
-							Boolean								summaryFlag);
+Boolean	LoadSupportFile (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				UInt32								channelIndex,
+				Boolean								summaryFlag);
 
-void 					SetHistogramLineColumnSpecs (
-							HistogramSpecsPtr					histogramSpecsPtr,
-							SInt32								lineStart, 
-							SInt32								lineEnd, 
-							SInt32								columnStart, 
-							SInt32								columnEnd,
-							SInt32								numberChannels);
+void	SetHistogramLineColumnSpecs (
+				HistogramSpecsPtr					histogramSpecsPtr,
+				SInt32								lineStart,
+				SInt32								lineEnd,
+				SInt32								columnStart,
+				SInt32								columnEnd,
+				SInt32								numberChannels);
 
-void 					SetNumberOfMaximumDataValuesInArray (
-							HistogramSummaryPtr				histogramSummaryPtr,
-							HUInt32Ptr							histogramArrayPtr,
-							SInt32								signedValueOffset);
+void 	SetNumberOfMaximumDataValuesInArray (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				SInt32								signedValueOffset);
 
-void 					SetNumberOfMinimumDataValuesInArray (
-							HistogramSummaryPtr				histogramSummaryPtr,
-							HUInt32Ptr							histogramArrayPtr,
-							SInt32								signedValueOffset);
+void	SetNumberOfMinimumDataValuesInArray (
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				SInt32								signedValueOffset);
 
-void					UpdateSupportFileTypeSetting (
-							WindowInfoPtr						windowInfoPtr,
-							HistogramSpecsPtr					histogramSpecsPtr);
+void	UpdateSupportFileTypeSetting (
+				WindowInfoPtr						windowInfoPtr,
+				HistogramSpecsPtr					histogramSpecsPtr);
 
 
-ControlRef			sControlRef = NULL;
+ControlRef	sControlRef = NULL;
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -369,7 +332,7 @@ Boolean CheckHistogramTextWindowSpaceNeeded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -386,7 +349,7 @@ Boolean CheckHistogramTextWindowSpaceNeeded (
 //
 //	Value Returned: 
 //
-// Called By:			DisplayMultispectralImage in displayMultispectral.c
+// Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Global Data:
 //
@@ -450,7 +413,7 @@ void CloseUpHistogramArrayReadParameters (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -495,7 +458,7 @@ void CloseUpHistogramArrayReadParameters (void)
 //	Value Returned:	None
 // 
 // Called By:			HistogramControl
-//							DisplayImage  in display.c
+//							DisplayImage  in SDisplay.cpp
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/09/1988
 //	Revised By:			Ravi S. Budruk			Date: 07/26/1988	
@@ -786,7 +749,8 @@ Boolean ComputeHistogram (
 						{
 						if (limitDifference <= 2045)
 							{
-				  			histogramSummaryPtr[chanIndex].numberBins = (SInt32)limitDifference + 3;
+				  			histogramSummaryPtr[chanIndex].numberBins =
+				  															(SInt32)limitDifference + 3;
 							histogramSummaryPtr[chanIndex].binType = kBinWidthOfOne;
 							
 							}	// end "if (limitDifference <= 2045)"
@@ -913,14 +877,16 @@ Boolean ComputeHistogram (
 									if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
 										{
 										histogramSummaryPtr[chanIndex].maxNonSatValue =
-																histogramSummaryPtr[chanIndex].maxValue;
+															histogramSummaryPtr[chanIndex].maxValue;
 												
 										histogramSummaryPtr[chanIndex].maxValue = dataValue;
 									
 										}	// end "if (dataValue > ...[chanIndex].maxValue)"
 									
-									else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
-													dataValue != histogramSummaryPtr[chanIndex].maxValue)
+									else if (dataValue >
+												histogramSummaryPtr[chanIndex].maxNonSatValue &&
+														dataValue !=
+															histogramSummaryPtr[chanIndex].maxValue)
 										histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
 							
 									}	// end "if (dataValue != ...[chanIndex].maxValue)"		
@@ -932,27 +898,30 @@ Boolean ComputeHistogram (
 									if (dataValue < histogramSummaryPtr[chanIndex].minValue)
 										{
 										histogramSummaryPtr[chanIndex].minNonSatValue =
-																	histogramSummaryPtr[chanIndex].minValue;
+															histogramSummaryPtr[chanIndex].minValue;
 													
 										histogramSummaryPtr[chanIndex].minValue = dataValue;
 										
 										}	// end "if (dataValue > ...[chanIndex].maxValue)"
 										
-									else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
-													dataValue != histogramSummaryPtr[chanIndex].minValue)
+									else if (dataValue <
+												histogramSummaryPtr[chanIndex].minNonSatValue &&
+														dataValue !=
+															histogramSummaryPtr[chanIndex].minValue)
 										histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
 							
 									}	// end "if (dataValue != ...[chanIndex].minValue)"
 							
 										// Compute the channel sum.								
 									
-								histogramSummaryPtr[chanIndex].averageValue += (double)dataValue;
+								histogramSummaryPtr[chanIndex].averageValue +=
+																						(double)dataValue;
 		
 										// Compute the sum of the data value square for		
 										// each channel												
 		
 								histogramSummaryPtr[chanIndex].stdDeviation += 
-																(double)dataValue * (double)dataValue;		
+															(double)dataValue * (double)dataValue;
 																
 										// Update count of values for histogram						
 							
@@ -1035,11 +1004,12 @@ Boolean ComputeHistogram (
 									else	// doubleDataValue >= minNonSatValue && ...
 										{
 										if (binType == kBinWidthOfOne)
-											binIndex = (SInt32)(doubleDataValue - minNonSatValue + 1);
+											binIndex =
+												(SInt32)(doubleDataValue - minNonSatValue + 1);
 									
 										else	// binType != kBinWidthOfOne
 											binIndex = (SInt32)(
-													(doubleDataValue - minNonSatValue)*binFactor + 1);
+												(doubleDataValue - minNonSatValue)*binFactor + 1);
 										
 										}	// end "else dataValue >= minNonSatValue && ..."
 									
@@ -1069,7 +1039,7 @@ Boolean ComputeHistogram (
 						{
 						histogramSpecsPtr->loadedFlag = FALSE;			
 						gConvertSignedDataFlag = FALSE;	
-																								return (FALSE);
+																						return (FALSE);
 							
 						}	// end "if (!CheckSomeEvents (..." 
 						
@@ -1093,18 +1063,9 @@ Boolean ComputeHistogram (
 															SetPos ((SInt32)gStatusGraphicsRight);
 					#endif	// defined multispec_win
 
-               #if defined multispec_lin
-						//int gauge_range = ((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->GetRange ();
-						//gStatusGraphicsRight = MIN (gStatusGraphicsRight, gauge_range);
-						/* int numberChars = sprintf (
-								(char*)gTextString3,
-								" SHistogram: ComputeHistogram (gStatusGraphicsRight): %f%s",
-								gStatusGraphicsRight,
-								gEndOfLine);
-						ListString ((char*)gTextString3, numberChars, gOutputTextH);
-						*/
+               #if defined multispec_wx
 						((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
-																SetValue ((SInt32)gStatusGraphicsRight);
+															SetValue ((SInt32)gStatusGraphicsRight);
 						CheckSomeEvents (osMask+updateMask);
 					#endif
 					
@@ -1191,7 +1152,7 @@ Boolean ComputeHistogram (
 							if (histogramSummaryPtr[chanIndex].minNonSatValue ==
 														histogramSummaryPtr[chanIndex].minValue + 1)
 								histogramSummaryPtr[chanIndex].minNonSatValue = 
-																histogramSummaryPtr[chanIndex].minValue;
+															histogramSummaryPtr[chanIndex].minValue;
 															
 							if (histogramSummaryPtr[chanIndex].maxValue ==
 												histogramSummaryPtr[chanIndex].maxNonSatValue + 1)
@@ -1209,7 +1170,7 @@ Boolean ComputeHistogram (
 					if (numberSamples > 1)
 						{
 						variance = (sumDataValueSquare - (channelSum * (channelSum /
-								 									numberSamples))) / (numberSamples - 1);
+															numberSamples))) / (numberSamples - 1);
 								 			
 						if (variance < 0.) 
 							variance = 0.;
@@ -1229,33 +1190,28 @@ Boolean ComputeHistogram (
 					histogramSummaryPtr[chanIndex].minNonSatValue -= signedValueOffset;
 					histogramSummaryPtr[chanIndex].averageValue -= signedValueOffset;
 														
-						// Get the number of decimal digits to use when listing data
-						// values.
-					/*
-					histogramSummaryPtr[chanIndex].numberFDecimalDigits =
-										GetNumberDecimalDigitsForChannel (
-																&histogramSummaryPtr[chanIndex],
-																localFileInfoPtr->dataTypeCode);
-					*/
+							// Get the number of decimal digits to use when listing data
+							// values.
+					
 					GetNumberDecimalDigits (
-												localFileInfoPtr->dataTypeCode,
-												histogramSummaryPtr[chanIndex].minValue,
-												histogramSummaryPtr[chanIndex].maxValue,
-												1/histogramSummaryPtr[chanIndex].binFactor,
-												&histogramSummaryPtr[chanIndex].numberEDecimalDigits,
-												&histogramSummaryPtr[chanIndex].numberFDecimalDigits);
+										localFileInfoPtr->dataTypeCode,
+										histogramSummaryPtr[chanIndex].minValue,
+										histogramSummaryPtr[chanIndex].maxValue,
+										1/histogramSummaryPtr[chanIndex].binFactor,
+										&histogramSummaryPtr[chanIndex].numberEDecimalDigits,
+										&histogramSummaryPtr[chanIndex].numberFDecimalDigits);
 					
 							// Get the overall min and max values and estimate the number of
 							// decimal places required.  This information is used for listing
 							// data values.
 				
 					localFileInfoPtr->maxNumberEDecimalDigits = 
-										MAX (localFileInfoPtr->maxNumberEDecimalDigits,
-												histogramSummaryPtr[chanIndex].numberEDecimalDigits);
+									MAX (localFileInfoPtr->maxNumberEDecimalDigits,
+											histogramSummaryPtr[chanIndex].numberEDecimalDigits);
 				
 					localFileInfoPtr->maxNumberFDecimalDigits = 
-										MAX (localFileInfoPtr->maxNumberFDecimalDigits,
-												histogramSummaryPtr[chanIndex].numberFDecimalDigits);
+									MAX (localFileInfoPtr->maxNumberFDecimalDigits,
+											histogramSummaryPtr[chanIndex].numberFDecimalDigits);
 					 								
 					localFileInfoPtr->maxDataValue = MAX (
 														localFileInfoPtr->maxDataValue, 
@@ -1279,7 +1235,8 @@ Boolean ComputeHistogram (
 						
 					medianArrayChanPtr = savedHistogramArrayPtr;
 					
-							// Now get the values starting with the minimum non saturated value
+							// Now get the values starting with the minimum non saturated
+							// value
 						
 					if (binType == kBinWidthNotOne)
 						{
@@ -1288,7 +1245,8 @@ Boolean ComputeHistogram (
 						sum = *medianArrayChanPtr;
 						medianArrayChanPtr++;
 					
-						minValue = histogramSummaryPtr[chanIndex].minNonSatValue + binFactor/2;
+						minValue =
+									histogramSummaryPtr[chanIndex].minNonSatValue + binFactor/2;
 						
 						binIndex = 0;
 						do	
@@ -1298,7 +1256,8 @@ Boolean ComputeHistogram (
 							sum += *medianArrayChanPtr;
 							medianArrayChanPtr++;
 							
-							}	while (sum <= medianPoint && doubleDataValue <= maxSaturatedValue);
+							}	while (sum <=
+											medianPoint && doubleDataValue <= maxSaturatedValue);
 							
 						doubleDataValue = minValue + (binIndex-1)*binFactor;
 															
@@ -1328,7 +1287,8 @@ Boolean ComputeHistogram (
 							doubleDataValue++;
 							medianArrayChanPtr++;
 							
-							}	while (sum <= medianPoint && doubleDataValue <= maxSaturatedValue);
+							}	while (sum <= medianPoint &&
+															doubleDataValue <= maxSaturatedValue);
 							
 						doubleDataValue = MAX (minValue, doubleDataValue-1);
 															
@@ -1384,7 +1344,7 @@ Boolean ComputeHistogram (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1444,7 +1404,7 @@ UInt32 CountTotalNumberHistogramPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1491,10 +1451,10 @@ UInt32 CountTotalNumberHistogramPixels (
 //
 //	Value Returned:	None
 //
-// Called By:			DoHistogramRequests in histogram.c
+// Called By:			DoHistogramRequests in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1988
-//	Revised By:			Larry L. Biehl			Date: 11/29/2018
+//	Revised By:			Larry L. Biehl			Date: 12/12/2019
 
 Boolean CreateSTASupportFile (
 				FileInfoPtr							fileInfoPtr, 
@@ -1618,44 +1578,12 @@ Boolean CreateSTASupportFile (
 			SetVolumeReference (fileStreamPtr, supportFileStreamPtr);
 			errCode = SetVolume (supportFileStreamPtr, kErrorMessages);
 			continueFlag = (errCode == noErr);
-			
-			#if defined multispec_lin
-					// for mygeohub version, we need to make sure that we are not trying to write
-					// to the default input image file directory since it is read only
-					// For MultiSpec on mygeohub, need to change the working directory for saving files if
-					// the current working directory is the read only data directory
-					// Use wxSetWorkingDirectory (wxString) or wxFileDialog::SetDirectory to do this. Use wxGetCwd or wxFileDialog::GetDirectory to determine 
-					// if the default one is the standard directory.
 
-				#ifndef NetBeansProject
-					FileStringPtr			fileNamePtr,
-												filePathPtr;
-					
-					filePathPtr = (FileStringPtr)supportFileStreamPtr->GetFilePathPPtr ();
-					wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
-					wxFileName fileName;
-					fileName.Assign (wxFilePathName);
-					
-					if (!fileName.IsDirWritable ())
-						{
-								// Need to change the directory to the working output directory
-								
-						fileNamePtr = (FileStringPtr)supportFileStreamPtr->GetFileNameCPtr ();
-
-						wxString workingDirectory = wxGetCwd ();
-						workingDirectory.Append ("/");
-						workingDirectory.Append (fileNamePtr);
-						wxCharBuffer charWorkingDirectory = workingDirectory.ToAscii ();
-						
-								// Close the current file and reset the path name for new .sta file
-								
-						supportFileStreamPtr->SetFilePathFromCharString (
-																(StringPtr)charWorkingDirectory.data (),
-																TRUE);  // force current file to be closed
-				
-						}	// end "if (!fileName.IsDirWritable ())"
-				#endif	// end "#ifndef NetBeansProject"
-			#endif	// end "defined multispec_lin"
+					// The following will verify that the direcctory specified is
+					// writable and if not change it to the working directory. Only
+					// done for wxWidgets interface versions.
+		
+			CheckIfDirectoryIsWriteable (supportFileStreamPtr);
 					
 					// Check file already exists in the same location as the image file.
 					// If not, then just write the file there. Otherwise prompt the user
@@ -1686,6 +1614,10 @@ Boolean CreateSTASupportFile (
 					}	// end "if (errCode != noErr)"
 				
 				}	// end "if (continueFlag)"
+			
+					// Make sure the output directory variable is set to empty.
+			
+			ResetOutputDirectory ();
 			
 			}	// end "if (channelIndex == 0)" 
 		
@@ -1730,11 +1662,6 @@ Boolean CreateSTASupportFile (
 											IDC_Status2, 
 											(Str255*)gTextString);
 			
-				// Get the channel offset bytes to be used for the median array	
-				// data.																				
-				
-		//channelOffsetCount = gImageWindowInfoPtr->numberBins;
-	
 		ioChanBufferPtr = histogramSpecsPtr->statBufferPtr;
 		
 		channelEnd = gImageWindowInfoPtr->totalNumberChannels;
@@ -1790,21 +1717,25 @@ Boolean CreateSTASupportFile (
 	
 					// Write channel standard deviation.									
 	
-			tempLongInt = ConvertRealAT ((double)histogramSummaryPtr[channel].stdDeviation);
+			tempLongInt = ConvertRealAT (
+											(double)histogramSummaryPtr[channel].stdDeviation);
 			BlockMoveData ((char*)&tempLongInt, &ioChanBufferPtr[24], 4);
 	
 					// Write maximum value for band (two bytes format).				
 	
-			tempUInt16 = (UInt16)(histogramSummaryPtr[channel].maxValue + signedValueOffset);
+			tempUInt16 = (UInt16)(
+								histogramSummaryPtr[channel].maxValue + signedValueOffset);
       	tempInt = GetShortIntValue ((char*)&tempUInt16);
 			BlockMoveData ((char*)&tempInt, &ioChanBufferPtr[28], 2);
 	
 					// Write minimum value for band (two bytes format).				
 	
-			tempUInt16 = (UInt16)(histogramSummaryPtr[channel].minValue + signedValueOffset);
+			tempUInt16 =
+						(UInt16)(histogramSummaryPtr[channel].minValue + signedValueOffset);
       	tempInt = GetShortIntValue ((char*)&tempUInt16);
 			BlockMoveData ((char*)&tempInt, &ioChanBufferPtr[30], 2);
 			/*
+					// This is not used any more.
 					// Write 'VER2' (MultiSpec specific field)																
 			
 			BlockMoveData ((char*)"VER2", &ioChanBufferPtr[32], 4);
@@ -1892,7 +1823,8 @@ Boolean CreateSTASupportFile (
 						// Write maximum value for band (8-byte real format). 
 						// (MultiSpec specific field)															
 		
-				tempDoubleValue = histogramSummaryPtr[channel].maxValue + signedValueOffset;
+				tempDoubleValue =
+									histogramSummaryPtr[channel].maxValue + signedValueOffset;
 	      	tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[36], 8);
 		
@@ -1900,14 +1832,15 @@ Boolean CreateSTASupportFile (
 						// (MultiSpec specific field)																
 		
 				tempDoubleValue = histogramSummaryPtr[channel].maxNonSatValue + 
-																								signedValueOffset;
+																						signedValueOffset;
 	      	tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);	
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[44], 8);	
 		
 						// Write minimum value for band (8-byte float format).			
 						// (MultiSpec specific field)																
 		
-				tempDoubleValue = histogramSummaryPtr[channel].minValue + signedValueOffset;
+				tempDoubleValue =
+									histogramSummaryPtr[channel].minValue + signedValueOffset;
 	      	tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[52], 8);
 		
@@ -1915,7 +1848,7 @@ Boolean CreateSTASupportFile (
 						// (MultiSpec specific field)																
 		
 				tempDoubleValue = histogramSummaryPtr[channel].minNonSatValue + 
-																								signedValueOffset;
+																						signedValueOffset;
 	      	tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[60], 8);
 				
@@ -1928,7 +1861,7 @@ Boolean CreateSTASupportFile (
 						// (MultiSpec specific field)																						
 		
 				tempDoubleValue = histogramSummaryPtr[channel].averageValue + 
-																								signedValueOffset;
+																						signedValueOffset;
 				tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[82], 8);
 	
@@ -1936,12 +1869,12 @@ Boolean CreateSTASupportFile (
 						// (MultiSpec specific field)																								
 		
 				tempDoubleValue = histogramSummaryPtr[channel].medianValue + 
-																								signedValueOffset;
+																						signedValueOffset;
 				tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[90], 8);
 		
-						// Write channel standard deviationvalue for band (8-byte real format).			
-						// (MultiSpec specific field)																						
+						// Write channel standard deviationvalue for band (8-byte real
+						// format).	(MultiSpec specific field)
 		
 				tempDoubleValue = histogramSummaryPtr[channel].stdDeviation;
 				tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
@@ -2074,7 +2007,7 @@ Boolean CreateSTASupportFile (
 							
 						if (compaction <= 1)
 							{
-									// Just fill values in order.  There will be blank ones of
+									// Just fill values in order. There will be blank ones of
 									// 0 fill at end.
 									
 							for (binIndex=startValue; binIndex<=endValue; binIndex++)
@@ -2169,7 +2102,7 @@ Boolean CreateSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2215,7 +2148,7 @@ UInt32 GetNumberOfMaximumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2258,7 +2191,7 @@ UInt32 GetNumberOfMinimumDataValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2273,9 +2206,9 @@ UInt32 GetNumberOfMinimumDataValues (
 //
 //	Value Returned:	None	
 //
-// Called By:			EqualAreaDataToDisplayLevels in displayMultispectral.c
-//							GetClippedMinMaxValues in displayMultispectral.c
-//							ReadERDAS_staFile in histogram.c
+// Called By:			EqualAreaDataToDisplayLevels in SDisplayMultispectral.cpp
+//							GetClippedMinMaxValues in SDisplayMultispectral.cpp
+//							ReadERDAS_staFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
 //	Revised By:			Larry L. Biehl			Date: 12/04/2014
@@ -2636,17 +2569,19 @@ Boolean DecodeSTASupportFile (
 											&histogramSummaryPtr[channel].numberFDecimalDigits);
 				
 			gImageFileInfoPtr->maxNumberEDecimalDigits = 
-											MAX (gImageFileInfoPtr->maxNumberEDecimalDigits,
-													histogramSummaryPtr[channel].numberEDecimalDigits);
+										MAX (gImageFileInfoPtr->maxNumberEDecimalDigits,
+												histogramSummaryPtr[channel].numberEDecimalDigits);
 				
 			gImageFileInfoPtr->maxNumberFDecimalDigits = 
-											MAX (gImageFileInfoPtr->maxNumberFDecimalDigits,
-													histogramSummaryPtr[channel].numberFDecimalDigits);
+										MAX (gImageFileInfoPtr->maxNumberFDecimalDigits,
+												histogramSummaryPtr[channel].numberFDecimalDigits);
 					 								
 			gImageFileInfoPtr->maxDataValue = 
-					MAX (gImageFileInfoPtr->maxDataValue, histogramSummaryPtr[channel].maxValue);
+										MAX (gImageFileInfoPtr->maxDataValue,
+													histogramSummaryPtr[channel].maxValue);
 			gImageFileInfoPtr->minDataValue = 
-					MIN (gImageFileInfoPtr->minDataValue, histogramSummaryPtr[channel].minValue);
+								MIN (gImageFileInfoPtr->minDataValue,
+										histogramSummaryPtr[channel].minValue);
 											
 			histogramSummaryPtr[channel].availableFlag = TRUE;
 				
@@ -2733,7 +2668,8 @@ Boolean DecodeSTASupportFile (
 							
 					if (minNonSatIndexValue >= 0)							
 						{
-						while (binIndex < (UInt32)minNonSatIndexValue && binIndex <= endIndex)	
+						while (binIndex < (UInt32)minNonSatIndexValue &&
+																				binIndex <= endIndex)
 							{
 							*histogramArrayPtr = 0;
 							histogramArrayPtr++;
@@ -2790,7 +2726,7 @@ Boolean DecodeSTASupportFile (
 						while (binIndex <= endIndex)
 							{
 							if (compactionCount >= (SInt32)nextBinForSTABinRead &&
-																	countHistogramFileVectorReads < 255)
+																countHistogramFileVectorReads < 255)
 								{
 								*histogramArrayPtr = totalCount;
 								compactionCount++;
@@ -2802,9 +2738,10 @@ Boolean DecodeSTASupportFile (
 								countHistogramFileVectorReads++;
 						
 								numberBinsPerInputDataValue =
-														(SInt32)(nextBinForSTABinRead-compactionCount);
+													(SInt32)(nextBinForSTABinRead-compactionCount);
 								if (numberBinsPerInputDataValue > 0)
 									count = totalCount/numberBinsPerInputDataValue;
+								
 								else	// numberBinsPerInputDataValue <= 0
 									count = totalCount;
 
@@ -2895,7 +2832,7 @@ Boolean DecodeSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2988,7 +2925,7 @@ UInt32 DetermineBytesForHistogramText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3005,7 +2942,7 @@ UInt32 DetermineBytesForHistogramText (
 //
 //	Value Returned:	None
 //
-// Called By:			HistogramControl   in histogram.c
+// Called By:			HistogramControl   in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/22/2003	
 //	Revised By:			Larry L. Biehl			Date: 01/04/2006
@@ -3053,11 +2990,7 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 	lineEnd = histogramSpecsPtr->lineEnd;
 	lineInterval = histogramSpecsPtr->lineInterval;
 	
-	//integerFlag = FALSE;
-	//if (fileIOInstructionsPtr->forceByteCode == kForce4Bytes)
-	//	integerFlag = TRUE;
-
-			// Read line of image as specified by HistogramSpecs.				
+			// Read line of image as specified by HistogramSpecs.
 
 	for (line=lineStart; line<=lineEnd; line+=lineInterval)
 		{
@@ -3088,143 +3021,62 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 				channel++)
 			{
 			chanIndex = channelListPtr[channelOffset+channel];
-			/*
-			if (integerFlag)
+			ioBuffer8Ptr = (double*)gOutputBufferPtr;
+			
+			if (BISFlag)
+					// File band interleave format is BIS; adjust the
+					// buffer pointer to start at the channel being
+					// processed.
+				
+				ioBuffer8Ptr = &ioBuffer8Ptr[chanIndex];
+		
+			else	// !BISFlag
+				ioBuffer8Ptr = &ioBuffer8Ptr[channel*numberSamples];
+		
+			for (index=0; index<numberSamples; index+=interval)
 				{
-				ioBuffer4Ptr = (HSInt32Ptr)gOutputBufferPtr;
+				dataValue = ioBuffer8Ptr[index];
 				
-				if (BISFlag)
-						// File band interleave format is BIS; adjust the			
-						// buffer pointer to start at the channel being 			
-						// processed.															
-						
-					ioBuffer4Ptr = &ioBuffer4Ptr[chanIndex];
-			
-				else	// !BISFlag
-					ioBuffer4Ptr = &ioBuffer4Ptr[channel*numberSamples];
+						// Get the maximum data values.
 				
-				dataValue = (double)ioBuffer4Ptr[0];
-				//histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
-				//histogramSummaryPtr[chanIndex].maxValue = dataValue;
-				//histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
-				//histogramSummaryPtr[chanIndex].minValue = dataValue;
-			
-				for (index=0; index<numberSamples; index+=interval)
+				if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
 					{
-					dataValue = (double)ioBuffer4Ptr[index];
+					histogramSummaryPtr[chanIndex].maxNonSatValue =
+														histogramSummaryPtr[chanIndex].maxValue;
 					
-							// Get the maximum data values.	
-							
-					if (dataValue != histogramSummaryPtr[chanIndex].maxValue)
-						{
-						if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
-							{
-							histogramSummaryPtr[chanIndex].maxNonSatValue =
-															histogramSummaryPtr[chanIndex].maxValue;
-										
-							histogramSummaryPtr[chanIndex].maxValue = dataValue;
-							
-							}	// end "if (dataValue > ...[chanIndex].maxValue)"
-							
-						else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
-											dataValue != histogramSummaryPtr[chanIndex].maxValue)
-							histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
-							
-						}	// end "if (dataValue != ...[chanIndex].maxValue)"	
+					histogramSummaryPtr[chanIndex].maxValue = dataValue;
 					
-							// Get the minimum data values.		
-							
-					if (dataValue != histogramSummaryPtr[chanIndex].minValue)
-						{
-						if (dataValue < histogramSummaryPtr[chanIndex].minValue)
-							{
-							histogramSummaryPtr[chanIndex].minNonSatValue =
-															histogramSummaryPtr[chanIndex].minValue;
-										
-							histogramSummaryPtr[chanIndex].minValue = dataValue;
-							
-							}	// end "if (dataValue > ...[chanIndex].maxValue)"
-							
-						else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
-												dataValue != histogramSummaryPtr[chanIndex].minValue)
-							histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
-							
-						}	// end "if (dataValue != ...[chanIndex].minValue)"
-						
-							// Compute the channel sum.								
-						
-					histogramSummaryPtr[chanIndex].averageValue += dataValue;
-
-							// Compute the sum of the data value square for		
-							// each channel												
-
-					histogramSummaryPtr[chanIndex].stdDeviation +=  dataValue * dataValue;
-		
-					}	// end "for (index=0; ..." 
-					
-				}	// end "if (integerFlag)"
-			
-			else	// !integerFlag
-				{ 
-			*/
-				ioBuffer8Ptr = (double*)gOutputBufferPtr;
+					}	// end "if (dataValue > ...[chanIndex].maxValue)"
 				
-				if (BISFlag)
-						// File band interleave format is BIS; adjust the			
-						// buffer pointer to start at the channel being 			
-						// processed.															
-						
-					ioBuffer8Ptr = &ioBuffer8Ptr[chanIndex];
-			
-				else	// !BISFlag
-					ioBuffer8Ptr = &ioBuffer8Ptr[channel*numberSamples];
-			
-				for (index=0; index<numberSamples; index+=interval)
+				else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
+										dataValue != histogramSummaryPtr[chanIndex].maxValue)
+					histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
+				
+						// Get the minimum data values.
+				
+				if (dataValue < histogramSummaryPtr[chanIndex].minValue)
 					{
-					dataValue = ioBuffer8Ptr[index];
+					histogramSummaryPtr[chanIndex].minNonSatValue =
+														histogramSummaryPtr[chanIndex].minValue;
 					
-							// Get the maximum data values.	
-							
-					if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
-						{
-						histogramSummaryPtr[chanIndex].maxNonSatValue =
-															histogramSummaryPtr[chanIndex].maxValue;
-									
-						histogramSummaryPtr[chanIndex].maxValue = dataValue;
-						
-						}	// end "if (dataValue > ...[chanIndex].maxValue)"
-						
-					else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
-											dataValue != histogramSummaryPtr[chanIndex].maxValue)
-						histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;	
+					histogramSummaryPtr[chanIndex].minValue = dataValue;
 					
-							// Get the minimum data values.	
-							
-					if (dataValue < histogramSummaryPtr[chanIndex].minValue)
-						{
-						histogramSummaryPtr[chanIndex].minNonSatValue =
-															histogramSummaryPtr[chanIndex].minValue;
-									
-						histogramSummaryPtr[chanIndex].minValue = dataValue;
-						
-						}	// end "if (dataValue > ...[chanIndex].maxValue)"
-						
-					else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
-											dataValue != histogramSummaryPtr[chanIndex].minValue)
-						histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
-							
-							// Compute the channel sum.								
-						
-					histogramSummaryPtr[chanIndex].averageValue += dataValue;
+					}	// end "if (dataValue > ...[chanIndex].maxValue)"
+				
+				else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
+										dataValue != histogramSummaryPtr[chanIndex].minValue)
+					histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
+				
+						// Compute the channel sum.
+				
+				histogramSummaryPtr[chanIndex].averageValue += dataValue;
 
-							// Compute the sum of the data value square for		
-							// each channel												
+						// Compute the sum of the data value square for
+						// each channel
 
-					histogramSummaryPtr[chanIndex].stdDeviation += dataValue * dataValue;
-		
-					}	// end "for (index=0; ..." 
-					
-			//	}	// end "if (integerFlag)"
+				histogramSummaryPtr[chanIndex].stdDeviation += dataValue * dataValue;
+	
+				}	// end "for (index=0; ..."
 				
 			}	// end "for (channel=0; channel<..." 
 			
@@ -3260,17 +3112,9 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 																SetPos ((SInt32)gStatusGraphicsRight);
 			#endif	// defined multispec_win
 
-         #if defined multispec_lin
-				//int gauge_range = ((wxGauge*) (gStatusDialogPtr->FindWindow (IDC_Status7)))->GetRange ();
-				//gStatusGraphicsRight = MIN (gStatusGraphicsRight, gauge_range);
-				/* int numberChars = sprintf (
-						(char*)gTextString3,
-						" SHistogram: DetermineMinAndMax... (gStatusGraphicsRight): %f%s",
-						gStatusGraphicsRight,
-						gEndOfLine);
-				ListString ((char*)gTextString3, numberChars, gOutputTextH);
-				*/
-				((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->SetValue ((SInt32)gStatusGraphicsRight);
+         #if defined multispec_wx
+				((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
+														SetValue ((SInt32)gStatusGraphicsRight);
 				CheckSomeEvents (osMask+updateMask);
 			#endif
 			
@@ -3293,15 +3137,15 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		Boolean DetermineIfEFormatRequired
 //
 //	Software purpose:	The purpose of this routine is to determine if E format is 
-//							required for any of the min, max and median values for the histogram
-//							summary.
+//							required for any of the min, max and median values for the
+// 						histogram summary.
 //
 //	Parameters in:		Pointer to the histogram instruction structure.
 //
@@ -3309,7 +3153,7 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 //
 //	Value Returned:	None
 //
-// Called By:			HistogramControl   in histogram.c
+// Called By:			HistogramControl   in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/21/2006	
 //	Revised By:			Larry L. Biehl			Date: 03/24/2006
@@ -3362,7 +3206,7 @@ Boolean DetermineIfEFormatRequired (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3379,7 +3223,7 @@ Boolean DetermineIfEFormatRequired (
 //
 //	Value Returned:	None
 //
-// Called By:			HistogramControl   in histogram.c
+// Called By:			HistogramControl   in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1993	
 //	Revised By:			Larry L. Biehl			Date: 05/02/2018
@@ -3543,7 +3387,7 @@ Boolean DoHistogramRequests (
 																						numberLines;
 					#endif	// defined multispec_mac
 
-               #if defined multispec_win || defined multispec_lin
+               #if defined multispec_win || defined multispec_wx
 						gStatusGraphicsRight = numberLines;
 						gStatusBoxIncrement = 1;
 					#endif	// defined multispec_win
@@ -3555,7 +3399,7 @@ Boolean DoHistogramRequests (
 								gStatusBoxIncrement /= histogramSpecsPtr->numberChannels;
 							#endif	// defined multispec_mac || defined multispec_mac_swift
 
-                     #if defined multispec_win | defined multispec_lin
+                     #if defined multispec_win | defined multispec_wx
 								gStatusGraphicsRight *= histogramSpecsPtr->numberChannels;
 							#endif	// defined multispec_win
 
@@ -3566,13 +3410,13 @@ Boolean DoHistogramRequests (
 									gStatusGraphicsRight /= 2;
 							#endif	// defined multispec_mac || defined multispec_mac_swift
 
-                     #if defined multispec_win | defined multispec_lin
+                     #if defined multispec_win | defined multispec_wx
 								gStatusGraphicsRight *= gImageWindowInfoPtr->numberImageFiles;
 							#endif	// defined multispec_win
 
 						}	// end "if (!twoPassFlag)"
 
-					#if defined multispec_win | defined multispec_lin
+					#if defined multispec_win | defined multispec_wx
 						if (gImageFileInfoPtr->numberBytes > 2)
 							gStatusGraphicsRight *= 2;
 					#endif	// defined multispec_win
@@ -3583,20 +3427,11 @@ Boolean DoHistogramRequests (
 					                               
 				#if defined multispec_win
 					((CProgressCtrl*)(gStatusDialogPtr->GetDlgItem (IDC_Status7)))->
-															SetRange32 (0, (SInt32)gStatusGraphicsRight);
+													SetRange32 (0, (SInt32)gStatusGraphicsRight);
 					gStatusGraphicsRight = 0;
 				#endif	// defined multispec_win
 				
-            #if defined multispec_lin
-					/*int numberChars = sprintf (
-							(char*)gTextString3,
-							" SHistogram: DoHistogramRequests SetRange (twoPassFlag, allChannelsAtOnceFlag, gStatusGraphicsRight): %d, %d, %f%s",
-							twoPassFlag,
-							histogramSpecsPtr->allChannelsAtOnceFlag,
-							gStatusGraphicsRight,
-							gEndOfLine);
-					ListString ((char*)gTextString3, numberChars, gOutputTextH);
-					*/
+            #if defined multispec_wx
                ((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 															SetRange ((SInt32)gStatusGraphicsRight);
 					gStatusGraphicsRight = 0;
@@ -3648,15 +3483,8 @@ Boolean DoHistogramRequests (
 					gStatusGraphicsRight = 0;
 				#endif	// defined multispec_win
 													
-				#if defined multispec_lin
+				#if defined multispec_wx
                 gStatusGraphicsRight = numberLines * histogramSpecsPtr->numberChannels;
-					/* int numberChars2 = sprintf (
-							(char*)gTextString3,
-							" SHistogram: DoHistogramRequests2 (gStatusGraphicsRight): %f%s",
-							gStatusGraphicsRight,
-							gEndOfLine);
-					ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-					*/
                 ((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 															SetValue ((SInt32)gStatusGraphicsRight);
 					gStatusGraphicsRight = 0;
@@ -3822,7 +3650,7 @@ Boolean DoHistogramRequests (
                
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3864,7 +3692,7 @@ pascal void DrawHistogramMethodPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3880,7 +3708,7 @@ pascal void DrawHistogramMethodPopUp (
 //
 //	Value Returned:	None				
 // 
-// Called By:			DisplayControl in display.c
+// Called By:			DisplayControl in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1990
 //	Revised By:			Larry L. Biehl			Date: 11/13/1990
@@ -3904,7 +3732,7 @@ void ForceHistogramCodeResourceLoad ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3920,9 +3748,9 @@ void ForceHistogramCodeResourceLoad ()
 //
 //	Value Returned: 
 //
-// Called By:			FillDataToDisplayLevels in displayMultiSpectral.c
-//							EqualAreaDataToDisplayLevels in displayMultiSpectral.c
-//							UpdateEnhancementMinMaxes in displayMultiSpectral.c
+// Called By:			FillDataToDisplayLevels in SDisplayMultispectral.cpp
+//							EqualAreaDataToDisplayLevels in SDisplayMultispectral.cpp
+//							UpdateEnhancementMinMaxes in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	09/30/1993
 //	Revised By:			Larry L. Biehl			Date: 10/21/2006
@@ -3978,7 +3806,7 @@ Boolean GetClippedMinMaxValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3994,9 +3822,9 @@ Boolean GetClippedMinMaxValues (
 //
 //	Value Returned: 
 //
-// Called By:			FillDataToDisplayLevels in displayMultiSpectral.c
-//							EqualAreaDataToDisplayLevels in displayMultiSpectral.c
-//							UpdateEnhancementMinMaxes in displayMultiSpectral.c
+// Called By:			FillDataToDisplayLevels in SDisplayMultispectral.cpp
+//							EqualAreaDataToDisplayLevels in SDisplayMultispectral.cpp
+//							UpdateEnhancementMinMaxes in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	09/30/1993
 //	Revised By:			Larry L. Biehl			Date: 03/01/2013
@@ -4215,7 +4043,7 @@ Boolean GetClippedMinMaxValueIndices (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4259,7 +4087,7 @@ Boolean GetHistogramLoadedFlag (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4293,7 +4121,7 @@ Handle* GetHistogramSpecsHandlePtr (
 			handlePtr = &windowInfoPtr->histogramSpecsHandle;	
 		#endif	// defined multispec_mac 
 		              
-      #if defined multispec_win | defined multispec_lin		
+      #if defined multispec_win | defined multispec_wx		
 			handlePtr = &gActiveImageViewCPtr->m_histogramCPtr->mHistogramSpecsHandle;
 		#endif	// defined multispec_win 
 		
@@ -4306,7 +4134,7 @@ Handle* GetHistogramSpecsHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4321,8 +4149,8 @@ Handle* GetHistogramSpecsHandlePtr (
 //
 // Value Returned:	Pointer to the handle for the histogram summary structure
 //
-// Called By:			InitializeHistogramInfoStructure in SHistgrm.cpp
-//							SetUpHistogramSpecsPtr in SHistgrm.cpp
+// Called By:			InitializeHistogramInfoStructure in SHistogram.cpp
+//							SetUpHistogramSpecsPtr in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/09/1995
 //	Revised By:			Larry L. Biehl			Date: 11/09/1995
@@ -4340,7 +4168,7 @@ Handle* GetHistogramSummaryHandlePtr (
 			handlePtr = &windowInfoPtr->histogramSummaryHandle;
 		#endif	// defined multispec_mac 
 	
-      #if defined multispec_win | defined multispec_lin
+      #if defined multispec_win | defined multispec_wx
 			handlePtr = &gActiveImageViewCPtr->m_histogramCPtr->mHistogramSummaryHandle;
 		#endif	// defined multispec_win 
 		
@@ -4353,7 +4181,7 @@ Handle* GetHistogramSummaryHandlePtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4369,8 +4197,8 @@ Handle* GetHistogramSummaryHandlePtr (
 //
 // Value Returned:		None	
 //
-// Called By:			SetUpToReadHistogramArray in histogram.c
-//							HistogramControl in histogram.c
+// Called By:			SetUpToReadHistogramArray in SHistogram.cpp
+//							HistogramControl in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
 //	Revised By:			Larry L. Biehl			Date: 10/23/1999
@@ -4411,7 +4239,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4427,8 +4255,8 @@ HUInt32Ptr GetHistogramValuesMemory (
 //
 // Value Returned:		None	
 //
-// Called By:			EqualAreaDataToDisplayLevels in MDisMult.c
-//							GetClippedMinMaxValues in MHistgrm.c
+// Called By:			EqualAreaDataToDisplayLevels in MDisplayMultispectral.cpp
+//							GetClippedMinMaxValues in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/09/1995
 //	Revised By:			Larry L. Biehl			Date: 10/22/1999
@@ -4503,7 +4331,7 @@ Boolean GetHistogramVectorForChannel (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4518,7 +4346,7 @@ Boolean GetHistogramVectorForChannel (
 //
 //	Value Returned:	None
 //
-// Called By:			HistogramDialogHandleMethod in SHistogrm.cpp
+// Called By:			HistogramDialogHandleMethod in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/1988
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -4627,12 +4455,12 @@ Boolean GetSTASupportFile (
 							// and the selected file is an Imagine type. We will not check if it
 							// actually belongs to the image file.
 					
-					supportFilePathPtr =
-						(FileStringPtr)GetFilePathPPointerFromFileStream (supportFileStreamPtr);
+					supportFilePathPtr = (FileStringPtr)
+									GetFilePathPPointerFromFileStream (supportFileStreamPtr);
 					if (CompareSuffixNoCase ((char*)"\0.img", supportFilePathPtr, NULL))	
 						stringCompare = 0;					
 					
-					}	// end "if (stringCompare != 0 && fileInfoPtr->format == kImagineType)"
+					}	// end "if (stringCompare != 0 && fileInfoPtr->format == ..."
 					
 				if (stringCompare == 0)
 					{
@@ -4682,7 +4510,7 @@ Boolean GetSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4701,8 +4529,8 @@ Boolean GetSTASupportFile (
 //
 //	Value Returned:	None	
 //
-// Called By:			LoadSTASupportFile in histogram.c
-//							SetUpToReadHistogramArray in histogram.c
+// Called By:			LoadSTASupportFile in SHistogram.cpp
+//							SetUpToReadHistogramArray in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
 //	Revised By:			Larry L. Biehl			Date: 03/22/2019
@@ -4759,7 +4587,7 @@ HCharPtr GetSTASupportFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4775,7 +4603,7 @@ HCharPtr GetSTASupportFileBuffer (
 //
 //	Value Returned:	None	
 //
-// Called By:			SetUpToReadHistogramArray in histogram.c
+// Called By:			SetUpToReadHistogramArray in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/19/1999
 //	Revised By:			Larry L. Biehl			Date: 10/26/1999
@@ -4794,7 +4622,7 @@ Boolean GetStatFileBuffer (
 			histogramSpecsPtr->numberStatBufferChannels = 1;
 			
 			histogramSpecsPtr->statBufferPtr = GetImagineHistogramBuffer (
-																			fileInfoPtr->numberBins);
+																				fileInfoPtr->numberBins);
 												
 			}	// end "if (histogramSpecsPtr->statFileFormat == kImagineType)"
 		
@@ -4817,7 +4645,7 @@ Boolean GetStatFileBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4881,7 +4709,7 @@ void GetDataFormatString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4914,7 +4742,7 @@ void GetDataFormatString (
 //	Value Returned:	None
 //
 // Called By:			Menus   in menu.c
-//							DisplayMultispectralImage in displayMultiSpectral.c
+//							DisplayMultispectralImage in SDisplayMultiSpectral.cpp
 //
 //	Coded By:			Ravi S. Budruk			Date: 05/21/1988
 //	Revised By:			Ravi S. Budruk			Date: 09/16/1988	
@@ -5061,16 +4889,16 @@ Boolean HistogramControl (
 		if (continueFlag && (gOutputCode & 0x0002))
 			{
 			InitializeAreaDescription (
-										&gAreaDescription, 
-										1, 
-										DetermineBytesForHistogramText (histogramSpecsPtr, FALSE), 
-										1, 
-										1, 
-										1, 
-										1,
-										1,
-										1,
-										0);
+									&gAreaDescription,
+									1,
+									DetermineBytesForHistogramText (histogramSpecsPtr, FALSE),
+									1,
+									1,
+									1,
+									1,
+									1,
+									1,
+									0);
 										
 			continueFlag = CreateResultsDiskFiles (gOutputCode, 0, 0);
 									
@@ -5133,10 +4961,6 @@ Boolean HistogramControl (
 				
 		CloseUpHistogramArrayReadParameters (); 
 		ReleaseHistogramSpecsPtr (gImageWindowInfoPtr);
-				
-		//CloseFile (gImageWindowInfoPtr->supportFileStreamPtr);
-		//UnlockActiveSupportFileStream (supportHandleStatus);
-		//gImageWindowInfoPtr->supportFileStreamPtr = NULL;
 		
 				// Set cursor back to pointer if not called from display processor.
 				
@@ -5165,7 +4989,7 @@ Boolean HistogramControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5180,8 +5004,8 @@ Boolean HistogramControl (
 //			1) Set up default specifications in gActiveImageWindow->histogramSpecsHandle.
 //
 //			2) Display the histogram dialog box and moniter the user changes.
-//				(See DisplayDialog in display.c and ModalFileSpecification in
-//				menus.c for examples).
+//				(See DisplayDialog in SDisplay.cpp and ModalFileSpecification in
+//				MMenus.c for examples).
 //
 //			3) If the user selects OK, load the new values into gActiveImageWindow->
 //				histogramSpecsHandle and return TRUE.  If the user selects Cancel then
@@ -5471,7 +5295,8 @@ Boolean HistogramDialog (
 						if (itemHit != 0)
 							{
 							gChannelSelection = itemHit;
-							allChannelsAtOnceFlag = HistogramDialogUpdateAllChannelsAtOnceFlag (
+							allChannelsAtOnceFlag =
+										HistogramDialogUpdateAllChannelsAtOnceFlag (
 											dialogPtr, localNumberChannels, &lineFormatHistFlag);
 										
 							}	// end "if (itemHit != 0)" 
@@ -5635,10 +5460,9 @@ Boolean HistogramDialog (
 		END_CATCH_ALL 	
 	#endif // defined multispec_win
 		
-	#if defined multispec_lin
+	#if defined multispec_wx
 		CMHistogramSpecsDlg* dialogPtr = NULL;
 
-		//dialogPtr = new CMHistogramSpecsDlg ((wxWindow *)GetMainFrame ());
 		dialogPtr = new CMHistogramSpecsDlg (NULL);
 
 		returnFlag = dialogPtr->DoDialog (histogramSpecsPtr,
@@ -5646,7 +5470,7 @@ Boolean HistogramDialog (
 														fileInfoPtr);
 
 		delete dialogPtr;
-	#endif // defined multispec_lin
+	#endif // defined multispec_wx
 
 	return (returnFlag);
 	
@@ -5654,8 +5478,8 @@ Boolean HistogramDialog (
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5673,7 +5497,7 @@ Boolean HistogramDialog (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/24/1999	
-//	Revised By:			Larry L. Biehl			Date: 07/08/2009	
+//	Revised By:			Larry L. Biehl			Date: 01/02/2020
 
 SInt16 HistogramDialogHandleMethod (
 				DialogPtr							dialogPtr,
@@ -5725,25 +5549,41 @@ SInt16 HistogramDialogHandleMethod (
 					methodCode = (SInt16)comboBoxPtr->GetItemData (0);
 					if (methodCode != kStoredInMemory)
 						{
-		 				comboBoxPtr->InsertString (0, (LPCTSTR)_T("From default statistics file"));
+		 				comboBoxPtr->InsertString (
+		 											0,
+													(LPCTSTR)_T("From default statistics file"));
 						comboBoxPtr->SetItemData (0, kStoredInMemory);
 						
 						}	// end "if (methodCode != kStoredInMemory)"
 				#endif	// defined multispec_win
 				
-            #if defined multispec_lin
-                wxComboBox* comboBoxPtr;
-                SInt16 methodCode;
+            #if defined multispec_wxlin
+					wxComboBox* 		comboBoxPtr;
+					SInt16 				methodCode;
 
-                comboBoxPtr = (wxComboBox*) dialogPtr->FindWindow (IDC_Method);
-                methodCode = (SInt16)((CMHistogramSpecsDlg*)dialogPtr)->
-																GetItemCode (comboBoxPtr->GetString (0));
-                if (methodCode != kStoredInMemory) {
-                    comboBoxPtr->Insert (wxT("From default statistics file"),0);
-                    //comboBoxPtr->SetItemData (0, kStoredInMemory);
+					comboBoxPtr = (wxComboBox*)dialogPtr->FindWindow (IDC_Method);
+					methodCode = (SInt16)((CMHistogramSpecsDlg*)dialogPtr)->
+															GetItemCode (comboBoxPtr->GetString (0));
+					if (methodCode != kStoredInMemory)
+						{
+						comboBoxPtr->Insert (wxT("From default statistics file"), 0);
 
-                } // end "if (methodCode != kStoredInMemory)"
-            #endif	// defined multispec_lin
+                	}	// end "if (methodCode != kStoredInMemory)"
+            #endif	// defined multispec_wxlin
+				
+            #if defined multispec_wxmac
+					wxChoice* 			choicePtr;
+					SInt16 				methodCode;
+
+					choicePtr = (wxChoice*)dialogPtr->FindWindow (IDC_Method);
+					methodCode = (SInt16)((CMHistogramSpecsDlg*)dialogPtr)->
+															GetItemCode (choicePtr->GetString (0));
+					if (methodCode != kStoredInMemory)
+						{
+						choicePtr->Insert (wxT("From default statistics file"), 0);
+
+                	}	// end "if (methodCode != kStoredInMemory)"
+            #endif	// defined multispec_wxmac
 
 				*updateListHistogramItemsFlagPtr = TRUE;
 				*defaultStatFileChangedFlagPtr = TRUE;
@@ -5784,8 +5624,8 @@ SInt16 HistogramDialogHandleMethod (
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5822,7 +5662,7 @@ void HistogramDialogHideAreaItems (
 	HideDialogItem (dialogPtr, IDC_ColumnEnd);  
 	HideDialogItem (dialogPtr, IDC_ColumnInterval);
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		HideDialogItem (dialogPtr, IDC_StartPrompt);
 		HideDialogItem (dialogPtr, IDC_EndPrompt);
 		HideDialogItem (dialogPtr, IDC_IntervalPrompt);
@@ -5836,8 +5676,8 @@ void HistogramDialogHideAreaItems (
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -5942,25 +5782,26 @@ void HistogramDialogInitialize (
 
 	#if defined multispec_mac
 		if (CreateUnicodeStaticTextControl (
-								dialogPtr, &dialogString[1], dialogString[0], 30, NULL) != noErr)
+							dialogPtr, &dialogString[1], dialogString[0], 30, NULL) != noErr)
 			LoadDItemString (dialogPtr, 30, (Str255*)&dialogString);
 	#endif	// defined multispec_mac
 	
 	#if defined multispec_win
 		WideFileStringPtr wFileNamePtr = 
-				(WideFileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr, kReturnUnicode);
+				(WideFileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr,
+																						kReturnUnicode);
 		if (wFileNamePtr != NULL)
 				*fileNamePtr = CString (wFileNamePtr);
-		//*fileNamePtr = CString (&dialogString[1]);
 	#endif	// defined multispec_win
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		*fileNamePtr = wxString (&dialogString[1], wxConvUTF8);
 	#endif
 
 	#if defined multispec_mac
 		if (gAppearanceManagerFlag)
 			HideDialogItem (dialogPtr, 9);
+	
 		else	// !gAppearanceManagerFlag
 			HideDialogItem (dialogPtr, 31);
 	#endif	// defined multispec_mac
@@ -6069,7 +5910,7 @@ void HistogramDialogInitialize (
 	if (gProcessorCode == kHistogramProcessor)
 		{
 		*channelSelectionPtr = histogramSpecsPtr->channelSet;
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_AllChannels);
 		#endif	// defined multispec_win 
 
@@ -6081,7 +5922,7 @@ void HistogramDialogInitialize (
 			*channelSelectionPtr = -1;
 		#endif	// defined multispec_mac 
 
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			*channelSelectionPtr = kAllMenuItem;
 			HideDialogItem (dialogPtr, IDC_Channels);
 		#endif	// defined multispec_win 
@@ -6245,7 +6086,7 @@ void HistogramDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6343,8 +6184,8 @@ void HistogramDialogSetListAndEmptyBins (
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6381,7 +6222,7 @@ void HistogramDialogShowAreaItems (
 	ShowDialogItem (dialogPtr, IDC_ColumnEnd);  
 	ShowDialogItem (dialogPtr, IDC_ColumnInterval);
 	
-	#if defined multispec_lin
+	#if defined multispec_wx
 		ShowDialogItem (dialogPtr, IDC_StartPrompt);
 		ShowDialogItem (dialogPtr, IDC_EndPrompt);
 		ShowDialogItem (dialogPtr, IDC_IntervalPrompt);
@@ -6398,8 +6239,8 @@ void HistogramDialogShowAreaItems (
 
 
 
-//-----------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6439,7 +6280,7 @@ void  HistogramDialogShowListItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6485,7 +6326,8 @@ void HistogramDialogStatisticsFile (
 				ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0'None'\0", 63);
 				
 			else	// histogramSpecsPtr->loadedFlag 
-				ConcatPStrings ((UCharPtr)gTextString, (StringPtr)"\0'In memory only'\0", 63);
+				ConcatPStrings (
+								(UCharPtr)gTextString, (StringPtr)"\0'In memory only'\0", 63);
 
 			fileNamePtr = (UCharPtr)&gTextString;
 			
@@ -6504,8 +6346,8 @@ void HistogramDialogStatisticsFile (
 							
 			}	// end "else CheckIfDefaultHistogramInfoExists (..."
 		
-      #if defined multispec_lin
-        *supportFileNamePtr = wxString (&fileNamePtr[1], wxConvUTF8);
+      #if defined multispec_wx
+			*supportFileNamePtr = wxString (&fileNamePtr[1], wxConvUTF8);
       #endif
 			
 		#if defined multispec_mac
@@ -6561,7 +6403,7 @@ void HistogramDialogStatisticsFile (
 												CP_UTF8, 0, (LPCSTR)&fileNamePtr[1], -1, NULL, 0);
 			sizeNeeded = MIN (sizeNeeded, 255);
 			MultiByteToWideChar (
-							CP_UTF8, 0, (LPCSTR)&fileNamePtr[1], -1, wideFileName, sizeNeeded);
+						CP_UTF8, 0, (LPCSTR)&fileNamePtr[1], -1, wideFileName, sizeNeeded);
 
 			*supportFileNamePtr = CString (wideFileName);
 		#endif	// defined multispec_win
@@ -6573,7 +6415,7 @@ void HistogramDialogStatisticsFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6590,7 +6432,7 @@ void HistogramDialogStatisticsFile (
 //
 //	Value Returned:  	
 //
-// Called By:			HistogramDialog in histogram.c
+// Called By:			HistogramDialog in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	11/02/1993
 //	Revised By:			Larry L. Biehl			Date: 03/22/2019
@@ -6647,7 +6489,7 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 			SetDLogControlHilite (dialogPtr, 24, 0);
 		#endif	// defined multispec_mac   
 		                             
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			HideDialogItem (dialogPtr, IDC_Lines);
 		#endif	// defined multispec_win
 		
@@ -6660,7 +6502,7 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6675,8 +6517,8 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 //
 //	Value Returned:	Pointer to the histogram structure.
 //
-// Called By:			HistogramControl in histogram.c
-//							DisplayMultispectralImage in displayMultiSpectral.c
+// Called By:			HistogramControl in SHistogram.cpp
+//							DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/1993
 //	Revised By:			Larry L. Biehl			Date: 06/09/2004
@@ -6703,7 +6545,7 @@ Handle InitializeHistogramInfoStructure (
 											
 	
 	if (gImageWindowInfoPtr == NULL)
-																					return (NULL);
+																						return (NULL);
 								
 	
 	if (histogramSpecsHandle == NULL)
@@ -6821,8 +6663,6 @@ Handle InitializeHistogramInfoStructure (
 											(SInt16*)&histogramSpecsPtr->numberChannels,
 											featurePtr,
 											gImageWindowInfoPtr->totalNumberChannels);
-				
-					// This will be locked back again in SetUpHistogramSpecsPtr.
 			
 			}	// end "if (continueFlag)" 
 				
@@ -6850,7 +6690,7 @@ Handle InitializeHistogramInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6904,7 +6744,7 @@ void InitializeHistogramSummaryStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -6941,8 +6781,7 @@ void InitializeHistogramSummaryStructure (
 //
 //	Value Returned:	None
 // 
-// Called By:			Menus   in menu.c
-//							HistogramControl
+// Called By:			DoHistogramRequests
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/18/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/11/1988	
@@ -7039,9 +6878,8 @@ Boolean ListHistogramSummary (
 		
 					// List the input histogram block data into the output window		
 			
-			sprintf (string, 
-							//"    %5ld\t%8ld\t%8ld\t%10ld\t%9ld\t%7ld%s%s",
-							"    %5u\t%8u\t%8u\t%10u\t%9u\t%7u%s%s",	// Need to use %u for linux
+			sprintf (string,
+							"    %5u\t%8u\t%8u\t%10u\t%9u\t%7u%s%s",
 							(unsigned int)histogramSpecsPtr->lineStart,
 							(unsigned int)histogramSpecsPtr->lineEnd,
 							(unsigned int)histogramSpecsPtr->lineInterval,
@@ -7146,7 +6984,8 @@ Boolean ListHistogramSummary (
 			SInt32 beforeRangeSpaces = (minLength+maxLength+4-12)/2;
 			SInt32 beforeAverageSpaces = minLength+maxLength+4-10 - beforeRangeSpaces + 
 																						(aveLength-4)/2;
-			SInt32 beforeMedianSpaces = aveLength-4 - (aveLength-4)/2 + (medianLength-6)/2;
+			SInt32 beforeMedianSpaces =
+											aveLength-4 - (aveLength-4)/2 + (medianLength-6)/2;
 			SInt32 beforeStdDevSpaces = medianLength-6 - (medianLength-6)/2 + 
 																						(stdDevLength-9)/2;
 			SInt32 beforeDeviationSpaces = beforeRangeSpaces +
@@ -7203,7 +7042,8 @@ Boolean ListHistogramSummary (
 			fileChannelNumber = 
 							gImageLayerInfoPtr[channelNum+1].fileChannelNumber;
 									
-			if (!localFileInfoPtr->descriptionsFlag || localImageType != kMultispectralImageType)
+			if (!localFileInfoPtr->descriptionsFlag ||
+														localImageType != kMultispectralImageType)
 				BlockMoveData (blankPtr, gTextString2, 16);
 											
 			else	// localFileInfoPtr->descriptionsFlag && ... 
@@ -7230,6 +7070,7 @@ Boolean ListHistogramSummary (
 						
 				strcpy (formatString, "    %5d\t  %s");
 				
+						// Decided not to use per channel precision info for now.
 				//ePrecision = histogramSummaryPtr[channelNum].numberEDecimalDigits;
 				//fPrecision = histogramSummaryPtr[channelNum].numberFDecimalDigits;
 				//statEPrecision = MAX (1, ePrecision);
@@ -7325,7 +7166,7 @@ Boolean ListHistogramSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7343,7 +7184,7 @@ Boolean ListHistogramSummary (
 // Called By:			ListHistogram
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1993
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 12/10/2019
 
 Boolean ListHistogramTitle (
 				HistogramSpecsPtr					histogramSpecsPtr, 
@@ -7367,7 +7208,7 @@ Boolean ListHistogramTitle (
 	supportFileStreamPtr = GetActiveSupportFileStreamPointer (&handleStatus);
 	
 	if (supportFileStreamPtr == NULL)
-																				return (FALSE);
+																					return (FALSE);
 					
 			// List the processor name, date, time and image file info.	
 				
@@ -7426,12 +7267,12 @@ Boolean ListHistogramTitle (
 	else	// histogramSpecsPtr->statFileFormat != kImagineType
 		fileStreamPtr = supportFileStreamPtr;
 		
-	char* fileNamePtr = (char*)GetFileNameCPointerFromFileStream (fileStreamPtr);
+	char* filePathPtr = (char*)GetFilePathPPointerFromFileStream (fileStreamPtr);
 	continueFlag = ListSpecifiedStringNumber (kHistogramStrID,
 															stringIndex,
 															resultsFileStreamPtr, 
 															gOutputCode, 
-															fileNamePtr,
+															&filePathPtr[1],
 															continueFlag,
 															kUTF8CharString);
 
@@ -7454,7 +7295,7 @@ Boolean ListHistogramTitle (
 				// List the total number of pixels in the histogram.	
 			
 		numberChars = sprintf (string,
-										"%ld",  
+										"%lld",  
 										histogramSpecsPtr->totalPixels);
 
 		numberChars = InsertCommasInNumberString (
@@ -7480,7 +7321,7 @@ Boolean ListHistogramTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -7572,7 +7413,7 @@ Boolean ListHistogramValues (
 	featurePtr = (SInt16*)GetHandlePointer (histogramSpecsPtr->channelsHandle);
 	index = featurePtr[startChannelIndex];
 	if (!histogramSummaryPtr[index].availableFlag)			
-																					return (TRUE);
+																						return (TRUE);
 		
 			// Put message in histogram status dialog										
 	
@@ -7670,9 +7511,9 @@ Boolean ListHistogramValues (
 					
 						// Make certain that the minimum and maximum values are not out 	
 						// of range if the bin index is the data value which it is when the
-						// number of bytes of data is 2 or less.  Note that this will not handle
-						// correctly cases for linked data when there is a mix of 2 and 4 byte
-						// data.																		
+						// number of bytes of data is 2 or less.  Note that this will not
+						// handle correctly cases for linked data when there is a mix of
+						// 2 and 4 byte data.
 						
 				if (gImageWindowInfoPtr->numberBytes <= 2)
 					{
@@ -7708,7 +7549,8 @@ Boolean ListHistogramValues (
 			
 			if (fileInfoPtr->numberBytes <= 2)
 				{
-				NumToString ((UInt32)fileInfoPtr->numberBins-signedValueOffset, gTextString);
+				NumToString (
+							(UInt32)fileInfoPtr->numberBins-signedValueOffset, gTextString);
 				maxValueCountTextWidth = gTextString[0];
 				
 				NumToString ((SInt64)(-signedValueOffset), gTextString);
@@ -7747,20 +7589,21 @@ Boolean ListHistogramValues (
 					}	// end "if (histogramSpecsPtr->overallMinValue < ..."
 				
 				valueMinNonSatFieldSize = FormatHistogramSummaryString (
-													(char*)gTextString,
-													histogramSummaryPtr[summaryIndex].minNonSatValue,
-													ePrecision,
-													fPrecision,
-													FALSE);
+												(char*)gTextString,
+												histogramSummaryPtr[summaryIndex].minNonSatValue,
+												ePrecision,
+												fPrecision,
+												FALSE);
 				
 				valueMaxNonSatFieldSize = FormatHistogramSummaryString (
-													(char*)gTextString,
-													histogramSummaryPtr[summaryIndex].maxNonSatValue,
-													ePrecision,
-													fPrecision,
-													FALSE);
+												(char*)gTextString,
+												histogramSummaryPtr[summaryIndex].maxNonSatValue,
+												ePrecision,
+												fPrecision,
+												FALSE);
 													
-				valueCountTextWidth = MAX (valueMinNonSatFieldSize, valueMaxNonSatFieldSize);
+				valueCountTextWidth = MAX (
+												valueMinNonSatFieldSize, valueMaxNonSatFieldSize);
 				
 				}	// end "if (fileInfoPtr->numberBytes > 2 || ...)"
 		
@@ -7782,8 +7625,8 @@ Boolean ListHistogramValues (
 			
 			if (lineFormatHistFlag)
 				{
-						// Make sure the channelTextWidth is at least 7 characters to allow for
-						// the 'Channel' heading.
+						// Make sure the channelTextWidth is at least 7 characters to
+						// allow for the 'Channel' heading.
 				
 				channelTextWidth = MAX (channelTextWidth, 7);
 				
@@ -7815,8 +7658,8 @@ Boolean ListHistogramValues (
 				valueCountTextWidth = MAX (minValueCountTextWidth, valueCountTextWidth);
 				valueCountTextWidth = MAX (valueCountTextWidth, maxValueCountTextWidth);
 				
-						// Make sure the valueCountTextWidth is at least 5 characters to allow for the
-						// 'Value' column heading.
+						// Make sure the valueCountTextWidth is at least 5 characters to
+						// allow for the 'Value' column heading.
 				
 				valueCountTextWidth = MAX (valueCountTextWidth, 5);
 					
@@ -8011,7 +7854,7 @@ Boolean ListHistogramValues (
 				
 				}	// end "if (gNumberOfEndOfLineCharacters == 2)"
 				
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				textLength = (UInt32)(charPtr - gCharBufferPtr1);
 			#else
             textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
@@ -8120,7 +7963,7 @@ Boolean ListHistogramValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8315,7 +8158,7 @@ Boolean ListHistogramValuesInColumns (
 				
 				}	// end "if (gNumberOfEndOfLineCharacters == 2)"
 				
-			#ifndef multispec_lin
+			#ifndef multispec_wx
 				textLength = (UInt32)(charPtr - gCharBufferPtr1);
 			#else
             textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
@@ -8372,7 +8215,7 @@ Boolean ListHistogramValuesInColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8510,7 +8353,7 @@ Boolean ListHistogramValuesInLines (
 			}	// end "if (gNumberOfEndOfLineCharacters == 2)"
 		
 				// Now get the total number of characters in the buffer.				
-		#ifndef multispec_lin
+		#ifndef multispec_wx
 			textLength = (UInt32)(charPtr - gCharBufferPtr1);
 		#else
 			textLength = (UInt64)charPtr - (UInt64)gCharBufferPtr1;
@@ -8535,7 +8378,7 @@ Boolean ListHistogramValuesInLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8640,7 +8483,7 @@ void LoadHistogramSpecs (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8832,7 +8675,7 @@ Boolean LoadSTASupportFile (
 	
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8848,7 +8691,7 @@ Boolean LoadSTASupportFile (
 //
 //	Value Returned:	None	
 //
-// Called By:			DoHistogramRequests in histogram.c
+// Called By:			DoHistogramRequests in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
 //	Revised By:			Larry L. Biehl			Date: 10/18/1999
@@ -8887,7 +8730,7 @@ Boolean LoadSupportFile (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8901,8 +8744,8 @@ Boolean LoadSupportFile (
 //
 //	Value Returned:	None	
 //
-// Called By:			LoadSTASupportFile in histogram.c
-//							SetUpToReadHistogramArray in histogram.c
+// Called By:			LoadSTASupportFile in SHistogram.cpp
+//							SetUpToReadHistogramArray in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
 //	Revised By:			Larry L. Biehl			Date: 03/12/2008
@@ -8935,7 +8778,7 @@ CMFileStream* OpenSupportFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -8950,9 +8793,9 @@ CMFileStream* OpenSupportFile (void)
 //
 //	Value Returned:	None	
 //
-// Called By:			EqualAreaDataToDisplayLevels in displayMultispectral.c
-//							GetClippedMinMaxValues in displayMultispectral.c
-//							LoadSTASupportFile in histogram.c
+// Called By:			EqualAreaDataToDisplayLevels in SDisplayMultispectral.cpp
+//							GetClippedMinMaxValues in SDisplayMultispectral.cpp
+//							LoadSTASupportFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1991
 //	Revised By:			Larry L. Biehl			Date: 10/01/1993
@@ -9025,7 +8868,7 @@ Boolean ReadSTASupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9080,7 +8923,7 @@ void ReleaseHistogramSpecsPtr (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9095,7 +8938,7 @@ void ReleaseHistogramSpecsPtr (
 //
 //	Value Returned:	None	
 //
-// Called By:			LoadHistogramSpecs in SHistgrm.cpp
+// Called By:			LoadHistogramSpecs in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/16/2000
 //	Revised By:			Larry L. Biehl			Date: 10/18/2017
@@ -9145,7 +8988,7 @@ void SetHistogramLineColumnSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9199,7 +9042,7 @@ void SetNumberOfMaximumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9242,7 +9085,8 @@ void SetNumberOfMinimumDataValuesInArray (
 		
 		minimumBinIndex = (SInt32)(histogramSummaryPtr->minValue + signedValueOffset);
 		minimumBinIndex = MAX (0, minimumBinIndex);
-		minimumBinIndex = MIN (minimumBinIndex, (SInt32)histogramSummaryPtr->numberBins-1);
+		minimumBinIndex = MIN (
+								minimumBinIndex, (SInt32)histogramSummaryPtr->numberBins-1);
 		
 		histogramArrayPtr[minimumBinIndex] = numberMinimumDataValues;
 		
@@ -9253,7 +9097,7 @@ void SetNumberOfMinimumDataValuesInArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9270,8 +9114,8 @@ void SetNumberOfMinimumDataValuesInArray (
 //
 //	Value Returned:
 //
-// Called By:			DisplayMultispectralImage in SDisMulc.cpp
-//							HistogramControl in SHistgrm.cpp
+// Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
+//							HistogramControl in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	04/26/1995
 //	Revised By:			Larry L. Biehl			Date: 06/04/1996
@@ -9327,7 +9171,7 @@ HistogramSpecsPtr SetUpHistogramSpecsPtr (
 										
 		}	// end "if (continueFlag)"
 		
-   #if defined multispec_win	| defined multispec_lin
+   #if defined multispec_win	| defined multispec_wx
 		if (continueFlag && gActiveImageViewCPtr != NULL)
 			gActiveImageViewCPtr->m_histogramCPtr->SetUpHistogramSpecsPtr ();
 			
@@ -9345,7 +9189,7 @@ HistogramSpecsPtr SetUpHistogramSpecsPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -9362,8 +9206,8 @@ HistogramSpecsPtr SetUpHistogramSpecsPtr (
 //
 //	Value Returned:
 //
-// Called By:			HistogramVector in displayMultiSpectral.c
-//							InitializeHistogramInfoStructure in histogram.c
+// Called By:			HistogramVector in SDisplayMultispectral.cpp
+//							InitializeHistogramInfoStructure in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	10/01/1993
 //	Revised By:			Larry L. Biehl			Date: 06/12/2003
@@ -9415,7 +9259,7 @@ Boolean SetUpToReadHistogramArray (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //

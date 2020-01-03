@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //							(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/15/2019
+//	Revision date:			12/06/2019
 //
 //	Language:				C
 //
@@ -20,38 +20,6 @@
 //	Brief description:	This file contains routines that open, close, save and read 
 //								project files.
 //
-//	Functions in file:	void 						AdjustFieldBoundaries
-//								void 						ChangeProjectBaseImage
-//								Boolean 					CheckIfProjectAssociatedImage
-//								Boolean 					CheckIfProjectBaseImage
-//								void 						CloseProjectImageFile
-//								void 						CloseProjectStructure
-//								Boolean 					ClusterStatisticsVerification
-//								Boolean 					CompareImageDimensionsWithProjectFields
-//								Boolean 					CompareImageProjectFileInfo
-//								SInt16 					CopyFileInfoHandles
-//								Boolean					CreateNewProject
-//								void						DeactivateProject
-//								Boolean 					FindProjectImageWindows
-//								void 						ForceProjectCodeResourceLoad
-//								Boolean 					GetProjectFile
-//								void						GetProjectImageFileInfo
-//								void						GetProjectSelectionWindow
-//								void						GetProjectStatisticsPointers
-//								Boolean					GetProjectStructure
-//								Handle 					GetSpecifiedImageFile
-//								void 						InitializeNewProject
-//								void 						InitializeProjectStructure
-//								Boolean					LoadProjectFileAndLayerInformation
-//								void 						OpenProjectFile
-//								void						OpenProjectImageWindow
-//								void						ReleaseProjectHandles
-//								void 						ReleaseStatisticsHandles
-//								void 						UnlockProjectWindowInfoHandles
-//								Boolean 					UserLocateProjectBaseImage
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
 //------------------------------------------------------------------------------------
 /*
 Template for debugging.
@@ -62,25 +30,25 @@ Template for debugging.
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 
-#include "SMultiSpec.h" 
+#include "SMultiSpec.h"
 
-#if defined multispec_lin
+#include	"Ssvm.h"
+
+#if defined multispec_wx
 	#include "wx/wx.h"
-	#include "CImageWindow.h"
-	#include "LImageView.h"
-	#include "LMultiSpec.h"
+	#include "SImageWindow_class.h"
+	#include "xImageView.h"
+	#include "xMultiSpec.h"
 #endif
 
 #if defined multispec_mac
 #endif	// defined multispec_mac  
   
 #if defined multispec_win
-	#include "CImageWindow.h"
+	#include "SImageWindow_class.h"
 	#include "WImageView.h" 
 	#include "WMultiSpec.h"
 #endif	// defined multispec_win 
-
-//#include "SExtGlob.h"
 
 #include "errno.h" 
 /*
@@ -89,179 +57,168 @@ extern SInt16 LoadGDALInformation (
 				char*									headerRecordPtr, 
 				SInt16								format);
 */
-extern void SetFileMapProjectionHandle2 (
-				Handle								windowInfoHandle,
-				Handle								mapProjectionHandle);
-
 extern Boolean VerifyImageFileCanBeForProject (
 				Handle								imageWindowInfoH);
-
-extern void SetProjectWindowBoxes (
-				SInt16*								borderPtr,
-				SInt16*								windowCenterPtr,
-				SInt16*								windowWidthPtr,
-				SInt16*								topStartPtr,
-				SInt16								pushButtonSpacing);
 
 
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 
-void 						AdjustFieldBoundaries (
-								FileInfoPtr							fileInfoPtr);	
+void AdjustFieldBoundaries (
+				FileInfoPtr							fileInfoPtr);
 
-void 						AdjustLabelPoints (
-								FileInfoPtr							fileInfoPtr);
+void AdjustLabelPoints (
+				FileInfoPtr							fileInfoPtr);
 								
-void 						CloseProjectImageFile (
-								ProjectInfoPtr						inputProjectInfoPtr);
+void CloseProjectImageFile (
+				ProjectInfoPtr						inputProjectInfoPtr);
 
-SInt16					CompareImageDimensionsWithProjectFields (
-								FileInfoPtr							fileInfoPtr);
+SInt16 CompareImageDimensionsWithProjectFields (
+				FileInfoPtr							fileInfoPtr);
 
-Boolean 					CompareImageProjectFileInfo (
-								Handle								fileInfoHandle);
+Boolean CompareImageProjectFileInfo (
+				Handle								fileInfoHandle);
 
-void 						ComputeSumSquaresMatrix (
-								UInt32								numberChannels, 
-								HChannelStatisticsPtr			channelStatsPtr, 
-								HCovarianceStatisticsPtr		covariancePtr, 
-								SInt64								numberPixels);
+void ComputeSumSquaresMatrix (
+				UInt32								numberChannels,
+				HChannelStatisticsPtr			channelStatsPtr,
+				HCovarianceStatisticsPtr		covariancePtr,
+				SInt64								numberPixels);
 
-void 						ComputeSumVector (
-								HChannelStatisticsPtr			channelStatsPtr, 
-								UInt32								numberChannels, 
-								SInt64								numberPixels);
+void ComputeSumVector (
+				HChannelStatisticsPtr			channelStatsPtr,
+				UInt32								numberChannels,
+				SInt64								numberPixels);
 								
-SInt16 					CopyFileInfoHandles (
-								FileInfoPtr							inputFileInfoPtr, 
-								FileInfoPtr							outputFileInfoPtr);
+SInt16 CopyFileInfoHandles (
+				FileInfoPtr							inputFileInfoPtr,
+				FileInfoPtr							outputFileInfoPtr);
 
-void						DeactivateProject (void);
+void DeactivateProject (void);
 
-double 					GetDefaultZeroVarianceFactor (
-								UInt32								numberChannels);
+double GetDefaultZeroVarianceFactor (
+				UInt32								numberChannels);
 
-void						GetProjectSelectionWindow (void);
+void GetProjectSelectionWindow (void);
 									
-Boolean					GetProjectStructure (
-								Handle								projectInfoHandle, 
-								SInt16								numberChannels);
+Boolean GetProjectStructure (
+				Handle								projectInfoHandle,
+				SInt16								numberChannels);
 			
-Boolean 					GetSpecifiedImageFile (
-								FileStringPtr						inputFileNamePtr, 
-								Boolean								userPrompt);
+Boolean GetSpecifiedImageFile (
+				FileStringPtr						inputFileNamePtr,
+				Boolean								userPrompt);
 
-void 						InitializeProjectStructure (
-								Handle								projectInfoHandle,
-								UInt32								numberChannels);
+void InitializeProjectStructure (
+				Handle								projectInfoHandle,
+				UInt32								numberChannels);
 
-SInt16	 				ReadChannelInformation (
-								HChannelStatisticsPtr			chanStatsPtr, 
-								HPtr* 								inputStringPtrPtr, 
-								SInt16								numberStatisticsChannels, 
-								SInt16								type);
+SInt16 ReadChannelInformation (
+				HChannelStatisticsPtr			chanStatsPtr,
+				HPtr* 								inputStringPtrPtr,
+				SInt16								numberStatisticsChannels,
+				SInt16								type);
 																			
-SInt16	 				ReadCovarianceInformation (
-								HSumSquaresStatisticsPtr		sumSquaresStatsPtr, 
-								ParmBlkPtr 							paramBlockPtr,
-								HPtr*									inputStringPtrPtr,
-								SInt16								numberStatisticsChannels, 
-								char*									fieldClassStringPtr,
-								double*								boxRightPtr,
-								double								boxIncrement);
+SInt16 ReadCovarianceInformation (
+				HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
+				ParmBlkPtr 							paramBlockPtr,
+				HPtr*									inputStringPtrPtr,
+				SInt16								numberStatisticsChannels,
+				char*									fieldClassStringPtr,
+				double*								boxRightPtr,
+				double								boxIncrement);
 
-SInt16 					ReadMaskInformation (
-								Str255*								maskFileNamePtr,
-								MaskInfoPtr 						maskInfoPtr,
-								UCharPtr*							inputStringPtrPtr);
+SInt16 ReadMaskInformation (
+				Str255*								maskFileNamePtr,
+				MaskInfoPtr 						maskInfoPtr,
+				UCharPtr*							inputStringPtrPtr);
 								
-SInt16	 				ReadModifiedStats (
-								ParmBlkPtr 							paramBlockPtr,
-								HPtr*									inputStringPtrPtr,
-								SInt16	 							numberChannels,
-								HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
-								HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
+SInt16 ReadModifiedStats (
+				ParmBlkPtr 							paramBlockPtr,
+				HPtr*									inputStringPtrPtr,
+				SInt16	 							numberChannels,
+				HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
+				HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
 																	
-SInt16	 				ReadProjectFile (void);
+SInt16 ReadProjectFile (void);
 
-SInt16	 				ReadStatistics (
-								HPClassNamesPtr 					classNamesPtr, 
-								SInt16	 							storageIndex, 
-								ParmBlkPtr 							paramBlockPtr,
-								HPtr*									inputStringPtrPtr, 
-								SInt16	 							classFieldCode, 
-								double* 								boxRightPtr, 
-								double 								boxIncrement,
-								Boolean*								statsLoadedFlagPtr);
+SInt16 ReadStatistics (
+				HPClassNamesPtr 					classNamesPtr,
+				SInt16	 							storageIndex,
+				ParmBlkPtr 							paramBlockPtr,
+				HPtr*									inputStringPtrPtr,
+				SInt16	 							classFieldCode,
+				double* 								boxRightPtr,
+				double 								boxIncrement,
+				Boolean*								statsLoadedFlagPtr);
 /*
-UCharPtr	 				ReadStringFromFile (
-								UCharPtr								inputStringPtr, 
-								UCharPtr								outputStringPtr, 
-								SInt16								numberSkipTabs,
-								SInt16								maxStringLength);
+UCharPtr ReadStringFromFile (
+				UCharPtr								inputStringPtr,
+				UCharPtr								outputStringPtr,
+				SInt16								numberSkipTabs,
+				SInt16								maxStringLength);
 */
-void						ReleaseProjectHandles (
-								ProjectInfoPtr						inputProjectInfoPtr);
+void ReleaseProjectHandles (
+				ProjectInfoPtr						inputProjectInfoPtr);
 
-UCharPtr					SkipNTabs (
-								UCharPtr								inputStringPtr, 
-								SInt16								numberTabs);
+UCharPtr SkipNTabs (
+				UCharPtr								inputStringPtr,
+				SInt16								numberTabs);
 
-Boolean 					SetupClassFieldPointMemory (void);
+Boolean SetupClassFieldPointMemory (void);
 
-void						UpdateGraphicStatusBox (
-								double*								rightBoxPtr,
-								double								boxIncrement);
+void UpdateGraphicStatusBox (
+				double*								rightBoxPtr,
+				double								boxIncrement);
 
-Boolean 					UserLocateProjectBaseImage (
-								Handle								fileInfoHandle, 
-								SInt16								promptStringNumber, 
-								SInt16								option);
+Boolean UserLocateProjectBaseImage (
+				Handle								fileInfoHandle,
+				SInt16								promptStringNumber,
+				SInt16								option);
 
-SInt16					WriteProjectFile (
-								SInt16								saveCode);
+SInt16 WriteProjectFile (
+				SInt16								saveCode);
 
-Boolean 					WriteChannelInformation (
-								HChannelStatisticsPtr			chanStatsPtr, 
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberStatisticsChannels, 
-								SInt16								type, 
-								HPtr									stringPtr);
+Boolean WriteChannelInformation (
+				HChannelStatisticsPtr			chanStatsPtr,
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberStatisticsChannels,
+				SInt16								type,
+				HPtr									stringPtr);
 										
-Boolean 					WriteCovarianceInformation (
-								HCovarianceStatisticsPtr		matrixStatsPtr, 
-								HChannelStatisticsPtr			channelStatsPtr,
-								SInt64								numberPixelsLessOne, 
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberStatisticsChannels, 
-								SInt16								type, 
-								HPtr	 								stringPtr, 
-								double*								boxRightPtr, 
-								double								boxIncrement);
+Boolean WriteCovarianceInformation (
+				HCovarianceStatisticsPtr		matrixStatsPtr,
+				HChannelStatisticsPtr			channelStatsPtr,
+				SInt64								numberPixelsLessOne,
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberStatisticsChannels,
+				SInt16								type,
+				HPtr	 								stringPtr,
+				double*								boxRightPtr,
+				double								boxIncrement);
 									
-Boolean 					WriteModifiedStats (
-								CMFileStream* 						fileStreamPtr,
-								SInt16								numberChannels,
-								HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
-								HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
+Boolean WriteModifiedStats (
+				CMFileStream* 						fileStreamPtr,
+				SInt16								numberChannels,
+				HChannelStatisticsPtr 			modifiedClassChanStatsPtr,
+				HCovarianceStatisticsPtr 		modifiedClassCovStatsPtr);
 									
-SInt16	 				WriteStatistics (
-								HChannelStatisticsPtr			channelStatsPtr, 
-								HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
-								SInt64								numberPixels,
-								CMFileStream* 						fileStreamPtr,
-								Boolean								saveMeansCovFlag, 
-								Boolean								saveSumsSquaresFlag,
-								SInt16								classFieldCode, 
-								double*								boxRightPtr, 
-								double								boxIncrement);
+SInt16 WriteStatistics (
+				HChannelStatisticsPtr			channelStatsPtr,
+				HSumSquaresStatisticsPtr		sumSquaresStatsPtr,
+				SInt64								numberPixels,
+				CMFileStream* 						fileStreamPtr,
+				Boolean								saveMeansCovFlag,
+				Boolean								saveSumsSquaresFlag,
+				SInt16								classFieldCode,
+				double*								boxRightPtr,
+				double								boxIncrement);
 
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -311,8 +268,8 @@ void AdjustFieldBoundaries (
 	
 	fieldPointsPtr = gProjectInfoPtr->fieldPointsPtr;
 	
-			// Need to adjust all possible field points even if the fields have been deleted
-			// in case any of the fields are 'uncut'.
+			// Need to adjust all possible field points even if the fields have been
+			// deleted in case any of the fields are 'uncut'.
 			
 	for (point=0; 
 			point<totalNumberPoints; 
@@ -330,7 +287,7 @@ void AdjustFieldBoundaries (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -403,7 +360,7 @@ void AdjustLabelPoints (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -422,7 +379,8 @@ void AdjustLabelPoints (
 //
 // Value Returned:	None
 // 
-// Called By:			Menus in menus.c
+// Called By:			Menus in MMenus.c
+//							OnProjChangeBaseImageFile in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -603,7 +561,7 @@ void ChangeProjectBaseImage (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -649,7 +607,7 @@ Boolean CheckIfProjectAssociatedImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -666,7 +624,7 @@ Boolean CheckIfProjectAssociatedImage (
 //											base project image file.
 //							False if not.
 // 
-// Called By:			CreateImageWindow in window.c
+// Called By:			CreateImageWindow in SImageWindow_class.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1990
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -718,7 +676,7 @@ Boolean CheckIfProjectBaseImage (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -773,7 +731,7 @@ void CloseProjectImageFile (
 								UnlockAndDispose (inputProjectInfoPtr->windowInfoHandle);
 		#endif	// defined multispec_mac 
 		     
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			CMImageWindow* imageWindowCPtr = NULL;
 			                                                 
 			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
@@ -806,7 +764,7 @@ void CloseProjectImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -827,7 +785,7 @@ void CloseProjectImageFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1988
-//	Revised By:			Larry L. Biehl			Date: 03/27/1991	
+//	Revised By:			Larry L. Biehl			Date: 09/17/2019
 
 void CloseProjectStructure (
 				ProjectInfoPtr						inputProjectInfoPtr)
@@ -844,7 +802,7 @@ void CloseProjectStructure (
 		{
 		ReleaseProjectHandles (inputProjectInfoPtr);
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			if (inputProjectInfoPtr->fileStreamCPtr != NULL)
 				delete inputProjectInfoPtr->fileStreamCPtr;
 				
@@ -860,6 +818,20 @@ void CloseProjectStructure (
 				
 			inputProjectInfoPtr->testMask.fileStreamPtr = NULL;
 		#endif	// defined multispec_win
+		
+		if (gProjectInfoPtr->svmModel != NULL)
+			{
+			svm_free_and_destroy_model (&gProjectInfoPtr->svmModel);
+			gProjectInfoPtr->svmModel = NULL;
+			
+			}	// end "if (gProjectInfoPtr->svmModel != NULL)"
+	
+		if (gProjectInfoPtr->svm_x != NULL)
+			{
+			free (gProjectInfoPtr->svm_x);
+			gProjectInfoPtr->svm_x = NULL;
+			
+			}	// end "if (gProjectInfoPtr->svm_x != NULL)"
 		
 				// Save handle to project structure.										
 				
@@ -901,7 +873,7 @@ void CloseProjectStructure (
     
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -985,7 +957,7 @@ Boolean ClusterStatisticsVerification (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1123,7 +1095,7 @@ SInt16 CompareImageDimensionsWithProjectFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1174,7 +1146,8 @@ Boolean CompareImageProjectFileInfo (
 		else if (fileInfoPtr->numberColumns != projectWindowInfoPtr->maxNumberColumns)    
 			returnFlag = FALSE;
 																						
-		else if (fileInfoPtr->numberChannels != projectWindowInfoPtr->totalNumberChannels)   
+		else if (fileInfoPtr->numberChannels !=
+														projectWindowInfoPtr->totalNumberChannels)
 			returnFlag = FALSE;
 
 		else if (fileInfoPtr->numberBytes != projectWindowInfoPtr->numberBytes)    
@@ -1189,7 +1162,8 @@ Boolean CompareImageProjectFileInfo (
 		else if (fileInfoPtr->signedDataFlag != gProjectInfoPtr->signedDataFlag)  
 			returnFlag = FALSE;
 			
-		else if (fileInfoPtr->hdfDataSetSelection != gProjectInfoPtr->hdfDataSetSelection)  
+		else if (fileInfoPtr->hdfDataSetSelection !=
+																gProjectInfoPtr->hdfDataSetSelection)
 			returnFlag = FALSE;
 		
 		if (returnFlag && gProjectInfoPtr->version < 911106)
@@ -1218,7 +1192,7 @@ Boolean CompareImageProjectFileInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1235,7 +1209,7 @@ Boolean CompareImageProjectFileInfo (
 //
 // Value Returned:	None
 // 
-// Called By:			LoadImageInformation in SOpnImag.cpp
+// Called By:			LoadImageInformation in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/06/1991
 //	Revised By:			Larry L. Biehl			Date: 06/04/1996	
@@ -1308,7 +1282,7 @@ Boolean	CopyFileInfoFromProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1354,7 +1328,7 @@ SInt16 CopyFileInfoHandles (
 	if (errCode == noErr && 
 			outputFileInfoPtr->channelDescriptionH != NULL &&
 				outputFileInfoPtr->channelDescriptionH ==
-																inputFileInfoPtr->channelDescriptionH)
+															inputFileInfoPtr->channelDescriptionH)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->channelDescriptionH);
 
@@ -1362,7 +1336,8 @@ SInt16 CopyFileInfoHandles (
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->classDescriptionH != NULL &&
-				outputFileInfoPtr->classDescriptionH == inputFileInfoPtr->classDescriptionH)
+				outputFileInfoPtr->classDescriptionH ==
+																inputFileInfoPtr->classDescriptionH)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->classDescriptionH);
 
@@ -1379,7 +1354,8 @@ SInt16 CopyFileInfoHandles (
 
 	if (errCode == noErr && 
 			outputFileInfoPtr->groupTablesHandle != NULL &&
-				outputFileInfoPtr->groupTablesHandle == inputFileInfoPtr->groupTablesHandle)
+				outputFileInfoPtr->groupTablesHandle ==
+																inputFileInfoPtr->groupTablesHandle)
 		{
 		errCode = HandToHand (&outputFileInfoPtr->groupTablesHandle);
 
@@ -1490,7 +1466,7 @@ SInt16 CopyFileInfoHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1507,8 +1483,8 @@ SInt16 CopyFileInfoHandles (
 //
 // Value Returned:				
 // 
-// Called By:			ProjectChangesPopUpMen in projectUtilities.c
-//							ClusterDialog in cluster.c
+// Called By:			ProjectChangesPopUpMen in SProjectUtilities.cpp
+//							ClusterDialog in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1989
 //	Revised By:			Larry L. Biehl			Date: 03/24/2017
@@ -1636,7 +1612,7 @@ Boolean CreateNewProject (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1652,8 +1628,8 @@ Boolean CreateNewProject (
 //
 // Value Returned:	None			
 // 
-// Called By:			CloseProjectStructure in project.c
-//							CreateNewProject in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
+//							CreateNewProject in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/20/1991
 //	Revised By:			Larry L. Biehl			Date: 02/15/2003	
@@ -1688,18 +1664,13 @@ void DeactivateProject (void)
 																			
 			#if defined multispec_win
 				if (gProjectWindow != NULL)
-					((CComboBox*)gProjectWindow->GetDlgItem (IDC_ClassList))->DeleteString (1);
+					((CComboBox*)gProjectWindow->
+													GetDlgItem (IDC_ClassList))->DeleteString (1);
 			#endif	// defined multispec_win
 			
 			}	// end "for (classNumber=1; ..."
 		
-				// Put 'Output Window' as the name of the output window.				
-		/*
-		gTextString[0] = 0;
-		ConcatPStrings (gTextString, (char*)"\0Text Output\0", 255);
-		SetOutputWTitle (gTextString);
-		*/
-				// Set project related flags in window information structure			
+				// Set project related flags in window information structure
 				// to FALSE.																			
 					           
 		Handle					windowInfoHandle;
@@ -1735,7 +1706,7 @@ void DeactivateProject (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1804,7 +1775,7 @@ Handle FindProjectBaseImageFileInfoHandle ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1877,7 +1848,7 @@ Handle FindProjectBaseImageWindowInfoHandle ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1915,7 +1886,7 @@ WindowPtr FindProjectBaseImageWindowPtr ()
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1931,9 +1902,9 @@ WindowPtr FindProjectBaseImageWindowPtr ()
 //
 // Value Returned:	None	
 // 
-// Called By:			ChangeProjectBaseImage in project.c
-//							GetProjectImageFileInfo in project.c
-//							OpenProjectFile in project.c
+// Called By:			ChangeProjectBaseImage in SProject.cpp
+//							GetProjectImageFileInfo in SProject.cpp
+//							OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/1989
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -1972,11 +1943,6 @@ Boolean FindProjectImageWindows (
 		projectWindowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 											gProjectInfoPtr->windowInfoHandle, &handleStatus);
 		
-				// Load project image file name into a temporary C string.			
-				
-		//pstr ((char*)gTextString, (char*)gProjectInfoPtr->imageFileName, &strLength);
-		//CopyPToP (gProjectInfoPtr->imageFileName)
-		
 		returnCode = 1;
 		window = 0;
 		windowIndex = kImageWindowStart;
@@ -1990,7 +1956,6 @@ Boolean FindProjectImageWindows (
 			
 			FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 			fileNamePtr	= (FileStringPtr)GetFileNameCPointerFromFileInfo (fileInfoPtr);
-			//returnCode = CompareStringsNoCase ((char*)gTextString, (char*)fileNamePtr);
 			
 			if (CompareStringsNoCase (&gProjectInfoPtr->imageFileName[1],
 												fileNamePtr) == 0)
@@ -2044,7 +2009,7 @@ Boolean FindProjectImageWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2085,7 +2050,7 @@ void ForceProjectCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2132,7 +2097,7 @@ double GetDefaultZeroVarianceFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2167,7 +2132,7 @@ void* GetFileNameCPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2213,17 +2178,15 @@ void* GetFileNameCPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetFileNamePPointerFromProjectInfo
 //
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a P string.
+//	Software purpose:	The purpose of this routine is to get a pointer
+//							to the project file name represented by the input project info
+//							pointer. It returns a pointer to a Pascal string.
 //
 //	Parameters in:		None
 //
@@ -2248,17 +2211,15 @@ void* GetFileNamePPointerFromProjectInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
 //	Function name:		void GetFileNamePPointerFromProjectInfo
 //
-//	Software purpose:	The purpose of this routine is to return the input file 
-//							stream class pointer for the image window.  Note that
-//							this routine  returns the file stream object for the
-//							first file only if the image window represents a linked 
-//							list. It return a pointer to a P string.
+//	Software purpose:	The purpose of this routine is to get a pointer
+//							to the project file name represented by the input project info
+//							pointer.  It return a pointer to a Pascal string.
 //
 //	Parameters in:		None
 //
@@ -2289,12 +2250,91 @@ void* GetFileNamePPointerFromProjectInfo (
 
 	return (fileNamePtr);
 	
-}	// end "GetFileNamePPointerFromProjectInfo"   
+}	// end "GetFileNamePPointerFromProjectInfo"    
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFilePathPPointerFromProjectInfo
+//
+//	Software purpose:	The purpose of this routine is to get a pointer
+//							to the full file path represented by the input project info
+//							pointer. It returns a pointer to a Pascal string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 11/23/2019
+//	Revised By:			Larry L. Biehl			Date: 11/23/2019
+
+void* GetFilePathPPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr)
+
+{  
+	return (GetFilePathPPointerFromProjectInfo (projectInfoPtr,
+																kDefaultFileStringCode));
+	
+}	// end "GetFilePathPPointerFromProjectInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void GetFilePathPPointerFromProjectInfo
+//
+//	Software purpose:	The purpose of this routine is to return the input file 
+//							stream class pointer for the image window.  Note that
+//							this routine  returns the file stream object for the
+//							first file only if the image window represents a linked 
+//							list. It return a pointer to a P string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+// 
+// Called By:		
+//
+//	Coded By:			Larry L. Biehl			Date: 11/23/2019
+//	Revised By:			Larry L. Biehl			Date: 11/23/2019
+
+void* GetFilePathPPointerFromProjectInfo (
+				ProjectInfoPtr						projectInfoPtr,
+				SInt16								returnCode)
+
+{  
+	void*									filePathPtr = NULL;
+	
+	
+	if (projectInfoPtr != NULL)
+		{              
+		CMFileStream* fileStreamPtr = GetFileStreamPointer (projectInfoPtr);
+		
+		filePathPtr = GetFilePathPPointerFromFileStream (fileStreamPtr, returnCode);
+		
+		}	// end "if (projectInfoPtr != NULL)" 
+
+	return (filePathPtr);
+	
+}	// end "GetFilePathPPointerFromProjectInfo"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2324,7 +2364,7 @@ CMFileStream* GetFileStreamPointer (
 			return (&projectInfoPtr->fileStream);
 		#endif	// defined multispec_mac || defined multispec_mac_swift
 				
-      #if defined multispec_win	|| defined multispec_lin	
+      #if defined multispec_win	|| defined multispec_wx	
 			return (projectInfoPtr->fileStreamCPtr);		
 		#endif	// defined multispec_win
 		
@@ -2338,7 +2378,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2366,17 +2406,17 @@ CMFileStream* GetFileStreamPointer (
 // Value Returned:	True if the information was set up.
 //							False if the information could not be set up.
 // 
-// Called By:			ClassifyControl in classify.c
-//							ClusterControl in cluster.c
-//							LoadListDataSpecs in listData.c
-//							Menus in menus.c
-//							EvaluateCovariancesControl in other.c
-//							LoadPrincipalComponentSpecs in principalComponents.c
-//							SeparabilityControl in separability.c
-//							UpdateStatsControl in statCompute.c
-//							HistogramStatsControl in statHistogram.c
-//							StatisticsControl in statistics.c
-//							ListStatsControl in statList.c
+// Called By:			ClassifyControl in SClassify.cpp
+//							ClusterControl in SCluster.cpp
+//							LoadListDataSpecs in SListData.cpp
+//							Menus in MMenus.c
+//							EvaluateCovariancesControl in SOther.cpp
+//							LoadPrincipalComponentSpecs in SPrincipalComponents.cpp
+//							SeparabilityControl in SFeatureSelection.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
+//							HistogramStatsControl in SProjectHistogramStatistics.cpp
+//							StatisticsControl in SStatistics.cpp
+//							ListStatsControl in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/1989
 //	Revised By:			Larry L. Biehl			Date: 03/20/1999
@@ -2525,7 +2565,7 @@ Boolean GetProjectImageFileInfo (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2597,7 +2637,7 @@ void GetProjectSelectionWindow (void)
 				}	// end "while (window != NULL && ..."				  
 		#endif	// defined multispec_mac
 		                           
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 					// I do not know how to go through a list if image views in
 					// from top to bottom order. For now I will just check the
 					// active image window to see if it is a project image window. 
@@ -2608,7 +2648,7 @@ void GetProjectSelectionWindow (void)
 					
 			if (windowInfoPtr != NULL && windowInfoPtr->projectWindowFlag)
 				gProjectSelectionWindow = gActiveImageViewCPtr;				  
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 			
 		}	// end "if (gNumberOfIWindows > 0)" 
 					
@@ -2617,7 +2657,7 @@ void GetProjectSelectionWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2705,7 +2745,7 @@ void GetProjectStatisticsPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2721,8 +2761,8 @@ void GetProjectStatisticsPointers (
 //
 // Value Returned:	None			
 // 
-// Called By:			InitializeNewProject in project.c
-//							OpenProjectFile in project.c
+// Called By:			InitializeNewProject in SProject.cpp
+//							OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1990
 //	Revised By:			Larry L. Biehl			Date: 09/08/2006	
@@ -2732,9 +2772,9 @@ Boolean GetProjectStructure (
 				SInt16								numberChannels)
 				
 {                               
-	#if defined multispec_win || defined multispec_lin
+	#if defined multispec_win || defined multispec_wx
 		CMImageWindow* 					imageWindowCPtr = NULL;
-	#endif	// defined multispec_win || defined multispec_lin
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	Handle								channelHandle,
 											fileInfoHandle,
@@ -2785,7 +2825,7 @@ Boolean GetProjectStructure (
 		{             
 		setUpOkay = TRUE;
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			gProjectInfoPtr = (ProjectInfoPtr)GetHandlePointer (
 																		projectInfoHandle, kLock);
 			gProjectInfoPtr->fileStreamCPtr = InitializeFileStream ((CMFileStream*)NULL);
@@ -2794,7 +2834,7 @@ Boolean GetProjectStructure (
 				setUpOkay = FALSE;
 
 			CheckAndUnlockHandle (projectInfoHandle);			
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 				// Get storage for some of project structure information.			
 				
@@ -2823,7 +2863,7 @@ Boolean GetProjectStructure (
 																					kProjectWindowType);
 			#endif	// defined multispec_mac
 			                  
-         #if defined multispec_win || defined multispec_lin
+         #if defined multispec_win || defined multispec_wx
 				imageWindowCPtr = new CMImageWindow (fileInfoHandle);
 				if (imageWindowCPtr != NULL)
 					{
@@ -2878,9 +2918,9 @@ Boolean GetProjectStructure (
 			UnlockAndDispose (windowInfoHandle); 
 		#endif	// defined multispec_mac 
 		
-      #if defined multispec_win || defined multispec_lin
+      #if defined multispec_win || defined multispec_wx
 			delete imageWindowCPtr;
-		#endif	// defined multispec_win || defined multispec_lin
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "else !setUpOkay" 
 		
@@ -2891,7 +2931,7 @@ Boolean GetProjectStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2911,8 +2951,8 @@ Boolean GetProjectStructure (
 //
 // Value Returned:	
 //
-// Called By:			OpenProjectFile in project.c
-//							GetProjectImageFileInfo in project.c
+// Called By:			OpenProjectFile in SProject.cpp
+//							GetProjectImageFileInfo in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/1989
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -3032,8 +3072,6 @@ Boolean GetSpecifiedImageFile (
 					// image information has been loaded.
 					
 			SetFileInfoHandle (projectWindowInfoPtr, fileInfoHandle);
-					
-			//projectWindowInfoPtr->fileInfoHandle = fileInfoHandle;
 			
 			}	// end "if (UpdateLayerInfoStructure (..."
 		
@@ -3062,7 +3100,7 @@ Boolean GetSpecifiedImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3100,7 +3138,7 @@ SInt16 GetVolumeReferenceNumber (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3116,9 +3154,9 @@ SInt16 GetVolumeReferenceNumber (
 //
 // Value Returned:	None			
 // 
-// Called By:			Menus in menus.c
-//							CreateNewProject in project.c
-//							StatisticsControl in statistics.c
+// Called By:			Menus in MMenus.c
+//							CreateNewProject in SProject.cpp
+//							StatisticsControl in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/28/1988
 //	Revised By:			Larry L. Biehl			Date: 09/05/2017	
@@ -3159,7 +3197,7 @@ void InitializeNewProject (
 					// Get pointer to file information for active image window.		
 					
 			windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
-																imageWindowInfoH, &handleStatus);
+																	imageWindowInfoH, &handleStatus);
 			
 					// Load channel array.  Assume for now that all channels will  
 					// be used.																		
@@ -3192,7 +3230,6 @@ void InitializeNewProject (
 					// Note that for the Windows side this will set the file type to -1.
 					// It will be forced to TEXT when the project file is saved to disk.
 			
-			//SetFileDoesNotExist (projectFileStreamPtr, kKeepUTF8CharName);
 			SetFileDoesNotExist (projectFileStreamPtr, kDoNotKeepUTF8CharName);
 			
 					// Store the image file name.
@@ -3245,13 +3282,6 @@ void InitializeNewProject (
 				
 		gProjectInfoPtr->changedFlag = FALSE;
 		
-				// Put 'Untitled Project' as the name of the output window
-				// Decided to not do here for now.
-				
-		//gTextString[0] = 0;
-		//ConcatPStrings (gTextString, (char*)"\0Untitled Project\0", 255);
-		//SetOutputWTitle (gTextString);
-		
 				// Update menu items.															
 							
 		gUpdateProjectMenuItemsFlag = TRUE;
@@ -3264,7 +3294,7 @@ void InitializeNewProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3282,7 +3312,7 @@ void InitializeNewProject (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
-//	Revised By:			Larry L. Biehl			Date: 06/04/2019
+//	Revised By:			Larry L. Biehl			Date: 12/06/2019
 
 void InitializeProjectStructure (
 				Handle								projectInfoHandle,
@@ -3298,7 +3328,7 @@ void InitializeProjectStructure (
 			InitializeFileStream (&gProjectInfoPtr->fileStream);
 		#endif	// defined multispec_mac 
 		
-      #if defined multispec_win	|| defined multispec_lin
+      #if defined multispec_win	|| defined multispec_wx
 			gProjectInfoPtr->fileStreamCPtr = 
 		    						InitializeFileStream (gProjectInfoPtr->fileStreamCPtr);
 		#endif	// defined multispec_win
@@ -3307,6 +3337,11 @@ void InitializeProjectStructure (
 				
 		InitializeMaskStructure (&gProjectInfoPtr->testMask);
 		InitializeMaskStructure (&gProjectInfoPtr->trainingMask);
+
+				// used in SVM classify training
+		
+		gProjectInfoPtr->svmModel = NULL;
+		gProjectInfoPtr->svm_x = NULL;
 
 				// used in KNN classify training
 
@@ -3381,8 +3416,9 @@ void InitializeProjectStructure (
 															kClassSummary+kAreasUsed+kAreasSummary;
 		gProjectInfoPtr->listClassFlag = TRUE;
 		gProjectInfoPtr->listFieldFlag = FALSE;
-		gProjectInfoPtr->histogramClassFlag = TRUE;
-		gProjectInfoPtr->histogramFieldFlag = FALSE;
+		gProjectInfoPtr->histogramClassFieldCode = kHistogramClass;
+		gProjectInfoPtr->histogramClassListClassFieldCode = kHistogramClass;
+		gProjectInfoPtr->histogramFieldListClassFieldCode = kHistogramClass;
 		gProjectInfoPtr->numberGroups = 0;
 		gProjectInfoPtr->classGroupPtr = NULL;
 		gProjectInfoPtr->groupNameHandle = NULL;
@@ -3544,7 +3580,7 @@ void InitializeProjectStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3609,7 +3645,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 	
 	if (projectImageFileInfoHandle != NULL)
 		{ 				             
-      #if defined multispec_win || defined multispec_lin 	 
+      #if defined multispec_win || defined multispec_wx 	 
 					// For the Windows version we need to save the stream pointer in the
 					// structure represented by "projectImageFileInfoHandle". It will
 					// be written over in the following handle copy.
@@ -3626,11 +3662,11 @@ Boolean	LoadProjectFileAndLayerInformation (
 		if (errCode != noErr)
 			continueFlag = FALSE;
 		      
-      #if defined multispec_win || defined multispec_lin 		  
+      #if defined multispec_win || defined multispec_wx 		  
 			if (continueFlag)
 				{	
-						// Reset the project image file stream pointer. It was changed during
-						// the copy above. 
+						// Reset the project image file stream pointer. It was changed
+						// during the copy above.
 				
 				fileInfoPtr = (FileInfoPtr)GetHandlePointer (projectImageFileInfoHandle);
 				fileInfoPtr->fileStreamCPtr = fileStreamPtr;  
@@ -3673,6 +3709,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 				// Save the input data set selection and the number of channels in
 				// case needed later to reset the parameters being used for the input
 				// image when it represents hdf4/hdf5/netcdf data sets.
+				// Decided not to do.
 				
 		//savedHdfDataSetSelection = inputFileInfoPtr->hdfDataSetSelection;
 		//savedNumberChannels = inputFileInfoPtr->numberChannels;
@@ -3723,7 +3760,8 @@ Boolean	LoadProjectFileAndLayerInformation (
 			continueFlag = GetNewGDALFileReference (fileInfoPtr);
 			/*
 			if (continueFlag && fileInfoPtr->hdfHandle != NULL)
-				continueFlag = (LoadGDALInformation (fileInfoPtr, NULL, fileInfoPtr->format) == noErr);
+				continueFlag = (LoadGDALInformation (
+											fileInfoPtr, NULL, fileInfoPtr->format) == noErr);
 				
 			if (continueFlag)
 				{
@@ -3784,7 +3822,7 @@ Boolean	LoadProjectFileAndLayerInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3800,8 +3838,9 @@ Boolean	LoadProjectFileAndLayerInformation (
 //
 // Value Returned:	None
 // 
-// Called By:			Menus in menus.c
-//							main in multiSpec.c
+// Called By:			Menus in MMenus.c
+//							main in MMultiSpec.c
+//							OnProcCluster in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/01/1996
 //	Revised By:			Larry L. Biehl			Date: 08/01/1996	
@@ -3825,7 +3864,7 @@ void OpenNewProject (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3840,8 +3879,9 @@ void OpenNewProject (void)
 //
 // Value Returned:	None
 // 
-// Called By:			Menus in menus.c
-//							main in multiSpec.c
+// Called By:			Menus in MMenus.c
+//							main in MMultiSpec.c
+//							OnFileOpenProject in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1988
 //	Revised By:			Larry L. Biehl			Date: 04/08/2019
@@ -4043,7 +4083,7 @@ void OpenProjectFile (
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4057,8 +4097,9 @@ void OpenProjectFile (
 //
 // Value Returned:	None				
 // 
-// Called By:			Menus in menus.c
-//							OpenProjectFile in project.c
+// Called By:			Menus in MMenus.c
+//							OnFileOpenProjectImage in xMainFrame.cpp
+//							OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1991
 //	Revised By:			Larry L. Biehl			Date: 02/27/2018
@@ -4195,7 +4236,7 @@ void	OpenProjectImageWindow (void)
 																fileInfoPtr->hdfDataSetSelection);				
 		#endif	// defined multispec_win
 
-		#if defined multispec_lin
+		#if defined multispec_wx
 			fileInfoPtr = (FileInfoPtr) GetHandlePointer (fileInfoHandle);
 
 			wchar_t* filePathPointer =
@@ -4205,7 +4246,7 @@ void	OpenProjectImageWindow (void)
 																filePathPointer,
 																TRUE,
 																fileInfoPtr->hdfDataSetSelection);
-		#endif	// defined multispec_lin
+		#endif	// defined multispec_wx
 		
 		}	// end "if (GetProjectImageFileInfo (..."
    
@@ -4214,7 +4255,7 @@ void	OpenProjectImageWindow (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4229,8 +4270,8 @@ void	OpenProjectImageWindow (void)
 //
 // Value Returned:	None		
 // 
-// Called By:			CloseProjectStructure in project.c
-//							CreateNewProject in project.c
+// Called By:			CloseProjectStructure in SProject.cpp
+//							CreateNewProject in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/22/1991
 //	Revised By:			Larry L. Biehl			Date: 08/15/2019
@@ -4334,7 +4375,7 @@ void ReleaseProjectHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4349,8 +4390,8 @@ void ReleaseProjectHandles (
 //
 // Value Returned:	None			
 // 
-// Called By:			ReleaseProjectHandles in project.c
-//							ClearProjectStatistics in editStatistics.c
+// Called By:			ReleaseProjectHandles in SProject.cpp
+//							ClearProjectStatistics in SEditStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1992
 //	Revised By:			Larry L. Biehl			Date: 12/08/1999	
@@ -4427,7 +4468,7 @@ void ReleaseStatisticsHandles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4443,17 +4484,17 @@ void ReleaseStatisticsHandles (
 //
 // Value Returned:	None.
 //
-// Called By:			ClassifyControl in classify.c
-//							ClusterControl in cluster.c
-//							LoadListDataSpecs in listData.c
-//							Menus in menus.c
-//							EvaluateCovariancesControl in other.c
-//							LoadPrincipalComponentSpecs in principalComponents.c
-//							SeparabilityControl in separability.c
-//							UpdateStatsControl in statCompute.c
-//							HistogramStatsControl in statHistogram.c
-//							StatisticsControl in statistics.c
-//							ListStatsControl in statList.c
+// Called By:			ClassifyControl in SClassify.cpp
+//							ClusterControl in SCluster.cpp
+//							LoadListDataSpecs in SListData.cpp
+//							Menus in MMenus.c
+//							EvaluateCovariancesControl in SOther.cpp
+//							LoadPrincipalComponentSpecs in SPrincipalComponents.cpp
+//							SeparabilityControl in SFeatureSelection.cpp
+//							UpdateStatsControl in SProjectComputeStatistics.cpp
+//							HistogramStatsControl in SProjectHistogramStatistics.cpp
+//							StatisticsControl in SStatistics.cpp
+//							ListStatsControl in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1991
 //	Revised By:			Larry L. Biehl			Date: 12/29/1995
@@ -4497,7 +4538,7 @@ void UnlockProjectWindowInfoHandles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4550,7 +4591,7 @@ void UpdateProjectMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4577,8 +4618,8 @@ void UpdateProjectMapProjectionHandle (
 // Value Returned:	FALSE if the project base image file is not located.
 //							TRUE if the project base image file is located.
 //
-// Called By:			GetSpecifiedImageFile in project.c	
-//							ChangeProjectBaseImage in project.c
+// Called By:			GetSpecifiedImageFile in SProject.cpp	
+//							ChangeProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
@@ -4625,14 +4666,14 @@ Boolean UserLocateProjectBaseImage (
 																
 	fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 	
-			// Make sure the mUTF8PathLength in fileStreamPtr is set to 0. I may
+			// Make sure the mUTF8PathLength in fileStreamPtr is set to 0. It may
 			// still represent the path length for the project file. The user
 			// may select a different location for the project image file in
 			// which case this length needs to be recalcuated.
 	
-	#if defined multispec_lin || multispec_win
+	#if defined multispec_wx || multispec_win
 		fileStreamPtr->mUTF8PathLength = 0;
-	#endif	 // defined multispec_lin || multispec_win
+	#endif	 // defined multispec_wx || multispec_win
 	
 			// If the option key was down when the 'Open Image' menu item			
 			// was selected then include all files in the file list.  				
@@ -4766,7 +4807,7 @@ Boolean UserLocateProjectBaseImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4782,8 +4823,8 @@ Boolean UserLocateProjectBaseImage (
 // Value Returned:	FALSE if the image file cannot be used as base image for project.
 //							TRUE if the image file can be used as base image for project.
 //
-// Called By:			GetSpecifiedImageFile in project.c	
-//							ChangeProjectBaseImage in project.c
+// Called By:			GetSpecifiedImageFile in SProject.cpp	
+//							ChangeProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2001
 //	Revised By:			Larry L. Biehl			Date: 04/19/2019

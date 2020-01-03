@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//							 Copyright (1988-2019)
+//							 Copyright (1988-2020)
 //						(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,23 +20,6 @@
 //	Brief description:	This file contains routines which are used to access
 //								various disk files.
 //
-//	Functions in file:	SInt16 				CheckRowsPerStrip
-//								SInt16 				GetGeoKeyParameters
-//								SInt16	 			GetTiffEntry
-//								SInt16 				GetTIFFASCIIParameters
-//								SInt16 				GetTIFFDoubleParameters
-//								SInt16	 			ReadTIFFHeader
-//								SInt16 				GetGeoDoubleParametersFromGeoTIFF
-//								SInt16 				SetGeoProjectionFromGeoTIFF
-//								void 					SetGeoTiePointsForRasterPixelType
-//								SInt16 				SetGeoTiePointsFromGeoTIFF
-//								SInt16 				SetPixelScaleParametersFromGeoTIFF
-//
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//
-//	Include files:			"MultiSpecHeaders"
-//								"multiSpec.h"
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -44,16 +27,13 @@
 #if defined multispec_mac
 #endif	// defined multispec_mac    
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
+#if defined multispec_wx
 #endif
 
 #if defined multispec_win
 #endif	// defined multispec_win
 
 #include 	"errno.h"
-
-//#include "SExtGlob.h"	
 
 	// MultiSpec tiff code will be used for large file sizes. GDAL is very slow when
 	// reading large files particular when the files are not striped.
@@ -64,103 +44,103 @@
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.		
 
-SInt16 				CheckRowsPerStrip (
-							FileInfoPtr							fileInfoPtr,
-							CMFileStream* 						fileStreamPtr,
-							UInt32								numberStripOffsets,
-							UInt32								stripOffsetType,
-							UInt32								stripOffsetVector,
-							UInt32								rowsPerStrip,
-							UInt32								numberStripByteCounts,
-							UInt32								stripByteCountType,
-							UInt32								stripByteCountVector);
+SInt16	CheckRowsPerStrip (
+				FileInfoPtr							fileInfoPtr,
+				CMFileStream* 						fileStreamPtr,
+				UInt32								numberStripOffsets,
+				UInt32								stripOffsetType,
+				UInt32								stripOffsetVector,
+				UInt32								rowsPerStrip,
+				UInt32								numberStripByteCounts,
+				UInt32								stripByteCountType,
+				UInt32								stripByteCountVector);
 
-SInt16 				GetBlockSizesVector (
-							CMFileStream*						fileStreamPtr,
-							UInt32**								blockSizesPtrPtr,
-							UInt32								numberStripByteCounts,
-							UInt32								stripByteCountType,
-							UInt32								stripByteCountVector);
+SInt16	GetBlockSizesVector (
+				CMFileStream*						fileStreamPtr,
+				UInt32**								blockSizesPtrPtr,
+				UInt32								numberStripByteCounts,
+				UInt32								stripByteCountType,
+				UInt32								stripByteCountVector);
 
-SInt16 				GetGeoKeyParameters (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr,
-							TIFF_IFD_Ptr						geoDoubleParamsPtr,
-							TIFF_IFD_Ptr						geoAsciiParamsPtr,
-							UInt16*								rasterTypeGeoKeyPtr);
+SInt16	GetGeoKeyParameters (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr,
+				TIFF_IFD_Ptr						geoDoubleParamsPtr,
+				TIFF_IFD_Ptr						geoAsciiParamsPtr,
+				UInt16*								rasterTypeGeoKeyPtr);
 
-SInt16				GetGTModelTypeGeoKeyFromGeoDirectory (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr);
+SInt16	GetGTModelTypeGeoKeyFromGeoDirectory (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr);
 							
-SInt16	 			GetTiffEntry (
-							CMFileStream* 						fileStreamPtr,
-							char*									inputBufferPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr);
+SInt16	GetTiffEntry (
+				CMFileStream* 						fileStreamPtr,
+				char*									inputBufferPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr);
 
-SInt16 				GetTIFFDoubleParameters (
-							CMFileStream*						fileStreamPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr,
-							double*								doubleParameterPtr,
-							SInt32								numberParameters);
+SInt16	GetTIFFDoubleParameters (
+				CMFileStream*						fileStreamPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr,
+				double*								doubleParameterPtr,
+				SInt32								numberParameters);
 
-SInt16 				GetGeoDoubleParametersFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr,
-							double*								geoParametersPtr);
+SInt16	GetGeoDoubleParametersFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr,
+				double*								geoParametersPtr);
 
-SInt16				GetGeoASCIIStringFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							char*									geoASCIIStringPtr,
-							UInt32								stringLengthLimit);
+SInt16	GetGeoASCIIStringFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				char*									geoASCIIStringPtr,
+				UInt32								stringLengthLimit);
 
-SInt16 				GetGeoASCIIStringFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						geoASCIIStringTagPtr,
-							char*									geoASCIIStringPtr,
-							UInt32								stringLengthLimit);
+SInt16	GetGeoASCIIStringFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						geoASCIIStringTagPtr,
+				char*									geoASCIIStringPtr,
+				UInt32								stringLengthLimit);
 
-Boolean				ListGeoTiffTextDescriptionParameters (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr,
-							TIFF_IFD_Ptr						geoAsciiStringPtr,
-							Boolean*								addBlankLineFlagPtr);
+Boolean	ListGeoTiffTextDescriptionParameters (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr,
+				TIFF_IFD_Ptr						geoAsciiStringPtr,
+				Boolean*								addBlankLineFlagPtr);
 
-SInt16 				LoadHierarchalFileStructure (
-							FileInfoPtr 						fileInfoPtr,
-							UInt32								numberBlocks,
-							UInt32*								channelStartsPtr,
-							UInt32*								blockByteCountsPtr,
-							UInt32								numberLinesPerStrip,
-							UInt32								bytesPerStrip,
-							UInt32								lastBytesPerStrip,
-							UInt32								bytesPerStripForAllChannels);
+SInt16	LoadHierarchalFileStructure (
+				FileInfoPtr 						fileInfoPtr,
+				UInt32								numberBlocks,
+				UInt32*								channelStartsPtr,
+				UInt32*								blockByteCountsPtr,
+				UInt32								numberLinesPerStrip,
+				UInt32								bytesPerStrip,
+				UInt32								lastBytesPerStrip,
+				UInt32								bytesPerStripForAllChannels);
 
-SInt16 				SetGeoProjectionFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr);
+SInt16 	SetGeoProjectionFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr);
 
-void 					SetGeoTiePointsForRasterPixelType (
-							FileInfoPtr							fileInfoPtr,
-							UInt16								rasterTypeGeoKey);
+void	SetGeoTiePointsForRasterPixelType (
+				FileInfoPtr							fileInfoPtr,
+				UInt16								rasterTypeGeoKey);
 
-SInt16 				SetGeoTiePointsFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr,
-							SInt32*								numberControlPointsPtr);
+SInt16	SetGeoTiePointsFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr,
+				SInt32*								numberControlPointsPtr);
 
-SInt16 				SetModelTransformationParametersFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr);
+SInt16	SetModelTransformationParametersFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr);
 
-SInt16 				SetPixelScaleParametersFromGeoTIFF (
-							FileInfoPtr							fileInfoPtr,
-							TIFF_IFD_Ptr						imageFileDirectoryPtr);
+SInt16	SetPixelScaleParametersFromGeoTIFF (
+				FileInfoPtr							fileInfoPtr,
+				TIFF_IFD_Ptr						imageFileDirectoryPtr);
 							
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -455,7 +435,7 @@ SInt16 CheckRowsPerStrip (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -500,7 +480,8 @@ SInt16 GetBlockSizesVector (
 			// Get memory to store the block (strip) size values in.  If no
 			// memory is available then we cannot continue with this.
 			
-	*blockSizesPtrPtr = (UInt32*)MNewPointer ((SInt64)numberStripByteCounts * sizeof (UInt32));
+	*blockSizesPtrPtr =
+				(UInt32*)MNewPointer ((SInt64)numberStripByteCounts * sizeof (UInt32));
 	if (*blockSizesPtrPtr == NULL)
 		errCode = -1;
 	
@@ -545,7 +526,7 @@ SInt16 GetBlockSizesVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -589,7 +570,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -650,7 +631,7 @@ SInt16 GetGeoASCIIStringFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -692,7 +673,7 @@ SInt16 GetGTModelTypeGeoKey (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -815,7 +796,7 @@ SInt16 GetGTModelTypeGeoKeyFromGeoDirectory (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -871,7 +852,7 @@ SInt16 GetGeoDoubleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -976,7 +957,7 @@ SInt16 GetGeoKeyParameters (
 					for (i=0; i<4; i++, index++)
 								// Swap the bytes if needed.
 						geoTagInformation[index] = 
-										(UInt16)GetShortIntValue ((char*)&geoTagInformation[index]);
+									(UInt16)GetShortIntValue ((char*)&geoTagInformation[index]);
 				
 							// The first geo key record is the version and number of geo keys.
 							// We will skip it.
@@ -1022,16 +1003,20 @@ SInt16 GetGeoKeyParameters (
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
 								
 							else if (geoKeyRecordPtr[3] == 4272)
-								mapProjectionInfoPtr->geodetic.datumCode = kNewZealandGeodeticDatum1949Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kNewZealandGeodeticDatum1949Code;
 								
 							else if (geoKeyRecordPtr[3] == 4277)
-								mapProjectionInfoPtr->geodetic.datumCode = kDatum_OSGB_1936Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kDatum_OSGB_1936Code;
 								
 							else if (geoKeyRecordPtr[3] == 4283)
-								mapProjectionInfoPtr->geodetic.datumCode = kGeocentricDatumAustralia1994Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kGeocentricDatumAustralia1994Code;
 								
 							else if (geoKeyRecordPtr[3] == 4284)
-								mapProjectionInfoPtr->geodetic.datumCode = kPulkovo1942DatumCode;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kPulkovo1942DatumCode;
 								
 							else if (geoKeyRecordPtr[3] == 4326)
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
@@ -1060,16 +1045,20 @@ SInt16 GetGeoKeyParameters (
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
 								
 							else if (geoKeyRecordPtr[3] == 6272)
-								mapProjectionInfoPtr->geodetic.datumCode = kNewZealandGeodeticDatum1949Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kNewZealandGeodeticDatum1949Code;
 								
 							else if (geoKeyRecordPtr[3] == 6277)
-								mapProjectionInfoPtr->geodetic.datumCode = kDatum_OSGB_1936Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kDatum_OSGB_1936Code;
 								
 							else if (geoKeyRecordPtr[3] == 6283)
-								mapProjectionInfoPtr->geodetic.datumCode = kGeocentricDatumAustralia1994Code;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kGeocentricDatumAustralia1994Code;
 								
 							else if (geoKeyRecordPtr[3] == 6284)
-								mapProjectionInfoPtr->geodetic.datumCode = kPulkovo1942DatumCode;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kPulkovo1942DatumCode;
 								
 							else if (geoKeyRecordPtr[3] == 6326)
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
@@ -1077,11 +1066,14 @@ SInt16 GetGeoKeyParameters (
 							
 						case 2052:	// GeogLinearUnitsGeoKey
 							if (geoKeyRecordPtr[3] == 9001)
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																								kMetersCode;
 							else if (geoKeyRecordPtr[3] == 9002)
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kFeetCode;
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																								kFeetCode;
 							else if (geoKeyRecordPtr[3] == 9003)
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kUSSurveyFeetCode;
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																						kUSSurveyFeetCode;
 							break;
 							
 						case 2054:	// GeogAngularUnitsGeoKey
@@ -1091,43 +1083,56 @@ SInt16 GetGeoKeyParameters (
 							switch (geoKeyRecordPtr[3])
 								{
 								case 7001:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kAiryEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kAiryEllipsoidCode;
 									break;
 								case 7003:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kAustralianEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kAustralianEllipsoidCode;
 									break;
 								case 7004:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kBesselEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kBesselEllipsoidCode;
 									break;
 								case 7005:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kBesselModifiedEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kBesselModifiedEllipsoidCode;
 									break;
 								case 7008:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kClarke1866EllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kClarke1866EllipsoidCode;
 									break;
 								case 7015:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kEverestEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kEverestEllipsoidCode;
 									break;
 								case 7019:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kGRS80EllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kGRS80EllipsoidCode;
 									break;
 								case 7022:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kInternational1909EllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																		kInternational1909EllipsoidCode;
 									break;
 								case 7024:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kKrassovskyEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kKrassovskyEllipsoidCode;
 									break;
 								case 7030:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kWGS84EllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kWGS84EllipsoidCode;
 									break;
 								case 7034:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kClarke1880EllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kClarke1880EllipsoidCode;
 									break;
 								case 7035:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kSphereEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kSphereEllipsoidCode;
 									break;
 								case 7050:
-									mapProjectionInfoPtr->geodetic.spheroidCode = kGRS1967ModifiedEllipsoidCode;
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																			kGRS1967ModifiedEllipsoidCode;
 									break;
 								
 								}	// end "switch (geoKeyRecordPtr[3])"
@@ -1135,17 +1140,20 @@ SInt16 GetGeoKeyParameters (
 								
 						case 2057:		// GeogSemiMajorAxisGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								mapProjectionInfoPtr->geodetic.semiMajorAxis = geoDoubleParameters[geoKeyRecordPtr[3]];
+								mapProjectionInfoPtr->geodetic.semiMajorAxis =
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 2058:		// GeogSemiMinorAxisGeoKeyCode
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								mapProjectionInfoPtr->geodetic.semiMinorAxis = geoDoubleParameters[geoKeyRecordPtr[3]];
+								mapProjectionInfoPtr->geodetic.semiMinorAxis =
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 2059:		// ProjNatOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
-								inverseFlatteningParameter = geoDoubleParameters[geoKeyRecordPtr[3]];
+								inverseFlatteningParameter =
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 							
 						case 3072:	// ProjectedCSTypeGeoKey 
@@ -1153,95 +1161,115 @@ SInt16 GetGeoKeyParameters (
 							if (projectedCSTypeGeoKey > 32200 && 
 																		projectedCSTypeGeoKey <= 32260)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS72RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kUTM_WGS72RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kWGS72EllipsoidCode;
+																					kWGS72EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 32200);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 32200);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32200 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32300 && 
 																		projectedCSTypeGeoKey <= 32360)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS72RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kUTM_WGS72RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kWGS72EllipsoidCode;
+																					kWGS72EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(-(projectedCSTypeGeoKey - 32300));
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+														(SInt16)(-(projectedCSTypeGeoKey - 32300));
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32600 && 
 																		projectedCSTypeGeoKey <= 32660)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS84RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kUTM_WGS84RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kWGS84EllipsoidCode;
+																					kWGS84EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 32600);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 32600);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 32700 && 
 																		projectedCSTypeGeoKey <= 32760)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_WGS84RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kUTM_WGS84RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kWGS84Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kWGS84EllipsoidCode;
+																					kWGS84EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(-(projectedCSTypeGeoKey - 32700));
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+														(SInt16)(-(projectedCSTypeGeoKey - 32700));
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 26703 && 
 																		projectedCSTypeGeoKey <= 26722)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_NAD27RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kUTM_NAD27RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																				kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD27Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
 																				kClarke1866EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 26700);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 26700);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																				kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if (projectedCSTypeGeoKey > 26903 && 
 																		projectedCSTypeGeoKey <= 26923)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_NAD83RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kUTM_NAD83RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																				kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
 																				kGRS80EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 26900);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 26900);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																				kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if ((projectedCSTypeGeoKey >= 26729 && 
-																		projectedCSTypeGeoKey <= 26798) ||
+																	projectedCSTypeGeoKey <= 26798) ||
 										(projectedCSTypeGeoKey >= 32001 && 
-																		projectedCSTypeGeoKey <= 32058))
+																	projectedCSTypeGeoKey <= 32058))
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD27RSCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD27RSCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD27Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
 																				kClarke1866EllipsoidCode;
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kUSSurveyFeetCode;
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																				kUSSurveyFeetCode;
 								
 								switch (projectedCSTypeGeoKey)
 									{
@@ -1262,15 +1290,17 @@ SInt16 GetGeoKeyParameters (
 								}	// end "if (projectedCSTypeGeoKey > 32600 && ..."
 								
 							else if ((projectedCSTypeGeoKey >= 26929 && 
-																		projectedCSTypeGeoKey <= 26998) ||
+																	projectedCSTypeGeoKey <= 26998) ||
 										(projectedCSTypeGeoKey >= 32100 && 
-																		projectedCSTypeGeoKey <= 32158))
+																	projectedCSTypeGeoKey <= 32158))
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kStatePlaneNAD83RSCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kNAD83Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kGRS80EllipsoidCode;
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+																					kGRS80EllipsoidCode;
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kMetersCode;
 								
 								switch (projectedCSTypeGeoKey)
 									{
@@ -1293,48 +1323,60 @@ SInt16 GetGeoKeyParameters (
 							else if (projectedCSTypeGeoKey >= 28348 && 
 																		projectedCSTypeGeoKey <= 28358)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGDA94RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
-								mapProjectionInfoPtr->geodetic.datumCode = kGeocentricDatumAustralia1994Code;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																	kGDA94RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																	kTransverseMercatorCode;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																	kGeocentricDatumAustralia1994Code;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kGRS80EllipsoidCode;
+																	kGRS80EllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 28300);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 28300);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																	kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey >= 28348 && ..."
 								
 							else if (projectedCSTypeGeoKey >= 28402 && 
 																		projectedCSTypeGeoKey <= 28432)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGaussKrugerRSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
-								mapProjectionInfoPtr->geodetic.datumCode = kPulkovo1942DatumCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kGaussKrugerRSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																				kTransverseMercatorCode;
+								mapProjectionInfoPtr->geodetic.datumCode =
+																				kPulkovo1942DatumCode;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
 																				kKrassovskyEllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(projectedCSTypeGeoKey - 28400);
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+															(SInt16)(projectedCSTypeGeoKey - 28400);
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																				kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey >= 28402 && ..."
 								
 							else if (projectedCSTypeGeoKey >= 29177 && 
 																		projectedCSTypeGeoKey <= 29185)
 								{
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTM_SAD69RSCode;
-								mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																		kUTM_SAD69RSCode;
+								mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kTransverseMercatorCode;
 								mapProjectionInfoPtr->geodetic.datumCode = kSAD69DatumCode;
 								mapProjectionInfoPtr->geodetic.spheroidCode = 
-																				kGRS1967ModifiedEllipsoidCode;
+																		kGRS1967ModifiedEllipsoidCode;
 								mapProjectionInfoPtr->gridCoordinate.gridZone = 
-																	(SInt16)(-(projectedCSTypeGeoKey - 29160));
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+														(SInt16)(-(projectedCSTypeGeoKey - 29160));
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																		kMetersCode;
 								
 								}	// end "if (projectedCSTypeGeoKey >= 29177 && ..."
 								
 									// Save this geo key in case needed to write out to a new file.
 									
-							mapProjectionInfoPtr->projectedCSTypeGeoKey = projectedCSTypeGeoKey;
+							mapProjectionInfoPtr->projectedCSTypeGeoKey =
+																					projectedCSTypeGeoKey;
 							break;
 							
 						case 3073:	// PCSCitationGeoKey
@@ -1350,74 +1392,119 @@ SInt16 GetGeoKeyParameters (
 							switch (projectedCoordTransGeoKey)
 								{
 								case 1:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kTransverseMercatorCode;
 									break;
-								case 2:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kAlaskaConformalCode;
-									break;
-								case 3:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kSpaceObliqueMercatorCode;
-									break;
-								case 7:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kMercatorCode;
-									break;
-								case 8:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertConformalConicCode;
-									break;
-								case 10:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertAzimuthalEqualAreaCode;
-									break;
-								case 11:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kAlbersConicalEqualAreaCode;
-									break;
-								case 12:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kAzimuthalEquidistantCode;
-									break;
-								case 13:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kEquidistantConicCode;
-									break;
-								case 14:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kStereographicCode;
-									break;
-								case 15:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kPolarStereographicCode;
-									break;
-								case 17:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kEquirectangularCode;
-									break;
-								case 19:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kGnomonicCode;
-									break;
-								case 20:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kMillerCylindricalCode;
-									break;
-								case 21:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kOrthographicCode;
 									
-											// This projection is always based on a sphere spheroid.
-									mapProjectionInfoPtr->geodetic.spheroidCode = kSphereEllipsoidCode;
+								case 2:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kAlaskaConformalCode;
+									break;
+									
+								case 3:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kSpaceObliqueMercatorCode;
+									break;
+									
+								case 7:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kMercatorCode;
+									break;
+									
+								case 8:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kLambertConformalConicCode;
+									break;
+									
+								case 10:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kLambertAzimuthalEqualAreaCode;
+									break;
+									
+								case 11:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kAlbersConicalEqualAreaCode;
+									break;
+									
+								case 12:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kAzimuthalEquidistantCode;
+									break;
+									
+								case 13:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kEquidistantConicCode;
+									break;
+									
+								case 14:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kStereographicCode;
+									break;
+									
+								case 15:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kPolarStereographicCode;
+									break;
+									
+								case 17:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kEquirectangularCode;
+									break;
+									
+								case 19:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kGnomonicCode;
+									break;
+									
+								case 20:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kMillerCylindricalCode;
+									break;
+									
+								case 21:
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kOrthographicCode;
+									
+											// This projection is always based on a sphere
+											// spheroid.
+									mapProjectionInfoPtr->geodetic.spheroidCode =
+																					kSphereEllipsoidCode;
 									mapProjectionInfoPtr->geodetic.datumCode = kSphereDatumCode;
 									break;
+									
 								case 22:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kPolyconicCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kPolyconicCode;
 									break;
+									
 								case 23:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kRobinsonCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kRobinsonCode;
 									break;
+									
 								case 24:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kSinusoidalCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kSinusoidalCode;
 									break;
+									
 								case 25:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kVanderGrintenICode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kVanderGrintenICode;
 									break;
+									
 								case 26:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kNewZealandMapGridCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																					kNewZealandMapGridCode;
 									break;
+									
 								case 27:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransvMercatorSouthOrientedCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kTransvMercatorSouthOrientedCode;
 									break;
+									
 								case 28:
-									mapProjectionInfoPtr->gridCoordinate.projectionCode = kCylindricalEqualAreaCode;
+									mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																				kCylindricalEqualAreaCode;
 									break;
 								
 								}	// end "switch (geoKeyRecordPtr[3])"
@@ -1427,15 +1514,18 @@ SInt16 GetGeoKeyParameters (
 							switch (geoKeyRecordPtr[3])
 								{
 								case 9001:
-									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
+									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																							kMetersCode;
 									break;
 									
 								case 9002:
-									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kFeetCode;
+									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																							kFeetCode;
 									break;
 									
 								case 9003:
-									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kUSSurveyFeetCode;
+									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																							kUSSurveyFeetCode;
 									break;
 								
 								}	// end "switch (geoKeyRecordPtr[3])"
@@ -1444,97 +1534,97 @@ SInt16 GetGeoKeyParameters (
 						case 3078:		// ProjStdParallel1GeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.standardParallel1 =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3079:		// ProjStdParallel2GeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.standardParallel2 =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3080:		// ProjNatOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3081:		// ProjNatOriginLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.latitudeOrigin =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3082:		// ProjFalseEastingGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseEasting =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3083:		// ProjFalseNorthingGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseNorthing =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3084:		// ProjFalseOriginLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginLongitude =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3085:		// ProjFalseOriginLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginLatitude =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3086:		// ProjFalseEastingLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginEasting =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3087:		// ProjFalseNorthingLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.falseOriginNorthing =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3088:		// ProjCenterLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3089:		// ProjCenterLatGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.latitudeOrigin =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3092:		// ProjScaleAtNatOriginGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3093:		// ProjScaleAtCenterGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.scaleFactorOfCentralMeridian =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3094:		// ProjAzimuthAngleGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.projAzimuthAngle =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 								
 						case 3095:		// ProjStraightVertPoleLongGeoKey
 							if (geoDoubleParamsPtr->tag == geoKeyRecordPtr[1])
 								mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian =
-																	geoDoubleParameters[geoKeyRecordPtr[3]];
+															geoDoubleParameters[geoKeyRecordPtr[3]];
 							break;
 						
 						}	// end "switch (geoKeyRecordPtr[0])"
@@ -1550,11 +1640,12 @@ SInt16 GetGeoKeyParameters (
 												kErrorMessages);
 			
 			if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode &&
-						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode >= kGaussKrugerRSCode)
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode >=
+																						kGaussKrugerRSCode)
 				mapProjectionInfoPtr->gridCoordinate.projectionCode = 
-									GetProjectionCodeFromReferenceSystemCode (
-													mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
-													mapProjectionInfoPtr->gridCoordinate.gridZone);
+							GetProjectionCodeFromReferenceSystemCode (
+										mapProjectionInfoPtr->gridCoordinate.referenceSystemCode,
+										mapProjectionInfoPtr->gridCoordinate.gridZone);
 												
 			CheckAndUnlockHandle (mapProjectionHandle);
 												
@@ -1570,7 +1661,7 @@ SInt16 GetGeoKeyParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1697,7 +1788,7 @@ Boolean GetSpecifiedTIFFKeyDirectory (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1760,7 +1851,7 @@ Boolean GetSwapBytesFlagForTiffFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1857,7 +1948,7 @@ SInt16 GetTiffEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -1933,7 +2024,7 @@ SInt16 GetTIFFASCIIParameters (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2016,7 +2107,7 @@ SInt16 GetTIFFDoubleParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2027,8 +2118,8 @@ SInt16 GetTIFFDoubleParameters (
 //
 //	Parameters in:		None
 //
-//	Parameters out:	Text for the TIFF Image Description tag (270). No text is returned
-//							if there is no 270 tag.
+//	Parameters out:	Text for the TIFF Image Description tag (270). No text is
+//							returned if there is no 270 tag.
 //
 //	Value Returned:	None				
 // 
@@ -2066,7 +2157,7 @@ void GetTIFFImageDescription (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2113,7 +2204,7 @@ UInt32 GetTIFFNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2211,8 +2302,8 @@ Boolean ListGeoTiffTextDescriptionParameters (
 					geoTagInformation[index] = 
 									(UInt16)GetShortIntValue ((char*)&geoTagInformation[index]);
 			
-					// The first geo key record is the version and number of geo keys.
-					// We will skip it.
+						// The first geo key record is the version and number of geo keys.
+						// We will skip it.
 					
 				if (recordIndex == 0)
 					geoKeyRecordPtr[0] = 0;
@@ -2318,7 +2409,7 @@ Boolean ListGeoTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2521,7 +2612,7 @@ Boolean ListTiffTextDescriptionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2616,8 +2707,8 @@ SInt16 LoadHierarchalFileStructure (
 		
 		if (fileInfoPtr->gdalDataSetH != NULL)
 			{
-					// The GDAL interface routines will force the data to be continuous if not
-					// already.
+					// The GDAL interface routines will force the data to be continuous
+					// if not already.
 					
 			fileInfoPtr->nonContiguousStripsFlag = FALSE;
 			minimumBlockStart = 0;
@@ -2672,7 +2763,7 @@ SInt16 LoadHierarchalFileStructure (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -2684,7 +2775,8 @@ SInt16 LoadHierarchalFileStructure (
 //								= -1: The number of bits for each TIFF channel was not the same
 //								= -2: TIFF images is in a compressed format.
 //								= -3: MultiSpec cannot open this type of TIFF file.
-//								= -4:	(Used to be error for TIFF images with discontiguous strips. Not used now)
+//								= -4:	(Used to be error for TIFF images with discontiguous
+//											strips. Not used now)
 //								= -5: The number of colors in the TIFF color table was not 256
 //								= -6: MultiSpec cannot handle 1-bit TIFF images.
 //								= -7: MultiSpec cannot handle tiled TIFF images.
@@ -2793,7 +2885,8 @@ SInt16 ReadTIFFHeader (
 			charKeyCode[1] = 0x49;
 			charKeyCode[2] = 0x2a;
 			charKeyCode[3] = 0x00;             
-			stringCompare = (SInt16)strncmp ((char*)headerRecordPtr, (CharPtr)charKeyCode, 4);
+			stringCompare = (SInt16)strncmp (
+												(char*)headerRecordPtr, (CharPtr)charKeyCode, 4);
 										
 			if (stringCompare == 0)
 				{
@@ -2831,7 +2924,7 @@ SInt16 ReadTIFFHeader (
 			else if (formatOnlyCode == kThematicFiles)
 				fileInfoPtr->thematicType = TRUE;
 				
-																			return (noErr);
+																						return (noErr);
 																								
 			}	// end "if (formatOnlyCode != kLoadHeader)"
 			
@@ -3166,7 +3259,7 @@ SInt16 ReadTIFFHeader (
 									
 									}	// end "if (index == 1)"
 									
-								else // index > 2
+								else	// index > 2
 									{
 									tileOffsetVector += tileByteCount;
 									if (tileOffsetVector != tempOffset)
@@ -3302,8 +3395,9 @@ SInt16 ReadTIFFHeader (
 							
 						case 33922:	// Geo Tie Points
 
-									// Note that tie points need to be reloaded. The upper-left point
-									// may be adjusted to represent the center of the pixel later.
+									// Note that tie points need to be reloaded. The upper-left
+									// point may be adjusted to represent the center of the
+									// pixel later.
 									// Do not want this done twice.
 							errCode = SetGeoTiePointsFromGeoTIFF (fileInfoPtr,
 																				&imageFileDirectory,
@@ -3312,13 +3406,14 @@ SInt16 ReadTIFFHeader (
 							
 						case 34264:	// Model Transformation
 
-									// Note that model transformation parameters need to be reloaded. The 
-									// upper-left point may be adjusted to represent the center of the 
-									// pixel later. Do not want this adjustment done twice.
+									// Note that model transformation parameters need to be
+									// reloaded. The upper-left point may be adjusted to
+									// represent the center of the pixel later. Do not want
+									// this adjustment done twice.
 
 							errCode = SetModelTransformationParametersFromGeoTIFF (
-																				fileInfoPtr,
-																				&imageFileDirectory);
+																					fileInfoPtr,
+																					&imageFileDirectory);
 							modelTransformationTag = TRUE;
 							break;
 							
@@ -3383,7 +3478,7 @@ SInt16 ReadTIFFHeader (
 						fileInfoPtr->numberClasses = 0;
 						fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, 16);
 						
-						}	// end "if (fileInfoPtr->thematicType && fileInfoPtr->numberBytes == 2)"
+						}	// end "if (fileInfoPtr->thematicType && ..."
 					
 					}	// end "if (returnCode == 0 && ..." 
 					
@@ -3614,7 +3709,7 @@ SInt16 ReadTIFFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3658,17 +3753,19 @@ void SetProjectionInformationFromString (
 	
 	if (mapProjectionInfoPtr != NULL && inputStringPtr != NULL)
 		{
-		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode <= kUserDefinedRSCode)
+		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode <=
+																						kUserDefinedRSCode)
 			{	
 			if (strstr (inputStringPtr, "UTM") != NULL || 
 							strstr (inputStringPtr, "Universal Transverse Mercator") != NULL)
 				{
-						// Note than an attempt to reset the following to a specific UTM reference
-						// system will be done later.
+						// Note than an attempt to reset the following to a specific UTM
+						// reference system will be done later.
 						
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kUTMRSCode;
 				
-				mapProjectionInfoPtr->gridCoordinate.projectionCode = kTransverseMercatorCode;
+				mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																				kTransverseMercatorCode;
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 				
 						// Get the zone. Can be labeled as Zone or Zone Number
@@ -3677,7 +3774,8 @@ void SetProjectionInformationFromString (
 				
 				stringPtr = (UCharPtr)strstr ((char*)inputStringPtr, "Zone Number");
 				if (stringPtr != NULL)
-					returnCode = (SInt16)sscanf ((char*)inputStringPtr, "Zone Number %s", zone);
+					returnCode = (SInt16)sscanf (
+												(char*)inputStringPtr, "Zone Number %s", zone);
 				
 				else if (stringPtr == NULL)
 					{
@@ -3735,9 +3833,11 @@ void SetProjectionInformationFromString (
 							
 							if (direction == ' ')
 								{
-										// Determine North/South from the upper left column origin.
+										// Determine North/South from the upper left column
+										// origin.
 										
-								if (mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 <= 0)
+								if (mapProjectionInfoPtr->planarCoordinate.
+																					yMapCoordinate11 <= 0)
 									direction = 'S';
 									
 								else	// ...->planarCoordinate.yMapCoordinate11 > 0
@@ -3764,10 +3864,12 @@ void SetProjectionInformationFromString (
 									strstr (inputStringPtr, "Indiana West") != NULL)
 				{
 				if (mapProjectionInfoPtr->geodetic.datumCode == kNAD27Code)
-					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD27RSCode;
+					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD27RSCode;
 					
 				else if (mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
-					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
+					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD83RSCode;
 					
 				else	// Set state plane type after trying to read the datum
 					setStatePlaneTypeFlag = TRUE;
@@ -3801,7 +3903,8 @@ void SetProjectionInformationFromString (
 			{
 			if (strstr (inputStringPtr, "LCC") != NULL)
 				{
-				mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertConformalConicCode;
+				mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																			kLambertConformalConicCode;
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 				
 				}	// else if (strstr (inputStringPtr, "LCC") != NULL)
@@ -3809,17 +3912,21 @@ void SetProjectionInformationFromString (
 			else if (strstr (inputStringPtr, "LON/LAT") != NULL)
 				{
 				if (strstr (inputStringPtr, "Degrees") != NULL)
-					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kDecimalDegreesCode;
 				
 				}	// else if (strstr (string, "LON/LAT") != NULL)
 				
 			else if (strstr (inputStringPtr, "Geographic") != NULL)
 				{
 				if (mapProjectionInfoPtr->gridCoordinate.projectionCode == kNotDefinedCode)
-					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kGeographicRSCode;
+					mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kGeographicRSCode;
 				
-				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kGeographicRSCode)
-					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kDecimalDegreesCode;
+				if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																						kGeographicRSCode)
+					mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																					kDecimalDegreesCode;
 				
 				}	// else if (strstr (inputStringPtr, "Geographic") != NULL)
 				
@@ -3835,7 +3942,8 @@ void SetProjectionInformationFromString (
 				
 			else if (strstr (inputStringPtr, "LAMBERT_AZ") != NULL)
 				{
-				mapProjectionInfoPtr->gridCoordinate.projectionCode = kLambertAzimuthalEqualAreaCode;
+				mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																		kLambertAzimuthalEqualAreaCode;
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = kMetersCode;
 				mapProjectionInfoPtr->geodetic.spheroidCode = kSphereEllipsoidCode;
 				
@@ -3912,21 +4020,26 @@ void SetProjectionInformationFromString (
 		if (setStatePlaneTypeFlag)
 			{
 			if (mapProjectionInfoPtr->geodetic.datumCode == kNAD27Code)
-				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD27RSCode;
+				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD27RSCode;
 				
-			else // default to NAD83 Set
-				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
+			else	// default to NAD83 Set
+				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD83RSCode;
 				
 			}	// end "if (setStatePlaneTypeFlag)"
 			
-		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD27RSCode &&
-											mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
-			mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kStatePlaneNAD83RSCode;
+		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																				kStatePlaneNAD27RSCode &&
+										mapProjectionInfoPtr->geodetic.datumCode == kNAD83Code)
+			mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD83RSCode;
 			
 				// This is for a special case relative to the 2011-2013 Indiana Ortho Data 
 				// to try to get the EPSG value if everything makes sense.
 				
-		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == kStatePlaneNAD83RSCode &&
+		if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																				kStatePlaneNAD83RSCode &&
 				mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == kUSSurveyFeetCode)
 			{
 			if (mapProjectionInfoPtr->gridCoordinate.gridZone == 1301)
@@ -3938,7 +4051,7 @@ void SetProjectionInformationFromString (
 			if (mapProjectionInfoPtr->projectedCSTypeGeoKey != 0)
 				mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = kByEPSGCodeCode;
 			
-			}	// end "if (...->gridCoordinate.referenceSystemCode == kStatePlaneNAD83RSCode && ..."
+			}	// end "if (...->gridCoordinate.referenceSystemCode == ..."
 			
 		}	// end "if (mapProjectionInfoPtr != NULL && inputStringPtr != NULL)"
 	
@@ -3947,7 +4060,7 @@ void SetProjectionInformationFromString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -3988,7 +4101,7 @@ void SetProjectionInformationFromString2 (
 
 #if use_multispec_tiffcode
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4061,7 +4174,7 @@ SInt16 SetGeoProjectionFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4134,7 +4247,7 @@ void SetGeoTiePointsForRasterPixelType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4205,8 +4318,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 		if (geoTiePointsPtr != NULL)
 			{ 								
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-												GetHandlePointer (mapProjectionHandle,
-																			kLock);
+												GetHandlePointer (mapProjectionHandle, kLock);
 		
 					// The following lines are currently for loading control points into
 					// the Corona data.
@@ -4224,11 +4336,10 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 			
 			fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 			
-			errCode = GetTIFFDoubleParameters (
-									fileStreamPtr, 
-									imageFileDirectoryPtr, 
-									geoTiePointsPtr, 
-									imageFileDirectoryPtr->count);
+			errCode = GetTIFFDoubleParameters (fileStreamPtr,
+															imageFileDirectoryPtr,
+															geoTiePointsPtr,
+															imageFileDirectoryPtr->count);
 									
 			if (errCode == noErr)
 				{	
@@ -4296,17 +4407,19 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 						
 					}	// end "if (loadControlPointsFlag)"
 				                                 
-				mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = geoTiePointsPtr[3];
-				mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = geoTiePointsPtr[4]; 
+				mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 =
+																						geoTiePointsPtr[3];
+				mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 =
+																						geoTiePointsPtr[4];
                                                                       
 				mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = 
-																							geoTiePointsPtr[3];
+																						geoTiePointsPtr[3];
 				mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
-																							geoTiePointsPtr[4];
+																						geoTiePointsPtr[4];
 				
-						// If there are 3 or more control points, save them in case they will
-						// be need to create a polynomial model to relate line/column to 
-						//	map location.
+						// If there are 3 or more control points, save them in case they
+						// will be need to create a polynomial model to relate line/column
+						// to  map location.
 						
 				numberControlPoints = count/6;
 				if (numberControlPoints >= 3)
@@ -4314,27 +4427,31 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 							// Get memory for the control points.
 							
 					fileInfoPtr->controlPointsHandle = MNewHandle (sizeof (ControlPoints) + 
-									numberControlPoints * (4*sizeof (double) + sizeof (SInt16)));
+								numberControlPoints * (4*sizeof (double) + sizeof (SInt16)));
 									
 					controlPointsPtr = (ControlPointsPtr)GetHandlePointer (
-																		fileInfoPtr->controlPointsHandle);
+																	fileInfoPtr->controlPointsHandle);
 					if (controlPointsPtr != NULL)
 						controlPointsPtr->count = numberControlPoints;
 									
 					controlPointsPtr = GetControlPointVectorPointers (
-																		fileInfoPtr->controlPointsHandle,
-																		kLock);
+																	fileInfoPtr->controlPointsHandle,
+																	kLock);
 																		
 					if (controlPointsPtr != NULL)
 						{			
 						geoIndex = 0;
 						for (index=0; index<numberControlPoints; index++)
 							{
-							controlPointsPtr->easting1Ptr[index] = geoTiePointsPtr[geoIndex];
-							controlPointsPtr->northing1Ptr[index] = geoTiePointsPtr[geoIndex+1];
+							controlPointsPtr->easting1Ptr[index] =
+																			geoTiePointsPtr[geoIndex];
+							controlPointsPtr->northing1Ptr[index] =
+																			geoTiePointsPtr[geoIndex+1];
 							
-							controlPointsPtr->easting2Ptr[index] = geoTiePointsPtr[geoIndex+3];
-							controlPointsPtr->northing2Ptr[index] = geoTiePointsPtr[geoIndex+4];
+							controlPointsPtr->easting2Ptr[index] =
+																			geoTiePointsPtr[geoIndex+3];
+							controlPointsPtr->northing2Ptr[index] =
+																			geoTiePointsPtr[geoIndex+4];
 							
 							controlPointsPtr->statusPtr[index] = 1;
 							
@@ -4367,7 +4484,7 @@ SInt16 SetGeoTiePointsFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4407,7 +4524,8 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 	SInt16								errCode = noErr;
 	
 	
-	if (imageFileDirectoryPtr->count >= 16 && imageFileDirectoryPtr->type == kTIFFDouble)
+	if (imageFileDirectoryPtr->count >= 16 &&
+													imageFileDirectoryPtr->type == kTIFFDouble)
 		{
 				// At least 2 parameters and double format is expected.
 										
@@ -4431,23 +4549,26 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 									
 					// Get the orientation angle
 					
-			orientationAngle = atan2(-modelTransformation[1],modelTransformation[0]);
+			orientationAngle = atan2 (-modelTransformation[1],modelTransformation[0]);
 	                                                                         
 			mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-														modelTransformation[0]/cos (orientationAngle);
+													modelTransformation[0]/cos (orientationAngle);
 				
 			mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-														-modelTransformation[5]/cos (orientationAngle);
+													-modelTransformation[5]/cos (orientationAngle);
 														
-			mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = orientationAngle;
+			mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle =
+																							orientationAngle;
 	                                                                         
-			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = modelTransformation[3];
-			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = modelTransformation[7]; 
+			mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 =
+																					modelTransformation[3];
+			mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 =
+																					modelTransformation[7];
                                                                       
 			mapProjectionInfoPtr->planarCoordinate.xMapOrientationOrigin = 
-																						modelTransformation[3];
+																					modelTransformation[3];
 			mapProjectionInfoPtr->planarCoordinate.yMapOrientationOrigin = 
-																						modelTransformation[7];
+																					modelTransformation[7];
 	
 			CheckAndUnlockHandle (mapProjectionHandle); 
 			
@@ -4462,7 +4583,7 @@ SInt16 SetModelTransformationParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4540,7 +4661,7 @@ SInt16 SetPixelScaleParametersFromGeoTIFF (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -4579,21 +4700,20 @@ void UpdateUpperLeftMapValues (
 					controlPointsPtr->northing1Ptr[0] != 1)
 			{
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)
-												GetHandlePointer (fileInfoPtr->mapProjectionHandle,
-																			kLock);
+								GetHandlePointer (fileInfoPtr->mapProjectionHandle, kLock);
 																			
 			if (mapProjectionInfoPtr != NULL)
 				{ 		
 				GetCoefficientsVectorPointers (mapProjectionInfoPtr);
 				
 				TransformCoordinatePoint (
-								1,
-								1,
-								&mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11,
-								&mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11,
-								mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
-								mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
-								mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
+							1,
+							1,
+							&mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11,
+							&mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11,
+							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr,
+							mapProjectionInfoPtr->planarCoordinate.northing1CoefficientsPtr,
+							mapProjectionInfoPtr->planarCoordinate.polynomialOrder);
 								
 				CloseCoefficientsVectorPointers (mapProjectionInfoPtr);
 				

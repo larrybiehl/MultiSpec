@@ -3,7 +3,7 @@
 //					Laboratory for Applications of Remote Sensing
 //									Purdue University
 //								West Lafayette, IN 47907
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -20,29 +20,14 @@
 //
 //	Brief description:	
 //
-//	Functions in file:	void 						free_epix
-//								double 					log_lik_ratio
-//								short int 				malloc_epix
-//								int 						read_lines_of_data1
-//								short int 				setup_basic_echo_information
-//								void 						setup_echo_image_selection
-//								void 						stuffing
-//								unsigned	short int 	subtract_log_lik
-//								void						symtrix
-//								void						threshold
-//								double 					translate_threshold
-//
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
 
-#if defined multispec_lin
-	#include "SMultiSpec.h"
-#endif	// defined multispec_lin
+#if defined multispec_wx
+#endif	// defined multispec_wx
 
 #if defined multispec_win
-	#include "SMultiSpec.h" 
-	//#include "SExternalGlobals.h"
 #endif	// defined multispec_win
 
 #include	"SEcho.h"
@@ -56,7 +41,7 @@ double translate_threshold (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -70,7 +55,7 @@ double translate_threshold (
 //
 // Value Returned:	None
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 //	Revised By:			Larry L. Biehl			Date: 08/15/2010
@@ -122,7 +107,7 @@ void free_epix (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -136,7 +121,7 @@ void free_epix (
 //
 // Value Returned:	none
 //
-// Called By:			phase1 in SEPhase.cpp
+// Called By:			phase1 in SClassifyEchoPhase.cpp
 //
 //	Coded By:			Byeungwoo Jeon		Date: 01/01/1989
 // Revised By:			Byeungwoo Jeon		Date: 09/28/1991
@@ -237,7 +222,7 @@ double log_lik_ratio (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -256,7 +241,7 @@ double log_lik_ratio (
 //
 // Value Returned:	Flag indicating whether to continue or not.
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 // Revised By:			Byeungwoo Jeon			Date: 04/13/1992
@@ -418,7 +403,7 @@ Boolean malloc_epix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -469,7 +454,7 @@ SInt16 read_lines_of_data1 (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -484,7 +469,7 @@ SInt16 read_lines_of_data1 (
 //
 // Value Returned:	error_code
 //
-// Called By:			EchoClsfierControl () 	in SEClssfy.cpp
+// Called By:			EchoClsfierControl () in SClassifyEchoControl.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 // Revised By:			Byeungwoo Jeon			Date: 02/10/2000
@@ -600,7 +585,7 @@ SInt16 setup_basic_echo_information (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -615,7 +600,7 @@ SInt16 setup_basic_echo_information (
 //
 // Value Returned:	none
 //
-// Called By:			EchoClassifier in SEchoSpec.cpp
+// Called By:			EchoClassifier in SClassifyEcho.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 // Revised By:			Byeungwoo Jeon			Date: 03/12/2018
@@ -677,7 +662,7 @@ void setup_echo_image_selection (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -691,13 +676,13 @@ void setup_echo_image_selection (
 //
 // Value Returned:	none
 //
-// Called By:			phase1 in SEPhase.cpp
+// Called By:			phase1 in SClassifyEchoPhase.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1989
 // Revised By:			Byeungwoo Jeon			Date: 09/28/1991
 
 void stuffing (
-				HSInt32Ptr							epix_ptr, 
+				HSInt32Ptr							epix_ptr,
 				SInt32								value, 
 				UInt16								cell_length, 
 				UInt16								cell_width, 
@@ -725,7 +710,7 @@ void stuffing (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1989-2018)
+//								 	Copyright (1989-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -740,7 +725,7 @@ void stuffing (
 //
 // Value Returned:	
 //
-// Called By:			phase1 in SEPhase.cpp
+// Called By:			phase1 in SClassifyEchoPhase.cpp
 //
 // Coded By:			Larry Biehl			Date: 05/08/1992
 // Revised by:			Larry Biehl			Date: 05/02/1996
@@ -785,7 +770,7 @@ UInt16 subtract_log_lik (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -804,8 +789,8 @@ UInt16 subtract_log_lik (
 //
 // Value Returned:	None
 // 
-// Called By:			classify_cell_using_ML in phase1.c
-//							loglik_pix in mxlik.c
+// Called By:			SetupClsfierStats in SClassifyEchoControl.cpp
+//							classify_pixel_using_ML in SClassifyEchoPhase.cpp
 //
 //	Coded By:			Byeungwoo Jeon			Date: 01/01/1988
 //	Revised By:			Larry L. Biehl			Date: 05/07/1996
@@ -859,7 +844,7 @@ void symtrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -902,8 +887,6 @@ void threshold (
   	SInt32								classIndex;
    
    
-	//thd_standard = inv_chi_square(degree_of_freedom, significance_level);
-   
    chiSquaredValue = GetChiSquaredValue (degree_of_freedom, significance_level);
    
 	d_ptr = thresholds;
@@ -934,7 +917,7 @@ void threshold (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2018)
+//								 Copyright (1988-2020)
 //								(c) Purdue Research Foundation
 //									All rights reserved.
 //
@@ -952,7 +935,7 @@ void threshold (
 //
 // Value Returned:	None
 // 
-// Called By:			make_threshold_table in call_imsl.c
+// Called By:			threshold
 //
 //	Coded By:			Byeungwoo Jeon			Date: ??/??/19??
 //	Revised By:			Byeungwoo Jeon			Date: 11/01/1991
