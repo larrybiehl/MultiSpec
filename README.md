@@ -1,1 +1,1 @@
-# multispec
+# MultiSpec
