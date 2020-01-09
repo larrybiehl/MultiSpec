@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 12/20/2019
+# Revised by Larry Biehl on 01/09/2020
 
 #include "resource.h"
 
@@ -113,12 +113,12 @@ Transformation matrix was saved as: '%s'."
 #276            "Select Thematic Class Info File"
 #277            "Select Image File With Thematic Group Info"
 #278       "CCSD3ZF00001"
-#279            "RECORD_BYTES="
-#280            "LABEL_RECORDS="
-#281            "LINE_SAMPLES="
-#282            "LINES="
-#283            "BANDS="
-#284            "SAMPLE_BITS="
+#279            "RECORD_BYTES"
+#280            "LABEL_RECORDS"
+#281            "LINE_SAMPLES"
+#282            "LINES"
+#283            "BANDS"
+#284            "SAMPLE_BITS"
 #285            "SAMPLE_TYPE=BYTE"
 #286            "SAMPLE_TYPE=INTEGER"
 #287            "BAND_STORAGE_ORDER=LINE INTERLEAVED"
@@ -1894,7 +1894,7 @@ Transformation matrix was loaded from '%s'.
 #8029           "Channel number for Blue"
 #8030           "Request that currently loaded vector sets be overlaid onto the resulting image window"
 #8031           "Give the channel descriptions if this information is available in the image file"
-#8032           "Set the magnification to use to display the image (0.01 ~ 99)"
+#8032           "Set the magnification to use to display the image (0.01 to 99)"
 #8033           "Number of bits used to display colors in the color image"
 #8034           "Control the fashion by which gray scale intervals are assigned (the latter two stretches may provide better contrast)"
 #8035           "Select the beginning and end points of the image histogram to be used for enhancement"
