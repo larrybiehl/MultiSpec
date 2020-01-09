@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/12/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C
 //
@@ -158,6 +158,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 HUInt16Ptr CreateClassToGroupTable (
 				FileInfoPtr							inFileInfoPtr,
 				FileInfoPtr							outFileInfoPtr,
+				UInt16								imageType,
 				HUInt16Ptr							symbolToOutputBinPtr,
 				HUInt16Ptr							newPaletteIndexPtr);
 
@@ -595,11 +596,11 @@ Boolean ChangeFormatToBILorBISorBSQ (
 										&maxBin);
 
 				symbolToOutputBinPtr = CreateDataValueToClassTable (
-															fileInfoPtr,
-															outFileInfoPtr,
-															symbolToOutputBinPtr,
-															newPaletteIndexPtr);
-															
+																			fileInfoPtr,
+																			outFileInfoPtr,
+																			symbolToOutputBinPtr,
+																			newPaletteIndexPtr);
+					
 				}	// end "if (histogramSummaryPtr != NULL && ..."
 														
 			callConvertDataValueToBinValueFlag = TRUE;
@@ -623,6 +624,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		if (thematicListType > kClassDisplay)
 			symbolToOutputBinPtr = CreateClassToGroupTable (fileInfoPtr,
 																			outFileInfoPtr,
+																			gImageWindowInfoPtr->imageType,
 																			symbolToOutputBinPtr,
 																			newPaletteIndexPtr);
 		
@@ -1613,22 +1615,21 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		if (outFileInfoPtr->format != kErdas74Type)
 			supportFileType = kICLRFileType;
 			
-		continueFlag = CreateThematicSupportFile (
-										outFileInfoPtr,
-										NULL, 
-										(UInt16)outFileInfoPtr->numberClasses, 
-										NULL,
-										0,
-										NULL, 
-										GetPaletteHandle (),
-										newPaletteIndexPtr, 
-										GetPaletteType (),
-										(UInt16)fileInfoPtr->numberClasses,
-										kFromDescriptionCode, 
-										kPaletteHistogramClassNames,
-										kClassDisplay,
-										kCollapseClass,
-										supportFileType);
+		continueFlag = CreateThematicSupportFile (outFileInfoPtr,
+																NULL,
+																(UInt16)outFileInfoPtr->numberClasses,
+																NULL,
+																0,
+																NULL,
+																GetPaletteHandle (),
+																newPaletteIndexPtr,
+																GetPaletteType (),
+																(UInt16)fileInfoPtr->numberClasses,
+																kFromDescriptionCode,
+																kPaletteHistogramClassNames,
+																kClassDisplay,
+																kCollapseClass,
+																supportFileType);
 										
 		}	// end "if (continueFlag && outFileInfoPtr->thematicType)" 
 		
@@ -5588,7 +5589,7 @@ void ConvertDataValueToBinValue (
 			
 		}	// end "for (j=0; j<numberSamples; j++)" 
 		
-}	// end "ConvertDataValueToBinValue" 
+}	// end "ConvertDataValueToBinValue"
 
 
 
@@ -5681,7 +5682,337 @@ void ConvertSymbolsToBinary (
 			
 		}	// end "else !callConvertDataValueToBinValueFlag"
 			
-}	// end "ConvertSymbolsToBinary" 
+}	// end "ConvertSymbolsToBinary"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							  (c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:				HUInt16Ptr CreateClassToGroupTable
+//
+//	Software purpose:			This routine creates a table to be used to convert the
+//									class value to the requested group value.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 04/23/2004
+//	Revised By:			Larry L. Biehl			Date: 01/09/2020
+
+HUInt16Ptr CreateClassToGroupTable (
+				FileInfoPtr							inFileInfoPtr,
+				FileInfoPtr							outFileInfoPtr,
+				UInt16								imageType,
+				HUInt16Ptr							symbolToOutputBinPtr,
+				HUInt16Ptr							newPaletteIndexPtr)
+
+{
+	HUCharPtr							inClassNamePtr;
+	
+	HUInt16Ptr							classToGroupPtr,
+											groupToPalettePtr,
+											inClassSymbolPtr,
+											outClassSymbolPtr;
+	
+	Str31									*groupNamePtr,
+											*outClassNamePtr;
+	
+	Handle								outDescriptionHandle;
+	
+	UInt32								index,
+											numberBins;
+	
+	UInt16								classNumber,
+											classOffset,
+											groupNumber;
+	
+	Boolean								asciiSymbolConversionFlag,
+											continueFlag;
+	
+	
+	continueFlag = TRUE;
+	outDescriptionHandle = NULL;
+	
+	asciiSymbolConversionFlag = FALSE;
+	if (symbolToOutputBinPtr != NULL)
+		asciiSymbolConversionFlag = TRUE;
+	
+				// Get vector to store the symbol to binary table in.
+	
+	if (symbolToOutputBinPtr == NULL)
+		symbolToOutputBinPtr = GetSymbolToBinaryVector (outFileInfoPtr);
+	
+	if (symbolToOutputBinPtr == NULL)
+		continueFlag = FALSE;
+	
+	if (continueFlag)
+		{
+		if (outFileInfoPtr->classDescriptionH == NULL ||
+					outFileInfoPtr->classDescriptionH == inFileInfoPtr->classDescriptionH)
+			
+					// Get handle to store class description information in. The current
+					// description handle in the outFileInfoPtr structure is the same
+					// one as is used for the input MFileInfo structure.  A new one needs
+					// to be created for the output file because the order and number
+					// of the classes could be different.
+			
+			outDescriptionHandle = MNewHandle (
+											(SInt32)(outFileInfoPtr->numberClasses + 1) *
+																(sizeof (Str31) + sizeof (UInt16)));
+		
+		else	// outFileInfoPtr->classDescriptionH != NULL && ...
+			outDescriptionHandle = outFileInfoPtr->classDescriptionH;
+		
+		if (outDescriptionHandle == NULL)
+			continueFlag = FALSE;
+		
+		}	// end "if (continueFlag)"
+	
+	if (continueFlag)
+		{
+				// Get copy of group tables handle for output file so that the correct
+				// palette can be generated. This is used by the TIFF/GeoTIFF format
+				// generator.
+		
+		outFileInfoPtr->groupTablesHandle = inFileInfoPtr->groupTablesHandle;
+		if (HandToHand (&outFileInfoPtr->groupTablesHandle) != noErr)
+			continueFlag = FALSE;
+		
+		}	// end "if (continueFlag)"
+	
+   groupNamePtr = NULL;
+   if (continueFlag)
+		groupNamePtr = (Str31*)GetHandlePointer (inFileInfoPtr->groupNameHandle,
+																kLock);
+	
+	if (groupNamePtr == NULL)
+		continueFlag = FALSE;
+	
+	if (continueFlag)
+		{
+		outClassNamePtr = (Str31*)GetHandlePointer (outDescriptionHandle, kLock);
+		
+				// Get pointer to class to group vector.
+		
+		classToGroupPtr = (UInt16*)GetClassToGroupPointer (inFileInfoPtr);
+		
+				// Set up vector for the class values.
+		
+		if (asciiSymbolConversionFlag)
+			{
+					// Get pointer to class symbol table.
+			
+			inClassNamePtr = (HUCharPtr)GetHandlePointer (
+																	inFileInfoPtr->classDescriptionH,
+																	kLock);
+			
+			inClassSymbolPtr = (HUInt16Ptr)&inClassNamePtr[
+													inFileInfoPtr->numberClasses*sizeof (Str31)];
+			
+			classOffset = 0;
+			if (inClassSymbolPtr[0] != ' ' && inClassSymbolPtr[0] != 0)
+					// This indicates that the background class was added for the
+					// output file class/group vectors. Allow for this in when
+					// indexing into the input file class to group vector.
+				classOffset = 1;
+			
+			if (imageType == kMultispectralImageType)
+				{
+						// For multispectral image files being displayed as thematic images
+						// use the number of bins being used for the display.
+				
+				numberBins = gToDisplayLevels.bytesOffset;
+				numberBins = MIN (inFileInfoPtr->numberBins, numberBins);
+			
+				for (index=0; index<numberBins; index++)
+					{
+					classNumber = symbolToOutputBinPtr[index];
+					groupNumber = classToGroupPtr[classNumber-classOffset];
+					symbolToOutputBinPtr[index] = groupNumber;
+					
+					}	// end "for (index=0; index<numberBins; index++)"
+				
+				}	// end "if (imageType == kMultispectralImageType)"
+			
+			else	// imageType == kThematicImageType
+				{
+						// For thematic image file use the number of classes.
+				
+				for (index=0; index<outFileInfoPtr->numberClasses; index++)
+					{
+					classNumber = symbolToOutputBinPtr[inClassSymbolPtr[index]];
+					groupNumber = classToGroupPtr[classNumber-classOffset];
+					symbolToOutputBinPtr[inClassSymbolPtr[index]] = groupNumber;
+					
+					}	// end "for (index=0; index<numberBins; index++)"
+				
+				}	// end "else imageType == kThematicImageType"
+
+					// Copy group name from input group structure to output file
+					// class name structure.
+			
+			for (groupNumber=0; groupNumber<inFileInfoPtr->numberGroups; groupNumber++)
+				BlockMoveData (&groupNamePtr[groupNumber],
+									&outClassNamePtr[groupNumber],
+									32);
+			
+			CheckAndUnlockHandle (inFileInfoPtr->classDescriptionH);
+			
+			}	// end "if (asciiSymbolConversionFlag)"
+		
+		else	// !asciiSymbolConversionFlag
+			{
+			for (index=0; index<outFileInfoPtr->numberClasses; index++)
+				{
+				groupNumber = classToGroupPtr[index];
+				symbolToOutputBinPtr[index] = groupNumber;
+				
+						// Copy group name from input group structure to output file
+						// class name structure.
+				
+		 		BlockMoveData (&groupNamePtr[groupNumber],
+									&outClassNamePtr[groupNumber],
+									32);
+				
+				}	// end "for (index=0; index<outFileInfoPtr->..."
+			
+			}	// end "else !asciiSymbolConversionFlag"
+		
+				// Save the new description handle for the output image data.
+		
+		outFileInfoPtr->classDescriptionH = outDescriptionHandle;
+		
+				// Indicate that the number of classes is now the number of groups.
+		
+		outFileInfoPtr->numberClasses = inFileInfoPtr->numberGroups;
+		
+				// The expectation is for there to be a class symbol vector stored
+				// after the end of the class names. Create the class symbol vector
+				// to indicate that all classes (actually groups being converted to
+				// classes) will be used.
+		
+		outClassSymbolPtr = (UInt16*)&outClassNamePtr[outFileInfoPtr->numberClasses];
+		for (index=0; index<outFileInfoPtr->numberClasses; index++)
+			outClassSymbolPtr[index] = (UInt16)index;
+	
+		CheckAndUnlockHandle (inFileInfoPtr->groupNameHandle);
+		CheckAndUnlockHandle (outDescriptionHandle);
+		
+				// Update the information to create the correct palette for the groups.
+		
+		groupToPalettePtr = (HUInt16Ptr)GetGroupToPalettePointer (inFileInfoPtr);
+		
+				// The classToGroup pointer will need to be adjusted to reflect that
+				// the output file will have only 'number of group' classes.
+				// Therefore, the location of the classToGroup pointer will have to be
+				// change to reflect this. Also the classToGroup pointer will need
+				// to just assume that the classes and groups are the same.
+		
+		UInt16 paletteOffset = GetPaletteOffset ();
+		for (index=0; index<outFileInfoPtr->numberClasses; index++)
+			newPaletteIndexPtr[index] = groupToPalettePtr[index] + paletteOffset;
+		
+		UnlockGroupTablesHandle (inFileInfoPtr);
+		UnlockGroupTablesHandle (outFileInfoPtr);
+	
+		}	// end "if (continueFlag)"
+	
+	else	// !continueFlag
+		{
+		if (!asciiSymbolConversionFlag)
+			{
+			symbolToOutputBinPtr = CheckAndDisposePtr (symbolToOutputBinPtr);
+			outDescriptionHandle = UnlockAndDispose (outDescriptionHandle);
+			
+			}	// end "if (!asciiSymbolConversionFlag)"
+		
+		}	// end "else !continueFlag"
+	
+	return (symbolToOutputBinPtr);
+	
+}	// end "CreateClassToGroupTable"
+
+
+
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2020)
+//							  (c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:				HUInt16Ptr CreateDataValueToClassTable
+//
+//	Software purpose:			This routine creates a table to be used to convert the
+//									data value to the class value for thematic multispectral
+//									type of image displays.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 10/26/2006
+//	Revised By:			Larry L. Biehl			Date: 12/11/2012
+
+HUInt16Ptr CreateDataValueToClassTable (
+				FileInfoPtr							inFileInfoPtr,
+				FileInfoPtr							outFileInfoPtr,
+				HUInt16Ptr							symbolToOutputBinPtr,
+				HUInt16Ptr							newPaletteIndexPtr)
+
+{
+	HUCharPtr							dataDisplayPtr;
+	
+	UInt32								index,
+											numberBins;
+	
+	Boolean								continueFlag;
+	
+	
+	continueFlag = TRUE;
+	
+				// Get vector to store the symbol to binary table in.
+	
+	if (symbolToOutputBinPtr == NULL)
+		symbolToOutputBinPtr = GetSymbolToBinaryVector (inFileInfoPtr);
+	
+	if (symbolToOutputBinPtr == NULL)
+		continueFlag = FALSE;
+	
+	if (gToDisplayLevels.vectorHandle == NULL)
+		continueFlag = FALSE;
+
+	if (continueFlag)
+		{
+		dataDisplayPtr = (HUCharPtr)GetHandlePointer (gToDisplayLevels.vectorHandle);
+		
+		numberBins = gToDisplayLevels.bytesOffset;
+		numberBins = MIN (inFileInfoPtr->numberBins, numberBins);
+	
+		for (index=0; index<numberBins; index++)
+			symbolToOutputBinPtr[index] = dataDisplayPtr[index];
+		
+		}	// end "if (continueFlag)"
+	
+	else	// !continueFlag
+		{
+		symbolToOutputBinPtr = CheckAndDisposePtr (symbolToOutputBinPtr);
+		
+		}	// end "else !continueFlag"
+	
+	return (symbolToOutputBinPtr);
+	
+}	// end "CreateDataValueToClassTable"
 
 
 
@@ -5708,7 +6039,7 @@ void ConvertSymbolsToBinary (
 // Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/07/1995
-//	Revised By:			Larry L. Biehl			Date: 01/27/2013
+//	Revised By:			Larry L. Biehl			Date: 01/08/2020
 
 UInt16* CreateNewToOldPaletteVector (
 				FileInfoPtr							outFileInfoPtr,
@@ -5728,9 +6059,7 @@ UInt16* CreateNewToOldPaletteVector (
 	UInt16								newPaletteIndex,
 											numberPaletteEntries,
 											oldPaletteIndex,
-											paletteOffset; 
-	
-//	Boolean								backgroundExistsFlag;
+											paletteOffset;
 				
 	
 	newPaletteIndexPtr = NULL;  
@@ -5773,7 +6102,6 @@ UInt16* CreateNewToOldPaletteVector (
 				
 					// Set up  new palette vector.								
 			
-			//backgroundExistsFlag = FALSE;
 			newPaletteIndex = 0;
 			if (inClassSymbolPtr[0] != ' ' && inClassSymbolPtr[0] != 0)
 				{
@@ -5793,7 +6121,7 @@ UInt16* CreateNewToOldPaletteVector (
 						
 				if (oldPaletteIndex >= numberPaletteEntries)
 					oldPaletteIndex = (oldPaletteIndex % numberPaletteEntries);
-				
+				/*
 						// If this is the first class in the list (index is 0) and the 
 						// symbol is blank then assume that this is the background class. 
 						// Otherwise assume that the input data represents binary values 
@@ -5803,7 +6131,7 @@ UInt16* CreateNewToOldPaletteVector (
 							(inClassSymbolPtr[index] == ' ' || inClassSymbolPtr[index] == 0))
 					{
 					newPaletteIndexPtr[0] = oldPaletteIndex + paletteOffset;
-					//backgroundExistsFlag = TRUE;
+					newPaletteIndex++;
 					
 					}	// end "if (index == 0 && inClassSymbolPtr[index] == ' ')" 
 				
@@ -5812,9 +6140,12 @@ UInt16* CreateNewToOldPaletteVector (
 					newPaletteIndexPtr[newPaletteIndex] = oldPaletteIndex + paletteOffset;
 					newPaletteIndex++;
 					
-					}	// end "else index != 0 || inClassSymbolPtr[index] != ' '" 
+					}	// end "else index != 0 || inClassSymbolPtr[index] != ' '"
+				*/
+				newPaletteIndexPtr[newPaletteIndex] = oldPaletteIndex + paletteOffset;
 					
 				oldPaletteIndex++;
+				newPaletteIndex++;
 				
 				}	// end "for (index=0; index<outFileInfoPtr->..." 
 		
@@ -6140,310 +6471,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 		
 	return (symbolToOutputBinPtr);
 			
-}	// end "CreateSymbolToBinaryTable" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:				HUInt16Ptr CreateClassToGroupTable
-//
-//	Software purpose:			This routine creates a table to be used to convert the
-//									class value to the requested group value.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:
-//
-// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
-//
-//	Coded By:			Larry L. Biehl			Date: 04/23/2004
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
-
-HUInt16Ptr CreateClassToGroupTable (
-				FileInfoPtr							inFileInfoPtr,
-				FileInfoPtr							outFileInfoPtr,
-				HUInt16Ptr							symbolToOutputBinPtr,
-				HUInt16Ptr							newPaletteIndexPtr)
-
-{
-	HUCharPtr							inClassNamePtr;
-											
-	HUInt16Ptr							classToGroupPtr,
-											groupToPalettePtr, 
-											inClassSymbolPtr,
-											outClassSymbolPtr;
-											
-	Str31									*groupNamePtr,
-											*outClassNamePtr;
-											
-	Handle								outDescriptionHandle;
-											
-	UInt32								index;
-	
-	UInt16								classNumber,
-											classOffset,
-											groupNumber;			
-	
-	Boolean								asciiSymbolConversionFlag,
-											continueFlag;
-				
-	
-	continueFlag = TRUE;
-	outDescriptionHandle = NULL;
-	
-	asciiSymbolConversionFlag = FALSE;
-	if (symbolToOutputBinPtr != NULL)
-		asciiSymbolConversionFlag = TRUE;
-	
-				// Get vector to store the symbol to binary table in.				
-	
-	if (symbolToOutputBinPtr == NULL)
-		symbolToOutputBinPtr = GetSymbolToBinaryVector (outFileInfoPtr);
-		
-	if (symbolToOutputBinPtr == NULL)
-		continueFlag = FALSE;
-																				
-	if (continueFlag)
-		{
-		if (outFileInfoPtr->classDescriptionH == NULL || 
-					outFileInfoPtr->classDescriptionH == inFileInfoPtr->classDescriptionH)
-				
-					// Get handle to store class description information in. The current 
-					// description handle in the outFileInfoPtr structure is the same 
-					// one as is used for the input MFileInfo structure.  A new one needs 
-					// to be created for the output file because the order and number 
-					// of the classes could be different.	
-																					
-			outDescriptionHandle = MNewHandle (
-											(SInt32)(outFileInfoPtr->numberClasses + 1) * 
-																(sizeof (Str31) + sizeof (UInt16)));
-																
-		else	// outFileInfoPtr->classDescriptionH != NULL && ...
-			outDescriptionHandle = outFileInfoPtr->classDescriptionH;
-			
-		if (outDescriptionHandle == NULL)
-			continueFlag = FALSE;
-			
-		}	// end "if (continueFlag)"
-	
-	if (continueFlag)
-		{	
-				// Get copy of group tables handle for output file so that the correct
-				// palette can be generated. This is used by the TIFF/GeoTIFF format
-				// generator.
-		
-		outFileInfoPtr->groupTablesHandle = inFileInfoPtr->groupTablesHandle;
-		if (HandToHand (&outFileInfoPtr->groupTablesHandle) != noErr)
-			continueFlag = FALSE;
-		
-		}	// end "if (continueFlag)"
-	
-   groupNamePtr = NULL;
-   if (continueFlag)
-		groupNamePtr = (Str31*)GetHandlePointer (inFileInfoPtr->groupNameHandle,
-																kLock);
-															
-	if (groupNamePtr == NULL)
-		continueFlag = FALSE;
-								
-	if (continueFlag)
-		{
-		outClassNamePtr = (Str31*)GetHandlePointer (outDescriptionHandle, kLock);
-		
-				// Get pointer to class to group vector.
-									
-		classToGroupPtr = (UInt16*)GetClassToGroupPointer (inFileInfoPtr);
-			
-				// Set up vector for the class values.								
-		
-		if (asciiSymbolConversionFlag)
-			{
-					// Get pointer to class symbol table.															
-			
-			inClassNamePtr = (HUCharPtr)GetHandlePointer (
-																	inFileInfoPtr->classDescriptionH, 
-																	kLock);
-															
-			inClassSymbolPtr = (HUInt16Ptr)&inClassNamePtr[
-													inFileInfoPtr->numberClasses*sizeof (Str31)];
-										
-			classOffset = 0;
-			if (inClassSymbolPtr[0] != ' ' && inClassSymbolPtr[0] != 0)
-					// This indicates that the background class was added for the
-					// output file class/group vectors. Allow for this in when
-					// indexing into the input file class to group vector.
-				classOffset = 1;
-									
-			for (index=0; index<outFileInfoPtr->numberClasses; index++)
-				{		
-				classNumber = symbolToOutputBinPtr[inClassSymbolPtr[index]];
-				groupNumber = classToGroupPtr[classNumber-classOffset];
-				symbolToOutputBinPtr[inClassSymbolPtr[index]] = groupNumber;
-					
-						// Copy group name from input group structure to output file 
-						// class name structure.		
-					
-		 		BlockMoveData (&groupNamePtr[groupNumber], 
-		 								&outClassNamePtr[groupNumber], 
-		 								32);
-				
-				}	// end "for (index=0; index<outFileInfoPtr->..."
-				
-			CheckAndUnlockHandle (inFileInfoPtr->classDescriptionH);
-				
-			}	// end "if (asciiSymbolConversionFlag)"
-			
-		else	// !asciiSymbolConversionFlag
-			{
-			for (index=0; index<outFileInfoPtr->numberClasses; index++)
-				{
-				groupNumber = classToGroupPtr[index];		
-				symbolToOutputBinPtr[index] = groupNumber;
-					
-						// Copy group name from input group structure to output file 
-						// class name structure.		
-					
-		 		BlockMoveData (&groupNamePtr[groupNumber], 
-									&outClassNamePtr[groupNumber], 
-									32);
-				
-				}	// end "for (index=0; index<outFileInfoPtr->..." 
-				
-			}	// end "else !asciiSymbolConversionFlag"
-		
-				// Save the new description handle for the output image data.	
-				
-		outFileInfoPtr->classDescriptionH = outDescriptionHandle;
-		
-				// Indicate that the number of classes is now the number of groups.
-				
-		outFileInfoPtr->numberClasses = inFileInfoPtr->numberGroups;
-			
-				// The expectation is for there to be a class symbol vector stored
-				// after the end of the class names. Create the class symbol vector
-				// to indicate that all classes (actually groups being converted to
-				// classes) will be used.
-				
-		outClassSymbolPtr = (UInt16*)&outClassNamePtr[outFileInfoPtr->numberClasses];
-		for (index=0; index<outFileInfoPtr->numberClasses; index++)
-			outClassSymbolPtr[index] = (UInt16)index;
-	
-		CheckAndUnlockHandle (inFileInfoPtr->groupNameHandle);
-		CheckAndUnlockHandle (outDescriptionHandle);
-		
-				// Update the inforation to create the correct palette for the groups.
-		
-		groupToPalettePtr = (HUInt16Ptr)GetGroupToPalettePointer (inFileInfoPtr);
-		
-				// The classToGroup pointer will need to be adjusted to reflect that
-				// the output file will have only 'number of group' classes.
-				// Therefore, the location of the classToGroup pointer will have to be
-				// change to reflect this. Also the classToGroup pointer will need
-				// to just assume that the classes and groups are the same.
-					                                         
-		UInt16 paletteOffset = GetPaletteOffset ();
-		for (index=0; index<outFileInfoPtr->numberClasses; index++)
-			newPaletteIndexPtr[index] = groupToPalettePtr[index] + paletteOffset;
-			
-		UnlockGroupTablesHandle (inFileInfoPtr); 
-		UnlockGroupTablesHandle (outFileInfoPtr); 
-	
-		}	// end "if (continueFlag)" 
-		
-	else	// !continueFlag
-		{
-		if (!asciiSymbolConversionFlag)
-			{
-			symbolToOutputBinPtr = CheckAndDisposePtr (symbolToOutputBinPtr);
-			outDescriptionHandle = UnlockAndDispose (outDescriptionHandle);
-			
-			}	// end "if (!asciiSymbolConversionFlag)"
-		
-		}	// end "else !continueFlag"
-		
-	return (symbolToOutputBinPtr);
-			
-}	// end "CreateClassToGroupTable" 
-
-
-
-//------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
-//
-//	Function name:				HUInt16Ptr CreateDataValueToClassTable
-//
-//	Software purpose:			This routine creates a table to be used to convert the
-//									data value to the class value for thematic multispectral
-//									type of image displays.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:
-//
-// Called By:			ChangeFormatToBILorBISorBSQ in SReformatChangeImageFileFormat.cpp
-//
-//	Coded By:			Larry L. Biehl			Date: 10/26/2006
-//	Revised By:			Larry L. Biehl			Date: 12/11/2012
-
-HUInt16Ptr CreateDataValueToClassTable (
-				FileInfoPtr							inFileInfoPtr,
-				FileInfoPtr							outFileInfoPtr,
-				HUInt16Ptr							symbolToOutputBinPtr,
-				HUInt16Ptr							newPaletteIndexPtr)
-
-{
-	HUCharPtr							dataDisplayPtr;
-											
-	UInt32								index,
-											numberBins;			
-	
-	Boolean								continueFlag;
-				
-	
-	continueFlag = TRUE;
-	
-				// Get vector to store the symbol to binary table in.				
-	
-	if (symbolToOutputBinPtr == NULL)
-		symbolToOutputBinPtr = GetSymbolToBinaryVector (inFileInfoPtr);
-		
-	if (symbolToOutputBinPtr == NULL)
-		continueFlag = FALSE;
-		
-	if (gToDisplayLevels.vectorHandle == NULL)
-		continueFlag = FALSE;
-
-	if (continueFlag)
-		{	
-		dataDisplayPtr = (HUCharPtr)GetHandlePointer (gToDisplayLevels.vectorHandle);
-										
-		numberBins = gToDisplayLevels.bytesOffset;
-		numberBins = MIN (inFileInfoPtr->numberBins, numberBins);
-	
-		for (index=0; index<numberBins; index++)
-			symbolToOutputBinPtr[index] = dataDisplayPtr[index];
-		
-		}	// end "if (continueFlag)"
-		
-	else	// !continueFlag
-		{
-		symbolToOutputBinPtr = CheckAndDisposePtr (symbolToOutputBinPtr);
-		
-		}	// end "else !continueFlag"
-		
-	return (symbolToOutputBinPtr);
-			
-}	// end "CreateDataValueToClassTable" 
+}	// end "CreateSymbolToBinaryTable"
 
 
 

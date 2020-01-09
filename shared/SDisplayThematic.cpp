@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/20/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C
 //
@@ -1580,7 +1580,7 @@ void DisplayThematicDialogInitialize (
 //							DisplayThematicDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/1996
-//	Revised By:			Larry L. Biehl			Date: 05/09/2016
+//	Revised By:			Larry L. Biehl			Date: 01/09/2020
 
 void DisplayThematicDialogOK (
 				double								magnification,
@@ -1616,37 +1616,37 @@ void DisplayThematicDialogOK (
 	displaySpecsPtr->magnification = magnification;
 	#if defined multispec_wx
 		gActiveImageViewCPtr->m_Scale = magnification;
-		
-				// Check max magnification. GTK has problems if too large. Checks
-				// indicate that when number of pixels in a direction times the
-				// magnification is larger than 26,000 or so, gtk errors occur.
 				
 		UInt32 maxMagnification = 99;
-		
-		SInt32 numberHorizontalPixels = (displaySpecsPtr->lineEnd -
+	
+		#if defined multispec_wxlin
+					// Check max magnification. GTK has problems if too large. Checks
+					// indicate that when number of pixels in a direction times the
+					// magnification is larger than 26,000 or so, gtk errors occur.
+			SInt32 numberHorizontalPixels = (displaySpecsPtr->lineEnd -
 					displaySpecsPtr->lineStart + displaySpecsPtr->lineInterval) /
 									displaySpecsPtr->lineInterval;
 		
-		SInt32 numberVerticalPixels = (displaySpecsPtr->columnEnd -
+			SInt32 numberVerticalPixels = (displaySpecsPtr->columnEnd -
 					displaySpecsPtr->columnStart + displaySpecsPtr->columnInterval) /
 									displaySpecsPtr->columnInterval;
 									
-		maxMagnification = 
+			maxMagnification =
 							MIN (maxMagnification, 26000/numberHorizontalPixels);
 									
-		maxMagnification = 
+			maxMagnification =
 							MIN (maxMagnification, 26000/numberVerticalPixels);
+		#endif	// defined multispec_wxlin
 							
 		displaySpecsPtr->maxMagnification = maxMagnification;		
 	#endif // defined multispec_wx
 				
 			// Palette to be used.	
 			
-	SetPaletteSpecification (
-								displaySpecsPtr,
-								gClassGroupSelection,
-								gPaletteSelection,
-								paletteUpToDateFlag);
+	SetPaletteSpecification (displaySpecsPtr,
+										gClassGroupSelection,
+										gPaletteSelection,
+										paletteUpToDateFlag);
 								
 			// Group spectral classes.									
 						
@@ -1669,19 +1669,19 @@ void DisplayThematicDialogOK (
 				
 	if (localAllSubsetClass == 1)
 		LoadClassGroupVector (&localDisplayClasses,
-							localClassGroupsHandle,
-							gImageFileInfoPtr->numberClasses,
-							gImageFileInfoPtr->numberGroups, 
-							-kClassDisplay);
+										localClassGroupsHandle,
+										gImageFileInfoPtr->numberClasses,
+										gImageFileInfoPtr->numberGroups,
+										-kClassDisplay);
 					
 			// 	Make sure all groups selected if requested.					
 				
 	if (localAllSubsetGroup == 1)
 		LoadClassGroupVector (&localDisplayGroups,
-							localClassGroupsHandle,
-							gImageFileInfoPtr->numberClasses,
-							gImageFileInfoPtr->numberGroups, 
-							-kGroupDisplay);
+										localClassGroupsHandle,
+										gImageFileInfoPtr->numberClasses,
+										gImageFileInfoPtr->numberGroups,
+										-kGroupDisplay);
 						
 			// Get the new list of classes and groups to be displayed	
 			// and force the palette to be updated if there was a 		
@@ -1748,7 +1748,7 @@ void DisplayThematicDialogOK (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 12/20/2019
+//	Revised By:			Larry L. Biehl			Date: 01/08/2020
 
 Boolean DisplayThematicImage (void)
 
@@ -1761,7 +1761,8 @@ Boolean DisplayThematicImage (void)
 	GrafPtr								savedPort;
 	
 	SInt16								previousClassGroupCode,
-											returnCode;
+											returnCode,
+											savedNumberGroups;
 	
 	Boolean								continueFlag = TRUE,
 											displayChangedFlag,
@@ -1821,10 +1822,6 @@ Boolean DisplayThematicImage (void)
          
       UpdateLegendWidth ();
 			
-				// Get start time.																
-					
-		//startTime = time (NULL);
-			
 				// Set up the vector to convert image data values to display		
 				// level values.																	
 					
@@ -1837,6 +1834,7 @@ Boolean DisplayThematicImage (void)
 			
 					// Create the palette.														
 			
+			savedNumberGroups = gImageFileInfoPtr->numberGroups;
 			if (CreatePalette (gImageWindowInfoPtr->windowInfoHandle, 
 										displaySpecsPtr, 
 										kThematicWindowType))
@@ -1905,6 +1903,18 @@ Boolean DisplayThematicImage (void)
 																	&gOutputForce1Code, 
 																	kNoStatisticsUsed, 
 																	continueFlag);
+						
+						if (savedNumberGroups == 0 && gImageFileInfoPtr->numberGroups > 0)
+							{
+									// List message in Output Text Window that a default group table was
+									// created.
+							
+							int numChars = sprintf ((char*)gTextString3,
+											"    A default group table was created.%s",
+											gEndOfLine);
+							ListString ((char*)gTextString3, numChars, gOutputTextH);
+						
+							}	// end "if (savedNumberGroups == 0 && ..."
 			
 								// Get start time.													
 					

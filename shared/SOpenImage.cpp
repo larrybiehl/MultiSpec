@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/09/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C
 //
@@ -12245,7 +12245,7 @@ Boolean ReadMultiSpecClassNames (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/14/1996
-//	Revised By:			Larry L. Biehl			Date: 01/17/2019
+//	Revised By:			Larry L. Biehl			Date: 01/09/2020
 
 SInt16 ReadPDSHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -12518,7 +12518,7 @@ SInt16 ReadPDSHeader (
 
 				if (nextSet == 1)
 					{
-							// Find "RECORD_BYTES=" in the buffer.
+							// Find "RECORD_BYTES" in the buffer.
 
 					recordBytes = GetFileHeaderValue (kFileIOStrID,
 																	IDS_FileIO79, // RECORD_BYTES
@@ -12546,7 +12546,7 @@ SInt16 ReadPDSHeader (
 
 				if (nextSet == 2)
 					{
-							// Find "LABEL_RECORDS=" in the buffer
+							// Find "LABEL_RECORDS" in the buffer
 
 					count = GetFileHeaderValue (kFileIOStrID,
 															IDS_FileIO80,
@@ -12572,13 +12572,13 @@ SInt16 ReadPDSHeader (
 
 				if (nextSet == 3)
 					{
-							// Find "LINE_SAMPLES=" in the buffer.
+							// Find "LINE_SAMPLES" in the buffer.
 
 					count = GetFileHeaderValue (kFileIOStrID,
 															IDS_FileIO81,
 															ioBufferPtr,
 															1,
-															kDoNotSkipEqual,
+															kSkipEqual,
 															&tReturnCode);
 
 					if (tReturnCode == 0)
@@ -12598,7 +12598,7 @@ SInt16 ReadPDSHeader (
 
 				if (nextSet == 4)
 					{
-							// Find "LINES=" in the buffer.
+							// Find "LINES" in the buffer.
 
 					count = GetFileHeaderValue (kFileIOStrID,
 															IDS_FileIO82,
@@ -12624,7 +12624,7 @@ SInt16 ReadPDSHeader (
 
 				if (nextSet == 5)
 					{
-							// Find "BANDS=" in the buffer.
+							// Find "BANDS" in the buffer.
 
 					count = GetFileHeaderValue (kFileIOStrID,
 															IDS_FileIO83,

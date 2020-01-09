@@ -1099,7 +1099,7 @@ UInt16 CheckForDuplicateName (
 //							PrintImageWindow in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 04/23/2011
-//	Revised By:			Larry L. Biehl			Date: 06/22/2015	
+//	Revised By:			Larry L. Biehl			Date: 01/08/2020
 
 void CreateDefaultGroupTable (
 				FileInfoPtr							fileInfoPtr,
@@ -1228,8 +1228,14 @@ void CreateDefaultGroupTable (
 			#if defined multispec_wx
 						// Make sure that wxWidgets knows the document has changed.
 				gActiveImageViewCPtr->GetDocument()->Modify (TRUE);
-			#endif // defined multispec_wx
 			
+						// Also update the combo list in the legend.
+
+				CMLegendView* legendViewCPtr =
+												gActiveImageViewCPtr->GetImageLegendViewCPtr ();
+				legendViewCPtr->UpdateClassGroupComboList (gClassGroupSelection);
+			#endif // defined multispec_wx
+
 					// Get the memory for and then load the group color table. It will
 					// be identical to the class color table to start with.										
 			

@@ -4395,7 +4395,7 @@ Boolean ReadArcViewColorPalette (
 // Called By:			LoadThematicDisplaySpecs in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 01/08/2020
 
 Boolean ReadArcViewGroups (
 				FileInfoPtr							inputFileInfoPtr,
@@ -4512,11 +4512,11 @@ Boolean ReadArcViewGroups (
 			
 	if (errCode == noErr)
 		errCode = PrepareToReadTextFile (&paramBlock,
-														supportFileStreamPtr,
-														buffer,
-														5000,
-														NULL,
-														NULL);
+													supportFileStreamPtr,
+													buffer,
+													5000,
+													NULL,
+													NULL);
 														
 			// Read the class names.  If the class name is blank or we reach	
 			// the end of the file before all the names have been read, fill	
@@ -4528,23 +4528,21 @@ Boolean ReadArcViewGroups (
 				// a class to grouping table. Allow for the maximum number of 
 				// classes.
 				
-		continueFlag = GetGroupStructureMemory (
-									maxNumberClasses,
-									&groupTablesHandle,
-									&groupNameHandle,
-									&groupToPalettePtr,
-									&groupNamePtr,
-									&groupTableChangedFlag,
-									&groupNameChangedFlag);
+		continueFlag = GetGroupStructureMemory (maxNumberClasses,
+																&groupTablesHandle,
+																&groupNameHandle,
+																&groupToPalettePtr,
+																&groupNamePtr,
+																&groupTableChangedFlag,
+																&groupNameChangedFlag);
 		
 				// Get memory for group color table.
 		
 		bytesNeeded = 256*sizeof (ColorSpec) + sizeof (ColorTable);
-		cTablePtr = (CTabPtr)CheckHandleSize (
-									(Handle*)&cTableHandle,
-									&continueFlag, 
-									&changedFlag,  
-									bytesNeeded);
+		cTablePtr = (CTabPtr)CheckHandleSize ((Handle*)&cTableHandle,
+															&continueFlag,
+															&changedFlag,
+															bytesNeeded);
 		
 		if (cTableHandle != NULL)
 			{                               
@@ -4587,14 +4585,8 @@ Boolean ReadArcViewGroups (
 			{
 			if (whileLoopCount > inputFileInfoPtr->numberBins)
 				{
-				int numberChars2 = sprintf ((char*)gTextString3,
-													" inputFileInfoPtr->numberBins: %d%s",
-													(unsigned int)inputFileInfoPtr->numberBins,
-													gEndOfLine);
-				ListString ((char*)gTextString3, numberChars2, gOutputTextH);
-
-					// This check is included to catch problem files which may cause an
-					// infinite loop.
+						// This check is included to catch problem files which may cause an
+						// infinite loop.
 				
 				int numberChars = sprintf (
 							(char*)gTextString3,
@@ -4602,7 +4594,6 @@ Boolean ReadArcViewGroups (
 							gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 				
-					//cancelWhileLoopFlag = TRUE;
 				errCode = eofErr;
 				
 				}	// end "if (whileLoopCount > fileInfoPtr->numberBins)"
@@ -4865,7 +4856,9 @@ Boolean ReadArcViewGroups (
 				// Now determine which groups actually contain classes that exist and 
 				// delete those groups in the vectors that do not exist.
 		
-		numberGroups = groupCount + 1;
+		numberGroups = 0;
+		if (groupCount >= 0)
+			numberGroups = groupCount + 1;
 		
 		if (numberGroups > 0 && numberGroups <= 256)
 			{

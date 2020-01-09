@@ -11,7 +11,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/12/2019
+//	Revision date:			01/08/2020
 //
 //	Language:				C
 //
@@ -1937,7 +1937,7 @@ SInt16 CreateNewFile (
 //							WriteThematicClassesAs in SSaveWrite.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 02/21/1990
-//	Revised By:			Larry L. Biehl			Date: 12/11/2019
+//	Revised By:			Larry L. Biehl			Date: 01/08/2020
 
 Boolean CreateThematicSupportFile (
 				FileInfoPtr							gisFileInfoPtr, 
@@ -2118,7 +2118,7 @@ Boolean CreateThematicSupportFile (
 												classPtr,
 												numberListClasses,
 												paletteIndexPtr, 
-												numberSupportFileClasses,
+												numberPaletteEntriesToRead,
 												classColorTablePtr,
 												collapseClassCode,
 												classNameCode);
