@@ -13,7 +13,7 @@
 //	Authors:					Larry L. Biehl
 //
 //	Revision date:			10/05/2015 by Tsung Tai Yeh
-//								12/04/2019 by Larry L. Biehl
+//								01/09/2020 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -1258,7 +1258,8 @@ CMainFrame::CMainFrame (
 																		wxDefaultPosition,
 																		wxSize (32, 32),
 																		wxBORDER_NONE+wxBU_EXACTFIT);
-   	bpButtonZoomIn->SetToolTip (wxT("Zoom into image"));
+   	bpButtonZoomIn->SetToolTip (
+   				wxT("Zoom into image. Use shift key to zoom as fast as system can."));
 		bpButtonZoomIn->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomIn, this);
 		m_toolBar1->AddControl (bpButtonZoomIn);
 	
@@ -1269,7 +1270,8 @@ CMainFrame::CMainFrame (
 																		wxDefaultPosition,
 																		wxSize (32, 32),
 																		wxBORDER_NONE+wxBU_EXACTFIT);
-		bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
+		bpButtonZoomOut->SetToolTip (
+   				wxT("Zoom out of image. Use shift key to zoom as fast as system can."));
 		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomOut, this);
 		m_toolBar1->AddControl (bpButtonZoomOut);
 
@@ -1283,6 +1285,7 @@ CMainFrame::CMainFrame (
 		currentFont.SetPointSize (gFontSize);
 		currentFont.SetWeight (wxFONTWEIGHT_LIGHT);
 		m_zoomText->SetFont (currentFont);
+   	m_zoomText->SetToolTip (wxT("Displays current active image window magnification"));
 
 		m_toolBar1->AddSeparator ();
 		m_toolBar1->AddTool (ID_OVERLAY,
@@ -1290,7 +1293,7 @@ CMainFrame::CMainFrame (
 									overlayi,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxT("Control overlays on active image window"),
+									wxT("Control image and vector overlays on active image window"),
 									wxEmptyString);
 		m_toolBar1->EnableTool (ID_OVERLAY, false);
 
@@ -1354,7 +1357,7 @@ void CMainFrame::DoZoomOut (
 	
 	event.Skip ();
 
-}	// end "DoZoomIn"
+}	// end "DoZoomOut"
 
 
 
@@ -1953,7 +1956,7 @@ void CMainFrame::OnIdle (
 		wxMouseState currentMouseState = wxGetMouseState ();
 		if (currentMouseState.LeftIsDown ())
 			{
-			m_controlDelayFlag = !wxGetKeyState (WXK_CONTROL);
+			m_controlDelayFlag = !wxGetKeyState (WXK_SHIFT);
 			time_t currentTickCount = GetTickCount ();
 
 			if (currentTickCount >= m_nextControlTime || !m_controlDelayFlag)
@@ -3501,8 +3504,12 @@ void CMainFrame::OnUpdateProcListResults (
 {
 	Boolean 								enableFlag = FALSE;
 	
+			// Note that work needs to be done in the SListResults routines to allow
+			// thematic windows for multispectral image type files.
+			
 	if (gActiveImageViewCPtr != NULL &&
-				gActiveImageViewCPtr->GetWindowType() == kThematicWindowType)
+			gActiveImageViewCPtr->GetWindowType() == kThematicWindowType &&
+				gActiveImageViewCPtr->GetImageType() == kThematicImageType)
 		enableFlag = TRUE;
 
 	pCmdUI.Enable (enableFlag);

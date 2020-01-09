@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C++
 //
@@ -224,7 +224,8 @@ void CMDisplayThematicDlg::CreateControls ()
 	bSizer34->Add (m_staticText38, 0, wxALIGN_CENTER | wxALL, 5);
 
 	wxFloatingPointValidator<double> _val (3, &m_magnification);
-	_val.SetRange (0.01, 99.);
+	_val.SetMin (0);
+	//_val.SetRange (0.00, 99.);
 	m_textCtrl14 = new wxTextCtrl (this,
 												IDC_Magnification,
 												wxT("1"),
@@ -512,7 +513,7 @@ Boolean CMDisplayThematicDlg::DoDialog (
 
 				// Update the combo list in the legend. 
 
-		CMLegendView* legendViewCPtr =  gActiveImageViewCPtr->GetImageLegendViewCPtr ();
+		CMLegendView* legendViewCPtr = gActiveImageViewCPtr->GetImageLegendViewCPtr ();
 		legendViewCPtr->UpdateClassGroupComboList (gClassGroupSelection);
 
 		continueFlag = TRUE;
@@ -623,7 +624,7 @@ void CMDisplayThematicDlg::OnClassesGroupsComboSelendok (
 													  &m_localDisplayClasses,
 													  m_localClassGroupsPtr,
 													  1,
-													  (SInt16) gImageFileInfoPtr->numberClasses,
+													  (SInt16)gImageFileInfoPtr->numberClasses,
 													  kClassDisplay);
 
 			if (m_localDisplayClasses == gImageFileInfoPtr->numberClasses)
@@ -722,26 +723,11 @@ void CMDisplayThematicDlg::OnInitDialog (
 	m_ColumnEnd = m_displaySpecsPtr->columnEnd;
 	m_ColumnInterval = m_displaySpecsPtr->columnInterval;
 
-	wxColour* wxicolor = new wxColour (*wxWHITE); //default set as white
-	wxMemoryDC imdc;
-	wxBrush cbrush (*wxicolor);
-	wxBitmap legrect (16, 16);
-	imdc.SelectObject (legrect);
-	imdc.SetBrush (cbrush);
-	imdc.SetBackground (cbrush);
-	wxRect rectDraw (0, 0, 16, 16);
-	imdc.DrawRectangle (rectDraw);
-	m_bitmap1->SetBitmap (legrect);
-
 	m_oldRGB = m_displaySpecsPtr->backgroundColor;
 	m_numberClasses = wxString::Format (wxT("%i"),
 													(SInt32)m_displaySpecsPtr->numberLevels);
 	m_numberGroups =
 			wxString::Format (wxT("%i"), (SInt32)gImageFileInfoPtr->numberGroups);
-	wxStaticText* num_class = (wxStaticText*)FindWindow (IDC_NumberClasses);
-	wxStaticText* num_groups = (wxStaticText*)FindWindow (IDC_NumberGroups);
-	num_class->SetLabel (m_numberClasses);
-	num_groups->SetLabel (m_numberGroups);
 
 	SetEntireImageButtons (NULL,
 									m_LineStart,
@@ -887,6 +873,26 @@ bool CMDisplayThematicDlg::TransferDataFromWindow ()
 													this,
 													IDC_ColumnStart) == 0)
 			returnCode = IDC_ColumnEnd;
+			
+		}	// end "if (returnCode == 0)"
+	
+	if (returnCode == 0)
+		{
+				// Check magnification setting.
+		
+		if (m_magnification <= 0 || m_magnification > 99)
+			{
+			SInt16 numberChars = sprintf ((char*)&gTextString[1],
+													"Enter value between 0.01 and 99.");
+			gTextString[0] = numberChars;
+			
+			DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+			
+			returnCode = IDC_Magnification;
+			
+			SelectDialogItemText (this, IDC_Magnification, 0, SInt16_MAX);
+			
+			}	// end "if (m_magnification <= 0 || m_magnification > 99)"
 			
 		}	// end "if (returnCode == 0)"
 	

@@ -12,7 +12,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			12/03/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C++
 //
@@ -208,17 +208,12 @@ CMImageFrame::CMImageFrame (
 	m_mainWindow = win;
 	
 	#if defined multispec_wxmac
+				// Note: found that tool tip has to be set after the control is added to the
+				// tool bar. If not it will not show.
+	
 		m_toolBar = CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
 		m_toolBar->SetToolBitmapSize (wxSize (16, 16));
-		/*
-		m_toolBar->AddTool (ID_MAGNIFICATION,
-									wxT("tool"),
-									zoom1,
-									wxNullBitmap,
-									wxITEM_NORMAL,
-									wxT("Zoom image to X1.0 magnification"),
-									wxEmptyString);
-		*/
+
    	wxBitmapButton* bpButtonX1 = new wxBitmapButton (m_toolBar,
 																			ID_MAGNIFICATION,
 																			zoom1,
@@ -226,18 +221,10 @@ CMImageFrame::CMImageFrame (
 																			//wxDefaultSize,
 																			wxSize (16, 16),
 																			wxBORDER_NONE+wxBU_EXACTFIT);
-   	bpButtonX1->SetToolTip (wxT("Zoom image to X1.0 magnification"));
 		bpButtonX1->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomToOne, this);
 		m_toolBar->AddControl (bpButtonX1);
-		/*
-		m_toolBar->AddTool (ID_ZOOM_IN,
-									wxT("tool"),
-									zoomin,
-									wxNullBitmap,
-									wxITEM_NORMAL,
-									wxT("Zoom into image"),
-									wxEmptyString);
-		*/
+   	bpButtonX1->SetToolTip (wxT("Zoom image to X1.0 magnification"));
+
    	wxBitmapButton* bpButtonZoomIn = new wxBitmapButton (
    																		m_toolBar,
 																			ID_ZOOM_IN,
@@ -245,19 +232,12 @@ CMImageFrame::CMImageFrame (
 																			wxDefaultPosition,
 																			wxSize (16, 16),
 																			wxBORDER_NONE+wxBU_EXACTFIT);
-   	bpButtonZoomIn->SetToolTip (wxT("Zoom into image"));
 		bpButtonZoomIn->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomIn, this);
 		bpButtonZoomIn->Bind (wxEVT_LEFT_DCLICK, &CMImageFrame::DoZoomIn, this);
 		m_toolBar->AddControl (bpButtonZoomIn);
-		/*
-		m_toolBar->AddTool (ID_ZOOM_OUT,
-									wxT("tool"),
-									zoomout,
-									wxNullBitmap,
-									wxITEM_NORMAL,
-									wxT("Zoom out of image"),
-									wxEmptyString);
-		*/
+   	bpButtonZoomIn->SetToolTip (
+   				wxT("Zoom into image. Use shift key to zoom as fast as system can."));
+
    	wxBitmapButton* bpButtonZoomOut = new wxBitmapButton (
    																		m_toolBar,
 																			ID_ZOOM_OUT,
@@ -266,10 +246,11 @@ CMImageFrame::CMImageFrame (
 																			wxSize (16, 16),
 																			wxBORDER_NONE+wxBU_EXACTFIT);
 		//SetUpToolTip (bpButton, IDS_ToolTip40);
-   	bpButtonZoomOut->SetToolTip (wxT("Zoom out of image"));
 		bpButtonZoomOut->Bind (wxEVT_LEFT_DOWN, &CMImageFrame::DoZoomOut, this);
 		bpButtonZoomOut->Bind (wxEVT_LEFT_DCLICK, &CMImageFrame::DoZoomOut, this);
 		m_toolBar->AddControl (bpButtonZoomOut);
+   	bpButtonZoomOut->SetToolTip (
+				wxT("Zoom out of image. Use shift key to zoom as fast as system can."));
 	
 		m_zoomText = new wxStaticText (m_toolBar,
 													ID_ZOOMINFO,
@@ -281,17 +262,8 @@ CMImageFrame::CMImageFrame (
 		currentFont.SetPointSize (gFontSize+1);
 		currentFont.SetWeight (wxFONTWEIGHT_LIGHT);
 		m_zoomText->SetFont (currentFont);
-		/*
-		//m_toolBar->AddSeparator ();
-		m_toolBar->AddTool (ID_OVERLAY,
-									wxT("tool"),
-									overlayi,
-									wxNullBitmap,
-									wxITEM_NORMAL,
-									wxT("Control overlays on image"),
-									wxEmptyString);
-		m_toolBar->EnableTool (ID_OVERLAY, false);
-		*/
+   	m_zoomText->SetToolTip (wxT("Displays current image magnification"));
+
    	wxBitmapButton* bpButtonOverlay = new wxBitmapButton (
    																		m_toolBar,
 																			ID_OVERLAY,
@@ -299,12 +271,12 @@ CMImageFrame::CMImageFrame (
 																			wxDefaultPosition,
 																			wxSize (16, 16),
 																			wxBORDER_NONE+wxBU_EXACTFIT);
-   	bpButtonOverlay->SetToolTip (wxT("Control overlays on image"));
 		bpButtonOverlay->Bind (wxEVT_BUTTON,
 										&CMainFrame::OnToolBarShowOverlay,
 										GetMainFrame());
 		m_toolBar->AddControl (bpButtonOverlay);
 		m_toolBar->EnableTool (ID_OVERLAY, false);
+   	bpButtonOverlay->SetToolTip (wxT("Control image and vector overlays on image"));
 	
 		m_toolBar->Realize ();
 	#endif
@@ -638,7 +610,7 @@ void CMImageFrame::DoZoomOut (
 	
 	event.Skip ();
 
-}	// end "DoZoomIn"
+}	// end "DoZoomOut"
 
 
 
