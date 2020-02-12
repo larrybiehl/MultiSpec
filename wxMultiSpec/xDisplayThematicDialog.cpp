@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-// 								Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (2009-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						xDisplayThematicDialog.cpp : class implementation file
 //	Class Definition:		xDisplayThematicDialog.h
@@ -225,7 +232,6 @@ void CMDisplayThematicDlg::CreateControls ()
 
 	wxFloatingPointValidator<double> _val (3, &m_magnification);
 	_val.SetMin (0);
-	//_val.SetRange (0.00, 99.);
 	m_textCtrl14 = new wxTextCtrl (this,
 												IDC_Magnification,
 												wxT("1"),
@@ -433,9 +439,7 @@ void CMDisplayThematicDlg::CreateControls ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (2009-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 2009-2020 Purdue Research Foundation
 //
 //	Function name:		void DoDialog
 //
@@ -882,11 +886,12 @@ bool CMDisplayThematicDlg::TransferDataFromWindow ()
 		
 		if (m_magnification <= 0 || m_magnification > 99)
 			{
-			SInt16 numberChars = sprintf ((char*)&gTextString[1],
-													"Enter value between 0.01 and 99.");
-			gTextString[0] = numberChars;
-			
-			DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								kAlertStrID,
+								IDS_Alert152,
+								0,
+								NULL);
 			
 			returnCode = IDC_Magnification;
 			
@@ -908,7 +913,7 @@ bool CMDisplayThematicDlg::TransferDataToWindow ()
 	TransferLinesColumnsToWindow ();
 
 	wxTextCtrl* magnify = (wxTextCtrl*)FindWindow (IDC_Magnification);
-	magnify->ChangeValue (wxString::Format (wxT("%.3lf"), m_magnification));
+	magnify->ChangeValue (wxString::Format (wxT("%.3f"), m_magnification));
 	
 	wxCheckBox* voverlays = (wxCheckBox*)FindWindow (IDC_VectorOverlays);
 	voverlays->SetValue (m_includeVectorOverlaysFlag);

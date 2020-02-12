@@ -1,18 +1,25 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-// 								Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (2009-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						xDisplayMultispectralDialog.cpp : class implementation file
 //	Class Definition:		xDisplayMultispectralDialog.h
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			12/03/2019
+//	Revision date:			01/09/2020
 //
 //	Language:				C++
 //
@@ -488,7 +495,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 	bSizer75->Add (m_staticText76, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 
 	wxFloatingPointValidator<double> _val (3, &m_Magnification);
-	_val.SetRange (0.01, 99.);
+	_val.SetMin (0);
 	m_magnificationctrl = new wxTextCtrl (sbSizerStaticBox9,
 														ID3C_Magnification,
 														wxEmptyString,
@@ -497,8 +504,8 @@ void CMDisplaySpecsDlg::CreateControls ()
 														0);
    SetUpToolTip (m_magnificationctrl, IDS_ToolTip33);
 	m_magnificationctrl->SetValidator (_val);
-
 	bSizer75->Add (m_magnificationctrl, 0, wxALL, 5);
+	
 	fgSizer3->Add (bSizer75, 1, wxEXPAND, 5);
 
 	m_checkBox17 = new wxCheckBox (sbSizerStaticBox9,
@@ -843,9 +850,7 @@ Boolean CMDisplaySpecsDlg::DoDialog (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetComputeHistogramDialogSetting
 //
@@ -1512,8 +1517,7 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow ()
 	m_thematicLegendFactorString = legendfactor->GetValue ();
 	m_thematicLegendFactorString.ToDouble (&m_thematicLegendFactor);
 	
-	wxTextCtrl* magnctrl = (wxTextCtrl*)FindWindow (ID3C_Magnification);
-	m_Magnificationstring = magnctrl->GetValue ();
+	m_Magnificationstring = m_magnificationctrl->GetValue ();
 	m_Magnificationstring.ToDouble (&m_Magnification);
 
 			// Get bits of color index for 8(0), 16(1),24(2) bit vector.
@@ -1602,6 +1606,28 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow ()
 														true,		// minValue is allowed.
 														true,		// maxValue is allowed,
 														kDisplayRangeAlert);
+	
+	if (returnCode == 0)
+		{
+				// Check magnification setting.
+		
+		if (m_Magnification <= 0 || m_Magnification > 99)
+			{
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								kAlertStrID,
+								IDS_Alert152,
+								0,
+								NULL);
+			
+			returnCode = ID3C_Magnification;
+			
+			SelectDialogItemText (this, ID3C_Magnification, 0, SInt16_MAX);
+			
+			}	// end "if (m_Magnification <= 0 || m_Magnification > 99)"
+			
+		}	// end "if (returnCode == 0)"
+	
 	return (returnCode == 0);
 	 
 }	// end "TransferDataFromWindow"
@@ -1657,9 +1683,8 @@ bool CMDisplaySpecsDlg::TransferDataToWindow ()
 	grchannel->Clear ();
 	*grchannel << (int)m_GrayChannel;
 	
-	wxTextCtrl* magnctrl = (wxTextCtrl*)FindWindow (ID3C_Magnification);
-	magnctrl->Clear ();
-	magnctrl->ChangeValue (wxString::Format(wxT("%.4f"), m_Magnification));
+	m_magnificationctrl->Clear ();
+	m_magnificationctrl->ChangeValue (wxString::Format(wxT("%.3f"), m_Magnification));
 
 	wxTextCtrl* legendfactor = (wxTextCtrl*)FindWindow (IDC_LegendFactor);
 	legendfactor->Clear ();

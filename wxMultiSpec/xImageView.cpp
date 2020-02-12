@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-// 								Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (2009-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						xImageView.cpp : class implementation file
 //	Class Definition:		xImageView.h
@@ -14,7 +21,7 @@
 //
 // Revision date:			03/12/2016 by Wei-Kang Hsu
 // Revision date:			12/19/2018 by Tsung Tai Yeh
-// Revision date:			12/17/2019  by Larry L Biehl
+// Revision date:			01/20/2020  by Larry L Biehl
 //
 //	Language:				C++
 //
@@ -175,7 +182,7 @@ CMImageView::~CMImageView (void)
 Boolean CMImageView::CheckIfOffscreenImageExists (void)
 
 {  
-	Boolean		returnFlag = FALSE;
+	Boolean								returnFlag = FALSE;
 	
 	         
 			// Verify that an offscreen images exists.
@@ -193,6 +200,31 @@ Boolean CMImageView::CheckIfOffscreenImageExists (void)
 	return (returnFlag);
 	
 }	// end "CheckIfOffscreenImageExists"
+
+
+
+Boolean CMImageView::CheckIfVectorOverlaysExist (void)
+
+{
+	UInt32								numberVectorOverlays;
+	
+	Boolean								returnFlag = FALSE;
+	
+	
+			// Verify that vector overlays exist.
+	
+	if (m_imageWindowCPtr != NULL)
+		{
+		numberVectorOverlays =
+			GetNumberWindowVectorOverlays (m_imageWindowCPtr->GetWindowInfoHandle ());
+	
+		returnFlag = (numberVectorOverlays > 0);
+		
+		}	// end "if (this != NULL && m_imageWindowCPtr != NULL)"
+
+	return (returnFlag);
+	
+}	// end "CheckIfVectorOverlaysExist"
 
 
 
@@ -388,9 +420,7 @@ CMLegendView* CMImageView::GetImageLegendViewCPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetImageType
 //
@@ -561,6 +591,24 @@ SInt16 CMImageView::GetWindowType (void)
 	return (windowType);
 	
 }	// end "GetWindowType"
+
+
+
+Boolean CMImageView::ImageWindowIsAvailable (void)
+
+{  
+	Boolean								returnFlag = FALSE;
+	
+	         
+			// Verify that an offscreen images exists.
+	
+	if (m_imageWindowCPtr != NULL)
+		returnFlag =
+					::ImageWindowIsAvailable (m_imageWindowCPtr->GetWindowInfoHandle ());
+
+	return (returnFlag);
+	
+}	// end "ImageWindowIsAvailable"
 
 
 
@@ -815,7 +863,7 @@ void CMImageView::OnDraw (
 	SInt16 								copyType;
 	
 
-	if (CheckIfOffscreenImageExists ())
+	if (ImageWindowIsAvailable ())
 		{
 		pDC->SetMapMode (wxMM_TEXT);
 		#if defined multispec_wxmac
@@ -872,7 +920,7 @@ void CMImageView::OnDraw (
 		
 		gCDCPointer = NULL;
 
-		}	// end "if (CheckIfOffscreenImageExists ())"
+		}	// end "if (ImageWindowIsAvailable ())"
 
 }	// end "OnDraw"
 
@@ -972,9 +1020,7 @@ void CMImageView::SetControlKeyFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetImageWindowCPtr
 //
@@ -1156,9 +1202,7 @@ void CMImageView::DoEditCopy ()
 
 
 //------------------------------------------------------------------------------------
-//					 Copyright (1988-2020)
-//           (c) Purdue Research Foundation
-//					All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateCursorCoordinates
 //
@@ -1177,7 +1221,7 @@ void CMImageView::DoEditCopy ()
 // Called By:			DrawCursorCoordinates in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/22/1992
-//	Revised By:			Larry L. Biehl			Date: 04/02/2019
+//	Revised By:			Larry L. Biehl			Date: 01/11/2020
 
 void CMImageView::UpdateCursorCoordinates (
 				LongPoint*							mousePtPtr)
@@ -1188,8 +1232,7 @@ void CMImageView::UpdateCursorCoordinates (
 
 	CMImageDoc* imageDocCPtr = GetDocument ();
 
-	if (imageDocCPtr->GetDisplayCoordinatesFlag () &&
-															CheckIfOffscreenImageExists ())
+	if (imageDocCPtr->GetDisplayCoordinatesFlag () && ImageWindowIsAvailable ())
 		{
 		updateMapCoordinateFlag = GetCursorCoordinates (mousePtPtr);
 
@@ -1203,9 +1246,7 @@ void CMImageView::UpdateCursorCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateCursorCoordinates
 //
@@ -1240,9 +1281,7 @@ void CMImageView::UpdateCursorCoordinates (void)
 
 
 //------------------------------------------------------------------------------------
-//					 			Copyright (1988-2020)
-//           		(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateCursorCoordinatesNoDisplayOrigin
 //

@@ -1,18 +1,25 @@
-//                               MultiSpec
+//                                     MultiSpec
 //
-//               Laboratory for Applications of Remote Sensing
-//                         Purdue University
-//                        West Lafayette, IN 47907
-//                         Copyright (2009-2020)
-//                     (c) Purdue Research Foundation
-//                           All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //   File:                 xReformatTransformDialog.cpp : class implementation file
 //   Class Definition:     xReformatTransformDialog.h
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        11/07/2019
+//   Revision date:        02/10/2020
 //
 //   Language:					C++
 //
@@ -1350,7 +1357,7 @@ bool CMReformatTransformDlg::TransferDataToWindow ()
 	
 	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kthSmallestElement);
 	kthSmallestElement->ChangeValue (
-											wxString::Format (wxT("%li"), m_kthSmallestElement));
+											wxString::Format (wxT("%i"), m_kthSmallestElement));
 	
 	wxTextCtrl* adjustSelectedChannelsFactor =
 							(wxTextCtrl*)FindWindow (IDC_RT_ACbyC_Factor);
@@ -1360,7 +1367,7 @@ bool CMReformatTransformDlg::TransferDataToWindow ()
 	wxTextCtrl* adjustSelectedChannel =
 										(wxTextCtrl*)FindWindow (IDC_RT_ACbyC_ChannelNumber);
 	adjustSelectedChannel->ChangeValue (
-										wxString::Format (wxT("%li"), m_adjustSelectedChannel));
+										wxString::Format (wxT("%i"), m_adjustSelectedChannel));
 	
 	m_channelsCtrl->SetSelection (m_channelSelection);
 	
@@ -1369,12 +1376,12 @@ bool CMReformatTransformDlg::TransferDataToWindow ()
 	
 	wxStaticText* minimumNumberBits =
 										(wxStaticText*)FindWindow (IDC_RT_EV_AllComponents);
-	minimumNumberBits->SetLabel (wxString::Format (wxT("%li"), m_minimumNumberBits));
+	minimumNumberBits->SetLabel (wxString::Format (wxT("%i"), m_minimumNumberBits));
 	
 	wxStaticText* minSelectedNumberBits = (
 										wxStaticText*)FindWindow (IDC_RT_EV_SelComponents);
 	minSelectedNumberBits->SetLabel (
-										wxString::Format (wxT("%li"), m_minSelectedNumberBits));
+										wxString::Format (wxT("%i"), m_minSelectedNumberBits));
 	
 	return true;
 	

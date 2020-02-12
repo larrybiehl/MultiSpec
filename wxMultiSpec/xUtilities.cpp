@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						xUtilities.cpp
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			12/17/2019
+//	Revision date:			01/10/2020
 //
 //	Language:				C
 //
@@ -76,9 +83,7 @@ void* BeginBitMapRawDataAccess (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CopyOffScreenImage
 //
@@ -96,7 +101,7 @@ void* BeginBitMapRawDataAccess (
 //							DoThematicWColorsUpdate in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 12/17/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -140,7 +145,7 @@ void CopyOffScreenImage (
 											xDimension,
 											yDimension;
 
-   UInt32								numberOverlays;
+   UInt32								numberVectorOverlays;
 
    SInt16								grafPortType;
 
@@ -166,7 +171,7 @@ void CopyOffScreenImage (
       grafPortType = windowInfoPtr->grafPortType;
       numberImageOverlays = windowInfoPtr->numberImageOverlays;
       drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
-      numberOverlays = windowInfoPtr->numberOverlays;
+      numberVectorOverlays = windowInfoPtr->numberVectorOverlays;
       drawBaseImageFlag = windowInfoPtr->drawBaseImageFlag;
 
       offScreenMapHandle = windowInfoPtr->offScreenMapHandle;
@@ -516,7 +521,7 @@ void CopyOffScreenImage (
 
 				}	// end "else displaySpecsPtr->displayType != ..."
 		
-		if (numberImageOverlays > 0 || numberOverlays > 0 || projectWindowFlag)
+		if (numberImageOverlays > 0 || numberVectorOverlays > 0 || projectWindowFlag)
 			{
 			windowCode = 1;
 			if (copyType == kClipboardCopy)
@@ -533,7 +538,7 @@ void CopyOffScreenImage (
 				
 				}	// end "if (windowCode >= 2)"
 			
-			}	// end "if (numberImageOverlays > 0 || numberOverlays > 0 || ..."
+			}	// end "if (numberImageOverlays > 0 || numberVectorOverlays > 0 || ..."
 					  
 			// Draw the image overlay if they exist.
 
@@ -632,7 +637,7 @@ void CopyOffScreenImage (
 		  
 			// Draw the vector overlays if they exist.
 		
-		if (drawVectorOverlaysFlag && numberOverlays > 0)
+		if (drawVectorOverlaysFlag && numberVectorOverlays > 0)
 			DrawArcViewShapes (imageViewCPtr,
 										imageWindowCPtr->GetWindowInfoHandle (),
 										&windowRect,
@@ -656,7 +661,7 @@ void CopyOffScreenImage (
 			}	// end "if (projectWindowFlag)"
 		*/
 		if (numberImageOverlays > 0 ||
-					numberOverlays > 0 ||
+					numberVectorOverlays > 0 ||
 							(projectWindowFlag && windowCode >= 2))
 			{
 			displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
@@ -664,7 +669,7 @@ void CopyOffScreenImage (
 			displaySpecsPtr->origin[kVertical] = vOrigin;
 			displaySpecsPtr->origin[kHorizontal] = hOrigin;
 
-			}	// end "if (numberImageOverlays > 0 || numberOverlays > 0 || ... "
+			}	// end "if (numberImageOverlays > 0 || numberVectorOverlays > 0 || ... "
 		
 				// The titles for side by side images are handled by paint events in
 				// the TitleBar class
@@ -680,9 +685,7 @@ void CopyOffScreenImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CreateClassNameComboBoxList
 //
@@ -905,9 +908,7 @@ void GetMenuItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetOffscreenGWorld
 //
@@ -1081,9 +1082,7 @@ SInt16 GetOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		wxRegion GetPolygonEnclosingRectangle
 //
@@ -1169,9 +1168,7 @@ Boolean GetPolygonEnclosingRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetScreenRect
 //
@@ -1202,9 +1199,7 @@ void GetScreenRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetScrollOffset
 //
@@ -1261,9 +1256,7 @@ void GetScrollOffset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void NumToString
 //
@@ -1295,9 +1288,7 @@ void NumToString (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void NumToString
 //
@@ -1330,9 +1321,7 @@ void	NumToString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CharPtr PtoCstr
 //
@@ -1374,9 +1363,7 @@ CharPtr PtoCstr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CharPtr StringToNum
 //
