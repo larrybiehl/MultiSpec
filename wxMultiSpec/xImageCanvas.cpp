@@ -1,18 +1,25 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-// 								Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (2009-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						xImageCanvas.cpp : class implementation file
 //	Class Definition:		xImageCanvas.h
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			11/27/2019
+//	Revision date:			01/11/2020
 //
 //	Language:				C++
 //
@@ -355,7 +362,7 @@ void CMImageCanvas::EraseBackground (
       m_size_h = psize.GetHeight ();
       m_size_w = psize.GetWidth ();
 		
-		}
+		}	// end "if (eraseFlag)"
 	
    Refresh ();
 	
@@ -383,6 +390,16 @@ wxSize CMImageCanvas::GetCurrentSize ()
       return wxSize (m_View->GetScaledBitmap().GetWidth () * scale,
 							m_View->GetScaledBitmap().GetHeight () * scale);
 	
+	else if (m_View->ImageWindowIsAvailable ())
+		{
+		CMImageWindow* imageWindowCPtr = m_View->GetImageWindowCPtr ();
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
+													imageWindowCPtr->GetWindowInfoHandle ());
+      return wxSize (windowInfoPtr->maxNumberColumns * scale,
+							windowInfoPtr->maxNumberLines * scale);
+		
+		}	// end "else if (m_View->ImageWindowIsAvailable ())"
+	
 	else
       return wxSize (0, 0);
 	
@@ -397,7 +414,7 @@ wxRect CMImageCanvas::GetImageDisplayRect (
    wxSize currentSize = GetCurrentSize ();
    wxPoint ptTest (0, 0);
 	
-		// calculate actual image display rectangle if centered
+			// calculate actual image display rectangle if centered
 	
 	return wxRect (ptTest, currentSize);
 	
@@ -883,7 +900,7 @@ void CMImageCanvas::OnLeftDown (
 		
 		}	while (false);
 	
-   if (m_View->CheckIfOffscreenImageExists ())
+   if (m_View->ImageWindowIsAvailable ())
 		{
       CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
       if (pTool != NULL && gPresentCursor != kBlinkOpenCursor2)
@@ -943,7 +960,7 @@ void CMImageCanvas::OnLeftDown (
 			
 			}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
 
-		}	// end "if (m_View->CheckIfOffscreenImageExists ())"
+		}	// end "if (m_View->ImageWindowIsAvailable ())"
 	
 }	// end "OnLeftDown"
 
@@ -959,7 +976,7 @@ void CMImageCanvas::OnLeftUp (
       m_Selection.SetPosition (m_TR);
       m_Selection.SetSize (wxSize (0, 0));
 		
-      if (m_View->CheckIfOffscreenImageExists ())
+      if (m_View->ImageWindowIsAvailable ())
 			{
          CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
          if (pTool != NULL)            
@@ -978,7 +995,7 @@ void CMImageCanvas::OnLeftUp (
          
 			//ReleaseMouse ();
 			
-			}	// end "if (m_View->CheckIfOffscreenImageExists ())"
+			}	// end "if (m_View->ImageWindowIsAvailable ())"
 		
 		}	// end "if (HasCapture ())"
 	
@@ -1107,7 +1124,7 @@ void CMImageCanvas::OnMouseMove (
 		
 				// The following code was in Image view class in Windows OS
 		
-      if (m_View->CheckIfOffscreenImageExists ())
+      if (m_View->ImageWindowIsAvailable ())
 			{
          Boolean handledFlag = FALSE;
          
@@ -1123,14 +1140,14 @@ void CMImageCanvas::OnMouseMove (
 
 				}	// end "if (!handledFlag)"
          
-			}	// end "if (m_View->CheckIfOffscreenImageExists ())"
+			}	// end "if (m_View->ImageWindowIsAvailable ())"
 
-      else // !m_View->CheckIfOffscreenImageExists ()
+      else // !m_View->ImageWindowIsAvailable ()
 			{
          if (m_View != NULL)
             m_View->UpdateCursorCoordinates ();
 
-			}	// end "else !GetActiveWindowFlag () || ..."
+			}	// end "else !m_View->ImageWindowIsAvailable ()"
 			
 		}	// end "if (hasCaptureFlag)"
 		
@@ -1154,7 +1171,7 @@ void CMImageCanvas::OnMouseMove (
 					{
 							// If is polygon mode. added on 01/08/16  by Wei
 					
-               if (m_View->CheckIfOffscreenImageExists ())
+               if (m_View->ImageWindowIsAvailable ())
 						{
                   CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
 
@@ -1164,7 +1181,7 @@ void CMImageCanvas::OnMouseMove (
                      												currentPos,
                      												m_scrolledFlag);
 						
-						}	// end "if (m_View->CheckIfOffscreenImageExists ())"
+						}	// end "if (m_View->ImageWindowIsAvailable ())"
 					
 					}	// end "if (... && gProcessorCode == kPolygonSelectionProcessor"
 
@@ -1232,7 +1249,7 @@ void CMImageCanvas::OnPaint (
    if (m_View == NULL)
 																								return;
 	
-	wxRect 								updateRect;
+	//wxRect 								updateRect;
 	
 	double 								zoom = m_View->m_Scale;
 	
@@ -1266,8 +1283,6 @@ void CMImageCanvas::OnPaint (
 
 	dc.SetBackground (wxBrush (*wxWHITE));
 	
-	bitMapOKFlag = !m_View->m_ScaledBitmap.IsNull ();
-	
 			// Get the update rect list
 	
 	int count = 1;
@@ -1286,7 +1301,10 @@ void CMImageCanvas::OnPaint (
 			
 		}	// end "while (upd)"
 	
-	if (m_displayImageFlag && bitMapOKFlag)
+	bitMapOKFlag = !m_View->m_ScaledBitmap.IsNull ();
+	
+	//if (m_displayImageFlag && bitMapOKFlag)
+	if (m_displayImageFlag)
 		{
    	UInt32								numberOverlays;
 	
@@ -1299,7 +1317,7 @@ void CMImageCanvas::OnPaint (
 		
 		drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
 		projectWindowFlag = windowInfoPtr->projectWindowFlag;
-		numberOverlays = windowInfoPtr->numberOverlays;
+		numberOverlays = windowInfoPtr->numberVectorOverlays;
 
 				// Outline training/test areas.
 		
@@ -1312,17 +1330,32 @@ void CMImageCanvas::OnPaint (
 
 			gCDCPointer = &dc;
 			OutlineFieldsControl (gProjectInfoPtr->statsWindowMode,
-											  m_View,
-											  imageWindowCPtr->GetWindowInfoHandle (),
-											  1);
+										  m_View,
+										  imageWindowCPtr->GetWindowInfoHandle (),
+										  1);
 			gCDCPointer = NULL;
 			
 			}	// end "if (windowInfoPtr->projectWindowFlag)"
 		
 				// Draw the selection area if it exists.
 		
-		m_size_h = m_View->m_ScaledBitmap.GetHeight () * zoom;
-		m_size_w = m_View->m_ScaledBitmap.GetWidth () * zoom;
+		if (bitMapOKFlag)
+			{
+					// Use the bitmap size
+			
+			m_size_h = m_View->m_ScaledBitmap.GetHeight () * zoom;
+			m_size_w = m_View->m_ScaledBitmap.GetWidth () * zoom;
+			
+			}	// end "if (bitMapOKFlag)"
+		
+		else	// !bitMapOKFlag
+			{
+					// Use the number of lines and columns in the image
+			
+			m_size_h = windowInfoPtr->maxNumberColumns * zoom;
+			m_size_w = windowInfoPtr->maxNumberLines * zoom;
+			
+			}	// end "else !bitMapOKFlag"
 
 				//Sets the virtual size of the window in pixels.
 		
@@ -1356,7 +1389,7 @@ void CMImageCanvas::OnPaint (
 
 
 void CMImageCanvas::OnScrollChanged (
-				wxScrollWinEvent& 						event)
+				wxScrollWinEvent& 				event)
 				
 {
 	wxPoint scrollPos = GetScrollPosition ();
@@ -1369,7 +1402,7 @@ void CMImageCanvas::OnScrollChanged (
 
 
 void CMImageCanvas::SetView (
-				CMImageView* 									viewPtr)
+				CMImageView* 						viewPtr)
 
 {
    m_View = viewPtr;

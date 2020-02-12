@@ -1,4 +1,3 @@
-//
 //	File:						XBitmapRefData.h
 //
 //	Authors:					Larry L. Biehl
