@@ -1,6 +1,0 @@
-// String Defines for About Dialog Box 
-#define AboutStaticText "MultiSpec\n Version 2018.11.02\n(64-bit version)\n\n Laboratory for Applications of Remote Sensing\nPurdue University\nWest Lafayette, IN 47907\n\n Copyright © 2015-2018\nPurdue Research Foundation\nAll Rights Reserved \n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n Supported by AmericaView (www.americaview.org)\n\n GDAL, Kakadu (jpeg2000) and ERDAS/Earth Resource Mapping ECW software libraries are used." 
-
-#define AboutImagePath "../SharedMultispec/res/mspec.xpm"
-
-
