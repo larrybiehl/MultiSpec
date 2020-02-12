@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SListResults.cpp
 //
@@ -268,9 +275,7 @@ void	LoadSamplesString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double ComputeKappaStatistic
 //
@@ -485,9 +490,7 @@ double ComputeKappaStatistic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfLastClassForGroup
 //
@@ -558,9 +561,7 @@ Boolean DetermineIfLastClassForGroup (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawDialogClassAreaPopUp
 //
@@ -599,9 +600,7 @@ pascal void DrawDialogClassAreaPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ForceListResultsCodeResourceLoad
 //
@@ -639,9 +638,7 @@ void ForceListResultsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetAreaResults
 //
@@ -952,9 +949,7 @@ SInt16 GetAreaResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetClassGroupNameMaxLength
 //
@@ -1028,9 +1023,7 @@ UInt32 GetClassGroupNameMaxLength (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt64 GetClassOrGroupNumberOfSamples
 //
@@ -1106,9 +1099,7 @@ SInt64 GetClassOrGroupNumberOfSamples (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetDefaultAreaConversionFactor
 //
@@ -1179,9 +1170,7 @@ double GetDefaultAreaConversionFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetCountVectorIndex
 //
@@ -1240,9 +1229,7 @@ SInt32 GetCountVectorIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetGroupIndex
 //
@@ -1289,9 +1276,7 @@ SInt32 GetGroupIndex (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetProbabilityWindowInfoHandle
 //
@@ -1470,9 +1455,7 @@ Handle GetProbabilityWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetListResultsStringBuffer
 //
@@ -1535,9 +1518,7 @@ Boolean GetListResultsStringBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		HUInt16Ptr GetSymbolToClassVector
 //
@@ -1648,9 +1629,7 @@ HUInt16Ptr GetSymbolToClassVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetTableColumnWidths
 //
@@ -1785,9 +1764,7 @@ void GetTableColumnWidths (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListAreaValue
 //
@@ -1840,9 +1817,7 @@ SInt16 ListAreaValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListClassificationSummary
 //
@@ -2297,9 +2272,7 @@ Boolean ListClassificationSummary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListFCGPerformanceTable
 //
@@ -2824,9 +2797,7 @@ Boolean ListFCGPerformanceTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListLineOfResults
 //
@@ -2984,9 +2955,7 @@ Boolean ListLineOfResults (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListOverallPerformanceValues
 //
@@ -3107,9 +3076,7 @@ Boolean ListOverallPerformanceValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListPerformanceTables
 //
@@ -3276,9 +3243,7 @@ Boolean ListPerformanceTables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListPerformanceTableTotals
 //
@@ -3348,9 +3313,7 @@ Boolean ListPerformanceTableTotals (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListReliabilityAccuracyLine
 //
@@ -3507,9 +3470,7 @@ Boolean ListReliabilityAccuracyLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListResultsAreasControl
 //
@@ -3848,9 +3809,7 @@ Boolean ListResultsAreasControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ListResultsControl
 //
@@ -4208,9 +4167,7 @@ void ListResultsControl (void)
 
                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListResultsDialog
 //
@@ -5044,9 +5001,7 @@ void ListResultsDialogSetThresholdItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListResultsThematicClasses
 //
@@ -5285,9 +5240,7 @@ Boolean ListResultsThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListResultsTrainTestFields
 //
@@ -5507,9 +5460,7 @@ SInt16 ListResultsTrainTestFields (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListTableFootNotes
 //
@@ -5563,9 +5514,7 @@ Boolean ListTableFootNotes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListThresholdValue
 //
@@ -5643,9 +5592,7 @@ Boolean ListThresholdValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadAreaString
 //
@@ -5728,9 +5675,7 @@ void LoadAreaString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadClassInGroupOrderVector
 //
@@ -5821,9 +5766,7 @@ void LoadClassInGroupOrderVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadClassAreaVector
 //
@@ -5862,9 +5805,7 @@ void LoadClassAreaVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadListResultsSpecs
 //
@@ -6170,9 +6111,7 @@ Boolean LoadListResultsSpecs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadListResultsString
 //
@@ -6248,9 +6187,7 @@ void LoadListResultsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadListResultsTitle
 //
@@ -6819,9 +6756,7 @@ Boolean LoadListResultsTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadPercentString
 //
@@ -6904,9 +6839,7 @@ void LoadPercentString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadSamplesString
 //

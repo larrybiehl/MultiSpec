@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SHDF.cpp
 //
@@ -69,9 +76,7 @@ Boolean	CheckIfHDF5FormattedFile (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfHDF5FormattedFile
 //
@@ -138,9 +143,7 @@ Boolean CheckIfHDF5FormattedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AppendGroupIndicater
 //
@@ -188,9 +191,7 @@ void AppendGroupIndicater (
 		
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CreateFullDataSetIdentifierName
 //
@@ -275,9 +276,7 @@ void CreateFullDataSetIdentifierName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfHDFProjectPossible
 //
@@ -334,9 +333,7 @@ Boolean DetermineIfHDFProjectPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 DisplayHDFAlerts
 //
@@ -441,9 +438,7 @@ SInt16 DisplayHDFAlerts (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt16 GetHdfDataSetInstrumentChannelNumber
 //
@@ -533,9 +528,7 @@ UInt16 GetHdfDataSetInstrumentChannelNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetHdfDataSetName
 //
@@ -609,9 +602,7 @@ void GetHdfDataSetName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHDFFilePathCPointer
 //
@@ -704,9 +695,7 @@ return (0);
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetHdfHeaderFileName
 //
@@ -757,9 +746,7 @@ void GetHdfHeaderFileName (
 
 #if include_hdf_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadHDFHeader
 //
@@ -963,9 +950,7 @@ SInt16 ReadHDFHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetUpHDF_FileInformation
 //

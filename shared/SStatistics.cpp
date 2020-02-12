@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SStatistics.cpp
 //
@@ -267,9 +274,7 @@ SInt16 StatisticsDialogSetMaskItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ActivateStatControls
 //
@@ -708,9 +713,7 @@ void ActivateStatControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AddClassToProject
 //
@@ -875,9 +878,7 @@ Boolean AddClassToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AddFieldToProject
 //
@@ -1192,9 +1193,7 @@ Boolean AddFieldToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AddPointsToProject
 //
@@ -1295,9 +1294,7 @@ Boolean AddPointsToProject (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		AddPolyPointStatNewFieldW
 //
@@ -1521,9 +1518,7 @@ void AddPolyPointStatNewFieldW (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 AddSpecifiedStringToClassName
 //
@@ -1578,9 +1573,7 @@ SInt16 AddSpecifiedStringToClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForDuplicateClassName
 //
@@ -1675,9 +1668,7 @@ SInt16 CheckForDuplicateClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForDuplicateFieldName
 //
@@ -1787,9 +1778,7 @@ SInt16 CheckForDuplicateFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ClassListStatMode
 //
@@ -1970,9 +1959,7 @@ void ClassListStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseProjectWindow
 //
@@ -2093,9 +2080,7 @@ void CloseProjectWindow (void)
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CreateProjectWControls
 //
@@ -2389,9 +2374,7 @@ Boolean CreateProjectWControls (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CreateProjectWindow
 //
@@ -2660,9 +2643,7 @@ void CreateProjectWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DeletePolyPointStatNewFieldW
 //
@@ -2720,9 +2701,7 @@ void DeletePolyPointStatNewFieldW (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								c Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DoProjectWindowGrow
 //
@@ -2768,9 +2747,7 @@ void DoProjectWindowGrow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				DoStatWActivateEvent
 //
@@ -2822,9 +2799,7 @@ void DoStatWActivateEvent (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DoStatWUpdateEvent
 //
@@ -2864,9 +2839,7 @@ void DoStatWUpdateEvent (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		DrawClassPopUp
 //
@@ -2912,9 +2885,7 @@ void DrawClassPopUp (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawClassPrompt
 //
@@ -2988,9 +2959,7 @@ void DrawClassPrompt (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				pascal void DrawDialogClassPopUp2
 //
@@ -3030,9 +2999,7 @@ pascal void DrawDialogClassPopUp2 (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		DrawFieldPrompt
 //
@@ -3091,9 +3058,7 @@ void DrawFieldPrompt (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawOutlineColorPopUp
 //
@@ -3132,9 +3097,7 @@ pascal void DrawOutlineColorPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawSelectTestImageMaskPopUp
 //
@@ -3173,9 +3136,7 @@ pascal void DrawSelectTestImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawSelectTrainImageMaskPopUp
 //
@@ -3214,9 +3175,7 @@ pascal void DrawSelectTrainImageMaskPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		DrawStatPopUp
 //
@@ -3270,9 +3229,7 @@ void DrawStatPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawStatPrompt
 //
@@ -3321,9 +3278,7 @@ void DrawStatPrompt (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				FieldListStatMode
 //
@@ -3552,9 +3507,7 @@ void FieldListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ForceStatisticsCodeResourceLoad
 //
@@ -3591,9 +3544,7 @@ void ForceStatisticsCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetControlValue
 //
@@ -3643,9 +3594,7 @@ SInt16 GetControlValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetCurrentClassField
 //
@@ -3728,9 +3677,7 @@ SInt16 GetCurrentClassField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetCurrentField
 //
@@ -3814,9 +3761,7 @@ SInt16 GetCurrentField (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetDefaultClassName
 //
@@ -3856,9 +3801,7 @@ void GetDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetDefaultFieldName
 //
@@ -3898,9 +3841,7 @@ void GetDefaultFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void GetFieldNameWithType
 //
@@ -3947,9 +3888,7 @@ void GetFieldNameWithType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetLineColFromList
 //
@@ -4052,9 +3991,7 @@ void GetLineColFromList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetNumberListLines
 //
@@ -4104,9 +4041,7 @@ SInt16 GetNumberListLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetCovarianceStatsFromMenuItem
 //
@@ -4147,9 +4082,7 @@ SInt16 GetCovarianceStatsFromMenuItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetClassStatisticsTypeMenuItem
 //
@@ -4190,9 +4123,7 @@ SInt16 GetClassStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetProjectStatisticsTypeMenuItem
 //
@@ -4231,9 +4162,7 @@ SInt16 GetProjectStatisticsTypeMenuItem (void){
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetProjectStatisticsTypeText
 //
@@ -4296,9 +4225,7 @@ void GetProjectStatisticsTypeText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetUniqueClassName
 //
@@ -4380,9 +4307,7 @@ void GetUniqueClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetUniqueFieldName
 //
@@ -4435,9 +4360,7 @@ void GetUniqueFieldName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void HideStatControl
 //
@@ -4488,9 +4411,7 @@ void HideStatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InvalPopUpCovarianceToUse
 //
@@ -4554,9 +4475,7 @@ void InvalPopUpCovarianceToUse (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadClassNamesIntoList
 //
@@ -4627,9 +4546,7 @@ void LoadClassNamesIntoList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadPolyStatNewFieldW
 //
@@ -4864,9 +4781,7 @@ void LoadPolyStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		LoadRectStatNewFieldW
 //
@@ -4922,9 +4837,7 @@ void LoadRectStatNewFieldW (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadRectangleInStatList
 //
@@ -5085,9 +4998,7 @@ void LoadRectangleInStatList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadNewFieldListBox
 //
@@ -5123,9 +5034,7 @@ void LoadNewFieldListBox (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LOOCOptionsDialog
 //
@@ -5410,9 +5319,7 @@ void LOOCOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void MSetControlValue
 //
@@ -5465,9 +5372,7 @@ void MSetControlValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean NewClassFieldDialog
 //
@@ -5822,9 +5727,7 @@ Boolean NewClassFieldDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void NewClassFieldDialogChangeClass
 //
@@ -5882,9 +5785,7 @@ void NewClassFieldDialogChangeClass (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean NewClassFieldDialogInitialize
 //
@@ -5997,9 +5898,7 @@ void NewClassFieldDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetNumberClassTrainPixels
 //
@@ -6050,9 +5949,7 @@ void SetNumberClassTrainPixels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void NewFieldStatMode
 //
@@ -6204,9 +6101,7 @@ void NewFieldStatMode (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void PolygonListStatMode
 //
@@ -6415,9 +6310,7 @@ void PolygonListStatMode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void RemoveListCells
 //
@@ -6491,9 +6384,7 @@ void RemoveListCells (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetListControlHilite
 //
@@ -6528,9 +6419,7 @@ void SetListControlHilite (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetOutlineAreaOptions
 //
@@ -6597,9 +6486,7 @@ void SetOutlineAreaOptions (
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
 //
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetProjectWindowBoxes
 //
@@ -6733,9 +6620,7 @@ void SetProjectWindowBoxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetProjectWTitle
 //
@@ -6770,9 +6655,7 @@ void SetProjectWTitle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetStatControlTitle
 //
@@ -6823,9 +6706,7 @@ void SetStatControlTitle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ShowStatControl
 //
@@ -6870,9 +6751,7 @@ void ShowStatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void StatisticsControl
 //
@@ -6979,9 +6858,7 @@ void StatisticsControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 StatisticsDialog
 //
@@ -7623,9 +7500,7 @@ void StatisticsDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 StatisticsDialogMaskCheck
 //
@@ -8052,9 +7927,7 @@ SInt16 StatisticsDialogSelectMaskItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void StatisticsDialogOK
 //
@@ -8235,9 +8108,7 @@ void StatisticsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean StatisticsOptionsDialog
 //
@@ -8578,9 +8449,7 @@ void StatisticsOptionsDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void StatisticsWControlEvent
 //
@@ -8833,9 +8702,7 @@ Boolean StatisticsWControlEvent (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void StatisticsWMouseDn
 //
@@ -9073,9 +8940,7 @@ void StatisticsWMouseDn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateStatisticsWindow
 //
@@ -9239,9 +9104,7 @@ void UpdateStatisticsWindow (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateToClassControl
 //
@@ -9291,9 +9154,7 @@ void UpdateToClassControl (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteProjectName
 //

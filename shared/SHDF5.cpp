@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SHDF5.cpp
 //
@@ -288,9 +295,7 @@ SInt16	ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseHDF5DataSetInfo
 //
@@ -348,9 +353,7 @@ void CloseHDF5DataSetInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		herr_t file_info
 //
@@ -567,9 +570,7 @@ herr_t file_info (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHDF5CompressionInformation
 //
@@ -635,9 +636,7 @@ SInt16 GetHDF5CompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHDF5ProjectionInformation
 //
@@ -1041,9 +1040,7 @@ SInt16 GetHDF5ProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetInstumentCodeFromHDF5File
 //
@@ -1097,9 +1094,7 @@ SInt16 GetInstumentCodeFromHDF5File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetMapInfoFromHDF5_CAIGlobalRadiance
 //
@@ -1317,9 +1312,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetMapInfoFromHDF5_CAIGlobalReflectance
 //
@@ -1405,9 +1398,7 @@ Boolean GetMapInfoFromHDF5_CAIGlobalReflectance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetMapInfoFromHDF5_CAIL1BPlus
 //
@@ -1687,9 +1678,7 @@ Boolean GetMapInfoFromHDF5_CAIL1BPlus (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetMapInfoFromHDF5_EASE2_Global_Geophysical
 //
@@ -1792,9 +1781,7 @@ Boolean GetMapInfoFromHDF5_EASE2_Global_Geophysical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDataProductCodeFromHDF5File
 //
@@ -1887,9 +1874,7 @@ SInt16 GetDataProductCodeFromHDF5File (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListHDF5DataSetAttributes
 //
@@ -1976,9 +1961,7 @@ Boolean ListHDF5DataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 group_check
 //
@@ -2022,9 +2005,7 @@ SInt32 group_check (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListHDF5FileInformation
 //
@@ -2108,9 +2089,7 @@ Boolean ListHDF5FileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 LoadHdf5DataSetNames
 //
@@ -2720,9 +2699,7 @@ SInt32 LoadHdf5DataSetNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 LoadHDF5HeaderInformation
 //
@@ -2790,9 +2767,7 @@ SInt16 LoadHDF5HeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadDataSetNumerical
 //
@@ -2850,9 +2825,7 @@ SInt16 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 ReadDataSetNumerical
 //
@@ -2934,9 +2907,7 @@ UInt32 ReadDataSetNumerical (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadDataSetString
 //
@@ -2994,9 +2965,7 @@ SInt16 ReadDataSetString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadDataSetString2
 //
@@ -3190,9 +3159,7 @@ SInt16 ReadDataSetString2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDataSetValueAsNumericalValue
 //
@@ -3282,9 +3249,7 @@ SInt16 GetDataSetValueAsNumericalValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDataSetValueAsString
 //
@@ -3452,9 +3417,7 @@ SInt16 GetDataSetValueAsString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetUpHDF5_FileInformation
 //

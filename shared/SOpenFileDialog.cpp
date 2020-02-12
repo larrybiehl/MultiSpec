@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SOpenFileDialog.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/20/2019
+//	Revision date:			01/13/2020
 //
 //	Language:				C
 //
@@ -243,9 +250,7 @@ SInt16 gCollapseClassSelection = 1;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AddSelectedFilesToWindow
 //
@@ -470,9 +475,7 @@ Boolean AddSelectedFilesToWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsatAnalysisReadyFileList
 //
@@ -651,9 +654,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsatETMFileList
 //
@@ -815,9 +816,7 @@ Boolean CheckForLandsatETMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForInstrumentFileList
 //
@@ -1001,9 +1000,7 @@ Boolean CheckForInstrumentFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsatMSSFileList
 //
@@ -1123,9 +1120,7 @@ Boolean CheckForLandsatMSSFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsatSurfaceReflectanceFileList
 //
@@ -1286,9 +1281,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsatTMFileList
 //
@@ -1449,9 +1442,7 @@ Boolean CheckForLandsatTMFileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForLandsat8FileList
 //
@@ -1599,9 +1590,7 @@ Boolean CheckForLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForSentinel2FileList
 //
@@ -1764,9 +1753,7 @@ Boolean CheckForSentinel2FileList (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawCollapseClassOptionPopUp
 //
@@ -1805,9 +1792,7 @@ pascal void DrawCollapseClassOptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawHDFDataSetPopUp
 //
@@ -1845,9 +1830,7 @@ pascal void DrawHDFDataSetPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean FileSpecificationDialog
 //
@@ -2849,9 +2832,7 @@ Boolean FileSpecificationDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FileSpecificationDialogInitialize
 //
@@ -3156,9 +3137,7 @@ void FileSpecificationDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean FileSpecificationDialogOK
 //
@@ -3175,7 +3154,7 @@ void FileSpecificationDialogInitialize (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
-//	Revised By:			Larry L. Biehl			Date: 11/20/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 Boolean FileSpecificationDialogOK (
 				DialogPtr							dialogPtr,
@@ -3631,7 +3610,7 @@ Boolean FileSpecificationDialogOK (
 						// reloaded.
 
 				windowInfoPtr->numberImageOverlays = 0;
-				windowInfoPtr->numberOverlays = 0;
+				windowInfoPtr->numberVectorOverlays = 0;
 			
 					// Need to check any selections in the current window to verify that
 					// they are within the limits for the new data set.
@@ -3874,9 +3853,7 @@ Boolean FileSpecificationDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 FileSpecificationDialogSetHDFValues
 //
@@ -4130,9 +4107,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FileSpecificationDialogSetInterleaveItems
 //
@@ -4286,9 +4261,7 @@ void FileSpecificationDialogSetInterleaveItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FileSpecificationDialogGetNumberBytes
 //
@@ -4346,9 +4319,7 @@ SInt16 FileSpecificationDialogGetNumberBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FileSpecificationDialogSetDataType
 //
@@ -4429,9 +4400,7 @@ SInt16 FileSpecificationDialogSetDataType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LinkFiles
 //
@@ -4471,9 +4440,7 @@ SInt16 LinkFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LinkSelectedFilesToNewWindow
 //
@@ -4667,9 +4634,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ListFileIgnoredMessage
 //
@@ -4724,9 +4689,7 @@ void ListFileIgnoredMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadSelectedDataSetInformation
 //
@@ -4792,9 +4755,7 @@ SInt16 LoadSelectedDataSetInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 OpenImageFile
 //
@@ -5121,9 +5082,7 @@ SInt32 OpenImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean OpenSeparateImageWindows
 //
@@ -5145,7 +5104,7 @@ SInt32 OpenImageFile (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/2012
-//	Revised By:			Larry L. Biehl			Date: 07/05/2017
+//	Revised By:			Larry L. Biehl			Date: 01/13/2020
 
 Boolean OpenSeparateImageWindows (
 				Handle								fileInfoHandle,
@@ -5213,7 +5172,9 @@ Boolean OpenSeparateImageWindows (
 																		  0);
 
 			fileFormat = GetFileFormat (fileInfoHandle);
-			if (fileInfoLoadedFlag && fileFormat != kArcViewShapeType)
+			if (fileInfoLoadedFlag &&
+						(fileFormat != kArcViewShapeType ||
+							(gActiveImageWindow == NULL && fileFormat == kArcViewShapeType)))
 				{
 						// Vector types are not handled here.
 
@@ -5259,6 +5220,9 @@ Boolean OpenSeparateImageWindows (
 
 					else if (gGetFileImageType == kThematicImageType)
 						continueFlag = SetUpThematicImageWindow (windowInfoHandle);
+
+					else if (fileFormat == kArcViewShapeType)
+						continueFlag = SetUpEmptyWindow (windowInfoHandle);
 
 					//DoWorkFlow ();
 					//#endif	// defined multispec_mac	
@@ -5309,9 +5273,7 @@ Boolean OpenSeparateImageWindows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 OpenSpecifiedFile
 //
@@ -5434,9 +5396,7 @@ SInt16 OpenSpecifiedFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReorderLandsat8FileList
 //
@@ -5491,9 +5451,7 @@ void ReorderLandsat8FileList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetHDFDataSetFileInformation
 //
@@ -5567,9 +5525,7 @@ void SetHDFDataSetFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetUpHDFDataSetPopupMenu
 //
@@ -5802,9 +5758,7 @@ void SetUpHDFDataSetPopupMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 VerifyFileInfoDialogValues
 //
@@ -5957,9 +5911,7 @@ SInt16 VerifyFileInfoDialogValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean VerifyImageFileSizeAgainstBaseImage
 //

@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SMapCoordinates.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/26/2019
+//	Revision date:			01/11/2020
 //
 //	Language:				C
 //
@@ -261,9 +268,7 @@ SInt16					gReferenceSystemSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AreasIntersect
 //
@@ -299,9 +304,7 @@ Boolean AreasIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfGeodeticModelInfoMatch
 //
@@ -352,9 +355,7 @@ Boolean CheckIfGeodeticModelInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfGridCoordinateSystemInfoMatch
 //
@@ -446,9 +447,7 @@ Boolean CheckIfGridCoordinateSystemInfoMatch (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CheckIfMapInfoMatches
 //
@@ -492,9 +491,7 @@ Boolean CheckIfMapInfoMatches (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseCoefficientsVectorPointers
 //
@@ -536,9 +533,7 @@ void CloseCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ComputeAndSetScaleInformation
 //
@@ -596,9 +591,7 @@ void ComputeAndSetScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ConvertDecimalDegreesToDMS
 //
@@ -662,9 +655,7 @@ SInt16 ConvertDecimalDegreesToDMS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertFeetToMeters
 //
@@ -707,9 +698,7 @@ void ConvertFeetToMeters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertLCPointToMapPoint
 //
@@ -813,9 +802,7 @@ void ConvertLCPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertLCRectToMapRect
 //
@@ -912,9 +899,7 @@ void ConvertLCRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertLCRectToMapRect_TransformCoordinate
 //
@@ -990,9 +975,7 @@ void ConvertLCRectToMapRect_TransformCoordinate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapPointToLC
 //
@@ -1103,9 +1086,7 @@ void ConvertMapPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapPointToLC
 //
@@ -1148,9 +1129,7 @@ void ConvertMapPointToLC (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectToLCRect
 //
@@ -1342,9 +1321,7 @@ void ConvertMapRectToLCRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectToOffscreenRect
 //
@@ -1402,9 +1379,7 @@ void ConvertMapRectToOffscreenRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapPointToOrientationAngleMapPoint
 //
@@ -1454,9 +1429,7 @@ void ConvertMapPointToOrientationAngleMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertMapPointToWinPoint
 //
@@ -1600,9 +1573,7 @@ Boolean ConvertMapPointToWinPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectToWinRect
 //
@@ -1660,9 +1631,7 @@ void ConvertMapRectToWinRect (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertWinPointToMapPoint
 //
@@ -1773,9 +1742,7 @@ void ConvertWinPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMetersToFeet
 //
@@ -1818,9 +1785,7 @@ void ConvertMetersToFeet (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertWinRectToMapRect
 //
@@ -2085,9 +2050,7 @@ void ConvertWinRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertPackedDegreesToDecimalDegrees
 //
@@ -2131,9 +2094,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CoordinateDialog
 //
@@ -3096,9 +3057,7 @@ Boolean CoordinateDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogActivateProjectionParameters
 //
@@ -3134,9 +3093,7 @@ void CoordinateDialogActivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CoordinateDialogCheckIfZoneIsValid
 //
@@ -3232,9 +3189,7 @@ SInt16 CoordinateDialogCheckIfZoneIsValid (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogDeactivateProjectionParameters
 //
@@ -3270,9 +3225,7 @@ void CoordinateDialogDeactivateProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SIn16 CoordinateDialogGetCodeFromSelection
 //
@@ -3315,9 +3268,7 @@ SInt16 CoordinateDialogGetCodeFromSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogGetMinMaxZone
 //
@@ -3409,9 +3360,7 @@ void CoordinateDialogGetMinMaxZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SIn16 CoordinateDialogGetSelectionFromCode
 //
@@ -3453,9 +3402,7 @@ SInt16 CoordinateDialogGetSelectionFromCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CoordinateDialogHandleInvalidValidEPSGCode
 //
@@ -3562,9 +3509,7 @@ Boolean CoordinateDialogHandleInvalidValidEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogHideShowProjectionParameters
 //
@@ -3854,9 +3799,7 @@ void CoordinateDialogHideShowProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogInitialize
 //
@@ -4209,9 +4152,7 @@ void CoordinateDialogInitialize (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CoordinateDialogIsZoneDirectionEditable
 //
@@ -4255,9 +4196,7 @@ Boolean CoordinateDialogIsZoneDirectionEditable (
 					
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CoordinateDialogIsZoneDisplayed
 //
@@ -4307,9 +4246,7 @@ Boolean CoordinateDialogIsZoneDisplayed (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogOK
 //
@@ -4518,9 +4455,7 @@ void CoordinateDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CoordinateDialogSetParametersFromEPSGCode
 //
@@ -4705,9 +4640,7 @@ Boolean CoordinateDialogSetParametersFromEPSGCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogSetParametersFromRS
 //
@@ -4938,9 +4871,7 @@ void CoordinateDialogSetParametersFromRS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CoordinateDialogSetDatumParameters
 //
@@ -5001,9 +4932,7 @@ SInt16 CoordinateDialogSetDatumParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogSetEllipsoidParameters
 //
@@ -5130,9 +5059,7 @@ void CoordinateDialogSetEllipsoidParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogSetProjectionParameters
 //
@@ -5253,9 +5180,7 @@ void CoordinateDialogSetProjectionParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CoordinateDialogSetReferenceSystemParameters
 //
@@ -5619,9 +5544,7 @@ void CoordinateDialogSetReferenceSystemParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle CopyMapProjectionHandle
 //
@@ -5693,9 +5616,7 @@ SInt16 CopyMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DisposeMapProjectionHandle
 //
@@ -5734,9 +5655,7 @@ Handle DisposeMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawCursorCoordinates
 //
@@ -6045,9 +5964,7 @@ void DrawCursorCoordinates (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawMapUnitsPopUp
 //
@@ -6086,9 +6003,7 @@ pascal void DrawMapUnitsPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawDatumPopUp
 //
@@ -6127,9 +6042,7 @@ pascal void DrawDatumPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawEllipsoidPopUp
 //
@@ -6169,9 +6082,7 @@ pascal void DrawEllipsoidPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawProjectionPopUp
 //
@@ -6211,9 +6122,7 @@ pascal void DrawProjectionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawReferenceSystemPopUp
 //
@@ -6253,9 +6162,7 @@ pascal void DrawReferenceSystemPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawScaleInformation
 //
@@ -6373,9 +6280,7 @@ void DrawScaleInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawSelectedAreaInformation
 //
@@ -6506,9 +6411,7 @@ void DrawSelectedAreaInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawSelectionCoordinates
 //
@@ -6820,10 +6723,10 @@ void DrawSelectionCoordinates (
 
 
 
+//- ----------------------------------------------------------------------------------
 // Function to compute the constant e4 from the input of the eccentricity
 //   of the spheroid, x.  This constant is used in the Polar Stereographic
 //   projection.
-//  --------------------------------------------------------------------*/
 
 double e4fn (
 				double								x)
@@ -6842,9 +6745,7 @@ double e4fn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FindIfMapInformationExists
 //
@@ -6894,9 +6795,7 @@ Boolean FindIfMapInformationExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FindIfMapInformationExists
 //
@@ -6955,9 +6854,7 @@ Boolean FindIfMapInformationExists (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetAreaNumberWidths
 //
@@ -7061,9 +6958,7 @@ void GetAreaNumberWidths (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetAreaUnits
 //
@@ -7101,9 +6996,7 @@ SInt16 GetAreaUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetAreaUnitString
 //
@@ -7163,9 +7056,7 @@ SInt16 GetAreaUnitString (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetConversionFromMetersToNativeMapUnits
 //
@@ -7207,9 +7098,7 @@ double GetConversionFromMetersToNativeMapUnits (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetCursorCoordinates
 //
@@ -7300,9 +7189,7 @@ Boolean GetCursorCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetBoundingMapRectangle
 //
@@ -7372,9 +7259,7 @@ void GetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetBoundingOrientationAngleRect
 //
@@ -7479,9 +7364,7 @@ void GetBoundingOrientationAngleRect (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetCoefficientsHandle
 //
@@ -7518,9 +7401,7 @@ Handle GetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoefficientsVectorPointers
 //
@@ -7571,9 +7452,7 @@ void GetCoefficientsVectorPointers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetEllipsoidCodeFromDatumCode
 //
@@ -7654,9 +7533,7 @@ SInt16 GetEllipsoidCodeFromDatumCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				Boolean GetEllipsoidParameters
 //
@@ -7771,9 +7648,7 @@ Boolean GetEllipsoidParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileProjectionCode
 //
@@ -7807,9 +7682,7 @@ SInt16 GetFileProjectionCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileGridZone
 //
@@ -7843,9 +7716,7 @@ SInt16 GetFileGridZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFilePlanarMapUnitsCode
 //
@@ -7880,9 +7751,7 @@ SInt16 GetFilePlanarMapUnitsCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileReferenceSystemCode
 //
@@ -7916,9 +7785,7 @@ SInt16 GetFileReferenceSystemCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileSpheroidCode
 //
@@ -7952,9 +7819,7 @@ SInt16 GetFileSpheroidCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetGridZone
 //
@@ -7991,9 +7856,7 @@ SInt16 GetGridZone (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetMapOrientationAngle
 //
@@ -8030,9 +7893,7 @@ double GetMapOrientationAngle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetMapProjectionHandle
 //
@@ -8076,9 +7937,7 @@ Handle GetMapProjectionHandle (void)
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetPixelSize
 //
@@ -8128,9 +7987,7 @@ void GetPixelSize (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetPlanarMapUnitsCode
 //
@@ -8168,9 +8025,7 @@ SInt16 GetPlanarMapUnitsCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetPolynomialOrder
 //
@@ -8209,9 +8064,7 @@ SInt16 GetPolynomialOrder (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetProjectedCSTypeGeoKey
 //
@@ -8249,9 +8102,7 @@ SInt16 GetProjectedCSTypeGeoKey (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetProjectionCode
 //
@@ -8288,9 +8139,7 @@ SInt16 GetProjectionCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetProjectionCodeFromProjectionMenuItem
 //
@@ -8321,9 +8170,7 @@ SInt16 GetProjectionCodeFromProjectionMenuItem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetProjectionCodeFromReferenceSystemCode
 //
@@ -8386,9 +8233,7 @@ SInt16 GetProjectionCodeFromReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetReferenceSystemCode
 //
@@ -8425,9 +8270,7 @@ SInt16 GetReferenceSystemCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem
 //
@@ -8470,9 +8313,7 @@ SInt16 GetReferenceSystemCodeFromReferenceSystemMenuItem (
 											
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetScale
 //
@@ -8556,9 +8397,7 @@ double GetScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetSpecificUTMRSFromDatumOrEllipsoid
 //
@@ -8624,9 +8463,7 @@ SInt16 GetSpecificUTMRSFromDatumOrEllipsoid (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetSpheroidCode
 //
@@ -8663,9 +8500,7 @@ SInt16 GetSpheroidCode (
  
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetSpheroidCodeFromMajorMinorAxes
 //
@@ -8756,9 +8591,7 @@ SInt16 GetSpheroidCodeFromMajorMinorAxes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetWindowMapRect
 //
@@ -8843,9 +8676,7 @@ void GetWindowMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeGeodeticModelStructure
 //
@@ -8886,9 +8717,7 @@ void InitializeGeodeticModelStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeGridCoordinateSystemStructure
 //
@@ -8936,9 +8765,7 @@ void InitializeGridCoordinateSystemStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeMapProjectionStructure
 //
@@ -8978,9 +8805,7 @@ void InitializeMapProjectionStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializePlanarCoordinateInfo
 //
@@ -9024,9 +8849,7 @@ void InitializePlanarCoordinateInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void LoadDMSLatLongStrings
 //
@@ -9117,9 +8940,7 @@ SInt16 LoadDMSLatLongStrings (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void LoadPlanarCoordinates
 //
@@ -9185,9 +9006,7 @@ void LoadPlanarCoordinates (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void LoadSpheroidInformation
 //
@@ -9497,9 +9316,7 @@ void LoadSpheroidInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean PointInRectangle
 //
@@ -9535,9 +9352,7 @@ Boolean PointInRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetAlbersEqualAreaParameters
 //
@@ -9581,9 +9396,7 @@ void SetAlbersEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetBoundingMapRectangle
 //
@@ -9746,9 +9559,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetBoundingMapRectangle
 //
@@ -9850,9 +9661,7 @@ void SetBoundingMapRectangle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoefficientsHandle
 //
@@ -9888,9 +9697,7 @@ void SetCoefficientsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewLocationParameters
 //
@@ -10361,9 +10168,7 @@ void SetCoordinateViewLocationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCylindricalEqualAreaParameters
 //
@@ -10420,9 +10225,7 @@ void SetCylindricalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetEllipsoidFromDatum
 //
@@ -10456,9 +10259,7 @@ void SetEllipsoidFromDatum (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetEquirectangularParameters
 //
@@ -10498,9 +10299,7 @@ void SetEquirectangularParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetGDA94ParametersFromZone
 //
@@ -10563,9 +10362,7 @@ Boolean SetGDA94ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetKrovakParameters
 //
@@ -10603,9 +10400,7 @@ void SetKrovakParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetLambertAzimuthalEqualAreaParameters
 //
@@ -10652,9 +10447,7 @@ void SetLambertAzimuthalEqualAreaParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetLambertConformalConicParameters
 //
@@ -10706,9 +10499,7 @@ void SetLambertConformalConicParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetMercatorParameters
 //
@@ -10767,9 +10558,7 @@ void SetMercatorParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetOrthographicParameters
 //
@@ -10810,9 +10599,7 @@ void SetOrthographicParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetPolarStereographicParameters
 //
@@ -10865,9 +10652,7 @@ void SetPolarStereographicParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetProjectionParameters
 //
@@ -10995,9 +10780,7 @@ void SetProjectionParameters (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetProjectionParametersFromReferenceSystem
 //
@@ -11048,9 +10831,7 @@ Boolean SetProjectionParametersFromReferenceSystem (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetProjectionParametersFromZone
 //
@@ -11189,9 +10970,7 @@ Boolean SetProjectionParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetTMPulkovo1942ParametersFromZone
 //
@@ -11273,9 +11052,7 @@ Boolean SetTMPulkovo1942ParametersFromZone (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetSinusoidalParameters
 //
@@ -11327,9 +11104,7 @@ void SetSinusoidalParameters (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetStatePlaneParametersFromZone
 //
@@ -11478,9 +11253,7 @@ Boolean SetStatePlaneParametersFromZone (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetTransverseMercatorParameters
 //
@@ -11541,9 +11314,7 @@ void SetTransverseMercatorParameters (
 
 /*                   
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpEllipsoidPopUpMenu
 //
@@ -11607,9 +11378,7 @@ void SetUpEllipsoidPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpHorizontalDatumPopUpMenu
 //
@@ -11663,9 +11432,7 @@ void SetUpHorizontalDatumPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpProjectionPopUpMenu
 //
@@ -11737,9 +11504,7 @@ void SetUpProjectionPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpReferenceSystemPopUpMenu
 //
@@ -11789,9 +11554,7 @@ void SetUpReferenceSystemPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUTMParametersFromZone
 //
@@ -11856,9 +11619,7 @@ Boolean SetUTMParametersFromZone (
 								
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 TransformCoordinatePoint
 //
@@ -11967,9 +11728,7 @@ SInt16 TransformCoordinatePoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateScaleInformation
 //

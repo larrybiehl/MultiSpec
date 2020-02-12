@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							 (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SSaveWrite.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			02/05/2020
 //
 //	Language:				C
 //
@@ -256,9 +263,7 @@ Boolean 	WriteTextOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1992-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1992-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 FindEndOfLineCode
 //
@@ -428,9 +433,7 @@ SInt16 FindEndOfLineCode (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetGroupInfoFile
 //
@@ -584,9 +587,7 @@ Boolean GetGroupInfoFile (
 
 
 //------------------------------------------------------------------------------------
-//								 		Copyright (1992-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1992-2020 Purdue Research Foundation
 //
 //	Function name:		char* GetNextLine
 //
@@ -802,9 +803,7 @@ SInt16 GetNextLine (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetNumberStripsToUse
 //
@@ -945,9 +944,7 @@ UInt32 GetNumberStripsToUse (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetThematicSupportFile
 //
@@ -1126,9 +1123,7 @@ Boolean GetThematicSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 LoadGeoDoubleValue
 //
@@ -1165,9 +1160,7 @@ UInt32 LoadGeoDoubleValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 LoadGeoKeyDirectory
 //
@@ -2576,9 +2569,7 @@ UInt32 LoadGeoKeyDirectory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadGeoKeyEntry
 //
@@ -2616,9 +2607,7 @@ void LoadGeoKeyEntry (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 LoadGeoModelTiePoints
 //
@@ -2749,9 +2738,7 @@ UInt32 LoadGeoModelTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt16 LoadInstrumentNameToTIFFAsciiTag
 //
@@ -2829,9 +2816,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LoadGeoModelTransformationParameters
 //
@@ -2989,9 +2974,7 @@ UInt32 LoadGeoModelTransformationParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadThematicClasses
 //
@@ -3103,9 +3086,7 @@ void LoadThematicClasses (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadThematicGroups
 //
@@ -3197,9 +3178,7 @@ void LoadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadThematicInfo
 //
@@ -3264,9 +3243,7 @@ void LoadThematicInfo (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadTIFFColorBuffer
 //
@@ -3433,9 +3410,7 @@ void LoadTIFFColorBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadTiffEntry
 //
@@ -3510,9 +3485,7 @@ void LoadTiffEntry (
                    
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadTransformationFile
 //
@@ -3737,9 +3710,7 @@ void LoadTransformationFile (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadOffsetGainFile
 //
@@ -4083,9 +4054,7 @@ Boolean ReadOffsetGainFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadTransformationFile
 //
@@ -4651,9 +4620,7 @@ Boolean ReadTransformationFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadTransformationFileSetSwapInfo
 //
@@ -4761,9 +4728,7 @@ SInt16 ReadTransformationFileSetSwapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadTransformationGetFileSizes
 //
@@ -4862,9 +4827,7 @@ void ReadTransformationGetFileSizes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SaveImageWindowAs
 //
@@ -5087,9 +5050,7 @@ void SaveImageWindowAs (void)
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SaveTextOutputAs
 //
@@ -5232,9 +5193,7 @@ Boolean SaveTextOutputAs (void)
 
 
 //------------------------------------------------------------------------------------
-//								 	Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		char* SkipToNextCarriageReturn
 //
@@ -5284,9 +5243,7 @@ UCharPtr SkipToNextCarriageReturn (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteArcViewWorldFile
 //
@@ -5438,9 +5395,7 @@ Boolean WriteArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteArcViewHeaderFile
 //
@@ -5915,9 +5870,7 @@ Boolean WriteArcViewHeaderFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteArcViewHeaderFiles
 //
@@ -5961,9 +5914,7 @@ Boolean WriteArcViewSupportFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteArcViewMapInformation
 //
@@ -6092,8 +6043,7 @@ SInt16 WriteArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteErdasHeader
 //
@@ -6160,9 +6110,7 @@ Boolean	WriteErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteGeoTIFFInformation
 //
@@ -6179,7 +6127,7 @@ Boolean	WriteErdasHeader (
 // Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2002
-//	Revised By:			Larry L. Biehl			Date: 08/06/2014
+//	Revised By:			Larry L. Biehl			Date: 02/05/2020
 
 SInt16 WriteGeoTIFFInformation (
 				FileInfoPtr 						fileInfoPtr,
@@ -6385,7 +6333,8 @@ SInt16 WriteGeoTIFFInformation (
 			
 					// 34737: Geo ASCII Parameters		
 				
-			if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode != 0)
+			if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode != 0 &&
+						numberGeoASCIIParameterBytes > 0)
 				{	
 				if (!countOnlyFlag)
 					{
@@ -6562,8 +6511,7 @@ SInt16 WriteGeoTIFFInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteKMLFile
 //
@@ -6953,8 +6901,7 @@ Boolean	WriteKMLFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteNewErdasHeader
 //
@@ -7002,9 +6949,7 @@ Boolean	WriteNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteNewImageHeader
 //
@@ -7189,9 +7134,7 @@ Boolean WriteNewImageHeader (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteTextOutputFile
 //
@@ -7303,9 +7246,7 @@ Boolean WriteTextOutputFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteThematicClassesAs
 //
@@ -7435,9 +7376,7 @@ void WriteThematicClassesAs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteThematicGroups
 //
@@ -7758,9 +7697,7 @@ void WriteThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteThematicInfo
 //
@@ -7832,9 +7769,7 @@ void WriteThematicInfo (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteTIFFColorMap
 //
@@ -8059,9 +7994,7 @@ SInt16 WriteTIFFColorMap (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				SInt16 WriteTIFFImageData
 //
@@ -8507,9 +8440,7 @@ SInt16 WriteTIFFImageData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WriteTIFFImageFile
 //
@@ -9372,9 +9303,7 @@ Boolean WriteTIFFImageFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteTransformationFile
 //

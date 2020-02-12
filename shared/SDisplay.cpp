@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SDisplay.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			01/10/2020
 //
 //	Language:				C
 //
@@ -79,9 +86,7 @@ void SetWindowToImageSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckSomeDisplayEvents
 //
@@ -178,9 +183,7 @@ Boolean CheckSomeDisplayEvents (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckNumberDisplayColumns
 //
@@ -335,9 +338,7 @@ SInt16 CheckNumberDisplayColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckNumberDisplayLines
 //
@@ -419,9 +420,7 @@ SInt16 CheckNumberDisplayLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		DisplayColorImage
 //
@@ -876,9 +875,7 @@ void DisplayColorImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DisplayImage
 //
@@ -897,7 +894,7 @@ void DisplayColorImage (
 //							SetUpThematicImageWindow in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 02/04/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void DisplayImage ()
 
@@ -1006,7 +1003,7 @@ void DisplayImage ()
 			#if defined multispec_mac
 						// Draw the overlays if needed.
 
-				if (gCallProcessorDialogFlag && gImageWindowInfoPtr->numberOverlays > 0)
+				if (gCallProcessorDialogFlag && gImageWindowInfoPtr->numberVectorOverlays > 0)
 						// Need to force the vectors to be drawn for this case.
 					DrawArcViewShapes (gActiveImageWindow,
 											  gActiveImageWindowInfoH,
@@ -1024,7 +1021,7 @@ void DisplayImage ()
 			#endif	// defined multispec_mac
 
 			#if defined multispec_win || defined multispec_wx
-            if (gImageWindowInfoPtr->numberOverlays > 0 || saveProjectWindowFlag)
+            if (gImageWindowInfoPtr->numberVectorOverlays > 0 || saveProjectWindowFlag)
                 InvalidateWindow (gActiveImageWindow, kImageFrameArea, FALSE);
 			#endif	// defined multispec_win || defined multispec_wx
 
@@ -1046,9 +1043,7 @@ void DisplayImage ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ForceDisplayCodeResourceLoad
 //
@@ -1083,9 +1078,7 @@ void ForceDisplayCodeResourceLoad (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDefaultImagePixelSize
 //
@@ -1133,9 +1126,7 @@ SInt16 GetDefaultImagePixelSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetIncludeVectorOverlaysFlag
 //
@@ -1178,9 +1169,7 @@ Boolean GetIncludeVectorOverlaysFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetNumberPixRowBytes
 //
@@ -1233,9 +1222,7 @@ UInt32 GetNumberPixRowBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		DisplaySpecsPtr GetActiveDisplaySpecsPtr
 //
@@ -1284,9 +1271,7 @@ DisplaySpecsPtr GetActiveDisplaySpecsPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetDisplaySpecsStructure
 //
@@ -1348,9 +1333,7 @@ Handle GetDisplaySpecsStructure (
 
 #if defined multispec_mac || defined multispec_win
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetOffscreenGWorld
 //
@@ -1796,9 +1779,7 @@ SInt16 GetOffscreenGWorld (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeDisplaySpecsStructure
 //
@@ -1814,7 +1795,7 @@ SInt16 GetOffscreenGWorld (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 03/18/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void InitializeDisplaySpecsStructure (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1842,10 +1823,10 @@ void InitializeDisplaySpecsStructure (
 
 			displaySpecsPtr->displayedLineStart = 0;
 			displaySpecsPtr->displayedLineEnd = 0;
-			displaySpecsPtr->displayedLineInterval = 0;
+			displaySpecsPtr->displayedLineInterval = 1;
 			displaySpecsPtr->displayedColumnStart = 0;
 			displaySpecsPtr->displayedColumnEnd = 0;
-			displaySpecsPtr->displayedColumnInterval = 0;
+			displaySpecsPtr->displayedColumnInterval = 1;
 
 			displaySpecsPtr->displayedNumberChannels = 0;
 
@@ -1997,9 +1978,7 @@ void InitializeDisplaySpecsStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeClassGroupsVector
 //
@@ -2064,9 +2043,7 @@ SInt16 InitializeClassGroupsVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InvalidateImageSegment
 //
@@ -2169,9 +2146,7 @@ void InvalidateImageSegment (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void SetDisplayImageWindowSizeVariables
 //
@@ -2383,9 +2358,7 @@ void SetDisplayImageWindowSizeVariables (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				Boolean SetUpColorImageMemory
 //
@@ -2498,9 +2471,7 @@ Boolean SetUpColorImageMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void SetUpImageWindowTypeParameters
 //
@@ -2687,9 +2658,7 @@ void SetUpImageWindowTypeParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void SetVectorOverlays
 //
@@ -2761,9 +2730,7 @@ void SetVectorOverlays (
 
 #if defined multispec_mac	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void SetWindowToImageSize
 //

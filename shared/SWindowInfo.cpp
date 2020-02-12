@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SWindowInfo.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/22/2019
+//	Revision date:			01/11/2020
 //
 //	Language:				C
 //
@@ -49,9 +56,7 @@
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfDefaultHistogramInfoExists
 //
@@ -108,9 +113,7 @@ Boolean CheckIfDefaultHistogramInfoExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfEntireImage
 //
@@ -169,9 +172,7 @@ Boolean CheckIfEntireImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		WindowPtr DisposeOfImageWindowSupportMemory
 //
@@ -230,9 +231,7 @@ void DisposeOfImageWindowSupportMemory (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle* GetActiveDisplaySpecsHandle
 //
@@ -270,9 +269,7 @@ Handle GetActiveDisplaySpecsHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetActiveImageFileInfoHandle
 //
@@ -315,9 +312,7 @@ Handle GetActiveImageFileInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetActiveImageLayerInfoHandle
 //
@@ -360,9 +355,7 @@ Handle GetActiveImageLayerInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetActiveImageWindowInfoHandle
 //
@@ -405,9 +398,7 @@ Handle GetActiveImageWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		LegendListHandle GetActiveLegendListHandle
 //
@@ -445,9 +436,7 @@ LegendListHandle GetActiveLegendListHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetActiveSelectionInfoHandle
 //
@@ -489,9 +478,7 @@ Handle GetActiveSelectionInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMFileStream* GetActiveSupportFileStreamPointer
 //
@@ -528,9 +515,7 @@ CMFileStream* GetActiveSupportFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetActiveWindowInfoHandle
 //
@@ -595,9 +580,7 @@ Handle GetActiveWindowInfoHandle (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateHeight
 //
@@ -655,9 +638,7 @@ UInt32 GetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewAreaFactor
 //
@@ -695,9 +676,7 @@ double GetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewAreaUnits
 //
@@ -733,9 +712,7 @@ SInt16 GetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewAreaUnitsControl
 //
@@ -771,9 +748,7 @@ ControlHandle GetCoordinateViewAreaUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewCursorStart
 //
@@ -811,9 +786,7 @@ UInt32 GetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewFactor
 //
@@ -851,9 +824,7 @@ double GetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewAreaPopupStart
 //
@@ -890,9 +861,7 @@ UInt32 GetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewNumberChars
 //
@@ -930,9 +899,7 @@ UInt32 GetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewNumberPixelsChars
 //
@@ -970,9 +937,7 @@ UInt32 GetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewNumberPixelsStart
 //
@@ -1009,9 +974,7 @@ UInt32 GetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewScaleStart
 //
@@ -1048,9 +1011,7 @@ UInt32 GetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewSelectionStart
 //
@@ -1088,9 +1049,7 @@ UInt32 GetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewUnits
 //
@@ -1128,9 +1087,7 @@ SInt16 GetCoordinateViewUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewUnitDecimalPlaces
 //
@@ -1168,9 +1125,7 @@ SInt16 GetCoordinateViewUnitDecimalPlaces (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetCoordinateViewUnitsControl
 //
@@ -1206,9 +1161,7 @@ ControlHandle GetCoordinateViewUnitsControl (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDisplayClassGroupCode
 //
@@ -1246,9 +1199,7 @@ SInt16 GetDisplayClassGroupCode (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetDisplayedLineStart
 //
@@ -1293,9 +1244,7 @@ UInt32 GetDisplayedLineStart (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetDisplaySpecsHandle
 //
@@ -1370,9 +1319,7 @@ Handle GetDisplaySpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetFileInfoHandle
 //
@@ -1422,9 +1369,7 @@ Handle GetFileInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileInfoVersion
 //
@@ -1460,9 +1405,7 @@ SInt16 GetFileInfoVersion (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetFileMapProjectionHandle2
 //
@@ -1493,9 +1436,7 @@ Handle GetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMFileStream* GetFileStreamPointer
 //
@@ -1549,9 +1490,7 @@ CMFileStream* GetFileStreamPointer (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetHistogramSpecsHandle
 //
@@ -1642,9 +1581,7 @@ Handle GetHistogramSpecsHandle (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetHistogramSummaryHandle
 //
@@ -1735,9 +1672,7 @@ Handle GetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHistogramSupportFileFormat
 //
@@ -1772,9 +1707,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHistogramSupportFileFormat
 //
@@ -1818,9 +1751,7 @@ SInt16 GetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetImageTopOffset
 //
@@ -1854,9 +1785,7 @@ UInt32 GetImageTopOffset (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetImageType
 //
@@ -1891,9 +1820,7 @@ SInt16 GetImageType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetLayerInfoHandle
 //
@@ -1948,9 +1875,7 @@ Handle GetLayerInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetActiveLegendListType
 //
@@ -2000,9 +1925,7 @@ SInt16 GetActiveLegendListType ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetLegendWidth
 //
@@ -2079,9 +2002,7 @@ SInt16 GetLegendWidth (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetMapProjectionHandle
 //
@@ -2117,9 +2038,7 @@ Handle GetMapProjectionHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetMaxNumberColumns
 //
@@ -2155,9 +2074,7 @@ UInt32 GetMaxNumberColumns (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetMaxNumberLines
 //
@@ -2193,9 +2110,7 @@ UInt32 GetMaxNumberLines (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetNumberImageFiles
 //
@@ -2229,9 +2144,7 @@ UInt32 GetNumberImageFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetNumberImageWindowOverlays
 //
@@ -2265,14 +2178,12 @@ UInt32 GetNumberImageWindowOverlays (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		UInt32 GetNumberWindowOverlays
+//	Function name:		UInt32 GetNumberWindowVectorOverlays
 //
-//	Software purpose:	This routine returns the number of window overlays (or vector
-//							overlay) for the input window information handle.
+//	Software purpose:	This routine returns the number of vector overlays for the
+//							input window information handle.
 //
 //	Parameters in:				
 //
@@ -2283,27 +2194,25 @@ UInt32 GetNumberImageWindowOverlays (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2005
-//	Revised By:			Larry L. Biehl			Date: 03/25/2005			
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
-UInt32 GetNumberWindowOverlays (
+UInt32 GetNumberWindowVectorOverlays (
 				Handle								windowInfoHandle)
 
 { 
 	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 										
 	if (windowInfoPtr != NULL) 
-		return (windowInfoPtr->numberOverlays);    
+		return (windowInfoPtr->numberVectorOverlays);    
 	     
 	return (0);
 	
-}	// end "GetNumberWindowOverlays" 
+}	// end "GetNumberWindowVectorOverlays"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		PMOrientation GetPrintPageOrientation
 //
@@ -2344,9 +2253,7 @@ PMOrientation GetPrintPageOrientation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetPrintPageScale
 //
@@ -2380,9 +2287,7 @@ double GetPrintPageScale (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetProjectBaseImageFlag
 //
@@ -2416,9 +2321,7 @@ Boolean GetProjectBaseImageFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetProjectWindowFlag
 //
@@ -2452,9 +2355,7 @@ Boolean GetProjectWindowFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetOutputWindowChangedFlag
 //
@@ -2506,9 +2407,7 @@ Boolean GetOutputWindowChangedFlag (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetSelectionInfoHandle
 //
@@ -2595,9 +2494,7 @@ SInt16 GetSelectionInfoDisplayUnits (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetShowLegendFlag
 //
@@ -2631,9 +2528,7 @@ Boolean GetShowLegendFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMFileStream* GetSupportFileStreamPointer
 //
@@ -2685,9 +2580,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMFileStream* GetSupportFileStreamPointer
 //
@@ -2733,9 +2626,7 @@ CMFileStream* GetSupportFileStreamPointer (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetTitleHeight
 //
@@ -2769,9 +2660,7 @@ SInt16 GetTitleHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetTotalNumberOfChannels
 //
@@ -2806,9 +2695,7 @@ UInt32 GetTotalNumberOfChannels (
 
 #if defined multispec_win || defined multispec_wx
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMImageWindow* GetWindowClassPointer
 //
@@ -2843,9 +2730,7 @@ CMImageWindow* GetWindowClassPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetWindowInfoHandle
 //
@@ -2905,9 +2790,7 @@ Handle GetWindowInfoHandle (wxView* windowPtr)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetWindowInfoHandle
 //
@@ -2942,9 +2825,7 @@ Handle GetWindowInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Handle GetWindowInfoStructures
 //
@@ -3047,9 +2928,7 @@ Handle GetWindowInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		WindowPtr GetWindowPtr
 //
@@ -3108,9 +2987,7 @@ WindowPtr GetWindowPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetWindowType
 //
@@ -3146,9 +3023,59 @@ SInt16 GetWindowType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		Boolean ImageWindowIsAvailable
+//
+//	Software purpose:	This routine returns a flag indicating whether an the image
+//							window is available to be drawn in. The image window has an
+//							offscreen map, a vector file, and or an image image overlay
+//							file.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 01/11/2020
+//	Revised By:			Larry L. Biehl			Date: 01/11/2020
+
+Boolean ImageWindowIsAvailable (
+				Handle								windowInfoHandle)
+
+{ 
+	WindowInfoPtr						windowInfoPtr;
+	
+	Boolean								imageWindowIsAvailableFlag = FALSE;
+	
+	
+	imageWindowIsAvailableFlag = OffscreenImageMapExists (windowInfoHandle);
+	
+	if (!imageWindowIsAvailableFlag)
+		{
+		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+	
+		if (windowInfoPtr != NULL)
+			{
+			if (windowInfoPtr->numberVectorOverlays > 0 ||
+												windowInfoPtr->numberImageOverlays > 0)
+				imageWindowIsAvailableFlag = TRUE;
+
+			}	// end "if (windowInfoPtr != NULL) "
+		
+		}	// end "if (!imageWindowIsAvailableFlag)"
+	     
+	return (imageWindowIsAvailableFlag);
+		
+}	// end "ImageWindowIsAvailable"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeWindowInfoStructure
 //
@@ -3167,7 +3094,7 @@ SInt16 GetWindowType (
 //							GetWindowInfoStructures in MWindow.c
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1991
-//	Revised By:			Larry L. Biehl			Date: 04/22/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 Handle InitializeWindowInfoStructure (
 				Handle								windowInfoHandle,
@@ -3280,7 +3207,7 @@ Handle InitializeWindowInfoStructure (
 		windowInfoPtr->maxNumberColumns = 0;
 		windowInfoPtr->maxNumberLines = 0;
 		windowInfoPtr->numberBins = 0;
-		windowInfoPtr->numberOverlays = 0;
+		windowInfoPtr->numberVectorOverlays = 0;
 		windowInfoPtr->numberImageOverlays = 0;
 		windowInfoPtr->offscreenMapSize = 0;
 		windowInfoPtr->coordinateViewAreaUnitsCode = kNumberPixelsUnitsMenuItem;
@@ -3352,9 +3279,7 @@ Handle InitializeWindowInfoStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean OffscreenImageMapExists
 //
@@ -3392,9 +3317,11 @@ Boolean OffscreenImageMapExists (
 		#endif	// not multispec_wx
 		
 		#if defined multispec_wx
-			WindowPtr windowPtr = GetWindowPtr (windowInfoPtr);
-			if (windowPtr != NULL)
-				offscreenImageMapExistsFlag = windowPtr->CheckIfOffscreenImageExists ();
+			//WindowPtr windowPtr = GetWindowPtr (windowInfoPtr);
+			//if (windowPtr != NULL)
+			//	offscreenImageMapExistsFlag = windowPtr->CheckIfOffscreenImageExists ();
+			if (windowInfoPtr->imageBaseAddressH != NULL)
+				offscreenImageMapExistsFlag = TRUE;
 		#endif	// defined multispec_wx
 
 		}	// end "if (windowInfoPtr != NULL) "
@@ -3406,9 +3333,7 @@ Boolean OffscreenImageMapExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReleaseOffscreenSupportMemory
 //
@@ -3503,9 +3428,7 @@ void ReleaseOffscreenSupportMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateHeight
 //
@@ -3554,9 +3477,7 @@ void SetCoordinateHeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewAreaFactor
 //
@@ -3593,9 +3514,7 @@ void SetCoordinateViewAreaFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewAreaPopupStart
 //
@@ -3632,9 +3551,7 @@ void SetCoordinateViewAreaPopupStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewAreaUnits
 //
@@ -3670,9 +3587,7 @@ void SetCoordinateViewAreaUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewAreaUnits
 //
@@ -3709,9 +3624,7 @@ void SetCoordinateViewAreaUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewCursorStart
 //
@@ -3748,9 +3661,7 @@ void SetCoordinateViewCursorStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewFactor
 //
@@ -3786,9 +3697,7 @@ void SetCoordinateViewFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewNumberChars
 //
@@ -3825,9 +3734,7 @@ void SetCoordinateViewNumberChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewNumberPixelsChars
 //
@@ -3866,9 +3773,7 @@ void SetCoordinateViewNumberPixelsChars (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewNumberPixelsStart
 //
@@ -3906,9 +3811,7 @@ void SetCoordinateViewNumberPixelsStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewScaleStart
 //
@@ -3945,9 +3848,7 @@ void SetCoordinateViewScaleStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewSelectionStart
 //
@@ -3984,9 +3885,7 @@ void SetCoordinateViewSelectionStart (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewUnits
 //
@@ -4061,9 +3960,7 @@ void SetCoordinateViewUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetCoordinateViewUnitsControl
 //
@@ -4099,9 +3996,7 @@ void SetCoordinateViewUnitsControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetFileMapProjectionHandle2
 //
@@ -4133,9 +4028,7 @@ void SetFileMapProjectionHandle2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetHistogramSpecsHandle
 //
@@ -4185,9 +4078,7 @@ void SetHistogramSpecsHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetHistogramSummaryHandle
 //
@@ -4237,9 +4128,7 @@ void SetHistogramSummaryHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetHistogramSupportFileFormat
 //
@@ -4280,9 +4169,7 @@ void SetHistogramSupportFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 SetImageType
 //
@@ -4316,9 +4203,7 @@ void SetImageType (
 
 	
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetImageWindowIsUpToDateFlag
 //
@@ -4355,9 +4240,7 @@ void SetImageWindowIsUpToDateFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetLayerInfoHandle
 //
@@ -4388,9 +4271,7 @@ void SetLayerInfoHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetOutputWindowChangedFlag
 //
@@ -4440,9 +4321,7 @@ void SetOutputWindowChangedFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetPrintPageOrientation
 //
@@ -4475,9 +4354,7 @@ void SetPrintPageOrientation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetPrintPageScale
 //
@@ -4533,9 +4410,7 @@ void SetSelectionInfoDisplayUnits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetSupportFileStreamHandle
 //
@@ -4597,9 +4472,7 @@ void SetSupportFileStreamHandle (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetWindowType
 //
@@ -4635,9 +4508,7 @@ void SetWindowType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UnlockActiveSupportFileStream
 //
@@ -4678,9 +4549,7 @@ void UnlockActiveSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UnlockAndDisposeSupportFileStream
 //
@@ -4732,9 +4601,7 @@ void UnlockAndDisposeSupportFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UnlockFileStream
 //
@@ -4776,9 +4643,7 @@ void UnlockFileStream (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UnlockSupportFileStream
 //

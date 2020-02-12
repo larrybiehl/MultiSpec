@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SReformatUtilities.cpp
 //
@@ -125,9 +132,7 @@ SInt16	WriteChannelValues (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 AppendFile
 //
@@ -536,9 +541,7 @@ SInt16 AppendFile (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 AppendFileDialog
 //
@@ -883,9 +886,7 @@ void AppendFileDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ChangeErdasHeader
 //
@@ -987,9 +988,7 @@ void ChangeErdasHeader (void)
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ChangeErdasHeaderDialog
 //
@@ -1190,9 +1189,7 @@ Boolean ChangeErdasHeaderDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawHeaderOptionsPopUp
 //
@@ -1232,9 +1229,7 @@ pascal void DrawHeaderOptionsPopUp (
 
 #if defined multispec_mac 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawOutputFilePopUp
 //
@@ -1273,9 +1268,7 @@ pascal void DrawOutputFilePopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetOutputBufferParameters
 //
@@ -1343,9 +1336,7 @@ void GetOutputBufferParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetOutputFileName
 //
@@ -1516,9 +1507,7 @@ void GetOutputFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetReformatOutputFile
 //
@@ -1818,9 +1807,7 @@ Boolean GetReformatOutputFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		InsertNewErdasHeader
 //
@@ -2062,9 +2049,7 @@ Boolean InsertNewErdasHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				Boolean ListReformatResultsInformation
 //
@@ -2503,9 +2488,7 @@ Boolean ListReformatResultsInformation (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadCurrentHeaderParametersInDialog
 //
@@ -2575,9 +2558,7 @@ void LoadCurrentHeaderParametersInDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadDescriptionIntoDItem
 //
@@ -2625,9 +2606,7 @@ void LoadDescriptionIntoDItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ModifyChannelDescriptions
 //
@@ -2859,9 +2838,7 @@ void ModifyChannelDescriptions (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ModifyChannelDescriptionsViaKeyboard
 //
@@ -3143,9 +3120,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ModifyChannelDescriptionsUpdate
 //
@@ -3208,9 +3183,7 @@ Boolean ModifyChannelDescriptionsUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ModifyChannelDescriptionsChangeChannel
 //
@@ -3252,9 +3225,7 @@ void ModifyChannelDescriptionsChangeChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateOutputFileStructure
 //
@@ -3408,9 +3379,7 @@ void UpdateOutputFileStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteChannelDescriptions
 //
@@ -3554,9 +3523,7 @@ SInt16 WriteChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void WriteChannelDescriptionsAndValues
 //
@@ -3633,9 +3600,7 @@ void WriteChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteChannelValues
 //
@@ -3823,9 +3788,7 @@ SInt16 WriteChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 WriteOutputDataToFile
 //

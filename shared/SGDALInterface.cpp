@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//						(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SGDALInterface.cpp
 //
@@ -277,9 +284,7 @@ void		VerifyEPSG_CSVFolderExits (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AdjustUpperLeftPixelLocationToCenter
 //
@@ -317,9 +322,7 @@ void AdjustUpperLeftPixelLocationToCenter (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckForGDALHandledHeaders
 //
@@ -455,9 +458,7 @@ Boolean CheckForGDALHandledHeaders (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckIfDefaultGDALPaletteExists
 //
@@ -492,9 +493,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckIfDefaultGDALPaletteExists
 //
@@ -548,9 +547,7 @@ SInt16 CheckIfDefaultGDALPaletteExists (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CloseGDALInterface
 //
@@ -582,9 +579,7 @@ void CloseGDALInterface (void)
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GDALSetReferenceSystemFromEPSGCode
 //
@@ -710,9 +705,7 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
       
 #if include_gdal_capability             
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GDALSetStatePlaneParametersFromZone
 //
@@ -814,9 +807,7 @@ Boolean GDALSetStatePlaneParametersFromZone (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		GDALDatasetH GetDataSetGroupNumber
 //
@@ -856,9 +847,7 @@ UInt32 GetDataSetGroupNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetDatumCodeFromGDALAttributeString
 //
@@ -992,9 +981,7 @@ SInt16 GetDatumCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetEllipsoidCodeFromOGRSpatialReference
 //
@@ -1118,9 +1105,7 @@ SInt16 GetEllipsoidCodeFromOGRSpatialReference (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		GDALDatasetH GetGDALFileReference
 //
@@ -1201,9 +1186,7 @@ GDALDatasetH GetGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetGDALSpecificNumericMetadataInformation
 //
@@ -1274,9 +1257,7 @@ SInt16 GetGDALSpecificNumericMetadataInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetGDALSpecificTextMetadataInformation
 //
@@ -1342,9 +1323,7 @@ SInt16 GetGDALSpecificTextMetadataInformation (
   
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetGDALTiePoints
 //
@@ -1596,9 +1575,7 @@ void GetGDALTiePoints (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetGDALTopToBottomFlag
 //
@@ -1692,9 +1669,7 @@ Boolean GetGDALTopToBottomFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetEPSGCodeName
 //
@@ -1755,9 +1730,7 @@ void GetEPSGCodeName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetMapUnitsCodeFromOGRSpatialReference
 //
@@ -1836,9 +1809,7 @@ SInt16 GetMapUnitsCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetNewGDALFileReference
 //
@@ -1942,9 +1913,7 @@ Boolean GetNewGDALFileReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetProjectionCodeFromOGRSpatialReference
 //
@@ -2089,9 +2058,7 @@ SInt16 GetProjectionCodeFromOGRSpatialReference (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetStatePlanePCSCode
 //
@@ -2131,9 +2098,7 @@ SInt32 GetStatePlanePCSCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetStatePlaneZoneName
 //
@@ -2188,9 +2153,7 @@ void GetStatePlaneZoneName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void HandleGDALErrorMessage
 //
@@ -2261,9 +2224,7 @@ void HandleGDALErrorMessage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListGDALDataSetAttributes
 //
@@ -2537,9 +2498,7 @@ Boolean ListGDALDataSetAttributes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LoadGDALHeaderInformation
 //
@@ -2701,9 +2660,7 @@ SInt16 LoadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LoadGDALInformation
 //
@@ -2913,9 +2870,7 @@ SInt16 LoadGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadGDALColorTable
 //
@@ -3037,9 +2992,7 @@ Boolean ReadGDALColorTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt16 ReadGDALCompressionInformation
 //
@@ -3157,9 +3110,7 @@ UInt16 ReadGDALCompressionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadGDALHeaderInformation
 //
@@ -3373,9 +3324,7 @@ SInt16 ReadGDALHeaderInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadGDALProjectionInformation
 //
@@ -3925,9 +3874,7 @@ SInt16 ReadGDALProjectionInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadGDALProjectionInformationFromMetadata
 //
@@ -4183,9 +4130,7 @@ void ReadGDALProjectionInformationFromMetadata (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS
 //
@@ -4442,9 +4387,7 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadHeaderWithGDALLibrary
 //
@@ -4729,9 +4672,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadPRJFileInformation
 //
@@ -4806,9 +4747,7 @@ Boolean ReadPRJFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetProjectionParametersFromGDALInformation
 //
@@ -4953,9 +4892,7 @@ void SetProjectionParametersFromGDALInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void VerifyEPSG_CSVFolderExits
 //
@@ -5000,9 +4937,7 @@ void VerifyEPSG_CSVFolderExits (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadXMLRPCs  (This is not implemented yet.)
 //
@@ -5073,9 +5008,7 @@ void ReadXMLRPCs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ProcessRPCXMLNode
 //

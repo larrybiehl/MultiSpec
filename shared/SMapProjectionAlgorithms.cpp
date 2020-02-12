@@ -1,12 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SMapProjectionAlgorithms.cpp
 //
@@ -183,8 +189,7 @@ double asinz (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
+//                   Copyright 1988-2020 Purdue Research Foundation
 //									Allrights reserved.
 //
 //	Function name:		Boolean ConvertAlbersEqualAreaToLatLong
@@ -405,9 +410,7 @@ Boolean ConvertAlbersEqualAreaToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertCylindricalEqualAreaToLatLong
 //
@@ -535,9 +538,7 @@ Boolean ConvertCylindricalEqualAreaToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertEquirectangularToLatLong
 //
@@ -601,9 +602,7 @@ Boolean ConvertEquirectangularToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertKrovakToLatLong
 //
@@ -751,9 +750,7 @@ Boolean ConvertKrovakToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLambertAzimuthalEqualAreaToLatLong
 //
@@ -991,9 +988,7 @@ Boolean ConvertLambertAzimuthalEqualAreaToLatLong  (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLambertConformalConicToLatLong
 //
@@ -1140,9 +1135,7 @@ Boolean ConvertLambertConformalConicToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongPointToMapPoint
 //
@@ -1174,9 +1167,7 @@ Boolean ConvertLatLongPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongPointToMapPoint
 //
@@ -1312,9 +1303,7 @@ Boolean ConvertLatLongPointToMapPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongRectToMapRect
 //
@@ -1358,9 +1347,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongRectToMapRect
 //
@@ -1620,9 +1607,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToAlbersEqualArea
 //
@@ -1783,9 +1768,7 @@ Boolean ConvertLatLongToAlbersEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToCylindricalEqualArea
 //
@@ -1857,9 +1840,7 @@ Boolean ConvertLatLongToCylindricalEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToEquirectangular
 //
@@ -1928,9 +1909,7 @@ Boolean ConvertLatLongToEquirectangular (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToKrovak
 //
@@ -2059,9 +2038,7 @@ Boolean ConvertLatLongToKrovak (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToLambertAzimuthalEqualArea
 //
@@ -2264,9 +2241,7 @@ Boolean ConvertLatLongToLambertAzimuthalEqualArea (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToLambertConformalConic
 //
@@ -2398,9 +2373,7 @@ Boolean ConvertLatLongToLambertConformalConic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToMercator
 //
@@ -2465,9 +2438,7 @@ Boolean ConvertLatLongToMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToOrthographic
 //
@@ -2567,9 +2538,7 @@ Boolean ConvertLatLongToOrthographic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToPolarStereographic
 //
@@ -2673,9 +2642,7 @@ Boolean ConvertLatLongToPolarStereographic (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToSinusoidal
 //
@@ -2770,9 +2737,7 @@ Boolean ConvertLatLongToSinusoidal (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToTransverseMercator
 //
@@ -2825,9 +2790,7 @@ Boolean ConvertLatLongToTransverseMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongToTransverseMercator
 //
@@ -3092,9 +3055,7 @@ Boolean ConvertLatLongToTransverseMercator (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapPointToLatLongPoint
 //
@@ -3206,9 +3167,7 @@ Boolean ConvertMapPointToLatLongPoint (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectByGivenFactor
 //
@@ -3245,9 +3204,7 @@ void ConvertMapRectByGivenFactor (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectToLatLongRect
 //
@@ -3290,9 +3247,7 @@ void ConvertMapRectToLatLongRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertMapRectToLatLongRect
 //
@@ -3442,9 +3397,7 @@ void ConvertMapRectToLatLongRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertMercatorToLatLong
 //
@@ -3511,9 +3464,7 @@ Boolean ConvertMercatorToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertSinusoidalToLatLong
 //
@@ -3635,9 +3586,7 @@ Boolean ConvertSinusoidalToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertTransverseMercatorToLatLong
 //
@@ -3817,9 +3766,7 @@ Boolean ConvertTransverseMercatorToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertOrthographicToLatLong
 //
@@ -3948,9 +3895,7 @@ Boolean ConvertOrthographicToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertPolarStereographicToLatLong
 //
@@ -4067,9 +4012,7 @@ Boolean ConvertPolarStereographicToLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfInverseLatLongPossible
 //
@@ -4200,9 +4143,7 @@ Boolean DetermineIfInverseLatLongPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfLatLongPossible
 //
@@ -4331,9 +4272,7 @@ Boolean DetermineIfLatLongPossible (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetProjectionParameters
 //

@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SFeatureSelection.cpp (Called separability in LARSYS)
 //
@@ -295,9 +302,7 @@ SInt16 UpdateSeparabilityLists (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double EFBhattacharyya
 //
@@ -364,9 +369,7 @@ double EFBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CalculateSeparabilityControl
 //
@@ -668,9 +671,7 @@ void CalculateSeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ChannelCombinationsDialog
 //
@@ -1010,9 +1011,7 @@ Boolean ChannelCombinationsDialogLoadList (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16  ComputeSeparabilityForAllChannelCombinations
 //
@@ -1266,9 +1265,7 @@ SInt16 ComputeSeparabilityForAllChannelCombinations (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ComputeSeparabilityForStepChannelCombinations
 //
@@ -1600,9 +1597,7 @@ SInt16 ComputeSeparabilityForStepChannelCombinations (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ComputeSeparabilityForAllClassCombinations
 //
@@ -1812,9 +1807,7 @@ SInt16 ComputeSeparabilityForAllClassCombinations (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double CovarianceBhattacharyya
 //
@@ -1917,9 +1910,7 @@ double CovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double Divergence
 //
@@ -2033,9 +2024,7 @@ double Divergence (
 
 #if defined multispec_mac                                                              
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawChannelCombinationsPopUp
 //
@@ -2075,9 +2064,7 @@ pascal void DrawChannelCombinationsPopUp (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetCombinationLimit
 //
@@ -2181,9 +2168,7 @@ SInt32 GetCombinationLimit (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 GetMaxCombinationSelected
 //
@@ -2286,9 +2271,7 @@ UInt32 GetMaxCombinationSelected (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetNextCombination
 //
@@ -2353,9 +2336,7 @@ Boolean GetNextCombination (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetNextStepCombination
 //
@@ -2447,9 +2428,7 @@ Boolean GetNextStepCombination (
 
 /*                                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetProductVectorValues
 //
@@ -2501,9 +2480,7 @@ double GetProductVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean InvertVectorValues
 //
@@ -2559,9 +2536,7 @@ Boolean InvertVectorValues (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ListSeparabilityMeasurements
 //
@@ -2931,9 +2906,7 @@ SInt16 ListSeparabilityMeasurements (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ListSeparabilityTitleLine
 //
@@ -3118,9 +3091,7 @@ Boolean ListSeparabilityTitleLine (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadAllChannelCombinationsVector
 //
@@ -3204,9 +3175,7 @@ SInt32 LoadAllChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadChannelCombinationsVector
 //
@@ -3254,9 +3223,7 @@ void LoadChannelCombinationsVector (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadSeparabilitySpecs
 //
@@ -3575,9 +3542,7 @@ Boolean LoadSeparabilitySpecs (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LoadSeparabilityStatistics
 //
@@ -3829,9 +3794,7 @@ SInt16  LoadSeparabilityStatistics (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double MeanBhattacharyya
 //
@@ -3997,9 +3960,7 @@ double MeanBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double NonCovarianceBhattacharyya
 //
@@ -4113,9 +4074,7 @@ double NonCovarianceBhattacharyya (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SeparabilityControl
 //
@@ -4621,9 +4580,7 @@ void SeparabilityControl (void)
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SeparabilityDialog
 //
@@ -5854,9 +5811,7 @@ void SeparabilityDialogUpdateMaxChannelsPerGroup (
 
                                                               
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SeparabilityDialogUpdateChannelFeatureGroupText
 //
@@ -5981,9 +5936,7 @@ void SeparabilityDialogCheckFeatureTransformation (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SeparabilityListDialog
 //
@@ -6540,9 +6493,7 @@ void SeparabilityListDialogOK (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetupSeparabilityDistanceMemory
 //
@@ -6774,9 +6725,7 @@ Boolean SetupSeparabilityDistanceMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetupSeparabilityStatMemory
 //
@@ -6922,9 +6871,7 @@ Boolean SetupSeparabilityStatMemory (
 
                                                                                 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double TransformedDivergence
 //
@@ -6987,9 +6934,7 @@ double TransformedDivergence (
 
                                                                                  
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 UpdateSeparabilityLists
 //

@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							 (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SReformatChangeImageFileFormat.cpp
 //
@@ -247,9 +254,7 @@ SInt16	gFunctionSelection = 0;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean AddWhiteGaussianNoise
 //
@@ -323,9 +328,7 @@ void AddWhiteGaussianNoise (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AdjustDataForChangeFormat
 //
@@ -378,9 +381,7 @@ void AdjustDataForChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				Boolean ChangeFormatToBILorBISorBSQ
 //
@@ -1644,9 +1645,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ChangeImageFileFormat
 //
@@ -2086,9 +2085,7 @@ void ChangeImageFileFormat ()
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ChangeImageFormatDialog
 //
@@ -2750,9 +2747,7 @@ Boolean ChangeImageFormatDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogInitialize
 //
@@ -3242,9 +3237,7 @@ void ChangeImageFormatDialogInitialize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ChangeImageFormatDialogOK
 //
@@ -3619,9 +3612,7 @@ Boolean ChangeImageFormatDialogOK (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogUpdateHeaderMenu
 //
@@ -3855,9 +3846,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogUpdateHeaderOptions
 //
@@ -4106,9 +4095,7 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogUpdateSwapBytes
 //
@@ -4192,9 +4179,7 @@ void ChangeImageFormatDialogUpdateSwapBytes (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogUpdateTIFFHeader
 //
@@ -4268,9 +4253,7 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ChangeImageFormatDialogVerifyHeaderSetting
 //
@@ -4425,9 +4408,7 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 
                       
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ChangeImageTransformDialog
 //
@@ -5283,9 +5264,7 @@ Boolean ChangeImageTransformDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void CheckForSaturation
 //
@@ -5478,9 +5457,7 @@ void CheckForSaturation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CleanUpChangeFormat
 //
@@ -5514,9 +5491,7 @@ void CleanUpChangeFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertDataValueToBinValue
 //
@@ -5594,9 +5569,7 @@ void ConvertDataValueToBinValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void ConvertSymbolsToBinary
 //
@@ -5687,9 +5660,7 @@ void ConvertSymbolsToBinary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				HUInt16Ptr CreateClassToGroupTable
 //
@@ -5943,9 +5914,7 @@ HUInt16Ptr CreateClassToGroupTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				HUInt16Ptr CreateDataValueToClassTable
 //
@@ -6017,9 +5986,7 @@ HUInt16Ptr CreateDataValueToClassTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				UInt16* CreateNewToOldPaletteVector
 //
@@ -6179,9 +6146,7 @@ UInt16* CreateNewToOldPaletteVector (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CreatePCImage
 //
@@ -6308,9 +6273,7 @@ void CreatePCImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				HUInt16Ptr CreateSymbolToBinaryTable
 //
@@ -6476,9 +6439,7 @@ HUInt16Ptr CreateSymbolToBinaryTable (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 DecodeAlgebraicFormula
 //
@@ -6610,9 +6571,7 @@ SInt16 DecodeAlgebraicFormula (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							 (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 DeterminePCMinimumNumberBits
 //
@@ -6684,9 +6643,7 @@ SInt16 DeterminePCMinimumNumberBits (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawChanDescriptionPopUp
 //
@@ -6726,9 +6683,7 @@ pascal void DrawChanDescriptionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawFunctionPopUp
 //
@@ -6768,9 +6723,7 @@ pascal void DrawFunctionPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawPCChannelsPopUp
 //
@@ -6809,9 +6762,7 @@ pascal void DrawPCChannelsPopUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double Find_kth_SmallestElementInList
 //
@@ -6898,9 +6849,7 @@ double Find_kth_SmallestElementInList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void FunctionOfChannels
 //
@@ -7357,9 +7306,7 @@ void FunctionOfChannels (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetAdjustBufferData
 //
@@ -7454,9 +7401,7 @@ SInt16 GetAdjustBufferData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetDefaultBandRatio
 //
@@ -7729,9 +7674,7 @@ Boolean GetDefaultBandRatio (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetHeaderFormatFromPopUpSelection
 //
@@ -7780,9 +7723,7 @@ SInt16 GetHeaderFormatFromPopUpSelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetNumberHeaderBytes
 //
@@ -7847,9 +7788,7 @@ SInt32 GetNumberHeaderBytes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetPCChannelList
 //
@@ -7908,9 +7847,7 @@ SInt16 GetPCChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetReformatAndFileInfoStructures
 //
@@ -7989,9 +7926,7 @@ Boolean GetReformatAndFileInfoStructures (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetReformatOutputBuffer
 //
@@ -8191,9 +8126,7 @@ Boolean GetReformatOutputBuffer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetTransformChannelList
 //
@@ -8304,9 +8237,7 @@ SInt16 GetTransformChannelList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		InitializeHeaderPopupMenu
 //
@@ -8385,9 +8316,7 @@ void InitializeHeaderPopupMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		InitializeOutputFileInformation
 //
@@ -8508,9 +8437,7 @@ void InitializeOutputFileInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeReformatStructure
 //
@@ -8714,9 +8641,7 @@ void InitializeReformatStructure (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadReformatOptionsSpecs
 //
@@ -9006,9 +8931,7 @@ Boolean LoadReformatOptionsSpecs (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		ReformatControl
 //
@@ -9152,9 +9075,7 @@ void ReformatControl (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void ReleaseReformatOutputFileInfoAndBuffers
 //
@@ -9221,9 +9142,7 @@ void ReleaseReformatOutputFileInfoAndBuffers (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void SaveAlgebraicTransformationFunction
 //
@@ -9263,9 +9182,7 @@ void SaveAlgebraicTransformationFunction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void TransformAdjustChannelsByChannel
 //
@@ -9343,9 +9260,7 @@ void TransformAdjustChannelsByChannel (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void TransformData
 //

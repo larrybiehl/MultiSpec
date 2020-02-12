@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//									Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SOpenImage.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/09/2020
+//	Revision date:			01/13/2020
 //
 //	Language:				C
 //
@@ -285,9 +292,7 @@ SInt16 ReadWindowsBitMapHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		WindowPtr AddToImageWindowFile
 //
@@ -314,9 +319,6 @@ Boolean AddToImageWindowFile (
 
 {
 	WindowInfoPtr						windowInfoPtr;
-
-	//SInt16								index,
-	//										length;
 
 	Boolean continueFlag = FALSE;
 
@@ -376,9 +378,7 @@ Boolean AddToImageWindowFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AdjustImageWSize
 //
@@ -691,9 +691,7 @@ void AdjustImageWSize (
 
 		if (windowInfoPtr->windowType == kThematicWindowType)
 			{
-			//ListHandle					legendListHandle;
-
-					// Adjust the size of the legend list for Thematic type image 		
+					// Adjust the size of the legend list for Thematic type image
 					// windows.	Will need to set the global active legend width parameter
 					// since it has not been set yet. It will be needed for the 
 					// AdjustLegendListLength routine.
@@ -778,9 +776,7 @@ void AdjustImageWSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		float* CheckChannelValuesHandleSize
 //
@@ -824,9 +820,7 @@ float* CheckChannelValuesHandleSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckFileInfoParameters
 //
@@ -964,9 +958,7 @@ SInt16 CheckFileInfoParameters (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckForENVIHeader
 //
@@ -1023,9 +1015,9 @@ SInt16 CheckForENVIHeader (
 
 		ConcatFilenameSuffix (headerFileNamePtr, (StringPtr)"\0.hdr\0");
 		errCode = OpenFileReadOnly (headerFileStreamPtr,
-												 kResolveAliasChains,
-												 kLockFile,
-												 kVerifyFileStream);
+											 kResolveAliasChains,
+											 kLockFile,
+											 kVerifyFileStream);
 
 		if (errCode != noErr)
 			{
@@ -1097,9 +1089,7 @@ SInt16 CheckForENVIHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckForPDS_LBL_File
 //
@@ -1155,9 +1145,9 @@ SInt16 CheckForPDS_LBL_File (
 
 		ConcatFilenameSuffix (headerFileNamePtr, (StringPtr) "\0.LBL\0");
 		errCode = OpenFileReadOnly (headerFileStreamPtr,
-												 kResolveAliasChains,
-												 kLockFile,
-												 kVerifyFileStream);
+											 kResolveAliasChains,
+											 kLockFile,
+											 kVerifyFileStream);
 
 		if (errCode != noErr) 
 			{
@@ -1220,9 +1210,7 @@ SInt16 CheckForPDS_LBL_File (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 CheckIfProjectFile
 //
@@ -1346,9 +1334,7 @@ SInt32 CheckIfProjectFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckImageHeader
 //
@@ -1767,7 +1753,6 @@ SInt16 CheckImageHeader (
 				}	// end "if (fileInfoPtr->format == 0 && count >= 128)"
 		#endif	// !include_gdal_capability
 
-
 		if (formatOnlyCode != kLoadHeader)
 			{
 			version = fileInfoPtr->format;
@@ -1863,10 +1848,10 @@ SInt16 CheckImageHeader (
 				gProcessorCode = kDisplayOverlayProcessor;
 
 				continueFlag = ListHeaderInfo (NULL,
-                        0,
-                        &gOutputForce1Code,
-                        kNoStatisticsUsed,
-                        continueFlag);
+															0,
+															&gOutputForce1Code,
+															kNoStatisticsUsed,
+															continueFlag);
 
 				convertFromLatLongToMapUnitsFlag = FALSE;
 				if (returnCode == 10)
@@ -1891,19 +1876,9 @@ SInt16 CheckImageHeader (
                     // windows.											
 
 					returnCode = ReadArcViewShapeFile (shapeFileIndex,
-                            convertFromLatLongToMapUnitsFlag,
-                            kCloseOverlayFileIfNoRecordsRead);
-					/*
-					if (returnCode == 5 && !convertFromLatLongToMapUnitsFlag)
-						{
-								// Check if converting units from latitude-longitude to map
-								// units may help.
+																	 convertFromLatLongToMapUnitsFlag,
+																	 kCloseOverlayFileIfNoRecordsRead);
 
-						if (CheckIfOverlayMayBeLatLong (&boundingShapeRectangle))
-							returnCode = ReadArcViewShapeFile (shapeFileIndex, TRUE);
-
-						}	// end "if (returnCode == 5 && ..."
-					*/
                     // Get string for alert if needed.
 
 					if (returnCode == 5)
@@ -2006,9 +1981,7 @@ SInt16 CheckImageHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double CompareFileInfoAndFileSize
 //
@@ -2103,9 +2076,7 @@ double CompareFileInfoAndFileSize (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertERDASProjectionCodesToMultiSpecCodes
 //
@@ -2240,9 +2211,7 @@ SInt16 ConvertMultiSpecProjectionCodeToERDASCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CreateDefaultClassName
 //
@@ -2285,9 +2254,7 @@ void CreateDefaultClassName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CreateDefaultClassNames
 //
@@ -2340,9 +2307,7 @@ void CreateDefaultClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 DetermineIfFileSpecsDialogNeedsCalled
 //
@@ -2448,9 +2413,7 @@ SInt16 DetermineIfFileSpecsDialogNeedsCalled (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 DeterminePeruSatBandOrder
 //
@@ -2500,9 +2463,7 @@ SInt16 DeterminePeruSatBandOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FinishMapInformationSetUp
 //
@@ -2589,9 +2550,7 @@ void FinishMapInformationSetUp (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetClassesFromHistogram
 //
@@ -2679,21 +2638,21 @@ Boolean GetClassesFromHistogram (
 			// requested layer of data.
 
 	if (!GetIOBufferPointers (&gFileIOInstructions[0],
-            gImageWindowInfoPtr,
-            gImageLayerInfoPtr,
-            fileInfoPtr,
-            &ioBufferPtr,
-            &ioBufferPtr,
-            1,
-            fileInfoPtr->numberColumns,
-            1,
-            1,
-            NULL,
-            kDoNotPackData,
-            kDoNotForceBISFormat,
-            kDoNotForceBytes,
-            gHasThreadManager,
-            &fileIOInstructionsPtr))
+										gImageWindowInfoPtr,
+										gImageLayerInfoPtr,
+										fileInfoPtr,
+										&ioBufferPtr,
+										&ioBufferPtr,
+										1,
+										fileInfoPtr->numberColumns,
+										1,
+										1,
+										NULL,
+										kDoNotPackData,
+										kDoNotForceBISFormat,
+										kDoNotForceBytes,
+										gHasThreadManager,
+										&fileIOInstructionsPtr))
 		{
 		CheckAndDisposePtr ((Ptr)classSymbolPtr);
 		return (FALSE);
@@ -2702,18 +2661,17 @@ Boolean GetClassesFromHistogram (
 
 	MSetCursor (kWait);
 
-	errCode = SetUpFileIOInstructions (
-									fileIOInstructionsPtr,
-									NULL,
-									1,
-									fileInfoPtr->numberLines,
-									1,
-									1,
-									fileInfoPtr->numberColumns,
-									1,
-									1,
-									NULL,
-									kSetSpecialBILFlagFalse);
+	errCode = SetUpFileIOInstructions (fileIOInstructionsPtr,
+													NULL,
+													1,
+													fileInfoPtr->numberLines,
+													1,
+													1,
+													fileInfoPtr->numberColumns,
+													1,
+													1,
+													NULL,
+													kSetSpecialBILFlagFalse);
 
 			// Get a list of the actual classes in the image.
 
@@ -2779,7 +2737,6 @@ Boolean GetClassesFromHistogram (
 				#endif		// defined multispec_mac
 
 				#if defined multispec_win
-					//gStatusDialogPtr->SetWindowText (A2T((LPCTSTR)gTextString));
 					gStatusDialogPtr->SetWindowText (A2T((LPCSTR)gTextString));
 				#endif		// defined multispec_win
 
@@ -2940,7 +2897,7 @@ Boolean GetClassesFromHistogram (
 						oldClassNamePtr = (HUCharPtr)GetHandlePointer (
 															fileInfoPtr->classDescriptionH, kLock);
 						oldClassSymbolPtr =
-								(HUInt16Ptr)&oldClassNamePtr[oldNumberClasses * sizeof (Str31)];
+							(HUInt16Ptr)&oldClassNamePtr[oldNumberClasses * sizeof (Str31)];
 
 						for (index = 0; index < numberOutputClasses; index++)
 							{
@@ -3046,9 +3003,7 @@ Boolean GetClassesFromHistogram (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetDatumInfo
 //
@@ -3125,9 +3080,7 @@ SInt16 GetDatumInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetDefaultSupportFile
 //
@@ -3234,8 +3187,8 @@ Boolean GetDefaultSupportFile (
 				InitializeFileStream (supportFileStreamPtr, imageFileStreamPtr);
 
 				GetDefaultSupportFileName (imageFileStreamPtr,
-														supportFileStreamPtr,
-														supportFileType);
+													supportFileStreamPtr,
+													supportFileType);
 
 				SetType (supportFileStreamPtr, localSupportFileType);
 
@@ -3442,9 +3395,7 @@ Boolean GetDefaultSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:				void GetDefaultSupportFileName
 //
@@ -3482,10 +3433,10 @@ void GetDefaultSupportFileName (
 	imageFileNameCPtr = (UInt8*)GetFileNameCPointerFromFileStream (imageFileStreamPtr);
 
 	GetDefaultSupportFileName (imageFileStreamPtr,
-											imageFilePathPtr,
-											supportFilePathPtr,
-											imageFileNameCPtr,
-											supportFileType);
+										imageFilePathPtr,
+										supportFilePathPtr,
+										imageFileNameCPtr,
+										supportFileType);
 
 	#if defined multispec_mac
 			// Force the uniFileName to be recreated to match the support file name.
@@ -3501,9 +3452,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetDefaultSupportFileName
 //
@@ -3669,9 +3618,7 @@ void GetDefaultSupportFileName (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetFileHeaderString
 //
@@ -3892,9 +3839,7 @@ SInt16 GetFileHeaderString (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		double GetFileHeaderRealValue
 //
@@ -3991,9 +3936,7 @@ double GetFileHeaderRealValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetFileHeaderValue
 //
@@ -4091,9 +4034,7 @@ SInt32 GetFileHeaderValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetFileHeaderValues
 //
@@ -4209,9 +4150,7 @@ SInt32 GetFileHeaderValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetInstrumentChannelDescriptionsAndValues
 //
@@ -4927,9 +4866,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetInstrumentCode
 //
@@ -5133,9 +5070,7 @@ void GetInstrumentCode (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetMapProjectionCodeFromGCTPNumber
 //
@@ -5326,9 +5261,7 @@ SInt16 GetMapProjectionCodeFromGCTPNumber (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetMultiSpecChannelWidths
 //
@@ -5448,9 +5381,7 @@ void GetMultiSpecChannelWidths (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetProjectionNameInfo
 //
@@ -5529,9 +5460,7 @@ SInt16 GetProjectionNameInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		HUInt16Ptr GetSymbolToBinaryVector
 //
@@ -5575,7 +5504,7 @@ HUInt16Ptr GetSymbolToBinaryVector (
 				// Get a pointer to storage for the class symbols.
 
 		symbolToOutputBinPtr = (HUInt16Ptr)MNewPointerClear (
-                maxNumberClasses * sizeof (UInt16));
+																maxNumberClasses * sizeof (UInt16));
 
 		}	// end "if (fileInfoPtr != NULL)"
 
@@ -5586,9 +5515,7 @@ HUInt16Ptr GetSymbolToBinaryVector (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetChannelWavelengthOrder
 //
@@ -5677,9 +5604,7 @@ SInt16 GetChannelWavelengthOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetChannelWavelengthOrder
 //
@@ -5826,9 +5751,7 @@ SInt16 GetChannelWavelengthOrder (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void IntermediateFileUpdate
 //
@@ -5881,7 +5804,6 @@ void IntermediateFileUpdate (
 			fileInfoPtr->bytesPer1chanAllLines =
 										  (SInt32)fileInfoPtr->numberLines *
 										  							fileInfoPtr->bytesPer1line1chan;
-
 			break;
 
 		case kBSQ:
@@ -5897,7 +5819,6 @@ void IntermediateFileUpdate (
 
 			fileInfoPtr->bytesPer1lineAllChans =
 					(SInt32)fileInfoPtr->numberChannels * fileInfoPtr->bytesPer1line1chan;
-
 			break;
 
 		case kBIS:
@@ -5909,7 +5830,6 @@ void IntermediateFileUpdate (
 			fileInfoPtr->bytesPer1line1chan = NIL; // Not used for BIS
 
 			fileInfoPtr->bytesPer1chanAllLines = NIL; // Not used for BIS
-
 			break;
 
 		case kBNonSQBlocked:
@@ -5920,7 +5840,6 @@ void IntermediateFileUpdate (
 			fileInfoPtr->bytesPer1line1chan = NIL;
 
 			fileInfoPtr->bytesPer1chanAllLines = NIL;
-
 			break;
 
 		}	// end "switch (fileInfoPtr->bandInterleave)"
@@ -6004,9 +5923,7 @@ void IntermediateFileUpdate (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 LinkFastL7AFiles
 //
@@ -6151,9 +6068,7 @@ SInt16 LinkFastL7AFiles (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void LoadClassNameDescriptions
 //
@@ -6409,9 +6324,7 @@ void LoadClassNameDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadImageInformation
 //
@@ -6520,9 +6433,7 @@ Boolean LoadImageInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadSelectedDataSetInformation
 //
@@ -6578,9 +6489,7 @@ Boolean LoadSelectedDataSetInformation	(
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ModalFileFormat
 //
@@ -6732,9 +6641,7 @@ Boolean ModalFileFormat (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadChannelDescriptionsAndValues
 //
@@ -6802,9 +6709,7 @@ void ReadChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadENVIHeader
 //
@@ -6830,15 +6735,7 @@ SInt16 ReadENVIHeader (
 				SInt16								formatOnlyCode)
 
 {
-	//double								xReferencePixel,
-	//										xPixelSize,
-	//										x11Coordinate,
-	//										yReferencePixel,
-	//										yPixelSize,
-	//										y11Coordinate;
- 
 	char*									stringPtr;
-	//MapProjectionInfoPtr			mapProjectionInfoPtr;
 	UInt8*								imageFileNamePtr;
 
 	CMFileStream*						fileStreamPtr;
@@ -7337,9 +7234,7 @@ SInt16 ReadENVIHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadENVIHeaderBandNamesInfo
 //
@@ -7471,9 +7366,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadENVIHeaderMapInfo
 //
@@ -7967,9 +7860,7 @@ SInt16 ReadENVIHeaderMapInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadENVIChannelDescriptionsAndValues
 //
@@ -8177,9 +8068,7 @@ void ReadENVIChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadERDASClassNames
 //
@@ -8404,9 +8293,7 @@ Boolean ReadERDASClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadERDASHeader
 //
@@ -8938,9 +8825,7 @@ SInt16 ReadERDASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadFastL7AHeader
 //
@@ -9662,9 +9547,7 @@ SInt16 ReadFastL7AHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadLARSYSMISTHeader
 //
@@ -9837,9 +9720,7 @@ SInt16 ReadLARSYSMISTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadLASHeader
 //
@@ -10330,9 +10211,7 @@ SInt16 ReadLASHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadLGSOWGHeader
 //
@@ -10749,9 +10628,7 @@ SInt16 ReadLGSOWGHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadMacSADIEHeader
 //
@@ -10861,9 +10738,7 @@ SInt16 ReadMacSADIEHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadMultiSpecClassificationHeader
 //
@@ -11380,9 +11255,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadLARSYSChannelDescriptionsAndValues
 //
@@ -11555,9 +11428,7 @@ void ReadLARSYSChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadMultiSpecChannelDescriptionsAndValues
 //
@@ -11708,9 +11579,7 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadMultiSpecChannelDescriptions
 //
@@ -11830,9 +11699,7 @@ SInt16 ReadMultiSpecChannelDescriptions (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadMultiSpecChannelValues
 //
@@ -12001,9 +11868,7 @@ SInt16 ReadMultiSpecChannelValues (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadMultiSpecClassNames
 //
@@ -12227,9 +12092,7 @@ Boolean ReadMultiSpecClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadPDSHeader
 //
@@ -12961,9 +12824,7 @@ SInt16 ReadPDSHeader (
 
 /*
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadSPOTHeader
 //
@@ -13132,9 +12993,7 @@ SInt16 ReadSPOTHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadSunScreenDumpHeader
 //
@@ -13286,9 +13145,7 @@ SInt16 ReadSunScreenDumpHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadTGAHeader
 //
@@ -13425,9 +13282,7 @@ SInt16 ReadTGAHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadThematicGroups
 //
@@ -13504,9 +13359,7 @@ Boolean ReadThematicGroups (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							  (c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadThematicGroupsFromImageFile
 //
@@ -13951,9 +13804,7 @@ Boolean ReadThematicGroupsFromImageFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadVICARHeader
 //
@@ -14401,9 +14252,7 @@ SInt16 ReadVICARHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadWindowsBitMapHeader
 //
@@ -14588,14 +14437,145 @@ SInt16 ReadWindowsBitMapHeader	(
 
 	return (returnCode);
 
-}	// end "ReadWindowsBitMapHeader" 
+}	// end "ReadWindowsBitMapHeader"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		WindowPtr SetUpEmptyWindow
+//
+//	Software purpose:	The purpose of this routine is to set up a window
+//							for the multispectral image file specified by the
+//							information associated with the input file
+//							information handle.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:			OpenImageFile in SOpenFileDialog.cpp
+//							OpenProjectImageWindow in SProject.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 01/13/2020
+//	Revised By:			Larry L. Biehl			Date: 01/13/2020
+
+Boolean SetUpEmptyWindow (
+				Handle								windowInfoHandle)
+
+{
+	Boolean continueFlag = FALSE;
+
+	/*
+	if (windowInfoHandle != NULL)
+		{
+		#if defined multispec_mac
+					// Create image window for file.
+
+			continueFlag = CreateImageWindow (windowInfoHandle, FALSE);
+
+			if (continueFlag)
+				{
+						// Make size of window such that it just fits around the
+						// default display specification for the image.
+
+				AdjustImageWSize (windowInfoHandle);
+
+						// Force update of menu items.
+
+				gUpdateFileMenuItemsFlag = TRUE;
+				gUpdateProjectMenuItemsFlag = TRUE;
+				gUpdateProcessorMenuItemsFlag = TRUE;
+				gUpdatePaletteMenuItemsFlag = TRUE;
+
+				EnableMenuItem (gMultiSpecMenus[kProcessorM], 0);
+				if (gNumberOfIWindows == 1)
+					gRedrawMenuBar = TRUE;
+
+						// Put display dialog up for the user to select portion to
+						// go into the image window.
+
+				gMemoryTypeNeeded = 1;
+				DisplayImage ();
+				gMemoryTypeNeeded = 0;
+
+				}	// end "if (continueFlag)"
+		#endif	// defined multispec_mac
+
+		#if defined multispec_win
+			WindowInfoPtr windowInfoPtr =
+										(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
+
+			if (imageWindowCPtr != NULL)
+				{
+						// Create image window for file.
+
+				continueFlag = imageWindowCPtr->CreateImageWindow (FALSE);
+
+				if (continueFlag)
+					{
+							// Make size of window such that it just fits around the
+							// default display specification for the image.
+
+					AdjustImageWSize (windowInfoHandle);
+
+					gMemoryTypeNeeded = 1;
+					DisplayImage ();
+					gMemoryTypeNeeded = 0;
+	
+					}	// end "if (continueFlag)"
+
+				}	// end "if (imageWindowCPtr != NULL)"
+		#endif	// defined multispec_win
+
+		#if defined multispec_wx
+			WindowInfoPtr windowInfoPtr =
+									(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+
+			CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
+
+			if (imageWindowCPtr != NULL)
+				{
+						// Create image window for file.
+
+				continueFlag = imageWindowCPtr->CreateImageWindow (FALSE);
+				
+				if (continueFlag)
+					{
+							// Make size of window such that it just fits around the
+							// default display specification for the image.
+
+					AdjustImageWSize (windowInfoHandle);
+
+							// If the display dialog box will be displayed, force the image
+							// window to be displayed before the dialog box is displayed.
+					
+					if (gCallProcessorDialogFlag)
+						CheckSomeEvents (0);
+
+					gMemoryTypeNeeded = 1;
+					DisplayImage ();
+					gMemoryTypeNeeded = 0;
+
+					}	// end "if (continueFlag)"
+
+				}	// end "if (imageWindowCPtr != NULL)"
+		#endif	// defined multispec_wx
+		}	// end "if (windowInfoHandle != NULL)"
+	*/
+	return (continueFlag);
+
+}	// end "SetUpEmptyWindow"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		WindowPtr SetUpImageWindow
 //
@@ -14728,9 +14708,7 @@ Boolean SetUpImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		WindowPtr SetUpThematicImageWindow
 //
@@ -14873,9 +14851,7 @@ Boolean SetUpThematicImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SizeOfImageFileCanBeCalculated
 //
@@ -14919,9 +14895,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateLayerInfoStructure
 //

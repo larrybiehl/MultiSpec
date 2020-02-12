@@ -1,36 +1,38 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//							 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	File:						SArcView.cpp
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
 //
-//	Authors:					Larry L. Biehl
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
 //
-//	Revision date:			11/13/2019
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
-//	Language:				C
+// File:                SArcView.cpp
 //
-//	System:					Linux, Macintosh and Windows Operating Systems	
+//	Authors:             Larry L. Biehl
 //
-//	Brief description:	This file contains routines which are used to access
-//								various Esri ArcView type disk files including .bil, .bsq,
-//								.bip, and shape files.
+//	Revision date:       01/13/2020
 //
-//	Diagram of MultiSpec routine calls for the routines in the file.
-//		.
-//		.
-//		etc. (
+//	Language:            C
+//
+//	System:              Linux, Macintosh and Windows Operating Systems
+//
+//	Brief description:   This file contains routines which are used to access
+//	                     various Esri ArcView type disk files including .bil, .bsq,
+//                      .bip, and shape files.
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)gTextString3,
-												" SArcView:xxx (entered routine. %s",
-												gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
+      int numberChars = sprintf ((char*)gTextString3,
+                                  " SArcView:xxx (entered routine. %s",
+                                  gEndOfLine)
+      ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
 
@@ -266,9 +268,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AddCurrentVectorOverlaysToImageWindow
 //
@@ -452,9 +452,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void AddToWindowOverlayList
 //
@@ -473,7 +471,7 @@ void AddCurrentVectorOverlaysToImageWindow (
 // Called By:			CheckIfOverlayFileLoaded in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/29/2001
-//	Revised By:			Larry L. Biehl			Date: 04/29/2012
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 SInt16 AddToWindowOverlayList (
 				WindowPtr							windowPtr,
@@ -503,7 +501,7 @@ SInt16 AddToWindowOverlayList (
 			{
 					// Now check if the overlay is already included in the list.
 					
-			for (index=0; index<windowInfoPtr->numberOverlays; index++)
+			for (index=0; index<windowInfoPtr->numberVectorOverlays; index++)
 				{
 				if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
 					{
@@ -512,7 +510,7 @@ SInt16 AddToWindowOverlayList (
 					
 					}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
 				
-				}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+				}	// end "for (index=0; index<windowInfoPtr->numberVectorOverlays; ..."
 			
 			if (returnCode == 1)
 				{	
@@ -538,9 +536,7 @@ SInt16 AddToWindowOverlayList (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CheckIfOverlayFileLoaded
 //
@@ -617,7 +613,10 @@ SInt16 CheckIfOverlayFileLoaded (
 																				mapProjectionHandle,
 																				kLock);
 																	
-		referenceSystemCode = mapProjectionInfoPtr->gridCoordinate.referenceSystemCode;
+		referenceSystemCode = 0;
+		if (mapProjectionInfoPtr != NULL)
+			referenceSystemCode =
+									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode;
 																	
 				// Loop through existing overlay files and check if file name
 				// already exists. Currently this will not catch case where there
@@ -639,68 +638,72 @@ SInt16 CheckIfOverlayFileLoaded (
 					{
 					versionCount++;
 					
-							// First verify that the map information that the shape file
-							// has been used for is the same as that for this image window.
+					if (mapProjectionInfoPtr != NULL)
+						{
+								// First verify that the map information that the shape file
+								// has been used for is the same as that for this image window.
 							
-					mapInfoSameFlag = CheckIfMapInfoMatches (
+						mapInfoSameFlag = CheckIfMapInfoMatches (
 															&shapeInfoPtr->geodetic,
 															&mapProjectionInfoPtr->geodetic,
 															&shapeInfoPtr->gridCoordinate,
-															&mapProjectionInfoPtr->gridCoordinate);	
-					
-					lBoundingRect = *boundingRectPtr;
-					convertedFlag = FALSE; 
-					if (mapInfoSameFlag)
-						{		
-								// If the input shape file needs to be converted from lat-
-								// long units to the map units of the image, then be sure that
-								// the conversion can be made.
-								// Note that the shape file will have to be reloaded if the
-								// shape file has been converted to map units and the
-								// active image window is in lat-long units.
+															&mapProjectionInfoPtr->gridCoordinate);
 						
-						convertedFlag = TRUE;
-						mapUnitsFlag = TRUE;		
-						
-						if (shapeInfoPtr->conversionCode == 2 && 
-										referenceSystemCode == kGeographicRSCode)
-							convertedFlag = FALSE;
-						
-						else if (shapeInfoPtr->conversionCode == 2)
+						lBoundingRect = *boundingRectPtr;
+						convertedFlag = FALSE;
+						if (mapInfoSameFlag)
 							{
-							convertedFlag = ConvertLatLongRectToMapRect (
-																mapProjectionInfoPtr, &lBoundingRect);
-							mapUnitsFlag = FALSE;	
+									// If the input shape file needs to be converted from lat-
+									// long units to the map units of the image, then be sure
+									// that the conversion can be made.
+									// Note that the shape file will have to be reloaded if the
+									// shape file has been converted to map units and the
+									// active image window is in lat-long units.
 							
-							}	// end "else if (shapeInfoPtr->conversionCode == 2"
+							convertedFlag = TRUE;
+							mapUnitsFlag = TRUE;
 							
-						}	// end "if (mapInfoSameFlag)"
-					
-							// Now verify that the bounding area of the shape file intersects
-							// with that for the active image window.  If not then continue 
-							// checking for other shape files.
+							if (shapeInfoPtr->conversionCode == 2 &&
+											referenceSystemCode == kGeographicRSCode)
+								convertedFlag = FALSE;
 							
-					if (convertedFlag &&
-							WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
-																			boundingRectPtr,
-																			mapUnitsFlag))
-						{
-								// Check for situation when the image and vector bounding rects
-								// intersect but it may very well be that the vector is lat/long
-								// and the image map units are not in lat/long.
+							else if (shapeInfoPtr->conversionCode == 2)
+								{
+								convertedFlag = ConvertLatLongRectToMapRect (
+																	mapProjectionInfoPtr, &lBoundingRect);
+								mapUnitsFlag = FALSE;
 								
-						if (!mayBeLatLongUnitsFlag || 
-									referenceSystemCode == kGeographicRSCode ||
-											shapeInfoPtr->conversionCode == 2)
-							{
-							alreadyLoadedFlag = TRUE;
-							overlayNumber = index + 1;
-							conversionCode = shapeInfoPtr->conversionCode;
-							break;
+								}	// end "else if (shapeInfoPtr->conversionCode == 2"
 								
-							}	// end "if (!mayBeLatLongUnitsFlag || ..."
+							}	// end "if (mapInfoSameFlag)"
 						
-						}	// end "if (WindowBoundingAreaAndRectIntersect (..."
+								// Now verify that the bounding area of the shape file
+								// intersects with that for the active image window.  If not
+								// then continue checking for other shape files.
+							
+						if (convertedFlag &&
+								WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
+																				boundingRectPtr,
+																				mapUnitsFlag))
+							{
+									// Check for situation when the image and vector bounding rects
+									// intersect but it may very well be that the vector is lat/long
+									// and the image map units are not in lat/long.
+							
+							if (!mayBeLatLongUnitsFlag ||
+										referenceSystemCode == kGeographicRSCode ||
+												shapeInfoPtr->conversionCode == 2)
+								{
+								alreadyLoadedFlag = TRUE;
+								overlayNumber = index + 1;
+								conversionCode = shapeInfoPtr->conversionCode;
+								break;
+								
+								}	// end "if (!mayBeLatLongUnitsFlag || ..."
+							
+							}	// end "if (WindowBoundingAreaAndRectIntersect (..."
+						
+						}	// end "if (mapProjectionInfoPtr != NULL)"
 					
 					}	// end "if (stringCompare == 0)"
 				
@@ -758,12 +761,17 @@ SInt16 CheckIfOverlayFileLoaded (
 		
 	if (overlayCheckReturn == 0)
 		{
-				// Verify that shape file intersects with the active image window.
-				
+				// Verify that shape file intersects with the active image window if
+				// there is an image window to compare to.
+		
 		if (!WindowBoundingAreaAndRectIntersect (gActiveImageWindow,
-																boundingRectPtr,
-																mapUnitsFlag))
-			overlayCheckReturn = 5;
+																	boundingRectPtr,
+																	mapUnitsFlag))
+			{
+			if (gActiveImageWindow != NULL)
+				overlayCheckReturn = 5;
+			
+			}	// end "if (!WindowBoundingAreaAndRectIntersect (..."
 			
 		else	// WindowBoundingAreaAndRectIntersect (...
 			{
@@ -806,9 +814,7 @@ SInt16 CheckIfOverlayFileLoaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfVectorOverlaysIntersectImage
 //
@@ -946,9 +952,7 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfOverlayMayBeLatLong
 //
@@ -1011,9 +1015,7 @@ Boolean CheckIfOverlayMayBeLatLong (
 
 #if include_gdal_capability
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckIfprjFileDefinesLatLong
 //
@@ -1117,9 +1119,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 CheckIfOverlayNeedsReloaded
 //
@@ -1139,7 +1139,7 @@ SInt16 CheckIfprjFileDefinesLatLong (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/01/2001
-//	Revised By:			Larry L. Biehl			Date: 04/29/2012
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 SInt16 CheckIfOverlayNeedsReloaded (
 				WindowPtr							newWindow,
@@ -1188,7 +1188,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 												
 					// Now check if the overlay is already included in the list.
 					
-			for (index=0; index<windowInfoPtr->numberOverlays; index++)
+			for (index=0; index<windowInfoPtr->numberVectorOverlays; index++)
 				{
 				if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
 					{
@@ -1234,7 +1234,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 				if (!needToLoadFlag)
 					break;
 				
-				}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+				}	// end "for (index=0; index<windowInfoPtr->numberVectorOverlays; ..."
 					
 			if (!needToLoadFlag)
 				break;
@@ -1278,9 +1278,7 @@ SInt16 CheckIfOverlayNeedsReloaded (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseAllVectorOverlayFiles
 //
@@ -1321,9 +1319,7 @@ void CloseAllVectorOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseOverlayFile
 //
@@ -1341,7 +1337,7 @@ void CloseAllVectorOverlayFiles (void)
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/2001
-//	Revised By:			Larry L. Biehl			Date: 01/20/2003
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void CloseOverlayFile (
 				UInt32			 					overlayIndex)
@@ -1392,7 +1388,7 @@ void CloseOverlayFile (
 					{
 					overlayListIndex = 0;
 					moveFlag = FALSE;
-					while (overlayListIndex < windowInfoPtr->numberOverlays)
+					while (overlayListIndex < windowInfoPtr->numberVectorOverlays)
 						{
 						if (abs (windowInfoPtr->overlayList[overlayListIndex].index) == 
 																				(UInt8)(overlayIndex + 1))
@@ -1406,17 +1402,17 @@ void CloseOverlayFile (
 							
 							}	// end "if (abs (...->overlayList[overlayListIndex]..."
 							
-						if (moveFlag && overlayListIndex+1 < windowInfoPtr->numberOverlays)
+						if (moveFlag && overlayListIndex+1 < windowInfoPtr->numberVectorOverlays)
 							windowInfoPtr->overlayList[overlayListIndex] = 
 												windowInfoPtr->overlayList[overlayListIndex+1];
 						
 						overlayListIndex++;
 						
-						}	// end "while (overlayListIndex < windowInfoPtr->numberOverlays)"
+						}	// end "while (overlayListIndex < windowInfoPtr->numberVectorOverlays)"
 						
 					if (moveFlag)
 						{
-						windowInfoPtr->numberOverlays--;
+						windowInfoPtr->numberVectorOverlays--;
 						UpdateOverlayControl (windowPtr);
 						
 						}	// end "if (moveFlag)"
@@ -1444,9 +1440,7 @@ void CloseOverlayFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ClearVectorOverlay
 //
@@ -1509,9 +1503,7 @@ void ClearVectorOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ConvertLatLongPointToMapPoint
 //
@@ -1555,9 +1547,7 @@ void ConvertLatLongPointToMapPoint (
 // This routine is now left out since code is now not being generated for pre-powerpc
 // processors
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ConvertLatLongRectToMapRect
 //
@@ -1608,9 +1598,7 @@ Boolean ConvertLatLongRectToMapRect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CreateCLRSupportFile
 //
@@ -1795,9 +1783,7 @@ Boolean CreateCLRSupportFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DisplayNoIntersectionAlert
 //
@@ -1860,9 +1846,7 @@ void DisplayNoIntersectionAlert (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DoShowOverlaySelection
 //
@@ -1878,7 +1862,7 @@ void DisplayNoIntersectionAlert (
 // Called By:			OnToolBarOverlaySelection in xMainFrame.cpp & WMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/2001
-//	Revised By:			Larry L. Biehl			Date: 04/20/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void DoShowOverlaySelection (
 				WindowPtr							windowPtr,
@@ -1911,7 +1895,7 @@ void DoShowOverlaySelection (
 		
 				// Now get a pointer to the overlay list and the number of overlays.
 							
-		numberVectorOverlays = windowInfoPtr->numberOverlays;
+		numberVectorOverlays = windowInfoPtr->numberVectorOverlays;
 		overlayListPtr = windowInfoPtr->overlayList;
 							
 		numberImageOverlays = windowInfoPtr->numberImageOverlays;
@@ -2093,9 +2077,7 @@ void DoShowOverlaySelection (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DrawArcViewShapes
 //
@@ -2111,7 +2093,7 @@ void DoShowOverlaySelection (
 // Called By:			CopyOffScreenImage in xUtilities.cpp and WUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 10/12/2019
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2213,7 +2195,7 @@ void DrawArcViewShapes (
 		{
 				// Now get a pointer to the overlay list and the number of overlays.
 									
-		numberOverlays = windowInfoPtr->numberOverlays;
+		numberOverlays = windowInfoPtr->numberVectorOverlays;
 		overlayListPtr = windowInfoPtr->overlayList;
 		
 		shapeHandlePtr = (Handle*)GetHandlePointer (
@@ -2669,9 +2651,7 @@ void DrawArcViewShapes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		FileStringPtr GetFileNamePPointerFromShapeInfo
 //
@@ -2701,9 +2681,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		FileStringPtr GetFileNamePPointerFromShapeInfo
 //
@@ -2744,9 +2722,7 @@ void* GetFileNamePPointerFromShapeInfo (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMFileStream* GetFileStreamPointer
 //
@@ -2789,9 +2765,7 @@ CMFileStream* GetFileStreamPointer (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetLastVectorColorAndWidth
 //
@@ -2847,9 +2821,7 @@ void GetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetArcViewMapInformation
 //
@@ -3104,9 +3076,7 @@ Boolean GetArcViewMapInformation (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetMemoryForVectorData
 //
@@ -3143,9 +3113,7 @@ Boolean GetMemoryForVectorData (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetShapeFileNumberRecordsAndType
 //
@@ -3212,9 +3180,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void InitializeOverlay
 //
@@ -3232,7 +3198,7 @@ UInt32 GetShapeFileNumberRecordsAndType (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/25/2001
-//	Revised By:			Larry L. Biehl			Date: 05/25/2001
+//	Revised By:			Larry L. Biehl			Date: 01/13/2020
 
 void InitializeOverlay (
 				WindowInfoPtr		 				windowInfoPtr, 
@@ -3241,25 +3207,28 @@ void InitializeOverlay (
 {	
 	UInt32								index;
 	
-														
-	index = windowInfoPtr->numberOverlays;
-										
-	windowInfoPtr->overlayList[index].index = (SInt8)(overlayNumber);
 	
-	GetLastVectorColorAndWidth (overlayNumber,
-											&windowInfoPtr->overlayList[index].overlayColor,
-											&windowInfoPtr->overlayList[index].lineThickness);
+	if (windowInfoPtr != NULL)
+		{
+		index = windowInfoPtr->numberVectorOverlays;
+										
+		windowInfoPtr->overlayList[index].index = (SInt8)(overlayNumber);
+	
+		GetLastVectorColorAndWidth (
+										overlayNumber,
+										&windowInfoPtr->overlayList[index].overlayColor,
+										&windowInfoPtr->overlayList[index].lineThickness);
 
-	windowInfoPtr->numberOverlays++;	
+		windowInfoPtr->numberVectorOverlays++;
+	
+		}	// end "InitializeOverlay"
 
 }	// end "InitializeOverlay"
 
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ListNonIntersectionMessage
 //
@@ -3428,9 +3397,7 @@ void ListNonIntersectionMessage (
 
                        
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean OverlayControlDialog
 //
@@ -3672,9 +3639,7 @@ Boolean OverlayControlDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void OverlayDialogInitialize
 //
@@ -3741,9 +3706,7 @@ void OverlayDialogInitialize (
 									
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void OverlayDialogOK
 //
@@ -3812,9 +3775,7 @@ void OverlayDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadArcViewClassNames
 //
@@ -4151,9 +4112,7 @@ Boolean ReadArcViewClassNames (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadArcViewColorPalette
 //
@@ -4369,9 +4328,7 @@ Boolean ReadArcViewColorPalette (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2019
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadArcViewGroups
 //
@@ -5008,9 +4965,7 @@ Boolean ReadArcViewGroups (
 			
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadArcViewHeader
 //
@@ -5623,9 +5578,7 @@ SInt16 ReadArcViewHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ReadArcViewWorldFile
 //
@@ -5866,9 +5819,7 @@ Boolean ReadArcViewWorldFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadArcViewShapeFile
 //
@@ -6474,9 +6425,7 @@ SInt16 ReadArcViewShapeFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ReadArcViewShapeHeader
 //
@@ -6494,7 +6443,7 @@ SInt16 ReadArcViewShapeFile (
 //									sense.
 //							2 - shape file was added to the window. It is already  loaded.
 //							3 - shape file was already included in the window.
-//							4 - this is a shape file, but no image window open has been
+//							4 - this is a shape file, but no image window has been
 //									opened yet.
 //							5 - This is a shape file but it does not intersect with the 
 //									active image window.
@@ -6508,7 +6457,7 @@ SInt16 ReadArcViewShapeFile (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2000
-//	Revised By:			Larry L. Biehl			Date: 10/12/2019
+//	Revised By:			Larry L. Biehl			Date: 01/13/2020
 
 SInt16 ReadArcViewShapeHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -6841,11 +6790,11 @@ SInt16 ReadArcViewShapeHeader (
 			}	// end "if (string != 0)"
 		
 		}	// end "if (fileType == kArcViewShapeType)"
-		
+	/* Shape Only Window
 	if (fileType == kArcViewShapeType && gActiveImageWindow == NULL)
 		{				
 				// Display an alert indicating that an image file needs to be opened
-				// before MultiSpec cannot read an arc view shape file.													
+				// before MultiSpec can handle an ArcView shape file.
 		
 		DisplayAlert (kErrorAlertID, 
 							kStopAlert, 
@@ -6857,12 +6806,13 @@ SInt16 ReadArcViewShapeHeader (
 		overlayCheckReturn = 4;
 		
 		}	// end "if (fileType == kArcViewShapeType && "
-		
+	*/
 	windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
 	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
 	if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
-		{	
-		if (mapProjectionHandle == NULL)
+		{
+		//if (mapProjectionHandle == NULL)
+		if (windowInfoHandle != NULL && mapProjectionHandle == NULL)
 			{
 					// Display an alert indicating that no map information has been
 					// defined for the active image window. The shape file cannot be
@@ -6877,7 +6827,7 @@ SInt16 ReadArcViewShapeHeader (
 								
 			overlayCheckReturn = 6;
 			
-			}	// end "if (mapProjectionHandle == NULL)"
+			}	// end "if (windowInfoHandle != NULL && mapProjectionHandle == NULL)"
 		
 		}	// end "if (fileType == kArcViewShapeType && "
 		
@@ -6906,12 +6856,11 @@ SInt16 ReadArcViewShapeHeader (
 		
 		if (gNumberShapeFiles >= gShapeHandleListLength)
 			{		
-			handlePtr = (Handle*)CheckHandleSize (
-											&gShapeFilesHandle,
-											&continueFlag, 
-											&changedFlag, 
-											(gNumberShapeFiles+1)*sizeof (Handle));
-											
+			handlePtr = (Handle*)CheckHandleSize (&gShapeFilesHandle,
+																&continueFlag, 
+																&changedFlag, 
+																(gNumberShapeFiles+1)*sizeof (Handle));
+				
 			if (continueFlag)
 				{
 				handlePtr[gNumberShapeFiles] = NULL;
@@ -6932,8 +6881,7 @@ SInt16 ReadArcViewShapeHeader (
 		if (continueFlag)
 			{
 			shapeInfoHandle = MNewHandle (sizeof (ShapeInfo));
-			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeInfoHandle,
-																			kLock);
+			shapeInfoPtr = (ShapeInfoPtr)GetHandlePointer (shapeInfoHandle, kLock);
 			
 			continueFlag = (shapeInfoPtr != NULL);
 	
@@ -6973,12 +6921,22 @@ SInt16 ReadArcViewShapeHeader (
 					// Initialize the map information to that for the image window
 					// that this shape file is being used for.  It will be needed if 
 					// the vector is in (or being converted to) map units.
+				
+			InitializeGeodeticModelStructure (&shapeInfoPtr->geodetic);
+			InitializeGridCoordinateSystemStructure (&shapeInfoPtr->gridCoordinate);
 			
 			mapProjectionInfoPtr = (MapProjectionInfoPtr)GetHandlePointer (
 																					mapProjectionHandle);
-			shapeInfoPtr->geodetic = mapProjectionInfoPtr->geodetic;
-			shapeInfoPtr->gridCoordinate = mapProjectionInfoPtr->gridCoordinate;
-			
+				
+			if (mapProjectionInfoPtr != NULL)
+				{
+						// Set to that for the image window
+				
+				shapeInfoPtr->geodetic = mapProjectionInfoPtr->geodetic;
+				shapeInfoPtr->gridCoordinate = mapProjectionInfoPtr->gridCoordinate;
+				
+				}	// end "if (mapProjectionInfoPtr != NULL)"
+
 			shapeInfoPtr->shapeType = shapeType;
 			
 					// Convert from number of 16-bit words to number of 8-bit
@@ -7012,9 +6970,9 @@ SInt16 ReadArcViewShapeHeader (
 				shapeInfoPtr->conversionCode = 2;
 				
 			shapeInfoPtr->unitsCodeForConversion = 0;
-			if (shapeInfoPtr->conversionCode == 2)
+			if (mapProjectionInfoPtr != NULL && shapeInfoPtr->conversionCode == 2)
 				shapeInfoPtr->unitsCodeForConversion = 
-								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode;
+										mapProjectionInfoPtr->planarCoordinate.mapUnitsCode;
 			
 					// Get buffer to read shape file into. For now assume that file
 					// will not be too large.
@@ -7102,10 +7060,9 @@ SInt16 ReadArcViewShapeHeader (
 				
 		fileInfoPtr->format = kArcViewShapeType;
 		fileInfoPtr->ancillaryInfoformat = kArcViewShapeType;
-		//gGetFileImageType = kVectorImageType;
 		
 		returnCode = overlayCheckReturn;
-		//wxBell ();
+
 		}	// end "if (fileType == kArcViewShapeType)"
 		
 	if (returnCode != 0 && shapeFileStreamPtr != NULL)
@@ -7118,9 +7075,7 @@ SInt16 ReadArcViewShapeHeader (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReadGTOPO30PrjFile
 //
@@ -7509,9 +7464,7 @@ void ReadGTOPO30PrjFile (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ReleaseShapeFileMemory
 //
@@ -7585,9 +7538,7 @@ void ReleaseShapeFileMemory (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WindowBoundingAreaAndRectIntersect
 //
@@ -7638,9 +7589,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean WindowBoundingAreaAndRectIntersect
 //
@@ -7687,9 +7636,7 @@ Boolean WindowBoundingAreaAndRectIntersect (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetLastVectorColorAndWidth
 //
@@ -7739,9 +7686,7 @@ void SetLastVectorColorAndWidth (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ShapeAndWindowAreasIntersect
 //
@@ -7759,7 +7704,7 @@ void SetLastVectorColorAndWidth (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 04/29/2012
+//	Revised By:			Larry L. Biehl			Date: 01/13/2020
 
 Boolean ShapeAndWindowAreasIntersect (
 				SInt16								overlayNumber,
@@ -7791,24 +7736,32 @@ Boolean ShapeAndWindowAreasIntersect (
 		windowPtr = gWindowList[windowListIndex];         
 		windowInfoHandle = GetWindowInfoHandle (windowPtr);
 		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-											
-				// Now check if the overlay is already included in the list.
-				
-		for (index=0; index<windowInfoPtr->numberOverlays; index++)
+		
+		if (windowInfoPtr != NULL)
 			{
-			if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
-				{
-				if (AreasIntersect (&windowInfoPtr->boundingMapRectangle, 
-												boundingRectPtr))
-					{
-					includeFlag = TRUE;
-					break;
-					
-					}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
-				
-				}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
+					// Now check if the overlay is already included in the list.
 			
-			}	// end "for (index=0; index<windowInfoPtr->numberOverlays; ..."
+			for (index=0; index<windowInfoPtr->numberVectorOverlays; index++)
+				{
+				if (abs (windowInfoPtr->overlayList[index].index) == overlayNumber)
+					{
+					if (AreasIntersect (&windowInfoPtr->boundingMapRectangle,
+													boundingRectPtr))
+						{
+						includeFlag = TRUE;
+						break;
+						
+						}	// end "if (AreaIntersects (...->boundingMapRectangle, ..."
+					
+					}	// end "if (abs (windowInfoPtr->overlayList[index].index) == ..."
+				
+				}	// end "for (index=0; index<windowInfoPtr->numberVectorOverlays; ..."
+			
+			}	// end "if (windowInfoPtr != NULL)"
+		
+		else	// windowInfoPtr != NULL
+					// This implies it is for an empty window. Default is to include.
+			includeFlag = TRUE;
 			
 		if (includeFlag)
 			break;

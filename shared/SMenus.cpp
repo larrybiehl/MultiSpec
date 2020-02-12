@@ -1,17 +1,24 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SMenus.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			01/10/2020
 //
 //	Language:				C
 //
@@ -74,9 +81,7 @@ class CMGraphView;
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CharactersSelected
 //
@@ -126,9 +131,7 @@ Boolean CharactersSelected (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ClearMenuItems
 //
@@ -224,9 +227,7 @@ void ClearMenuItems (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ClearOverlay
 //
@@ -260,9 +261,7 @@ void ClearOverlay (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void CloseAllOverlayFiles
 //
@@ -292,9 +291,7 @@ void CloseAllOverlayFiles (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfProjectPossible
 //
@@ -333,9 +330,7 @@ Boolean DetermineIfProjectPossible (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DoEditSelectAllImage
 //
@@ -453,9 +448,7 @@ void DoEditSelectAllImage (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void GetControlPopUpMenuText
 //
@@ -509,9 +502,7 @@ void GetControlPopUpMenuText (
 
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetPopUpMenuBitsPerDataValue
 //
@@ -592,9 +583,7 @@ SInt16 GetPopUpMenuBitsPerDataValue (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetRectangularSelectionFlag
 //
@@ -631,9 +620,7 @@ Boolean GetRectangularSelectionFlag (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void MAppendMenuItemText
 //
@@ -708,9 +695,7 @@ void MAppendMenuItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void MDisableMenuItem
 //
@@ -752,9 +737,7 @@ void MCheckMenuItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void MDisableMenuItem
 //
@@ -795,9 +778,7 @@ void MDisableMenuItem (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void MSetMenuItemText
 //
@@ -858,9 +839,7 @@ void MSetMenuItemText (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SetTIFF_GeoTIFF_MenuItemString
 //
@@ -956,9 +935,7 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpClearOverlaysSubMenu
 //
@@ -1202,9 +1179,7 @@ void SetUpClearOverlaysSubMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpImageOverlayPopUpMenu
 //
@@ -1317,9 +1292,7 @@ void SetUpImageOverlayPopUpMenu (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpWindowOverlayPopUpMenu
 //
@@ -1337,7 +1310,7 @@ void SetUpImageOverlayPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2001
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 01/10/2020
 
 void SetUpWindowOverlayPopUpMenu (
 				MenuHandle							popUpMenuHandle,
@@ -1382,7 +1355,7 @@ void SetUpWindowOverlayPopUpMenu (
 													gActiveImageWindowInfoH, &windowHandleStatus);
 
 	if (windowInfoPtr != NULL && (windowInfoPtr->numberImageOverlays + 
-																windowInfoPtr->numberOverlays) > 0)
+																windowInfoPtr->numberVectorOverlays) > 0)
 		{
 		#if defined multispec_mac
 			CheckMenuItem (popUpMenuHandle, 1, FALSE);
@@ -1526,7 +1499,7 @@ void SetUpWindowOverlayPopUpMenu (
 			// Now get a pointer to the vector overlay list and the number of 
 			// overlays.
 								
-		numberOverlays = windowInfoPtr->numberOverlays;
+		numberOverlays = windowInfoPtr->numberVectorOverlays;
 		overlayListPtr = windowInfoPtr->overlayList;
 	
 		shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
@@ -1630,9 +1603,7 @@ void SetUpWindowOverlayPopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		"several"
 //
@@ -2733,7 +2704,7 @@ Boolean UpdateReformatConvertShape (
 	Boolean 								returnFlag = TRUE;
 	
 														
-	if (windowInfoPtr == NULL || windowInfoPtr->numberOverlays == 0)
+	if (windowInfoPtr == NULL || windowInfoPtr->numberVectorOverlays == 0)
 		returnFlag = FALSE;
 		
 	else 		// windowInfoPtr != NULL && ...
@@ -2866,9 +2837,7 @@ Boolean UpdateReformatMosaicImages (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean UpdateReformatRecodeThematicImage
 //

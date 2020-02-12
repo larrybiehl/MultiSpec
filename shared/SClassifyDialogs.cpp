@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SClassifyDialogs.cpp
 //
@@ -166,9 +173,7 @@ SInt16								gfile_EntireIconItem;
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CEMClassifyDialog
 //
@@ -594,9 +599,7 @@ void CEMClassifyDialogOK (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfClassesToUseForClassificationChanged
 //
@@ -660,9 +663,7 @@ Boolean CheckIfClassesToUseForClassificationChanged (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean ClassifyDialog
 //
@@ -2906,9 +2907,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ClassifyDialogOnOverlay
 //
@@ -2966,9 +2965,7 @@ void ClassifyDialogOnOverlay (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 ClassifyDialogOnTargetFile
 //
@@ -3318,9 +3315,7 @@ void ClassifyDialogSetPaletteItems (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CorrelationClassifyDialog
 //
@@ -3507,9 +3502,7 @@ Boolean CorrelationClassifyDialog (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DecisionTreeDialog
 //
@@ -3823,9 +3816,7 @@ Boolean DecisionTreeDialog (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean DetermineIfChannelClassWeightListChanged
 //
@@ -3967,9 +3958,7 @@ Boolean DetermineIfChannelClassWeightListChanged (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawClassificationProcedurePopUp
 //
@@ -4008,9 +3997,7 @@ pascal void DrawClassificationProcedurePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawCorrelationMatrixClassAreaPopUp
 //
@@ -4050,9 +4037,7 @@ pascal void DrawCorrelationMatrixClassAreaPopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawCovarianceEstimatePopUp
 //
@@ -4092,9 +4077,7 @@ pascal void DrawCovarianceEstimatePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawDiskFilePopUp
 //
@@ -4134,9 +4117,7 @@ pascal void DrawDiskFilePopUp (
 
 #if defined multispec_mac
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		pascal void DrawEchoAlgorithmPopUp
 //
@@ -4175,9 +4156,7 @@ pascal void DrawEchoAlgorithmPopUp (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean EchoClassifyDialog
 //
@@ -4657,9 +4636,7 @@ Boolean KNNClassifyDialog (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ListResultsOptionsDialog
 //
@@ -4857,9 +4834,7 @@ void ListResultsOptionsDialog (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean LoadCEMParameterSpecs
 //
@@ -4981,9 +4956,7 @@ Boolean LoadCEMParameterSpecs (
 
                    
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetUpPalettePopUpMenu
 //
@@ -5071,9 +5044,7 @@ void SetUpPalettePopUpMenu (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (2019-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 2019-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SVMClassifyDialog
 //
@@ -5136,9 +5107,7 @@ Boolean SVMClassifyDialog ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (2019-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 2019-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean SVMClassifyDialog
 //

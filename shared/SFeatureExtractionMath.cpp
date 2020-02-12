@@ -1,11 +1,18 @@
-// 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						SFeatureExtractionMath.cpp
 //
@@ -349,9 +356,7 @@ void TransposeMatrix (
 // UInt32		gSampleMultipleCount = 0;
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void cal_h_X (from db.c)
 //
@@ -419,9 +424,7 @@ void cal_h_X (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_decision_boundary
 //
@@ -1056,9 +1059,7 @@ void FS_decision_boundary (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_discriminant_analysis { by SmSw } (35)
 //
@@ -1307,9 +1308,7 @@ void FS_discriminant_analysis (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_eigen_inverse_SwSb_gen
 //
@@ -1503,9 +1502,7 @@ void FS_eigen_inverse_SwSb_gen (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 FS_optimize_2_class
 //
@@ -1879,9 +1876,7 @@ UInt32 FS_optimize_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_quick_feature_extraction
 //
@@ -2024,9 +2019,7 @@ void FS_quick_feature_extraction (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_sol_bnd_line
 //
@@ -2295,9 +2288,7 @@ void FS_sol_bnd_line (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean FS_sol_bnd_line_2
 //
@@ -2487,9 +2478,7 @@ Boolean FS_sol_bnd_line_2 (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 FS_sub_find_edbfm_2_class
 //
@@ -2967,9 +2956,7 @@ UInt32 FS_sub_find_edbfm_2_class (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FS_sub_linear_transform
 //
@@ -3030,9 +3017,7 @@ void FS_sub_linear_transform (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Ptr GetDecisionBoundaryMemoryBlock
 //
@@ -3187,9 +3172,7 @@ HPtr GetDecisionBoundaryMemoryBlock (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void normalize_rows
 //
@@ -3252,9 +3235,7 @@ void normalize_rows (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void NWFE
 //
@@ -3728,9 +3709,7 @@ SInt32 NWFE (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 AddBxSymMatrixToSymMatrix
 //
@@ -3792,9 +3771,7 @@ void AddBxSymMatrixToSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void RegularizeSymMatrix
 //
@@ -3852,9 +3829,7 @@ void RegularizeSymMatrix (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 NWFE_AddToScatterMatrixForClass_i
 //
@@ -3918,9 +3893,7 @@ void NWFE_AddToScatterMatrixForClass_i (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 NWFE_GetLocalMean
 //
@@ -4056,9 +4029,7 @@ SInt32 NWFE_GetLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 NWFE_GetScatterMatrixWeight
 //
@@ -4120,9 +4091,7 @@ double NWFE_GetScatterMatrixWeight (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		UInt32 NWFE_SumInvDistXLocalMean
 //
@@ -4228,9 +4197,7 @@ SInt32 NWFE_SumInvDistXLocalMean (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void TransformLineOfCovariance
 //
@@ -4361,9 +4328,7 @@ void TransformLineOfCovariance (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void BalanceMatrix
 //
@@ -4605,9 +4570,7 @@ L280:
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void balbak
 //
@@ -4735,9 +4698,7 @@ void balbak (
 
 #define SWAP(g,h) {y=(g);(g)=(h);(h)=y;}
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void elmhes
 //							ReduceToHessenbergFormEliminationMethod
@@ -4885,9 +4846,7 @@ void elmhes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void eltran
 //
@@ -5006,9 +4965,7 @@ void eltran (
 
 static double c_b50 = 0.;
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void hqr2
 //
@@ -5807,9 +5764,7 @@ void cdiv (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void orthes
 //
@@ -5984,9 +5939,7 @@ void orthes (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ortran
 //
@@ -6119,9 +6072,7 @@ void ortran (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 MatlabEigFunction
 //
@@ -6350,9 +6301,7 @@ SInt32 MatlabEigFunction (
 //#include <math.h>
 //#include "nrutil.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void FindEigenvaluesOfUpperHessenbergMatrix
 //							hqr.c in Numerical Recipes in C
@@ -6666,9 +6615,7 @@ void FindEigenvaluesOfUpperHessenbergMatrix (
 //#include "nrutil.h"
 //#include "nr.h"
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void ComputeEigenvectorsSVD
 //							dsvdcmp.c in Numerical Recipes in C
@@ -7121,9 +7068,7 @@ double dpythag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//								(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void TransposeMatrix
 //
