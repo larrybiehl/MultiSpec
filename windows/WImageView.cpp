@@ -1,11 +1,18 @@
-//	 									MultiSpec
+//                                     MultiSpec
 //
-//					Laboratory for Applications of Remote Sensing
-//									Purdue University
-//								West Lafayette, IN 47907
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+// this file except in compliance with the License. You may obtain a copy of the
+// License at:  https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed
+// under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+// CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
+// language governing permissions and limitations under the License.
+//
+// MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
+// Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
 //	File:						WImageView.cpp
 //
@@ -99,9 +106,7 @@ END_MESSAGE_MAP ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		CMImageView
 //
@@ -185,9 +190,7 @@ CMImageView::CMImageView ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		~CMImageView
 //
@@ -266,9 +269,7 @@ CMImageView::~CMImageView ()
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean CheckIfOffscreenImageExists
 //
@@ -326,9 +327,7 @@ void CMImageView::ClientToDoc (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void DisposeImageWindowSupportMemory
 //
@@ -626,9 +625,7 @@ Boolean CMImageView::GetActiveWindowFlag (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetClassGroupCode
 //
@@ -754,9 +751,7 @@ CMLegendView* CMImageView::GetImageLegendViewCPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetImageType
 //
@@ -797,9 +792,7 @@ SInt16 CMImageView::GetImageType (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt32 GetLegendFullHeight
 //
@@ -850,9 +843,7 @@ SInt32 CMImageView::GetLegendFullHeight (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetLegendWidth
 //
@@ -888,9 +879,7 @@ SInt16 CMImageView::GetLegendWidth (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 numberGroups
 //
@@ -952,9 +941,7 @@ CMOutlineArea* CMImageView::GetSelectionAreaCPtr (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1996-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetTitleHeight
 //
@@ -988,9 +975,7 @@ SInt16 CMImageView::GetTitleHeight (void)
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1988-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		SInt16 GetWindowType
 //
@@ -2260,9 +2245,7 @@ void CMImageView::SetControlKeyFlag (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1995-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetImageWindowCPtr
 //
@@ -2292,9 +2275,7 @@ void CMImageView::SetImageWindowCPtr (
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1995-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void SetLegendBitMapInfoHeaderHandle
 //
@@ -2388,9 +2369,7 @@ void CMImageView::SetScrollSizes (
 	
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1992-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateCursorCoordinates
 //
@@ -2434,9 +2413,7 @@ void CMImageView::UpdateCursorCoordinates (
 	
 
 //-----------------------------------------------------------------------------
-//								 Copyright (1992-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		void UpdateCursorCoordinates
 //
@@ -2969,9 +2946,7 @@ CMImageDoc* CMImageView::GetDocument () // non-debug version is inline
 
 
 //------------------------------------------------------------------------------------
-//								 Copyright (1995-2020)
-//							(c) Purdue Research Foundation
-//									All rights reserved.
+//                   Copyright 1988-2020 Purdue Research Foundation
 //
 //	Function name:		Boolean GetImageWindowCPtr
 //
