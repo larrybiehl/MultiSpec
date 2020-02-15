@@ -19,6 +19,7 @@ MultiSpec is a freeware image data analysis application developed for interactiv
   MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets). 
 
 #License
+
 //                                     MultiSpec
 //
 //                   Copyright 1988-2020 Purdue Research Foundation
