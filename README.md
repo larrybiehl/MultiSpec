@@ -7,7 +7,6 @@ MultiSpec is a freeware image data analysis application developed for interactiv
     - shared directory includes those files which are used for Linux, MacOS, and Windows builds
     - wxMultiSpec directory includes those files which are used for the Linux and MacOS builds to manage the user interface
     - windows directory includes those files which are used for the Window build to manage the user interface
-    
     - the SMultiSpec.h include file includes directives to 'turn off' access to other libraries including hdf4, gdal, and hdf5.
     - The code in this repository was using the following library versions:
       - HDF4.2r2
