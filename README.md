@@ -18,7 +18,11 @@ MultiSpec is a freeware image data analysis application developed for interactiv
       - openjpeg-2.1.2
       - libecwj2-3.3
   
-  MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets). 
+  MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets).
+  
+  WindowsOS: Visual Studio 2015 was used to create the project file included in this repository (Windows_build).
+  
+  Linux on 
 
 # License
 
