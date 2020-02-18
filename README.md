@@ -7,10 +7,23 @@ MultiSpec is a freeware image data analysis application developed for interactiv
   
     - shared directory includes those files which are used for Linux, MacOS, and Windows builds
     - wxMultiSpec directory includes those files which are used for the Linux and MacOS builds to manage the user interface
-    - windows directory includes those files which are used for the Window build to manage the user interface
+    - windows directory includes those files which are used for the Windows build to manage the user interface
     - the SMultiSpec.h include file includes directives to 'turn off' access to other libraries including hdf4, gdal, and hdf5.
-    
-    - The code in this repository was using the following library versions. These libraries are not provided:
+  
+  Linux: This version has always been created from the command line with a make file. The source is also available from MultiSpec Online (https://mygeohub.org/resources/multispec)
+  
+    - The code for the Linux version used for MultiSpec Online uses the following library versions. These libraries are not provided:
+      - wxWidgets-3.1.2-gtk2 library is used for the graphical user interface
+      - HDF4 ??
+      - gdal-1.11.2
+      - hdf5 ??
+      - netcdf ??
+      - openjpeg-2.1.2
+  
+  MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets).
+  
+    - The code for the MacOS version uses the following library versions. These libraries are not provided:
+      - wxWidgets-3.1.2 library is used for the graphical user interface
       - HDF4.2r2
       - gdal-2.1.2
       - hdf5-1.8.8
@@ -18,15 +31,15 @@ MultiSpec is a freeware image data analysis application developed for interactiv
       - openjpeg-2.1.2
       - libecwj2-3.3
   
-  MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets).
-  
-    - wxWidgets-3.1.2 library is used for the graphical user interface
-  
   WindowsOS: Visual Studio 2015 was used to create the project file included in this repository (Windows_build).
   
-  Linux: 
-  
-       - wxWidgets-3.1.2 library is used for the graphical user interface
+    - The code for the Windows version uses the following library versions. These libraries are not provided:
+      - HDF4.2r2
+      - gdal-2.1.2
+      - hdf5-1.8.8
+      - netcdf-4.2
+      - openjpeg-2.1.2
+      - libecwj2-3.3
        
 # License
 
