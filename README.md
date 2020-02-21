@@ -41,7 +41,7 @@ MultiSpec is a freeware image data analysis application developed for interactiv
       - openjpeg-2.1.2
       - libecwj2-3.3
        
-  The multispec.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version which has been done for the past few years.
+  The multispec_basic.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the Windows version are Windows and Windows_build.
   
 # License
 
