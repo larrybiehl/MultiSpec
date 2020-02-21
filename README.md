@@ -5,9 +5,9 @@ MultiSpec is a freeware image data analysis application developed for interactiv
 # Installation:
   General Information
   
-    - shared directory includes those files which are used for Linux, MacOS, and Windows builds
+    - SharedMultiSpec directory includes those files which are used for Linux, MacOS, and Windows builds
     - wxMultiSpec directory includes those files which are used for the Linux and MacOS builds to manage the user interface
-    - windows directory includes those files which are used for the Windows build to manage the user interface
+    - Windows directory includes those files which are used for the Windows build to manage the user interface
     - the SMultiSpec.h include file includes directives to 'turn off' access to other libraries including hdf4, gdal, and hdf5.
   
   Linux: This version has always been created from the command line with a make file. The source is also available from MultiSpec Online (https://mygeohub.org/resources/multispec)
