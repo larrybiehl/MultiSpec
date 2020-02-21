@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/30/2018
+//	Revision date:			02/18/2020
 //
 //	Language:				C++
 //
@@ -815,7 +815,7 @@ void CMImageFrame::OnUpdateOverlay (
 	windowInfoHandle = GetWindowInfoHandle (gActiveImageViewCPtr);
 	windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 
-	if (windowInfoPtr != NULL && (windowInfoPtr->numberOverlays > 0 ||
+	if (windowInfoPtr != NULL && (windowInfoPtr->numberVectorOverlays > 0 ||
 														windowInfoPtr->numberImageOverlays > 0))
 		enableFlag = TRUE;
 

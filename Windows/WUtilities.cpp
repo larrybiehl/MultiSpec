@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			12/17/2019
+//	Revision date:			02/18/2020
 //
 //	Language:				C
 //
@@ -62,7 +62,7 @@ extern void GetApplicationStartupPath (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 12/17/2019		
+//	Revised By:			Larry L. Biehl			Date: 02/18/2020		
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -129,7 +129,7 @@ void CopyOffScreenImage (
       grafPortType = windowInfoPtr->grafPortType;
       numberImageOverlays = windowInfoPtr->numberImageOverlays;
       drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
-      numberOverlays = windowInfoPtr->numberOverlays;
+      numberOverlays = windowInfoPtr->numberVectorOverlays;
       drawBaseImageFlag = windowInfoPtr->drawBaseImageFlag;
 
       offScreenMapHandle = windowInfoPtr->offScreenMapHandle;
