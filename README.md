@@ -20,7 +20,7 @@ MultiSpec is a freeware image data analysis application developed for interactiv
       - netcdf ??
       - openjpeg-2.1.2
   
-  The makefile that is provided includes accesses several libraries that are available on mygeohub. The directories needed for the Linux version are wxWidgets and Linux_build.
+  The makefile that is provided includes accesses several libraries that are available on mygeohub including wxWidgets. The directories needed for the Linux version are wxMultiSpec and Linux_build (Linux_wxwidgets). One will need to include the wxWidgets library to make the basic version of MultiSpec compile for Linuxx.
   
   MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_wxwidgets).
   
