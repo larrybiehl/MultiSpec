@@ -33,7 +33,7 @@ MultiSpec is a freeware image data analysis application developed for interactiv
       - openjpeg-2.1.2
       - libecwj2-3.3
   
-  The MultiSpec_basic.xcodeproj file is set up for just the core version of MultiSpec without the libraries (except that for  wxWidgets). You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the MacOS version are ShareMultiSpec, wxMultiSpec, MacOS_build, and MacOS_wxWidgets. The MacOS_wxWidgets directory contains a zip file with the wxWidgets code needed to create the wxWidgets library for just MacOS. There will be four directories (folders) and the same level in your development environment: MacOS_build, SharedMultiSpec, wxMultiSpec, and WxWidgets-3.1.2_basic_MacOS. Unpack the MultiSpec_basic.xcodeproj.zip file inside of the folder it is in.
+  The MultiSpec_basic.xcodeproj file is set up for just the core version of MultiSpec without the libraries (except that for  wxWidgets). The directories in the git archive needed for the MacOS version are ShareMultiSpec, wxMultiSpec, MacOS_build, and MacOS_wxWidgets. The MacOS_wxWidgets directory contains a zip file with the wxWidgets code needed to create the wxWidgets library for just MacOS. There will be four directories (folders) at the same level in your development environment: MacOS_build, SharedMultiSpec, wxMultiSpec, and WxWidgets-3.1.2_basic_MacOS. Unpack the MultiSpec_basic.xcodeproj.zip file inside of the MacOS_build.
   
   The MultiSpec.xcodeproj.zip archive contains the xcode project for the full version of MultiSpec with the libraries. One can see how the libraries are organized but you will need to provide them.  
   
