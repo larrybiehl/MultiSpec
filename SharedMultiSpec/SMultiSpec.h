@@ -28,7 +28,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 10/19/2018
+//	Revised By:				Larry L. Biehl			Date: 02/19/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -60,9 +60,9 @@
 	//	typedef double DOUBLE;
 	//#endif // !DOUBLE_ 
 
-	#define include_hdf_capability 1 
-	#define include_gdal_capability 1
-	#define include_hdf5_capability 1
+	#define include_hdf_capability 0 
+	#define include_gdal_capability 0
+	#define include_hdf5_capability 0
 
 	//	#include "stdafx.h"
 	#include <math.h>
@@ -77,18 +77,18 @@
 #if defined multispec_wx
          // GDAL capability
 	#ifdef NetBeansProject
-		#define include_hdf_capability 1
-		#define include_gdal_capability 1
-		#define include_hdf5_capability 1
+		#define include_hdf_capability 0
+		#define include_gdal_capability 0
+		#define include_hdf5_capability 0
 	#else	// ifndef NetBeansProject
 		#ifdef multispec_wxmac
-			#define include_hdf_capability 1
-			#define include_gdal_capability 1
-			#define include_hdf5_capability 1
+			#define include_hdf_capability 0
+			#define include_gdal_capability 0
+			#define include_hdf5_capability 0
 		#else
-			#define include_hdf_capability 1
-			#define include_gdal_capability 1
-			#define include_hdf5_capability 1
+			#define include_hdf_capability 0
+			#define include_gdal_capability 0
+			#define include_hdf5_capability 0
 		#endif
 	#endif
 #endif	// end "defined multispec_wx"

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/03/2020
+//	Revision date:			02/18/2020
 //
 //	Language:				C
 //
@@ -156,8 +156,6 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
 #if defined multispec_win
-	#include "CProcessor.h"
-
 	#include "WImageView.h" 
 	#include "WLeaveOneOutMixingDialog.h"
 	#include "WMultiSpec.h"

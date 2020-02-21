@@ -105,7 +105,6 @@
 #define IDS_NumberClasses               229
 #define IDD_GraphWindow                 229
 #define IDS_ClassifySelectedArea        230
-#define IDI_Lines                       230
 #define IDS_ClassesUsed                 231
 #define IDS_SaveProbabilityAs           234
 #define IDS_SelectNewBaseImage          235

@@ -61,37 +61,35 @@ IDR_MSPECTYPE           ICON                    "RES\\MSPECDOC.ICO"
 
 IDR_OutType             ICON                    "RES\\IDR_OUTT.ICO"
 
-IDI_Lines               ICON                    "res\\icon1.ico"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDR_MAINFRAME           BITMAP                  "RES\\TOOLBAR.BMP"
+//IDR_MAINFRAME           BITMAP                  "res\\toolbar.bmp"
 
-TOENTIREIMAGEU          BITMAP                  "RES\\ENTIREIM.BMP"
+TOENTIREIMAGEU          BITMAP                  "res\\entireim.bmp"
 
-TOENTIREIMAGED          BITMAP                  "RES\\BMP00001.BMP"
+TOENTIREIMAGED          BITMAP                  "res\\bmp00001.bmp"
 
-TOENTIREIMAGEF          BITMAP                  "RES\\BMP00002.BMP"
+//TOENTIREIMAGEF          BITMAP                  "res\\bmp00002.bmp"
 
-TOSELECTEDIMAGEU        BITMAP                  "RES\\SELECTED.BMP"
+TOSELECTEDIMAGEU        BITMAP                  "res\\selected.bmp"
 
-TOSELECTEDIMAGEF        BITMAP                  "RES\\TOSELECT.BMP"
+//TOSELECTEDIMAGEF        BITMAP                  "res\\toselect.bmp"
 
-TOSELECTEDIMAGED        BITMAP                  "RES\\BMP00003.BMP"
+TOSELECTEDIMAGED        BITMAP                  "res\\bmp00003.bmp"
 
-TOENTIREIMAGEX          BITMAP                  "RES\\TOENTIRE.BMP"
+TOENTIREIMAGEX          BITMAP                  "res\\toentire.bmp"
 
-TOSELECTEDIMAGEX        BITMAP                  "RES\\BMP00004.BMP"
+TOSELECTEDIMAGEX        BITMAP                  "res\\bmp00004.bmp"
 
-IDR_TOOLBAR             BITMAP                  "RES\\bmp00005.bmp"
+IDR_TOOLBAR             BITMAP                  "res\\toolbar2.bmp"
 
-IDB_GRAPHOVERLAY        BITMAP                  "res\\bitmap1.bmp"
+IDB_OVERLAY             BITMAP                  "res\\overlay.bmp"
 
-IDB_VECTORS             BITMAP                  "res\\bmp00006.bmp"
+IDB_CLASSES             BITMAP                  "res\\classes.bmp"
 
 IDB_BINWIDTH            BITMAP                  "res\\binwidth.bmp"
 
@@ -3550,13 +3548,13 @@ END
 // Cursor
 //
 
-IDC_CROSS_CURSOR        CURSOR                  "RES\\CROSS_CU.CUR"
+IDC_CROSS_CURSOR        CURSOR                  "res\\cross_cursor1.cur"
 
-IDC_BLINK_OPEN          CURSOR                  "RES\\BLINK_OP.CUR"
+IDC_BLINK_OPEN          CURSOR                  "RES\\blink_open.cur"
 
-IDC_BLINK_SHUT          CURSOR                  "RES\\BLINK_SH.CUR"
+IDC_BLINK_SHUT          CURSOR                  "RES\\blink_shut.cur"
 
-IDC_CROSS_CURSOR2       CURSOR                  "res\\cur00001.cur"
+IDC_CROSS_CURSOR2       CURSOR                  "res\\cross_cursor2.cur"
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/17/2020
 //
 //	Language:				C++
 //
@@ -37,7 +37,7 @@
 	#ifdef multispec_wxmac
 		#include "xImageDoc.h"
 	#else
-		#include "../linux_files/xImageDoc.h"
+		#include "../wxMultiSpec/xImageDoc.h"
 	#endif
 #endif
 
