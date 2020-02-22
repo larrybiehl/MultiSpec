@@ -88,9 +88,41 @@ void CShortStatusDlg::DoDataExchange (
 void CShortStatusDlg::OnCancel ()
 
 {
-			// Add extra cleanup here
+	Boolean								returnFlag = TRUE;
+
+
+	gOperationCanceledFlag = TRUE;
+
+	if (gAlertId != 0)
+		gAlertReturnCode = DisplayAlert (gAlertId,
+														kCautionAlert,
+														gAlertStrID,
+														gAlertStringNumber,
+														0,
+														NULL);
+
+	if (gAlertId == 0 || gAlertReturnCode == 3)
+				// Quit immediately.
+		//return (FALSE);
+		returnFlag = FALSE;
+
+	if (returnFlag)
+		{
+		gOperationCanceledFlag = FALSE;
+
+		if (gAlertReturnCode == 2)
+					// Cancel the quit request.
+			gAlertReturnCode = 0;
+
+		}
+
+	if (!returnFlag)
+		{
+				// Add extra cleanup here
 	
-	CMDialog::OnCancel ();
+		CMDialog::OnCancel ();
+
+		}	// end "if (!returnFlag)"
 	
 }	// end "OnCancel"
 
