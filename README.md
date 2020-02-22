@@ -47,7 +47,7 @@ Visual Studio 2015 was used to create the project file included in this reposito
       - gdal-2.1.2
       - hdf5-1.8.8
       - netcdf-4.2
-      - openjpeg-2.1.2
+      - openjpeg-2.3.1
       - libecwj2-3.3
        
   The multispec_basic.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the Windows version are SharedMultiSpec, Windows, and Windows_build.
