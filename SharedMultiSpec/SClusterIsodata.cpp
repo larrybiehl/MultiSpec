@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/22/2020
 //
 //	Language:				C
 //
@@ -1339,7 +1339,7 @@ Boolean InitializeClusterCenters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 04/14/2019
+//	Revised By:			Larry L. Biehl			Date: 02/22/2020
 
 SInt16 ISODATACluster (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
@@ -1522,7 +1522,8 @@ SInt16 ISODATACluster (
 	
 	HideStatusDialogItemSet (kStatusMinutes);
    
-	if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+	if (returnCode != -1 && 
+					!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 		returnCode = -1;
 	
    		// Change returnCode to indicate to continue if the user just requested
@@ -2907,7 +2908,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 02/22/2020
 
 SInt16 ISODATAClusterPass (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -3358,7 +3359,8 @@ SInt16 ISODATAClusterPass (
 				windowPtr->UpdateWindow ();
 			#endif	// defined multispec_win  
 					 
-			if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
+			if (returnCode != -1 &&
+					!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 				{
 				returnCode = -1;
 				break;

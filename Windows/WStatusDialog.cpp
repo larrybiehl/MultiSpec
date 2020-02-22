@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/30/2018
+//	Revision date:			02/22/2020
 //
 //	Language:				C++
 //
@@ -88,42 +88,13 @@ void CShortStatusDlg::DoDataExchange (
 void CShortStatusDlg::OnCancel ()
 
 {
-	Boolean								returnFlag = TRUE;
-
-
 	gOperationCanceledFlag = TRUE;
-
-	if (gAlertId != 0)
-		gAlertReturnCode = DisplayAlert (gAlertId,
-														kCautionAlert,
-														gAlertStrID,
-														gAlertStringNumber,
-														0,
-														NULL);
-
-	if (gAlertId == 0 || gAlertReturnCode == 3)
-				// Quit immediately.
-		//return (FALSE);
-		returnFlag = FALSE;
-
-	if (returnFlag)
-		{
-		gOperationCanceledFlag = FALSE;
-
-		if (gAlertReturnCode == 2)
-					// Cancel the quit request.
-			gAlertReturnCode = 0;
-
-		}
-
-	if (!returnFlag)
-		{
-				// Add extra cleanup here
+			// Add extra cleanup here
+			// Decided best not to do this here. Just indicated that the user has
+			// requested a cancel. It will be handled in CheckSomeEvents.
 	
-		CMDialog::OnCancel ();
+	//CMDialog::OnCancel ();
 
-		}	// end "if (!returnFlag)"
-	
 }	// end "OnCancel"
 
 

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/21/2020
 //
 //	Language:				C
 //
@@ -292,6 +292,7 @@ Boolean CheckSomeEvents (
 			else if (gOperationCanceledFlag)
 						// This will come from a cancel selection in the status dialog box
 				returnFlag = FALSE;
+				break;
 
 			}	// end "if (returnFlag && !IsDialogMessage (hWnd, &msgCur))"
 
@@ -299,34 +300,27 @@ Boolean CheckSomeEvents (
 
 	if (!returnFlag)
 		{
-				// If gOperationCanceledFlag is true, then the cancel button was used
-				// The user was already presented with dialog box requesting whether to
-				// complete the operation.
-		if (!gOperationCanceledFlag)
-			{
-			gOperationCanceledFlag = TRUE;
+		gOperationCanceledFlag = TRUE;
 
-			if (gAlertId != 0)
-				gAlertReturnCode = DisplayAlert (gAlertId,
-															 kCautionAlert,
-															 gAlertStrID,
-															 gAlertStringNumber,
-															 0,
-															 NULL);
+		if (gAlertId != 0)
+			gAlertReturnCode = DisplayAlert (gAlertId,
+															kCautionAlert,
+															gAlertStrID,
+															gAlertStringNumber,
+															0,
+															NULL);
 
-			if (gAlertId == 0 || gAlertReturnCode == 3)
-						// Quit immediately.
-				return (FALSE);
+		if (gAlertId == 0 || gAlertReturnCode == 3)
+					// Quit immediately.
+			return (FALSE);
 
-			gOperationCanceledFlag = FALSE;
+		gOperationCanceledFlag = FALSE;
 
-			if (gAlertReturnCode == 2)
-						// Cancel the quit request.
-				gAlertReturnCode = 0;
+		if (gAlertReturnCode == 2)
+					// Cancel the quit request.
+			gAlertReturnCode = 0;
 
-			returnFlag = TRUE;
-
-			}	// end "if (!gOperationCanceledFlag)"
+		returnFlag = TRUE;
 
 		}	// end "if (!returnFlag)"
 

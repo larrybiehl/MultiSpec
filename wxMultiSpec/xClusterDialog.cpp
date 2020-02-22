@@ -189,7 +189,7 @@ void CMClusterDialog::CreateControls ()
 																	wxDefaultSize,
 																	radioBox3NChoices,
 																	radioBox3Choices,
-																	3,
+																	0,	// use the number of choices
 																	wxRA_SPECIFY_ROWS);
    m_algorithmSelectionRadioBox->SetSelection (2);
    m_algorithmSelectionRadioBox->Show (2, false);
@@ -221,7 +221,7 @@ void CMClusterDialog::CreateControls ()
 											m_radioBox4NChoices,
 											m_radioBox4Choices,
 											3,
-											wxRA_SPECIFY_ROWS|wxNO_BORDER);
+											wxRA_SPECIFY_ROWS);
    m_radioBox4->SetSelection (2);
    SetUpToolTip (m_radioBox4, IDS_ToolTip81);
    sbSizer11->Add (m_radioBox4, wxSizerFlags(0).Border(wxRIGHT, 5));
