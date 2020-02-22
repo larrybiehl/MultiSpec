@@ -35,7 +35,7 @@ Xcode verson 9.2 was used to create the project file included in this repository
       - openjpeg-2.1.2
       - libecwj2-3.3
   
-  The MultiSpec_basic.xcodeproj file is set up for just the core version of MultiSpec without the libraries (except that for  wxWidgets). The directories in the git archive needed for the MacOS version are ShareMultiSpec, wxMultiSpec, MacOS_build, and MacOS_wxWidgets. The MacOS_wxWidgets directory contains a zip file with the wxWidgets code needed to create the wxWidgets library for just MacOS. There will be four directories (folders) at the same level in your development environment: MacOS_build, SharedMultiSpec, wxMultiSpec, and WxWidgets-3.1.2_basic_MacOS. Unpack the MultiSpec_basic.xcodeproj.zip file inside of the MacOS_build.
+  The MultiSpec_basic.xcodeproj file is set up for just the core version of MultiSpec without the libraries (except that for  wxWidgets). The directories in the git archive needed for the MacOS version are ShareMultiSpec, wxMultiSpec, MacOS_build, and MacOS_wxWidgets. The MacOS_wxWidgets directory contains a zip file with the wxWidgets code needed to create the wxWidgets library for just MacOS. Unzip the wxWidgets archive and move the resulting wxWidgets-3.1.2_basic_MacOS folder to the same level as the MacOS_build folder. There will be four directories (folders) at the same level in your development environment: MacOS_build, SharedMultiSpec, wxMultiSpec, and WxWidgets-3.1.2_basic_MacOS. Unpack the MultiSpec_basic.xcodeproj.zip file inside of the MacOS_build.
   
   The MultiSpec.xcodeproj.zip archive contains the xcode project for the full version of MultiSpec with the libraries. One can sort of see how the libraries are organized but you will need to provide them.  
   
