@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/22/2020
 //
 //	Language:				C++
 //
@@ -77,7 +77,7 @@ CMISODATAClusterDialog::CMISODATAClusterDialog ()
 
 {
 
-}
+}	// end "CMISODATAClusterDialog"
 
 
 
@@ -114,8 +114,9 @@ CMISODATAClusterDialog::CMISODATAClusterDialog (
       	}	// end "if (...->numberStatisticsClasses > 0)"
 
    	}	// end "if (m_initializedFlag)"
-   
-   CreateControls ();
+	
+	if (m_initializedFlag)
+		CreateControls ();
 
 }	// end "CMISODATAClusterDialog"
 
@@ -208,32 +209,32 @@ void CMISODATAClusterDialog::CreateControls ()
                                                      wxT("Initialization Options")),
                                     wxVERTICAL);
 
-   m_radioBtn5 = new wxRadioButton (sbSizer3->GetStaticBox (),
-                                    IDC_1stCovEigenvector,
-                                    wxT("Along first eigenvector"),
-                                    wxDefaultPosition,
-                                    wxDefaultSize,
-                                    wxRB_GROUP);
-   SetUpToolTip (m_radioBtn5, IDS_ToolTip97);
-   sbSizer3->Add (m_radioBtn5, wxSizerFlags(0).Border(wxALL, 5));
+   m_1stCovEigenRadioBtn = new wxRadioButton (sbSizer3->GetStaticBox (),
+																IDC_1stCovEigenvector,
+																wxT("Along first eigenvector"),
+																wxDefaultPosition,
+																wxDefaultSize,
+																wxRB_GROUP);
+   SetUpToolTip (m_1stCovEigenRadioBtn, IDS_ToolTip97);
+   sbSizer3->Add (m_1stCovEigenRadioBtn, wxSizerFlags(0).Border(wxALL, 5));
 
-   m_radioBtn6 = new wxRadioButton (sbSizer3->GetStaticBox (),
-                                    IDC_EigenvectorVolume,
-                                    wxT("Within eigenvector volume"),
-                                    wxDefaultPosition,
-                                    wxDefaultSize,
-                                    0);
-   SetUpToolTip (m_radioBtn6, IDS_ToolTip98);
-   sbSizer3->Add (m_radioBtn6, wxSizerFlags(0).Border(wxALL, 5));
+   m_EigenVolumeRadioBtn = new wxRadioButton (sbSizer3->GetStaticBox (),
+																IDC_EigenvectorVolume,
+																wxT("Within eigenvector volume"),
+																wxDefaultPosition,
+																wxDefaultSize,
+																0);
+   SetUpToolTip (m_EigenVolumeRadioBtn, IDS_ToolTip98);
+   sbSizer3->Add (m_EigenVolumeRadioBtn, wxSizerFlags(0).Border(wxALL, 5));
 
-   m_radioBtn7 = new wxRadioButton (sbSizer3->GetStaticBox (),
-                                    IDC_OnePassCluster,
-                                    wxT("Use single-pass clusters"),
-                                    wxDefaultPosition,
-                                    wxDefaultSize,
-                                    0);
-   SetUpToolTip (m_radioBtn7, IDS_ToolTip99);
-   sbSizer3->Add (m_radioBtn7, wxSizerFlags(0).Border(wxALL, 5));
+   m_OnePassRadioBtn = new wxRadioButton (sbSizer3->GetStaticBox (),
+														IDC_OnePassCluster,
+														wxT("Use single-pass clusters"),
+														wxDefaultPosition,
+														wxDefaultSize,
+														0);
+   SetUpToolTip (m_OnePassRadioBtn, IDS_ToolTip99);
+   sbSizer3->Add (m_OnePassRadioBtn, wxSizerFlags(0).Border(wxALL, 5));
 
    m_checkBox2 = new wxCheckBox (sbSizer3->GetStaticBox (),
                                  IDC_ProjectClassMeans,
@@ -479,9 +480,7 @@ void CMISODATAClusterDialog::CreateControls ()
 
    SetSizerAndFit (bSizer45);
 	
-			// Set focus and tab order
-	
-   SelectDialogItemText (this, IDC_NumberClusters, 0, SInt16_MAX);
+			// Tab order; did not work as expected.
 	
 	//m_textCtrl17->MoveAfterInTabOrder (m_textCtrl16);
 	//m_textCtrl18->MoveAfterInTabOrder (m_textCtrl17);
@@ -550,7 +549,7 @@ SInt16 CMISODATAClusterDialog::DoDialog (void)
 										  FALSE,
 										  m_projectClassMeansFlag,
 										  clustersFrom,
-										  (SInt16) m_classSelection,
+										  (SInt16)m_classSelection,
 										  m_classListPtr,
 										  m_localNumberClasses,
 										  &m_dialogSelectArea,
@@ -574,13 +573,10 @@ int CMISODATAClusterDialog::GetRadioSelection ()
    int 									retval = 0;
 	
 	
-   wxRadioButton* along1st = (wxRadioButton*)FindWindow (IDC_1stCovEigenvector);
-   wxRadioButton* eigvol = (wxRadioButton*)FindWindow (IDC_EigenvectorVolume);
-	
-   if (along1st->GetValue ())
+   if (m_1stCovEigenRadioBtn->GetValue ())
       retval = 0;
 	
-   else if (eigvol->GetValue ())
+   else if (m_EigenVolumeRadioBtn->GetValue ())
       retval = 1;
 	
    else
@@ -697,12 +693,12 @@ void CMISODATAClusterDialog::OnInitDialog (
    m_ColumnStart = m_dialogSelectArea.columnStart;
    m_ColumnEnd = m_dialogSelectArea.columnEnd;
    m_ColumnInterval = m_dialogSelectArea.columnInterval;
-
+	
    if (TransferDataToWindow ())
       PositionDialogWindow ();
-
+	
 			// Set default text selection to first edit text item
-
+	
    UInt16 defaultTextIndex;
    if (gClusterSpecsPtr->initializationOption != 4)
       defaultTextIndex = IDC_NumberClusters;
@@ -711,8 +707,7 @@ void CMISODATAClusterDialog::OnInitDialog (
       defaultTextIndex = IDC_Convergence;
 
    SelectDialogItemText (this, defaultTextIndex, 0, SInt16_MAX);
-   Fit ();
-
+	
 }	// end "OnInitDialog"
 
 
@@ -757,24 +752,15 @@ void CMISODATAClusterDialog::SetRadioSelection (
 				int									setval)
 
 {
-   wxRadioButton* along1st = (wxRadioButton*)FindWindow (IDC_1stCovEigenvector);
-   along1st->SetValue (false);
+	if (setval == 0)
+   	m_1stCovEigenRadioBtn->SetValue (true);
 	
-   wxRadioButton* eigvol = (wxRadioButton*)FindWindow (IDC_EigenvectorVolume);
-   eigvol->SetValue (false);
+	else if (setval == 1)
+   	m_EigenVolumeRadioBtn->SetValue (true);
 	
-   wxRadioButton* sngpass = (wxRadioButton*)FindWindow (IDC_OnePassCluster);
-   sngpass->SetValue (false);
-   
-   if (setval == 0)
-      along1st->SetValue (true);
+	else
+   	m_OnePassRadioBtn->SetValue (true);
 
-   else if (setval == 1)
-      eigvol->SetValue (true);
-
-   else
-      sngpass->SetValue (true);
-	
 }	// end "SetRadioSelection"
 
 
@@ -905,7 +891,7 @@ bool CMISODATAClusterDialog::TransferDataToWindow ()
 	
    wxCheckBox* projmean = (wxCheckBox*)FindWindow (IDC_ProjectClassMeans);
    projmean->SetValue (m_projectClassMeansFlag);
-   
+	
    SetRadioSelection (m_initializationOption);
    ClustersFromSetting (false, IDC_ClusterTrainingAreas, m_clustersFrom);
    UpdateOptionSettings ();

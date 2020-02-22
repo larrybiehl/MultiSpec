@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 10/08/2019
+//	Revised By:				Larry L. Biehl			Date: 02/22/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -110,9 +110,9 @@ class CMISODATAClusterDialog : public CMDialog
 	
 		wxCheckBox*							m_checkBox2;
 
-		wxRadioButton						*m_radioBtn5,
-												*m_radioBtn6,
-												*m_radioBtn7,
+		wxRadioButton						*m_1stCovEigenRadioBtn,
+												*m_EigenVolumeRadioBtn,
+												*m_OnePassRadioBtn,
 												*m_radioBtn8,
 												*m_radioBtn9;
 
