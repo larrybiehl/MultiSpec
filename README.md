@@ -10,7 +10,8 @@ MultiSpec is a freeware image data analysis application developed for interactiv
     - Windows directory includes those files which are used for the Windows build to manage the user interface
     - the SMultiSpec.h include file includes directives to 'turn off' access to other libraries including hdf4, gdal, and hdf5.
   
-  Linux: This version has always been created from the command line with a makefile. The source is also available from MultiSpec Online (https://mygeohub.org/resources/multispec). Note that a stand alone Linux version has not been created to be able to test how the process will work.
+## Linux: 
+This version has always been created from the command line with a makefile. The source is also available from MultiSpec Online (https://mygeohub.org/resources/multispec). Note that a stand alone Linux version has not been created to be able to test how the process will work.
   
     - The code for the Linux version used for MultiSpec Online uses the following library versions. These libraries are not provided:
       - wxWidgets-3.1.2-gtk2 library is used for the graphical user interface
@@ -22,7 +23,8 @@ MultiSpec is a freeware image data analysis application developed for interactiv
   
   The makefile that is provided includes accesses several libraries that are available on mygeohub including wxWidgets. The directories needed for the Linux version are SharedMultiSpec, wxMultiSpec and Linux_build (Linux_wxwidgets). One will need to include the wxWidgets library to make the basic version of MultiSpec compile for Linux.
   
-  MacOS: Xcode verson 9.2 was used to create the project file included in this repository (MacOS_build) in MacOS 10.13.6.
+## MacOS: 
+Xcode verson 9.2 was used to create the project file included in this repository (MacOS_build) in MacOS 10.13.6.
   
     - The code for the full MacOS version uses the following library versions. Only the wxWidgets library is provided:
       - wxWidgets-3.1.2 library is used for the graphical user interface
@@ -37,7 +39,8 @@ MultiSpec is a freeware image data analysis application developed for interactiv
   
   The MultiSpec.xcodeproj.zip archive contains the xcode project for the full version of MultiSpec with the libraries. One can sort of see how the libraries are organized but you will need to provide them.  
   
-  WindowsOS: Visual Studio 2015 was used to create the project file included in this repository (Windows_build).
+## WindowsOS: 
+Visual Studio 2015 was used to create the project file included in this repository (Windows_build) in Windows7 OS.
   
     - The code for the full Windows version uses the following library versions. These libraries are not provided:
       - HDF4.2r2
