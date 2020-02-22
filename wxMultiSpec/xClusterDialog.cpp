@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			12/04/2019
+//	Revision date:			02/21/2020
 //
 //	Language:				C++
 //
@@ -181,7 +181,7 @@ void CMClusterDialog::CreateControls ()
    wxString radioBox3Choices[] = {wxT("Single Pass...       "),
 												wxT("ISODATA...      "),
 												wxT("None...      ")};
-   int radioBox3NChoices = 3;
+   int radioBox3NChoices = sizeof (radioBox3Choices) / sizeof (wxString);
    m_algorithmSelectionRadioBox = new wxRadioBox (this,
 																	IDC_Algorithm,
 																	wxT("Algorithm"),
@@ -571,7 +571,7 @@ void CMClusterDialog::OnAlgorithmSelection (
    if (algorithm == 0)
       OnSinglePassAlgorithm ();
 	
-   else
+   else if (algorithm == 1)
       OnISODATAAlgorithm ();
 		
 }	// end "OnAlgorithmSelection"

@@ -211,7 +211,7 @@
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>..\Windows;..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\raw;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\ogr\ogrsf_frmts\avc;..\gdal-2.1.2\frmts\pcidsk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;multispec_win;_WIN64;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;multispec_win;_WIN64;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS;multispec_basic_win</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -289,7 +289,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\Windows;..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\frmts\pcidsk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;multispec_win;_WIN64;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;multispec_win;_WIN64;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;multispec_basic_win;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>SMultiSpec.h</PrecompiledHeaderFile>

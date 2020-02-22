@@ -289,33 +289,44 @@ Boolean CheckSomeEvents (
 
 				}	// end "if (msgCur.message == WM_PAINT)"
 
+			else if (gOperationCanceledFlag)
+						// This will come from a cancel selection in the status dialog box
+				returnFlag = FALSE;
+
 			}	// end "if (returnFlag && !IsDialogMessage (hWnd, &msgCur))"
 
 		}	// end "while (::PeekMessage (..."
 
 	if (!returnFlag)
 		{
-		gOperationCanceledFlag = TRUE;
+				// If gOperationCanceledFlag is true, then the cancel button was used
+				// The user was already presented with dialog box requesting whether to
+				// complete the operation.
+		if (!gOperationCanceledFlag)
+			{
+			gOperationCanceledFlag = TRUE;
 
-		if (gAlertId != 0)
-			gAlertReturnCode = DisplayAlert (gAlertId,
-														 kCautionAlert,
-														 gAlertStrID,
-														 gAlertStringNumber,
-														 0,
-														 NULL);
+			if (gAlertId != 0)
+				gAlertReturnCode = DisplayAlert (gAlertId,
+															 kCautionAlert,
+															 gAlertStrID,
+															 gAlertStringNumber,
+															 0,
+															 NULL);
 
-		if (gAlertId == 0 || gAlertReturnCode == 3)
-					// Quit immediately.
-			return (FALSE);
+			if (gAlertId == 0 || gAlertReturnCode == 3)
+						// Quit immediately.
+				return (FALSE);
 
-		gOperationCanceledFlag = FALSE;
+			gOperationCanceledFlag = FALSE;
 
-		if (gAlertReturnCode == 2)
-					// Cancel the quit request.
-			gAlertReturnCode = 0;
+			if (gAlertReturnCode == 2)
+						// Cancel the quit request.
+				gAlertReturnCode = 0;
 
-		returnFlag = TRUE;
+			returnFlag = TRUE;
+
+			}	// end "if (!gOperationCanceledFlag)"
 
 		}	// end "if (!returnFlag)"
 
