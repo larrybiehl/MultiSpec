@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/15/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -655,15 +655,15 @@ void CMFeatureSelectionDialog::OnInitDialog (
 											&m_localClassPairWeightsListPtr,
 											&m_separabilityDistance,
 											&m_numberEigenvectors,
-											(Boolean*)&m_featureTransformAllowedFlag,
-											(Boolean*)&m_featureTransformationFlag,
+											&m_featureTransformAllowedFlag,
+											&m_featureTransformationFlag,
 											&channelSelection,
 											&m_localActiveNumberFeatures,
 											&channelCombinationSelection,
 											&m_localNumberChannelGroupCombinations,
 											&m_savedNumberChannelGroupCombinations,
 											&m_savedContiguousChannelsPerGroup,
-											(Boolean*)&m_searchFlag,
+											&m_searchFlag,
 											&m_maxContiguousChannelsPerGroup,
 											&m_localCombinationsToList,
 											&classSelection,
@@ -672,8 +672,8 @@ void CMFeatureSelectionDialog::OnInitDialog (
 											&interClassWeightsSelection,
 											&m_localDefaultClassPairWeight,
 											&symbolSelection,
-											(Boolean*)&m_textWindowFlag,
-											(Boolean*)&m_diskFileFlag);
+											&m_textWindowFlag,
+											&m_diskFileFlag);
 
    		// Set feature/transform feature parameters
 
@@ -781,7 +781,7 @@ void CMFeatureSelectionDialog::OnDistanceMeasureComboSelendok (
 
       SeparabilityDialogCheckFeatureTransformation (
 														this,
-														(Boolean*)&m_featureTransformationFlag,
+														&m_featureTransformationFlag,
 														&m_localActiveNumberFeatures,
 														&m_localActiveFeaturesPtr,
 														m_featureTransformAllowedFlag,
@@ -848,7 +848,7 @@ void CMFeatureSelectionDialog::OnFeatureTransformation (
 
    SeparabilityDialogCheckFeatureTransformation (
    													this,
-														(Boolean*)&m_featureTransformationFlag,
+														&m_featureTransformationFlag,
 														&m_localActiveNumberFeatures,
 														&m_localActiveFeaturesPtr,
 														m_featureTransformAllowedFlag,
@@ -1645,16 +1645,16 @@ void CMFeatureSelectionListDialog::OnInitDialog (
    SeparabilityListDialogInitialize (this,
 													m_separabilitySpecsPtr,
 													*m_combinationsToListPtr,
-													(Boolean*)&m_separabilityTableFlag,
+													&m_separabilityTableFlag,
 													&m_localCombinationsToList,
 													&m_localMinDistanceRangeToList,
 													&m_localMaxDistanceRangeToList,
 													&sortChannelCombinations,
-													(Boolean*)&m_thresholdedClassPairTableFlag,
+													&m_thresholdedClassPairTableFlag,
 													&m_localDistancesLessThanToList,
-													(Boolean*)&m_thresholdedGroupTableFlag,
+													&m_thresholdedGroupTableFlag,
 													&m_localDistancesLessThanToGroup,
-													(Boolean*)&m_listClassPairDistancesFlag);
+													&m_listClassPairDistancesFlag);
 
    		// Adjust sort channel combinations variable to be 0 based.
 

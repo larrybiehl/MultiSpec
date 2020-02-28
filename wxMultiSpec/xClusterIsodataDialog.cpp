@@ -57,6 +57,8 @@ BEGIN_EVENT_TABLE (CMISODATAClusterDialog, CMDialog)
 
 	EVT_INIT_DIALOG (CMISODATAClusterDialog::OnInitDialog)
 
+	//EVT_RADIOBOX (IDC_1stCovEigenvector, CMISODATAClusterDialog::OnInitialCenterSelection)
+
 	EVT_RADIOBUTTON (IDC_ClusterTrainingAreas, CMISODATAClusterDialog::OnClusterTrainingAreas)
 	EVT_RADIOBUTTON (IDC_ClusterImageArea, CMISODATAClusterDialog::OnClusterImageArea)
 	EVT_RADIOBUTTON (IDC_1stCovEigenvector, CMISODATAClusterDialog::On1stCovEigenvector)
@@ -208,7 +210,26 @@ void CMISODATAClusterDialog::CreateControls ()
                                                      wxID_ANY,
                                                      wxT("Initialization Options")),
                                     wxVERTICAL);
-
+	/*
+   wxString radioBox3Choices[] = {wxT("Along first eigenvector"),
+												wxT("Within eigenvector volume"),
+												wxT("Use single-pass clusters")};
+	
+   int radioBox3NChoices = sizeof (radioBox3Choices) / sizeof (wxString);
+	
+   m_initialCenterRadioBox = new wxRadioBox (this,
+															IDC_1stCovEigenvector,
+															wxT("Initial centers"),
+															wxDefaultPosition,
+															wxDefaultSize,
+															radioBox3NChoices,
+															radioBox3Choices,
+															3,
+															wxRA_SPECIFY_ROWS);
+   m_initialCenterRadioBox->SetSelection (1);
+   SetUpToolTip (m_initialCenterRadioBox, IDS_ToolTip98);
+   sbSizer3->Add (m_initialCenterRadioBox, wxSizerFlags(0).Border(wxBOTTOM, 5));
+   */
    m_1stCovEigenRadioBtn = new wxRadioButton (sbSizer3->GetStaticBox (),
 																IDC_1stCovEigenvector,
 																wxT("Along first eigenvector"),
@@ -235,7 +256,7 @@ void CMISODATAClusterDialog::CreateControls ()
 														0);
    SetUpToolTip (m_OnePassRadioBtn, IDS_ToolTip99);
    sbSizer3->Add (m_OnePassRadioBtn, wxSizerFlags(0).Border(wxALL, 5));
-
+	
    m_checkBox2 = new wxCheckBox (sbSizer3->GetStaticBox (),
                                  IDC_ProjectClassMeans,
                                  wxT("Include project class means"),
@@ -431,7 +452,8 @@ void CMISODATAClusterDialog::CreateControls ()
    bSizer66->Add (0, 0, 0, wxEXPAND);
 
    m_staticText50 = new wxStaticText (sbSizer5->GetStaticBox (),
-												  IDC_ClassPrompt, wxT("Classes:"),
+												  IDC_ClassPrompt,
+												  wxT("Classes:"),
 												  wxDefaultPosition,
 												  wxDefaultSize,
 												  0);
@@ -553,9 +575,9 @@ SInt16 CMISODATAClusterDialog::DoDialog (void)
 										  m_classListPtr,
 										  m_localNumberClasses,
 										  &m_dialogSelectArea,
-										  (SInt16) m_numberClusters,
+										  (SInt16)m_numberClusters,
 										  m_convergence,
-										  (SInt16) m_minClusterSize,
+										  (SInt16)m_minClusterSize,
 										  m_criticalDistance1,
 										  m_criticalDistance2);
 
@@ -596,6 +618,16 @@ void CMISODATAClusterDialog::On1stCovEigenvector (
 
 }	// end "On1stCovEigenvector"
 
+
+/*
+void CMISODATAClusterDialog::OnInitialCenterSelection (
+				wxCommandEvent&					event)
+
+{
+   m_initializationOption = event.GetInt ();
+	
+}	// end "OnInitialCenterSelection"
+*/
 
 
 void CMISODATAClusterDialog::OnClusterTrainingAreas (
@@ -753,14 +785,14 @@ void CMISODATAClusterDialog::SetRadioSelection (
 
 {
 	if (setval == 0)
-   	m_1stCovEigenRadioBtn->SetValue (true);
+   	m_1stCovEigenRadioBtn->SetValue (1);
 	
 	else if (setval == 1)
-   	m_EigenVolumeRadioBtn->SetValue (true);
+   	m_EigenVolumeRadioBtn->SetValue (1);
 	
 	else
-   	m_OnePassRadioBtn->SetValue (true);
-
+   	m_OnePassRadioBtn->SetValue (1);
+	
 }	// end "SetRadioSelection"
 
 
@@ -870,6 +902,8 @@ bool CMISODATAClusterDialog::TransferDataFromWindow ()
 bool CMISODATAClusterDialog::TransferDataToWindow ()
 
 {
+   SetRadioSelection (m_initializationOption);
+	
    m_classesCtrl->SetSelection (m_classSelection);
 	
 	TransferLinesColumnsToWindow ();
@@ -892,7 +926,6 @@ bool CMISODATAClusterDialog::TransferDataToWindow ()
    wxCheckBox* projmean = (wxCheckBox*)FindWindow (IDC_ProjectClassMeans);
    projmean->SetValue (m_projectClassMeansFlag);
 	
-   SetRadioSelection (m_initializationOption);
    ClustersFromSetting (false, IDC_ClusterTrainingAreas, m_clustersFrom);
    UpdateOptionSettings ();
    if	(m_clustersFrom == 1)

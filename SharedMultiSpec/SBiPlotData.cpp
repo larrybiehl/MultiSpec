@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2019
+//	Revision date:			02/27/2020
 //
 //	Language:				C
 //
@@ -295,18 +295,7 @@ void BiPlotDataControl (void)
 			
 	if (gMemoryTypeNeeded < 0)
 																							return;
-																							
-	if (!gCPPNewCalledFlag)
-		{
-		SInt32* longIntPtr = new SInt32;
-		
-		if (longIntPtr != NULL)
-			delete longIntPtr;
-			
-		gCPPNewCalledFlag = TRUE;
-		
-		}	// end "if (!gCPPNewCalledFlag)"
-																							
+																																														
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
 			
@@ -1687,6 +1676,7 @@ void BiPlotDataDialogInitialize (
 	HideDialogItem (dialogPtr, IDC_WeightsPrompt);
 	HideDialogItem (dialogPtr, IDC_WeightsCombo);
 
+	*weightsSelectionPtr = kEqualWeights;
 	if (biPlotDataSpecsPtr->projectFlag)
 		{
 		*weightsSelectionPtr = UpdateDialogClassWeightsInfo (

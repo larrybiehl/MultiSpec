@@ -600,11 +600,11 @@ void CMFeatureExtractionDialog::OnInitDialog (
 													&weightsSelection,
 													&interClassWeightsSelection,
 													&m_localDefaultClassPairWeight,
-													(Boolean*)&m_specialOptionsFlag,
+													&m_specialOptionsFlag,
 													&withinClassThreshold,
 													&interclassThrehold,
 													(UInt32*)&m_minThresholdNumber,
-													(Boolean*)&m_optimizeClassesFlag,
+													&m_optimizeClassesFlag,
 													&optimizeThreshold,
 													(UInt32*)&m_maxPixelsPerClass,
 													&channelSelection,
@@ -613,7 +613,7 @@ void CMFeatureExtractionDialog::OnInitDialog (
 													&classSelection,
 													&m_localNumberClasses,
 													&preprocessSelection,
-													(Boolean*)&m_listTransformationFlag);
+													&m_listTransformationFlag);
 	
 			//	Set the channels/features list item
 			                                             

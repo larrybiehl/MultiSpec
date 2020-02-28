@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			12/06/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -447,16 +447,16 @@ void CMStatHistogramSpecsDlg::OnInitDialog (
 												&m_lineInterval,
 												&m_columnInterval,
 												&m_featureTransformAllowedFlag,
-												(Boolean*)&m_featureTransformationFlag,
+												&m_featureTransformationFlag,
 												&channelSelection,
 												&m_localActiveNumberFeatures,
 												&listPlotCode,
-												(Boolean*)&m_includeEmptyBinsFlag,
-												(Boolean*)&m_blankValuesFlag,
+												&m_includeEmptyBinsFlag,
+												&m_blankValuesFlag,
 												&groupCode,
 												&matrixColumnCode,
 												&m_overlayDFAllowedFlag,
-												(Boolean*)&m_overlayDensityFunctionFlag); 
+												&m_overlayDensityFunctionFlag);
 	
 			// Set feature/transform feature parameters  
 

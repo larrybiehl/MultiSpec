@@ -1382,7 +1382,7 @@ void Display3Channel16BitLine (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/04/1989
-//	Revised By:			Larry L. Biehl			Date: 03/11/2019
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
 
 void Display3Channel24BitLine (
 				UInt32								numberSamples,
@@ -1402,7 +1402,15 @@ void Display3Channel24BitLine (
 				UInt32								maxBin3,
 				HUCharPtr							offScreenPtr)
 
-{	
+{
+	unsigned char						*input1ByteBuffer1Ptr,
+											*input1ByteBuffer2Ptr,
+											*input1ByteBuffer3Ptr;
+	
+	UInt16								*input2ByteBuffer1Ptr,
+											*input2ByteBuffer2Ptr,
+											*input2ByteBuffer3Ptr;
+
 	UInt32								backgroundValue,
 											dataValue,
 											j;
@@ -1410,7 +1418,16 @@ void Display3Channel24BitLine (
 	#if defined multispec_mac
 		HUInt32Ptr							offScreen4BytePtr = (UInt32*)offScreenPtr;
 	#endif
-
+	
+	
+	input1ByteBuffer1Ptr = (unsigned char*)ioBuffer1Ptr;
+	input1ByteBuffer2Ptr = (unsigned char*)ioBuffer2Ptr;
+	input1ByteBuffer3Ptr = (unsigned char*)ioBuffer3Ptr;
+	
+	input2ByteBuffer1Ptr = (UInt16*)ioBuffer1Ptr;
+	input2ByteBuffer2Ptr = (UInt16*)ioBuffer2Ptr;
+	input2ByteBuffer3Ptr = (UInt16*)ioBuffer3Ptr;
+	
 	for (j=0; j<numberSamples; j+=interval)
 		{
 		#if defined multispec_mac
@@ -1536,10 +1553,14 @@ void Display3Channel24BitLine (
 			#endif
 		
                // Red byte.																
-					
+			/*
 			dataValue = (bytesEqualOneFlag3) ?
 							(UInt32)ioBuffer3Ptr->data.onebyte[j] :
 								(UInt32)ioBuffer3Ptr->data.twobyte[j];
+			*/
+			dataValue = (bytesEqualOneFlag3) ?
+								(UInt32)input1ByteBuffer3Ptr[j] :
+												(UInt32)input2ByteBuffer3Ptr[j];
 			if (dataValue > maxBin3)  
 				dataValue = 0;
 			backgroundValue += dataValue;
@@ -1547,10 +1568,14 @@ void Display3Channel24BitLine (
 			offScreenPtr++;
          
          		// Green byte.																
-					
+			/*
 			dataValue = (bytesEqualOneFlag2) ?
 							(UInt32)ioBuffer2Ptr->data.onebyte[j] :
 								(UInt32)ioBuffer2Ptr->data.twobyte[j];
+			*/
+			dataValue = (bytesEqualOneFlag2) ?
+								(UInt32)input1ByteBuffer2Ptr[j] :
+													(UInt32)input2ByteBuffer2Ptr[j];
 			if (dataValue > maxBin2)  
 				dataValue = 0;
 			backgroundValue += dataValue;
@@ -1558,10 +1583,14 @@ void Display3Channel24BitLine (
 			offScreenPtr++; 
 			
 					// Blue byte.																
-					
+			/*
 			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
 								(UInt32)ioBuffer1Ptr->data.twobyte[j];
+			*/
+			dataValue = (bytesEqualOneFlag1) ?
+								(UInt32)input1ByteBuffer1Ptr[j] :
+													(UInt32)input2ByteBuffer1Ptr[j];
 			if (dataValue > maxBin1)  
 				dataValue = 0;
 			*offScreenPtr = dataDisplay1Ptr [dataValue];

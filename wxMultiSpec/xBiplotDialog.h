@@ -36,8 +36,11 @@
 #include "xDialog.h"
 
 
+
 class CMBiPlotDialog : public CMDialog 
 {
+    DECLARE_DYNAMIC_CLASS (CMBiPlotDialog)
+    
 	public:
 				 // standard constructor
 		CMBiPlotDialog (

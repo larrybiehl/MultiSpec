@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/11/2020
+//	Revision date:			02/24/2020
 //
 //	Language:				C
 //
@@ -3349,7 +3349,7 @@ Boolean OffscreenImageMapExists (
 // Called By:						
 //
 //	Coded By:			Larry L. Biehl			Date: 12/24/1991
-//	Revised By:			Larry L. Biehl			Date: 11/02/2001	
+//	Revised By:			Larry L. Biehl			Date: 02/24/2020
 
 void ReleaseOffscreenSupportMemory (
 				WindowInfoPtr						windowInfoPtr)
@@ -3420,7 +3420,8 @@ void ReleaseOffscreenSupportMemory (
 		windowInfoPtr->offscreenMapSize = 0;
 	
 		CMImageView* imageViewCPtr = GetWindowPtr (windowInfoPtr);
-		imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
+		if (imageViewCPtr != NULL)
+			imageViewCPtr->SetLegendBitMapInfoHeaderHandle (NULL);
 	#endif // defined multispec_wx
 	
 }	// end "ReleaseOffscreenSupportMemory" 

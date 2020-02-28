@@ -206,11 +206,6 @@ Boolean							gConvertSignedDataFlag = FALSE;
 		// Flag to be used to tell if user wants to show coordinate information 
 		// from drag gray rgn printed to the dialog box 						
 Boolean							gCoordinateFlag = FALSE;
-
-		// Flag indicating whether the cpp new operator has been called to
-		// load in the block of memory that it uses. This is used to try
-		// to make sure that the block of memory does not fragment the heap.
-Boolean							gCPPNewCalledFlag = FALSE;
 	
 		//	Flag to be used to tell if user wants debug information listed to 
 		// the screen												

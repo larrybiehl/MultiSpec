@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			01/11/2020
+//	Revision date:			02/23/2020
 //
 //	Language:				C++
 //
@@ -90,6 +90,7 @@ CMImageFrame::CMImageFrame ()
 	m_imageFrameActiveFlag = FALSE;
 	m_forcePaletteBackgroundUpdateFlag = FALSE;
 	m_coordinatesBar = NULL;
+	m_frameMaximized = FALSE;
 	
 }	// end "CMImageFrame"
 
@@ -150,6 +151,7 @@ CMImageFrame::CMImageFrame (
 	m_imageFrameActiveFlag = FALSE;
 	m_forcePaletteBackgroundUpdateFlag = FALSE;
 	m_coordinatesBar = NULL;
+	m_frameMaximized = FALSE;
 
 	SetMinSize (wxSize (150, 150));
 

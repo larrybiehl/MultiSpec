@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMFileFormatSpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/11/2019
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -181,7 +181,6 @@ class CMFileFormatSpecsDlg : public CMDialog
 		int 									m_bandInterleave,
 		 	 									m_collapseClassSelection,
 		 	 									m_dataValueType,
-		 	 									m_eightBitsPerDataSelection,
 		 	 									m_hdfDataSetSelection;
 	
 		SInt32 								m_startColumnNumber,
@@ -201,18 +200,18 @@ class CMFileFormatSpecsDlg : public CMDialog
 												m_trailerBytes;
 
 		SInt16								m_dataSetIndex,
+		 	 									m_eightBitsPerDataSelection,
 												m_gdalDataTypeCode;
 
 		UInt16								m_dataCompressionCode;
-	
-		bool 									m_swapBytesFlag,
-												m_linesBottomToTopFlag,
-												m_fillDataValueExistsFlag,
-												m_computeNumClasses;
 
 		Boolean								m_callGetHDFLineFlag,
+												m_computeNumClasses,
+												m_fillDataValueExistsFlag,
 												m_forceGroupTableUpdateFlag,
 												m_initializedFlag,
-												m_onShowCalledFlag;
+												m_linesBottomToTopFlag,
+												m_onShowCalledFlag,
+												m_swapBytesFlag;
 	
 };	// end "class CMFileFormatSpecsDlg"

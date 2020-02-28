@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/15/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -296,12 +296,12 @@ void CMListStatsDialog::OnInitDialog (
 
 	ListStatsDialogInitialize (this,
 											m_statsWindowMode,
-											(Boolean*)&m_listFieldFlag,
-											(Boolean*)&m_listClassFlag,
-											(Boolean*)&m_listMeansStdDevFlag,
-											(Boolean*)&m_listCovarianceFlag,
-											(Boolean*)&m_listCorrelationFlag,
-											(Boolean*)&m_featureTransformationFlag,
+											&m_listFieldFlag,
+											&m_listClassFlag,
+											&m_listMeansStdDevFlag,
+											&m_listCovarianceFlag,
+											&m_listCorrelationFlag,
+											&m_featureTransformationFlag,
 											&listMeanStdPrecision,
 											&listCovCorPrecision);
 

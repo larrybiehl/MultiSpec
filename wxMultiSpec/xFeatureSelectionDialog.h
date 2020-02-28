@@ -27,7 +27,7 @@
 //								CMFeatureSelectionListDialog classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/09/2019
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ class CMFeatureSelectionDialog : public CMDialog
 			 									m_savedContiguousChannelsPerGroup,
 			 									m_separabilityListSelection;
 	
-		bool 									m_diskFileFlag,
+		Boolean								m_diskFileFlag,
 			 									m_searchFlag,
 			 									m_textWindowFlag;
 
@@ -263,7 +263,7 @@ class CMFeatureSelectionListDialog : public CMDialog
 		int 									m_localCombinationsToList,
 			 									m_sortChannelCombinations;
 	
-		bool									m_listClassPairDistancesFlag,
+		Boolean								m_listClassPairDistancesFlag,
 			 									m_separabilityTableFlag,
 			 									m_thresholdedGroupTableFlag,
 			 									m_thresholdedClassPairTableFlag;

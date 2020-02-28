@@ -27,7 +27,7 @@
 //								CMGraphViewButton classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 01/11/2020
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -218,10 +218,10 @@ class CMGraphView : public wxView
 	
 		Handle								m_graphRecordHandle;
 	
-		UInt16								m_graphicsWindowNumber;
-	
-		SInt16								m_xPixelsPerInch,
+		int									m_xPixelsPerInch,
 												m_yPixelsPerInch;
+	
+		UInt16								m_graphicsWindowNumber;
 	
 				// Flag indicating whether the current draw mode is for printing
 				// or copying.

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/03/2019
+//	Revision date:			02/28/2020
 //
 //	Language:				C++
 //
@@ -809,6 +809,7 @@ void CMChangeFormatDlg::OnSelendokHeader (
 
 
    dataValueTypeSelection = m_dataValueTypeSelection;
+	bandInterleaveSelection = m_bandInterleaveSelection;
 
 	m_headerListSelection = m_fileFormatCtrl->GetSelection ();
    m_headerOptionsSelection =

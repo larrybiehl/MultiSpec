@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			01/09/2020
+//	Revision date:			02/23/2020
 //
 //	Language:				C++
 //
@@ -1028,9 +1028,15 @@ void CMDisplaySpecsDlg::OnInitDialog (
 											numberLevels,
 											redChannel,
 											treatZeroAs;
-
+	
+	Boolean								blueChannelInvertFlag,
+											computeHistogramFlag,
+											greenChannelInvertFlag,
+											redChannelInvertFlag,
+											vectorOverlaysFlag;
+	
     
-    DisplayMultispectralDialogInitialize (this,
+	DisplayMultispectralDialogInitialize (this,
 														m_displaySpecsPtr,
 														gImageWindowInfoPtr,
 														&m_dialogSelectArea,
@@ -1059,13 +1065,13 @@ void CMDisplaySpecsDlg::OnInitDialog (
 														&treatZeroAs,
 														(SInt16*)&mColorLevelsMax[0][0],
 														&numberLevels,
-														(Boolean*)&m_ComputeHistogramFlag,
+														&computeHistogramFlag,
 														&channelSelection,
-														(Boolean*)&m_redChannelInvertFlag,
-														(Boolean*)&m_greenChannelInvertFlag,
-														(Boolean*)&m_blueChannelInvertFlag,
+														&redChannelInvertFlag,
+														&greenChannelInvertFlag,
+														&blueChannelInvertFlag,
 														&m_thematicLegendFactor,
-														(Boolean*)&m_vectorOverlaysFlag);
+														&vectorOverlaysFlag);
 
     if (m_Magnification > 1 && m_Magnification != gActiveImageViewCPtr->m_Scale)
         m_Magnification = 1;   
@@ -1079,17 +1085,25 @@ void CMDisplaySpecsDlg::OnInitDialog (
     m_BitsOfColor = bitsOfColor - 1;
     m_Enhancement = enhancement - 1;
 	
-    m_MinMaxPopupCode = minMaxPopupCode - 1;
-    m_TreatZeroAs = treatZeroAs;
-    m_channelSelection = channelSelection;
-    m_NumberLevels = numberLevels;
+	m_MinMaxPopupCode = minMaxPopupCode - 1;
+	m_TreatZeroAs = treatZeroAs;
+	m_channelSelection = channelSelection;
+	m_NumberLevels = numberLevels;
 
-    m_LineStart = m_displaySpecsPtr->lineStart;
-    m_LineEnd = m_displaySpecsPtr->lineEnd;
-    m_LineInterval = m_displaySpecsPtr->lineInterval;
-    m_ColumnStart = m_displaySpecsPtr->columnStart;
-    m_ColumnEnd = m_displaySpecsPtr->columnEnd;
-    m_ColumnInterval = m_displaySpecsPtr->columnInterval;
+	m_LineStart = m_displaySpecsPtr->lineStart;
+	m_LineEnd = m_displaySpecsPtr->lineEnd;
+	m_LineInterval = m_displaySpecsPtr->lineInterval;
+	m_ColumnStart = m_displaySpecsPtr->columnStart;
+	m_ColumnEnd = m_displaySpecsPtr->columnEnd;
+	m_ColumnInterval = m_displaySpecsPtr->columnInterval;
+
+	m_ComputeHistogramFlag = computeHistogramFlag;
+	
+	m_redChannelInvertFlag = redChannelInvertFlag;
+	m_greenChannelInvertFlag = greenChannelInvertFlag;
+	m_blueChannelInvertFlag = blueChannelInvertFlag;
+	
+	m_vectorOverlaysFlag = vectorOverlaysFlag;
     
 			// Change the value of mLocalDisplayType
 	

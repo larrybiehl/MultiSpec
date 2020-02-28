@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 01/10/2020
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -997,7 +997,7 @@ typedef double				CMeanType2;
 	typedef UInt32 huge * HUInt32Ptr;
 	typedef SInt64 huge * HSInt64Ptr;
 	typedef float huge * HFloatPtr;
-	typedef FileIOBuffer huge * HFileIOBufferPtr;
+	typedef FileIOBuffer* HFileIOBufferPtr;
 
 	typedef double huge * DoublePtr;
 	typedef double huge * HDoublePtr;
@@ -2907,9 +2907,9 @@ typedef struct MFileInfo
 typedef struct FileIOBuffer
 	{
 	union {
-			unsigned short int	twobyte[1];	// Vector for a line of 16 bit data 
-			unsigned	char			onebyte[1];	// Vector for a line of  8 bit data 
-			} data;
+		unsigned short int	twobyte[1];	// Vector for a line of 16 bit data
+		unsigned	char			onebyte[1];	// Vector for a line of  8 bit data
+		} data;
 			
 	} FileIOBuffer, *FileIOBufferPtr;
 	

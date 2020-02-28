@@ -1054,7 +1054,7 @@ void CMImageView::SetLegendBitMapInfoHeaderHandle (
 				Handle								legendBitMapInfoHeaderHandle)
 
 {
-		// Note being used.
+		// Not being used.
 	
 }	// end "SetLegendBitMapInfoHeaderHandle"
 

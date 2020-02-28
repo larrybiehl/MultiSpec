@@ -177,10 +177,11 @@ void CMClusterDialog::CreateControls ()
 
    wxBoxSizer* bSizer139;
    bSizer139 = new wxBoxSizer (wxVERTICAL);
-
-   wxString radioBox3Choices[] = {wxT("Single Pass...       "),
+	
+   wxString radioBox3Choices[] = {wxT("Single Pass...    "),
 												wxT("ISODATA...      "),
 												wxT("None...      ")};
+	
    int radioBox3NChoices = sizeof (radioBox3Choices) / sizeof (wxString);
    m_algorithmSelectionRadioBox = new wxRadioBox (this,
 																	IDC_Algorithm,
@@ -189,7 +190,7 @@ void CMClusterDialog::CreateControls ()
 																	wxDefaultSize,
 																	radioBox3NChoices,
 																	radioBox3Choices,
-																	0,	// use the number of choices
+																	3,
 																	wxRA_SPECIFY_ROWS);
    m_algorithmSelectionRadioBox->SetSelection (2);
    m_algorithmSelectionRadioBox->Show (2, false);
@@ -658,13 +659,13 @@ void CMClusterDialog::OnInitDialog (
 									  &m_localActiveNumberFeatures,
 									  &symbolSelection,
 									  &saveStatisticsSelection,
-									  (Boolean*)&m_textWindowFlag,
-									  (Boolean*)&m_diskFileFlag,
-									  (Boolean*)&m_createClusterMaskFlag,
+									  &m_textWindowFlag,
+									  &m_diskFileFlag,
+									  &m_createClusterMaskFlag,
 									  &maskFileFormatCode,
-									  (Boolean*)&m_createImageOverlayFlag,
+									  &m_createImageOverlayFlag,
 									  &selectImageOverlaySelection,
-									  (Boolean*)&m_thresholdFlag,
+									  &m_thresholdFlag,
 									  &m_probabilityThreshold,
 									  (SInt32*)&m_transparencyValue);
 	

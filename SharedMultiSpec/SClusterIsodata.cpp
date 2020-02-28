@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/22/2020
+//	Revision date:			02/28/2020
 //
 //	Language:				C
 //
@@ -2396,7 +2396,7 @@ Boolean ISODATAClusterDialog (
 // Called By:			ClusterDialog   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1999
-//	Revised By:			Larry L. Biehl			Date: 09/05/2012	
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
 
 void ISODATAClusterDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2489,6 +2489,8 @@ void ISODATAClusterDialogInitialize (
 				//	Set routine to draw the class popup box.								
 				//	Make all classes the default												
 	
+	*classAreaSelectionPtr = kAllMenuItem;
+	*classAreaSelectionPtr = 1;
 	if (fieldsExistCode >= 0)
 		{                      
 		*classAreaSelectionPtr = gClusterSpecsPtr->clusterClassSet;

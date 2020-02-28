@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMEnhanceStatisticsDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/08/2019
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -207,10 +207,9 @@ class CMEnhanceStatisticsDialog : public CMDialog
 	
 		SInt16                     	m_classWeightSet;
 	
-		bool									m_useEnhancedStatisticsFlag,
-												m_weightLabeledFlag;
-	
 		Boolean                     	m_initializedFlag,
-												m_updatingThresholdItemsFlag;
+												m_updatingThresholdItemsFlag,
+												m_useEnhancedStatisticsFlag,
+												m_weightLabeledFlag;
 	
 };	// end "class CMEnhanceStatisticsDialog"

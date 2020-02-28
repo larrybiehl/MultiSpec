@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMEvalTransformDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 06/21/2017
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -91,10 +91,9 @@ class CMEvalTransformDialog : public CMDialog
 		wxStaticText						*m_staticText196;
 	
 		Boolean								m_checkTransformationFlag,
+												m_initializedFlag,
 												m_listCheckMatrixFlag,
 												m_listEigenvaluesFlag,
 												m_listOriginalMatrixFlag;
-	
-		Boolean								m_initializedFlag;
 	
 };	// end "class CMEvalTransformDialog"

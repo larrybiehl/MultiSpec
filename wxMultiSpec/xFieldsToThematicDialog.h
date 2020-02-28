@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMFieldsToThematicDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/07/2019
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -81,9 +81,8 @@ class CMFieldsToThematicDialog : public CMDialog
 	
 		int									m_outputFormatCode;
 
-		bool									m_testingAreasFlag,
+		Boolean								m_initializedFlag,
+												m_testingAreasFlag,
 												m_trainingAreasFlag;
 	
-		Boolean								m_initializedFlag;
-				 
 };	// end "class CMFieldsToThematicDialog"

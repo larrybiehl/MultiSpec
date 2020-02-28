@@ -2047,6 +2047,9 @@ void DisplayCImage (
 	bytesEqualOneFlag1 = (localFileInfoPtr1->numberBytes == 1) ? TRUE : FALSE;
 	bytesEqualOneFlag2 = (localFileInfoPtr2->numberBytes == 1) ? TRUE : FALSE;
 	bytesEqualOneFlag3 = (localFileInfoPtr3->numberBytes == 1) ? TRUE : FALSE;
+	//bytesEqualOneFlag1 = FALSE;
+	//bytesEqualOneFlag2 = FALSE;
+	//bytesEqualOneFlag3 = FALSE;
 
 	histogramSummaryPtr = histogramSpecsPtr->histogramSummaryPtr;
 	binFactor1 = histogramSummaryPtr[channelPtr[0]].binFactor;
@@ -2108,6 +2111,7 @@ void DisplayCImage (
 	if (displayCode < 100)
 		{
 		forceOutputByteCode = kDoNotForceBytes;
+		//forceOutputByteCode = kForce2Bytes;
 		forceBISflag = kDoNotForceBISFormat;
 		packDataFlag = kDoNotPackData;
 		columnInterval = 1;
@@ -2215,19 +2219,22 @@ void DisplayCImage (
 			{
 			if (BILSpecialFlag && forceOutputByteCode != kForceReal8Bytes) 
 				{
-				numberBytes = (displaySpecsPtr->columnStart - 1) *
-                        localFileInfoPtr1->numberBytes;
-
+				numberBytes = (displaySpecsPtr->columnStart - 1) * 		// 2;
+															localFileInfoPtr1->numberBytes;
+				
 				buffer1Offset =
-					(SInt32)(channelPtr[0] - minChannel) * localFileInfoPtr1->numberBytes *
+					//(UInt32)(channelPtr[0] - minChannel) * localFileInfoPtr1->numberBytes *
+					(UInt32)(channelPtr[0] - minChannel) * 2 *
                         gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 
 				buffer2Offset =
-					(SInt32)(channelPtr[1] - minChannel) * localFileInfoPtr1->numberBytes *
+					(UInt32)(channelPtr[1] - minChannel) * localFileInfoPtr1->numberBytes *
+					//(UInt32)(channelPtr[1] - minChannel) * 2 *
                         gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 
 				buffer3Offset =
-					(SInt32)(channelPtr[2] - minChannel) * localFileInfoPtr1->numberBytes *
+					(UInt32)(channelPtr[2] - minChannel) * localFileInfoPtr1->numberBytes *
+					//(UInt32)(channelPtr[2] - minChannel) * 2 *
                         gImageWindowInfoPtr->maxNumberColumns + numberBytes;
 					
 				}	// end "if (BILSpecialFlag)"
@@ -2235,11 +2242,14 @@ void DisplayCImage (
 			else	// !BILSpecialFlag
 				{
 				buffer1Offset = 0;
-				if (forceOutputByteCode == kDoNotForceBytes) 
+				if (forceOutputByteCode == kDoNotForceBytes)
+				//if (forceOutputByteCode == kForce2Bytes)
 					{
 					buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
+					//buffer2Offset = numberSamples * 2;
 					buffer3Offset =
 							buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
+							//buffer2Offset + numberSamples * 2;
 
 					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
@@ -2260,11 +2270,15 @@ void DisplayCImage (
 
 		else if (localFileInfoPtr1->bandInterleave == kBIS)
 			{
-			if (forceOutputByteCode == kDoNotForceBytes) 
+			if (forceOutputByteCode == kDoNotForceBytes)
+			//if (forceOutputByteCode == kForce2Bytes)
 				{
 				buffer1Offset = (channelPtr[0]) * localFileInfoPtr1->numberBytes;
 				buffer2Offset = (channelPtr[1]) * localFileInfoPtr1->numberBytes;
 				buffer3Offset = (channelPtr[2]) * localFileInfoPtr1->numberBytes;
+				//buffer1Offset = (channelPtr[0]) * 2;
+				//buffer2Offset = (channelPtr[1]) * 2;
+				//buffer3Offset = (channelPtr[2]) * 2;
 
             }	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
@@ -2298,7 +2312,7 @@ void DisplayCImage (
 
 			}	// end "if (localFileInfoPtr1->bandInterleave == kBIS)"
 
-		else	// localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS
+		else	// localFileInfoPtr1->bandInterleave != kBIL && ... != kBIS
 			{
 			if (localFileInfoPtr1->gdalDataSetH != NULL)
 				{
@@ -2313,7 +2327,7 @@ void DisplayCImage (
 				else if (channelPtr[0] == maxChannel)
 					channelToSortIndex = gdalNumberOfChannels - 1;
 
-				buffer1Offset = (SInt32)channelToSortIndex * numberSamples;
+				buffer1Offset = (UInt32)channelToSortIndex * numberSamples;
 
 				channelToSortIndex = 1;
 				if (channelPtr[1] == minChannel)
@@ -2321,7 +2335,7 @@ void DisplayCImage (
 				else if (channelPtr[1] == maxChannel)
 					channelToSortIndex = gdalNumberOfChannels - 1;
 
-				buffer2Offset = (SInt32)channelToSortIndex *numberSamples;
+				buffer2Offset = (UInt32)channelToSortIndex *numberSamples;
 
 				channelToSortIndex = 1;
 				if (channelPtr[2] == minChannel)
@@ -2329,13 +2343,17 @@ void DisplayCImage (
 				else if (channelPtr[2] == maxChannel)
 					channelToSortIndex = gdalNumberOfChannels - 1;
 
-				buffer3Offset = (SInt32)channelToSortIndex * numberSamples;
+				buffer3Offset = (UInt32)channelToSortIndex * numberSamples;
 
 				if (forceOutputByteCode == kDoNotForceBytes)
+				//if (forceOutputByteCode == kForce2Bytes)
 					{
 					buffer1Offset *= localFileInfoPtr1->numberBytes;
 					buffer2Offset *= localFileInfoPtr2->numberBytes;
 					buffer3Offset *= localFileInfoPtr3->numberBytes;
+					//buffer1Offset *= 2;
+					//buffer2Offset *= 2;
+					//buffer3Offset *= 2;
 
 					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
@@ -2353,10 +2371,14 @@ void DisplayCImage (
             {
 				buffer1Offset = 0;
 				if (forceOutputByteCode == kDoNotForceBytes)
+				//if (forceOutputByteCode == kForce2Bytes)
 					{
 					buffer2Offset = numberSamples * localFileInfoPtr1->numberBytes;
 					buffer3Offset =
 							buffer2Offset + numberSamples * localFileInfoPtr2->numberBytes;
+					//buffer2Offset = numberSamples * 2;
+					//buffer3Offset =
+					//		buffer2Offset + numberSamples * 2;
 
 					}	// end "if (forceOutputByteCode == kDoNotForceBytes)"
 
@@ -2376,21 +2398,21 @@ void DisplayCImage (
 			}	// end "else localFileInfoPtr1->bandInterleave != kBIL || ... != kBIS"
 
 
-		#ifndef multispec_wx
+		//#ifndef multispec_wx
 			ioBuffer1Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer1Offset];
 			ioBuffer2Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer2Offset];
 			ioBuffer3Ptr = (HFileIOBufferPtr)
 												&outputBufferPtr->data.onebyte[buffer3Offset];
-		#else	// not defined multispec_wx
-			ioBuffer1Ptr = (HFileIOBufferPtr)
-						((unsigned char*)(outputBufferPtr->data.onebyte) + buffer1Offset);
-			ioBuffer2Ptr = (HFileIOBufferPtr)
-						((unsigned char*)(outputBufferPtr->data.onebyte) + buffer2Offset);
-			ioBuffer3Ptr = (HFileIOBufferPtr)
-						((unsigned char*)(outputBufferPtr->data.onebyte) + buffer3Offset);
-		#endif
+		//#else	// not defined multispec_wx
+		//	ioBuffer1Ptr = (HFileIOBufferPtr)
+		//				((unsigned char*)(outputBufferPtr->data.onebyte) + buffer1Offset);
+		//	ioBuffer2Ptr = (HFileIOBufferPtr)
+		//				((unsigned char*)(outputBufferPtr->data.onebyte) + buffer2Offset);
+		//	ioBuffer3Ptr = (HFileIOBufferPtr)
+		//				((unsigned char*)(outputBufferPtr->data.onebyte) + buffer3Offset);
+		//#endif
 
 		}	// end "if (errCode == noErr)"
 
@@ -2414,14 +2436,13 @@ void DisplayCImage (
 					// Get the three channels for the line of image data.  Return
 					// if there is a file IO error.
 
-			errCode = GetLineOfData (
-                    fileIOInstructionsPtr,
-                    line,
-                    startColumn,
-                    endColumn,
-                    columnInterval,
-                    (HUInt8Ptr)inputBufferPtr,
-                    (HUInt8Ptr)outputBufferPtr);
+			errCode = GetLineOfData (fileIOInstructionsPtr,
+											  line,
+											  startColumn,
+											  endColumn,
+											  columnInterval,
+											  (HUInt8Ptr)inputBufferPtr,
+											  (HUInt8Ptr)outputBufferPtr);
 
 			if (errCode != noErr)
 				break;
@@ -5195,6 +5216,7 @@ void Display1Channel8BitLine (
 											j;
 
 	#if defined multispec_mac || defined multispec_win
+	
 				//	 This loop will draw the image lines for one byte data		
 
 		if (fileInfoPtr->numberBytes == 1) 
@@ -5208,12 +5230,12 @@ void Display1Channel8BitLine (
 				}	// end "for (j=0;..." 
 
 			}	// end "if (fileInfoPtr->numberBytes == 1)" 
-
+	
 				// This loop will draw the image lines for two byte data 		
 
-		else if (fileInfoPtr->numberBytes == 2) 
+		else if (fileInfoPtr->numberBytes == 2)
 			{
-			HUInt16Ptr ioBuffer2Ptr = (HUInt16Ptr) ioBuffer1Ptr;
+			HUInt16Ptr ioBuffer2Ptr = (HUInt16Ptr)ioBuffer1Ptr;
 
 			for (j = 0; j < numberSamples; j += interval) 
 				{
@@ -5230,7 +5252,7 @@ void Display1Channel8BitLine (
 	
 	#if defined multispec_wx
 				//	 This loop will draw the image lines for one byte data
-
+	
 		if (fileInfoPtr->numberBytes == 1) 
 			{
 			if (displayCode == 1)
@@ -5263,7 +5285,7 @@ void Display1Channel8BitLine (
 					}	// end "for (j=0;..."
 				
 				}	// end "if (displayCode == 1)"
-			
+		 
 			else	// displayCode == 51
 				{
 						// This is for one channel thematic images for wxWidgets
@@ -5281,10 +5303,10 @@ void Display1Channel8BitLine (
 				}	// end "else displayCode == 51"
 
 			}	// end "if (fileInfoPtr->numberBytes == 1)"
-
+	
 				// This loop will draw the image lines for two byte data
 
-		else if (fileInfoPtr->numberBytes == 2) 
+		else if (fileInfoPtr->numberBytes == 2)
 			{
 			HUInt16Ptr ioBuffer2Ptr = (HUInt16Ptr)ioBuffer1Ptr;
 			

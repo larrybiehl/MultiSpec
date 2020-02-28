@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMFeatureExtractionDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/28/2019
+//	Revised By:				Larry L. Biehl			Date: 02/24/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ class CMFeatureExtractionDialog : public CMDialog
 
 		SInt16								m_localDefaultClassPairWeight;
 	
-		bool									m_listTransformationFlag,
+		Boolean								m_listTransformationFlag,
 												m_optimizeClassesFlag,
 												m_specialOptionsFlag;
 	

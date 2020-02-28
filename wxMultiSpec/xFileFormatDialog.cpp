@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/20/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -851,11 +851,11 @@ void CMFileFormatSpecsDlg::OnInitDialog (
 													&m_blockWidth,
 													&bandInterleave,
 													&dataValueType,
-													(Boolean*)&m_eightBitsPerDataSelection,
-													(Boolean*)&m_swapBytesFlag,
+													&m_eightBitsPerDataSelection,
+													&m_swapBytesFlag,
 													&signedDataFlag,
-													(Boolean*)&m_linesBottomToTopFlag,
-													(Boolean*)&m_fillDataValueExistsFlag,
+													&m_linesBottomToTopFlag,
+													&m_fillDataValueExistsFlag,
 													&m_fillDataValue,
 													&dataSetSelection,
 													&collapseClassesSelection,

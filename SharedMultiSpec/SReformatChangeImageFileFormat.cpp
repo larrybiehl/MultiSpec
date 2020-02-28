@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/09/2020
+//	Revision date:			02/28/2020
 //
 //	Language:				C
 //
@@ -4057,13 +4057,14 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
          	}	// end "comboBoxPtr->GetCount () == 1"
 		#endif	// defined multispec_win  
 		
-   #if defined multispec_wx
-        if (comboBoxPtr->GetCount () == 1) {
-            comboBoxPtr->Append ("Append To");
-            comboBoxPtr->Append ("Modify Part");
+		#if defined multispec_wx
+			if (comboBoxPtr->GetCount () == 1)
+				{
+				comboBoxPtr->Append ("Append To");
+				comboBoxPtr->Append ("Modify Part");
 
-        }	// end "comboBoxPtr->GetCount () == 1"
-   #endif	// defined multispec_wx
+				}	// end "comboBoxPtr->GetCount () == 1"
+		#endif	// defined multispec_wx
 
 		}	// end "if (setFileFlag)" 
 		
@@ -8657,7 +8658,7 @@ void InitializeReformatStructure (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/2013
-//	Revised By:			Larry L. Biehl			Date: 02/28/2019
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
 
 Boolean LoadReformatOptionsSpecs (
 				WindowInfoPtr						windowInfoPtr)
@@ -8729,12 +8730,15 @@ Boolean LoadReformatOptionsSpecs (
 				// If there was previous transformation and the number of channels in this input image
 				// differs from the that in the last image used, then clear the
 				// reformat options structure and start again.
-				
+				// Decided that needed to clear when the number of channels differed period.
+		/*
 		if (!releaseReformatMemoryFlag && 
-				(reformatOptionsPtr->transformDataCode == kCreatePCImage ||
+				((reformatOptionsPtr->transformDataCode == kCreatePCImage ||
 						reformatOptionsPtr->transformDataCode == kTransformChannels) &&
 								reformatOptionsPtr->lastInputWindowNumberChannels != 
-																windowInfoPtr->totalNumberChannels)
+																windowInfoPtr->totalNumberChannels))
+		*/
+		if (reformatOptionsPtr->lastInputWindowNumberChannels != windowInfoPtr->totalNumberChannels)
 			releaseReformatMemoryFlag = TRUE; 
 			
 		if (releaseReformatMemoryFlag)

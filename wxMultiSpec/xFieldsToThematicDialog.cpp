@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -306,8 +306,8 @@ void CMFieldsToThematicDialog::OnInitDialog (
 	LoadAreasToThematicDialogInitialize (this,
 														m_reformatOptionsPtr,
 														&m_dialogSelectArea,
-														(Boolean*)&m_trainingAreasFlag,
-														(Boolean*)&m_testingAreasFlag,
+														&m_trainingAreasFlag,
+														&m_testingAreasFlag,
 														&classSelection,
 														&m_classListPtr,
 														&m_localNumberClasses,

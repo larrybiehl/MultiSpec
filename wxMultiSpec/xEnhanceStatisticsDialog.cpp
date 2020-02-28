@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -878,7 +878,7 @@ void CMEnhanceStatisticsDialog::OnInitDialog (
 													m_classListPtr,
 													&classSelection,
 													&m_localNumberClasses,
-													(Boolean*)&m_useEnhancedStatisticsFlag,
+													&m_useEnhancedStatisticsFlag,
 													&m_classWeightSet,
 													&weightsSelection,
 													&softThresholdSelection,
@@ -887,7 +887,7 @@ void CMEnhanceStatisticsDialog::OnInitDialog (
 													&hardThresholdSelection,
 													&m_hardChiChiThreshold,
 													&m_hardPercentThreshold,
-													(Boolean*)&m_weightLabeledFlag,
+													&m_weightLabeledFlag,
 													&m_labelWeight,
 													&m_iterationMax,
 													&m_iterationStopLength,

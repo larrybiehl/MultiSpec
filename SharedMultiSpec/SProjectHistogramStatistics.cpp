@@ -1942,17 +1942,6 @@ SInt16 HistogramStatsControl (
 	if (gMemoryTypeNeeded < 0)
 																						return (FALSE);
 																							
-	if (!gCPPNewCalledFlag)
-		{
-		SInt32* longIntPtr = new SInt32;
-		
-		if (longIntPtr != NULL)
-			delete longIntPtr;
-			
-		gCPPNewCalledFlag = TRUE;
-		
-		}	// end "if (!gCPPNewCalledFlag)"
-																							
 			// Code resources loaded okay, so set flag back for non-Code			
 			// resources.																			
 			

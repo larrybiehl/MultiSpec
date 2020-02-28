@@ -989,7 +989,7 @@
 #define IDC_CriticalDistance2           1395
 #define IDC_ClusterTrainingAreas        1396
 #define IDC_ClusterImageArea            1397
-#define IDC_1stCovEigenvector           1398
+#define IDC_1stCovEigenvector           1399
 #define IDC_EigenvectorVolume           1400
 #define IDS_Support_trl                 1401
 #define IDC_OnePassCluster              1401

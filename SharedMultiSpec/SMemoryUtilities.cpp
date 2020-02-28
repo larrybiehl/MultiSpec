@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C
 //
@@ -1510,7 +1510,7 @@ Ptr GetHandleStatusAndPointer (
 //							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1989
-//	Revised By:			Larry L. Biehl			Date: 02/01/2006	
+//	Revised By:			Larry L. Biehl			Date: 02/24/2020
 
 Boolean GetIOBufferPointers (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -1719,12 +1719,14 @@ Boolean GetIOBufferPointers (
 		numberOutBytes = 4;
 	else if (forceOutputByteCode == kForceReal8Bytes)
 		numberOutBytes = 8;
+	
+			// Force output bytes for each channel to be a multiple of 8 bytes.
+	
 	outputBytesNeeded = (columnEnd - columnStart + columnInterval)/
-											columnInterval * numberOutBytes * numberChannels;
-		
-			// Force output bytes to be a multiple of 8 bytes.							
-			
-	outputBytesNeeded = ((outputBytesNeeded + 7)/8) * 8;			
+															columnInterval * numberOutBytes;
+	outputBytesNeeded = ((outputBytesNeeded + 7)/8) * 8;
+	
+	outputBytesNeeded *= numberChannels;
 				
 			// Now determine if 'outputBytesNeeded' can overlap 						
 			// 'inputBytesNeeded'																

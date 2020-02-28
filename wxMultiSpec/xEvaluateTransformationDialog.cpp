@@ -221,10 +221,10 @@ void CMEvalTransformDialog::OnInitDialog (
 
 	EvaluateTransformationInitialize (this,
 													m_evaluateTransformSpecsPtr,
-													(Boolean*)&m_listEigenvaluesFlag,
-													(Boolean*)&m_listOriginalMatrixFlag,
-													(Boolean*)&m_checkTransformationFlag,
-													(Boolean*)&m_listCheckMatrixFlag);
+													&m_listEigenvaluesFlag,
+													&m_listOriginalMatrixFlag,
+													&m_checkTransformationFlag,
+													&m_listCheckMatrixFlag);
 	                                                                       
 	SetListCheckTransform (m_checkTransformationFlag);
 	                  

@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/05/2019
+//	Revised By:				Larry L. Biehl			Date: 02/23/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -248,8 +248,8 @@ class CMDisplaySpecsDlg : public CMDialog
 												mMaxChannelNumber,
 												mPixelSizeVector[3];
 	
-		bool 									m_ComputeHistogramFlag,
-			 									m_blueChannelInvertFlag,
+		bool 									m_blueChannelInvertFlag,
+			 									m_ComputeHistogramFlag,
 			 									m_greenChannelInvertFlag,
 			 									m_redChannelInvertFlag,
 			 									m_vectorOverlaysFlag;

@@ -1217,6 +1217,8 @@ void Display3Channel4Byte8BitLine (
 //	Software purpose:	The purpose of this routine is to copy the input
 //							line of data to the offscreen buffer for a 3-channel,
 //							16 bit color image.
+//							This code was used for versions of MacOS which supported
+//							16-bit color words.
 //
 //	Parameters in:					
 //
@@ -1250,18 +1252,14 @@ void Display3Channel4Byte16BitLine (
 				UInt32								maxBin3,
 				HUInt16Ptr							offScreen2BytePtr)
 
-{	
+{
+#if !defined multispec_wx
 	double								doubleBinIndex;
 	
 	UInt32								backgroundValue,
 											binIndex,
 											j;
 							
-	
-	#if defined multispec_wx
-			// 16-bit color not used in wxWidgets version
-																						return;
-	#endif
 	
 	for (j=0; j<numberSamples; j+=interval)
 		{
@@ -1343,9 +1341,9 @@ void Display3Channel4Byte16BitLine (
 		offScreen2BytePtr++;
 		
 		}	// end "for (j=0; ..."
+#endif	// !defined multispec_wx
 	
 }	// end "Display3Channel16BitLine"
-
 
 
 //------------------------------------------------------------------------------------

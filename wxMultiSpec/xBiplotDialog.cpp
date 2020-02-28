@@ -30,44 +30,47 @@
 //
 //------------------------------------------------------------------------------------
 
+#include "SMultiSpec.h"
+
 #include "xBiplotDialog.h" 
 
 
+IMPLEMENT_DYNAMIC_CLASS (CMBiPlotDialog, CMDialog)
 
 BEGIN_EVENT_TABLE (CMBiPlotDialog, CMDialog)
-	EVT_BUTTON (IDEntireImage, CMBiPlotDialog::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMBiPlotDialog::ToSelectedImage)
+   EVT_BUTTON (IDEntireImage, CMBiPlotDialog::ToEntireImage)
+   EVT_BUTTON (IDSelectedImage, CMBiPlotDialog::ToSelectedImage)
 
-	EVT_CHECKBOX (IDC_FeatureTransformation, CMBiPlotDialog::OnFeatureTranformation)
-	EVT_CHECKBOX (IDC_TestAreas, CMBiPlotDialog::OnTestArea)
-	EVT_CHECKBOX (IDC_Training, CMBiPlotDialog::OnTrainArea)
-	EVT_CHECKBOX (IDC_ImageArea, CMBiPlotDialog::OnImageArea)
-	EVT_CHECKBOX (IDC_ThresholdPixelCheck, CMBiPlotDialog::OnThresholdPixelFlag)
-	EVT_CHECKBOX (IDC_CreateNewGraphWindow, CMBiPlotDialog::OnCreateNewWindowFlag)
-	EVT_CHECKBOX (IDC_DisplayPixels, CMBiPlotDialog::OnDisplayPixelAsSymbol)
-	EVT_CHECKBOX (IDC_OutlineClassAsEllipse, CMBiPlotDialog::OnOutlineClassAsEllipse)
+   EVT_CHECKBOX (IDC_FeatureTransformation, CMBiPlotDialog::OnFeatureTranformation)
+   EVT_CHECKBOX (IDC_TestAreas, CMBiPlotDialog::OnTestArea)
+   EVT_CHECKBOX (IDC_Training, CMBiPlotDialog::OnTrainArea)
+   EVT_CHECKBOX (IDC_ImageArea, CMBiPlotDialog::OnImageArea)
+   EVT_CHECKBOX (IDC_ThresholdPixelCheck, CMBiPlotDialog::OnThresholdPixelFlag)
+   EVT_CHECKBOX (IDC_CreateNewGraphWindow, CMBiPlotDialog::OnCreateNewWindowFlag)
+   EVT_CHECKBOX (IDC_DisplayPixels, CMBiPlotDialog::OnDisplayPixelAsSymbol)
+   EVT_CHECKBOX (IDC_OutlineClassAsEllipse, CMBiPlotDialog::OnOutlineClassAsEllipse)
 
-	#if defined multispec_wxlin
-		EVT_COMBOBOX (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
-		//EVT_COMBOBOX (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
-	#endif
-	#if defined multispec_wxmac
-		EVT_CHOICE (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
-		//EVT_CHOICE (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
-	#endif
+   #if defined multispec_wxlin
+      EVT_COMBOBOX (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
+      //EVT_COMBOBOX (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
+   #endif
+   #if defined multispec_wxmac
+      EVT_CHOICE (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
+      //EVT_CHOICE (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
+   #endif
 
-	EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMBiPlotDialog::OnClassComboCloseUp)
-	EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMBiPlotDialog::OnClassComboDropDown)
+   EVT_COMBOBOX_CLOSEUP (IDC_ClassCombo, CMBiPlotDialog::OnClassComboCloseUp)
+   EVT_COMBOBOX_DROPDOWN (IDC_ClassCombo, CMBiPlotDialog::OnClassComboDropDown)
 
-	EVT_INIT_DIALOG (CMBiPlotDialog::OnInitDialog)
-	EVT_TEXT (IDC_HorizontalAxis, CMBiPlotDialog::OnChangeHorizontalAxis)
-	EVT_TEXT (IDC_VerticalAxis, CMBiPlotDialog::OnChangeVerticalAxis)
-	EVT_TEXT (IDC_ColumnEnd, CMBiPlotDialog::CheckColumnEnd)
-	EVT_TEXT (IDC_ColumnStart, CMBiPlotDialog::CheckColumnStart)
-	EVT_TEXT (IDC_LineEnd, CMBiPlotDialog::CheckLineEnd)
-	EVT_TEXT (IDC_LineStart, CMBiPlotDialog::CheckLineStart)
-	EVT_TEXT (IDC_LineInterval, CMBiPlotDialog::CheckLineInterval)
-	EVT_TEXT (IDC_ColumnInterval, CMBiPlotDialog::CheckColumnInterval)
+   EVT_INIT_DIALOG (CMBiPlotDialog::OnInitDialog)
+   EVT_TEXT (IDC_HorizontalAxis, CMBiPlotDialog::OnChangeHorizontalAxis)
+   EVT_TEXT (IDC_VerticalAxis, CMBiPlotDialog::OnChangeVerticalAxis)
+   EVT_TEXT (IDC_ColumnEnd, CMBiPlotDialog::CheckColumnEnd)
+   EVT_TEXT (IDC_ColumnStart, CMBiPlotDialog::CheckColumnStart)
+   EVT_TEXT (IDC_LineEnd, CMBiPlotDialog::CheckLineEnd)
+   EVT_TEXT (IDC_LineStart, CMBiPlotDialog::CheckLineStart)
+   EVT_TEXT (IDC_LineInterval, CMBiPlotDialog::CheckLineInterval)
+   EVT_TEXT (IDC_ColumnInterval, CMBiPlotDialog::CheckColumnInterval)
 END_EVENT_TABLE ()
 
 
@@ -79,41 +82,42 @@ CMBiPlotDialog::CMBiPlotDialog (
 		: CMDialog (CMBiPlotDialog::IDD, parent, title)
 
 {
-   m_classWeightsPtr = NULL;
-	m_checkChannelStatisticsFlag = FALSE;
+    m_classWeightsPtr = NULL;
+    m_checkChannelStatisticsFlag = FALSE;
 	m_checkClassesPopUpFlag = FALSE;
 	m_createNewGraphicsWindowFlag = FALSE;
    
-   m_checkFeatureTransformFlag = FALSE;
-   m_featureTransformAllowedFlag = FALSE;
+    m_checkFeatureTransformFlag = FALSE;
+    m_featureTransformAllowedFlag = FALSE;
 	m_featureTransformationFlag = FALSE;
    
-   m_thresholdPercent = 0;
-   m_saveThresholdPercent = 0.;
-   m_maxChannelFeatureNum = 0;
+    m_thresholdPercent = 0;
+    m_saveThresholdPercent = 0.;
+    m_maxChannelFeatureNum = 0;
 	
 	m_displayPixelCode = 0;
 	m_outlineClassCode = 0;
 	m_plotDataCode = 0;
 	m_newXAxisFeature = 0;
 	m_newYAxisFeature = 0;
-   m_initializedFlag = CMDialog::m_initializedFlag;
+    m_initializedFlag = CMDialog::m_initializedFlag;
    
-   m_trainingAreaFlag = FALSE;
-   m_imageAreaFlag = FALSE;
-   m_testFlag = FALSE;
+    m_trainingAreaFlag = FALSE;
+    m_imageAreaFlag = FALSE;
+    m_testFlag = FALSE;
 
 	if (gBiPlotDataSpecsPtr->projectFlag)
 		m_initializedFlag = GetDialogLocalVectors (NULL,
-																	NULL,
-																	&m_classListPtr,
-																	NULL,
-																	&m_classWeightsPtr,
-																	NULL,
-																	NULL,
-																	NULL);
-        
-   CreateControls ();
+                                                    NULL,
+                                                    &m_classListPtr,
+                                                    NULL,
+                                                    &m_classWeightsPtr,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL);
+   
+    if (m_initializedFlag)
+        CreateControls ();
    
 	/*   
    if (m_initializedFlag)

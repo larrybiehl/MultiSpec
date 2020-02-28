@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/24/2020
 //
 //	Language:				C++
 //
@@ -1346,13 +1346,13 @@ void CMClassifyDialog::OnClassificationProcedureSelendok (
 														 m_fileNamesSelection,
 														 m_savedLeaveOneOutFlag,
 														 m_trainingFieldsExistFlag,
-														 (Boolean*)& m_trainingAreaLOOFlag);
+														 &m_trainingAreaLOOFlag);
 
 		CheckFeatureTransformationDialog (this,
 													 m_featureTransformAllowedFlag,
 													 IDC_FeatureTransformation,
 													 IDC_ChannelPrompt,
-													 (SInt16*)& m_featureTransformationFlag);
+													 &m_featureTransformationFlag);
 
 		ClassifyDialogSetThresholdItems (this,
 													 m_classificationProcedure,
@@ -1596,32 +1596,32 @@ void CMClassifyDialog::OnInitDialog (
 										&m_covarianceEstimate,
 										&m_numberEigenvectors,
 										&m_featureTransformAllowedFlag,
-										(Boolean*)&m_featureTransformationFlag,
+										&m_featureTransformationFlag,
 										&channelSelection,
 										&m_localActiveNumberFeatures,
 										&fileNamesSelection,
 										&m_targetWindowInfoHandle,
 										&classAreaSelection,
 										&m_localNumberClassAreas,
-										(Boolean*)&m_trainingAreaFlag,
+										&m_trainingAreaFlag,
 										&m_trainingFieldsExistFlag,
 										&m_savedLeaveOneOutFlag,
-										(Boolean*)&m_trainingAreaLOOFlag,
-										(Boolean*)&m_testAreaFlag,
-										(Boolean*)&m_imageAreaFlag,
+										&m_trainingAreaLOOFlag,
+										&m_testAreaFlag,
+										&m_imageAreaFlag,
 										&m_dialogSelectArea,
 										&classSelection,
 										&m_localNumberClasses,
 										&weightsSelection,
 										&symbolSelection,
 										&m_outputAsciiCode,
-										(Boolean*)&m_createImageOverlayFlag,
+										&m_createImageOverlayFlag,
 										&selectImageOverlaySelection,
 										&outputFormatCode,
-										(Boolean*)&m_diskFileFlag,
+										&m_diskFileFlag,
 										&paletteSelection,
-										(Boolean*)&m_thresholdResultsFlag,
-										(Boolean*)&m_createProbabilityFileFlag,
+										&m_thresholdResultsFlag,
+										&m_createProbabilityFileFlag,
 										&m_saveThresholdPercent,
 										&m_saveAngleThreshold,
 										&m_saveCorrelationThreshold,

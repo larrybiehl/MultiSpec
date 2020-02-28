@@ -4897,7 +4897,7 @@ SInt32 OpenImageFile (
 					// initialization routine.  This current file may be a project	
 					// file.  Check for project file case and return if it is.		
 
-			if ((gGetFileStatus == 1 || localAppFilePtr)&& fileFlag)
+			if ((gGetFileStatus == 1 || localAppFilePtr) && fileFlag)
 				{					
 				projectFileCode = CheckIfProjectFile (fileStreamPtr, kLoadHeader);
 
