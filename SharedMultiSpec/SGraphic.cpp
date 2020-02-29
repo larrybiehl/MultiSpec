@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl and Nicus, Inc
 //
-//	Revision date:			11/02/2018
+//	Revision date:			02/29/2020
 //
 //	Language:				C
 //
@@ -218,7 +218,7 @@ void DeallocateV (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/03/1999
-//	Revised By:			Larry L. Biehl			Date: 10/17/2015
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
 
 void	DensityFunctionPlotV (
 				GraphPtr								graphPtr,
@@ -373,7 +373,7 @@ void	DensityFunctionPlotV (
          #if defined multispec_wx
 				int b_size;
 				b_size = (int)((x_max- x_val)/x_increment)+2;
-				wxPoint splines[b_size];
+				wxPoint splines[b_size+1];
 				int i = 0;
 				splines[i].x = x_point;
 				splines[i].y = y_point;
@@ -1146,7 +1146,7 @@ void	FindMaxV (
 // Called By:			SetGraphMinMax
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/2002
-//	Revised By:			Larry L. Biehl			Date: 02/10/2006
+//	Revised By:			Larry L. Biehl			Date: 02/29/2020
 
 void	FindMaxBinV (
 				double*								maxPtr,
@@ -1230,7 +1230,7 @@ void	FindMaxBinV (
 			y_val = 0;
 			binEndFlag = FALSE;
 			
-			for (point=0; point<=numberPoints; point++) 
+			for (point=1; point<=numberPoints; point++)
 				{
 				if (point < numberPoints)
 					{ 
@@ -1259,7 +1259,7 @@ void	FindMaxBinV (
 				xValuePtr++;
 				yValuePtr++;
 				
-				}	// end "for (point=0; point<numberPoints; point++)"
+				}	// end "for (point=1; point<=numberPoints; point++)"
 			
 			}	// end "if (vectorDisplayPtr [lines] > 0)"
 			
@@ -1480,7 +1480,7 @@ void	FormatR (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/1999
-//	Revised By:			Larry L. Biehl			Date: 02/14/2006
+//	Revised By:			Larry L. Biehl			Date: 02/29/2020
 
 void	HistogramPlotV (
 				GraphPtr								graph, 
@@ -1738,7 +1738,7 @@ void	HistogramPlotV (
                - x_offset);
          #endif	// defined multispec_wx
 			  
-			for (point=0; point<=numberPoints; point++) 
+			for (point=1; point<=numberPoints; point++)
 				{
 				//x_val = *xValuePtr;
 				//y_val = *yValuePtr;
@@ -1804,7 +1804,7 @@ void	HistogramPlotV (
 				xValuePtr++;
 				yValuePtr++;
 				
-				}	// end "for (point=0; point<numberPoints; point++)"
+				}	// end "for (point=1; point<=numberPoints; point++)"
 	
 			#if defined multispec_win
 				if (histogramPenPtr != NULL)

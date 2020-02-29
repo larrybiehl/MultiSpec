@@ -1558,12 +1558,11 @@ void Display3Channel24BitLine (
 							(UInt32)ioBuffer3Ptr->data.onebyte[j] :
 								(UInt32)ioBuffer3Ptr->data.twobyte[j];
 			*/
-			dataValue = (bytesEqualOneFlag3) ?
+			dataValue = backgroundValue = (bytesEqualOneFlag3) ?
 								(UInt32)input1ByteBuffer3Ptr[j] :
 												(UInt32)input2ByteBuffer3Ptr[j];
 			if (dataValue > maxBin3)  
 				dataValue = 0;
-			backgroundValue += dataValue;
 			*offScreenPtr = dataDisplay3Ptr [dataValue];
 			offScreenPtr++;
          
@@ -1584,7 +1583,7 @@ void Display3Channel24BitLine (
 			
 					// Blue byte.																
 			/*
-			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
+			dataValue = (bytesEqualOneFlag1) ?
 							(UInt32)ioBuffer1Ptr->data.onebyte[j] :
 								(UInt32)ioBuffer1Ptr->data.twobyte[j];
 			*/
@@ -1593,6 +1592,7 @@ void Display3Channel24BitLine (
 													(UInt32)input2ByteBuffer1Ptr[j];
 			if (dataValue > maxBin1)  
 				dataValue = 0;
+			backgroundValue += dataValue;
 			*offScreenPtr = dataDisplay1Ptr [dataValue];
 			offScreenPtr++; 
 		

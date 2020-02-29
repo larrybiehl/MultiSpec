@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/29/2018
+//	Revision date:			02/28/2020
 //
 //	Language:				C
 //
@@ -242,7 +242,7 @@ void CMGraphView::DrawGraphGrowIcon	(
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/????
-//	Revised By:			Larry L. Biehl			Date: 07/02/2018
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
   
 Boolean CMGraphView::FinishGraphRecordSetUp (
 				SInt16*								channelListPtr,
@@ -352,7 +352,8 @@ Boolean CMGraphView::FinishGraphRecordSetUp (
 				
 				}	// end "if (gProcessorCode == kListDataProcessor)"
 			
-			else if (gProcessorCode == kSelectionGraphProcessor)
+			else if (gProcessorCode == kSelectionGraphProcessor &&
+																	gSelectionGraphViewCPtr != NULL)
 				{
 						// Force IO memory to be checked in the ShowGraphWindowSelection
 						// routine

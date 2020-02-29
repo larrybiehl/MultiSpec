@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/28/2020
 //
 //	Language:				C++
 //
@@ -94,6 +94,7 @@ CMLegendView::CMLegendView (
 
    m_pDocument = (CMImageDoc*)doc;
    m_initializedFlag = TRUE;
+   m_localPaletteUpToDateFlag = FALSE;
 
    SetupView ();
    InitDialog ();

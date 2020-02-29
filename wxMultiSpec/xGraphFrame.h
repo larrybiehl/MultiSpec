@@ -27,7 +27,7 @@
 //								CMGraphFrame classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/13/2019
+//	Revised By:				Larry L. Biehl			Date: 02/28/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -288,7 +288,7 @@ class CMGraphFrame : public wxDocChildFrame
 												m_width,
 												selectVectorCheckID;
 	
-		SInt32 								selectionVector;
+		SInt32 								m_selectionVector;
 
 		bool									m_dataListShowFlag,
 												m_featureListShowFlag,

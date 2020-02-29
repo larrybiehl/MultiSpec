@@ -149,10 +149,11 @@ CMGraphFrame::CMGraphFrame ()
 
 {
 	m_graphViewCPtr = NULL;
-   selectionVector = NULL;
+   m_selectionVector = NULL;
 	m_listCtrl1 = NULL;
 	m_comboXlabel = NULL;
 	m_dataListShowFlag = false;
+	m_featureListShowFlag = false;
 	m_featureListShowFlag = false;
 	
 }	// end "CMGraphFrame"
@@ -192,11 +193,14 @@ CMGraphFrame::CMGraphFrame (
    m_panel2 = NULL;
    m_listCtrl1 = NULL;
    m_listCtrl2 = NULL;
+   m_selectionVector = NULL;
 	m_toolBar1 = NULL;
-   
-   m_initGraphUpdate = false;
-   
+	
+	m_dataListShowFlag = false;
+	m_featureListShowFlag = false;
    m_frameMaximized = false;
+   m_initGraphUpdate = false;
+	
 	
 	graphRecordPtr = (GraphPtr)GetHandlePointer (
 													m_graphViewCPtr->m_graphRecordHandle);
@@ -773,7 +777,7 @@ void CMGraphFrame::CreateSelectVector (
 										
 	m_selectVectorMenu = new wxMenu ();
 
-	selectionVector = vectorSize;
+	m_selectionVector = vectorSize;
 
 	if (vectorSize == gProjectInfoPtr->numberStatisticsClasses)
 		{
@@ -1302,7 +1306,7 @@ void CMGraphFrame::DoShowVectors (
 	int 									vectorSize;
 	
 	
-   vectorSize = selectionVector;
+   vectorSize = m_selectionVector;
       
    if (m_selectVectorMenu->IsChecked (ID_SELECTVECTORMENUITEMSTART+vectorSize+1))
       m_selectVectorMenu->Check (ID_SELECTVECTORMENUITEMSTART+vectorSize+1, 0); 
@@ -1331,7 +1335,7 @@ void CMGraphFrame::OnSelectVector (
    
    selection = menuID - ID_SELECTVECTORMENUITEMSTART;
    
-   vectorSize = selectionVector;
+   vectorSize = m_selectionVector;
    
    m_graphViewCPtr->OnSelectVector (selection);
 

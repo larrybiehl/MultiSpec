@@ -18,7 +18,7 @@
 //
 //	Authors:             Larry L. Biehl
 //
-//	Revision date:       01/13/2020
+//	Revision date:       02/28/2020
 //
 //	Language:            C
 //
@@ -2093,7 +2093,7 @@ void DoShowOverlaySelection (
 // Called By:			CopyOffScreenImage in xUtilities.cpp and WUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 01/10/2020
+//	Revised By:			Larry L. Biehl			Date: 02/28/2020
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2116,7 +2116,8 @@ void DrawArcViewShapes (
 												yScale;
 	#endif	// defined multispec_win
 				
-	DoubleRect							boundingWindowBox;
+	DoubleRect							boundingWindowBox,
+											polyLineBox;
 	
 	LongPoint							lastPoint,
 											nextPoint;
@@ -2461,8 +2462,11 @@ void DrawArcViewShapes (
 		      		case 5:	// Polygon shape
 		      		case 15:	// PolygonZ shape
 		      			arcViewPolyLinePtr = (ArcViewPolyLinePtr)arcViewRecordHeaderPtr;
+							
+									// This is done so the DoubleRect box is on 8 byte boundary
+							polyLineBox = arcViewPolyLinePtr->box;
 		      			if (AreasIntersect (&boundingWindowBox,
-		      										&arcViewPolyLinePtr->box))
+		      										&polyLineBox))
 		      				{
 		      				pointIndex = 0;
 		      				arcViewDoublePointPtr = (ArcViewDoublePoint*)
