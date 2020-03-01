@@ -82,29 +82,29 @@ CMBiPlotDialog::CMBiPlotDialog (
 		: CMDialog (CMBiPlotDialog::IDD, parent, title)
 
 {
-    m_classWeightsPtr = NULL;
-    m_checkChannelStatisticsFlag = FALSE;
+	m_classWeightsPtr = NULL;
+	m_checkChannelStatisticsFlag = FALSE;
 	m_checkClassesPopUpFlag = FALSE;
 	m_createNewGraphicsWindowFlag = FALSE;
    
-    m_checkFeatureTransformFlag = FALSE;
-    m_featureTransformAllowedFlag = FALSE;
+	m_checkFeatureTransformFlag = FALSE;
+	m_featureTransformAllowedFlag = FALSE;
 	m_featureTransformationFlag = FALSE;
    
-    m_thresholdPercent = 0;
-    m_saveThresholdPercent = 0.;
-    m_maxChannelFeatureNum = 0;
+	m_thresholdPercent = 0;
+	m_saveThresholdPercent = 0.;
+	m_maxChannelFeatureNum = 0;
 	
 	m_displayPixelCode = 0;
 	m_outlineClassCode = 0;
 	m_plotDataCode = 0;
 	m_newXAxisFeature = 0;
 	m_newYAxisFeature = 0;
-    m_initializedFlag = CMDialog::m_initializedFlag;
+	m_initializedFlag = CMDialog::m_initializedFlag;
    
-    m_trainingAreaFlag = FALSE;
-    m_imageAreaFlag = FALSE;
-    m_testFlag = FALSE;
+	m_trainingAreaFlag = FALSE;
+	m_imageAreaFlag = FALSE;
+	m_testFlag = FALSE;
 
 	if (gBiPlotDataSpecsPtr->projectFlag)
 		m_initializedFlag = GetDialogLocalVectors (NULL,
@@ -116,8 +116,8 @@ CMBiPlotDialog::CMBiPlotDialog (
                                                     NULL,
                                                     NULL);
    
-    if (m_initializedFlag)
-        CreateControls ();
+	if (m_initializedFlag)
+		CreateControls ();
    
 	/*   
    if (m_initializedFlag)

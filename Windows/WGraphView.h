@@ -27,7 +27,7 @@
 //		 						and CMGraphView classes.
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//	Revised By:				Larry L. Biehl			Date: 02/29/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -165,8 +165,6 @@ class CMGraphView : public CFormView
 		afx_msg void OnDropdownXAxisDropList ();
 	
 		afx_msg void OnEditCopy ();
-	
-		afx_msg void OnLines ();
 	
 		afx_msg void OnNextChannel ();
 	

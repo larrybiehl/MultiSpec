@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			02/29/2020
 //
 //	Language:				C
 //
@@ -3244,7 +3244,7 @@ void ReleaseSpareMemoryForWarningMessage (void)
 // Called By:			Many routines
 //
 //	Coded By:			Larry L. Biehl			Date: 10/07/1988
-//	Revised By:			Larry L. Biehl			Date: 10/16/1995			
+//	Revised By:			Larry L. Biehl			Date: 02/29/2020			
 
 Handle UnlockAndDispose (
 				Handle								handle)
@@ -3258,6 +3258,7 @@ Handle UnlockAndDispose (
 		#endif	// defined multispec_mac 
 			
 		#if defined multispec_win 
+			int			maxLoopCount = 255;
 			Boolean		returnFlag = TRUE; 
 			           
 					// Make sure that the global lock count is zero 
@@ -3265,20 +3266,15 @@ Handle UnlockAndDispose (
 					// than 0. However it is included because of the way that I read
 					// the documentation on lockcount, globalunlock and globallock.
 					                     
-			while (returnFlag)
+			while (returnFlag && maxLoopCount > 0)
+				{
 				returnFlag = (Boolean)GlobalUnlock (handle); 
-			/*
-			SInt16 maxLoopCount = 255;
-			while (maxLoopCount > 0)
-				{                           
-				if (!GlobalUnlock (handle))
-					break;
-					
 				maxLoopCount--;
-				
-				}	// end "while (maxLoopCount > 0)"
-			*/
-			handle = GlobalFree (handle);
+
+				}	// end "while (returnFlag && maxLoopCount > 0)"
+
+			if (!returnFlag)
+				handle = GlobalFree (handle);
 		#endif	// defined multispec_win 
 		
       #if defined multispec_wx

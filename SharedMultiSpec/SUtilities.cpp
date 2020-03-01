@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/11/2020
+//	Revision date:			02/29/2020
 //
 //	Language:				C
 //
@@ -712,7 +712,7 @@ void ConvertOffScreenRectToWinRect (
 //							PolygonSelection in SSelectionArea.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1988
-//	Revised By:			Larry L. Biehl			Date: 01/11/2020
+//	Revised By:			Larry L. Biehl			Date: 02/29/2020
 
 void ConvertWinPointToLC (
 				LongPoint*							selectedPointPtr, 
@@ -824,10 +824,10 @@ void ConvertWinPointToLC (
 				// image file being referenced.
 				
 		lineColPointPtr->h =
-							MIN (lineColPointPtr->h,
+					(SInt32)MIN (lineColPointPtr->h,
 									(double)GetMaxNumberColumns (gActiveImageWindowInfoH));
 		lineColPointPtr->v =
-							MIN (lineColPointPtr->v,
+					(SInt32)MIN (lineColPointPtr->v,
 									(double)GetMaxNumberLines (gActiveImageWindowInfoH));
 		
 		}	// end "else displaySpecsPtr->displayedColumnEnd == 0"
@@ -7202,8 +7202,8 @@ void SetChannelWindowVariables (
 				
 				gStartChannel = 0;
 				
-				gChannelWindowInterval = GetMaxNumberColumns (windowInfoHandle) *
-																								magnification;
+				gChannelWindowInterval = (SInt32)(GetMaxNumberColumns (windowInfoHandle) *
+																								magnification);
 				
 				gChannelWindowWidth = gChannelWindowInterval;
 				

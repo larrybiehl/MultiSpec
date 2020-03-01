@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/03/2018
+//	Revision date:			02/29/2020
 //
 //	Language:				C++
 //
@@ -71,6 +71,7 @@ CMISODATAClusterDialog::CMISODATAClusterDialog (
 	m_convergence = 0;
 	m_classSelection = -1;
 	m_projectClassMeansFlag = FALSE;
+	m_classListPtr = NULL;
 	//}}AFX_DATA_INIT
 	
 	m_initializedFlag = CMDialog::m_initializedFlag; 

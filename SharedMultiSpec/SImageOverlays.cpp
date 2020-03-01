@@ -2574,7 +2574,7 @@ void InitializeImageOverlayInfoStructure (
 // Called By:						
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2003
-//	Revised By:			Larry L. Biehl			Date: 12/19/2018
+//	Revised By:			Larry L. Biehl			Date: 02/29/2020
 
 void ReleaseImageOverlayStructureMemory (
 				Handle*								imageOverlayHandlePtr,
@@ -2651,12 +2651,15 @@ void ReleaseImageOverlayStructureMemory (
 				
 				}	// end "if (imageOverlayInfoPtr->paletteObject != NULL)"
 			
-			imageOverlayInfoPtr->offScreenMapHandle =  
-								UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
+			DeleteObject (imageOverlayInfoPtr->offScreenMapHandle);
+			//imageOverlayInfoPtr->offScreenMapHandle =  
+			//					UnlockAndDispose (imageOverlayInfoPtr->offScreenMapHandle);
 			
-			imageOverlayInfoPtr->offscreenStorageHandle = 							
-								UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
+			//imageOverlayInfoPtr->offscreenStorageHandle = 							
+			//					UnlockAndDispose (imageOverlayInfoPtr->offscreenStorageHandle);
 			
+			imageOverlayInfoPtr->offScreenMapHandle = NULL;
+			imageOverlayInfoPtr->offscreenStorageHandle = NULL;
 			imageOverlayInfoPtr->offscreenMapSize = 0;
 			
 		#endif // defined multispec_win

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/17/2018
+//	Revision date:			02/29/2020
 //
 //	Language:				C++
 //
@@ -68,7 +68,6 @@ BEGIN_MESSAGE_MAP (CMGraphView, CFormView)
 	//{{AFX_MSG_MAP (CMGraphView)
 	ON_BN_CLICKED (IDC_NextChannel, OnNextChannel)
 	ON_BN_CLICKED (IDC_PreviousChannel, OnPreviousChannel)
-	ON_BN_CLICKED (IDC_SelectVectors, OnLines)
 
 	ON_CBN_DROPDOWN (IDC_xAxis, OnDropdownXAxisDropList)
 
@@ -822,7 +821,7 @@ void CMGraphView::OnInitialUpdate (void)
 		newWindowFlag = TRUE;
 
 		bitmapHandle = (HBITMAP)LoadImage (AfxGetInstanceHandle (),
-														(LPCTSTR)_T("IDB_Vectors"), 
+														(LPCTSTR)_T("IDB_Classes"), 
 														IMAGE_BITMAP, 
 														0, 
 														0, 
@@ -831,7 +830,7 @@ void CMGraphView::OnInitialUpdate (void)
 				m_selectVectors.SetBitmap (bitmapHandle);
 
 		bitmapHandle = (HBITMAP)LoadImage (AfxGetInstanceHandle (),
-														(LPCTSTR)_T("IDB_GraphOverlay"), 
+														(LPCTSTR)_T("IDB_Overlay"), 
 														IMAGE_BITMAP, 
 														0, 
 														0, 
@@ -874,15 +873,6 @@ void CMGraphView::OnInitialUpdate (void)
 	graphRecordPtr->window = (CMImageView*)this;
 	
 }	// end "OnInitialUpdate"
-
-
-
-void CMGraphView::OnLines ()
-
-{
-			// Add your control notification handler code here
-	
-}	// end "OnLines"
 
 
 

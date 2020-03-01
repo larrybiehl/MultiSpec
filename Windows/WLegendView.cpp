@@ -96,6 +96,7 @@ CMLegendView::CMLegendView ()
 	m_dialogToPtr = NULL;
 	m_imageViewCPtr = NULL;
 	m_numberDisplayedListItems = 0;
+	m_localPaletteUpToDateFlag = FALSE;
 			
 	TRY
 		{                          
