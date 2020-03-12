@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/30/2018
+//	Revision date:			03/07/2020
 //
 //	Language:				C++
 //
@@ -318,7 +318,10 @@ void CMCoordinateBar::UpdateCoordinateView (
 
 	CComboBox* 							comboBoxPtr;
 
-	double								maxScale;
+	double								dpiScale,
+											maxScale;
+
+	int									iDpi;
 
 	UInt32								width;
 
@@ -326,30 +329,38 @@ void CMCoordinateBar::UpdateCoordinateView (
 
 
 	SetCoordinateViewLocationParameters (windowInfoHandle);
-	/*
+
+	CMImageView* imageViewCPtr = (CMImageView*)GetWindowPtr (windowInfoHandle);
+	dpiScale = imageViewCPtr->m_dpiScale;
+
+	
 			// Adjust location of map unit list.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_DisplayUnitsCombo);
 	comboBoxPtr->GetClientRect (&itemRect);
-	itemRect.top = 6;
-	itemRect.bottom = 28;
+	itemRect.left = (int)(dpiScale * 4);
+	itemRect.right = (int)(itemRect.left + itemRect.right);
+	itemRect.top = (int)(dpiScale * 8);
+	itemRect.bottom = (int)(itemRect.top + itemRect.bottom);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
-	*/
+	
 			// Adjust location of line symbol.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_LineSymbol);
 	comboBoxPtr->GetClientRect (&itemRect);
-	itemRect.top = 4;
-	itemRect.bottom = 16;
+	itemRect.top = (int)(dpiScale*4);
+	itemRect.bottom = itemRect.top + (int)(dpiScale*12);
 	itemRect.left = GetCoordinateViewCursorStart (windowInfoHandle) - 15;
-	itemRect.right = itemRect.left + 12;
+	itemRect.right = itemRect.left + (int)(dpiScale*12);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust location of column symbol.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ColumnSymbol);
-	itemRect.top = 18;
-	itemRect.bottom = 30;
+	//itemRect.top = 18;
+	//itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale*18);
+	itemRect.bottom = (int)(dpiScale*30);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust size of cursor line box.
@@ -358,8 +369,8 @@ void CMCoordinateBar::UpdateCoordinateView (
 	width = GetCoordinateViewSelectionStart (windowInfoHandle) -
 					GetCoordinateViewCursorStart (windowInfoHandle) -
 					10;
-	itemRect.top = 4;
-	itemRect.bottom = 16;
+	itemRect.top = (int)(dpiScale*4);
+	itemRect.bottom = (int)(dpiScale*16);
 	itemRect.left = GetCoordinateViewCursorStart (windowInfoHandle);
 	itemRect.right = itemRect.left + width;
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
@@ -367,17 +378,17 @@ void CMCoordinateBar::UpdateCoordinateView (
 			// Adjust size of cursor column box.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_CursorColumn);
-	itemRect.top = 18;
-	itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale*18);
+	itemRect.bottom = (int)(dpiScale*30);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Move separator box 1.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_Separator1);
-	itemRect.top = 5;
-	itemRect.bottom = 30;
-	itemRect.left = itemRect.right + 4;
-	itemRect.right = itemRect.left + 3;
+	itemRect.top = (int)(dpiScale*5);
+	itemRect.bottom = (int)(dpiScale*30);
+	itemRect.left = itemRect.right + (int)(dpiScale*4);
+	itemRect.right = itemRect.left + (int)(dpiScale*3);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust size of selection line box.
@@ -386,17 +397,17 @@ void CMCoordinateBar::UpdateCoordinateView (
 	width = GetCoordinateViewNumberPixelsStart (windowInfoHandle) -
 					GetCoordinateViewSelectionStart (windowInfoHandle) -
 					10;
-	itemRect.top = 4;
-	itemRect.bottom = 16;
+	itemRect.top = (int)(dpiScale*4);
+	itemRect.bottom = (int)(dpiScale*16);
 	itemRect.left = GetCoordinateViewSelectionStart (windowInfoHandle);
-	itemRect.right = itemRect.left + width;
+	itemRect.right = itemRect.left + (int)(dpiScale*width);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust size of selection column box.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_SelectionColumn);
-	itemRect.top = 18;
-	itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale*18);
+	itemRect.bottom = (int)(dpiScale*30);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust size and location of "number pixels box" box.
@@ -405,8 +416,8 @@ void CMCoordinateBar::UpdateCoordinateView (
 	width = GetCoordinateViewAreaPopupStart (windowInfoHandle) -
 					GetCoordinateViewNumberPixelsStart (windowInfoHandle) -
 					4;
-	itemRect.top = 4;
-	itemRect.bottom = 16;
+	itemRect.top = (int)(dpiScale*4);
+	itemRect.bottom = (int)(dpiScale*16);
 	itemRect.left = GetCoordinateViewNumberPixelsStart (windowInfoHandle);
 	itemRect.right = itemRect.left + width;
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
@@ -414,28 +425,28 @@ void CMCoordinateBar::UpdateCoordinateView (
 			// Adjust size and location of area box.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_NumberPixels);
-	itemRect.top = 18;
-	itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale*18);
+	itemRect.bottom = (int)(dpiScale*30);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Move area units popup box.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_AreaUnitsCombo);
 	comboBoxPtr->GetClientRect (&rect);
-	itemRect.top = 5;
-	itemRect.bottom = 200;
+	itemRect.top = (int)(dpiScale*5);
+	itemRect.bottom = (int)(dpiScale*200);
 	itemRect.left = GetCoordinateViewScaleStart (windowInfoHandle) - rect.right - 8;
 	itemRect.right = itemRect.left + rect.right;
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
-	comboBoxPtr->SetDroppedWidth (100);
+	comboBoxPtr->SetDroppedWidth ((UINT)(dpiScale*100));
 
 			// Move separator box 2.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_Separator2);
-	itemRect.top = 5;
-	itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale*5);
+	itemRect.bottom = (int)(dpiScale*30);
 	itemRect.left = GetCoordinateViewScaleStart (windowInfoHandle) - 5;
-	itemRect.right = itemRect.left + 3;
+	itemRect.right = itemRect.left + (int)(dpiScale*3);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 			// Adjust size and location of "scale" box.
@@ -476,8 +487,8 @@ void CMCoordinateBar::UpdateCoordinateView (
 	width = MAX (50, width);
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_ScalePrompt);
-	itemRect.top = 4;
-	itemRect.bottom = 16;
+	itemRect.top = (int)(dpiScale * 4);
+	itemRect.bottom = (int)(dpiScale * 16);
 	itemRect.left = GetCoordinateViewScaleStart (windowInfoHandle);
 	itemRect.right = itemRect.left + width;
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
@@ -485,8 +496,8 @@ void CMCoordinateBar::UpdateCoordinateView (
 			// Adjust size and location of scale value box.
 
 	comboBoxPtr = (CComboBox*)GetDlgItem (IDC_Scale);
-	itemRect.top = 18;
-	itemRect.bottom = 30;
+	itemRect.top = (int)(dpiScale * 18);
+	itemRect.bottom = (int)(dpiScale * 30);
 	comboBoxPtr->MoveWindow (&itemRect, FALSE);
 
 	Invalidate ();

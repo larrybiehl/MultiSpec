@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/23/2019
+//	Revision date:			03/06/2020
 //
 //	Language:				C
 //
@@ -3010,7 +3010,7 @@ Boolean ReadGDALColorTable (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/16/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/06/2020
 
 UInt16 ReadGDALCompressionInformation (
 				GDALDatasetH						hDS,
@@ -3069,6 +3069,10 @@ UInt16 ReadGDALCompressionInformation (
 			else if (CompareStringsNoCase (
 												metaDataStringPtr, (UCharPtr)"DEFLATE", 7) == 0)
 				dataCompressionCode = kDeflateCompression;
+
+			else if (CompareStringsNoCase (
+												metaDataStringPtr, (UCharPtr)"YCbCr JPEG", 10) == 0)
+				dataCompressionCode = kYCbCr_JPEGCompression;
 				
 			else
 				dataCompressionCode = kUnknownCompression;

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/31/2018
+//	Revision date:			03/09/2020
 //
 //	Language:				C++
 //
@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP (CMImageView, CScrollView)
 	ON_COMMAND (ID_EDIT_CUT, OnEditCut)
 	ON_COMMAND (ID_EDIT_PASTE, OnEditPaste)
 
+	ON_MESSAGE (WM_DPICHANGED, OnDPIChanged)
 	ON_MESSAGE (WM_DOREALIZE, OnDoRealize)
 
 	ON_UPDATE_COMMAND_UI (ID_EDIT_CLEAR, OnUpdateEditClear)
@@ -121,11 +122,13 @@ END_MESSAGE_MAP ()
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 02/26/1997	
+//	Revised By:			Larry L. Biehl			Date: 03/07/2020	
 
 CMImageView::CMImageView ()
 
 {  
+	m_dpiScale = 1.;
+	m_printerTextScaling = 1.;
 	m_displayMultiCPtr = NULL;
 	m_histogramCPtr = NULL;
 	m_imageWindowCPtr = NULL;
@@ -137,7 +140,6 @@ CMImageView::CMImageView ()
 	m_printCopyModeFlag = FALSE;
 	m_cursorColumnValue = -1;
 	m_cursorLineValue = -1;
-	m_printerTextScaling = 1.; 
 	m_xPixelsPerInch = 72;
 	m_yPixelsPerInch = 72;
 	m_initializedFlag = FALSE;
@@ -1137,6 +1139,24 @@ LRESULT CMImageView::OnDoRealize (
 
 
 
+LRESULT CMImageView::OnDPIChanged (
+				WPARAM 								wParam,
+				LPARAM								lParam)
+
+{
+			// Get the new dpi scaling for the window.
+
+	m_dpiScale = GetDpiForWindow (m_hWnd);
+	m_dpiScale = MAX (1., m_dpiScale / 96);
+
+			// The message was processed; return 0
+
+	return (0);
+
+}	// end "OnDPIChanged"
+
+
+
 void CMImageView::OnDraw (
 				CDC* 									pDC)
 				
@@ -1325,8 +1345,13 @@ void CMImageView::OnInitialUpdate (void)
 											pageIncrement;
 							
 	SInt16								windowType;
-							                      
-   
+
+
+			// Get the current dpi scaling for the window.
+
+	m_dpiScale = GetDpiForWindow (m_hWnd);
+	m_dpiScale = MAX (1., m_dpiScale / 96);
+
    lineIncrement.cx = 10;
    lineIncrement.cy = 10;
    
@@ -1623,20 +1648,29 @@ void CMImageView::OnMouseMove (
 							}	// end "if (GetAsyncKeyState (VK_LBUTTON))"
 
 						else	// left mouse button is up
-							MSetCursor (kBlinkOpenCursor2);
+							{
+							if (gPresentCursor != kBlinkOpenCursor2)
+								MSetCursor (kBlinkOpenCursor2);
+							
+							}	// end "else left mouse button is up"
 					
 						}	// end "if (GetKeyState (VK_SHIFT) & 0x8000)"
 				
 					else	// !(GetKeyState (VK_SHIFT) & 0x8000)
 						{
-						MSetCursor (kCross);
+						if (gPresentCursor != kCross)
+							MSetCursor (kCross);
 					
 						}	// end "else !(GetKeyState (VK_SHIFT) & 0x8000)"
 
 					}	// end "if (GetWindowType () == kThematicImageType)"
 				
 				else	// windowType != kThematicImageType
-					MSetCursor (kCross);
+					{
+					if (gPresentCursor != kCross)
+						MSetCursor (kCross);
+
+					}	// end else	windowType != kThematicImageType
 
 				}	// end "if (cursorOverImageFlag))"
 
@@ -2026,7 +2060,13 @@ BOOL CMImageView::OnSetCursor (
 										gPresentCursor != kBlinkShutCursor2)
 			{		
 			MSetCursor (kCross);
-
+			/*
+			int numberChars2 = sprintf ((char*)gTextString3,
+				" WImageView:OnSetCursor (active image and soffscreen): %d%s",
+				gPresentCursor,
+				gEndOfLine);
+			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
+			*/
 			}	// end "if (gPresentCursor != kCross && ..."
 		
 																					return (TRUE);
@@ -2041,7 +2081,13 @@ BOOL CMImageView::OnSetCursor (
 			gActiveImageViewCPtr->UpdateCursorCoordinates ();
 				
 		gPresentCursor = kArrow;
-			
+		/*	
+			int numberChars = sprintf ((char*)gTextString3,
+								" WImageView:OnSetCursor (not active image or no offscreen): %d%s",
+								gPresentCursor,
+								gEndOfLine);
+			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
 		return CScrollView::OnSetCursor (pWnd, nHitTest, message);
 		   	
 		}	// end "else !GetActiveWindowFlag () || ..."

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			02/29/2020
+//	Revision date:			03/07/2020
 //
 //	Language:				C
 //
@@ -63,6 +63,7 @@
 #if defined multispec_win
 	#include	"SDisplay_class.h"
 	#include "SHistogram_class.h"
+	#include "WMultiSpec.h"
 	//#include "CProcessor.h"
 
 	#include "WDialog.h"
@@ -2237,7 +2238,7 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 03/19/2019
+//	Revised By:			Larry L. Biehl			Date: 03/07/2020
 
 void	DrawSideBySideTitles (
 				wxDC*									titleBarDCPtr,
@@ -2407,7 +2408,8 @@ void	DrawSideBySideTitles (
 							sizeof (LOGFONT), 
 							&logfont); 
 							
-		logfont.lfHeight = 10;
+		//logfont.lfHeight = 10;
+		logfont.lfHeight = ((CMultiSpecApp*)AfxGetApp())->getFontHeightForDefaultDC (10.0);
 		if (windowPtr->m_pDC->IsPrinting ())          
 			logfont.lfHeight = (SInt16)
 							(logfont.lfHeight * gActiveImageViewCPtr->m_printerTextScaling);   
@@ -6521,7 +6523,7 @@ void MInitCursor (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/29/1995
-//	Revised By:			Larry L. Biehl			Date: 10/17/2019
+//	Revised By:			Larry L. Biehl			Date: 03/09/2020
  
 void MSetCursor (
 				SInt16								cursorIndex)
@@ -6536,10 +6538,13 @@ void MSetCursor (
 	#endif	// defined multispec_mac  
 
 	#if defined multispec_win
+		if (gPresentCursor == kWait && cursorIndex != kWait)
+			AfxGetApp()->DoWaitCursor (-1);
+		
 		switch (cursorIndex)
 			{
 			case kArrow:
-				AfxGetApp()->DoWaitCursor (-1);                   
+				//AfxGetApp()->DoWaitCursor (-1);                   
 				::SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
 				break;
 	  
@@ -6548,33 +6553,33 @@ void MSetCursor (
 				break;
 				
 			case kCross:
-				AfxGetApp()->DoWaitCursor (-1); 
+				//AfxGetApp()->DoWaitCursor (-1); 
 				//::SetCursor (AfxGetApp()->LoadCursor (IDC_CROSS_CURSOR));
 				::SetCursor (AfxGetApp()->LoadCursor (gCrossCursorID));
 				break;
 			
 			case kBlinkOpenCursor1:
-				AfxGetApp()->DoWaitCursor (-1); 
+				//AfxGetApp()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_OPEN));
 				break;
 			
 			case kBlinkOpenCursor2:
-				AfxGetApp()->DoWaitCursor (-1); 
+				//AfxGetApp()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_OPEN));
 				break;
 				
 			case kBlinkShutCursor1:
-				AfxGetApp()->DoWaitCursor (-1); 
+				//AfxGetApp()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_SHUT));
 				break;
 				
 			case kBlinkShutCursor2:
-				AfxGetApp()->DoWaitCursor (-1); 
+				//AfxGetApp()->DoWaitCursor (-1); 
 				::SetCursor (AfxGetApp()->LoadCursor (IDC_BLINK_SHUT));
 				break;
 				
 			default:
-				AfxGetApp()->DoWaitCursor (-1);                   
+				//AfxGetApp()->DoWaitCursor (-1);                   
 				::SetCursor (AfxGetApp()->LoadStandardCursor (IDC_ARROW));
 				cursorIndex = kArrow;
 				break;

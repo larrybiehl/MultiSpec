@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/11/2020
+//	Revision date:			03/07/2020
 //
 //	Language:				C
 //
@@ -39,6 +39,7 @@
   
 #if defined multispec_win 
 	#include "WImageView.h"
+	#include "WMultiSpec.h"
 #endif	// defined multispec_win 
 
 #if defined multispec_wx   
@@ -726,7 +727,7 @@ void OutlineFieldsInProjectBaseWindows (
 //							ChangeProjectAssociatedImageItem in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
-//	Revised By:			Larry L. Biehl			Date: 04/11/2019
+//	Revised By:			Larry L. Biehl			Date: 03/07/2020
 
 void OutlineFieldsControl (
 				SInt16								statsWindowMode,
@@ -895,8 +896,8 @@ void OutlineFieldsControl (
 					
 							// Change to Courier font. 
 				                           
-					//logfont.lfHeight = 0xfffa;
-					logfont.lfHeight = -10;
+					//logfont.lfHeight = -10;
+					logfont.lfHeight = -((CMultiSpecApp*)AfxGetApp())->getFontHeightForDefaultDC (10.0);
 					if (windowCode == kToPrintWindow)
 						logfont.lfHeight = 
 								(SInt16)(windowPtr->m_printerTextScaling * logfont.lfHeight);

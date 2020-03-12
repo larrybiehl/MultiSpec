@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/30/2018
+//	Revision date:			03/03/2020
 //
 //	Language:				C++
 //
@@ -32,6 +32,7 @@
 #include "SMultiSpec.h"
                    
 #include "WImageView.h"
+#include "WMultiSpec.h"
 #include "WTextDoc.h"
 #include "WTextView.h"
 
@@ -246,11 +247,18 @@ int CMTextView::OnCreate (
 
 			// Set font to be used.
 	
-	::GetObject (GetStockObject (SYSTEM_FIXED_FONT), sizeof (LOGFONT), &lf);
+	::GetObject (GetStockObject (SYSTEM_FIXED_FONT), sizeof (LOGFONT), &lf); 
+	
+			// Get the font size based on the system 
+
+	long				lfHeight;
+
+	lfHeight = ((CMultiSpecApp*)AfxGetApp())->getFontHeightForDefaultDC (10.0);
+	//lfHeight = 10;
 	
 			// Change to Courier font.
 	
-	lf.lfHeight = 10;
+	lf.lfHeight = lfHeight;		//  10;
 	lf.lfWidth = 0;
 	lf.lfQuality = DEFAULT_QUALITY;
 

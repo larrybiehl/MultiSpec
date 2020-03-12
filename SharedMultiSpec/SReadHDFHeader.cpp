@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			03/09/2020
 //
 //	Language:				C
 //
@@ -2859,7 +2859,7 @@ void GetMapInfoFromGridStructure (
 											seconds,
 											sphereCode,
 											upperLeftPixelCoordinates[2],
-											xDim,
+											xDim = 0,
 											yDim;
 											
 	SInt16								returnCode;
@@ -4466,20 +4466,22 @@ Boolean GetNewHDF4FileReferences (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 07/28/2015
-//	Revised By:			Larry L. Biehl			Date: 11/25/2019
+//	Revised By:			Larry L. Biehl			Date: 03/09/2020
 
 SInt32 GetSdidValue (
 				HdfDataSets*		 				hdfDataSetsPtr)
 				
 {	
+	SInt64								sdid64;
 	SInt32								sdidValue;
 	
 	#if defined multispec_mac || defined multispec_win
-		sdidValue = (SInt32)hdfDataSetsPtr->sdid;
+		sdid64 = (SInt64)hdfDataSetsPtr->sdid;
+		sdidValue = (SInt32)sdid64;
 	#endif
 	
 	#if defined multispec_wx
-		SInt64 sdid64 = (SInt64)hdfDataSetsPtr->sdid;
+		sdid64 = (SInt64)hdfDataSetsPtr->sdid;
 		sdidValue = (SInt32)sdid64;
 	#endif
 	
@@ -4507,7 +4509,7 @@ SInt32 GetSdidValue (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2005
-//	Revised By:			Larry L. Biehl			Date: 01/05/2018
+//	Revised By:			Larry L. Biehl			Date: 03/09/2020
 
 SInt16 GetSpecificTextAttributeInformation (
 				SInt32		 						id,
@@ -4635,7 +4637,7 @@ SInt16 GetSpecificTextAttributeInformation (
 								// The = string was found. Now get the number of values.
 								// Skip "="
 								
-						length = stringPtr - &bufferPtr[bufferIndex];
+						length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 						bufferIndex += length;
 						attributeSize -= length;
 				 		returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
@@ -4660,7 +4662,7 @@ SInt16 GetSpecificTextAttributeInformation (
 						{
 								// VALUE string was found. Now get the following = string.
 								
-						length = stringPtr - &bufferPtr[bufferIndex];
+						length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 						bufferIndex += length;
 						attributeSize -= length;
 						stringPtr = (UCharPtr)strstr ((char*)&bufferPtr[bufferIndex], "=");
@@ -4672,7 +4674,7 @@ SInt16 GetSpecificTextAttributeInformation (
 						{
 								// The = string found. Now read the requested string.
 									
-						length = stringPtr - &bufferPtr[bufferIndex];
+						length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 						bufferIndex += length;
 						attributeSize -= length;
 							
@@ -4745,7 +4747,7 @@ SInt16 GetSpecificTextAttributeInformation (
 							 		{
 							 				// Get the 2nd string parameter
 							 				
-									length = strlen ((char*)outputString1Ptr) + 5;
+									length = (SInt32)strlen ((char*)outputString1Ptr) + 5;
 									bufferIndex += length;
 									stringPtr = &bufferPtr[bufferIndex];
 										
@@ -4882,7 +4884,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 								{
 										// Now search for object string
 										
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;			
 								stringPtr = (UCharPtr)strstr (
@@ -4895,7 +4897,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 								{
 										// Object string was found. Now get the NUM_VAL string.
 										
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;
 								stringPtr = (UCharPtr)strstr (
@@ -4909,7 +4911,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 										// NUM_VAL string was found. Now get the following 
 										// = string.
 										
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;
 								stringPtr = (UCharPtr)strstr (
@@ -4923,7 +4925,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 										// The = string was found. Now get the number of values.
 										// Skip "="
 										
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;
 						 		returnCode = sscanf ((char*)&bufferPtr[bufferIndex], 
@@ -4949,7 +4951,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 										// VALUE string was found. Now get the following 
 										// = string.
 										
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;
 								stringPtr = (UCharPtr)strstr (
@@ -4962,7 +4964,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 								{
 										// The = string found. Now read the requested values.
 											
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 								bufferIndex += length;
 								attributeSize -= length;
 								
@@ -5230,7 +5232,7 @@ SInt32 GetNumberOfValidDataSets (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/2002
-//	Revised By:			Larry L. Biehl			Date: 11/25/2019
+//	Revised By:			Larry L. Biehl			Date: 03/09/2020
 
 Boolean ListAttributeInformation (
 				SInt32		 						id,
@@ -5364,7 +5366,7 @@ Boolean ListAttributeInformation (
 								}	// end "if (stringPtr == NULL)"
 								
 							else	// stringPtr != NULL
-								length = stringPtr - &bufferPtr[bufferIndex];
+								length = (SInt32)(stringPtr - &bufferPtr[bufferIndex]);
 							
 									// Limit the line length to maxLength characters.
 									
@@ -5917,7 +5919,7 @@ Boolean LoadNonBSQOffsetBytesInfo (
 // Called By:			LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/2001
-//	Revised By:			Larry L. Biehl			Date: 09/04/2018
+//	Revised By:			Larry L. Biehl			Date: 03/09/2020
 
 SInt32 LoadHdfDataSetNames (
 				SInt32		 						file_id,
@@ -6131,7 +6133,7 @@ SInt32 LoadHdfDataSetNames (
 					
 				strcpy ((char*)&hdfDataSetsPtr[index].name[2], (char*)name);
 				hdfDataSetsPtr[index].name[0] = 
-												strlen ((char*)&hdfDataSetsPtr[index].name[1]);
+											(UInt8)strlen ((char*)&hdfDataSetsPtr[index].name[1]);
 				/*
 				hdfDataSetsPtr[index].name[0] = CreateDataSetIdentifierName (
 																fileName,

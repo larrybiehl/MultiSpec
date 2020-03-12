@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMImageView class
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 11/01/2019
+//	Revised By:				Larry L. Biehl			Date: 03/07/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -165,7 +165,8 @@ class CMImageView : public CScrollView
 				// Pointer to the histogram class for the image.
 		CMHistogram*						m_histogramCPtr;
 	
-		double 								m_printerTextScaling;
+		double 								m_dpiScale,
+												m_printerTextScaling;
 	
 		SInt16								m_xPixelsPerInch;
 		SInt16								m_yPixelsPerInch;
@@ -194,6 +195,10 @@ class CMImageView : public CScrollView
 				BOOL									bActivate,
 				CView*								pActivateView,
 				CView*								pDeactiveView);
+
+		LRESULT CMImageView::OnDPIChanged (
+			WPARAM 								wParam,
+			LPARAM								lParam);
 		
 		virtual void OnInitialUpdate ();	// first time after construct
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/03/2020
+//	Revision date:			03/07/2020
 //
 //	Language:				C++
 //
@@ -419,7 +419,23 @@ int CMainFrame::OnCreate (
 		{
 		SInt16 itemID = m_wndToolBar.GetItemID (12);
 		CWnd* zoomInWindow = GetDlgItem (itemID);
+		/*	
+				//get DPI scaling 
 		
+		double fx = GetSystemMetrics(SM_CXSMICON) / 16.0f;
+		double fy = GetSystemMetrics(SM_CYSMICON) / 16.0f;
+		if (fx < 1) fx = 1;
+		if (fy < 1) fy = 1;
+
+		CRect temp;
+		m_wndToolBar.GetItemRect(0, &temp);
+		temp.MoveToXY(0, 0);
+		temp.right = int(temp.right * fx);
+		temp.bottom = int(temp.bottom * fy);
+
+		CSize bmp_size (16, 15);
+		m_wndToolBar.SetSizes (temp.Size(), bmp_size);
+		*/
 		}	// end "else Tool bar created"
 
 	if (!m_wndStatusBar.Create (this) ||

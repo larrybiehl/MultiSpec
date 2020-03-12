@@ -380,6 +380,55 @@ int CMultiSpecApp::ExitInstance ()
 }	// end "ExitInstance"
 
 
+		// returns font height for the appropriate screen
+
+long CMultiSpecApp::getFontHeightForDefaultDC (
+				double								pointSize)		
+
+{
+			// this function can be optimized by using a simple cache on the point size (worth it in some situations!)
+
+	HDC		hdc;
+
+	hdc = ::GetDC (NULL);
+	long height = getFontHeight (hdc, pointSize);
+	::ReleaseDC (NULL, hdc);
+
+	return (height);
+
+}	// end "getFontHeightForDefaultDC"
+
+
+long CMultiSpecApp::getFontHeight (
+				HDC									hDC,
+				double								pointSize)		// returns font height for the appropriate screen
+
+{
+	long	pixPerInch = GetDeviceCaps(hDC, LOGPIXELSY);
+	long	lfHeight = (long)((pointSize * (double)pixPerInch) / 72.0);
+
+	return lfHeight;
+}
+
+/*
+long CMultiSpecApp::getFontHeight (
+				CDC*									dc,			// can be NULL for default screen
+				double								pointSize)	// returns font height for the appropriate screen
+
+{
+	if (dc == NULL)
+		{
+		return getFontHeightForDefaultDC (pointSize);
+		}
+
+	else
+		{
+		return getFontHeight (dc->GetSafeHdc(), pointSize);
+		}
+
+}	// end "getFontHeight"
+*/
+
 #ifdef _DEBUG
 		 // Non-debug version is inline
 

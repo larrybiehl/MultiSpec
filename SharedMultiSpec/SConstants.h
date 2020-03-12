@@ -26,7 +26,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 12/20/2019
+//	Revised By:				Larry L. Biehl			Date: 03/06/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -729,7 +729,8 @@
 #define	kFletcher32Compression		15
 #define	kScaleOffsetCompression		16
 #define	kDeflateCompression			17
-#define	kUnknownCompression			18
+#define	kYCbCr_JPEGCompression		18
+#define	kUnknownCompression			19
 
 		// Data type constants
 #define	kIntegerType				0

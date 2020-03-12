@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			02/18/2020
+//	Revision date:			03/08/2020
 //
 //	Language:				C
 //
@@ -62,7 +62,7 @@ extern void GetApplicationStartupPath (
 // Called By:			DoUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 02/18/2020		
+//	Revised By:			Larry L. Biehl			Date: 03/08/2020		
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -370,6 +370,7 @@ void CopyOffScreenImage (
 
 		sourceRect.top = (int) lpDIBHdr->bmiHeader.biHeight - sourceRect.bottom;
 
+		//if (drawBaseImageFlag || !drawBaseImageFlag)
 		if (drawBaseImageFlag)
 			{
 			hDC = pDC->GetSafeHdc ();
@@ -913,6 +914,6 @@ SInt16 TextWidth (
 	else	//
 		size.cx = byteCount * 6;
 
-	return ((SInt16) size.cx);
+	return ((SInt16)size.cx);
 
 }	// end "TextWidth"

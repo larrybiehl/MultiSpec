@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/29/2020
+//	Revision date:			03/09/2020
 //
 //	Language:				C++
 //
@@ -187,7 +187,8 @@ CMGraphView::CMGraphView ()
 			
 					// Change to Courier font. 
 
-			lf.lfHeight = 10;   
+			//lf.lfHeight = 10;
+			lf.lfHeight = ((CMultiSpecApp*)AfxGetApp())->getFontHeightForDefaultDC (10.0);
 			lf.lfWidth = 0;    
 			lf.lfQuality = DEFAULT_QUALITY;
 				
@@ -569,7 +570,10 @@ void CMGraphView::OnDraw (
 		
 		::GetObject (GetStockObject (ANSI_VAR_FONT), sizeof (LOGFONT), &logfont);
 
-		logfont.lfHeight = (int)(10 * graphRecordPtr->textScaling);   
+		//logfont.lfHeight = (int)(10 * graphRecordPtr->textScaling);
+		logfont.lfHeight = (LONG)
+				(((CMultiSpecApp*)AfxGetApp())->getFontHeightForDefaultDC (10.0) * 
+																		graphRecordPtr->textScaling);
 		logfont.lfWidth = 0;    
 		logfont.lfQuality = DEFAULT_QUALITY;
 		                                                            

@@ -9714,13 +9714,14 @@ void SetCoefficientsHandle (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 11/08/2000
-//	Revised By:			Larry L. Biehl			Date: 08/16/2019
+//	Revised By:			Larry L. Biehl			Date: 03/07/2020
 
 void SetCoordinateViewLocationParameters (
 				Handle								windowInfoHandle)
 
 {
 	double								conversion,
+											dpiScale = 1,
 											factor = 1.;
 									
 	MapProjectionInfoPtr 			mapProjectionInfoPtr;
@@ -9991,10 +9992,11 @@ void SetCoordinateViewLocationParameters (
 	#endif	// defined multispec_mac   
                              
 	#if defined multispec_win
-	 
+		imageViewCPtr = (CMImageView*)GetWindowPtr (windowInfoHandle);
+		dpiScale = imageViewCPtr->m_dpiScale;
 	#endif	// defined multispec_win 
 						
-	width = TextWidth (gTextString, 0, numberChars) + 10;
+	width = (SInt16)(dpiScale * TextWidth (gTextString, 0, numberChars) + 10);
 	
 			// Store the location to start writing the selection information.
 	
@@ -10028,7 +10030,7 @@ void SetCoordinateViewLocationParameters (
 									maxNumberSelectionCharacters, 
 									" ");
 									
-	width = TextWidth (gTextString, 0, numberChars) + 10;
+	width = (SInt16)(dpiScale * TextWidth (gTextString, 0, numberChars) + 10);
 	
 			// Store the location to start writing the number of pixels.
 	
@@ -10123,7 +10125,7 @@ void SetCoordinateViewLocationParameters (
 			// Store the location to start the area unit popup menu.
 			//		First get the width of the maximum number of pixels.
 			
-	width = TextWidth (gTextString, 0, maxNumberCharacters) + 4;
+	width = (SInt16)(dpiScale * TextWidth (gTextString, 0, maxNumberCharacters) + 4);
 			
 	areaUnitsCode = GetCoordinateViewAreaUnits (windowInfoHandle);
 	areaUnitsControl = GetCoordinateViewAreaUnitsControl (windowInfoHandle);
@@ -10135,7 +10137,6 @@ void SetCoordinateViewLocationParameters (
 	#endif	// defined multispec_mac 
 	                             
 	#if defined multispec_win
-		imageViewCPtr = GetWindowPtr (windowInfoHandle);
 		imageFrameCPtr = imageViewCPtr->GetImageFrameCPtr ();
 
 		if (imageFrameCPtr != NULL)
@@ -10143,7 +10144,7 @@ void SetCoordinateViewLocationParameters (
 															(char*)gTextString, IDC_AreaUnitsCombo);
 	#endif	// defined multispec_win
 
-	width = MAX (width, StringWidth (gTextString));
+	width = MAX (width, (SInt16)(dpiScale * StringWidth (gTextString)));
 	
 	SetCoordinateViewAreaPopupStart (
 						windowInfoHandle, 
@@ -10151,9 +10152,11 @@ void SetCoordinateViewLocationParameters (
 	
 			// Store the location to start the scale.
 	
+	width = GetCoordinateViewAreaPopupStart (windowInfoHandle) +
+																			(SInt16)(dpiScale * 28);
 	SetCoordinateViewScaleStart (
 						windowInfoHandle, 
-						GetCoordinateViewAreaPopupStart (windowInfoHandle)+28);
+						width);
 			
 	#if defined multispec_mac 
 		SetPort (savedPort);

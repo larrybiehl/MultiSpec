@@ -175,8 +175,16 @@ bool CMTextView::OnCreate (
 											wxPoint (0, 0),
 											wxSize (width, height),
 											wxTE_MULTILINE); //wxHSCROLL|wxTE_READONLY|
-	wxFont textwf (
-				gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	//wxFont textwf (
+				//gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	wxFont textwf (gFontSize,
+						wxFONTFAMILY_MODERN,
+						wxFONTSTYLE_NORMAL,
+						wxFONTWEIGHT_NORMAL,
+						false,
+						wxT("Courier"));
+				//gFontSize, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	//wxFont textwf (wxFontInfo(gFontSize).FaceName("Courier New"));
 	m_textsw->StyleSetFont (wxSTC_STYLE_DEFAULT, textwf);
    m_textsw->StyleClearAll ();
 	

@@ -150,7 +150,9 @@
 #define IDS_Erdas73Type                 266
 #define IDS_Erdas74Type                 267
 #define IDS_FileIO68                    268
+#define IDR_TOOLBAR1                    268
 #define IDS_FileIO69                    269
+#define IDB_BITMAP1                     269
 #define IDS_FileIO70                    270
 #define IDS_FileIO71                    271
 #define IDS_FileIO72                    272
@@ -2246,6 +2248,8 @@
 #define IDS_Compression17               5817
 #define IDS_STRING5818                  5818
 #define IDS_Compression18               5818
+#define IDS_Compression19               5819
+#define IDS_Compression20               5820
 #define IDS_ReferenceSystem01           5901
 #define IDS_ReferenceSystem02           5902
 #define IDS_ReferenceSystem03           5903
@@ -2398,7 +2402,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        268
+#define _APS_NEXT_RESOURCE_VALUE        270
 #define _APS_NEXT_COMMAND_VALUE         32931
 #define _APS_NEXT_CONTROL_VALUE         1922
 #define _APS_NEXT_SYMED_VALUE           111

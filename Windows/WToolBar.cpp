@@ -120,7 +120,7 @@ UINT CMToolBar::ConvertToID (
 
 	else if ((point.x>=262)&&(point.x<=283))
 																							return 14;
-
+	
 	return 0;
 
 }	// end "ConvertToID"
@@ -131,10 +131,39 @@ void CMToolBar::IsZoomPressed (
 				CPoint 								point)
 
 {
-	if ((point.x>=186) &&
-		 		(point.x<=283) && // 252
-		 				(point.y<=24))
-		m_iButtonCapture = ConvertToID (point);
+	RECT									itemRect;
+
+
+	//if ((point.x>=186) &&
+	//	 		(point.x<=283) && // 252
+	//	 				(point.y<=24))
+	//	m_iButtonCapture = ConvertToID (point);
+
+	m_iButtonCapture = 0;
+	GetItemRect (11, &itemRect);
+	if (point.y <= itemRect.bottom)
+		{
+		if (point.x >= itemRect.left &&
+								point.x <= itemRect.right)
+			m_iButtonCapture = 11; 
+		
+		else // point.x not in button 11
+			{
+			GetItemRect (12, &itemRect);
+			if (point.x >= itemRect.left &&
+				point.x <= itemRect.right)
+				m_iButtonCapture = 12;
+
+			else
+				{
+				GetItemRect (14, &itemRect);
+				if (point.x >= itemRect.left &&
+					point.x <= itemRect.right)
+					m_iButtonCapture = 14;
+
+				}
+			}
+		}
 
 }	// end "IsZoomPressed"
 

@@ -59,7 +59,18 @@ class CMultiSpecApp : public CWinApp
 				SInt32								lCount);
 
 		void ExitApplication (void);
-	
+		
+		long getFontHeightForDefaultDC (
+				double								pointSize);
+
+		long getFontHeight (
+				HDC									hDC,
+				double								pointSize);
+		/*
+		long getFontHeight (
+				CDC*									dc,
+				double								pointSize);
+		*/
 		CMultiDocTemplate* GetGraphDocTemplate (void);
 	
 		Handle GetOpenImageFileInfoHandle (void);

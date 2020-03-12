@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/27/2019
+//	Revision date:			03/08/2020
 //
 //	Language:				C
 //
@@ -1897,7 +1897,7 @@ HPtr GetImageOverlayLineOffscreenPointer (
 // Called By:			SetUpImageOverlayInformation
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2002
-//	Revised By:			Larry L. Biehl			Date: 04/23/2019
+//	Revised By:			Larry L. Biehl			Date: 03/08/2020
 
 SInt16 GetOverlayOffscreenGWorld (
 				UInt32								numberClasses, 
@@ -2012,7 +2012,7 @@ SInt16 GetOverlayOffscreenGWorld (
 			colorTablePtr[tableIndex] = (colorSpecPtr[index].rgb.blue >> 8);
 			colorTablePtr[tableIndex+1] = (colorSpecPtr[index].rgb.green >> 8);
 			colorTablePtr[tableIndex+2] = (colorSpecPtr[index].rgb.red >> 8);
-			colorTablePtr[tableIndex+3] = 0x7f;		// 0xff
+			colorTablePtr[tableIndex+3] = 0xff;		// 0xef;
 		#endif	// defined multispec_mac 
 
 		tableIndex += 4;
