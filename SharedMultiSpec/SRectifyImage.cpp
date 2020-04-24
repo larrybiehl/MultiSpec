@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/08/2019
+//	Revision date:			04/16/2020
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -480,7 +480,7 @@ void GetMappingMatrix (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/15/2007
-//	Revised By:			Larry L. Biehl			Date: 11/08/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 SInt16 GetReprojectToImageList (
 				DialogPtr							dialogPtr, 
@@ -592,11 +592,11 @@ SInt16 GetReprojectToImageList (
 						comboBoxPtr =
 									(CComboBox*)dialogPtr->GetDlgItem (IDC_ReferenceFileList);
 						comboBoxPtr->AddString ((LPCTSTR)_T("\0NewFile\0"));
-						UCharPtr fileNamePtr =
-									(UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
+						FileStringPtr fileNamePtr =
+									(FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
 						dialogPtr->SetComboItemText (IDC_ReferenceFileList, 
 																imageListLength-1, 
-																&fileNamePtr[1],
+																&fileNamePtr[2],
 																kUTF8CharString);
 						comboBoxPtr->SetItemData (imageListLength-1, windowIndex);
 																
@@ -609,7 +609,7 @@ SInt16 GetReprojectToImageList (
 						imageListLength++;
 						FileStringPtr fileNamePtr =
 								(FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-						referenceListCtrl->Append (&fileNamePtr[1]);
+						referenceListCtrl->Append (&fileNamePtr[2]);
 						SInt64 windowIndex64 = windowIndex;
 						referenceListCtrl->SetClientData (
 														imageListLength-1, (void*)windowIndex64);

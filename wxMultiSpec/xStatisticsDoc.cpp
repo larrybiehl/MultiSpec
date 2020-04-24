@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        06/20/2017
+//   Revision date:        04/21/2020
 //
 //   Language:					C++
 //
@@ -83,7 +83,7 @@ bool CMStatisticsDoc::OnNewDocument (void)
 	if (!wxDocument::OnNewDocument ())
 																							return FALSE;
 	
-	SetTitle ("Select Field");
+	SetTitle (wxT("Select Field"));
 		
 	return TRUE;
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			03/28/2020
 //
 //	Language:				C
 //
@@ -133,7 +133,8 @@ extern SInt16 ReadGDALHeaderInformation (
 
 extern SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr							fileInfoPtr,
-				GDALDatasetH						hDS);
+				GDALDatasetH						hDS,
+				Boolean								vectorFlag);
 
 										
 		// Routines created in a GDAL routine
@@ -2105,7 +2106,7 @@ Boolean ListHDF5FileInformation (
 // Called By:			LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/18/2012
-//	Revised By:			Larry L. Biehl			Date: 07/29/2018
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 SInt32 LoadHdf5DataSetNames (
 				GDALDatasetH						hDS,
@@ -2215,7 +2216,10 @@ SInt32 LoadHdf5DataSetNames (
 					// from the file used to store the data in.
 					
 			fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-			CopyPToP (hdfDataSetsPtr[0].name, fileNamePtr);
+			//CopyPToP (hdfDataSetsPtr[0].name, fileNamePtr);
+			CopyFileStringToFileString (fileNamePtr,
+													hdfDataSetsPtr[0].name,
+													256);
 			hdfDataSetsPtr[0].vRefNum = GetVolumeReferenceNumber (fileInfoPtr);
 			hdfDataSetsPtr[0].dirID = GetParID (fileInfoPtr);
 			hdfDataSetsPtr[0].sdid = 0;
@@ -2715,7 +2719,7 @@ SInt32 LoadHdf5DataSetNames (
 // Called By:			FileSpecificationDialogSetHDFValues in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/21/2012
-//	Revised By:			Larry L. Biehl			Date: 07/13/2016
+//	Revised By:			Larry L. Biehl			Date: 03/28/2020
 
 SInt16 LoadHDF5HeaderInformation (
 				HdfDataSets*						hdfDataSetsPtr,
@@ -2756,7 +2760,8 @@ SInt16 LoadHDF5HeaderInformation (
 		if (returnCode == noErr)
 			returnCode = ReadGDALProjectionInformation (
 										fileInfoPtr, 
-										(GDALDatasetH)hdfDataSetsPtr[dataSetIndex].sdid);
+										(GDALDatasetH)hdfDataSetsPtr[dataSetIndex].sdid,
+										false);
 																	
 		}	// end "if (hdfDataSetsPtr != NULL)"
 															

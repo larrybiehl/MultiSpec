@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2020
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -2762,7 +2762,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 11/04/2019
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2847,7 +2847,7 @@ void ChangeImageFormatDialogInitialize (
 	#endif	// defined multispec_mac 
 
 	#if defined multispec_win || defined multispec_wx
-		LoadDItemString (dialogPtr, IDC_InputFileName, (Str255*)fileNamePtr);
+		LoadDItemString (dialogPtr, IDC_InputFileName, (char*)&fileNamePtr[2]);
 	#endif
 	
 			// item = 7: Number of lines in input image.									
@@ -3010,6 +3010,20 @@ void ChangeImageFormatDialogInitialize (
 									kInitializeLineColumnValues, 
 									kIntervalEditBoxesExist,
 									1);
+
+			// Handle case where the last transform was to create a PC image but now
+			// no transformation matrix exists to do this.
+
+	if (reformatOptionsPtr->transformDataCode == kCreatePCImage)
+		{
+				// Verify that a transformation matrix still exists
+
+		UInt16						numberEigenvectors;
+		EigenvectorInfoExists (kNoProject, NULL, &numberEigenvectors);
+		if (numberEigenvectors == 0)
+			reformatOptionsPtr->transformDataCode = kNoTransform;
+		
+		}	// end "if (reformatOptionsPtr->transformDataCode == kCreatePCImage)"
 	
 			// Transformation is not allowed for thematic type multispectral
 			// displays.
@@ -8658,7 +8672,7 @@ void InitializeReformatStructure (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/2013
-//	Revised By:			Larry L. Biehl			Date: 02/28/2020
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 Boolean LoadReformatOptionsSpecs (
 				WindowInfoPtr						windowInfoPtr)
@@ -8738,7 +8752,8 @@ Boolean LoadReformatOptionsSpecs (
 								reformatOptionsPtr->lastInputWindowNumberChannels != 
 																windowInfoPtr->totalNumberChannels))
 		*/
-		if (reformatOptionsPtr->lastInputWindowNumberChannels != windowInfoPtr->totalNumberChannels)
+		if (windowInfoPtr != NULL &&
+				reformatOptionsPtr->lastInputWindowNumberChannels != windowInfoPtr->totalNumberChannels)
 			releaseReformatMemoryFlag = TRUE; 
 			
 		if (releaseReformatMemoryFlag)

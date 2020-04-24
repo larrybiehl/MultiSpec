@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/27/2019
+//	Revision date:			04/17/2020
 //
 //	Language:				C
 //
@@ -62,12 +62,13 @@
 	
 	#include <commdlg.h>    // common dialog APIs
 
-	extern void 			AnimateEntry (
-									CMPaletteInfo			paletteObject,
-									UInt16					startIndex,    
-									RGBColor*				newRGBColorPtr);
+	extern void AnimateEntry (
+					CMPaletteInfo						paletteObject,
+					UInt16								startIndex,    
+					RGBColor*							newRGBColorPtr);
 	
-	extern Boolean 		StillDown (void);  
+	extern Boolean StillDown (
+					SInt16								code);
 
 	extern UInt16			gDisplayBitsPerPixel;
 #endif	// defined multispec_win
@@ -509,7 +510,7 @@ void ChangeClassPalette (
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 	
 	#if defined multispec_win                        
-		if (GetKeyState (VK_CONTROL) < 0 && !changeColorTableFlag)
+		if ((code == 2 || GetKeyState (VK_CONTROL) < 0) && !changeColorTableFlag)
 	#endif	// defined multispec_win 
 	
 	#if defined multispec_wx
@@ -1365,7 +1366,7 @@ void ConverWinPointToOffScreenPoint (
 // Called By:			LegendCClickLoop  in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 09/30/2019
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
 Boolean DoBlinkCursor1 (
 				LegendListHandle					legendListHandle,
@@ -1501,7 +1502,7 @@ Boolean DoBlinkCursor1 (
 	MSetCursor (kBlinkShutCursor1);
 	
 	#ifndef multispec_wx
-		while (StillDown ())
+		while (StillDown (code))
 			{ }
 	#endif
 
@@ -3255,6 +3256,7 @@ void LoadThematicLegendList (
 		legendListCPtr->m_listReadyFlag = true;
 	
 		legendListCPtr->DrawLegendList ();
+      legendListCPtr->Refresh ();
 	#endif	// defined multispec_wx 
 
 }	// end "LoadThematicLegendList" 
@@ -3550,7 +3552,7 @@ void ThematicImageWBlink (
 	#endif
 	
 	#ifndef multispec_wx
-		while (StillDown ())
+		while (StillDown (code))
 			{ }
 	#endif
 

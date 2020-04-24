@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/09/2020
+//	Revision date:			04/17/2020
 //
 //	Language:				C++
 //
@@ -94,6 +94,7 @@ BEGIN_MESSAGE_MAP (CMImageView, CScrollView)
 	ON_WM_MOUSEWHEEL ()
 	ON_WM_NCMOUSEMOVE ()
 	ON_WM_PAINT ()
+	ON_WM_RBUTTONDOWN ()
 	ON_WM_SETCURSOR ()
 	ON_WM_SETFOCUS ()
 	ON_WM_SIZE ()
@@ -1145,9 +1146,12 @@ LRESULT CMImageView::OnDPIChanged (
 
 {
 			// Get the new dpi scaling for the window.
+			// This is being turned off for now since it will only work on Windows 10
+			// or later. It does not work on Windows 7 or 8. (3/24/2020)
 
-	m_dpiScale = GetDpiForWindow (m_hWnd);
-	m_dpiScale = MAX (1., m_dpiScale / 96);
+	//m_dpiScale = GetDpiForWindow (m_hWnd);
+	//m_dpiScale = MAX (1., m_dpiScale / 96);
+	m_dpiScale = 1.;
 
 			// The message was processed; return 0
 
@@ -1348,9 +1352,12 @@ void CMImageView::OnInitialUpdate (void)
 
 
 			// Get the current dpi scaling for the window.
+			// This is being turned off for now since it will only work on Windows 10
+			// or later. It does not work on Windows 7 or 8. (3/24/2020)
 
-	m_dpiScale = GetDpiForWindow (m_hWnd);
-	m_dpiScale = MAX (1., m_dpiScale / 96);
+	//m_dpiScale = GetDpiForWindow (m_hWnd);
+	//m_dpiScale = MAX (1., m_dpiScale / 96);
+	m_dpiScale = 1;
 
    lineIncrement.cx = 10;
    lineIncrement.cy = 10;
@@ -1966,6 +1973,30 @@ void CMImageView::OnPrint (
 	m_printerTextScaling = 1.0;										
 	
 }	// end "OnPrint"
+
+
+
+void CMImageView::OnRButtonDown (
+				UINT nFlags, 
+				CPoint point)
+
+{
+	if (!m_activeFlag || !CheckIfOffscreenImageExists ())
+		return;
+
+	if (gPresentCursor == kBlinkOpenCursor2)
+	{
+		LongPoint cursorPoint;
+		cursorPoint.h = point.x;
+		cursorPoint.v = point.y;
+
+		ThematicImageWBlink (cursorPoint, 4);
+
+	}	// end "if (gPresentCursor == kBlinkOpenCursor2)"
+
+	CScrollView::OnRButtonDown (nFlags, point);
+
+}	// end "OnRButtonDown"
 
    
 

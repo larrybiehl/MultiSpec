@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 02/24/2020
+//	Revised By:				Larry L. Biehl			Date: 04/12/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -753,7 +753,8 @@ typedef double				CMeanType2;
 	#define  huge
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 	#define kPMPortrait	1
-	#define _MAX_PATH 255
+	#define _MAX_PATH 1024
+	#define _MAX_FILE 256
       
 			// The forward definitions for linux specific classes.
 
@@ -844,7 +845,7 @@ typedef double				CMeanType2;
 	typedef struct FSRef 
 		{
 		//UInt8    hidden[_MAX_PATH];
-		wchar_t    hidden[_MAX_PATH+1];
+		wchar_t    hidden[_MAX_PATH];
 		} FSRef;
 
 	typedef struct Point 
@@ -1031,6 +1032,7 @@ typedef double				CMeanType2;
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a)) 
 
 	#define kPMPortrait	1
+	#define _MAX_FILE 256
 
 	//#define _ITERATOR_DEBUG_LEVEL 1
 	#include <vector>

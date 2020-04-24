@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/30/2018
+//	Revision date:			04/16/2020
 //
 //	Language:				C++
 //
@@ -482,6 +482,14 @@ BOOL CMFileFormatSpecsDlg::OnInitDialog ()
 																	m_fileInfoPtr, kReturnUnicode);
 	if (fileNamePtr != NULL)
 		m_imageName = CString (fileNamePtr);
+
+	if (m_fileInfoPtr->thematicType)
+		{
+		if (m_fileInfoPtr->numberClasses >= kMaxNumberClasses &&
+														!m_fileInfoPtr->classesComputedFlag)
+			m_computeNumClasses = TRUE;
+
+		}	// end "if (m_fileInfoPtr->thematicType)"
 		
 	continueFlag = UpdateData (FALSE);
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/06/2019
+//	Revision date:			04/12/2020
 //
 //	Language:				C
 //
@@ -135,11 +135,6 @@ SInt16 ReadCovarianceInformation (
 				char*									fieldClassStringPtr,
 				double*								boxRightPtr,
 				double								boxIncrement);
-
-SInt16 ReadMaskInformation (
-				Str255*								maskFileNamePtr,
-				MaskInfoPtr 						maskInfoPtr,
-				UCharPtr*							inputStringPtrPtr);
 								
 SInt16 ReadModifiedStats (
 				ParmBlkPtr 							paramBlockPtr,
@@ -2898,7 +2893,7 @@ Boolean GetProjectStructure (
 //							GetProjectImageFileInfo in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/02/1989
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean GetSpecifiedImageFile (
 				UInt8*								inputFileNamePtr,
@@ -2952,7 +2947,7 @@ Boolean GetSpecifiedImageFile (
 		memcpy (fileNamePtr, (char*)&inputFileNamePtr[1], inputFileNamePtr[0]+1);
 		FileStringPtr filePathPtr =
 						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
-		filePathPtr[0] = (UInt8)strlen ((char*)&filePathPtr[1]);
+		SetFileStringLength (filePathPtr, strlen ((char*)&filePathPtr[2]));
 		
 				// Copy the HDF Data set information from the project structure to the
 				// file information structure. It will be need if an hdf file is the

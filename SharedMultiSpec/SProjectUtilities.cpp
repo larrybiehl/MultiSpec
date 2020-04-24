@@ -392,7 +392,7 @@ Boolean AssignClassInfoMemory (
       if (covarianceCode & kAllowLoadingSquare)
          tNumberEntries += (numberChannels * numberChannels - numberCovarianceEntries);
 
-      classInfoPtr[0].covariancePtr = (HDoublePtr) MNewPointer (
+      classInfoPtr[0].covariancePtr = (HDoublePtr)MNewPointer (
 																	tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].covariancePtr != NULL);
 
@@ -416,7 +416,7 @@ Boolean AssignClassInfoMemory (
       if (inverseCode & kAllowLoadingSquare)
          tNumberEntries += (numberChannels * numberChannels - numberInverseEntries);
 
-      classInfoPtr[0].inversePtr = (HDoublePtr) MNewPointer (
+      classInfoPtr[0].inversePtr = (HDoublePtr)MNewPointer (
 																	tNumberEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].inversePtr != NULL);
 
@@ -428,7 +428,7 @@ Boolean AssignClassInfoMemory (
       if (meanCode & kNumberChannels)
          numberMeanEntries = numberChannels;
 
-      classInfoPtr[0].meanPtr = (HDoublePtr) MNewPointer (
+      classInfoPtr[0].meanPtr = (HDoublePtr)MNewPointer (
 								(UInt32)numberClasses * numberMeanEntries * sizeof (double));
       continueFlag = (classInfoPtr[0].meanPtr != NULL);
 
@@ -483,7 +483,7 @@ Boolean AssignClassInfoMemory (
       if (floatDataValueCode & kNumberChannels)
          numberFloatDataValueEntries = numberChannels;
 
-      for (index = 0; index < numberClasses; index++)
+      for (index=0; index<numberClasses; index++)
 			{
          if (floatDataValueCode > 0)
 				{

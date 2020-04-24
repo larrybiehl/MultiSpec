@@ -18,7 +18,7 @@
 //
 //	Authors:             Larry L. Biehl
 //
-//	Revision date:       02/28/2020
+//	Revision date:       04/11/2020
 //
 //	Language:            C
 //
@@ -75,6 +75,8 @@
 
 #define	kAllShapeHandleMemory				0
 #define	kVectorMemoryOnly						1
+
+#define	vector_requires_window			1
 
 #include "errno.h"
 
@@ -633,8 +635,8 @@ SInt16 CheckIfOverlayFileLoaded (
 				fileNamePPointer =
 							(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
 			
-				if (StringCompare (&newOverlayFileNamePPointer[1],
-												 &fileNamePPointer[1]) == 0)
+				if (StringCompare (&newOverlayFileNamePPointer[2],
+												 &fileNamePPointer[2]) == 0)
 					{
 					versionCount++;
 					
@@ -4987,7 +4989,7 @@ Boolean ReadArcViewGroups (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2000
-//	Revised By:			Larry L. Biehl			Date: 01/17/2019
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 SInt16 ReadArcViewHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -5027,30 +5029,29 @@ SInt16 ReadArcViewHeader (
 				// Now check if this is an ArcView image file. This may be the case
 				// if the suffix of the file is .bil, .bsq, .bip, or .hdr.
 		
-		FileStringPtr		filePathPtr;		
-		UInt16				numSuffixChars;
+		FileStringPtr		filePathPtr;
 		
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
 		if (CompareSuffixNoCase ((char*)"\0.bil", 
 											filePathPtr,
-											&numSuffixChars))
+											NULL))
 			fileNameCode = 1;
 			
 		else if (CompareSuffixNoCase ((char*)"\0.bsq", 
 													filePathPtr,
-													&numSuffixChars))
+													NULL))
 			fileNameCode = 2;
 			
 		else if (CompareSuffixNoCase ((char*)"\0.bip", 
 													filePathPtr,
-													&numSuffixChars))
+													NULL))
 			fileNameCode = 3;
 			
 		else if (CompareSuffixNoCase ((char*)"\0.hdr", 
 													filePathPtr,
-													&numSuffixChars))
+													NULL))
 			fileNameCode = 4;
 			
 		if (fileNameCode > 0)
@@ -5600,7 +5601,7 @@ SInt16 ReadArcViewHeader (
 // Called By:			ReadArcViewHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/2000
-//	Revised By:			Larry L. Biehl			Date: 04/03/2019
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean ReadArcViewWorldFile (
 				FileInfoPtr 						fileInfoPtr)
@@ -5612,8 +5613,8 @@ Boolean ReadArcViewWorldFile (
 	
 	CharPtr								blwRecordPtr;
 	
-	UInt8									*blwFileNamePtr,
-											*imageFileNamePtr;
+	FileStringPtr						blwFilePathNamePtr;
+											//*imageFileNamePtr;
 
 	CMFileStream						*fileStreamPtr,
 											*blwFileStreamPtr;
@@ -5650,8 +5651,8 @@ Boolean ReadArcViewWorldFile (
 				// an image file then we don't need it for now and need to look for
 				// the ArcView header file.
 			
-		imageFileNamePtr =
-						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
+		//imageFileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (
+		//														fileStreamPtr, &filePathNameLength);
 		
 				// The suffix for the planar map information file consists of the
 				// 1st and 3rd characters in the image file suffix plus w as the third
@@ -5664,39 +5665,38 @@ Boolean ReadArcViewWorldFile (
 					
 		blwFileStreamPtr = &blwFileStream;		
 		InitializeFileStream (blwFileStreamPtr, fileStreamPtr);
-		blwFileNamePtr =
-					(FileStringPtr)GetFilePathPPointerFromFileStream (blwFileStreamPtr);
+		blwFilePathNamePtr = (FileStringPtr)GetFilePathPPointerFromFileStream (
+																						blwFileStreamPtr);
 		
-		numberCharacters = blwFileNamePtr[0];
+		//numberCharacters = blwFilePathNamePtr[0];
+		numberCharacters = GetFileStringLength (blwFilePathNamePtr);
 		suffix[0] = 4;	
 		suffix[1] = '.';
-		suffix[3] = blwFileNamePtr[numberCharacters];
+		suffix[3] = blwFilePathNamePtr[numberCharacters+1];
 		suffix[4] = 'w';
 		suffix[5] = 0;		
 		
 				// Check if the image file contains the suffix .tiff.
 				
-		if (CompareSuffixNoCase ((char*)"\0.tiff\0", blwFileNamePtr, &numChars))
+		if (CompareSuffixNoCase ((char*)"\0.tiff\0",
+											blwFilePathNamePtr,
+											&numChars))
 			{
-			suffix[2] = blwFileNamePtr[numberCharacters-3];	
+			suffix[2] = blwFilePathNamePtr[numberCharacters-2];
 							
-			RemoveCharsNoCase ((char*)"\0.tiff\0", blwFileNamePtr);
+			RemoveCharsNoCase ((char*)"\0.tiff\0", blwFilePathNamePtr);
 			
 			}	// end "if (CompareSuffixNoCase ("\0.tiff\0", ..."
 		
 		else	// suffix is not .tiff
 			{
-			suffix[2] = blwFileNamePtr[numberCharacters-2];	
+			suffix[2] = blwFilePathNamePtr[numberCharacters-1];
 							
-			RemoveCharsNoCase ((char*)"\0.???\0", blwFileNamePtr);
+			RemoveCharsNoCase ((char*)"\0.???\0", blwFilePathNamePtr);
 			
 			}	// end "else suffix is not .tiff"
 		
-		ConcatFilenameSuffix (blwFileNamePtr, suffix);
-		
-				// Force the multibyte and unicode versions of the file name to be remade.
-				
-		//SetFileDoesNotExist (blwFileStreamPtr, kKeepUTF8CharName);
+		ConcatFilenameSuffix (blwFilePathNamePtr, suffix);
 					
 		errCode = OpenFileReadOnly (blwFileStreamPtr, 
 												kResolveAliasChains, 
@@ -5708,11 +5708,8 @@ Boolean ReadArcViewWorldFile (
 						// Try with uppercase 'W'
 
 			suffix[4] = 'W';
-			RemoveCharsNoCase ((char*)"\0.???\0", blwFileNamePtr);
-			ConcatFilenameSuffix (blwFileNamePtr, suffix);
-		
-					// Force the multibyte and unicode versions of the file name to
-					// be remade.
+			RemoveCharsNoCase ((char*)"\0.???\0", blwFilePathNamePtr);
+			ConcatFilenameSuffix (blwFilePathNamePtr, suffix);
 
 			errCode = OpenFileReadOnly (blwFileStreamPtr, 
 												kResolveAliasChains, 
@@ -6461,7 +6458,7 @@ SInt16 ReadArcViewShapeFile (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/2000
-//	Revised By:			Larry L. Biehl			Date: 01/13/2020
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 SInt16 ReadArcViewShapeHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -6472,7 +6469,7 @@ SInt16 ReadArcViewShapeHeader (
 
 {
 	#if include_gdal_capability
-		UInt8									filePathString[512];
+		UInt8									filePathString[_MAX_PATH];
 	#endif
 											
 	CMFileStream						shapeFileStream;
@@ -6794,47 +6791,48 @@ SInt16 ReadArcViewShapeHeader (
 			}	// end "if (string != 0)"
 		
 		}	// end "if (fileType == kArcViewShapeType)"
-	
-	if (fileType == kArcViewShapeType && gActiveImageWindow == NULL)
-		{				
-				// Display an alert indicating that an image file needs to be opened
-				// before MultiSpec can handle an ArcView shape file.
-		
-		DisplayAlert (kErrorAlertID, 
-							kStopAlert, 
-							kAlertStrID, 
-							IDS_Alert81,
-							0, 
-							NULL);
-							
-		overlayCheckReturn = 4;
-		
-		}	// end "if (fileType == kArcViewShapeType && "
-	
-	windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
-	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
-	if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
-		{
-		//if (mapProjectionHandle == NULL)
-		if (windowInfoHandle != NULL && mapProjectionHandle == NULL)
+	#if vector_requires_window
+		if (fileType == kArcViewShapeType && gActiveImageWindow == NULL)
 			{
-					// Display an alert indicating that no map information has been
-					// defined for the active image window. The shape file cannot be
-					// loaded..													
+					// Display an alert indicating that an image file needs to be opened
+					// before MultiSpec can handle an ArcView shape file.
 			
-			DisplayAlert (kErrorAlertID, 
-								kStopAlert, 
-								kAlertStrID, 
-								IDS_Alert89,
-								0, 
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								kAlertStrID,
+								IDS_Alert81,
+								0,
 								NULL);
 								
-			overlayCheckReturn = 6;
+			overlayCheckReturn = 4;
 			
-			}	// end "if (windowInfoHandle != NULL && mapProjectionHandle == NULL)"
-		
-		}	// end "if (fileType == kArcViewShapeType && "
-		
+			}	// end "if (fileType == kArcViewShapeType && "
+	#endif
+	windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
+	mapProjectionHandle = GetFileMapProjectionHandle2 (windowInfoHandle);
+	#if vector_requires_window
+		if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
+			{
+			if (mapProjectionHandle == NULL)
+			//if (windowInfoHandle != NULL && mapProjectionHandle == NULL)
+				{
+						// Display an alert indicating that no map information has been
+						// defined for the active image window. The shape file cannot be
+						// loaded..
+				
+				DisplayAlert (kErrorAlertID,
+									kStopAlert,
+									kAlertStrID,
+									IDS_Alert89,
+									0,
+									NULL);
+									
+				overlayCheckReturn = 6;
+				
+				}	// end "if (windowInfoHandle != NULL && mapProjectionHandle == NULL)"
+			
+			}	// end "if (fileType == kArcViewShapeType && "
+	#endif
 	if (fileType == kArcViewShapeType && overlayCheckReturn == 0)
 		{				
 				// Check if shape file is already loaded.
@@ -6978,13 +6976,8 @@ SInt16 ReadArcViewShapeHeader (
 				shapeInfoPtr->unitsCodeForConversion = 
 										mapProjectionInfoPtr->planarCoordinate.mapUnitsCode;
 			
-					// Get buffer to read shape file into. For now assume that file
-					// will not be too large.
+					// Get buffer to read shape file into.
 					
-			//numberBytes = shapeInfoPtr->fileLength - 100;
-			//numberBytes = ((numberBytes + 7)/8) * 8;
-			//shapeInfoPtr->vectorDataHandle = MNewHandle (numberBytes);
-			
 			if (!GetMemoryForVectorData (shapeInfoPtr))
 				continueFlag = FALSE;
 			
@@ -7035,7 +7028,6 @@ SInt16 ReadArcViewShapeHeader (
 					{
 					windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
 					windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-														
 														
 					InitializeOverlay (windowInfoPtr, *shapeFileIndexPtr+1);
 					

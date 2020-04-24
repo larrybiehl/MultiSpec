@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/18/2019
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -50,7 +50,8 @@
 			
 
 #if defined multispec_win || defined multispec_wx
-	#pragma pack (push, 2)
+	//#pragma pack (push, 2)
+	#pragma pack (2)
 #endif	// defined multispec_win || ...
 	
 //#if PRAGMA_ALIGN_SUPPORTED
@@ -240,7 +241,8 @@ typedef struct LayerStackValidFlags
 #endif 
 	
 #if defined multispec_win || defined multispec_wx
-	#pragma pack (pop, 2)
+	//#pragma pack (pop, 2)
+	#pragma pack ()
 #endif	// defined multispec_win || ...
 
 		

@@ -19,7 +19,7 @@
 //	Author:					Chulhee Lee
 //	Revised by:				Larry L. Biehl
 //
-//	Revision date:			02/07/2018
+//	Revision date:			04/14/2020
 //
 //	Language:				C
 //
@@ -2493,16 +2493,16 @@ Boolean FS_sol_bnd_line_2 (
 // Called By:
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/??
-//	Revised By:			Larry L. Biehl			Date: 05/13/2016	
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
 
 typedef struct cl_res_info_str 
 	{
-	double		threshold2;
 	SInt16*		classified_as;
-	UInt32		no_passed_mah_dis;
 	HFloatPtr	mah_dis;
-	UInt32		no_passed_mah_dis_the_other;
 	HFloatPtr	mah_dis_the_other;
+	double		threshold2;
+	UInt32		no_passed_mah_dis;
+	UInt32		no_passed_mah_dis_the_other;
 	
 	} CL_RES_INFO_STR;
 
@@ -2628,12 +2628,12 @@ UInt32 FS_sub_find_edbfm_2_class (
 		#endif
 		
 		numberBytes = (UInt32)(sizeof (short)*samplesInClass);
-		numberBytes = 4 * (numberBytes + 3)/4;
+		numberBytes = 4 * ((numberBytes + 3)/4);
 		(cl_res+0)->classified_as = (short*)memoryBlockPtr;
 		memoryBlockPtr += numberBytes;
 		
 		numberBytes = (UInt32)(sizeof (short)*samplesInOtherClass);
-		numberBytes = 4 * (numberBytes + 3)/4;
+		numberBytes = 4 * ((numberBytes + 3)/4);
 		(cl_res+1)->classified_as = (short*)memoryBlockPtr;
 		memoryBlockPtr += numberBytes;
 		
@@ -2728,20 +2728,25 @@ UInt32 FS_sub_find_edbfm_2_class (
 			tmp = logDet[i] - logDet[1-i];
 			for (k=0; k<numberSamples; k++)
 				{		 
-				if ((cl_res+i)->mah_dis[k]-tmp < (cl_res+i)->mah_dis_the_other[k])
+				//if ((cl_res+i)->mah_dis[k]-tmp < (cl_res+i)->mah_dis_the_other[k])
+				if (cl_res[i].mah_dis[k]-tmp < (cl_res+i)->mah_dis_the_other[k])
 		  			{
 		  			error++;
-					(cl_res+i)->classified_as[k] = (SInt16)(1 - i);
+					//(cl_res+i)->classified_as[k] = (SInt16)(1 - i);
+					cl_res[i].classified_as[k] = (SInt16)(1 - i);
 					
 					}	// end "if ((cl_res+i)->mah_dis[k]-tmp < ..."
 					
 		 		else	// ...mah_dis[k]-tmp >= ...mah_dis_the_other[k] 
 		 			{
-		 			if ((cl_res+i)->mah_dis[k] > threshold)
-						(cl_res+i)->classified_as[k] = (SInt16)i;
+		 			//if ((cl_res+i)->mah_dis[k] > threshold)
+		 			if (cl_res[i].mah_dis[k] > threshold)
+						//(cl_res+i)->classified_as[k] = (SInt16)i;
+						cl_res[i].classified_as[k] = (SInt16)i;
 						
 					else	// (cl_res+i)->mah_dis[k] <= threshold 
-						(cl_res+i)->classified_as[k] = -1;
+						//(cl_res+i)->classified_as[k] = -1;
+						cl_res[i].classified_as[k] = -1;
 						
 					}	// end "else ...mah_dis[k]-tmp >= ..." 
 								
@@ -3254,7 +3259,7 @@ void normalize_rows (
 // Called By:
 //
 //	Coded By:			Bor-Chen Kuo			Date: 07/24/2001
-//	Revised By:			Larry L. Biehl			Date: 06/17/2006	
+//	Revised By:			Larry L. Biehl			Date: 04/14/2020
 
 SInt32 NWFE (
 				struct class_info_str* 			class_info, 
@@ -3347,7 +3352,8 @@ SInt32 NWFE (
 	
 		if (!SetupMatrixInversionMemory ((UInt16)numberChannels,
 														TRUE,
-														&gInverseMatrixMemory.inversePtr, 
+														//&gInverseMatrixMemory.inversePtr,
+														&tempMatrixPtr,
 														&gInverseMatrixMemory.pivotPtr, 
 														&gInverseMatrixMemory.indexRowPtr, 
 														&gInverseMatrixMemory.indexColPtr, 
@@ -3395,12 +3401,14 @@ SInt32 NWFE (
 		
 	if (returnCode == 0)
 		{
-		tempMatrixPtr = gInverseMatrixMemory.inversePtr;
+		//tempMatrixPtr = gInverseMatrixMemory.inversePtr;
 		
 				// Intialize the nextTime variable to indicate when the next 		
-				// check should occur for a command-.										
+				// check should occur for a command-.	
+				// Also initialize when the next status update should occur.									
 				
 		gNextTime = TickCount ();
+		gNextStatusTime = gNextTime;
 			
 		LoadDItemStringNumber (kFeatureExtractStrID, 
 										IDS_FeatureExtract74,
@@ -3473,10 +3481,16 @@ SInt32 NWFE (
 				{
 				for (j=0; j<numberClasses; j++)
 					{
-					LoadDItemValue (gStatusDialogPtr, IDC_Status5, (SInt32)j+1);
-			
 					classPairCount++;
-					LoadDItemValue (gStatusDialogPtr, IDC_Status8, (SInt32)classPairCount);
+
+					if (TickCount () >= gNextStatusTime)
+						{
+						LoadDItemValue (gStatusDialogPtr, IDC_Status5, (SInt32)j + 1);
+						LoadDItemValue (gStatusDialogPtr, IDC_Status8, (SInt32)classPairCount);
+
+						gNextStatusTime = TickCount () + gNextStatusTimeOffset;
+
+						}	// end "if (TickCount () >= gNextTime)"
 					
 					countOKFlag = (class_info[j].no_sample > 0);
 					
@@ -3662,38 +3676,11 @@ SInt32 NWFE (
 				
 				}	// end "if (!CheckSomeEvents (osMask..." 
 				
-			}	// end "if (TickCount () >= gNextTime)" 
-		
-		if (returnCode == 0)
-			{
-			HideStatusDialogItemSet (kStatusClassB);
-			HideStatusDialogItemSet (kStatusField);
-			LoadDItemStringNumber (kFeatureExtractStrID, 
-											IDS_FeatureExtract26,
-											gStatusDialogPtr, 
-											IDC_Status21, 
-											(Str255*)gTextString);
-			/*
-			returnCode = ComputeEigenvectorsSVD (
-										tempMatrixPtr, 
-										numberChannels, 
-										numberChannels, 
-										eigen_values, 
-										eigen_vectors,
-										gInverseMatrixMemory.pivotPtr,
-										(double**)gInverseMatrixMemory.indexRowPtr,
-										(double**)gInverseMatrixMemory.indexColPtr);
-			*/
-			returnCode = MatlabEigFunction (tempMatrixPtr,
-														eigen_vectors,
-														eigen_values,
-														numberChannels);
-	
-			}	// end "if (returnCode == 0)" 
-		 
-		}	// end "if (returnCode == 0)" 
+			}	// end "if (TickCount () >= gNextTime)"
+			 
+		}	// end "if (returnCode == 0)"
 
-			// Free memory																	 
+			// Free memory
 			
 	sb_nwfe_ptr = CheckAndDisposePtr (sb_nwfe_ptr);
 	sw_nwfe_ptr = CheckAndDisposePtr (sw_nwfe_ptr);
@@ -3701,6 +3688,39 @@ SInt32 NWFE (
 	localMeanPtr = CheckAndDisposePtr (savedLocalMeanPtr);
 	
 	ReleaseMatrixInversionMemory ();
+	
+	if (returnCode == 0)
+		{
+				// Get the Eigenvalues and Eigenvectors.
+				
+		HideStatusDialogItemSet (kStatusClassB);
+		HideStatusDialogItemSet (kStatusField);
+		LoadDItemStringNumber (kFeatureExtractStrID,
+										IDS_FeatureExtract26,
+										gStatusDialogPtr,
+										IDC_Status21,
+										(Str255*)gTextString);
+		/*
+		returnCode = ComputeEigenvectorsSVD (
+									tempMatrixPtr,
+									numberChannels,
+									numberChannels,
+									eigen_values,
+									eigen_vectors,
+									gInverseMatrixMemory.pivotPtr,
+									(double**)gInverseMatrixMemory.indexRowPtr,
+									(double**)gInverseMatrixMemory.indexColPtr);
+		*/
+		returnCode = MatlabEigFunction (tempMatrixPtr,
+													eigen_vectors,
+													eigen_values,
+													numberChannels);
+
+		}	// end "if (returnCode == 0)"
+
+			// Free memory
+				
+	tempMatrixPtr = CheckAndDisposePtr (tempMatrixPtr);
 	
 	return (returnCode);
 	
@@ -6087,7 +6107,7 @@ void ortran (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/14/2002
-//	Revised By:			Larry L. Biehl			Date: 02/14/2002	
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
 
 SInt32 MatlabEigFunction (
 				double*								inputMatrixPtr,
@@ -6096,202 +6116,249 @@ SInt32 MatlabEigFunction (
 				UInt32								numberFeatures)
 										
 {
-	SInt32								returnCode;
+	double								**a_indexPtr = NULL,
+											**z_indexPtr = NULL;
+
+	double								*imaginaryEigenvaluePtr,
+											*ortPtr,
+											*scalePtr,
+											*zMatrixPtr = NULL;
+		
+	//UInt32*							intPtr;
+
+	SInt32								returnCode = 1;
 	
-	UInt32								igh,
+	UInt32								bytesNeeded,
+											igh,
 											low;
+											
+	Boolean								continueFlag;
 	
 					
 			// Calculate eigenvectors and eigenvalues of tempMatrixPtr
 			// This is the beginning of the eig method in Matlab.
 			
-	double*	scalePtr = gInverseMatrixMemory.pivotPtr;
-	double**	a_indexPtr = (double**)gInverseMatrixMemory.indexRowPtr;
-	double** z_indexPtr = (double**)gInverseMatrixMemory.ipvotPtr;
-	//UInt32*	intPtr = (UInt32*)gInverseMatrixMemory.indexColPtr;
-	double*	zMatrixPtr = eigenvectorPtr;
-	double*	ortPtr = eigenvaluePtr;
-	double*	imaginaryEigenvaluePtr = &eigenvaluePtr[numberFeatures];
-	/*
-	ListTransformationInformation (
-									eigenvaluePtr, 
-									inputMatrixPtr, 
-									0, 
-									0,
-									NULL,
-									(UInt16)numberFeatures,
-									(UInt16)numberFeatures,
-									FALSE,
-									TRUE,
-									2);
-	*/
-	BalanceMatrix (numberFeatures,
-							numberFeatures, 
-							a_indexPtr,
-							&low,
-							&igh,
-							scalePtr,
-							inputMatrixPtr);
-	/*
-	ListTransformationInformation (eigenvaluePtr,
-												inputMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);
-	 
-	balbak (numberFeatures,
-				numberFeatures,
-				low,
-				igh, 
-				scalePtr,
-				numberFeatures,
-				z_indexPtr,
-				inputMatrixPtr);
-	
-	ListTransformationInformation (eigenvaluePtr,
-												inputMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);
-	*/
-	orthes (numberFeatures,
-				numberFeatures,
-				low,
-				igh,
-				a_indexPtr,
-				ortPtr,
-				inputMatrixPtr);
-	/*
-	ListTransformationInformation (eigenvaluePtr,
-												inputMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);
-	*/
-	ortran (numberFeatures,
-				numberFeatures,
-				low,
-				igh,
-				a_indexPtr,
-				ortPtr,
-				z_indexPtr,
-				inputMatrixPtr,
-				zMatrixPtr);
+			// Get Memory for Eigevector / Eigenvalue calculations
+					
+	bytesNeeded = (UInt32)(numberFeatures+1) * sizeof (double);
+	if (numberFeatures == 1)
+		bytesNeeded += bytesNeeded;
+	scalePtr = (double*)MNewPointer (bytesNeeded);
+	continueFlag = (scalePtr != NULL);
+			
 
-	/*
-	elmhes (numberFeatures,
-				numberFeatures,
-				low,
-				igh,
-				a_indexPtr,
-				intPtr,
-				inputMatrixPtr);
-	
-	ListTransformationInformation (eigenvaluePtr,
-												inputMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);
-	 
-	eltran (numberFeatures,
-				numberFeatures,
-				low,
-				igh, 
-				a_indexPtr,
-				intPtr,
-				z_indexPtr,
-				inputMatrixPtr,
-				zMatrixPtr);
-	
-	ListTransformationInformation (eigenvaluePtr,
-												inputMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);
-	
-	ListTransformationInformation (eigenvaluePtr,
-												zMatrixPtr, 
-												0, 
-												0,
-												NULL,
-												(UInt16)numberFeatures,
-												(UInt16)numberFeatures,
-												FALSE,
-												TRUE,
-												2);	
-	*/
-	returnCode = hqr2 (numberFeatures,
-								numberFeatures, 
-								low, 
-								igh, 
-								a_indexPtr, 
-								eigenvaluePtr, 
-								imaginaryEigenvaluePtr, 
-								z_indexPtr, 
-								inputMatrixPtr, 
-								zMatrixPtr);
-	
-	if (returnCode == noErr)
-		{					
+	if (continueFlag)
+		{
+		bytesNeeded = (UInt32)(numberFeatures+1) * sizeof (double*);
+		a_indexPtr = (double**)MNewPointer (bytesNeeded);
+		continueFlag = (a_indexPtr != NULL);
+			
+		}	// end "if (continueFlag)"
+		
+	if (continueFlag)
+		{
+					// Get pointer to memory to use for work space for matrix
+					// inversion.
+					
+		bytesNeeded = (UInt32)(numberFeatures+1) * sizeof (double*);
+		z_indexPtr = (double**)MNewPointer (bytesNeeded);
+		continueFlag = (z_indexPtr != NULL);
+			
+		}	// end "if (continueFlag && ipvotPtr)"
+		
+	if (continueFlag)
+		{
+		zMatrixPtr = eigenvectorPtr;
+		ortPtr = eigenvaluePtr;
+		imaginaryEigenvaluePtr = &eigenvaluePtr[numberFeatures];
+		/*
+		ListTransformationInformation (
+										eigenvaluePtr,
+										inputMatrixPtr,
+										0,
+										0,
+										NULL,
+										(UInt16)numberFeatures,
+										(UInt16)numberFeatures,
+										FALSE,
+										TRUE,
+										2);
+		*/
+		BalanceMatrix (numberFeatures,
+								numberFeatures,
+								a_indexPtr,
+								&low,
+								&igh,
+								scalePtr,
+								inputMatrixPtr);
+		/*
+		ListTransformationInformation (eigenvaluePtr,
+													inputMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		 
 		balbak (numberFeatures,
 					numberFeatures,
 					low,
-					igh, 
+					igh,
 					scalePtr,
 					numberFeatures,
 					z_indexPtr,
-					zMatrixPtr);
-				
-				// The eigenvectors are in column format. Change to row format. MultiSpec
-				// expects them to be that way for later use.
-					
-		TransposeMatrix (eigenvectorPtr, eigenvectorPtr, numberFeatures);
-
-		OrderEigenvaluesAndEigenvectors (eigenvaluePtr, 
-														eigenvectorPtr,
-														gInverseMatrixMemory.pivotPtr,	// tempVector
-														numberFeatures,
-														0x0003);
-
-		normalize_rows (eigenvectorPtr, numberFeatures, numberFeatures);
+					inputMatrixPtr);
 		
-		}	// end "if (returnCode == noErr)"
+		ListTransformationInformation (eigenvaluePtr,
+													inputMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		*/
+		orthes (numberFeatures,
+					numberFeatures,
+					low,
+					igh,
+					a_indexPtr,
+					ortPtr,
+					inputMatrixPtr);
+		/*
+		ListTransformationInformation (eigenvaluePtr,
+													inputMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		*/
+		ortran (numberFeatures,
+					numberFeatures,
+					low,
+					igh,
+					a_indexPtr,
+					ortPtr,
+					z_indexPtr,
+					inputMatrixPtr,
+					zMatrixPtr);
 
-	/*
-	FindEigenvaluesOfUpperHessenbergMatrix (
-							inputMatrixPtr, 
-							numberFeatures, 
-							eigenvaluePtr, 
-							gInverseMatrixMemory.pivotPtr,
-							a_indexPtr);
+		/*
+		elmhes (numberFeatures,
+					numberFeatures,
+					low,
+					igh,
+					a_indexPtr,
+					intPtr,
+					inputMatrixPtr);
+		
+		ListTransformationInformation (eigenvaluePtr,
+													inputMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		 
+		eltran (numberFeatures,
+					numberFeatures,
+					low,
+					igh,
+					a_indexPtr,
+					intPtr,
+					z_indexPtr,
+					inputMatrixPtr,
+					zMatrixPtr);
+		
+		ListTransformationInformation (eigenvaluePtr,
+													inputMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		
+		ListTransformationInformation (eigenvaluePtr,
+													zMatrixPtr,
+													0,
+													0,
+													NULL,
+													(UInt16)numberFeatures,
+													(UInt16)numberFeatures,
+													FALSE,
+													TRUE,
+													2);
+		*/
+		returnCode = hqr2 (numberFeatures,
+									numberFeatures,
+									low,
+									igh,
+									a_indexPtr,
+									eigenvaluePtr,
+									imaginaryEigenvaluePtr,
+									z_indexPtr,
+									inputMatrixPtr,
+									zMatrixPtr);
+		
+		if (returnCode == noErr)
+			{
+			balbak (numberFeatures,
+						numberFeatures,
+						low,
+						igh,
+						scalePtr,
+						numberFeatures,
+						z_indexPtr,
+						zMatrixPtr);
+					
+					// The eigenvectors are in column format. Change to row format. MultiSpec
+					// expects them to be that way for later use.
+						
+			TransposeMatrix (eigenvectorPtr, eigenvectorPtr, numberFeatures);
 
-	returnCode = 591;
-	*/
+			OrderEigenvaluesAndEigenvectors (eigenvaluePtr,
+															eigenvectorPtr,
+															gInverseMatrixMemory.pivotPtr,	// tempVector
+															numberFeatures,
+															0x0003);
+
+			normalize_rows (eigenvectorPtr, numberFeatures, numberFeatures);
+			
+			}	// end "if (returnCode == noErr)"
+
+		/*
+		FindEigenvaluesOfUpperHessenbergMatrix (
+								inputMatrixPtr,
+								numberFeatures,
+								eigenvaluePtr,
+								gInverseMatrixMemory.pivotPtr,
+								a_indexPtr);
+
+		returnCode = 591;
+		*/
+		}	// end "if (continueFlag)"
+		
+			// Free memory
+			
+	CheckAndDisposePtr ((double*)a_indexPtr);
+	CheckAndDisposePtr ((double*)z_indexPtr);
+	CheckAndDisposePtr (scalePtr);
+		
 	return (returnCode);
 
 }	// end "MatlabEigFunction"

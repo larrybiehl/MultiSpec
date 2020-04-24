@@ -26,7 +26,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 01/11/2020
+//	Revised By:				Larry L. Biehl			Date: 04/21/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -1243,9 +1243,20 @@ UInt32							gNextMinutesLeftTime = 0;
 
 #if defined multispec_wx                                    
 	UInt32							gNextMinutesLeftTimeOffset = 3000;
-#endif	// defined multispec_wx		
+#endif	// defined multispec_wx
+
 		// Uses for storage of next time to list status information.				
-UInt32							gNextStatusTime = 0;
+#if defined multispec_mac || defined multispec_mac_swift
+	UInt32							gNextStatusTime = 0;
+#endif	// defined multispec_mac || defined multispec_mac_swift
+
+#if defined multispec_win
+	UInt32							gNextStatusTime = 0;
+#endif	// defined multispec_win
+
+#if defined multispec_wx
+	time_t							gNextStatusTime = 0;
+#endif	// defined multispec_wx
 
 		// Used for determining when to list status information.			
 		// operations. Units are in ticks or 1/60's of a second
@@ -1458,7 +1469,10 @@ SInt16							gDisplayIntervalTime = 120;
 #endif
 
 		// Variable indicating the file name length limit.
-UInt16							gFileNameLengthLimit = 254;
+UInt16							gFileNameLengthLimit = _MAX_FILE - 3;
+
+		// Variable indicating the file name length limit.
+UInt16							gFilePathNameLengthLimit = _MAX_PATH - 3;
 
 		// Variable indicating what the current file name selection is.			
 SInt16							gFileNamesSelection = 0;

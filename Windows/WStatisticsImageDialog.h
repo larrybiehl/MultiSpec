@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMStatImageDialog class
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 12/13/2019
+//	Revised By:				Larry L. Biehl			Date: 04/17/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -55,10 +55,10 @@ class CMStatImageDialog : public CMDialog
 		double								m_userMaximum,
 												m_userMinimum;
 	
-		int									m_classCode;
+		int									m_areaCode,
+												m_classCode;
 	
-		SInt16								m_areaCode,
-												m_individualMinMaxCode,
+		SInt16								m_individualMinMaxCode,
 												m_maximumNumberChannels,
 												m_MinMaxCode,
 												m_overallMinMaxCode,
@@ -77,7 +77,9 @@ class CMStatImageDialog : public CMDialog
 	
 		virtual BOOL OnInitDialog ();
 
-		afx_msg void OnCbnSelchangeChannelcombo ();
+		afx_msg void OnClickClassesRadio ();
+
+		afx_msg void OnClickAreaRadio ();
 	
 		afx_msg void OnClickIndividualRadio ();
 	
@@ -94,5 +96,5 @@ class CMStatImageDialog : public CMDialog
 	
 
 		Boolean								m_initializedFlag;
-	
+
 };	// end class CMStatImageDialog

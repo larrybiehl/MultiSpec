@@ -25,7 +25,7 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 12/12/2019
+//	Revised By:				Larry L. Biehl			Date: 04/21/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -1108,7 +1108,17 @@ extern UInt32							gNextMinutesLeftTime;
 extern UInt32							gNextMinutesLeftTimeOffset;
 
 		// Uses for storage of next time to list status information.				
-extern UInt32							gNextStatusTime;
+#if defined multispec_mac || defined multispec_mac_swift
+	extern UInt32							gNextStatusTime;
+#endif	// defined multispec_mac || defined multispec_mac_swift
+
+#if defined multispec_win
+	extern UInt32							gNextStatusTime;
+#endif	// defined multispec_win
+
+#if defined multispec_wx
+	extern time_t							gNextStatusTime;
+#endif	// defined multispec_wx
 
 		// Used for determining when to list status information.						
 extern UInt32							gNextStatusTimeOffset;
@@ -1263,6 +1273,9 @@ extern SInt16							gDisplayIntervalTime;
 
 		// Variable indicating the file name length limit.
 extern UInt16							gFileNameLengthLimit;
+
+		// Variable indicating the file name length limit.
+extern UInt16							gFilePathNameLengthLimit;
 
 		// Variable indicating what the current file name selection is.			
 extern SInt16							gFileNamesSelection;

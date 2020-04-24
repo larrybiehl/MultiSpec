@@ -19,7 +19,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			12/12/2019
+//	Revision date:			04/17/2020
 //
 //	Language:				C
 //
@@ -221,7 +221,8 @@ void		FS_make_cor_mean_std (
 				STI_INFO_STR 						STI_info,
 				SInt32*								ERROR_FLAG,
 				unsigned char                 *cor,
-				unsigned char                 *final_cor);
+				unsigned char                 *final_cor,
+				SInt16								areaCode);
 
 void		FS_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
@@ -494,7 +495,7 @@ void FS_find_STI_size (
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
 void FS_gen_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
@@ -511,7 +512,6 @@ void FS_gen_make_stat_image_same_scale (
 	CMFileStream*						fileStreamPtr;
 	
 	FileStringPtr						filePathPtr,
-											//newFileNamePtr,
 											newFilePathPtr;
 											
 	unsigned char						*cor, *final_cor, erdas_header[128];
@@ -527,7 +527,8 @@ void FS_gen_make_stat_image_same_scale (
 											final_cor_size,
 											L_image_size_row;
 											
-	SInt16								errCode;
+	SInt16								errCode,
+											newFilePathLength;
 											
 	Boolean								addProjectIdentifierFlag = FALSE;
 	
@@ -612,7 +613,8 @@ void FS_gen_make_stat_image_same_scale (
 										STI_info,
 										ERROR_FLAG,
 										cor,
-										final_cor);
+										final_cor,
+										areaCode);
 	 
 		if (*ERROR_FLAG != 0)
 																										return;
@@ -637,7 +639,7 @@ void FS_gen_make_stat_image_same_scale (
          filePathPtr =
 						(FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 			
-			if (filePathPtr[0] == 0)
+			if (GetFileStringLength (filePathPtr) == 0)
 				{
 						// This is case when project has not been saved so there
 						// is no name yet. Use the image name.
@@ -648,29 +650,32 @@ void FS_gen_make_stat_image_same_scale (
 				
 				}	// end "if (filePathPtr[0] == 0)"
 				
-			}	// end "if (gProjectInfoPtr != NULL)"
+			}	// end "if (areaCode == kTrainingType)"
     
-      else	// gProjectInfoPtr == NULL
+      else	// areaCode != kTrainingType
          filePathPtr =
 						(FileStringPtr)GetFilePathPPointerFromFileInfo (gImageFileInfoPtr);
          
 		BlockMoveData ((UCharPtr)filePathPtr,
 							newFilePathPtr,
-							filePathPtr[0] + 1); 
+							GetFileStringLength (filePathPtr) + 3);
 			
 		RemoveSuffix (newFilePathPtr);
 
+		newFilePathLength = GetFileStringLength (newFilePathPtr);
 		if (addProjectIdentifierFlag)
 			{
-			sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)"_project");
+			sprintf ((char*)&newFilePathPtr[newFilePathLength+2], (char*)"_project");
 			 						
-			newFilePathPtr[0] += 8;
+			newFilePathLength += 8;
+			SetFileStringLength (newFilePathPtr, newFilePathLength);
 			
 			}	// end "if (addProjectIdentifierFlag)"
   
-		sprintf ((char*)&newFilePathPtr[newFilePathPtr[0]+1], (char*)".sti");
-			 						
-		newFilePathPtr[0] += 4;
+		sprintf ((char*)&newFilePathPtr[newFilePathLength+2], (char*)".sti");
+
+		newFilePathLength += 4;
+		SetFileStringLength (newFilePathPtr, newFilePathLength);
 		  
 		LoadNewErdasHeader (newFileInfoPtr, (unsigned char*)erdas_header, kErdas74Type);
 		  
@@ -744,7 +749,7 @@ void FS_gen_make_stat_image_same_scale (
 											IDS_StatisticsImage19,
 											(CMFileStream*)NULL, 
 											gOutputForce1Code, 
-											newFilePathPtr,
+											(char*)&newFilePathPtr[2],
 											*ERROR_FLAG == noErr);
 
       CloseFile (newFileInfoPtr);
@@ -792,7 +797,7 @@ void FS_gen_make_stat_image_same_scale (
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 08/24/2017
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
 void FS_make_cor_mean_std (
 				UInt16*								featurePtr,
@@ -806,7 +811,8 @@ void FS_make_cor_mean_std (
 				STI_INFO_STR 						STI_info,
 				SInt32*								ERROR_FLAG,
             unsigned char                 *cor,
-            unsigned char                 *final_cor)
+            unsigned char                 *final_cor,
+				SInt16								areaCode)
 							
 {	
 	double 								avail_range,
@@ -1189,7 +1195,7 @@ void FS_make_cor_mean_std (
      
          int textLength;
      
-         if (gProjectInfoPtr != NULL)
+         if (gProjectInfoPtr != NULL && areaCode == kTrainingType)
 				{
 				classNameIndex = classPtr[class_index] - 1;
             textLength = (int)
@@ -1216,7 +1222,7 @@ void FS_make_cor_mean_std (
 
 					}	// end "for (i = 1; i < textLength; i++)"
 					
-				}	// end "if (gProjectInfoPtr != NULL)"
+				}	// end "if (gProjectInfoPtr != NULL && areaCode == kTrainingType)"
    
          for (i=col_grid_label_space; 
 						//i<=n-col_grid_label_space;

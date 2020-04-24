@@ -19,7 +19,7 @@
 //	Authors:					Byeungwoo Jeon
 //								Larry L. Biehl
 //
-//	Revision date:			12/12/2019
+//	Revision date:			04/14/2020
 //
 //	Language:				C
 //
@@ -638,7 +638,7 @@ SInt16 SaveProbabilityInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/12/2010
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/14/2020
 
 Boolean SetUseTempDiskFileFlag (
 				EchoClassifierVarPtr				echoInfoPtr)
@@ -712,7 +712,8 @@ Boolean SetUseTempDiskFileFlag (
 				FileStringPtr tempFilePathPtr =
 					(FileStringPtr)GetFilePathPPointerFromFileStream (tempFileStreamPtr);
 					
-				CopyPToP (tempFilePathPtr,  filePathPointer);
+				//CopyPToP (tempFilePathPtr,  filePathPointer);
+				CopyFileStringToFileString(filePathPointer, tempFilePathPtr, _MAX_FILE);
 
 						// Now get wide character and unicode names.
 
@@ -726,8 +727,13 @@ Boolean SetUseTempDiskFileFlag (
 			
 			tempFileNamePtr =
 					(FileStringPtr)GetFileNamePPointerFromFileStream (tempFileStreamPtr);
-			CopyPToP (tempFileNamePtr,  (UCharPtr)"\0tempEcho0000.tmp");
-			  
+			//CopyPToP (tempFileNamePtr,  (UCharPtr)"\0tempEcho0000.tmp");
+			int length = GetFileStringLength (tempFileNamePtr);
+			memcpy ((char*)&tempFileNamePtr[length+1],
+						(char*)"tempEcho0000.tmp",
+						16);
+			SetFileStringLength (tempFileNamePtr, length+16);
+			
 			#if defined multispec_win || defined multispec_wx
 						// Now copy the proposed file name to the file path string.
 			
@@ -815,7 +821,8 @@ Boolean SetUseTempDiskFileFlag (
 
 			tempFileNamePtr =
 					(FileStringPtr)GetFilePathPPointerFromFileStream (tempFileStreamPtr);
-			continueFlag = (errCode == noErr) && (tempFileNamePtr[0] > 0);
+			continueFlag =
+						(errCode == noErr) && (GetFileStringLength (tempFileNamePtr) > 0);
 			
 			if (continueFlag)
 				{

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/17/2018
+//	Revision date:			04/10/2020
 //
 //	Language:				C
 //
@@ -244,7 +244,8 @@ void CreateFullDataSetIdentifierName (
 									dataSetName,
 									NULL);
 						
-		fileNameLength = fileName[0];
+		//fileNameLength = fileName[0];
+		fileNameLength = GetFileStringLength (fileName);
 		dataSetNameLength = dataSetName[0];
 			
 		numberFileNameCharsToCopy = fileNameLength;
@@ -258,7 +259,7 @@ void CreateFullDataSetIdentifierName (
 				// Insert the file name that is to be used.
 				
 		strncpy ((char*)&fullDataSetNamePtr[1], 
-						(char*)&fileName[1], 
+						(char*)&fileName[2],
 						numberFileNameCharsToCopy);
 			
 				// Add the data set name.
@@ -618,7 +619,7 @@ void GetHdfDataSetName (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/2008
-//	Revised By:			Larry L. Biehl			Date: 09/18/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 SInt16 GetHDFFilePathCPointer (
 				FileInfoPtr		 					fileInfoPtr,
@@ -632,7 +633,7 @@ SInt16 GetHDFFilePathCPointer (
 	
    
 	filePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (fileInfoPtr);
-	*filePathCPtrPtr = &filePathPPtr[1];
+	*filePathCPtrPtr = &filePathPPtr[2];
 	
 	#if defined multispec_mac
 		CMFileStream*						fileStreamPtr;
@@ -681,7 +682,7 @@ SInt16 GetHDFFilePathCPointer (
 					// Need to return a c pointer.
 			
 			if (filePathCPtr != NULL)
-				filePathCPtr = &filePathCPtr[1];
+				filePathCPtr = &filePathCPtr[2];
 
 			*filePathCPtrPtr = filePathCPtr;
 
@@ -711,7 +712,7 @@ return (0);
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/02/2001
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 void GetHdfHeaderFileName (
 				FileInfoPtr 						fileInfoPtr, 
@@ -720,24 +721,28 @@ void GetHdfHeaderFileName (
 {	
 	HdfDataSets*						hdfDataSetsPtr;
 	
-	SInt16								numChars;
+	//SInt16								numChars;
 	
 	
 			// Make empty string for both c and pascal string.
 			
 	headerFileNamePtr[0] = 0;
-	headerFileNamePtr[1] = 0;	
+	headerFileNamePtr[1] = 0;
+	headerFileNamePtr[2] = 0;	
 	
 	hdfDataSetsPtr = (HdfDataSets*)GetHandlePointer (fileInfoPtr->hdfHandle);
 									
 	if (hdfDataSetsPtr != NULL)
 		{
-				// Do not include the leading character. Copy the c terminator.
+				// Include the leading string length and the c terminator.
 		
-		numChars = hdfDataSetsPtr[0].name[0];
+		//numChars = hdfDataSetsPtr[0].name[0];
+		//numChars = GetFileStringLength (hdfDataSetsPtr[0].name);
 		
-		if (numChars > 0)
-			CopyPToP (headerFileNamePtr, hdfDataSetsPtr[0].name);
+		//CopyPToP (headerFileNamePtr, hdfDataSetsPtr[0].name);
+		CopyFileStringToFileString (hdfDataSetsPtr[0].name,
+												headerFileNamePtr,
+												256);
 		
 		}	// end "if (hdfDataSetsPtr != NULL)"
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			04/17/2020
 //
 //	Language:				C
 //
@@ -1452,18 +1452,19 @@ pascal void DrawDiskFileFormatPopUp (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1997
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 void ENVI_ROIToThematicFileControl (void)
 
 {
-	CMFileStream						inputFileStream;
+	//CMFileStream						inputFileStream;
+	MFileInfo							inputFileInfo;
 	HParamBlockRec						paramBlock;
 	UInt8									inputBuffer[256];
 	
 	UCharPtr								inputStringPtr;
 	CMFileStream*						inputFileStreamPtr;
-	ColorSpec*							colorSpecPtr;
+	ColorSpec*							colorSpecPtr = NULL;
 	FileInfoPtr							outFileInfoPtr;
 	Handle								reformatOptionsHandle;
 	ReformatOptionsPtr				reformatOptionsPtr;
@@ -1529,8 +1530,10 @@ void ENVI_ROIToThematicFileControl (void)
 		BlockMoveData ("background", (Ptr)&classNamePtr[1], 10);
 		classNamePtr += 32;
 				
-		inputFileStreamPtr = &inputFileStream;
-		InitializeFileStream (inputFileStreamPtr);
+		//inputFileStreamPtr = &inputFileStream;
+		InitializeFileInfoStructure (&inputFileInfo, kPointer);
+		inputFileStreamPtr = inputFileInfo.fileStreamCPtr;
+		//InitializeFileStream (inputFileStreamPtr);
 
 				// Allow the user to select the ENVI ROI text file.
 		
@@ -1571,8 +1574,10 @@ void ENVI_ROIToThematicFileControl (void)
 		
 				// Set up the disk file to be used for the new reformatted				
 				// image file.																			
-		
+
+		gImageFileInfoPtr = &inputFileInfo;
 		continueFlag = !GetReformatOutputFile (outFileInfoPtr, reformatOptionsPtr);
+		gImageFileInfoPtr = NULL;
 		
 				// Get memory for a color table. Allow space for the maximum number
 				// of classes ... 256
@@ -2019,7 +2024,7 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 // Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 03/11/1997
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/17/2020
 
 Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 				FileInfoPtr							outFileInfoPtr, 
@@ -2141,11 +2146,11 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 			else if (strncmp ((char*)inputStringPtr, (char*)roiPixel, 1) == 0)
 				{
 				returnCode = sscanf ((char*)inputStringPtr, 
-											#ifndef multispec_wx
-												"(%ld) , (%ld)",
-											#else
-												"(%d) , (%d)",
-											#endif
+											//#ifndef multispec_wx
+											//	"( %d ) , ( %d )",
+											//#else
+												"( %d ) , ( %d )",
+											//#endif
 											&column,
 											&line);
 										
@@ -2211,7 +2216,7 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers1 (
 // Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/2011
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
 Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 				FileInfoPtr							outFileInfoPtr, 
@@ -2371,11 +2376,11 @@ Boolean ENVI_ROIToThematicConvertPixelsToClassNumbers2 (
 				if (errCode == noErr)
 					{
 					returnCode = sscanf ((char*)inputStringPtr, 
-												#ifndef multispec_wx
-													"%ld %ld\r",
-												#else
+												//#ifndef multispec_wx
+												//	"%d %d\r",
+												//#else
 													"%d %d\r",
-												#endif
+												//#endif
 												&column, 
 												&line);
 												

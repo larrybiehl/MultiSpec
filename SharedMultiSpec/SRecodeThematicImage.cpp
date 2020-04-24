@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/08/2019
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -1531,7 +1531,7 @@ SInt16 RecodeThematicImageDialogSelectThresholdItem (
 
 
 void RecodeThematicImageDialogSetThresholdFileName (
-				UCharPtr								fileNamePPointer,
+				FileStringPtr						fileNamePPointer,
 				MenuHandle							popUpSelectThresholdImageMenu,
 				DialogPtr							dialogPtr,
 				SInt16								thresholdPopupItemNumber,
@@ -1560,7 +1560,7 @@ void RecodeThematicImageDialogSetThresholdFileName (
 				comboBoxPtr->AddString ((LPCTSTR)_T(" "));
 			dialogPtr->SetComboItemText (thresholdPopupItemNumber, 
 														menuItemNumber-1, 
-														&fileNamePPointer[1]);
+														&fileNamePPointer[2]);
 		#endif	// defined multispec_win
 
 		#if defined multispec_wx
@@ -1572,7 +1572,7 @@ void RecodeThematicImageDialogSetThresholdFileName (
 			//dialogPtr->SetComboItemText (thresholdPopupItemNumber,
 			dialogPtr->SetChoiceItemText (thresholdPopupItemNumber,
 													menuItemNumber-1,
-													(char*)&fileNamePPointer[1]);
+													(char*)&fileNamePPointer[2]);
 		#endif
 		}	// end "if (fileNamePPointer != NULL)"
 	

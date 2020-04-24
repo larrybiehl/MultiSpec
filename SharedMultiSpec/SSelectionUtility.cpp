@@ -3966,13 +3966,14 @@ SInt64 GetNumberPixelsInSelection (
 
 				point.v++;
 
-				if (TickCount () >= gNextStatusTime) 
+				if (TickCount () >= gNextStatusTime)
 					{
 					numberPixelsChecked = column - columnStart +
 							 (SInt64)(line - lineColumnRectPtr->top) * numberColumns;
 
 					if (gStatusDialogPtr == NULL) 
 						{
+
 								// Determine if the status dialog box needs to be displayed.
 
 						if (totalNumberPixelsToCheck / numberPixelsChecked > 3) 

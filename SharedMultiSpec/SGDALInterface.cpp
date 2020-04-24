@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/06/2020
+//	Revision date:			04/12/2020
 //
 //	Language:				C
 //
@@ -176,7 +176,8 @@ extern SInt16 ReadGDALHeaderInformation (
 
 extern SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr							fileInfoPtr,
-				GDALDatasetH						hDS);
+				GDALDatasetH						hDS,
+				Boolean								vectorFlag);
 
 
 
@@ -271,8 +272,14 @@ SInt16	ReadGDALProjectionInformationFromMetadata_HRLDAS (
 				Boolean*								convertCenterFromLatLongToMapFlagPtr,			
 				Boolean*								convertLowerLeftFromLatLongToMapFlagPtr);
 
-void		ReadXMLRPCs (
-				FileInfoPtr							fileInfoPtr);
+SInt16 ReadVectorWithGDALLibrary (
+				Handle								windowInfoHandle,
+				FileInfoPtr 						fileInfoPtr,
+				char*									headerRecordPtr,
+				SInt16								formatOnlyCode);
+
+//void		ReadXMLRPCs (
+//				FileInfoPtr							fileInfoPtr);
 
 void		SetProjectionParametersFromGDALInformation (
 				MapProjectionInfoPtr 			mapProjectionInfoPtr, 
@@ -597,7 +604,7 @@ void CloseGDALInterface (void)
 // Called By:			CoordinateDialogSetParametersFromEPSGCode in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 03/30/2020
 
 Boolean GDALSetReferenceSystemFromEPSGCode (
 				SInt16								epsgCode,
@@ -630,7 +637,7 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 		
 		OGRErr								ogrError;
 		
-		SInt16								referenceSystemCode;
+		SInt16								referenceSystemCode = 0;
 		
 		
 				// This is an epsg code. Try to get the parameters
@@ -646,35 +653,45 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 																(OGRSpatialReference*)ogrEPSGSRSPtr);
 																				
 				GetEPSGCodeName ((OGRSpatialReferenceH)ogrEPSGSRSPtr, epsgNamePtr);
-							
-				*projectionCodePtr = GetProjectionCodeFromOGRSpatialReference (
-								(OGRSpatialReference*)ogrEPSGSRSPtr, &referenceSystemCode);
+				
+				if (OSRIsGeographic (ogrEPSGSRSPtr))
+					referenceSystemCode = kGeographicRSCode;
 																									
 				GetDatumCodeFromOGRSpatialReference (
 								(OGRSpatialReference*)ogrEPSGSRSPtr, datumNamePtr, TRUE);
 									
 				GetEllipsoidCodeFromOGRSpatialReference (
 								(OGRSpatialReference*)ogrEPSGSRSPtr, ellipsoidNamePtr, TRUE);
-					
-				*longitudeCentralMeridianPtr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "central_meridian", 0, NULL);
-				*latitudeOriginPtr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "latitude_of_origin", 0, NULL);
-				*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "scale_factor", 1, NULL);
-				*falseEastingPtr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "false_easting", 0, NULL);
-				*falseNorthingPtr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "false_northing", 0, NULL);
-				*standardParallel1Ptr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "standard_parallel_1", 0, NULL);
-				*standardParallel2Ptr = OSRGetProjParm (
-													ogrEPSGSRSPtr, "standard_parallel_2", 0, NULL);
+								
+				*projectionCodePtr = GetProjectionCodeFromOGRSpatialReference (
+									(OGRSpatialReference*)ogrEPSGSRSPtr, &referenceSystemCode);
+									
+				if (referenceSystemCode == kGeographicRSCode)
+					*projectionCodePtr = kNotDefinedCode;
 				
-				*falseOriginLongitudePtr = *longitudeCentralMeridianPtr;
-				*falseOriginLatitudePtr = *latitudeOriginPtr;
-				*falseOriginEastingPtr = *falseEastingPtr;
-				*falseOriginNorthingPtr = *falseNorthingPtr;
+				else	// referenceSystemCode != kGeographicRSCode
+					{
+					*longitudeCentralMeridianPtr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "central_meridian", 0, NULL);
+					*latitudeOriginPtr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "latitude_of_origin", 0, NULL);
+					*scaleFactorOfCentralMeridianPtr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "scale_factor", 1, NULL);
+					*falseEastingPtr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "false_easting", 0, NULL);
+					*falseNorthingPtr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "false_northing", 0, NULL);
+					*standardParallel1Ptr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "standard_parallel_1", 0, NULL);
+					*standardParallel2Ptr = OSRGetProjParm (
+														ogrEPSGSRSPtr, "standard_parallel_2", 0, NULL);
+					
+					*falseOriginLongitudePtr = *longitudeCentralMeridianPtr;
+					*falseOriginLatitudePtr = *latitudeOriginPtr;
+					*falseOriginEastingPtr = *falseEastingPtr;
+					*falseOriginNorthingPtr = *falseNorthingPtr;
+					
+					}	// end "else referenceSystemCode != kGeographicRSCode"
 								
 				returnValue	= OSRGetSemiMajor (ogrEPSGSRSPtr, &ogrError);
 				if (ogrError == OGRERR_NONE)
@@ -684,7 +701,9 @@ Boolean GDALSetReferenceSystemFromEPSGCode (
 				if (ogrError == OGRERR_NONE)
 					*semiMinorAxisPtr = returnValue;
 				
-				if (*projectionCodePtr != kNotDefinedCode	&&
+				if ((referenceSystemCode == kGeographicRSCode ||
+							(referenceSystemCode != kGeographicRSCode &&
+													*projectionCodePtr != kNotDefinedCode)) &&
 							*mapUnitsCodePtr != kNotDefinedCode && 
 									datumNamePtr[0] > 0 && 
 											ellipsoidNamePtr[0] > 0)
@@ -1685,7 +1704,7 @@ Boolean GetGDALTopToBottomFlag (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/2012
-//	Revised By:			Larry L. Biehl			Date: 03/09/2019
+//	Revised By:			Larry L. Biehl			Date: 03/30/2020
 
 void GetEPSGCodeName (
 				OGRSpatialReferenceH				ogrEPSGSRSPtr,
@@ -1699,6 +1718,10 @@ void GetEPSGCodeName (
 	
 	attributeStringPtr = 
 				(UCharPtr)((OGRSpatialReference*)ogrEPSGSRSPtr)->GetAttrValue ("PROJCS");
+
+	if (attributeStringPtr == NULL)
+		attributeStringPtr =
+				(UCharPtr)((OGRSpatialReference*)ogrEPSGSRSPtr)->GetAttrValue ("GEOGCS");
 				
 	if (attributeStringPtr != NULL)
 		{
@@ -2678,7 +2701,7 @@ SInt16 LoadGDALHeaderInformation (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/22/2012
-//	Revised By:			Larry L. Biehl			Date: 05/06/2015
+//	Revised By:			Larry L. Biehl			Date: 03/28/2020
 
 SInt16 LoadGDALInformation (
 				FileInfoPtr 						fileInfoPtr, 
@@ -2757,7 +2780,7 @@ SInt16 LoadGDALInformation (
 										
 			fileInfoPtr->format = format;	
 			fileInfoPtr->ancillaryInfoformat = kArcViewType;
-			gdalReturnCode = ReadGDALProjectionInformation (fileInfoPtr, hDS);
+			gdalReturnCode = ReadGDALProjectionInformation (fileInfoPtr, hDS, false);
 		
 			//		// For testing:
 			//
@@ -3346,11 +3369,12 @@ SInt16 ReadGDALHeaderInformation (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2019
+//	Revised By:			Larry L. Biehl			Date: 04/05/2020
 
 SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr 						fileInfoPtr,
-				GDALDatasetH						hDS)
+				GDALDatasetH						hDS,
+				Boolean								vectorFlag)
 
 {	
 	double								adfGeoTransform[6],
@@ -3367,7 +3391,7 @@ SInt16 ReadGDALProjectionInformation (
 	
 	MapProjectionInfoPtr				mapProjectionInfoPtr = NULL;
 	
-	OGRSpatialReferenceH				ogrSpatialReferenceCPtr;
+	OGRSpatialReferenceH				ogrSpatialReferenceCPtr = NULL;
 	
 	OGRErr								ogrError;
 	
@@ -3408,7 +3432,18 @@ SInt16 ReadGDALProjectionInformation (
 					// Note that GeoTIFF is not set until end of this routine.
 			gtModelTypeGeoKey = GetGTModelTypeGeoKey (fileInfoPtr);
 		
-		if (projectionStringFlag || transformStringFlag || gtModelTypeGeoKey == 2)
+		if (vectorFlag)
+			{
+			#if !defined multispec_wxlin
+				OGRLayerH layer = OGR_DS_GetLayer ((OGRDataSourceH)hDS, 0);
+				//ogrSpatialReferenceCPtr = (OGRSpatialReference*)OGR_L_GetSpatialRef (layer);
+				ogrSpatialReferenceCPtr = (OGRSpatialReferenceH)OGR_L_GetSpatialRef (layer);
+			#endif
+			
+			}	// end "if (vectorFlag)"
+		
+		if (projectionStringFlag || transformStringFlag || gtModelTypeGeoKey == 2 ||
+						ogrSpatialReferenceCPtr != NULL)
 			{
 			if (fileInfoPtr->mapProjectionHandle == NULL)
 				fileInfoPtr->mapProjectionHandle = GetMapProjectionHandle ();
@@ -3425,302 +3460,301 @@ SInt16 ReadGDALProjectionInformation (
 			
 			if (returnCode == noErr)
 				{					
-				if (projectionStringFlag)	
-					{
+				if (projectionStringFlag && ogrSpatialReferenceCPtr == NULL)
 					ogrSpatialReferenceCPtr = OSRNewSpatialReference (projectionStringPtr);
-					if (ogrSpatialReferenceCPtr != NULL)
-						{	
-								// Check for common reference systems
-						
-						attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
-										ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
-										
-								// Need to find another way to verify this. What is currently 
-								// used is too stringent.
-						//VerifyEPSG_CSVFolderExits ((char*)attributeStringPtr);
-
-						authorityCodeStringPtr = ((OGRSpatialReference*)
-										ogrSpatialReferenceCPtr)->GetAuthorityCode ("PROJCS");
-						if (authorityCodeStringPtr != NULL)
-							StringToNumber ((char*)authorityCodeStringPtr, &pcsCode);
-
-						authorityNameStringPtr = ((OGRSpatialReference*)
-										ogrSpatialReferenceCPtr)->GetAuthorityName ("PROJCS");
-						
-								// Check if utm zone number exists.
-								
-						utmZone = OSRGetUTMZone (ogrSpatialReferenceCPtr, &northFlag);
-																	
-								// Get UTM type reference codes
-								
-						if (attributeStringPtr != NULL && utmZone > 0)
-							{											
-							if (CompareStringsNoCase (attributeStringPtr, 
-																(UCharPtr)"GDA94", 
-																5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																								kGDA94RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"NAD27", 
-																		5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kUTM_NAD27RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"NAD83", 
-																		5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kUTM_NAD83RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"SAD69", 
-																		5) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kUTM_SAD69RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"WGS 72", 
-																		6) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kUTM_WGS72RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"WGS 84", 
-																		6) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kUTM_WGS84RSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr, 
-																		(UCharPtr)"Pulkovo", 
-																		7) == 0)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																						kGaussKrugerRSCode;
-								
-							else if (CompareStringsNoCase (attributeStringPtr,
-																		(UCharPtr)"SWEREF99_TM",
-																		11) == 0)
-								{
-										// Set utmZone to 0. It is being incorrectly set to a value
-										// by gdal. Wrong assumption being made.
-								
-								utmZone = 0;
-								
-								//mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
-								//														;
-								
-								}	// end "else if (CompareStringsNoCase (attributeStringPtr, ..."
-							
-							}	// end "if (attributeStringPtr != NULL && utmZone > 0)"	
-
-								// Set up some other information for UTM reference systems
-						
-						if (utmZone > 0)
-							{
-							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																							kNoRSDefinedCode)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																									kUTMRSCode;
-							
-							if (!northFlag)
-								utmZone = -utmZone;
-							mapProjectionInfoPtr->gridCoordinate.gridZone = utmZone;
-							
-							mapProjectionInfoPtr->gridCoordinate.projectionCode = 
-																				kTransverseMercatorCode;
-							
-							}	// end "else if (OSRGetUTMZone (ogrSpatialReferenceCPtr, ..."
-									
-						else if (OSRIsGeographic (ogrSpatialReferenceCPtr))
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																						kGeographicRSCode;
-							
-						else if (pcsCode > 0 && pcsCode < 32767)
-							{
-									// check if one of State Plane sets.
-							
-							GTIFPCSToMapSys (pcsCode, &datum, &pZone);
-							
-							if (pZone > 0 && pZone < 32767 && datum > 0 && datum < 32767)
-								{		
-								mapProjectionInfoPtr->gridCoordinate.gridZone = pZone;
-														
-								if (datum == 4267)
-									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																					kStatePlaneNAD27RSCode;
-									
-								else if (datum == 4269)
-									mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																					kStatePlaneNAD83RSCode;	
-								
-								}	// end "if (pZone > 0 ... && datum > 0 ...)"	
-									
-							if (pcsCode == 2100)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																								kGGRS87RSCode;
-								
-							if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																							kNoRSDefinedCode)
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																							kByEPSGCodeCode;
-								
-									// Get the epsg code name
-								
-							GetEPSGCodeName (ogrSpatialReferenceCPtr, 
-													mapProjectionInfoPtr->gridCoordinate.epsgName);
-							
-							}	// end "else if (pcsCode > 0 && pcsCode < 32767)"							
-								
-								// Save this geo key in case needed to write out to a new 
-								// file.
-								
-						mapProjectionInfoPtr->projectedCSTypeGeoKey = (UInt16)pcsCode;
-						
-								// Get the projection if needed. Projection is implied 
-								// already if the reference system has been set. In other 
-								// words the reference system will override the projection. 
-								// Decided in March 2012 not force the projection based on 
-								// the reference system. Want to allow one to see the 
-								// information actually in the file.
-								// The user can override this if needed.
-						/*		
-						attributeStringPtr = NULL;
-						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																						kNoRSDefinedCode ||
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																				kStatePlaneNAD27RSCode ||
-								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																					kStatePlaneNAD83RSCode)
-						*/
-						projectionCode = GetProjectionCodeFromOGRSpatialReference (
-													(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
-													&referenceSystemCode);
-																											
-						if (projectionCode != kNotDefinedCode)
-							mapProjectionInfoPtr->gridCoordinate.projectionCode = 
-																							projectionCode;
-							
-						else if (referenceSystemCode == kGeographicRSCode)
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																						kGeographicRSCode;
-							
-								// Get the Datum
-								
-						mapProjectionInfoPtr->geodetic.datumCode = 
-								GetDatumCodeFromOGRSpatialReference (
-											(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
-											mapProjectionInfoPtr->gridCoordinate.datumName,
-											TRUE);
-																					
-								// Get the Spheroid
-								
-						mapProjectionInfoPtr->geodetic.spheroidCode = 
-								GetEllipsoidCodeFromOGRSpatialReference (
-											(OGRSpatialReference*)ogrSpatialReferenceCPtr, 
-											mapProjectionInfoPtr->gridCoordinate.ellipsoidName,
-											TRUE);
-																					
-								// Get the linear units	
-								
-						mapUnitsCode = GetMapUnitsCodeFromOGRSpatialReference (
-													(OGRSpatialReference*)ogrSpatialReferenceCPtr);
-		
-						if (mapUnitsCode != 0)
-							mapProjectionInfoPtr->planarCoordinate.mapUnitsCode = 
-																								mapUnitsCode;
-							
-						returnValue	= OSRGetSemiMajor (ogrSpatialReferenceCPtr, &ogrError);
-						if (ogrError == OGRERR_NONE)
-							{
-							mapProjectionInfoPtr->geodetic.semiMajorAxis = returnValue;
-							
-							}	// end "if (ogrError == OGRERR_NONE)"
-						
-						returnValue	= OSRGetSemiMinor (ogrSpatialReferenceCPtr, &ogrError);
-						if (ogrError == OGRERR_NONE)
-							{
-							mapProjectionInfoPtr->geodetic.semiMinorAxis = returnValue;
-							
-							}	// end "if (ogrError == OGRERR_NONE)"
-							
-								// Try to get parameters from the string if the information 
-								// was not found by the gdal routines.
-						/*		
-						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																						kNoRSDefinedCode &&
-								mapProjectionInfoPtr->gridCoordinate.projectionCode == 
-																							kNotDefinedCode)
-						*/
-						SetProjectionInformationFromString (mapProjectionInfoPtr,
-																		(char*)projectionStringPtr);
-																				
-								// Try a last ditch effort to get information from the geotiff string that GDAL
-								// may not be getting.
-								
-						if (fileInfoPtr->format == kTIFFType &&
-								(mapProjectionInfoPtr->gridCoordinate.projectionCode == 
-																						kNotDefinedCode ||
-									mapProjectionInfoPtr->geodetic.datumCode == 
-																					kNoDatumDefinedCode))
-							SetProjectionInformationFromString2 (fileInfoPtr,
-																				mapProjectionInfoPtr);
-							
-								// Check if this may be a geographic projection. I have not found that
-								// "geographic" is listed as output of a in gdal.
-						/*		
-						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode == 
-																					kUserDefinedRSCode &&
-								mapProjectionInfoPtr->gridCoordinate.projectionCode == 
-																					kNotDefinedCode &&
-									mapProjectionInfoPtr->planarCoordinate.mapUnitsCode == 
-																					kAVDecimalDegreesCode)
-							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode = 
-																						kGeographicRSCode;
-						*/
-								// If spheroid and datum have not been defined, try to get 
-								// spheroid from any available major and minor axes.
-								
-						if (mapProjectionInfoPtr->geodetic.spheroidCode == 0 && 
-												mapProjectionInfoPtr->geodetic.datumCode == 
-																					kNoDatumDefinedCode)
-							mapProjectionInfoPtr->geodetic.spheroidCode = 
-										GetSpheroidCodeFromMajorMinorAxes (
-													mapProjectionInfoPtr->geodetic.semiMajorAxis,
-													mapProjectionInfoPtr->geodetic.semiMinorAxis);
-
-								// Check if spherical datum
-							
-						if (mapProjectionInfoPtr->geodetic.datumCode == 
-																			kNoDatumDefinedCode &&
-								mapProjectionInfoPtr->geodetic.spheroidCode == 
-																					kSphereEllipsoidCode)
-							mapProjectionInfoPtr->geodetic.datumCode = kSphereDatumCode;
-							
-								// Set the ellipsoid based on the datum if it has not been 
-								// set yet.
-						
-						if (mapProjectionInfoPtr->geodetic.spheroidCode	== 
-																				kNoEllipsoidDefinedCode)	
-							SetEllipsoidFromDatum (mapProjectionInfoPtr);
-							
-								// Set projection paramaters from the reference system
-								
-						//parametersSetFlag = SetProjectionParametersFromReferenceSystem (
-						//															mapProjectionInfoPtr);
-													
-								// Set the projection parameters from GDAL information if 
-								// possible.
-						
-						if (!parametersSetFlag)		
-							SetProjectionParametersFromGDALInformation (
-																				mapProjectionInfoPtr, 
-																				ogrSpatialReferenceCPtr);	
-																											
-						OSRRelease (ogrSpatialReferenceCPtr);	
-						
-						}	// end "if (ogrSpatialReferenceCPtr != NULL)"
 					
-					}	// end "if (projectionStringFlag)"
+				if (ogrSpatialReferenceCPtr != NULL)
+					{
+							// Check for common reference systems
+					
+					attributeStringPtr = (UCharPtr)((OGRSpatialReference*)
+									ogrSpatialReferenceCPtr)->GetAttrValue ("PROJCS");
+									
+							// Need to find another way to verify this. What is currently
+							// used is too stringent.
+					//VerifyEPSG_CSVFolderExits ((char*)attributeStringPtr);
+
+					authorityCodeStringPtr = ((OGRSpatialReference*)
+									ogrSpatialReferenceCPtr)->GetAuthorityCode ("PROJCS");
+					if (authorityCodeStringPtr != NULL)
+						StringToNumber ((char*)authorityCodeStringPtr, &pcsCode);
+
+					authorityNameStringPtr = ((OGRSpatialReference*)
+									ogrSpatialReferenceCPtr)->GetAuthorityName ("PROJCS");
+					
+							// Check if utm zone number exists.
+							
+					utmZone = OSRGetUTMZone (ogrSpatialReferenceCPtr, &northFlag);
+																
+							// Get UTM type reference codes
+							
+					if (attributeStringPtr != NULL && utmZone > 0)
+						{
+						if (CompareStringsNoCase (attributeStringPtr,
+															(UCharPtr)"GDA94",
+															5) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																							kGDA94RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"NAD27",
+																	5) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kUTM_NAD27RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"NAD83",
+																	5) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kUTM_NAD83RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"SAD69",
+																	5) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kUTM_SAD69RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"WGS 72",
+																	6) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kUTM_WGS72RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"WGS 84",
+																	6) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kUTM_WGS84RSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"Pulkovo",
+																	7) == 0)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kGaussKrugerRSCode;
+							
+						else if (CompareStringsNoCase (attributeStringPtr,
+																	(UCharPtr)"SWEREF99_TM",
+																	11) == 0)
+							{
+									// Set utmZone to 0. It is being incorrectly set to a value
+									// by gdal. Wrong assumption being made.
+							
+							utmZone = 0;
+							
+							//mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+							//														;
+							
+							}	// end "else if (CompareStringsNoCase (attributeStringPtr, ..."
+						
+						}	// end "if (attributeStringPtr != NULL && utmZone > 0)"
+
+							// Set up some other information for UTM reference systems
+					
+					if (utmZone > 0)
+						{
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																						kNoRSDefinedCode)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																								kUTMRSCode;
+						
+						if (!northFlag)
+							utmZone = -utmZone;
+						mapProjectionInfoPtr->gridCoordinate.gridZone = utmZone;
+						
+						mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																			kTransverseMercatorCode;
+						
+						}	// end "else if (OSRGetUTMZone (ogrSpatialReferenceCPtr, ..."
+								
+					else if (OSRIsGeographic (ogrSpatialReferenceCPtr))
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kGeographicRSCode;
+						
+					else if (pcsCode > 0 && pcsCode < 32767)
+						{
+								// check if one of State Plane sets.
+						
+						GTIFPCSToMapSys (pcsCode, &datum, &pZone);
+						
+						if (pZone > 0 && pZone < 32767 && datum > 0 && datum < 32767)
+							{
+							mapProjectionInfoPtr->gridCoordinate.gridZone = pZone;
+													
+							if (datum == 4267)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD27RSCode;
+								
+							else if (datum == 4269)
+								mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																				kStatePlaneNAD83RSCode;
+							
+							}	// end "if (pZone > 0 ... && datum > 0 ...)"
+								
+						if (pcsCode == 2100)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																							kGGRS87RSCode;
+							
+						if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																						kNoRSDefinedCode)
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																						kByEPSGCodeCode;
+							
+								// Get the epsg code name
+							
+						GetEPSGCodeName (ogrSpatialReferenceCPtr,
+												mapProjectionInfoPtr->gridCoordinate.epsgName);
+						
+						}	// end "else if (pcsCode > 0 && pcsCode < 32767)"
+							
+							// Save this geo key in case needed to write out to a new
+							// file.
+							
+					mapProjectionInfoPtr->projectedCSTypeGeoKey = (UInt16)pcsCode;
+					
+							// Get the projection if needed. Projection is implied
+							// already if the reference system has been set. In other
+							// words the reference system will override the projection.
+							// Decided in March 2012 not force the projection based on
+							// the reference system. Want to allow one to see the
+							// information actually in the file.
+							// The user can override this if needed.
+					/*
+					attributeStringPtr = NULL;
+					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																					kNoRSDefinedCode ||
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																			kStatePlaneNAD27RSCode ||
+							mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																				kStatePlaneNAD83RSCode)
+					*/
+					projectionCode = GetProjectionCodeFromOGRSpatialReference (
+												(OGRSpatialReference*)ogrSpatialReferenceCPtr,
+												&referenceSystemCode);
+																										
+					if (projectionCode != kNotDefinedCode)
+						mapProjectionInfoPtr->gridCoordinate.projectionCode =
+																						projectionCode;
+						
+					else if (referenceSystemCode == kGeographicRSCode)
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kGeographicRSCode;
+						
+							// Get the Datum
+							
+					mapProjectionInfoPtr->geodetic.datumCode =
+							GetDatumCodeFromOGRSpatialReference (
+										(OGRSpatialReference*)ogrSpatialReferenceCPtr,
+										mapProjectionInfoPtr->gridCoordinate.datumName,
+										TRUE);
+																				
+							// Get the Spheroid
+							
+					mapProjectionInfoPtr->geodetic.spheroidCode =
+							GetEllipsoidCodeFromOGRSpatialReference (
+										(OGRSpatialReference*)ogrSpatialReferenceCPtr,
+										mapProjectionInfoPtr->gridCoordinate.ellipsoidName,
+										TRUE);
+																				
+							// Get the linear units
+							
+					mapUnitsCode = GetMapUnitsCodeFromOGRSpatialReference (
+												(OGRSpatialReference*)ogrSpatialReferenceCPtr);
+	
+					if (mapUnitsCode != 0)
+						mapProjectionInfoPtr->planarCoordinate.mapUnitsCode =
+																							mapUnitsCode;
+						
+					returnValue	= OSRGetSemiMajor (ogrSpatialReferenceCPtr, &ogrError);
+					if (ogrError == OGRERR_NONE)
+						{
+						mapProjectionInfoPtr->geodetic.semiMajorAxis = returnValue;
+						
+						}	// end "if (ogrError == OGRERR_NONE)"
+					
+					returnValue	= OSRGetSemiMinor (ogrSpatialReferenceCPtr, &ogrError);
+					if (ogrError == OGRERR_NONE)
+						{
+						mapProjectionInfoPtr->geodetic.semiMinorAxis = returnValue;
+						
+						}	// end "if (ogrError == OGRERR_NONE)"
+						
+							// Try to get parameters from the string if the information
+							// was not found by the gdal routines.
+					/*
+					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																					kNoRSDefinedCode &&
+							mapProjectionInfoPtr->gridCoordinate.projectionCode ==
+																						kNotDefinedCode)
+					*/
+					SetProjectionInformationFromString (mapProjectionInfoPtr,
+																	(char*)projectionStringPtr);
+																			
+							// Try a last ditch effort to get information from the geotiff string that GDAL
+							// may not be getting.
+							
+					if (fileInfoPtr->format == kTIFFType &&
+							(mapProjectionInfoPtr->gridCoordinate.projectionCode ==
+																					kNotDefinedCode ||
+								mapProjectionInfoPtr->geodetic.datumCode ==
+																				kNoDatumDefinedCode))
+						SetProjectionInformationFromString2 (fileInfoPtr,
+																			mapProjectionInfoPtr);
+						
+							// Check if this may be a geographic projection. I have not found that
+							// "geographic" is listed as output of a in gdal.
+					/*
+					if (mapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
+																				kUserDefinedRSCode &&
+							mapProjectionInfoPtr->gridCoordinate.projectionCode ==
+																				kNotDefinedCode &&
+								mapProjectionInfoPtr->planarCoordinate.mapUnitsCode ==
+																				kAVDecimalDegreesCode)
+						mapProjectionInfoPtr->gridCoordinate.referenceSystemCode =
+																					kGeographicRSCode;
+					*/
+							// If spheroid and datum have not been defined, try to get
+							// spheroid from any available major and minor axes.
+							
+					if (mapProjectionInfoPtr->geodetic.spheroidCode == 0 &&
+											mapProjectionInfoPtr->geodetic.datumCode ==
+																				kNoDatumDefinedCode)
+						mapProjectionInfoPtr->geodetic.spheroidCode =
+									GetSpheroidCodeFromMajorMinorAxes (
+												mapProjectionInfoPtr->geodetic.semiMajorAxis,
+												mapProjectionInfoPtr->geodetic.semiMinorAxis);
+
+							// Check if spherical datum
+						
+					if (mapProjectionInfoPtr->geodetic.datumCode ==
+																		kNoDatumDefinedCode &&
+							mapProjectionInfoPtr->geodetic.spheroidCode ==
+																				kSphereEllipsoidCode)
+						mapProjectionInfoPtr->geodetic.datumCode = kSphereDatumCode;
+						
+							// Set the ellipsoid based on the datum if it has not been
+							// set yet.
+					
+					if (mapProjectionInfoPtr->geodetic.spheroidCode	==
+																			kNoEllipsoidDefinedCode)
+						SetEllipsoidFromDatum (mapProjectionInfoPtr);
+						
+							// Set projection paramaters from the reference system
+							
+					//parametersSetFlag = SetProjectionParametersFromReferenceSystem (
+					//															mapProjectionInfoPtr);
+												
+							// Set the projection parameters from GDAL information if
+							// possible.
+					
+					if (!parametersSetFlag)
+						SetProjectionParametersFromGDALInformation (
+																			mapProjectionInfoPtr,
+																			ogrSpatialReferenceCPtr);
+					
+					if (!vectorFlag)
+						OSRRelease (ogrSpatialReferenceCPtr);
+					
+					}	// end "if (ogrSpatialReferenceCPtr != NULL)"
 				
 				if (transformStringFlag)
 					{
@@ -4409,7 +4443,7 @@ SInt16 ReadGDALProjectionInformationFromMetadata_HRLDAS (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/2010
-//	Revised By:			Larry L. Biehl			Date: 07/26/2017
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 ReadHeaderWithGDALLibrary (
 				FileInfoPtr 						fileInfoPtr, 
@@ -4417,7 +4451,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 				SInt16								formatOnlyCode)
 
 {	
-	UInt8									filePathString[512];
+	UInt8									filePathString[_MAX_PATH];
 
 	UCharPtr								fileFormatDescriptionPtr;
 
@@ -4443,7 +4477,7 @@ SInt16 ReadHeaderWithGDALLibrary (
 	
 	returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
 														filePathString, 
-														510,
+														_MAX_PATH,
 														&filePathPtr,
 														kGDAL_Library);
 	if (returnCode != noErr)	
@@ -4480,7 +4514,8 @@ SInt16 ReadHeaderWithGDALLibrary (
 		{		
 		gNumberOfOpenFiles++;
 		GDALDriverH dataSetDriver = GDALGetDatasetDriver (hDS);
-		fileFormatDescriptionPtr = (UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
+		fileFormatDescriptionPtr =
+							(UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
 
 		if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"JP2KAK\0") == 0)
 			fileType = kJPEG2000Type;
@@ -4747,8 +4782,153 @@ Boolean ReadPRJFileInformation (
 		
 	return (prjFileFoundFlag);
 	
-}	// end "ReadPRJFileInformation" 
+}	// end "ReadPRJFileInformation"
 
+
+#if !defined multispec_wxlin
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		SInt16 ReadHeaderWithGDALLibrary
+//
+//	Software purpose:	This routine reads the input file using the GDAL library to
+//							determine if the file can be handled as vector file. Currently
+//							only ESRI Shapefiles are handled. Note that both the .shp and
+//							.shx files are required.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	ReturnCode
+//								0: No Error
+//								not 0: Error handling the file
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 03/27/2020
+//	Revised By:			Larry L. Biehl			Date: 03/28/2020
+
+SInt16 ReadVectorWithGDALLibrary (
+				Handle								windowInfoHandle,
+				FileInfoPtr 						fileInfoPtr,
+				char*									headerRecordPtr,
+				SInt16								formatOnlyCode)
+
+{
+	UInt8									filePathString[512];
+
+	UCharPtr								fileFormatDescriptionPtr;
+
+	FileStringPtr						filePathPtr;
+											
+	GDALDatasetH						hDS;
+	
+	SInt16								fileType = 0,
+											gdalReturnCode,
+											returnCode;
+																						
+
+	if (formatOnlyCode != kLoadHeader)
+		{
+				// As many file types as possible are handled here to reduce the time
+				// it takes to just determine if it is a format that can be handled.
+				// GDAL also loads in all map information, etc.
+				
+		if (CheckForGDALHandledHeaders (fileInfoPtr, headerRecordPtr, formatOnlyCode))
+																						return (noErr);
+		
+		}	// end "if (formatOnlyCode != kLoadHeader)"
+	
+	returnCode = GetHDFFilePathCPointer (fileInfoPtr,
+														filePathString,
+														510,
+														&filePathPtr,
+														kGDAL_Library);
+	if (returnCode != noErr)
+																					return (returnCode);
+
+	if (formatOnlyCode == kLoadHeader)
+		returnCode = noErr;
+
+	GDALAllRegister ();
+	
+	hDS = GDALOpenEx ((char*)filePathPtr, GDAL_OF_VECTOR, NULL, NULL, NULL );
+
+	if (hDS != NULL)
+		{
+		//gNumberOfOpenFiles++;
+		GDALDriverH dataSetDriver = GDALGetDatasetDriver (hDS);
+		fileFormatDescriptionPtr =
+							(UCharPtr)GDALGetDescription ((GDALMajorObjectH)dataSetDriver);
+
+		if (CompareStringsNoCase (fileFormatDescriptionPtr, (UCharPtr)"ESRI Shapefile\0") == 0)
+			fileType = kArcViewShapeType;
+			
+		if (fileType != 0)
+			{
+			MapProjectionInfoPtr				mapProjectionInfoPtr;
+				
+			OGREnvelope							layerExtent;
+				
+			OGRLayerH layer = OGR_DS_GetLayer ((OGRDataSourceH)hDS, 0);
+			//OGRSpatialReference* layerSpatialRef = (OGRSpatialReference*)OGR_L_GetSpatialRef (layer);
+			if (OGR_L_GetExtent (layer, &layerExtent, 0) != noErr)
+				returnCode = 1;
+			/*
+			if (fileInfoPtr->mapProjectionHandle == NULL)
+				fileInfoPtr->mapProjectionHandle = GetMapProjectionHandle ();
+			
+			if (fileInfoPtr->mapProjectionHandle != NULL)
+				{
+				mapProjectionInfoPtr =
+					(MapProjectionInfoPtr)GetHandlePointer (fileInfoPtr->mapProjectionHandle);
+					
+				}	// end "if (fileInfoPtr->mapProjectionHandle != NULL)"
+			
+			if (mapProjectionInfoPtr == NULL)
+				returnCode = 1;
+			*/
+			if (returnCode == noErr)
+				{
+				/*
+				const char* stringPtr;
+				
+				if (layerSpatialRef->IsProjected())
+					{
+				stringPtr = layerSpatialRef->GetAttrValue ("PROJCS");
+				stringPtr = layerSpatialRef->GetAttrValue ("PROJECTION");
+					}
+					
+				else if (layerSpatialRef->IsGeographic())
+					{
+				stringPtr = layerSpatialRef->GetAttrValue ("GEOGCS");
+					}
+					
+				stringPtr = layerSpatialRef->GetAttrValue ("DATUM");
+				stringPtr = layerSpatialRef->GetAttrValue ("SPHEROID");
+				*/
+				returnCode = ReadGDALProjectionInformation (fileInfoPtr,
+																			hDS,
+																			true);
+				WindowInfoPtr	windowInfoPtr =
+										(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
+				windowInfoPtr->boundingLatLongRectangle.left = layerExtent.MinX;
+				windowInfoPtr->boundingLatLongRectangle.top = layerExtent.MaxY;
+				windowInfoPtr->boundingLatLongRectangle.right = layerExtent.MaxX;
+				windowInfoPtr->boundingLatLongRectangle.bottom = layerExtent.MinY;
+				
+				//boundingMapRectangle
+			
+				}	// end "if (returnCode == noErr)"
+			}
+			
+		}	// end "if (hDS != NULL)"
+	
+	return (1);
+	
+}	// end "ReadVectorWithGDALLibrary"
+#endif
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation

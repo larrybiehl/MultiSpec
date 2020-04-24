@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			04/10/2020
 //
 //	Language:				C++
 //
@@ -102,6 +102,9 @@
 			
 			UInt16 GetFileUTF8PathLength (void);
 			
+			int GetPathFileLength (
+				SInt16								returnCode);
+			
 			void IOCheck (
 				SInt16								errCode);
 			
@@ -163,44 +166,69 @@
 
 			void SetUTF8FilePath (void);
 			
+			void SetWideFileStringLength (
+				WideFileStringPtr					wideFileStringPtr,
+				int									wideFileStringLength);
+			
 			long int								mCreator,
 													mFileType;
 
-			int									mUnicodePathLength,
+			int									mWidePathLength,
+													//mUTF8FileNameLength,
 													mUTF8PathLength;
+													//mUTF8PathNameLength;
 
 			UInt32								mFileSize;
 			
-			#if defined multispec_win
-				TBYTE						mFilePathName[_MAX_PATH];
+					// mWideFilePathName is the wide character encoded version of the
+					// full path and file name. The first element is reserved for the
+					// string length; the last element is reserved for a c terminator
 
-				UInt8						mUTF8PathName[_MAX_PATH];
-						// mUTF8FileName is the UTF8 formatted version
-						// of just the file name
-				UInt8						mUTF8FileName[_MAX_PATH];
+					// mUTF8FilePathName is the UTF8 encoded version of the full path
+					// and file name. The first 2-bytes are reserved for the string
+					// length; the last byte is reserved for a c terminator.
+					
+					// mUTF8FileName is the UTF8 encoded version of just the file name.
+					// The first 2-bytes are reserved for the string
+					// length. Only one byte is needed for the length since the maximum
+					// length for the file name is 256 character but 2-bytes are used
+					// to be consistent with the full utf8 file path name.
+					// the last byte is reserved for a c terminator
+			
+			#if defined multispec_win
+				TBYTE						mWideFilePathName[_MAX_PATH];
+
+				UInt8						mUTF8FilePathName[_MAX_PATH];
+				
+				UInt8						mUTF8FileName[256];
 			#endif	// defined multispec_win 
 									         
 			#if defined multispec_wx
-				wchar_t					mFilePathName[_MAX_PATH+1];
+				wchar_t					mWideFilePathName[_MAX_PATH];
 				long						m_spaceFiller1;
-				UInt8						mUTF8PathName[_MAX_PATH+1];
+				UInt8						mUTF8FilePathName[_MAX_PATH];
 				long						m_spaceFiller2;
-				UInt8						mUTF8FileName[_MAX_PATH+1];
+				UInt8						mUTF8FileName[_MAX_FILE];
 			#endif	// defined multispec_wx
 									
 		protected:
 			SInt16 ConvertFileErrorNumber (
 				SInt16								errCode);
+				
+			void InitializeMembers (void);
+			
+					// The wide file name version of the file (no path included)
+					// The first element of the string is the length of the string
+					// The last element is reserved for a c terminator
 										
 			#if defined multispec_wx
-					// buffer pascal version of file             
-				wchar_t								mPascalFileName[_MAX_PATH+1];
+				wchar_t								mWideFileName[_MAX_FILE];
 				unsigned int						open_mode;
 			#endif	// defined multispec_wx
 		
 			#if defined multispec_win
 					// buffer pascal version of file  
-				TBYTE									mPascalFileName[_MAX_PATH];
+				TBYTE									mWideFileName[_MAX_FILE];
 			#endif	// defined multispec_win
 			
 		};	// end "class CMFileStream"

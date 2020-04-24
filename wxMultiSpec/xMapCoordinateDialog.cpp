@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/11/2019
+//	Revision date:			04/07/2020
 //
 //	Language:				C++
 //
@@ -185,6 +185,7 @@ void CMMapCoordinateDlg::CreateControls ()
 	
 	wxFloatingPointValidator<double> doubleValue4Digits (4, &m_double4DigitValueCheck);
 	wxFloatingPointValidator<double> doubleValue6Digits (6, &m_double6DigitValueCheck);
+	wxFloatingPointValidator<double> doubleValue9Digits (9, &m_double6DigitValueCheck);
 	wxFloatingPointValidator<double> doubleValue10Digits (10, &m_double10DigitValueCheck);
 	
 	m_staticText109 = new wxStaticText (
@@ -255,7 +256,7 @@ void CMMapCoordinateDlg::CreateControls ()
 												wxDefaultPosition,
 												wxSize (120, -1),
 												0);
-   m_textCtrl54->SetValidator (doubleValue6Digits);
+   m_textCtrl54->SetValidator (doubleValue9Digits);
 	m_textCtrl54->SetWindowStyle (wxTE_RIGHT);
    SetUpToolTip (m_textCtrl54, IDS_ToolTip293);
 	fgSizer4->Add (m_textCtrl54, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
@@ -279,7 +280,7 @@ void CMMapCoordinateDlg::CreateControls ()
 												wxDefaultPosition,
 												wxSize (120,-1),
 												0);
-   m_textCtrl55->SetValidator (doubleValue6Digits);
+   m_textCtrl55->SetValidator (doubleValue9Digits);
 	m_textCtrl55->SetWindowStyle (wxTE_RIGHT);
    SetUpToolTip (m_textCtrl55, IDS_ToolTip294);
 	fgSizer4->Add (m_textCtrl55, wxSizerFlags(0).Border(wxTOP|wxBOTTOM,2));
@@ -1512,14 +1513,26 @@ bool CMMapCoordinateDlg::TransferDataToWindow ()
 	
 	wxTextCtrl* epsgCode = (wxTextCtrl*)FindWindow (IDC_EPSGCode);
 	epsgCode->ChangeValue (wxString::Format (wxT("%i"), m_epsgCode));
+
+	if (abs(m_mapUnitsSelection) == kDecimalDegreesCode)
+		{
+		m_textCtrl54->ChangeValue (
+										wxString::Format (wxT("%.9f"), m_horizontalPixelSize));
 	
-	wxTextCtrl* horizontalPixelSize = (wxTextCtrl*)FindWindow (IDC_HorizontalSize);
-	horizontalPixelSize->ChangeValue (
+		m_textCtrl55->ChangeValue (
+										wxString::Format (wxT("%.9f"), m_verticalPixelSize));
+										
+		}	//	end "if (m_mapUnitsSelection == kDecimalDegreesCode)"
+		
+	else	// m_mapUnitsSelection != kDecimalDegreesCode
+		{
+		m_textCtrl54->ChangeValue (
 										wxString::Format (wxT("%.4f"), m_horizontalPixelSize));
 	
-	wxTextCtrl* verticalPixelSize = (wxTextCtrl*)FindWindow (IDC_VerticalSize);
-	verticalPixelSize->ChangeValue (
+		m_textCtrl55->ChangeValue (
 										wxString::Format (wxT("%.4f"), m_verticalPixelSize));
+										
+		}	// else	// m_mapUnitsSelection != kDecimalDegreesCode
 	
 	wxTextCtrl* xMapCoordinate11 = (wxTextCtrl*)FindWindow (IDC_X11Coordinate);
 	xMapCoordinate11->ChangeValue (wxString::Format (wxT("%.4f"), m_xMapCoordinate11));

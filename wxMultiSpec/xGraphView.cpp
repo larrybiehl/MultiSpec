@@ -1072,9 +1072,10 @@ wxString CMGraphView::GetShapeFileName (
 	
 	
    fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
-   CopyPToP (gTextString, (UCharPtr)fileNamePPointer);
+   //CopyPToP (gTextString, (UCharPtr)fileNamePPointer);
+   CopyFileStringToFileString (fileNamePPointer, (FileStringPtr)gTextString, _MAX_FILE-3);
    
-   return (wxString::FromUTF8 ((char*)(gTextString + 1)));
+   return (wxString::FromUTF8 ((char*)(gTextString + 2)));
 	
 }	// end "GetShapeFileName"
 
@@ -1090,7 +1091,7 @@ void CMGraphView::UpdateFieldNames (
 {   
 	char									fieldName[32];
    wxString								fieldNameString;
-   FileStringPtr                 fileNamePPointer;
+   //FileStringPtr                 fileNamePPointer;
 	
 	UInt32								numberFields;
 	
@@ -1102,9 +1103,9 @@ void CMGraphView::UpdateFieldNames (
 		{
       numberFields = DBFGetFieldCount (shapeInfoPtr->dbfInfoPtr);
       
-      fileNamePPointer =
-      					(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
-      CopyPToP (gTextString, (UCharPtr)fileNamePPointer);
+      //fileNamePPointer =
+      //					(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
+      //CopyPToP (gTextString, (UCharPtr)fileNamePPointer);
 
       wxTreeListItem rootitem = m_frame->m_listCtrl1->GetRootItem ();
       

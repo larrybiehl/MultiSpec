@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/13/2020
+//	Revision date:			04/12/2020
 //
 //	Language:				C
 //
@@ -266,7 +266,7 @@ SInt16 gCollapseClassSelection = 1;
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/12/1999
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean AddSelectedFilesToWindow (
 				Handle								windowInfoHandle,
@@ -433,7 +433,7 @@ Boolean AddSelectedFilesToWindow (
 		length = gTextString[0];
 		gTextString[gTextString[0]+1] = 0;
 		index = 1;
-		if (windowInfoPtr->numberImageFiles > 2)
+		if (numberImageFiles > 1)
 			{
 					// Determine the length of the current layer					
 					// identification.													
@@ -442,7 +442,7 @@ Boolean AddSelectedFilesToWindow (
 			index += 2 + gTextString2[0];
 			length -= index - 1;
 
-			}	// end "if (windowInfoPtr->numberImageFiles > 2)" 
+			}	// end "if (numberImageFiles > 1)"
 
 		length = sprintf ((char*)&gTextString2[1],
 								 "L%hd-%s",
@@ -491,7 +491,7 @@ Boolean AddSelectedFilesToWindow (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/2017
-//	Revised By:			Larry L. Biehl			Date: 11/07/2017
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean CheckForLandsatAnalysisReadyFileList (
 				UInt32								itemCount,
@@ -502,8 +502,10 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 				SInt16*								instrumentCodePtr)
 
 {
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 											
 	UInt32								extraFileCount,
 											fileIndex;
@@ -526,6 +528,9 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 	extraFileCount = 0;
 	firstFileFoundFlag = FALSE;
 	srbSetFlag = FALSE;
+	continueFlag = FALSE;
+	bandNameStart = 2;
+	fileStringLength = 2;
 	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
@@ -539,24 +544,29 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 
 			if (!firstFileFoundFlag)
 				{
-				CopyPToP (savedFileName, fileName);
-				savedFileName[0] -= 5;
-				if (CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[1], 4) == 0 ||
-						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[1], 4) == 0)
+				//CopyPToP (savedFileName, fileName);
+				//savedFileName[0] -= 5;
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				fileStringLength = GetFileStringLength (savedFileName) - 5;
+				SetFileStringLength (savedFileName, fileStringLength);
+				
+				if (CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[2], 4) == 0 ||
+						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatTM;
 					
 				else if (CompareStringsNoCase (
-													(UCharPtr)"LT07", &savedFileName[1], 4) == 0)
+													(UCharPtr)"LT07", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatTM7;
 					
 				else if (CompareStringsNoCase (
-													(UCharPtr)"LC08", &savedFileName[1], 4) == 0)
+													(UCharPtr)"LC08", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatLC8_OLI;
 					
 				if (instrumentCode == 0)
 					break;
 
-				bandNameStart = savedFileName[0] + 1;
+				//bandNameStart = savedFileName[0] + 1;
+				bandNameStart = fileStringLength + 2;
 				firstFileFoundFlag = TRUE;
 
 				}	// end "if (!firstFileFoundFlag)"
@@ -602,7 +612,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-									&savedFileName[1], &fileName[1], savedFileName[0]) &&
+									&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 9)
 				{
@@ -675,7 +685,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 04/10/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean CheckForLandsatETMFileList (
 				UInt32								itemCount,
@@ -686,8 +696,10 @@ Boolean CheckForLandsatETMFileList (
 				SInt16*								instrumentCodePtr)
 
 {
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 
 	UInt32								fileIndex;
 
@@ -702,6 +714,9 @@ Boolean CheckForLandsatETMFileList (
 	Boolean								continueFlag;
 
 
+	continueFlag = FALSE;
+	bandNameStart = 2;
+	fileStringLength = 2;
 	for (fileIndex = 0; fileIndex < itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
@@ -715,26 +730,33 @@ Boolean CheckForLandsatETMFileList (
 
 			if (fileIndex == 0)
 				{
-				CopyPToP (savedFileName, fileName);
-				savedFileName[0] -= 3;
-				if (CompareStringsNoCase ((UCharPtr)"LE7", &savedFileName[1], 3) &&
-							CompareStringsNoCase ((UCharPtr)"LE07", &savedFileName[1], 4))
+				//CopyPToP (savedFileName, fileName);
+				//savedFileName[0] -= 3;
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				fileStringLength = GetFileStringLength (savedFileName) - 3;
+				SetFileStringLength (savedFileName, fileStringLength);
+				if (CompareStringsNoCase ((UCharPtr)"LE7", &savedFileName[2], 3) &&
+							CompareStringsNoCase ((UCharPtr)"LE07", &savedFileName[2], 4))
 					break;
 
 						// Now need to verify that is first file is not one of the thermal
 						// channels named "_B6_VCID_1" or _B6_VCID_2" at the end.
 
-				if (StrStrNoCase ((char*)&fileName[1], "_B6_VCID_") != NULL)
+				if (StrStrNoCase ((char*)&fileName[2], "_B6_VCID_") != NULL)
 					{
 							// Remove the _VCID_n suffix from the name but be sure the
 							// number of characters is not less than 0
 
-					characterCount = MIN (7, savedFileName[0]);
-					savedFileName[0] -= characterCount;
+					//characterCount = MIN (7, savedFileName[0]);
+					//savedFileName[0] -= characterCount;
+					characterCount = MIN (7, fileStringLength);
+					fileStringLength -= characterCount;
+					SetFileStringLength (savedFileName, fileStringLength);
 
-					}	// end "if (StrStrNoCase (&fileName[1], "_B6_VCID_") != NULL)"
+					}	// end "if (StrStrNoCase (&fileName[2], "_B6_VCID_") != NULL)"
 
-				bandNameStart = savedFileName[0] + 1;
+				//bandNameStart = savedFileName[0] + 1;
+				bandNameStart = fileStringLength + 2;
 
             }	// end "if (fileIndex == 0)"
 
@@ -748,7 +770,7 @@ Boolean CheckForLandsatETMFileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-										&savedFileName[1], &fileName[1], savedFileName[0]) &&
+										&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 8)
 				{
@@ -772,7 +794,7 @@ Boolean CheckForLandsatETMFileList (
 
 					}	// end "if (fileVectorPtr[fileVectorIndex] == -1)"
 
-				if ((bandNumber == 6 || bandNumber == 8)&& itemCount == 6)
+				if ((bandNumber == 6 || bandNumber == 8) && itemCount == 6)
                     // This implies that the thermal channel is part of a set of data
                     // with only 6 channels. A reflective channel must have been left
 						  // out.
@@ -1020,7 +1042,7 @@ Boolean CheckForInstrumentFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean CheckForLandsatMSSFileList (
 				UInt32								itemCount,
@@ -1031,8 +1053,10 @@ Boolean CheckForLandsatMSSFileList (
 				SInt16*								instrumentCodePtr)
 
 {
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 
 	UInt32								fileIndex;
 
@@ -1044,7 +1068,11 @@ Boolean CheckForLandsatMSSFileList (
 
 	Boolean								continueFlag;
 
-
+	
+	bandNameStart = 2;
+	numberBandDigits = 0;
+	continueFlag = FALSE;
+	fileStringLength = 2;
 	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
@@ -1058,19 +1086,24 @@ Boolean CheckForLandsatMSSFileList (
 
 			if (fileIndex == 0)
 				{
-				CopyPToP (savedFileName, fileName);
-				if (CompareStringsNoCase ((UCharPtr)"M1", &savedFileName[1], 2) == 0)
+				//CopyPToP (savedFileName, fileName);
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				if (CompareStringsNoCase ((UCharPtr)"M1", &savedFileName[2], 2) == 0)
 					numberBandDigits = 2;
 
-				else if (CompareStringsNoCase ((UCharPtr)"LM", &savedFileName[1], 2) == 0)
+				else if (CompareStringsNoCase ((UCharPtr)"LM", &savedFileName[2], 2) == 0)
 					numberBandDigits = 1;
 
 				else	// correct prefix was not found.
 					break;
 
-				savedFileName[0] -= (numberBandDigits + 2);
+				//savedFileName[0] -= (numberBandDigits + 2);
+				fileStringLength = GetFileStringLength (savedFileName);
+				fileStringLength -= (numberBandDigits + 2);
+				SetFileStringLength (savedFileName, fileStringLength);
 
-				bandNameStart = savedFileName[0] + 1;
+				//bandNameStart = savedFileName[0] + 1;
+				bandNameStart = fileStringLength + 2;
 
             }	// end "if (fileIndex == 0)"
 
@@ -1086,7 +1119,7 @@ Boolean CheckForLandsatMSSFileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-									&savedFileName[1], &fileName[1], savedFileName[0]) &&
+									&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 4 &&
 							bandNumber <= 7)
 				{
@@ -1137,7 +1170,7 @@ Boolean CheckForLandsatMSSFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2017
-//	Revised By:			Larry L. Biehl			Date: 11/02/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean CheckForLandsatSurfaceReflectanceFileList (
 				UInt32								itemCount,
@@ -1148,8 +1181,10 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 				SInt16*								instrumentCodePtr)
 				
 {
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 											
 	UInt32								extraFileCount,
 											fileIndex;
@@ -1170,6 +1205,9 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 	instrumentCode = 0;
 	extraFileCount = 0;
 	firstFileFoundFlag = FALSE;
+	bandNameStart = 2;
+	continueFlag = FALSE;
+	fileStringLength = 2;
 	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
@@ -1183,24 +1221,28 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 
 			if (!firstFileFoundFlag)
 				{
-				CopyPToP (savedFileName, fileName);
-				savedFileName[0] -= 9;
-				if (CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[1], 4) == 0 ||
-						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[1], 4) == 0)
+				//CopyPToP (savedFileName, fileName);
+				//savedFileName[0] -= 9;
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				fileStringLength = GetFileStringLength (savedFileName) - 9;
+				SetFileStringLength (savedFileName, fileStringLength);
+				if (CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[2], 4) == 0 ||
+						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatTM;
 					
 				else if (CompareStringsNoCase (
-													(UCharPtr)"LT07", &savedFileName[1], 4) == 0)
+													(UCharPtr)"LT07", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatTM7;
 					
 				else if (CompareStringsNoCase (
-													(UCharPtr)"LC08", &savedFileName[1], 4) == 0)
+													(UCharPtr)"LC08", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatLC8_OLI;		
 				
 				if (instrumentCode == 0)
 					break;
 
-				bandNameStart = savedFileName[0] + 1;
+				//bandNameStart = savedFileName[0] + 1;
+				bandNameStart = fileStringLength + 2;
 				firstFileFoundFlag = TRUE;
 
 				}	// end "if (!firstFileFoundFlag)"
@@ -1233,7 +1275,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-									&savedFileName[1], &fileName[1], savedFileName[0]) &&
+									&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 7)
 				{
@@ -1298,7 +1340,7 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 10/06/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean CheckForLandsatTMFileList (
 				UInt32								itemCount,
@@ -1309,8 +1351,10 @@ Boolean CheckForLandsatTMFileList (
 				SInt16*								instrumentCodePtr)
 
 {
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 											
 	UInt32								extraFileCount,
 											fileIndex;
@@ -1331,6 +1375,9 @@ Boolean CheckForLandsatTMFileList (
 
 	extraFileCount = 0;
 	firstFileFoundFlag = FALSE;
+	bandNameStart = 2;
+	continueFlag = FALSE;
+	fileStringLength = 2;
 	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
 		{
 		continueFlag = FALSE;
@@ -1345,15 +1392,19 @@ Boolean CheckForLandsatTMFileList (
 
 			if (!firstFileFoundFlag)
 				{
-				CopyPToP (savedFileName, fileName);
-				savedFileName[0] -= 3;
-				if (CompareStringsNoCase ((UCharPtr)"LT4", &savedFileName[1], 3) &&
-						CompareStringsNoCase ((UCharPtr)"LT5", &savedFileName[1], 3) &&
-							CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[1], 4) &&
-								CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[1], 4))
+				//CopyPToP (savedFileName, fileName);
+				//savedFileName[0] -= 3;
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				fileStringLength = GetFileStringLength (savedFileName) - 3;
+				SetFileStringLength (savedFileName, fileStringLength);
+				if (CompareStringsNoCase ((UCharPtr)"LT4", &savedFileName[2], 3) &&
+						CompareStringsNoCase ((UCharPtr)"LT5", &savedFileName[2], 3) &&
+							CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[2], 4) &&
+								CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[2], 4))
 					break;
-
-				bandNameStart = savedFileName[0] + 1;
+				
+				//bandNameStart = savedFileName[0] + 1;
+				bandNameStart = fileStringLength + 2;
 				firstFileFoundFlag = TRUE;
 
 				}	// end "if (!firstFileFoundFlag)"
@@ -1385,7 +1436,7 @@ Boolean CheckForLandsatTMFileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-									&savedFileName[1], &fileName[1], savedFileName[0]) &&
+									&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 7)
 				{
@@ -1459,7 +1510,7 @@ Boolean CheckForLandsatTMFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2013
-//	Revised By:			Larry L. Biehl			Date: 09/23/2019
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean CheckForLandsat8FileList (
 				UInt32								itemCount,
@@ -1471,8 +1522,10 @@ Boolean CheckForLandsat8FileList (
 
 {
 	UCharPtr								startBandIdentiferPtr;
-	UInt8									fileName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 
    UInt32								fileIndex,
 											fileVectorIndex;
@@ -1485,6 +1538,10 @@ Boolean CheckForLandsat8FileList (
 	Boolean								continueFlag;
 
 
+	bandNameStart = 2;
+	continueFlag = FALSE;
+	fileStringLength = 2;
+	
 			// Check if Landsat 8
 			// This can be just the reflective bands (1,2,3,4,5,6,7,9) or
 			// 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
@@ -1503,24 +1560,32 @@ Boolean CheckForLandsat8FileList (
 
          if (fileIndex == 0)
 				{
-            CopyPToP (savedFileName, fileName);
+						
+            //CopyPToP (savedFileName, fileName);
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				
+						// There are 4 possible prefixes for Landsat 8
+
+				if (CompareStringsNoCase ((UCharPtr)"LC8", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LO8", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LT8", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LC08", &savedFileName[2], 4) != 0)
+					break;
 
 						// Remove _Bn or _Bnn from the saved file name.
 
 				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
 
-            bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
-            savedFileName[0] = (UInt8)bandNameStart;
-
-						// There are 4 possible prefixes for Landsat 8
-
-            if (CompareStringsNoCase ((UCharPtr)"LC8", &savedFileName[1], 3) != 0 &&
-						CompareStringsNoCase ((UCharPtr)"LO8", &savedFileName[1], 3) != 0 &&
-						CompareStringsNoCase ((UCharPtr)"LT8", &savedFileName[1], 3) != 0 &&
-						CompareStringsNoCase ((UCharPtr)"LC08", &savedFileName[1], 4) != 0)
+				if (startBandIdentiferPtr == NULL)
 					break;
+					
+				bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
+				//savedFileName[0] = (UInt8)bandNameStart;
+				fileStringLength = bandNameStart;
+				SetFileStringLength (savedFileName, fileStringLength);
 
-            bandNameStart++;
+				//bandNameStart++;
+				bandNameStart += 2;
 
             }	// end "if (fileIndex == 0)"
 
@@ -1548,7 +1613,7 @@ Boolean CheckForLandsat8FileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-										&savedFileName[1], &fileName[1], savedFileName[0]) &&
+										&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 12)
 				{
@@ -1608,7 +1673,7 @@ Boolean CheckForLandsat8FileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 08/22/2017
-//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean CheckForSentinel2FileList (
 				UInt32								itemCount,
@@ -1620,9 +1685,11 @@ Boolean CheckForSentinel2FileList (
 
 {
 	UCharPtr								startBandIdentiferPtr;
-	UInt8									fileName[256],
-											pathName[256],
-											savedFileName[256];
+	UInt8									fileName[_MAX_FILE],
+											pathName[_MAX_PATH],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
 
    UInt32								fileIndex,
 											fileVectorIndex;
@@ -1636,7 +1703,10 @@ Boolean CheckForSentinel2FileList (
 	Boolean								band8AFlag = FALSE,
 											continueFlag;
 
-
+	bandNameStart = 2;
+	continueFlag = FALSE;
+	fileStringLength = 2;
+	
 			// Check if Sentinel 2 MSI data
 			// This can be 10 meter data (2,3,4,8)or
 			// 20 meter data (5,6,7,8a,11,12)or
@@ -1658,27 +1728,34 @@ Boolean CheckForSentinel2FileList (
 
          if (fileIndex == 0)
 				{
-            CopyPToP (savedFileName, fileName);
-
-						// Remove _Bn or _Bnn from the saved file name.
-
-				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
-
-            bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
-            savedFileName[0] = (UInt8)bandNameStart;
+            //CopyPToP (savedFileName, fileName);
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
 
 						// There are 2 possible prefixes for Sentinel 2
 				
-				if (StrStrNoCase ((char*)&pathName[1], "S2A_"))
+				if (StrStrNoCase ((char*)&pathName[2], "S2A_"))
 					instrumentCode = kSentinel2A_MSI;
 
-            else if (StrStrNoCase ((char*)&pathName[1], "S2B_"))
+            else if (StrStrNoCase ((char*)&pathName[2], "S2B_"))
 					instrumentCode = kSentinel2B_MSI;
 				
 				else	// not Sentinel description
 					break;
+
+						// Remove _Bn or _Bnn from the saved file name.
+
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
 				
-            bandNameStart++;
+				if (startBandIdentiferPtr == NULL)
+					break;
+					
+				bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
+				//savedFileName[0] = (UInt8)bandNameStart;
+				fileStringLength = bandNameStart;
+				SetFileStringLength (savedFileName, fileStringLength);
+				
+				//bandNameStart++;
+				bandNameStart += 2;
 
             }	// end "if (fileIndex == 0)"
 
@@ -1709,7 +1786,7 @@ Boolean CheckForSentinel2FileList (
 
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
-										&savedFileName[1], &fileName[1], savedFileName[0]) &&
+										&savedFileName[2], &fileName[2], fileStringLength) &&
 						bandNumber >= 1 &&
 							bandNumber <= 12)
 				{
@@ -3958,8 +4035,10 @@ SInt16 FileSpecificationDialogSetHDFValues (
 		#endif
 
 				// Set the name for the hdf header file.
+				// Note that hdf header file is a FileStringPtr with first 2 bytes for
+				// the string length.
 
-		SetCFileName (&hdfFileInfo, (FileStringPtr)&hdfDataSetsPtr[0].name[1]);
+		SetCFileName (&hdfFileInfo, (FileStringPtr)&hdfDataSetsPtr[0].name[2]);
 
 				// Check if the shift key is down. If so then the selected hdf data sets
 				// will not be grouped with others.
@@ -4891,7 +4970,7 @@ SInt32 OpenImageFile (
 			gOpenImageSelectionListCount = itemCount;
 			//gMultipleImageFileCode = 3;
 
-			fileFlag = ((errCode == noErr)& FileExists (fileStreamPtr));
+			fileFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 
 					// If appFilePtr is not NULL then this is a call from the		
 					// initialization routine.  This current file may be a project	
@@ -5175,7 +5254,7 @@ Boolean OpenSeparateImageWindows (
 			
 					// Starting work on loading shape file with no base image. Not done yet
 			if (fileInfoLoadedFlag &&
-						(fileFormat != kArcViewShapeType)) // ||
+						((fileFormat != kArcViewShapeType)))	// ||
 //							(gActiveImageWindow == NULL && fileFormat == kArcViewShapeType)))
 				{
 						// Vector types are not handled here.

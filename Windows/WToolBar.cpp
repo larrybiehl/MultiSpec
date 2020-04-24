@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/02/2018
+//	Revision date:			04/16/2020
 //
 //	Language:				C++
 //
@@ -218,6 +218,9 @@ void CMToolBar::OnLButtonDown (
 		                        
 			SInt16 itemID = GetItemID (m_iButtonCapture);
 			((CMultiSpecApp*)AfxGetApp())->SetZoomCode (itemID);
+
+			if (nFlags & MK_SHIFT)
+				((CMultiSpecApp*)AfxGetApp())->SetControlDelayFlag (FALSE);
 		
 			gNextTime = GetTickCount ();                          
 			((CMultiSpecApp*)AfxGetApp())->m_nextControlTime = 0;

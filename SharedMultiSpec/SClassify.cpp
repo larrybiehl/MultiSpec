@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/11/2019
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -1535,7 +1535,7 @@ SInt16 ClassifyArea (
 // Called By:			MaxLikeClsfierControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 12/11/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 void ClassifyAreasControl (
 				FileInfoPtr							fileInfoPtr, 
@@ -2002,13 +2002,13 @@ void ClassifyAreasControl (
 			else	// resultsFileStreamPtr != NULL
 				{
 						// List "Area classification was saved to disk"
-				CharPtr filePathPtr =
-							(char*)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
+				FileStringPtr filePathPtr =
+							(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 				continueFlag = ListSpecifiedStringNumber (kClassifyStrID, 
 																		IDS_Classify61, 
 																		resultsFileStreamPtr, 
 																		gOutputForce1Code,
-																		&filePathPtr[1],
+																		(char*)&filePathPtr[2],
 																		continueFlag,
 																		kUTF8CharString);
 				
@@ -2019,13 +2019,13 @@ void ClassifyAreasControl (
 			CMFileStream* probabilityFileStreamPtr = GetResultsFileStreamPtr (1);
 			if (probabilityFileStreamPtr != NULL)
 				{
-				CharPtr filePathPtr =
-						(char*)GetFilePathPPointerFromFileStream (probabilityFileStreamPtr);
+				FileStringPtr filePathPtr =
+						(FileStringPtr)GetFilePathPPointerFromFileStream (probabilityFileStreamPtr);
 				continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
 																		IDS_Classify98,
 																		resultsFileStreamPtr,
 																		gOutputForce1Code,
-																		&filePathPtr[1],
+																		(char*)&filePathPtr[2],
 																		continueFlag,
 																		kUTF8CharString);
 				
@@ -2222,14 +2222,14 @@ void ClassifyAreasControl (
 				FileInfoPtr homogeneousFieldsFileInfoPtr = GetResultsFilePtr (2);
 				if (homogeneousFieldsFileInfoPtr != NULL)
 					{
-					CharPtr filePathPtr = (char*)GetFilePathPPointerFromFileInfo (
+					FileStringPtr filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (
 																		homogeneousFieldsFileInfoPtr);
 					
 					continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
 																			IDS_Classify96,
 																			resultsFileStreamPtr,
 																			gOutputForce1Code,
-																			&filePathPtr[1],
+																			(char*)&filePathPtr[2],
 																			continueFlag,
 																			kUTF8CharString);
 					
@@ -2240,14 +2240,14 @@ void ClassifyAreasControl (
 				FileInfoPtr classifiedFieldsFileInfoPtr = GetResultsFilePtr (3);
 				if (classifiedFieldsFileInfoPtr != NULL)
 					{
-					CharPtr filePathPtr = (char*)GetFilePathPPointerFromFileInfo (
+					FileStringPtr filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (
 																		classifiedFieldsFileInfoPtr);
 					
 					continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
 																			IDS_Classify97,
 																			resultsFileStreamPtr,
 																			gOutputForce1Code,
-																			&filePathPtr[1],
+																			(char*)&filePathPtr[2],
 																			continueFlag,
 																			kUTF8CharString);
 					
@@ -5008,7 +5008,7 @@ Boolean CreateThresholdTables (
 // Called By:			ClassifyAreasControl
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1992
-//	Revised By:			Larry L. Biehl			Date: 06/28/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 Boolean CreateTrailerFiles (
 				ClassifierVarPtr					clsfyVariablePtr, 
@@ -5046,7 +5046,7 @@ Boolean CreateTrailerFiles (
 												NULL,
 												gProjectInfoPtr->imagePalettePopupMenuSelection,
 												numberClasses,
-												0,
+												kClassifyFileCode,
 												kPaletteHistogramClassNames,
 												kClassDisplay,
 												kCollapseClass,

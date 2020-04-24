@@ -472,6 +472,9 @@ void CMLegendView::OnInitialUpdate (void)
 	
 		if (windowInfoPtr != NULL) 
 			windowInfoPtr->legendListHandle = &m_legendListBox;
+
+				// This needs more work
+		//m_legendListBox.ModifyStyle (0, WS_VSCROLL);
 		
 		}	// end "if (m_legendListBox.SubclassDlgItem (IDC_List1, this))"
 	
@@ -899,7 +902,12 @@ void CMLegendView::UpdateThematicLegendControls ()
 	
 	else	// topIndex >= itemsInList - m_numberDisplayedListItems
 		GetDlgItem (IDC_ScrollDown)->EnableWindow (FALSE);
-	
+	/*
+	SCROLLINFO							scrollInfo;
+	int									maxRange;
+	m_legendListBox.GetScrollInfo (SB_VERT, &scrollInfo, SIF_RANGE);
+	maxRange = scrollInfo.nMax;
+	*/
 			// Legend Control
 	
 	DisplaySpecsPtr displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (

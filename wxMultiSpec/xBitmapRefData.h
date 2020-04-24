@@ -6,10 +6,10 @@
 //
 //	Language:				C++
 //
-//	System:					Linux and MacOS Operating Systems
+//	System:					MacOS Operating Systems
 //
 //	Brief description:	This file is the definition for the wxBitmapRefData class
-//								It comes from the wxWidgets code. it is needed to get access
+//								It comes from the wxWidgets code. It is needed to get access
 //								to some of the parameters in this class
 //								It is only needed for the MacOS version of MultiSpec
 //

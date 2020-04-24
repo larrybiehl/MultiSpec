@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/09/2020
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -1417,7 +1417,7 @@ intn GetHDFDataSetInformation (
 // Called By:			SetHDFDataSetFileInformation in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
-//	Revised By:			Larry L. Biehl			Date: 01/05/2018
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 SInt16 GetHDFDataSetSpecialInfo (
 				FileInfoPtr		 					fileInfoPtr,
@@ -1487,7 +1487,7 @@ SInt16 GetHDFDataSetSpecialInfo (
 							// Set the file name to be the same as that for
 							// the HDF header information.
 						
-					SetCFileName (fileInfoPtr, (FileStringPtr)&hdfDataSetsPtr[0].name[1]);
+					SetCFileName (fileInfoPtr, (FileStringPtr)&hdfDataSetsPtr[0].name[2]);
 
 							// No open this file up.
 					
@@ -5919,7 +5919,7 @@ Boolean LoadNonBSQOffsetBytesInfo (
 // Called By:			LoadHDFInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/2001
-//	Revised By:			Larry L. Biehl			Date: 03/09/2020
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 SInt32 LoadHdfDataSetNames (
 				SInt32		 						file_id,
@@ -6010,7 +6010,7 @@ SInt32 LoadHdfDataSetNames (
    
    		// Get name of file that will be used as prefix to the data set group names.
    /*		
-	strcpy (&fileName[1], (char*)&hdfDataSetsPtr[0].name[1]);
+	strcpy (&fileName[1], (char*)&hdfDataSetsPtr[0].name[2]);
 	RemoveSuffix (&fileName[1]);
 	fileName[0] = strlen (&fileName[1]);
    */
@@ -7347,7 +7347,7 @@ SInt16 LoadHDF4DataSetInformation (
 // Called By:			ReadHDFHeader in SHDF.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/26/1995
-//	Revised By:			Larry L. Biehl			Date: 11/21/2018
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 SInt16 LoadHDF4Information (
 				FileInfoPtr 						fileInfoPtr,
@@ -7355,7 +7355,7 @@ SInt16 LoadHDF4Information (
 				Boolean								dataSetSpecifiedFlag)
 				
 {
-	UInt8									filePathString[512];
+	UInt8									filePathString[_MAX_PATH];
 	
 	FileStringPtr						fileNamePtr,
 											filePathPtr;
@@ -7392,7 +7392,7 @@ SInt16 LoadHDF4Information (
    
    returnCode = GetHDFFilePathCPointer (fileInfoPtr, 
 														filePathString, 
-														510,
+														_MAX_FILE - 3,
 														&filePathPtr,
 														kHDF4_Library);
 													
@@ -7518,7 +7518,10 @@ SInt16 LoadHDF4Information (
 					// from the file used to store the data in.
 					
 			fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-			CopyPToP (hdfDataSetsPtr[0].name, fileNamePtr);
+			//CopyPToP (hdfDataSetsPtr[0].name, fileNamePtr);
+			CopyFileStringToFileString (fileNamePtr,
+													hdfDataSetsPtr[0].name,
+													256);
 			hdfDataSetsPtr[0].vRefNum = GetVolumeReferenceNumber (fileInfoPtr);
 			hdfDataSetsPtr[0].dirID = GetParID (fileInfoPtr);
 			hdfDataSetsPtr[0].sdid = 0;
@@ -7535,13 +7538,13 @@ SInt16 LoadHDF4Information (
 		if (number8BitImages > 0)
 			{
 			#if TARGET_RT_MAC_MACHO
-				int									numberColumns,
-														numberLines,
-														imageOffset;
+				int									numberColumns = 0,
+														numberLines = 0,
+														imageOffset = 0;
 			#else	// !TARGET_RT_MAC_MACHO
-				SInt32								numberColumns,
-														numberLines,
-														imageOffset;
+				SInt32								numberColumns = 0,
+														numberLines = 0,
+														imageOffset = 0;
 			#endif	// TARGET_RT_MAC_MACHO, else...
 							
 			intn			paletteExists;
@@ -7601,7 +7604,7 @@ SInt16 LoadHDF4Information (
 				
 				hdfDataSetsPtr[1].name[1] = '*';	
 				strcpy (
-					(char*)&hdfDataSetsPtr[1].name[2], (char*)&hdfDataSetsPtr[0].name[1]);
+					(char*)&hdfDataSetsPtr[1].name[2], (char*)&hdfDataSetsPtr[0].name[2]);
 				hdfDataSetsPtr[1].name[0] = 
 												(UInt8)strlen ((char*)&hdfDataSetsPtr[1].name[1]);
 				hdfDataSetsPtr[1].vRefNum = hdfDataSetsPtr[0].vRefNum;
@@ -7706,7 +7709,7 @@ SInt16 LoadHDF4Information (
 				
 				hdfDataSetsPtr[1].name[1] = '*';	
 				strcpy (
-					(char*)&hdfDataSetsPtr[1].name[2], (char*)&hdfDataSetsPtr[0].name[1]);
+					(char*)&hdfDataSetsPtr[1].name[2], (char*)&hdfDataSetsPtr[0].name[2]);
 				hdfDataSetsPtr[1].name[0] = 
 											(UInt8)strlen ((char*)&hdfDataSetsPtr[1].name[1]);
 				hdfDataSetsPtr[1].vRefNum = hdfDataSetsPtr[0].vRefNum;

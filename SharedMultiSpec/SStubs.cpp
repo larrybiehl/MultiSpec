@@ -2169,9 +2169,10 @@ void ShowStatusDialogWindow (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/16/1997
-//	Revised By:			Larry L. Biehl			Date: 02/21/2019
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
-Boolean StillDown (void)
+Boolean StillDown (
+				SInt16								code)
 
 {
 	#if defined multispec_wx
@@ -2181,7 +2182,11 @@ Boolean StillDown (void)
 	#if defined multispec_win
 		MSG msgCur;
 
-		return (!::PeekMessage (&msgCur, NULL, WM_LBUTTONUP, WM_LBUTTONUP, PM_NOREMOVE));
+		if (code == 4)
+			return (!::PeekMessage (&msgCur, NULL, WM_RBUTTONUP, WM_RBUTTONUP, PM_NOREMOVE));
+
+		else	// code != 4
+			return (!::PeekMessage (&msgCur, NULL, WM_LBUTTONUP, WM_LBUTTONUP, PM_NOREMOVE));
 	#endif
 
 }	// end "StillDown"

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/02/2020
+//	Revision date:			04/12/2020
 //
 //	Language:				C
 //
@@ -6237,7 +6237,7 @@ void  HistogramDialogShowListItems (
 // Called By:			ListHistogram
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1993
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 void HistogramDialogStatisticsFile (
 				HistogramSpecsPtr					histogramSpecsPtr, 
@@ -6251,6 +6251,8 @@ void HistogramDialogStatisticsFile (
 	FileStringPtr						fileNamePtr;
 											
 	CMFileStream*						fileStreamPtr;
+	
+	UInt16								supportFileIndex;
 	
 	
 	if (dialogPtr != NULL)
@@ -6269,6 +6271,7 @@ void HistogramDialogStatisticsFile (
 								(UCharPtr)gTextString, (StringPtr)"\0'In memory only'\0", 63);
 
 			fileNamePtr = (UCharPtr)&gTextString;
+			supportFileIndex = 1;
 			
 			}	// end "if (!CheckIfDefaultHistogramInfoExists (..." 
 			
@@ -6282,11 +6285,12 @@ void HistogramDialogStatisticsFile (
 				fileStreamPtr = windowInfoPtr->supportFileStreamPtr;
 				
 			fileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileStream (fileStreamPtr);
+			supportFileIndex = 2;
 							
 			}	// end "else CheckIfDefaultHistogramInfoExists (..."
 		
       #if defined multispec_wx
-			*supportFileNamePtr = wxString (&fileNamePtr[1], wxConvUTF8);
+			*supportFileNamePtr = wxString (&fileNamePtr[supportFileIndex], wxConvUTF8);
       #endif
 			
 		#if defined multispec_mac
@@ -6337,10 +6341,10 @@ void HistogramDialogStatisticsFile (
 		#endif	// defined multispec_mac
 			
 		#if defined multispec_win	
-			TBYTE		wideFileName[256];
+			TBYTE		wideFileName[_MAX_PATH];
 			int sizeNeeded = MultiByteToWideChar (
-												CP_UTF8, 0, (LPCSTR)&fileNamePtr[1], -1, NULL, 0);
-			sizeNeeded = MIN (sizeNeeded, 255);
+						CP_UTF8, 0, (LPCSTR)&fileNamePtr[supportFileIndex], -1, NULL, 0);
+			sizeNeeded = MIN (sizeNeeded, _MAX_PATH);
 			MultiByteToWideChar (
 						CP_UTF8, 0, (LPCSTR)&fileNamePtr[1], -1, wideFileName, sizeNeeded);
 
@@ -7201,7 +7205,7 @@ Boolean ListHistogramTitle (
 															stringIndex,
 															resultsFileStreamPtr, 
 															gOutputCode, 
-															&filePathPtr[1],
+															&filePathPtr[2],
 															continueFlag,
 															kUTF8CharString);
 

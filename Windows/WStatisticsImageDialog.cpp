@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/15/2019
+//	Revision date:			04/17/2020
 //
 //	Language:				C++
 //
@@ -43,6 +43,8 @@
 
 
 BEGIN_MESSAGE_MAP (CMStatImageDialog, CMDialog)
+	ON_BN_CLICKED (IDC_ClassesRadio, OnClickClassesRadio)
+	ON_BN_CLICKED (IDC_SelectedAreaRadio, OnClickAreaRadio)
 	ON_BN_CLICKED (IDC_FeatureTransformation, OnFeatureTransformation)
 	ON_BN_CLICKED (IDC_IndividualRadio, OnClickIndividualRadio)
 	ON_BN_CLICKED (IDC_OverallRadio, OnClickOverallRadio)
@@ -148,12 +150,13 @@ void CMStatImageDialog::DoDataExchange (
 	DDX_CBIndex (pDX, IDC_ChannelCombo, m_channelSelection);
 	DDX_Check (pDX, IDC_FeatureTransformation, m_featureTransformationFlag);
 
-	DDX_Radio (pDX, IDC_ClassesRadio, m_classCode);
+	DDX_Radio (pDX, IDC_ClassesRadio, m_classCode); 
+	//DDX_Radio (pDX, IDC_SelectedAreaRadio, m_areaCode);
 	
-	int	perClassFieldCode;
+	int	perClassFieldCode = 0;
 	DDX_Radio (pDX, IDC_SelectedClassRadio, perClassFieldCode);
 
-	int overallMinMaxCode;
+	int overallMinMaxCode = 0;
 	DDX_Radio (pDX, IDC_OverallRadio, overallMinMaxCode);
 		
 	DDX_CBIndex (pDX, IDC_ClassCombo, m_classSelection);
@@ -161,8 +164,11 @@ void CMStatImageDialog::DoDataExchange (
 	DDX_Text2 (pDX, IDC_StatisticMin, m_userMinimum);
 	DDX_Text2 (pDX, IDC_StatisticMax, m_userMaximum);
 
-	if (m_classCode == 0) 
-		m_classCode = 1;
+	if (m_classCode == 0)
+		m_areaCode = kTrainingType;
+
+	else  // m_classCode != 0
+		m_areaCode = kAreaType;
 
 	if (perClassFieldCode == 0) 
 		m_perClassFieldCode = 1;
@@ -192,7 +198,11 @@ void CMStatImageDialog::DoDataExchange (
 		m_individualMinMaxCode = 0;
 		m_userMinMaxCode = 1;
 		
-		}	// end "else overallMinMaxCode != 0 && overallMinMaxCode != 1"
+		}	// end "else overallMinMaxCode != 0 && overallMinMaxCode != 1";
+
+			// Verify that the line and column values make sense
+		
+	VerifyLineColumnStartEndValues (pDX);
 
 }	// end "DoDataExchange"
 
@@ -215,11 +225,21 @@ BOOL CMStatImageDialog::DoDialog ()
 
 	if (returnCode == IDOK)
 		{
+		DialogSelectArea		dialogSelectArea;
+
+
 		continueFlag = TRUE;
+
+		dialogSelectArea.lineStart = m_LineStart;
+		dialogSelectArea.lineEnd = m_LineEnd;
+		dialogSelectArea.lineInterval = m_LineInterval;
+		dialogSelectArea.columnStart = m_ColumnStart;
+		dialogSelectArea.columnEnd = m_ColumnEnd;
+		dialogSelectArea.columnInterval = m_ColumnInterval;
 		
  		StatisticsImageDialogOK (this,
 											gStatisticsImageSpecsPtr,
-											&m_dialogSelectArea,
+											&dialogSelectArea,
 											m_channelSelection,
 											m_featureTransformationFlag,
 											(SInt16*)m_localActiveFeaturesPtr,
@@ -241,6 +261,58 @@ BOOL CMStatImageDialog::DoDialog ()
 	return (continueFlag);
 	
 }	// end "DoDialog"
+
+
+
+void CMStatImageDialog::OnClickAreaRadio ()
+
+{
+	m_classCode = 0;
+	m_areaCode = kAreaType;
+
+	HideDialogItem (this, IDC_ClassCombo);
+	HideDialogItem (this, IDC_StatPrompt);
+	HideDialogItem (this, IDC_SelectedClassRadio);
+	HideDialogItem (this, IDC_SelectedFieldRadio);
+
+	HideShowAreaItems (TRUE);
+
+			// Determine if this is the entire area and set the to entire image icon.
+
+	//m_dialogSelectArea.imageWindowInfoPtr =
+	//	(WindowInfoPtr)GetHandleStatusAndPointer (m_targetWindowInfoHandle,
+	//		&handleStatus);
+
+	SetEntireImageButtons (NULL,
+									m_LineStart,
+									m_LineEnd,
+									m_ColumnStart,
+									m_ColumnEnd);
+
+	//m_dialogSelectArea.imageWindowInfoPtr = NULL;
+
+	SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
+
+}	// end "OnClickAreaRadio"
+
+
+
+void CMStatImageDialog::OnClickClassesRadio ()
+
+{
+	m_classCode = 1;
+	m_areaCode = kTrainingType;
+
+	ShowDialogItem (this, IDC_ClassCombo);
+	ShowDialogItem (this, IDC_StatPrompt);
+	ShowDialogItem (this, IDC_SelectedClassRadio);
+	ShowDialogItem (this, IDC_SelectedFieldRadio);
+
+	HideShowAreaItems (FALSE);
+
+	SelectDialogItemText (this, IDC_StatisticMin, 0, SInt16_MAX);
+
+}	// end "OnClickClassesRadio"
 
 
 
@@ -311,13 +383,19 @@ void CMStatImageDialog::OnFeatureTransformation ()
 BOOL CMStatImageDialog::OnInitDialog ()
 
 {
-	SInt16								channelSelection,
+	SInt16								areaCode,
+											channelSelection,
 											selectItem;
 
 	Boolean								featureTransformationFlag;
 	
 
 	CMDialog::OnInitDialog ();
+
+			// Make sure that we have the bitmaps for the entire image buttons.
+
+	VERIFY (toEntireButton.AutoLoad (IDEntireImage, this));
+	VERIFY (toSelectedButton.AutoLoad (IDSelectedImage, this));
 
 	StatisticsImageDialogInitialize (this,
 												gStatisticsImageSpecsPtr,
@@ -337,7 +415,7 @@ BOOL CMStatImageDialog::OnInitDialog ()
 												&m_MinMaxCode,
 												&m_userMinimum,
 												&m_userMaximum,
-												&m_areaCode,
+												&areaCode,
 												&m_perClassFieldCode,
 												&selectItem,
 												&featureTransformationFlag,
@@ -357,6 +435,10 @@ BOOL CMStatImageDialog::OnInitDialog ()
 	m_channelSelection = channelSelection;
 
 	m_featureTransformationFlag = featureTransformationFlag;
+
+	m_areaCode = areaCode;
+	if (areaCode == kTrainingType)
+		HideShowAreaItems (FALSE);
 
 	return TRUE;
 	

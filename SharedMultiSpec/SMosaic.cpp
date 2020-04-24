@@ -2461,8 +2461,8 @@ void MosaicTwoImagesDialogInitialize (
 						(FileStringPtr)GetFileNamePPointerFromFileInfo (leftTopFileInfoPtr);
 	#if defined multispec_mac
 		if (CreateUnicodeStaticTextControl (dialogPtr,
-														&fileNamePtr[1],
-														fileNamePtr[0],
+														&fileNamePtr[2],
+														GetFileStringLength (fileNamePtr),
 														IDC_LeftTopImage, NULL) != noErr)
 			LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
 	#endif

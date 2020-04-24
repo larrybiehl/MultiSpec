@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -824,7 +824,7 @@ Boolean GetProjectFile (
 // Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean GetProjectFileName (
 				SInt16								saveCode)
@@ -925,11 +925,11 @@ Boolean GetProjectFileName (
 				// Save copy of filename in case it has to be loaded back in 		
 				// because the user cancelled.												
 		
-		savedNameLength = projectFileNamePtr[0];
-		//savedNameLength = strlen ((char*)projectFileNameCPtr);
+		//savedNameLength = projectFileNamePtr[0];
+		savedNameLength = GetFileStringLength (projectFileNamePtr);
 		
-		if (projectFileNamePtr[0] == 0)
-		//if (savedNameLength == 0)
+		//if (projectFileNamePtr[0] == 0)
+		if (savedNameLength == 0)
 			{
 					// If this is the first time to save the file, then make the 	
 					// default volume the same as that for the project image file.	
@@ -945,12 +945,17 @@ Boolean GetProjectFileName (
 	
 				UnlockFileStream (gProjectInfoPtr->windowInfoHandle, handleStatus);
 			
-				}	// end "if (projectFileNamePtr[0] == 0 && ..." 
+				}	// end "if (if (gProjectInfoPtr->windowInfoHandle != NULL)"
 		
 					// Make the default name the same as the image file name with 	
-					// .Project at the end.														
+					// .Project at the end.	Note that the image file name has 1
+					// character for the string length while the projectFileName expects
+					// 2 characters to be used for the file name.
 					
-			CopyPToP (projectFileNamePtr, (UCharPtr)gProjectInfoPtr->imageFileName);
+			//CopyPToP (projectFileNamePtr, (UCharPtr)gProjectInfoPtr->imageFileName);
+			CopyStringToFileString (gProjectInfoPtr->imageFileName,
+											projectFileNamePtr,
+											_MAX_FILE);
 			RemoveSuffix (projectFileNamePtr);
 			
 			#if defined multispec_mac 
@@ -967,7 +972,7 @@ Boolean GetProjectFileName (
 				projectFileStreamPtr->SetFileName (projectFileNamePtr);
 			#endif	// defined multispec_wx 
 			
-			}	// end "if (gProjectInfoPtr->fileName[0] == 0)" 
+			}	// end "if (savedNameLength == 0)"
 
 				// Now get wide character and unicode names.
 
@@ -988,13 +993,15 @@ Boolean GetProjectFileName (
 
 		projectFileNamePtr =
 				(FileStringPtr)GetFileNamePPointerFromFileStream (projectFileStreamPtr);
-		returnFlag = (errCode == noErr) & (projectFileNamePtr[0] != 0);			
+		returnFlag = (errCode == noErr) &
+								(GetFileStringLength (projectFileNamePtr) != 0);
 				
 		if (!returnFlag)
 			{
 					// Load old file name back.							
 				
-			projectFileNamePtr[0] = (UInt8)savedNameLength;
+			//projectFileNamePtr[0] = (UInt8)savedNameLength;
+			SetFileStringLength (projectFileNamePtr, savedNameLength);
 			
 					// Load original save statistics type settings.	
 		
@@ -5269,7 +5276,7 @@ Boolean WriteModifiedStats (
 // Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1998
-//	Revised By:			Larry L. Biehl			Date: 11/25/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 SInt16 WriteProjectFile (
 				SInt16								saveCode)
@@ -5439,7 +5446,7 @@ SInt16 WriteProjectFile (
 				// Make certain that there is a null character at the end of the	
 				// project image file name.													
 		
-		returnCode = MIN (gProjectInfoPtr->imageFileName[0], 254);
+		returnCode = MIN (gProjectInfoPtr->imageFileName[0], 253);
 		gProjectInfoPtr->imageFileName[returnCode+1] = kNullTerminator;
 		
 		sprintf ((char*)gTextString, 
@@ -5549,8 +5556,8 @@ SInt16 WriteProjectFile (
 			
 			sprintf ((char*)gTextString, 
 						"P4 TRAINING MASK NAME\t%hd\t%s\t%u%s",
-						(SInt16)maskFileNamePPointer[0],
-						&maskFileNamePPointer[1],
+						(SInt16)GetFileStringLength (maskFileNamePPointer),
+						&maskFileNamePPointer[2],
 						(unsigned int)gProjectInfoPtr->trainingMask.fileLayer,
 						gEndOfLine);
 								
@@ -5576,8 +5583,8 @@ SInt16 WriteProjectFile (
 			
 			sprintf ((char*)gTextString, 
 						"P5 TEST MASK NAME\t%hd\t%s\t%u%s",
-						(SInt16)maskFileNamePPointer[0],
-						&maskFileNamePPointer[1],
+						(SInt16)GetFileStringLength (maskFileNamePPointer),
+						&maskFileNamePPointer[2],
 						(unsigned int)gProjectInfoPtr->testMask.fileLayer,
 						gEndOfLine);
 								

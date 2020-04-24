@@ -63,7 +63,9 @@ BEGIN_MESSAGE_MAP (CMLegendList, CListBox)
 	ON_WM_LBUTTONDOWN ()
 	ON_WM_LBUTTONUP ()
 	ON_WM_MOUSEMOVE ()
+	ON_WM_RBUTTONDOWN ()
 	ON_WM_SETCURSOR ()
+	ON_WM_CONTEXTMENU ()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP ()
 
@@ -85,9 +87,10 @@ CMLegendList::CMLegendList ()
 	m_paletteOffset = 0;           
 	m_classPaletteEntries = 0;
 	m_activeFlag = FALSE; 
+	m_controlKeyDownFlag = FALSE;
 	m_shiftKeyDownFlag = FALSE;
 	s_lastMouseDnPoint.x = 0; 
-	s_lastMouseDnPoint.y = 0;        
+	s_lastMouseDnPoint.y = 0;  
 	
 	if (s_legendBitMapInfo == NULL)
 		{
@@ -411,6 +414,55 @@ void CMLegendList::MeasureItem (
 
 
 
+void CMLegendList::OnContextMenu (
+				CWnd* 								pWnd,
+				CPoint 								point)
+
+{
+	Point									lCell;
+	RECT									rect;
+
+	UInt16								cellValue;
+
+	
+	if (gPresentCursor == kBlinkOpenCursor1)
+		{
+		/*
+		int keyState = GetKeyState (VK_CONTROL);
+		int numberChars = sprintf ((char*)gTextString3,
+			" WLegendList: (OnContextMenu: controlKeyState): %x%s",
+			keyState,
+			gEndOfLine);
+		ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		
+		s_lastMouseDnPoint = point;
+
+		CMImageDoc* imageDocCPtr = gActiveImageViewCPtr->GetDocument ();
+		CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+		CMLegendView* legendViewCPtr = imageFrameCPtr->GetLegendViewCPtr ();
+
+		legendViewCPtr->GetDlgItem (IDC_List1)->UpdateWindow ();
+
+		lCell.h = 0;
+		lCell.v = GetCurSel ();
+
+				// Get the bottom of the list box.
+
+		s_listBottom = GetCount () * GetItemHeight (0);
+		GetClientRect (&rect);
+		s_listBottom = MIN (s_listBottom, rect.bottom);
+		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 2);
+		*/
+	}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
+	
+	//SInt16 code = 1;
+	//if (GetKeyState (VK_CONTROL) < 0)
+	//	code = 2;
+
+}	// end "OnContextMenu"
+
+
+
 void CMLegendList::OnDrawItem (
 				int 									nIDCtl,
 				LPDRAWITEMSTRUCT 					lpDrawItemStruct)
@@ -645,7 +697,14 @@ void CMLegendList::OnLButtonDown (
 		}	// end "if (point.x >= 15 && gPresentCursor == kArrow && m_listType == ..."
 
 	if (gPresentCursor == kBlinkOpenCursor1)
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 0);
+		{
+		SInt16 code = 1;
+		if (nFlags & MK_CONTROL)
+			code = 2;
+
+		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, code);
+
+		}	// if (gPresentCursor == kBlinkOpenCursor1)
 	
 }	// end "OnLButtonDown" 
 
@@ -772,6 +831,46 @@ void CMLegendList::OnMouseMove (
 
 
 
+void CMLegendList::OnRButtonDown (
+	UINT 									nFlags,
+	CPoint 								point)
+
+{
+	Point									lCell;
+	RECT									rect;
+
+	UInt16								cellValue;
+
+
+	s_lastMouseDnPoint = point;
+
+	CMImageDoc* imageDocCPtr = gActiveImageViewCPtr->GetDocument ();
+	CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+	CMLegendView* legendViewCPtr = imageFrameCPtr->GetLegendViewCPtr ();
+
+	legendViewCPtr->GetDlgItem (IDC_List1)->UpdateWindow ();
+
+	CListBox::OnRButtonDown (nFlags, point);
+
+	if (gPresentCursor == kBlinkOpenCursor1)
+		{
+		lCell.h = 0;
+		lCell.v = GetCurSel ();
+
+				// Get the bottom of the list box.
+
+		s_listBottom = GetCount () * GetItemHeight (0);
+		GetClientRect (&rect);
+		s_listBottom = MIN (s_listBottom, rect.bottom);
+
+		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 4);
+
+	}	// if (gPresentCursor == kBlinkOpenCursor1)
+
+}	// end "OnRButtonDown" 
+
+
+
 BOOL CMLegendList::OnSetCursor (
 				CWnd* 								pWnd,
 				UINT 									nHitTest,
@@ -788,6 +887,62 @@ BOOL CMLegendList::OnSetCursor (
 		return (TRUE);
 		                                     
 }	// end "OnSetCursor"
+
+
+
+BOOL CMLegendList::PreTranslateMessage (
+				MSG* 									pMsg)
+
+{
+	int						keyCode;
+
+	if (pMsg->message != 0x000f)
+		{
+		int x = (int)pMsg->wParam;
+		if (pMsg->message == WM_RBUTTONDOWN)
+			{	
+			/*
+			if (gPresentCursor == kBlinkOpenCursor1)
+				{
+				Point									lCell;
+				RECT									rect;
+
+				UInt16								cellValue;
+
+
+
+				lCell.h = 0;
+				lCell.v = GetCurSel ();
+
+						// Get the bottom of the list box.
+
+				s_listBottom = GetCount () * GetItemHeight (0);
+				GetClientRect (&rect);
+				s_listBottom = MIN (s_listBottom, rect.bottom);
+
+				DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 4);
+
+				return TRUE;
+
+				}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
+				*/
+			}	// end "if (pMsg->message == WM_RBUTTONDOWN)"
+		/*
+		else if (pMsg->message == WM_RBUTTONUP)
+			{
+			if (x == VK_SHIFT)
+				{
+				return TRUE;
+
+				}	// end "if (x == VK_CONTROL)"
+
+			}	// end "if (pMsg->message == WM_RBUTTONUP)"
+		*/
+		}	// end "if (pMsg->message != 0x000f)"
+
+	return CListBox::PreTranslateMessage (pMsg);
+
+}	// end "PreTranslateMessage"
 
 
 

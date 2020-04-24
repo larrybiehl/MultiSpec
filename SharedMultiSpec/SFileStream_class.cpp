@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/10/2019
+//	Revision date:			04/11/2020
 //
 //	Language:				C++
 //
@@ -65,46 +65,12 @@
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 06/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 CMFileStream::CMFileStream (void)
  
 {
-	#if defined multispec_wx
-		mFilePathName[0] = 0;
-		mFilePathName[1] = 0; 
-		mPascalFileName[0] = 0; 
-		mPascalFileName[1] = 0;
-
-		mUTF8PathName[0] = 0;
-		mUTF8PathName[1] = 0;
-		mUTF8FileName[0] = 0;
-		mUTF8FileName[1] = 0;
-
-		mUnicodePathLength = 0;
-		mUTF8PathLength = 0;
-	
-		mCreator = -1;
-		mFileType = -1;
-	#endif	// defined multispec_wx
-
-	#if defined multispec_win
-		mFilePathName[0] = 0;
-		mFilePathName[1] = 0; 
-		mPascalFileName[0] = 0; 
-		mPascalFileName[1] = 0;
-
-		mUTF8PathName[0] = 0;
-		mUTF8PathName[1] = 0;
-		mUTF8FileName[0] = 0;
-		mUTF8FileName[1] = 0;
-
-		mUnicodePathLength = 0;
-		mUTF8PathLength = 0;
-
-		mCreator = -1;
-		mFileType = -1;
-	#endif	// defined win
+	InitializeMembers ();
 
 }	// end "CMFileStream"
 
@@ -128,7 +94,7 @@ CMFileStream::CMFileStream (void)
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 06/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 		
 #if defined multispec_win 
 CMFileStream::CMFileStream (
@@ -137,30 +103,16 @@ CMFileStream::CMFileStream (
 {  
 	UInt16								length;
 	
-	                 
-	mFilePathName[0] = 0; 
-	mFilePathName[1] = 0;
-	mPascalFileName[0] = 0; 
-	mPascalFileName[1] = 0;
-
-	mUTF8PathName[0] = 0;
-	mUTF8PathName[1] = 0;
-	mUTF8FileName[0] = 0;
-	mUTF8FileName[1] = 0;
-
-	mUnicodePathLength = 0;
-	mUTF8PathLength = 0;
-
-	mCreator = -1;
-	mFileType = -1;
 	
-			// Copy the input file path including pascal character count
+	InitializeMembers ();
+
+			// Copy the input file path including character count
 			// and the C string terminator
 	
-	length = inputFileStreamPtr->mFilePathName[0] + 2;
-	length = MIN (length, 256);
+	length = inputFileStreamPtr->mWideFilePathName[0] + 2;
+	length = MIN (length, _MAX_PATH);
 	
-	memcpy (mFilePathName, inputFileStreamPtr->mFilePathName, (size_t)length);
+	memcpy (mWideFilePathName, inputFileStreamPtr->mWideFilePathName, (size_t)length);
 
 			// Update the UTF8 version of the path name
 
@@ -174,32 +126,20 @@ CMFileStream::CMFileStream (
 				CMFileStream						*inputFileStreamPtr) : wxFile ()
 
 {
-	UInt16 length;
+	UInt16 								length;
 
-	mFilePathName[0] = 0;
-	mFilePathName[1] = 0;
-	mPascalFileName[0] = 0;
-	mPascalFileName[1] = 0;
-
-	mUTF8PathName[0] = 0;
-	mUTF8PathName[1] = 0;
-	mUTF8FileName[0] = 0;
-	mUTF8FileName[1] = 0;
-
-	mUnicodePathLength = 0;
-	mUTF8PathLength = 0;
 	
-	mCreator = -1;
-	mFileType = -1;
+	InitializeMembers ();
 
-			// Copy the input file path including pascal character count
+			// Copy the input file path including character count
 			// and the C string terminator
 
-	length = inputFileStreamPtr->mFilePathName[0] + 2;
-	length = MIN (length, 256);
+	length = (UInt16)GetWideFileStringLength (inputFileStreamPtr->mWideFilePathName);
+	length += 2;
+	length = MIN (length, _MAX_PATH);
 
-	wmemcpy ((wchar_t*)&mFilePathName, 
-				(wchar_t*)&inputFileStreamPtr->mFilePathName, 
+	wmemcpy ((wchar_t*)&mWideFilePathName,
+				(wchar_t*)&inputFileStreamPtr->mWideFilePathName,
 				(size_t)length);
 
 			// Update the UTF8 version of the path name
@@ -207,7 +147,7 @@ CMFileStream::CMFileStream (
 	SetUTF8FilePath ();
 
 }	// end "CMFileStream"
-#endif	// defined for linux
+#endif	// defined for multispec_wx
 
 
 //------------------------------------------------------------------------------------
@@ -227,7 +167,7 @@ CMFileStream::CMFileStream (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 06/05/1995
-//	Revised By:			Larry L. Biehl			Date: 06/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 #if defined multispec_win   
 CMFileStream::CMFileStream (
@@ -236,42 +176,28 @@ CMFileStream::CMFileStream (
 {   
 	UInt16 								length;
 	
-	                
-	mFilePathName[0] = 0; 
-	mFilePathName[1] = 0;
-	mPascalFileName[0] = 0; 
-	mPascalFileName[1] = 0;
-
-	mUTF8PathName[0] = 0;
-	mUTF8PathName[1] = 0;
-	mUTF8FileName[0] = 0;
-	mUTF8FileName[1] = 0;
-
-	mUnicodePathLength = 0;
-	mUTF8PathLength = 0;
-
-	mCreator = -1;
-	mFileType = -1;
 	
-	length = inFilePathPtr[0]; 
+	InitializeMembers ();
+
+	length = inFilePathPtr[0];
 	if (length == 0)
-		//length = (UInt16)strlen ((char*)&inFilePathPtr[1]);
 		length = (UInt16)StringLength ((void*)&inFilePathPtr[1], FALSE); 
 		
-			// Copy the input file path including pascal character count
+			// Copy the input file path including character count and c
+			// terminator
 			
-	length++; 
-	length = MIN (length, 256);
+	length += 2;
+	length = MIN (length, _MAX_PATH);
 	
-	memcpy (mFilePathName, inFilePathPtr, (size_t)length);
+	memcpy (mWideFilePathName, inFilePathPtr, (size_t)length);
 				
-			// Make sure pascal character count is available.
+			// Make sure character count is available.
 			
-	mFilePathName[0] = (UInt8)length;
+	mWideFilePathName[0] = (UInt8)length;
 				
 			// Make certain that there is a C style terminator at the end.
 			
-	mFilePathName[length+1] = 0;
+	mWideFilePathName[length+1] = 0;
 
 			// Update the UTF8 version of the path name
 
@@ -289,45 +215,34 @@ CMFileStream::CMFileStream (
 #endif 	// defined multispec_win
 
 #if defined multispec_wx
-CMFileStream::CMFileStream (WideFileStringPtr inFilePathPtr) : wxFile ()
+CMFileStream::CMFileStream (
+				WideFileStringPtr inWideFilePathPtr) : wxFile ()
 
 {
-	UInt16 length;
+	UInt16 								length;
 
-	mFilePathName[0] = 0;
-	mFilePathName[1] = 0;
-	mPascalFileName[0] = 0;
-	mPascalFileName[1] = 0;
-
-	mUTF8PathName[0] = 0;
-	mUTF8PathName[1] = 0;
-	mUTF8FileName[0] = 0;
-	mUTF8FileName[1] = 0;
-
-	mUnicodePathLength = 0;
-	mUTF8PathLength = 0;
 	
-	mCreator = -1;
-	mFileType = -1;
+	InitializeMembers ();
 
-	length = inFilePathPtr[0];
+	length = (UInt16)GetWideFileStringLength (inWideFilePathPtr);
 	if (length == 0)
-		length = strlen ((char*)&inFilePathPtr[1]);
+		length = wcslen ((wchar_t*)&inWideFilePathPtr[1]);
+			
+			// Copy the input file path including character count and c
+			// terminator
+			
+	length += 2;
+	length = MIN (length, _MAX_PATH);
 
-			// Copy the input file path including pascal character count
+	wmemcpy ((wchar_t*)&mWideFilePathName, inWideFilePathPtr, (size_t)length);
 
-	length++;
-	length = MIN (length, 256);
+			// Make sure character count is available.
 
-	memcpy ((CharPtr)&mFilePathName, inFilePathPtr, (size_t)length);
-
-			// Make sure pascal character count is available.
-
-	mFilePathName[0] = (UInt8)length;
+	mWideFilePathName[0] = length;
 
 			// Make certain that there is a C style terminator at the end.
 
-	mFilePathName[length+1] = 0;
+	mWideFilePathName[length+1] = 0;
 
 	if (MOpenFile ((SInt16)(kRead),(SInt16) (kNoErrorMessages)) == noErr) 
 		{
@@ -513,15 +428,16 @@ SInt16 CMFileStream::ConvertFileErrorNumber (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/16/1995
-//	Revised By:			Larry L. Biehl			Date: 07/05/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 Boolean CMFileStream::FileOpen ()
                       
 {		   
 	#if defined multispec_wx
-		mFilePathName[mFilePathName[0]+1] = 0;
+		UInt16 wideFilePathNameLength = GetWideFileStringLength (mWideFilePathName);
+		mWideFilePathName[wideFilePathNameLength+1] = 0;
 		//if (wxFile::Exists (wxString::FromAscii ((CharPtr)&mFilePathName[1])))
-		if (wxFile::Exists (wxString (&mFilePathName[1])))
+		if (wxFile::Exists (wxString (&mWideFilePathName[1])))
 			return (wxFile::IsOpened ());
 		else
 			return FALSE;
@@ -625,7 +541,8 @@ FileStringPtr CMFileStream::GetCopyOfFilePath (void)
 //							the start of the actual file name not including the
 //							path.
 //		
-//	Parameters in:		None
+//	Parameters in:		Code indicating whether the length of the ASCII or wide
+//							character path name should be returned
 //
 //	Parameters out:	None
 //
@@ -634,7 +551,7 @@ FileStringPtr CMFileStream::GetCopyOfFilePath (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1995
-//	Revised By:			Larry L. Biehl			Date: 03/20/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void* CMFileStream::GetFileNameCPtr (
 				SInt16								returnCode)
@@ -654,26 +571,27 @@ void* CMFileStream::GetFileNameCPtr (
 
 				// Return the start address for the file name.
 
-		fileNameCPtr = (void*)&mUTF8PathName[mUTF8PathLength+1];
+		fileNameCPtr = (void*)&mUTF8FilePathName[mUTF8PathLength+2];
 
 		}	// end "if (returnCode == kReturnASCII)"
 
 	else	// returnCode != kReturnASCII
 		{
-		pathLength = mFilePathName[0];  
+		//pathLength = mWideFilePathName[0];
+		pathLength = GetWideFileStringLength (mWideFilePathName);
 	
 		if (pathLength > 0)
 			{         
-			if (mUnicodePathLength > 0)
+			if (mWidePathLength > 0)
 						// The start of the file name has already been computed.
 						// Just return the start address for the file name.
-				fileNameCPtr = (void*)&mFilePathName[mUnicodePathLength+1];
+				fileNameCPtr = (void*)&mWideFilePathName[mWidePathLength+1];
 
 			else	// mPathLength == 0
 				{
 				WideFileStringPtr		wFileNameCPtr;
 
-				wFileNameCPtr = &mFilePathName[pathLength];
+				wFileNameCPtr = &mWideFilePathName[pathLength];
 				
 				nameLength = 0;
 				#if defined multispec_wx
@@ -692,7 +610,7 @@ void* CMFileStream::GetFileNameCPtr (
 				if (nameLength > 0)
 					wFileNameCPtr++;
 
-				mUnicodePathLength = pathLength - nameLength;
+				mWidePathLength = pathLength - nameLength;
 
 				fileNameCPtr = (void*)wFileNameCPtr;
 
@@ -704,10 +622,10 @@ void* CMFileStream::GetFileNameCPtr (
 			{ 
 					// Make sure that there is a c terminator.
 					
-			mFilePathName[1] = 0;
-			mUnicodePathLength = 0;
+			mWideFilePathName[1] = 0;
+			mWidePathLength = 0;
 
-			fileNameCPtr = (void*)&mFilePathName[1];
+			fileNameCPtr = (void*)&mWideFilePathName[1];
 			
 			}	// else pathLength == 0	
 
@@ -716,6 +634,7 @@ void* CMFileStream::GetFileNameCPtr (
 	return (fileNameCPtr);
 		
 }	// end "GetFileNameCPtr"  
+
 
 
 //------------------------------------------------------------------------------------
@@ -727,7 +646,8 @@ void* CMFileStream::GetFileNameCPtr (
 //							the start of the actual file name not including the
 //							path. The pointer is returned as a pascal name pointer.
 //		
-//	Parameters in:		None
+//	Parameters in:		Code indicating whether the length of the ASCII or wide
+//							character path name should be returned
 //
 //	Parameters out:	None
 //
@@ -736,7 +656,7 @@ void* CMFileStream::GetFileNameCPtr (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1995
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void* CMFileStream::GetFileNamePPtr (
 				SInt16								returnCode)
@@ -757,33 +677,36 @@ void* CMFileStream::GetFileNamePPtr (
 
 	else	// returnCode != kReturnASCII
 		{
-		wideFileNamePtr = (WideFileStringPtr)mPascalFileName;
+		wideFileNamePtr = (WideFileStringPtr)mWideFileName;
 
 		if (wideFileNamePtr[0] == 0)
 			{
-					// Force Pascal File Name to be generated from the full wide (unicode) 
-					// path name.
+					// Force 'Pascal' File Name to be generated from the full wide
+					// (unicode) path name. In other words the first element is the
+					// the size of the string.
 
 			fileNameCPtr = (wchar_t*)GetFileNameCPtr (kReturnUnicode);
 		
 			nameLength = (UInt16)wcslen (fileNameCPtr);
-			nameLength = MIN (nameLength, 254);
+			nameLength = MIN (nameLength, _MAX_PATH);
 		
 			if (nameLength > 0)
-				wmemcpy (&mPascalFileName[1], fileNameCPtr, nameLength); 
+				wmemcpy (&mWideFileName[1], fileNameCPtr, nameLength);
 		
-			mPascalFileName[nameLength+1] = 0;
-			mPascalFileName[0] = (UInt8)nameLength;
+			mWideFileName[nameLength+1] = 0;
+			
+			//mWideFileName[0] = (UInt8)nameLength;
+			SetWideFileStringLength(mWideFileName, nameLength);
 			
 			}	// end "if (wideFileNamePtr[0] == 0)"
 
-		fileNamePtr = (void*)mPascalFileName;
+		fileNamePtr = (void*)mWideFileName;
 
 		}	// end "else returnCode != kReturnASCII"
 		
 	return (fileNamePtr); 	
 		
-}	// end "GetFileNamePPtr"   
+}	// end "GetFileNamePPtr"
 
 
 
@@ -793,10 +716,10 @@ void* CMFileStream::GetFileNamePPtr (
 //	Function name:		void* GetFilePathPPtr
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
-//							to the file name represented by the input file
-//							path pointer.
+//							to the specified full file path name.
 //		
-//	Parameters in:		Address to FileInfo structure for file to be closed.
+//	Parameters in:		Code indicating whether the length of the ASCII or wide
+//							character path name should be returned
 //
 //	Parameters out:	None
 //
@@ -805,23 +728,23 @@ void* CMFileStream::GetFileNamePPtr (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/11/1995
-//	Revised By:			Larry L. Biehl			Date: 06/19/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void* CMFileStream::GetFilePathPPtr (
 				SInt16								returnCode)                       
 {			
 	#if defined multispec_wx
 		if (returnCode == kReturnASCII)
-			return ((void*)mUTF8PathName); 
+			return ((void*)mUTF8FilePathName);
 		else	// returnCode != kReturnASCII
-			return ((void*)mFilePathName);   
+			return ((void*)mWideFilePathName);
 	#endif	// ddefined multispec_wx
 
 	#if defined multispec_win
 		if (returnCode == kReturnASCII)
-			return ((void*)mUTF8PathName); 
+			return ((void*)mUTF8FilePathName);
 		else	// returnCode != kReturnASCII
-			return ((void*)mFilePathName);    
+			return ((void*)mWideFilePathName);
 	#endif	// defined multispec_win
 		
 }	// end "GetFilePathPPtr"  
@@ -834,7 +757,7 @@ void* CMFileStream::GetFilePathPPtr (
 //	Function name:		void* GetFilePathPtr
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
-//							to the file name represented by the input file
+//							to the full file path represented by the input file
 //							path pointer.
 //		
 //	Parameters in:		Address to FileInfo structure for file to be closed.
@@ -855,6 +778,7 @@ void* CMFileStream::GetFilePathPtr (
 	return ((void*)filePathPtr);    
 		
 }	// end "GetFilePathPtr" 
+
 
 
 //------------------------------------------------------------------------------------
@@ -950,7 +874,6 @@ OSErr	CMFileStream::GetFileType (
 				
 {
 	SInt16								errCode;
-	UInt16								numSuffixChars;
 	Boolean								fileExistsFlag = FALSE;
 	
 	
@@ -966,14 +889,14 @@ OSErr	CMFileStream::GetFileType (
 		
 	if (fileExistsFlag) 
 		{
-		if (CompareSuffixNoCase ((char*)"\0.STA", filePathPtr, &numSuffixChars))
+		if (CompareSuffixNoCase ((char*)"\0.STA", filePathPtr, NULL))
 			*fileTypePtr = kISTAFileType;
 
-		else if (CompareSuffixNoCase ((char*)"\0.TRL", filePathPtr, &numSuffixChars))
+		else if (CompareSuffixNoCase ((char*)"\0.TRL", filePathPtr, NULL))
 			*fileTypePtr = kITRLFileType;
 
 		else if (CompareSuffixNoCase (
-				 (char*)"\0.TransformMatrix", filePathPtr, &numSuffixChars))
+								(char*)"\0.TransformMatrix", filePathPtr, NULL))
 			*fileTypePtr = kTRANFileType;
 
 		else
@@ -1000,7 +923,7 @@ OSErr	CMFileStream::GetFileType (
 //	Software purpose:	The purpose of this routine is to find the length of just
 //							the path name in the full UTF8 formatted file path name.
 //		
-//	Parameters in:		Address to FileInfo structure for file to be closed.
+//	Parameters in:		None
 //
 //	Parameters out:	None
 //
@@ -1009,28 +932,29 @@ OSErr	CMFileStream::GetFileType (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/20/2017
-//	Revised By:			Larry L. Biehl			Date: 07/05/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 UInt16 CMFileStream::GetFileUTF8PathLength ()       
 {
 	UInt8*								utf8FileNamePtr;
 	
-	UInt16								fullPathLength,
+	UInt16								fullFilePathLength,
 											nameLength;
 
 
 	if (mUTF8PathLength == 0)
 		{
-		utf8FileNamePtr = mUTF8PathName;
-		fullPathLength = mUTF8PathName[0];
-		utf8FileNamePtr = &mUTF8PathName[fullPathLength];
+		utf8FileNamePtr = mUTF8FilePathName;
+		//fullPathLength = mUTF8FilePathName[0];
+		fullFilePathLength = GetFileStringLength (mUTF8FilePathName);
+		utf8FileNamePtr = &mUTF8FilePathName[fullFilePathLength+1];
 
 		nameLength = 0;
 		#if defined multispec_wx
-			while ((nameLength < fullPathLength) && (*utf8FileNamePtr != '/'))
+			while ((nameLength < fullFilePathLength) && (*utf8FileNamePtr != '/'))
 		#endif
 		#if defined multispec_win
-			while ((nameLength < fullPathLength) && (*utf8FileNamePtr != '\\'))
+			while ((nameLength < fullFilePathLength) && (*utf8FileNamePtr != '\\'))
 		#endif
 			{
 			utf8FileNamePtr--;
@@ -1038,8 +962,8 @@ UInt16 CMFileStream::GetFileUTF8PathLength ()
 			
 			}	// end "while ((nameLength < pathLength) && ..."
 			
-		if (nameLength > 0 && fullPathLength >= nameLength)
-			mUTF8PathLength = fullPathLength - nameLength;
+		if (nameLength > 0 && fullFilePathLength >= nameLength)
+			mUTF8PathLength = fullFilePathLength - nameLength;
 
 		else
 			mUTF8PathLength = 0;
@@ -1049,6 +973,97 @@ UInt16 CMFileStream::GetFileUTF8PathLength ()
 	return (mUTF8PathLength);
  
 }	// end "GetFileUTF8PathLength"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void* GetPathFileLength
+//
+//	Software purpose:	The purpose of this routine is to get the length of the full
+//							file path name.
+//
+//	Parameters in:		Code indicating whether the length of the UTF8 or Unicode (Wide)
+//							character path name should be returned
+//
+//	Parameters out:	None
+//
+//	Value Returned: 	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/09/2020
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+
+int CMFileStream::GetPathFileLength (
+				SInt16								returnCode)
+{
+	#if defined multispec_wx
+		if (returnCode == kReturnASCII)
+			return (GetFileStringLength (mUTF8FilePathName));
+		else	// returnCode != kReturnASCII
+			return (mWidePathLength);
+	#endif	// ddefined multispec_wx
+
+	#if defined multispec_win
+		if (returnCode == kReturnASCII)
+			return (GetFileStringLength (mUTF8FilePathName));
+		else	// returnCode != kReturnASCII
+			return (mWidePathLength);
+	#endif	// defined multispec_win
+		
+}	// end "GetPathFileLength"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void IOCheck
+//
+//	Software purpose:	The purpose of this routine is to check for IO
+//							Errors and post a message if one has occured.
+//
+//	Parameters in:		File operation error code.
+//							Address of file name.
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+
+void CMFileStream::InitializeMembers ()
+
+{
+	mWideFilePathName[0] = 0;
+	mWideFilePathName[1] = 0;
+	
+	mWideFileName[0] = 0;
+	mWideFileName[1] = 0;
+
+	mUTF8FilePathName[0] = 0;
+	mUTF8FilePathName[1] = 0;
+	mUTF8FilePathName[2] = 0;
+	
+	mUTF8FileName[0] = 0;
+	mUTF8FileName[1] = 0;
+	mUTF8FileName[2] = 0;
+
+	//mUTF8PathNameLength = 0;
+	//mUTF8FileNameLength = 0;
+	mWidePathLength = 0;
+	mUTF8PathLength = 0;
+
+	mCreator = -1;
+	mFileType = -1;
+			
+}	// end "GetPathFileLength"
+
 
 
 //------------------------------------------------------------------------------------
@@ -1152,7 +1167,7 @@ void CMFileStream::MCloseFile (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1995
-//	Revised By:			Larry L. Biehl			Date: 12/10/2019
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 SInt16 CMFileStream::MCreateNewFile (
 				Boolean								replaceFlag)
@@ -1171,7 +1186,7 @@ SInt16 CMFileStream::MCreateNewFile (
 	#if defined multispec_wx
 		if (!replaceFlag && 
 			//wxFile::Exists (wxString::FromAscii ((CharPtr)&mFilePathName[1])))
-			wxFile::Exists (wxString (&mFilePathName[1])))
+			wxFile::Exists (wxString (&mWideFilePathName[1])))
 																					return (dupFNErr);
 	
 				// This will overwrite it if it already exists
@@ -1223,15 +1238,15 @@ SInt16 CMFileStream::MDeleteFile (
 	CFileException						error;
 	SInt16								errCode = noErr;
 	
-   if (mFilePathName[0] > 0)
+   if (mWideFilePathName[0] > 0)
 		{
 				// Make certain that there is a C style terminator at the end.
 				
-		mFilePathName[mFilePathName[0]+1] = 0;   
+		mWideFilePathName[mWideFilePathName[0]+1] = 0;
 		
 		TRY
    		{                                           
-   		Remove ((LPCTSTR)&mFilePathName[1]);
+   		Remove ((LPCTSTR)&mWideFilePathName[1]);
    	
    		}
    	
@@ -1247,7 +1262,7 @@ SInt16 CMFileStream::MDeleteFile (
    		}
 		END_CATCH 
 	           			
-		}	// end "if (mFilePathName[0] > 0)"
+		}	// end "if (mWideFilePathName[0] > 0)"
 		
 	return (errCode); 
 #endif	// defined multispec_win   
@@ -1255,18 +1270,21 @@ SInt16 CMFileStream::MDeleteFile (
 #if defined multispec_wx 
 	SInt16				errCode = noErr;
 	
-   if (mFilePathName[0] > 0)
+	UInt16 filePathNameLength = GetWideFileStringLength (mWideFilePathName);
+	
+   //if (mWideFilePathName[0] > 0)
+   if (filePathNameLength > 0)
 		{
 				// Make certain that there is a C style terminator at the end.
 				
-		mFilePathName[mFilePathName[0]+1] = 0;   
+		//mWideFilePathName[mWideFilePathName[0]+1] = 0;
+		mWideFilePathName[filePathNameLength+1] = 0;
 		
-		                                          
-   	bool suc = wxRemoveFile (&mFilePathName[1]);
+   	bool suc = wxRemoveFile (&mWideFilePathName[1]);
       if (!suc)
          errCode = -36;
    	 		
-		}	// end "if (mFilePathName[0] > 0)"
+		}	// end "if (filePathNameLength > 0)"
 		
 	return (errCode); 
 #endif	// defined multispec_wx
@@ -1466,7 +1484,7 @@ SInt16 CMFileStream::MGetSizeOfFile (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 05/04/1995
-//	Revised By:			Larry L. Biehl			Date: 12/10/2019
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 SInt16 CMFileStream::MOpenFile (
 				UInt16								readWriteCode,
@@ -1481,12 +1499,14 @@ SInt16 CMFileStream::MOpenFile (
 	
 				// Use GetLastError () to get any errors.
 
-		mFilePathName[mFilePathName[0]+1] = 0;
+		UInt16 filePathNameLength = GetWideFileStringLength (mWideFilePathName);
+		//mWideFilePathName[mFilePathName[0]+1] = 0;
+		mWideFilePathName[filePathNameLength+1] = 0;
 		if (readWriteCode == kRead)
 			{		
-			if (wxFile::Exists (wxString (&mFilePathName[1])))
+			if (wxFile::Exists (wxString (&mWideFilePathName[1])))
 				{
-				if (Open (wxString (&mFilePathName[1]),kRead)) 
+				if (Open (wxString (&mWideFilePathName[1]), kRead))
 					{
 					mCreator = -1;
 					mFileType = kTEXTFileType;
@@ -1509,7 +1529,7 @@ SInt16 CMFileStream::MOpenFile (
 			
 		else if (readWriteCode == kWrite)
 			{
-			if (Open (wxString (&mFilePathName[1]), kWrite)) 
+			if (Open (wxString (&mWideFilePathName[1]), kWrite))
 				{
 				mCreator = -1;
 				mFileType = kTEXTFileType;
@@ -1527,7 +1547,7 @@ SInt16 CMFileStream::MOpenFile (
 			
 		else if (readWriteCode == kReadWrite)
 			{
-			if (Open (wxString (&mFilePathName[1]), kReadWrite)) 
+			if (Open (wxString (&mWideFilePathName[1]), kReadWrite))
 				{
 				mCreator = -1;
 				mFileType = kTEXTFileType;
@@ -1562,9 +1582,9 @@ SInt16 CMFileStream::MOpenFile (
 			{     
 					// Make certain that there is a C style terminator at the end.
 				
-			mFilePathName[mFilePathName[0]+1] = 0;
+			mWideFilePathName[mWideFilePathName[0]+1] = 0;
 				  
-			if (Open ((LPCTSTR)&mFilePathName[1],    
+			if (Open ((LPCTSTR)&mWideFilePathName[1],
 							readWriteCode | shareDenyNone,
 							&error))
 				{ 	                       
@@ -1985,7 +2005,7 @@ SInt16 CMFileStream::MWriteData (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/15/1999
-//	Revised By:			Larry L. Biehl			Date: 06/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 void CMFileStream::SetFileName (
 				FileStringPtr						inFileNamePtr)
@@ -1995,46 +2015,53 @@ void CMFileStream::SetFileName (
 											filePathNamePtr;
 
 	int									sizeNeeded;
-	UInt16								inFileNameLength;
+	UInt16								inFileNameLength,
+											wideFilePathNameLength,
+											utf8FilePathNameLength;
 	
 	#if defined multispec_wx
 		wxMBConvUTF8						converter;
 	#endif
 				
-	
+
+	wideFilePathNameLength = GetWideFileStringLength (mWideFilePathName);
+	utf8FilePathNameLength = GetFileStringLength (mUTF8FilePathName);
 	if (inFileNamePtr == NULL)
 		{
 				// If a path name already exists. Make sure the file stream is
 				// fully set up.
 
-		if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)
+		//if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)
+		if (wideFilePathNameLength == 0 && utf8FilePathNameLength > 0)
 			{
 					// Need to create the unicode formatted name from the 
 					// the existing uft8 formatted string
 					
-			inFileNamePtr = mUTF8PathName;
-			filePathNamePtr = mFilePathName;
+			inFileNamePtr = mUTF8FilePathName;
+			filePathNamePtr = mWideFilePathName;
 
 			#if defined multispec_wx
-				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&mUTF8PathName[1]);
+				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&mUTF8FilePathName[2]);
 				sizeNeeded = MIN (sizeNeeded, _MAX_PATH-2);
 				sizeNeeded = converter.ToWChar (
-									&mFilePathName[1], sizeNeeded, (char*)&mUTF8PathName[1]);
+							&mWideFilePathName[1], sizeNeeded, (char*)&mUTF8FilePathName[2]);
 			#endif	// end defined multispec_wx
 
 			#if defined multispec_win
 				sizeNeeded = MultiByteToWideChar (
-										CP_UTF8, 0, (LPCSTR)&mUTF8PathName[1], -1, NULL, 0);
+										CP_UTF8, 0, (LPCSTR)&mUTF8FilePathName[2], -1, NULL, 0);
 				sizeNeeded = MIN (sizeNeeded, _MAX_PATH-2);
 				MultiByteToWideChar (CP_UTF8, 
 											0, 
-											(LPCSTR)&mUTF8PathName[1], 
+											(LPCSTR)&mUTF8FilePathName[2], 
 											-1, 
-											&mFilePathName[1], 
+											&mWideFilePathName[1],
 											sizeNeeded);
 			#endif	// end defined multispec_win
 			
-			mFilePathName[0] = (TBYTE)wcslen (&mFilePathName[1]);
+			//mWideFilePathName[0] = (TBYTE)wcslen (&mWideFilePathName[1]);
+			SetWideFileStringLength (mWideFilePathName,
+												wcslen (&mWideFilePathName[1]));
 
 					// Force the unicode version of the file name to be generated and
 					// the path length (no file name) to be computed.
@@ -2044,25 +2071,32 @@ void CMFileStream::SetFileName (
 					// Now force the multibyte file name to be created if they are 
 					// requested.
 			
-			mPascalFileName[0] = 0;
+			mWideFileName[0] = 0;
+			mWideFileName[1] = 0;
 
 			mUTF8FileName[0] = 0;
+			mUTF8FileName[1] = 0;
+			mUTF8FileName[2] = 0;
 			SetUTF8FileName ();
 
-			}	// end "if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)"
+			}	// end "if (mFilePathNameLength == 0 && mUTF8PathNameLength > 0)"
 
 		}	// end "if (inFileNamePtr == NULL)"
 	
 	else	// inFileNamePtr != NULL)
 		{
-		if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)
+		//if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)
+		inFileNameLength = GetFileStringLength (inFileNamePtr);
+		if (wideFilePathNameLength == 0 && utf8FilePathNameLength > 0)
 			{
 					// Add the file to the utf8 path string.
 
-			strcpy ((char*)&mUTF8PathName[mUTF8PathLength+1], (char*)&inFileNamePtr[1]);
-			mUTF8PathName[0] = mUTF8PathLength + inFileNamePtr[0];
+			strcpy ((char*)&mUTF8FilePathName[mUTF8PathLength+2],
+						(char*)&inFileNamePtr[2]);
+			//mUTF8PathName[0] = mUTF8PathLength + inFileNamePtr[0];
+			SetFileStringLength (mUTF8FilePathName, mUTF8PathLength + inFileNameLength);
 
-			}	// end "if (mFilePathName[0] == 0 && mUTF8PathName[0] > 0)"
+			}	// end "if (mFilePathNameLength == 0 && mUTF8PathNameLength > 0)"
 
 		else	// Add the file name to the unicode path name.
 			{
@@ -2070,46 +2104,53 @@ void CMFileStream::SetFileName (
 
 					// Make sure the file name plus path is less than the max buffer length
 			
-			inFileNameLength = inFileNamePtr[0];
-			inFileNameLength = MIN (inFileNameLength, _MAX_PATH-mUnicodePathLength-2);
+			//inFileNameLength = inFileNamePtr[0];
+			inFileNameLength = MIN (inFileNameLength, _MAX_PATH-mWidePathLength-2);
 			
 					// Make sure that the file name is terminated by a c terminator.
 					
-			inFileNamePtr[inFileNameLength+1] = 0;
+			inFileNamePtr[inFileNameLength+2] = 0;
 
 					// Need to convert the input file name from multibyte string
 					// to wide string to be able to add to the wide (unicoded)
 					// full path.
 
 			#if defined multispec_wx
-				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&inFileNamePtr[1]);
-				sizeNeeded = MIN (sizeNeeded, 256);
+				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&inFileNamePtr[2]);
+				sizeNeeded = MIN (sizeNeeded, _MAX_PATH);
 				sizeNeeded = converter.ToWChar (
-											fileNamePtr, sizeNeeded, (char*)&inFileNamePtr[1]);
+											fileNamePtr, sizeNeeded, (char*)&inFileNamePtr[2]);
 			#endif	// defined multispec_wx
 
 			#if defined multispec_win
 				sizeNeeded = MultiByteToWideChar (
-										CP_UTF8, 0, (LPCSTR)&inFileNamePtr[1], -1, NULL, 0);
-				sizeNeeded = MIN (sizeNeeded, 256);
+										CP_UTF8, 0, (LPCSTR)&inFileNamePtr[2], -1, NULL, 0);
+				sizeNeeded = MIN (sizeNeeded, _MAX_PATH);
 				MultiByteToWideChar (
-						CP_UTF8, 0, (LPCSTR)&inFileNamePtr[1], -1, fileNamePtr, sizeNeeded);
+						CP_UTF8, 0, (LPCSTR)&inFileNamePtr[2], -1, fileNamePtr, sizeNeeded);
 			#endif	// defined multispec_win
 									
 					// Update the length of the file path string.
 					
-			mFilePathName[0] = (TBYTE)wcslen (&mFilePathName[1]);
+			//mWideFilePathName[0] = (TBYTE)wcslen (&mFilePathName[1]);
+			SetWideFileStringLength (mWideFilePathName, wcslen (&mWideFilePathName[1]));
 					
 					// Now force the UTF8 version of the file path name to be updated.
 
-			mUTF8PathName[0] = 0;
+			mUTF8FilePathName[0] = 0;
+			mUTF8FilePathName[1] = 0;
+			mUTF8FilePathName[2] = 0;
+			
 			mUTF8FileName[0] = 0;
+			mUTF8FileName[1] = 0;
+			mUTF8FileName[2] = 0;
 
 			}	// end "else add the file name to the unicode path name."
 
 		}	// end "if (inFileNamePtr != NULL)"
 
-	if (mUTF8PathName[0] == 0)
+	//if (mUTF8FilePathName[0] == 0)
+	if (GetFileStringLength (mUTF8FilePathName) == 0)
 		SetUTF8FilePath ();
 		
 }	// end "SetFileName"
@@ -2135,7 +2176,7 @@ void CMFileStream::SetFileName (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/19/1995
-//	Revised By:			Larry L. Biehl			Date: 11/28/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void CMFileStream::SetFilePath (
 				#if defined multispec_wx
@@ -2152,18 +2193,18 @@ void CMFileStream::SetFilePath (
 		
 			// Copy the input file path including pascal character count
 	
-	wmemcpy (mFilePathName, 
+	wmemcpy (mWideFilePathName,
 				inFilePathPtr, 
 				(size_t)inFilePathPtr[0]+1);
 				
 			// Make sure that the path name is terminated by a c terminator.
 			
-	if (inFilePathPtr[0] < 255)
-		mFilePathName[inFilePathPtr[0]+1] = 0;
+	mWideFilePathName[inFilePathPtr[0]+1] = 0;
 
 			// Update the UTF8 version of the path name
 
-	mUTF8PathName[0] = 0;
+	mUTF8FilePathName[0] = 0;
+	mUTF8FilePathName[1] = 0;
 	SetUTF8FilePath ();
 		
 }	// end "SetFilePath"
@@ -2191,6 +2232,7 @@ void CMFileStream::SetFilePath (
 
 			// Update the UTF8 version of the path name
 
+	mUTF8PathNameLength = 0;
 	mUTF8PathName[0] = 0;
 	SetUTF8FilePath ();
 		
@@ -2218,7 +2260,7 @@ void CMFileStream::SetFilePath (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/16/2015
-//	Revised By:			Larry L. Biehl			Date: 06/23/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void CMFileStream::SetFilePathFromCharString (
 				StringPtr							inFilePathPtr,
@@ -2238,7 +2280,7 @@ void CMFileStream::SetFilePathFromCharString (
 			
 	SInt16 filePathLength = (SInt16)strlen ((char*)inFilePathPtr);
 	
-	if (filePathLength < 255)
+	if (filePathLength < _MAX_PATH)
 		{
 				// Convert the input string to a wide character string.
 				
@@ -2246,25 +2288,28 @@ void CMFileStream::SetFilePathFromCharString (
 		wideCharBuffer = wxInFilePath.wc_str ();
 		wxInFilePathLength = wideCharBuffer.length ();
 		
-		wmemcpy (&mFilePathName[1], 
+		wmemcpy (&mWideFilePathName[1],
 					wideCharBuffer.data (), 
 					wxInFilePathLength);
 					
-		mFilePathName[0] = (wchar_t)wxInFilePathLength;
+		mWideFilePathName[0] = (wchar_t)wxInFilePathLength;
 				
 				// Make sure that the path name is terminated by a c terminator.
-			
-		mFilePathName[mFilePathName[0]+1] = 0;
+		
+		UInt16 wideFilePathNameLength = GetWideFileStringLength (mWideFilePathName);
+		mWideFilePathName[wideFilePathNameLength+1] = 0;
 
 				// The path length may have changed; force it to be reset.
 		
-		mUnicodePathLength = 0;
+		mWidePathLength = 0;
 		mUTF8PathLength = 0;
 
-		mUTF8PathName[0] = 0;
+		mUTF8FilePathName[0] = 0;
+		mUTF8FilePathName[1] = 0;
+		mUTF8FilePathName[2] = 0;
 		SetUTF8FilePath ();
 			
-		}	// end "if (filePathLength < 255)"
+		}	// end "if (filePathLength < _MAX_PATH)"
 		
 }	// end "SetFilePathFromCharString"  
 #endif
@@ -2289,35 +2334,41 @@ void CMFileStream::SetFilePathFromCharString (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/14/2017
-//	Revised By:			Larry L. Biehl			Date: 03/21/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void CMFileStream::SetUTF8FileName ()
                      
 {			
 	FileStringPtr						utf8FileNamePtr;
 	
-	UInt16								nameLength = 0;
+	UInt16								filePathNameLength,
+											nameLength = 0;
 
 
 	utf8FileNamePtr = (FileStringPtr)GetFileNameCPtr ();
 
-	if (mUTF8PathName[0] >= mUTF8PathLength)
-		nameLength = mUTF8PathName[0] - mUTF8PathLength;
+	//if (mUTF8FilePathName[0] >= mUTF8PathLength)
+	filePathNameLength = GetFileStringLength (mUTF8FilePathName);
+	if (filePathNameLength >= mUTF8PathLength)
+		nameLength = filePathNameLength - mUTF8PathLength;
 
 	if (nameLength > 0)
 		{
-		memcpy (&mUTF8FileName[1], utf8FileNamePtr, nameLength); 
-
-		mUTF8FileName[0] = (UInt8)nameLength;
-		mUTF8FileName[nameLength+1] = 0;
+		memcpy (&mUTF8FileName[2], utf8FileNamePtr, nameLength);
+			
+		//mUTF8FileName[0] = (UInt8)nameLength;
+		//mUTF8FileName[nameLength+1] = 0;
+		SetFileStringLength (mUTF8FileName, nameLength);
 
 		}	// end "if (nameLength > 0)"
 
 	else	// nameLength <= 0
 		{
 		mUTF8PathLength = 0;
+		
 		mUTF8FileName[0] = 0;
 		mUTF8FileName[1] = 0;
+		mUTF8FileName[2] = 0;
 
 		}	// end "else nameLength <= 0"
 
@@ -2343,7 +2394,7 @@ void CMFileStream::SetUTF8FileName ()
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/14/2017
-//	Revised By:			Larry L. Biehl			Date: 06/23/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void CMFileStream::SetUTF8FilePath ()
                      
@@ -2353,6 +2404,8 @@ void CMFileStream::SetUTF8FilePath ()
 	
 	int									size,
 											sizeNeeded;
+											
+	UInt16								filePathNameLength;
 	
 	#if defined multispec_wx
 		wxMBConvUTF8						converter;
@@ -2362,15 +2415,17 @@ void CMFileStream::SetUTF8FilePath ()
 	#endif
 
 	
-	if (mUTF8PathName[0] == 0)
+	filePathNameLength = GetFileStringLength (mUTF8FilePathName);
+	//if (mUTF8PathName[0] == 0)
+	if (filePathNameLength == 0)
 		{
-		filePathCPtr = &mFilePathName[1];
-		utf8StringPtr = &mUTF8PathName[1];
+		filePathCPtr = &mWideFilePathName[1];
+		utf8StringPtr = &mUTF8FilePathName[2];
 		//std::string utf8 = UTF8FromUTF16 (filePathCPtr);  requires visualc++ 2010
 		size = (int)wcslen (filePathCPtr);
 		
 		#if defined multispec_wx
-			UInt8						tempMBPathName[_MAX_PATH+1];
+			UInt8						tempMBPathName[_MAX_PATH+3];
 			//UInt8*					mbStringPtr = mUTF8PathName;
 			//UInt8						tempMBPathName2[_MAX_PATH+1];
 		
@@ -2381,9 +2436,11 @@ void CMFileStream::SetUTF8FilePath ()
 				{
 				memcpy (tempMBPathName, utf8PathCharBufferPtr, outputSize);
 				tempMBPathName[outputSize] = 0;
-				CtoPstring (tempMBPathName, tempMBPathName);
-				strncpy ((char*)mUTF8PathName, (char*)tempMBPathName, outputSize+1);
-				mUTF8PathName[outputSize+1] = 0;
+				//CtoPstring (tempMBPathName, tempMBPathName, outputSize);
+				strncpy ((char*)&mUTF8FilePathName[2],
+							(char*)tempMBPathName,
+							outputSize);
+				//mUTF8FilePathName[outputSize+1] = 0;
 				
 				}	// end "if (outputSize > 0)"
 				
@@ -2404,16 +2461,52 @@ void CMFileStream::SetUTF8FilePath ()
 										NULL);
 		#endif	// defined multispec_win
 
-				// Add pascal length
+				// Add string length & c termination character
 				
-		mUTF8PathName[0] = sizeNeeded;
-
-				// Add the c termination character
+		//mUTF8FilePathName[0] = sizeNeeded;
+		SetFileStringLength (mUTF8FilePathName, sizeNeeded);
 			
-		mUTF8PathName[sizeNeeded+1] = 0;
+		//mUTF8PathName[sizeNeeded+1] = 0;
 
 		SetUTF8FileName ();
 
-		}	// end "if (fileStreamPtr->mUTF8PathName[0] == 0)"
+		}	// end "if (fileStreamPtr->mUTF8PathNameLength == 0)"
 
 }	// end "SetUTF8FilePath"
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void SetWideFileStringLength
+//
+//	Software purpose:	The purpose of this routine is to set the input length of the
+//							of the input file string in the first 2 bytes of the input
+//							file string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+
+void CMFileStream::SetWideFileStringLength (
+				WideFileStringPtr					wideFileStringPtr,
+				int									wideFileStringLength)
+
+{
+	UInt16*								wideFileStringLengthPtr;
+	
+	
+	wideFileStringLengthPtr = (UInt16*)wideFileStringPtr;
+	wideFileStringLengthPtr[0] = wideFileStringLength;
+	
+	wideFileStringPtr[wideFileStringLength+1] = 0;
+
+}	// end "SetFileStringLength"
+

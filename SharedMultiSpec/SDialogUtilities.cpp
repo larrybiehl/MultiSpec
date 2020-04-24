@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			03/12/2019
+//	Revision date:			04/13/2020
 //
 //	Language:				C
 //
@@ -1765,7 +1765,6 @@ DialogPtr GetStatusDialog (
 	DialogPtr 							statusDialogPtr = NULL;
 	
 	
-	
 	if (gStatusDialogPtr != NULL && gFromToolParameterFileFlag)
 		{
 				// This implies that the histogram function is being called within a tool
@@ -2734,7 +2733,7 @@ void LoadDItemRealValue (
 // Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2017
-//	Revised By:			Larry L. Biehl			Date: 09/04/2017
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
                          
 void LoadDItemString (
 				DialogPtr							dialogPtr, 
@@ -2759,6 +2758,8 @@ void LoadDItemString (
 //	Software purpose:	The purpose of this routine is to load the
 //							specified string into the requested dialog item
 //							number.
+//							The routine handles the choice for the input being a wide
+//							character string or a single character string.
 //
 //	Parameters in:		None
 //
@@ -2766,10 +2767,10 @@ void LoadDItemString (
 //
 // Value Returned: 	None
 //
-// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
+// Called By:			several routines
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1989
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
                          
 void LoadDItemString (
 				DialogPtr							dialogPtr, 

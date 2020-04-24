@@ -534,23 +534,22 @@ Boolean FeatureExtraction (void)
 			{			
 					// Get buffers to read data from image file into.					
 				 				
-			continueFlag = GetIOBufferPointers (
-								&gFileIOInstructions[0],
-								gImageWindowInfoPtr,
-								gImageLayerInfoPtr,
-								gImageFileInfoPtr,
-								&gInputBufferPtr, 
-								&gOutputBufferPtr,
-								1,
-		 						gImageWindowInfoPtr->maxNumberColumns,
-		 						1,
-		 						(UInt16)numberChannels,
-								channelsPtr,
-								kPackData,
-								kForceBISFormat,
-								kForceReal8Bytes,
-								kDoNotAllowForThreadedIO,
-								&fileIOInstructionsPtr);
+			continueFlag = GetIOBufferPointers (&gFileIOInstructions[0],
+															gImageWindowInfoPtr,
+															gImageLayerInfoPtr,
+															gImageFileInfoPtr,
+															&gInputBufferPtr,
+															&gOutputBufferPtr,
+															1,
+															gImageWindowInfoPtr->maxNumberColumns,
+															1,
+															(UInt16)numberChannels,
+															channelsPtr,
+															kPackData,
+															kForceBISFormat,
+															kForceReal8Bytes,
+															kDoNotAllowForThreadedIO,
+															&fileIOInstructionsPtr);
 															
 			}	// end "if (continueFlag && doubleDataValueCode > 0)"
 		
@@ -578,24 +577,34 @@ Boolean FeatureExtraction (void)
 					// Load the class covariance matrix and mean vector.
 					
 			InitializeAreaDescription (&gAreaDescription);
+
+			ShowStatusDialogItemSet (kStatusClassA);
+			LoadDItemValue (gStatusDialogPtr, IDC_Status5, (SInt32)numberClasses);
 			
 			for (index=0; index<numberClasses; index++)
 				{
 				statClassNumber = classPtr[index] - 1;
+				classStorage = gProjectInfoPtr->storageClass[statClassNumber];
+							
+				LoadDItemValue (gStatusDialogPtr, IDC_Status3, (SInt32)statClassNumber+1);
+				LoadDItemString (
+						gStatusDialogPtr,
+						IDC_Status6,
+						(Str255*)gProjectInfoPtr->classNamesPtr[classStorage].name);
 					
 				if (covarianceCode > 0)
 					{
 					GetTransformedClassCovarianceMatrix (
-											(UInt16)numberChannels, 
-											channelStatsPtr,
-											classInfoPtr[index].covariancePtr, 
-											featurePtr, 
-											(UInt16)statClassNumber,
-											kSquareOutputMatrix,
-											kMeanCovariance,
-											preProcessTransformVectorPtr,
-											tempMatrixPtr,
-											(UInt16)numberFEFeatures);
+															(UInt16)numberChannels,
+															channelStatsPtr,
+															classInfoPtr[index].covariancePtr,
+															featurePtr,
+															(UInt16)statClassNumber,
+															kSquareOutputMatrix,
+															kMeanCovariance,
+															preProcessTransformVectorPtr,
+															tempMatrixPtr,
+															(UInt16)numberFEFeatures);
 								
 							// Get the transformed class mean vector													
 					
@@ -619,7 +628,6 @@ Boolean FeatureExtraction (void)
 										
 						// Get the number of pixels in the class.							
 							
-				classStorage = gProjectInfoPtr->storageClass[statClassNumber];
 				classInfoPtr[index].no_samples = 
 						gProjectInfoPtr->classNamesPtr[classStorage].numberStatisticsPixels;
 									
@@ -628,27 +636,26 @@ Boolean FeatureExtraction (void)
 				if (doubleDataValueCode > 0)
 					{
 					classInfoPtr[index].no_samples = GetClassDataValues (
-							fileIOInstructionsPtr, 
-							(SInt16)statClassNumber, 
-							channelsPtr, 
-							(SInt16)numberChannels, 
-							classInfoPtr[index].dataValuesPtr, 
-							preProcessTransformVectorPtr,
-							&preProcessTransformValuePtr[numberFEFeatures], 
-							(UInt16)numberFEFeatures,
-							kComputeColumnInterval);
+												fileIOInstructionsPtr,
+												(SInt16)statClassNumber,
+												channelsPtr,
+												(SInt16)numberChannels,
+												classInfoPtr[index].dataValuesPtr,
+												preProcessTransformVectorPtr,
+												&preProcessTransformValuePtr[numberFEFeatures],
+												(UInt16)numberFEFeatures,
+												kComputeColumnInterval);
 							
 					continueFlag = (classInfoPtr[index].no_samples >= 0);
 							
 					if (classInfoPtr[index].no_samples == 0)
 						{										
-						continueFlag = ListSpecifiedStringNumber (
-										kFeatureExtractStrID, 
-										IDS_FeatureExtract11, 
-										NULL, 
-										gOutputForce1Code,
-										(SInt32)classPtr[index],
-										continueFlag);
+						continueFlag = ListSpecifiedStringNumber (kFeatureExtractStrID,
+																				IDS_FeatureExtract11,
+																				NULL,
+																				gOutputForce1Code,
+																				(SInt32)classPtr[index],
+																				continueFlag);
 							
 						gOperationCanceledFlag = TRUE;
 							
@@ -671,7 +678,9 @@ Boolean FeatureExtraction (void)
 				if (!continueFlag)
 					break;
 							
-				}	// end "for (index=0; index<numberClasses; index++)" 
+				}	// end "for (index=0; index<numberClasses; index++)"
+				
+			HideStatusDialogItemSet (kStatusClassA);
 				
 			}	// end "if (continueFlag)" 
 	

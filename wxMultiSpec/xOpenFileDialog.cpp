@@ -640,5 +640,3 @@ wxArrayString CMOpenFileDialog::GetPaths ()
    return m_paths;
 	
 }	// end "GetPaths"
-
-

@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 01/09/2020
+# Revised by Larry Biehl on 03/07/2020
 
 #include "resource.h"
 
@@ -1800,7 +1800,8 @@ Transformation matrix was loaded from '%s'.
 #6815           "Fletcher32"
 #6816           "Scale-Offset"
 #6817     	    "Deflate"
-#6818     	    "Unknown"
+#6818     	    "YCbCr JPEG"
+#6819     	    "Unknown"
 
 #6901               "none defined"
 #6902               "User Defined"

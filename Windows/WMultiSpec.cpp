@@ -852,7 +852,12 @@ BOOL CMultiSpecApp::OnIdle (
 		}	// end "if (m_splash.m_hWnd != NULL)"
 		
 	if (m_imageZoomCode > 0)
-		{                                               
+		{
+		if ((GetKeyState (VK_SHIFT) & 0x8000))
+			m_controlDelayFlag = FALSE;
+		else
+			m_controlDelayFlag = TRUE;
+
 		if (!m_controlDelayFlag || (GetTickCount () > m_nextControlTime))
 			{
 			m_nextControlTime = GetTickCount () + gControlOffset;

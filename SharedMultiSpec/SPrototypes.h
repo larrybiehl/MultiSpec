@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 01/13/2020
+//	Revised By:				Larry L. Biehl			Date: 04/11/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -2094,13 +2094,13 @@
 
 
 					//	Windows Routines in SDialogUtilities.cpp
-
+			/*
 			extern void LoadDItemString (
 							DialogPtr							dialogPtr,
 							SInt16								itemNumber,
 							CharPtr								theStringPtr,
 							Boolean								wideCharInputStringFlag=false);
-
+			*/
 			extern void PositionDialogWindow (
 							CDialog*								dialogPtr);
 
@@ -4538,6 +4538,13 @@ extern void* GetFileNamePPointerFromFileStream (
 extern SInt16 GetFilePathFromFSRef (
 				FSRef*								fileAsFSRefPtr,
 				StringPtr							filePathPtr);
+												
+extern int GetFilePathLengthFromFileStream (
+				CMFileStream* 						fileStreamPtr);
+								
+extern int GetFilePathLengthFromFileStream (
+				CMFileStream* 						fileStreamPtr,
+				SInt16								returnCode);
 
 extern void* GetFilePathPPointerFromFileInfo (
 				FileInfoPtr							fileInfoPtr);
@@ -10095,12 +10102,12 @@ extern SInt16 CompareStringsNoCase (
 
 extern Boolean CompareSuffixNoCase (
 				const CharPtr						suffixStringPtr,
-				StringPtr							stringPtr,
+				FileStringPtr						stringPtr,
 				UInt16*								numSuffixCharsPtr);
 
 extern Boolean CompareSuffixNoCase (
 				const CharPtr						suffixStringPtr,
-				wchar_t*								stringPtr,
+				WideFileStringPtr					stringPtr,
 				UInt16*								numSuffixCharsPtr);
 
 extern void ConcatFilenameSuffix (
@@ -10117,14 +10124,23 @@ extern void	ConcatPStrings (
 				const wchar_t*						inSecondStr,
 				SInt16								inDestSize);
 
-wchar_t* ConvertMultibyteStringToUnicodeString (
+extern wchar_t* ConvertMultibyteStringToUnicodeString (
 				UCharPtr								inputMultibyteStringPtr);
 
-void ConvertUnicodeStringToMultibyteString (
+extern void ConvertUnicodeStringToMultibyteString (
 				wchar_t*								inputUnicodeStringPtr,
 				UCharPtr								outputUTF8StringPtr,
 				UInt16								numberCharacters,
 				SInt16*								outputStringLengthPtr);
+
+extern void CopyFileStringToFileString (
+				FileStringPtr						fromFileStringPtr,
+				FileStringPtr						toFileStringPtr,
+				UInt16								maxLength);
+
+extern void CopyFileStringToString (
+				FileStringPtr						fromFileStringPtr,
+				char*									toFileStringPtr);
 
 extern void CopyPToP (
 				UCharPtr								p1,
@@ -10133,6 +10149,11 @@ extern void CopyPToP (
 extern void CopyPToP (
 				wchar_t*								p1,
 				wchar_t*								p2);
+				
+extern void CopyStringToFileString (
+				UCharPtr								fromStringPtr,
+				FileStringPtr						toFileStringPtr,
+				UInt16								maxLength);
 
 extern SInt16 CreateNumberWithCommasInString (
 				char*									inputStringPtr,
@@ -10156,6 +10177,9 @@ extern void ForceTextToEnd (void);
 
 extern void GetActiveImageWindowTitle (
 				UCharPtr								titleStringPtr);
+				 
+extern int GetFileStringLength (
+				FileStringPtr						fileStringPtr);
 
 extern void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -10191,6 +10215,9 @@ extern char* GetStringToComma (
 				char*									inputStringEndPtr,
 				char*									stringPtr,
 				SInt16								maxStringLength);
+				 
+extern int GetWideFileStringLength (
+				WideFileStringPtr					wideFileStringPtr);
 
 extern void GetWindowTitle (
 				WindowPtr							windowPtr,
@@ -10530,6 +10557,10 @@ extern void RemoveCharsNoCase (
 
 extern void SetActiveImageWindowTitle (
 				UCharPtr								titleStringPtr);
+					
+extern void SetFileStringLength (
+				FileStringPtr						fileStringPtr,
+				int									fileStringLength);
 
 extern void SetImageWindowTitle (
 				Handle								windowInfoHandle,

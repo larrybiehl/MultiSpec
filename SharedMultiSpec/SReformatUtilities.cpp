@@ -92,7 +92,7 @@ Boolean	ChangeErdasHeaderDialog (
 							
 void		GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
-				StringPtr							outFileNamePtr);
+				FileStringPtr						outFileNamePtr);
 
 Boolean 	InsertNewErdasHeader (
 				FileInfoPtr							fileInfoPtr, 
@@ -1352,7 +1352,7 @@ void GetOutputBufferParameters (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2013
-//	Revised By:			Larry L. Biehl			Date: 06/26/2018
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 void GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
@@ -1378,7 +1378,8 @@ void GetOutputFileName (
 		{
 				// Get the pointer to the input file name.
 		
-		CopyPToP (outFileNamePtr, inFileNamePtr);
+		//CopyPToP (outFileNamePtr, inFileNamePtr);
+		CopyFileStringToFileString (inFileNamePtr, outFileNamePtr, _MAX_FILE);
 				
 		if (gProcessorCode != kRefFieldsToThematicFileProcessor)
 			{
@@ -1387,7 +1388,8 @@ void GetOutputFileName (
 						// Try to use the file name base which is common to all of the 
 						// linked files.
 						
-				stringLength = outFileNamePtr[0];
+				//stringLength = outFileNamePtr[0];
+				stringLength = GetFileStringLength (outFileNamePtr);
 				
 				localFileInfoPtr = &inputFileInfoPtr[1];
 				inFileNamePtr = 
@@ -1398,8 +1400,8 @@ void GetOutputFileName (
 						
 				while (stringLength > 1) 
 					{
-					if (strncmp ((char*)&outFileNamePtr[1], 
-										(char*)&inFileNamePtr[1], 
+					if (strncmp ((char*)&outFileNamePtr[2],
+										(char*)&inFileNamePtr[2],
 										stringLength)) 
 						stringLength--;
 						
@@ -1420,8 +1422,8 @@ void GetOutputFileName (
 					
 					while (stringLength > 1) 
 						{
-						if (strncmp ((char*)&outFileNamePtr[1], 
-											(char*)&inFileNamePtr[1], 
+						if (strncmp ((char*)&outFileNamePtr[2],
+											(char*)&inFileNamePtr[2],
 											stringLength)) 
 							stringLength--;
 							
@@ -1446,25 +1448,26 @@ void GetOutputFileName (
 								// This could just mean the band suffixes are like B02 and B08.
 								// Need to do some further checking.
 						
-						if (outFileNamePtr[stringLength-1] == 'B' &&
-									outFileNamePtr[stringLength-2] == '_' &&
+						if (outFileNamePtr[stringLength] == 'B' &&
+									outFileNamePtr[stringLength-1] == '_' &&
 											stringLength > 2) 
 							stringLength -= 1;
 							
 						}	// else !strncmp which means the strings are the same
 						
-					if (outFileNamePtr[stringLength] == 'B' && 
-									outFileNamePtr[stringLength-1] == '_' &&
+					if (outFileNamePtr[stringLength+1] == 'B' &&
+									outFileNamePtr[stringLength] == '_' &&
 											stringLength > 2)
 						stringLength -= 2;
 					
 					}	// end "if (inputFileInfoPtr->instrumentCode == kLandsatTM || ..."
 					
-				if (outFileNamePtr[stringLength] == '_' && stringLength > 1)
+				if (outFileNamePtr[stringLength+1] == '_' && stringLength > 1)
 					stringLength--;
 					
-				outFileNamePtr[0] = (UInt8)stringLength;
-				outFileNamePtr[stringLength+1] = 0;
+				//outFileNamePtr[0] = (UInt8)stringLength;
+				//outFileNamePtr[stringLength+1] = 0;
+				SetFileStringLength (outFileNamePtr, stringLength);
 					
 				if ((inputFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
 							inputFileInfoPtr->instrumentCode == kSentinel2B_MSI) &&
@@ -1498,7 +1501,8 @@ void GetOutputFileName (
 		else if (inputFileInfoPtr == NULL && 
 						outFileNamePtr != NULL &&
 							gProcessorCode == kENVIROItoThematicProcessor)
-			CopyPToP (outFileNamePtr, (UCharPtr)"\0roi_image");
+			//CopyPToP (outFileNamePtr, (UCharPtr)"\0roi_image");
+			ConcatFilenameSuffix (outFileNamePtr, (UCharPtr)"\0roi_image");
 			
 		}	// end "if (gProcessorCode != kRefFieldsToThematicFileProcessor)"
 
@@ -1523,7 +1527,7 @@ void GetOutputFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 Boolean GetReformatOutputFile (
 				FileInfoPtr							outFileInfoPtr, 
@@ -1653,20 +1657,21 @@ Boolean GetReformatOutputFile (
 	
 	if (inFileNamePtr != NULL)
 		{
-		if (!StringCompare (inFileNamePtr, outFileNamePtr) && outFileNamePtr[0] < 251)
+		stringLength = GetFileStringLength (outFileNamePtr);
+		if (!StringCompare (inFileNamePtr, outFileNamePtr) && stringLength < 251)
 			{
 					// Add modifer to the string.
 					
 			gTextString[0] = 0;
-			stringLength = outFileNamePtr[0];
+			//stringLength = outFileNamePtr[0];
          savedSuffixPtr = NULL;
-			if (outFileNamePtr[stringLength-3] == _T('.'))
+			if (outFileNamePtr[stringLength-2] == _T('.'))
 				{
 						// Save the suffix to be used later.
 				
 				savedSuffixPtr = gTextString;
 				strncpy ((char*)&gTextString[1], 
-								(char*)&outFileNamePtr[stringLength-3], 
+								(char*)&outFileNamePtr[stringLength-2],
 								4);
 				savedSuffixPtr[0] = 4;
 				
@@ -1674,14 +1679,14 @@ Boolean GetReformatOutputFile (
 				
 			if (gMultiSpecWorkflowInfo.workFlowCode == 0)
 				{
-				strncpy ((char*)&outFileNamePtr[stringLength-3], "_new", 4);
+				strncpy ((char*)&outFileNamePtr[stringLength-2], "_new", 4);
 				
 				}	// end "if (gMultiSpecWorkflowInfo.workFlowCode == 0)"
 				
 			else	// gMultiSpecWorkflowInfo.workFlowCode != 0
 				{
 				tempStringPtr = (UCharPtr)strcpy (
-													(char*)&outFileNamePtr[1], 
+													(char*)&outFileNamePtr[2],
 													(char*)&gMultiSpecWorkflowInfo.defaultName[1]);
 				stringLength = (SInt16)strlen ((char*)tempStringPtr);
 				
@@ -1691,15 +1696,16 @@ Boolean GetReformatOutputFile (
 				{
 						// Add the suffix back.
 				
-				strncpy ((char*)&outFileNamePtr[stringLength+1],
+				strncpy ((char*)&outFileNamePtr[stringLength+2],
 							(char*)&gTextString[1],
 							4);
 	
             }	// end "if (savedSuffixPtr != NULL && gTextString[0] == 4)"
 				
 			stringLength += 4;
-			outFileNamePtr[0] = (UInt8)stringLength;
-			outFileNamePtr[stringLength+1] = 0;
+			//outFileNamePtr[0] = (UInt8)stringLength;
+			//outFileNamePtr[stringLength+1] = 0;
+			SetFileStringLength (outFileNamePtr, stringLength);
 			
 			}	// end "if (!strcmp (inFileNamePtr, outFileNamePtr) && ...)"
 			
@@ -1798,7 +1804,7 @@ Boolean GetReformatOutputFile (
 	outFileNamePtr = 
 					(FileStringPtr)GetFilePathPPointerFromFileStream (outFileStreamPtr);
 										
-	returnFlag = (errCode != noErr) | (outFileNamePtr[0] == 0);
+	returnFlag = (errCode != noErr) || (GetFileStringLength (outFileNamePtr) == 0);
 	
 	return (returnFlag);
 				 										

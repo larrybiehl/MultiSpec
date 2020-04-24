@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			04/21/2020
 //
 //	Language:				C++
 //
@@ -67,7 +67,7 @@ bool CMGraphDoc::OnNewDocument ()
 	if (!wxDocument::OnNewDocument ())
 																							return FALSE;
 
-	SetTitle ("Graph Window");
+	SetTitle (wxT("Graph Window"));
 
 	return TRUE;
 	

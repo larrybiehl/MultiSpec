@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/10/2020
+//	Revision date:			04/22/2020
 //
 //	Language:				C
 //
@@ -951,7 +951,7 @@ Boolean SetTIFF_GeoTIFF_MenuItemString (
 // Called By:			SetUpClearOverlaysSubMenu in SMenus.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/28/2001
-//	Revised By:			Larry L. Biehl			Date: 03/23/2017
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 void SetUpClearOverlaysSubMenu (
 				MenuHandle							clearOverlySubMenuHandle)
@@ -1117,7 +1117,8 @@ void SetUpClearOverlaysSubMenu (
 					{										
 					fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (
 																								shapeInfoPtr);
-					CopyPToP (gTextString, fileNamePPointer);
+					//CopyPToP (gTextString, fileNamePPointer);
+					CopyFileStringToString (fileNamePPointer, (char*)gTextString);
 			
 					if (shapeInfoPtr->conversionCode == 2)
 						{
@@ -1310,7 +1311,7 @@ void SetUpImageOverlayPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2001
-//	Revised By:			Larry L. Biehl			Date: 01/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 void SetUpWindowOverlayPopUpMenu (
 				MenuHandle							popUpMenuHandle,
@@ -1522,7 +1523,8 @@ void SetUpWindowOverlayPopUpMenu (
 				{
 				fileNamePPointer =
 								(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
-				CopyPToP (gTextString, fileNamePPointer);
+				//CopyPToP (gTextString, fileNamePPointer);
+				CopyFileStringToString (fileNamePPointer, (char*)gTextString);
 				
 				if (shapeInfoPtr->conversionCode == 2)
 					{
@@ -2571,7 +2573,7 @@ Boolean UpdateEditImageMapParameters (void)
  		                                                                
 	if (windowType == kImageWindowType || windowType == kThematicWindowType)
 		returnFlag = TRUE;
-	
+		
  	return (returnFlag);	
 				
 }	// end "UpdateEditImageMapParameters"
@@ -2979,14 +2981,14 @@ Boolean UpdateWindowSelectionGraph (void)
 {	
 	Boolean 								returnFlag = FALSE;
 	
-	                                                 
-	if (gActiveImageWindow != NULL)
+	                                   
+	if (gActiveImageViewCPtr != NULL)
 		{	
 		if (gNumberOfGWindows < kMaxNumberGWindows)
 			returnFlag = TRUE;
-			
-		}	// end "if (gActiveImageWindow != NULL)"
-	
+
+		}	// end "if (gActiveImageViewCPtr != NULL)"
+
  	return (returnFlag);	
 				
 }	// end "UpdateWindowSelectionGraph"

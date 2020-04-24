@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMImageView class
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 03/07/2020
+//	Revised By:				Larry L. Biehl			Date: 04/17/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -279,6 +279,10 @@ class CMImageView : public CScrollView
 				CPoint 								point);
 	
 		afx_msg void OnPaint ();
+
+		afx_msg void OnRButtonDown (
+				UINT 									nFlags,
+				CPoint 								point);
 	
 		afx_msg BOOL OnSetCursor (
 				CWnd* 								pWnd,

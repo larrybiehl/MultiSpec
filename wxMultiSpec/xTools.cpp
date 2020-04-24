@@ -327,9 +327,9 @@ void CMSelectTool::AddPolygonPoint (
 
 		s_bytesNeeded += s_bytesNeededIncrement;
 
-		MSetHandleSize(&s_selectionInfoPtr->polygonCoordinatesHandle, s_bytesNeeded);
+		MSetHandleSize (&s_selectionInfoPtr->polygonCoordinatesHandle, s_bytesNeeded);
 
-		s_selectionPointsPtr = (HPFieldPointsPtr) GetHandlePointer (
+		s_selectionPointsPtr = (HPFieldPointsPtr)GetHandlePointer (
 												 s_selectionInfoPtr->polygonCoordinatesHandle,
 												 kLock);
 

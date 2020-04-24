@@ -210,7 +210,10 @@ Boolean CMImageWindow::CreateImageWindow (
 		{
 		windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																m_windowInfoHandle, kLock, kMoveHi);
-		                                                        
+		
+		if (windowInfoPtr == NULL)
+																							return (FALSE);
+		
 		windowInfoPtr->grafPortType = kCGrafType;
 		
 		if (thematicWindowFlag) 

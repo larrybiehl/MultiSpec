@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/26/2019
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -1251,7 +1251,7 @@ SInt64 GetNumberPixelsInMaskArea (
 // Called By:			ReadProjectFile in SProjectFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 Boolean GetSpecifiedMaskFile (
 				SInt16								maskSetCode,
@@ -1307,7 +1307,8 @@ Boolean GetSpecifiedMaskFile (
 		memcpy (fileNamePtr, (CharPtr)&maskFileNamePtr[1], maskFileNamePtr[0]+1);
 		
 		filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
-		filePathPtr[0] = (UInt8)strlen ((char*)&filePathPtr[1]);
+		int length = strlen ((char*)&filePathPtr[2]);
+		SetFileStringLength (filePathPtr, length);
 		
 				// Check if image file is in the same volume as the project			
 				// file. If it is, open a path to the file and return the			

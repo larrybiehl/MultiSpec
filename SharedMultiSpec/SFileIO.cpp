@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/08/2020
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -424,7 +424,7 @@ void AdjustSignedData (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/2019
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 void CheckIfDirectoryIsWriteable (
 				CMFileStream*						fileStreamPtr)
@@ -438,7 +438,7 @@ void CheckIfDirectoryIsWriteable (
 	
 	
 	filePathPtr = (FileStringPtr)fileStreamPtr->GetFilePathPPtr ();
-	wxString wxFilePathName (&filePathPtr[1], wxConvUTF8);
+	wxString wxFilePathName (&filePathPtr[2], wxConvUTF8);
 	fileName.Assign (wxFilePathName);
 
 	if (!fileName.IsDirWritable ())
@@ -508,7 +508,7 @@ Boolean CheckIfSpecifiedFileExists (
 {
 	CMFileStream						checkFileStream;
 	
-	UInt8*								checkFileNamePtr;
+	FileStringPtr						checkFileNamePtr;
 											
 	CMFileStream						*checkFileStreamPtr;
 	
@@ -1445,7 +1445,7 @@ SInt32 ConvertRealAT (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/30/1997
-//	Revised By:			Larry L. Biehl			Date: 06/16/2017
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 
 void CopyFileStream (
 				CMFileStream*						newFileStreamPtr,
@@ -1478,22 +1478,24 @@ void CopyFileStream (
 		
       #if defined multispec_win
          TBYTE* oldFilePathPtr = 
-								(TBYTE*)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
-			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
+						(TBYTE*)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
+			newFileStreamPtr->SetFilePath (oldFilePathPtr,
+														FALSE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
          newFileStreamPtr->m_hFile = oldFileStreamPtr->m_hFile;
-			newFileStreamPtr->mUnicodePathLength = oldFileStreamPtr->mUnicodePathLength;
+			newFileStreamPtr->mWidePathLength = oldFileStreamPtr->mWidePathLength;
 			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
 		#endif	// defined multispec_win
 		
       #if defined multispec_wx
          WideFileStringPtr	oldFilePathPtr = 
 					(WideFileStringPtr)oldFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
-			newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
+			newFileStreamPtr->SetFilePath (oldFilePathPtr,
+														FALSE);
 			newFileStreamPtr->mCreator = oldFileStreamPtr->mCreator;
 			newFileStreamPtr->mFileType = oldFileStreamPtr->mFileType; 
-			newFileStreamPtr->mUnicodePathLength = oldFileStreamPtr->mUnicodePathLength;
+			newFileStreamPtr->mWidePathLength = oldFileStreamPtr->mWidePathLength;
 			newFileStreamPtr->mUTF8PathLength = oldFileStreamPtr->mUTF8PathLength;
  		#endif	// defined multispec_wx 
 		
@@ -1582,11 +1584,12 @@ Boolean CopyFileStream (
 					
 		         WideFileStringPtr	oldFilePathPtr = (WideFileStringPtr)
 											inputFileStreamPtr->GetFilePathPPtr (kReturnUnicode);
-					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
+					newFileStreamPtr->SetFilePath (oldFilePathPtr,
+																FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
-					newFileStreamPtr->mUnicodePathLength = 
-															inputFileStreamPtr->mUnicodePathLength;
+					newFileStreamPtr->mWidePathLength =
+															inputFileStreamPtr->mWidePathLength;
  		         returnFlag = TRUE;
 		         
 		      	}	// end "if (*outputFileStreamPtrPtr != NULL)"
@@ -1606,14 +1609,15 @@ Boolean CopyFileStream (
 					
 		         TBYTE* oldFilePathPtr = 
 								(TBYTE*)inputFileStreamPtr->GetFilePathPPtr (kReturnUnicode);              
-					newFileStreamPtr->SetFilePath (oldFilePathPtr, FALSE);
+					newFileStreamPtr->SetFilePath (oldFilePathPtr,
+																FALSE);
 					newFileStreamPtr->mCreator = inputFileStreamPtr->mCreator;
 					newFileStreamPtr->mFileType = inputFileStreamPtr->mFileType; 
  		         //newFileStreamPtr->m_hFile = inputFileStreamPtr->m_hFile;
 							// Do not allow the two classes to have the same file reference
 					newFileStreamPtr->m_hFile = CFile::hFileNull;
-					newFileStreamPtr->mUnicodePathLength = 
-															inputFileStreamPtr->mUnicodePathLength;
+					newFileStreamPtr->mWidePathLength =
+															inputFileStreamPtr->mWidePathLength;
 					newFileStreamPtr->mUTF8PathLength = 
 															inputFileStreamPtr->mUTF8PathLength;
  		         returnFlag = TRUE;
@@ -1908,7 +1912,7 @@ SInt16 CreateNewFile (
 //							WriteThematicClassesAs in SSaveWrite.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 02/21/1990
-//	Revised By:			Larry L. Biehl			Date: 01/08/2020
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 Boolean CreateThematicSupportFile (
 				FileInfoPtr							gisFileInfoPtr, 
@@ -1992,14 +1996,14 @@ Boolean CreateThematicSupportFile (
 			// situations.
 			
 	if (classNameTablePtr != NULL)
-		classColorTablePtr = (RGBCharColorPtr)MNewPointer (count*3);
+		classColorTablePtr = (RGBCharColorPtr)MNewPointer (count*sizeof (RGBCharColor));
 
 			// Get buffer to load the class group colors into. Allow for minimum
 			// of 256 classes. Allow for background classes being created for some
 			// situations.
 	
 	if (classColorTablePtr != NULL)
-		groupColorTablePtr = (RGBCharColorPtr)MNewPointer (count*3);
+		groupColorTablePtr = (RGBCharColorPtr)MNewPointer (count*sizeof (RGBCharColor));
 		
 	if (groupColorTablePtr != NULL)
 		listAllGroupInfoPtr = (Boolean*)MNewPointer (count);
@@ -2100,7 +2104,8 @@ Boolean CreateThematicSupportFile (
 		if (trailerCode & kClassNames)
 			{
 			nameLength = 0;
-			if (classNameCode == 0 || 
+			if (classNameCode == 0 ||
+					classNameCode == kClassifyFileCode ||
 						classNameCode == kProbFormatCode ||
 								classNameCode == kFromShapeToThematicCode ||
 										classNameCode == kClusterMaskCode)
@@ -3496,7 +3501,8 @@ void GetCopyOfPFileNameFromFileStream (
 //
 //	Software purpose:	The purpose of this routine is to copy the actual file 
 //							name not including the path to the specified location. 
-//							The file name will output in pascal format.
+//							The file name will output with a string length in the first
+//							element of the string.
 //
 //	Parameters in:		None
 //
@@ -3822,7 +3828,7 @@ UInt32 GetDataConversionCode (
 //							LoadTransformationFile in SSaveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 01/31/2019
+//	Revised By:			Larry L. Biehl			Date: 04/14/2020
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -3864,6 +3870,12 @@ SInt16 GetFile (
 					// Initialize variables.
 				
 			gGetFileStatus = 3;
+
+					// Tried to change the length of the maximum path to 1024. It had no
+					// affect. Windows 10 allows it but looks like system settings need
+					// to be changed or an application manifest. Not sure about backwards
+					// capability though.
+			//#define WinMaxPath 260	// _MAX_PATH which is equal to 260
 		
 			TBYTE	filterString[512];
 
@@ -3905,11 +3917,11 @@ SInt16 GetFile (
 		 
 			CMOpenFileDialog		dialog (NULL, (TBYTE*)&filterString[1]);
 			#if defined _UNICODE
-				TBYTE					string[512];
+				TBYTE					string[_MAX_PATH];
 			#endif
 			CString 					filePathName;
 			FSRef*					localFileAsFSRefPtr;
-			TBYTE						pathName[_MAX_PATH]; 
+			TBYTE						pathName[_MAX_PATH];
 			SInt16					pathLength;
 
 			if (itemCountPtr != NULL)
@@ -3951,7 +3963,7 @@ SInt16 GetFile (
 					while (fileNamesPosition != NULL)
 						{
 						filePathName = dialog.GetNextPathName (fileNamesPosition);
-						localAppFilePtr = (TBYTE*)filePathName.GetBuffer (255);
+						localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH);
 						pathLength = filePathName.GetLength ();
 
 								// Get copy of the path name so that it can be modified.
@@ -3990,7 +4002,7 @@ SInt16 GetFile (
 							// Only one file is being selected.
 						
 					filePathName = dialog.GetPathName ();
-					localAppFilePtr = (TBYTE*)filePathName.GetBuffer (255);
+					localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH);
 					pathLength = filePathName.GetLength ();
 					wcscpy (string, localAppFilePtr);  
 					CtoPstring (string, pathName);
@@ -4007,7 +4019,8 @@ SInt16 GetFile (
 					// as the file name in the Macintosh version.
 					// Make certain that there is a C string terminator at the end.
 		
-			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr, TRUE);
+			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr,
+													TRUE);
 		
 			errCode = CMFileStream::GetFileType (
 										(TBYTE*)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
@@ -4078,7 +4091,7 @@ SInt16 GetFile (
 			wxString 					filePathName;
 			wxWCharBuffer				wideCharBuffer;
 			FSRef*						localFileAsFSRefPtr;
-			wchar_t						pathName[_MAX_PATH+1]; 
+			wchar_t						pathName[_MAX_PATH];
 			size_t						stringLength;
 			int							filePathIndex;
 			
@@ -4122,7 +4135,7 @@ SInt16 GetFile (
 					}	// end "if (!dialog.DoDialog ())"
 
 				localAppFilePtr = 
-								(LocalAppFile*)MNewPointer ((_MAX_PATH+1)*sizeof (wchar_t));
+								(LocalAppFile*)MNewPointer ((_MAX_PATH)*sizeof (wchar_t));
 				if (fileAsFSRefPtr != NULL)
 					{
 					//POSITION fileNamesPosition = dialog.GetStartPosition ();
@@ -4133,7 +4146,7 @@ SInt16 GetFile (
 					for (int i = 0; i < patharray.GetCount (); i++)
 						{
 						filePathName = patharray.Item (i);
-						stringLength = MIN (filePathName.length (), 255);	
+						stringLength = MIN (filePathName.length (), _MAX_PATH-3);
 						wideCharBuffer = filePathName.wc_str ();
 						wcsncpy (localAppFilePtr, wideCharBuffer.data (), stringLength);
 						localAppFilePtr[stringLength] = 0;
@@ -4143,8 +4156,9 @@ SInt16 GetFile (
 								// as the file name in the Macintosh version.
 								// CtoPstring adds a C string terminator at the end.
 
-						CtoPstring (
-								(wchar_t*)localAppFilePtr, (wchar_t*)&fileAsFSRefPtr[iCtr]);
+						CtoPstring ((wchar_t*)localAppFilePtr,
+										(wchar_t*)&fileAsFSRefPtr[iCtr],
+										stringLength);
 						//filePathName.ReleaseBuffer ();
 						iCtr++;
 						
@@ -4173,13 +4187,13 @@ SInt16 GetFile (
 							// Only one file is being selected.
 					
 					filePathName = filedlgobj->GetPath ();
-					stringLength = MIN (filePathName.length (), 255);	
+					stringLength = MIN (filePathName.length (), _MAX_PATH-3);
 					wideCharBuffer = filePathName.wc_str ();
 					
 					wcsncpy (localAppFilePtr, wideCharBuffer.data (), stringLength);
 					localAppFilePtr[stringLength] = 0;
 						
-					CtoPstring (localAppFilePtr, pathName);
+					CtoPstring (localAppFilePtr, pathName, stringLength);
 					localFileAsFSRefPtr = (FSRef*)pathName;
 
 					}	// end "else fileAsFSRefPtr == NULL"
@@ -4211,7 +4225,8 @@ SInt16 GetFile (
 					// as the file name in the Macintosh version.
 					// Make certain that there is a C string terminator at the end.
 
-			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr, TRUE);
+			fileStreamPtr->SetFilePath ((WideFileStringPtr)localFileAsFSRefPtr,
+													TRUE);
 
 			errCode = CMFileStream::GetFileType (
 						(WideFileStringPtr)localFileAsFSRefPtr, &fileStreamPtr->mFileType);
@@ -4337,8 +4352,9 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 //	Function name:		SInt16 GetFileNameFromFSRef
 //
 //	Software purpose:	The purpose of this routine is to get the file name from the
-//							input FSRef. The name will be returned as a pascal name with
-//							c terminator at the end.
+//							input FSRef. The name will be returned with the string length
+//							in the first two bytes and a c terminator at the end of the
+//							string.
 //
 //	Parameters in:		None
 //
@@ -4346,10 +4362,8 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 //
 //	Value Returned:	None
 // 
-// Called By:		
-//
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4411,10 +4425,14 @@ SInt16 GetFileNameFromFSRef (
 															uft8String,
 															size,
 															&pathLength);
+															
+				// Make sure c terminator is at the end of the string.
+			
+		uft8String[pathLength] = 0;
 	
 		if (pathLength > 0)
 			{              
-			localFileNamePtr = &uft8String[pathLength];
+			localFileNamePtr = &uft8String[pathLength-1];
 			
 			nameLength = 0;
 			#if defined multispec_win
@@ -4446,9 +4464,14 @@ SInt16 GetFileNameFromFSRef (
 			
 			}	// else pathLength == 0
 		
-				// Now copy the file name to the output file string location.
+				// Now copy the file name to the output file string location which
+				// includes the string count in the first 2 bytes.
 
-		CtoPstring (localFileNamePtr, fileNamePtr);
+		//CtoPstring (localFileNamePtr, fileNamePtr);
+		size_t bytesToMove = strlen ((CharPtr)localFileNamePtr);
+		bytesToMove = MIN (bytesToMove, 253);
+		memmove (&fileNamePtr[2], localFileNamePtr, bytesToMove);
+		SetFileStringLength (fileNamePtr, bytesToMove);
 	#endif	// defined multispec_win || defined multispec_wx
 		
 	return (errCode);
@@ -4942,7 +4965,7 @@ void* GetFileNamePPointerFromFileStream  (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 07/27/2018
-//	Revised By:			Larry L. Biehl			Date: 07/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 GetFilePathFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -5012,6 +5035,10 @@ SInt16 GetFilePathFromFSRef (
 															uft8String,
 															size,
 															&pathLength);
+																												
+				// Make sure c terminator is at the end of the string.
+			
+		uft8String[pathLength] = 0;
 
 		if (pathLength > 0)
 			errCode = noErr;
@@ -5021,12 +5048,100 @@ SInt16 GetFilePathFromFSRef (
 	
 				// Now copy the path name to the output file string location.
 
-		CtoPstring (uft8String, filePathPtr);
+		//CtoPstring (uft8String, filePathPtr);
+		size_t bytesToMove = strlen ((CharPtr)uft8String);
+		memmove (&filePathPtr[2], uft8String, bytesToMove);
+		SetFileStringLength (filePathPtr, bytesToMove);
 	#endif	// defined multispec_win
 		
 	return (errCode);
 	
 }	// end "GetFilePathFromFSRef"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		int GetFilePathLengthFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to get the length of the full
+//							file path name for the specified file coding.
+//							This is a helper routine for the overload where returnCode
+//							defaults to kDefaultFileStringCode
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/09/2020
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
+
+int GetFilePathLengthFromFileStream (
+				CMFileStream* 						fileStreamPtr)
+
+{
+	return (GetFilePathLengthFromFileStream (fileStreamPtr, kDefaultFileStringCode));
+	
+}	// end "GetFilePathLengthFromFileStream"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void GetFilePathLengthFromFileStream
+//
+//	Software purpose:	The purpose of this routine is to get a pointer
+//							to the full file path represented by the input file
+//							stream pointer. The output pointer will represent a
+//							pascal pointer.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/09/2020
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
+
+int GetFilePathLengthFromFileStream (
+				CMFileStream* 						fileStreamPtr,
+				SInt16								returnCode)
+
+{
+	int									filePathLength = 0;
+	
+	
+	if (fileStreamPtr != NULL)
+		{
+		#if defined multispec_wx
+			filePathLength = fileStreamPtr->GetPathFileLength (returnCode);
+		#endif	// defined multispec_wx
+
+		#if defined multispec_mac
+			if (returnCode == kReturnASCII)
+				filePathLength = (void*)fileStreamPtr->fileName;
+			else
+				filePathLength = (void*)fileStreamPtr->uniFileName.unicode;
+		#endif	// defined multispec_mac
+	              
+		#if defined multispec_win
+			filePathLength = fileStreamPtr->GetPathFileLength (returnCode);
+		#endif	// defined multispec_win
+		
+		}	// end "if (fileStreamPtr != NULL)"
+
+	return (filePathLength);
+	
+}	// end "GetFilePathLengthFromFileStream"
 
 
 
@@ -5094,7 +5209,8 @@ void* GetFilePathPPointerFromFileInfo (
 		{              
 		CMFileStream* fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 		
-		fileNamePtr = GetFilePathPPointerFromFileStream (fileStreamPtr, returnCode);
+		fileNamePtr = GetFilePathPPointerFromFileStream (fileStreamPtr,
+																			returnCode);
 		
 		}	// end "if (fileInfoPtr != NULL)" 
 
@@ -5125,13 +5241,14 @@ void* GetFilePathPPointerFromFileInfo (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/2017
-//	Revised By:			Larry L. Biehl			Date: 08/31/2017
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 
 void* GetFilePathPPointerFromFileStream (
 				CMFileStream* 						fileStreamPtr)
 
 {  
-	return (GetFilePathPPointerFromFileStream (fileStreamPtr, kDefaultFileStringCode));
+	return (GetFilePathPPointerFromFileStream (fileStreamPtr,
+																kDefaultFileStringCode));
 	
 }	// end "GetFilePathPPointerFromFileStream"
 
@@ -5156,7 +5273,7 @@ void* GetFilePathPPointerFromFileStream (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/1995
-//	Revised By:			Larry L. Biehl			Date: 06/22/2017
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 
 void* GetFilePathPPointerFromFileStream (
 				CMFileStream* 						fileStreamPtr,
@@ -5181,7 +5298,7 @@ void* GetFilePathPPointerFromFileStream (
 		#if defined multispec_win
 			filePathPtr = fileStreamPtr->GetFilePathPPtr (returnCode);
 		#endif	// defined multispec_win
-		
+				
 		}	// end "if (fileStreamPtr != NULL)" 
 
 	return (filePathPtr);
@@ -6998,7 +7115,7 @@ SInt64 GetSizeOfImage (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
-//	Revised By:			Larry L. Biehl			Date: 12/06/2017
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 GetThematicSupportFileToCreate (
 				FileInfoPtr							gisFileInfoPtr,
@@ -7031,7 +7148,8 @@ SInt16 GetThematicSupportFileToCreate (
 			// end.  First make sure that we have a pointer cursor. Also 		
 			// Check if there is enough space on the selected volume.			
 		
-	CopyPToP (supportFilePathPtr, gisFilePathPtr);
+	//CopyPToP (supportFilePathPtr, gisFilePathPtr);
+	CopyFileStringToFileString (gisFilePathPtr, supportFilePathPtr, _MAX_PATH);
 	RemoveSuffix (supportFilePathPtr);
 		
 	if (supportFileType == kITRLFileType)
@@ -7137,7 +7255,7 @@ SInt16 GetThematicSupportFileToCreate (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1989
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 GetVolumeFreeSpace (
 				CMFileStream*						fileStreamPtr,
@@ -7265,8 +7383,8 @@ SInt16 GetVolumeFreeSpace (
 				// end of the path and replace when done checking the volume space.
 	
 		int pathLength = fileStreamPtr->mUTF8PathLength;
-		UInt8 savedCharacter = filePathPtr[pathLength];
-		filePathPtr[pathLength] = 0;
+		UInt8 savedCharacter = filePathPtr[pathLength+1];
+		filePathPtr[pathLength+1] = 0;
 		/*
 		int numberChars = sprintf ((char*)gTextString3,
 											" SFileIO::GetVolumeFreeSpace (filePathPtr): %s%s",
@@ -7275,7 +7393,7 @@ SInt16 GetVolumeFreeSpace (
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 		*/
 		wxLongLong wxFreeBytes;
-   	const wxString pathString = wxString (&filePathPtr[1]);
+   	const wxString pathString = wxString (&filePathPtr[2]);
 		if (wxGetDiskSpace (pathString, NULL, &wxFreeBytes))
 			{
 			*freeBytesPtr = wxFreeBytes.GetValue ();
@@ -7297,7 +7415,7 @@ SInt16 GetVolumeFreeSpace (
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 		*/
-		filePathPtr[pathLength] = savedCharacter;
+		filePathPtr[pathLength+1] = savedCharacter;
    #endif
 	
 	return (errCode);
@@ -7523,7 +7641,7 @@ void InitializeFileIOInstructions (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/24/1995
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
                    
 Handle InitializeFileStream (
 				Handle								fileStreamHandle)
@@ -7596,7 +7714,7 @@ CMFileStream* InitializeFileStream (
 		else	// fileStreamPtr != NULL
 			{
 			fileStreamPtr->MCloseFile (); 
-			fileStreamPtr->mFilePathName[0] = 0;
+			fileStreamPtr->mWideFilePathName[0] = 0;
 			fileStreamPtr->mCreator = -1;
 			fileStreamPtr->mFileType = -1;
 			fileStreamPtr->mFileSize = 0;
@@ -8338,7 +8456,7 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/14/2004
-//	Revised By:			Larry L. Biehl			Date: 07/22/2015 
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
                        
 void LoadErdasTRLClassColorBuffer (
 				FileInfoPtr							gisFileInfoPtr,
@@ -8386,10 +8504,11 @@ void LoadErdasTRLClassColorBuffer (
 					
 			// If the trailer file is being created for a classification
 			// image, then allow for class 0, which is a background class.
-			// The color for this class is white. This class is not
-			// counted in 'numberTRLClasses'.	
-			// Note that if this is from the ShapeToThematic processor, the background
-			// class is included in the number of classes.
+			// The color for this class is white. Generally, this class is not
+			// counted in 'gisFileInfoPtr->numberClasses'.
+			// Note that if this is for the several cases listed, the background class
+			// is included in the number of classes. Therefore the number of total classes
+			// for which to copy information into the classColorTable is reduced by 1.
 
 	if (classNameCode < kFromDescriptionCode ||
 														classNameCode == kFromShapeToThematicCode)
@@ -8400,7 +8519,12 @@ void LoadErdasTRLClassColorBuffer (
 		
 		classColorTablePtr++;
 		
-		if (classNameCode == kFromShapeToThematicCode)
+		if (classNameCode == kClassifyFileCode ||
+				classNameCode == kProbFormatCode ||
+					classNameCode == kEchoFieldsCode ||
+						classNameCode == kProbFormatCode ||
+							classNameCode == kClusterMaskCode ||
+								classNameCode == kFromShapeToThematicCode)
 			numberClasses--;
 		
 		}	// end "if (classNameCode < kFromDescriptionCode || ..."
@@ -8470,7 +8594,7 @@ void LoadErdasTRLClassColorBuffer (
 			else	// index >= numberColorSpecEntries
 						// This will cause the first component in the table to be skipped
 						// in case it is white for background class.
-				tableIndex = ((index-1) % numberColorSpecEntries) + 1;
+				tableIndex = (index % numberColorSpecEntries) + 1;
 			
 			#ifndef multispec_wx
 				classColorTablePtr->red =
@@ -13923,7 +14047,7 @@ SInt16 PrepareToReadTextFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1988
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 SInt16 PutFile (
 				CMFileStream*		 				fileStreamPtr, 
@@ -13950,7 +14074,7 @@ SInt16 PutFile (
 	
 	#if defined multispec_win 
 		TBYTE								filterString[512];
-		WideFileStringPtr				fileNamePtr;
+		WideFileStringPtr				wideFileNamePtr;
 		SInt16							filterStringIndex = IDS_FilterString;
 		Boolean							fileSelected;
 		
@@ -13987,7 +14111,7 @@ SInt16 PutFile (
 	
 		fileSelected = FALSE;
 				
-		fileNamePtr = 
+		wideFileNamePtr =
 					(WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 			
 		do	
@@ -13996,12 +14120,12 @@ SInt16 PutFile (
 			if (stringIndex == IDS_SaveProjectFile)
 				gGetFileStatus = 0;
 				    
-			CString newName = fileNamePtr;  
+			CString newName = wideFileNamePtr;
 			
 			StringHandle		stringHandle = NULL;
 			CharPtr				stringPtr = NULL;
 
-			temp.m_ofn.lpstrFile = (LPTSTR)fileNamePtr;
+			temp.m_ofn.lpstrFile = (LPTSTR)wideFileNamePtr;
 			if (stringIndex == IDS_SaveProjectFile)
 				{
 				temp.m_ofn.lpstrDefExt = _T("prj");
@@ -14061,13 +14185,13 @@ SInt16 PutFile (
 			if (temp.DoModal () == IDCANCEL)			
 																							return (-1);
 
-			fileNamePtr = (WideFileStringPtr)temp.m_ofn.lpstrFile; 
+			wideFileNamePtr = (WideFileStringPtr)temp.m_ofn.lpstrFile;
 			
 					// Get the path length.
 
-			size_t stringLength = wcslen ((wchar_t*)fileNamePtr);
+			size_t stringLength = wcslen ((wchar_t*)wideFileNamePtr);
 
-			if (stringLength > gFileNameLengthLimit)
+			if (stringLength == 1 || stringLength > gFileNameLengthLimit)
 				DisplayAlert (kErrorAlertID, 
 									kStopAlert, 
 									kAlertStrID, 
@@ -14078,13 +14202,13 @@ SInt16 PutFile (
 			else	// stringLength <= gFileNameLengthLimit
 				{
 				TBYTE pathName[_MAX_PATH];              	   
-				CtoPstring (fileNamePtr, pathName);
+				CtoPstring (wideFileNamePtr, pathName);
 				pathName[pathName[0]+1] = 0;
 				newName.ReleaseBuffer ();
 		   		
-		   	fileNamePtr = pathName;
+		   	wideFileNamePtr = pathName;
 				fileSelected = TRUE;
-				fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
+				fileStreamPtr->SetFilePath (wideFileNamePtr, TRUE);
 				
 				}	// end "else stringLength <= gFileNameLengthLimit"
 						
@@ -14096,7 +14220,7 @@ SInt16 PutFile (
 	#endif	// defined multispec_win
 	
 	#if defined multispec_wx
-		WideFileStringPtr				fileNamePtr;
+		WideFileStringPtr				wideFileNamePtr;
 		Boolean							fileSelected;
 	
 	
@@ -14120,7 +14244,7 @@ SInt16 PutFile (
 			temp.SetDirectory (gOutputDirectory);
 
 		fileSelected = FALSE;
-		fileNamePtr = 
+		wideFileNamePtr =
 					(WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 
 		do 
@@ -14131,7 +14255,7 @@ SInt16 PutFile (
 
 			StringHandle stringHandle = NULL;
 			CharPtr stringPtr = NULL;
-			temp.SetFilename (fileNamePtr);
+			temp.SetFilename (wideFileNamePtr);
 			if (stringIndex == IDS_SaveProjectFile) 
 				{
 				GetSpecifiedString (IDS_SaveProjectFile, &stringHandle, &stringPtr);
@@ -14191,16 +14315,18 @@ SInt16 PutFile (
 			int returnError = temp.ShowModal ();
 			if (returnError == wxID_OK)
 				{
-				wcsncpy (fileNamePtr, temp.GetPath (), (int)(temp.GetPath ()).Length ());
+				wcsncpy (wideFileNamePtr,
+							temp.GetPath (),
+							(int)(temp.GetPath ()).Length ());
 				
 						//Get file name length and add zero at the end
 						
 				int pathlength = (int)(temp.GetPath ()).Length ();
-				fileNamePtr[pathlength] = 0;
+				wideFileNamePtr[pathlength] = 0;
 				
 						// Get the path length.
 
-				if (pathlength > gFileNameLengthLimit)
+				if (pathlength > gFilePathNameLengthLimit)
 					DisplayAlert (kErrorAlertID,
 										kStopAlert,
 										kAlertStrID,
@@ -14208,19 +14334,19 @@ SInt16 PutFile (
 										0,
 										NULL);
 
-				else	// pathlength <= gFileNameLengthLimit
+				else	// pathlength <= gFilePathNameLengthLimit
 					{
 					wchar_t pathName[_MAX_PATH];
-					CtoPstring (fileNamePtr, pathName);
+					CtoPstring (wideFileNamePtr, pathName, _MAX_PATH-2);
 					pathName[pathName[0]+1] = 0;
 
-					fileNamePtr = pathName;
+					wideFileNamePtr = pathName;
 
 					fileSelected = TRUE;
 
-					fileStreamPtr->SetFilePath (fileNamePtr, TRUE);
+					fileStreamPtr->SetFilePath (wideFileNamePtr, TRUE);
 
-					}	// end "else stringLength <= gFileNameLengthLimit"
+					}	// end "else stringLength <= gFilePathNameLengthLimit"
 				
 				}	// end "if (returnError == wxID_OK)"
 			
@@ -14394,7 +14520,7 @@ SInt16 ResolveAnyAliases (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/2001
-//	Revised By:			Larry L. Biehl			Date: 12/19/2017	
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 void SetCFileName (
 				FileInfoPtr							fileInfoPtr,
@@ -14421,7 +14547,7 @@ void SetCFileName (
 				FileStringPtr						inputFileNameCPtr)
 
 {  
-	FileStringPtr						fileNamePtr,
+	FileStringPtr						fileNameCPtr,
 											filePathPPtr;
 	
 	SInt32								characterOverRun,
@@ -14441,30 +14567,34 @@ void SetCFileName (
 				// that the new file name is in the same folder as the previous file
 				// name.
 		
-		fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
+		fileNameCPtr = (FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
 		filePathPPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
 		
-		oldNameLength = (SInt32)strlen ((char*)fileNamePtr);
+		oldNameLength = (SInt32)strlen ((char*)fileNameCPtr);
 		newNameLength = (SInt32)strlen ((char*)inputFileNameCPtr);
-		oldPathNameLength = filePathPPtr[0];
+		//oldPathNameLength = filePathPPtr[0];
+		oldPathNameLength = GetFileStringLength (filePathPPtr);
+		
 		
 		characterOverRun = 
-			oldPathNameLength - oldNameLength + newNameLength - gFileNameLengthLimit;
+			oldPathNameLength - oldNameLength + newNameLength - gFilePathNameLengthLimit;
 			
 		if (characterOverRun > 0)
 			newNameLength -= characterOverRun;
 			
 		newNameLength = MAX (newNameLength, 0);
 		
-		strncpy ((char*)fileNamePtr, (char*)inputFileNameCPtr, newNameLength);
+		strncpy ((char*)fileNameCPtr, (char*)inputFileNameCPtr, newNameLength);
 
 				// Make sure that there is a c terminator.
 				
-		fileNamePtr[newNameLength] = 0;
+		fileNameCPtr[newNameLength] = 0;
 		
 				// Now update the character count.
 				
-		filePathPPtr[0] = (UInt8)strlen ((char*)&filePathPPtr[1]);
+		//filePathPPtr[0] = (UInt8)strlen ((char*)&filePathPPtr[1]);
+		SetFileStringLength (filePathPPtr,
+									strlen ((char*)&filePathPPtr[2]));
 
 		}	// end "if (fileStreamPtr != NULL && fileNameCPtr != NULL)"
 	
@@ -14490,7 +14620,7 @@ void SetCFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/24/1995
-//	Revised By:			Larry L. Biehl			Date: 03/27/2017
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 
 void SetFileDoesNotExist (
 				CMFileStream*						fileStreamPtr,
@@ -14516,17 +14646,19 @@ void SetFileDoesNotExist (
 			fileStreamPtr->mFileType = -1;
 			if (keepNameTypeCode != kKeepUTF8CharName)
 				{
-				fileStreamPtr->mUTF8PathName[0] = 0;
-				fileStreamPtr->mUTF8PathName[1] = 0;
+				fileStreamPtr->mUTF8FilePathName[0] = 0;
+				fileStreamPtr->mUTF8FilePathName[1] = 0;
+				fileStreamPtr->mUTF8FilePathName[2] = 0;
 				fileStreamPtr->mUTF8PathLength = 0;
 				}
 
-			fileStreamPtr->mFilePathName[0] = 0;
-			fileStreamPtr->mFilePathName[1] = 0;
-			fileStreamPtr->mUnicodePathLength = 0;
+			fileStreamPtr->mWideFilePathName[0] = 0;
+			fileStreamPtr->mWideFilePathName[1] = 0;
+			fileStreamPtr->mWidePathLength = 0;
 
 			fileStreamPtr->mUTF8FileName[0] = 0;
 			fileStreamPtr->mUTF8FileName[1] = 0;
+			fileStreamPtr->mUTF8FileName[2] = 0;
 		#endif	// defined multispec_win
 		
 		}	// end "if (fileStreamPtr != NULL)"

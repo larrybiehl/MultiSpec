@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/08/2020
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -42,6 +42,7 @@
 #endif	// defined multispec_mac || defined multispec_mac_swift    
 
 #if defined multispec_win
+	#include "SImageWindow_class.h"
 	#include "SPalette_class.h"
 	#include "WImageView.h"
 #endif	// defined multispec_win
@@ -1187,7 +1188,7 @@ void FillLineOfOffscreenBuffer (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/2003
-//	Revised By:			Larry L. Biehl			Date: 04/20/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 void GetDefaultImageOverlayName (
 				SInt16								imageOverlayIndex)
@@ -1273,6 +1274,13 @@ void GetDefaultImageOverlayName (
 				case kMaxLikeMode:		// Gaussian Maximum likelihood 
 					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
 													"_Clas_Quad_%u",
+													(unsigned int)gClassifySpecsPtr->numberClasses);
+					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
+					break;
+
+				case kMahalanobisMode:			// Mahalanobis
+					namePtr[0] += sprintf ((char*)&namePtr[namePtrIndex],
+													"_Clas_Mahal_%u",
 													(unsigned int)gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
 					break;
@@ -1897,9 +1905,10 @@ HPtr GetImageOverlayLineOffscreenPointer (
 // Called By:			SetUpImageOverlayInformation
 //
 //	Coded By:			Larry L. Biehl			Date: 03/29/2002
-//	Revised By:			Larry L. Biehl			Date: 03/08/2020
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 SInt16 GetOverlayOffscreenGWorld (
+				WindowInfoPtr						imageWindowInfoPtr,
 				UInt32								numberClasses, 
 				UInt32								columnStart,
 				UInt32								columnEnd,
@@ -2318,22 +2327,30 @@ SInt16 GetOverlayOffscreenGWorld (
 
 			imageOverlayInfoPtr->offscreenMapSize = (UInt32)sInt64FreeBytesNeeded;
 
-			CDC*	pDC = gActiveImageViewCPtr->GetDC ();
-			HDC	hDC = pDC->GetSafeHdc ();
-			imageOverlayInfoPtr->overlayDC = CreateCompatibleDC (hDC);
+			HBITMAP				transparentBitMap = NULL;
+			if (imageWindowInfoPtr != NULL &&
+						imageWindowInfoPtr->cImageWindowPtr->mImageViewCPtr != NULL)
+				{
+				//CDC*	pDC = gActiveImageViewCPtr->GetDC ();
+				CMImageView* imageViewCPtr = 
+							(CMImageView*)imageWindowInfoPtr->cImageWindowPtr->mImageViewCPtr;
+				CDC*	pDC = imageViewCPtr->GetDC ();
+				HDC	hDC = pDC->GetSafeHdc ();
+				imageOverlayInfoPtr->overlayDC = CreateCompatibleDC (hDC);
 
-			HBITMAP transparentBitMap = CreateDIBSection (
-																	imageOverlayInfoPtr->overlayDC,
+				transparentBitMap = CreateDIBSection (imageOverlayInfoPtr->overlayDC,
 																	(BITMAPINFO*)bitMapInfoHeadPtr,
 																	DIB_RGB_COLORS,
 																	&bitMapPtr,
 																	NULL,
 																	0);
 
-			SelectObject (imageOverlayInfoPtr->overlayDC, transparentBitMap);
+				SelectObject (imageOverlayInfoPtr->overlayDC, transparentBitMap);
 
-			imageOverlayInfoPtr->offScreenMapHandle = (Handle)transparentBitMap;
-			imageOverlayInfoPtr->offscreenStorageHandle = (Handle)bitMapPtr;
+				imageOverlayInfoPtr->offScreenMapHandle = (Handle)transparentBitMap;
+				imageOverlayInfoPtr->offscreenStorageHandle = (Handle)bitMapPtr;
+
+				}	// end "if (imageWindowInfoPtr != NULL)"
 
 			if (transparentBitMap == NULL)
 				resultCode = 2;
@@ -2880,7 +2897,8 @@ SInt16 SetUpImageOverlayInformation (
 	
 	if (continueFlag)
 		{								
-		returnCode = GetOverlayOffscreenGWorld (numberClasses,
+		returnCode = GetOverlayOffscreenGWorld (imageWindowInfoPtr,
+																numberClasses,
 																overlayBoundingAreaPtr->left,
 																overlayBoundingAreaPtr->right,
 																overlayBoundingAreaPtr->top,

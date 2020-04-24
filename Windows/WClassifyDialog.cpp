@@ -79,8 +79,6 @@ BEGIN_MESSAGE_MAP (CMClassifyDialog, CMDialog)
 	ON_EN_CHANGE(IDC_LineEnd, CheckLineEnd)
 	ON_EN_CHANGE(IDC_LineStart, CheckLineStart)
 	ON_EN_CHANGE(IDC_NearestNeighborThreshold, OnChangeKNNThreshold)
-
-	ON_STN_CLICKED (IDC_StartEndInterval, OnStnClickedStartendinterval)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP ()
 
@@ -1266,16 +1264,7 @@ void CMClassifyDialog::OnSelendokTargetCombo ()
 		
 		}	// end "if (m_fileNamesSelection != savedFileNamesSelection)"
 	
-}	// end "OnSelendokTargetCombo"
-
-
-
-void CMClassifyDialog::OnStnClickedStartendinterval ()
-
-{
-	// Add your control notification handler code here
-	
-}	// end "OnStnClickedStartendinterval"
+}	// end "OnSelendokTargetCombo
 
 
 

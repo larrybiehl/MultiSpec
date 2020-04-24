@@ -7815,14 +7815,14 @@ void StatisticsDialogSetMaskFileName (
 		if (count < 3)
 			dialogPtr->SetComboItemText (maskPopupItemNumber,
 													count+1,
-													&fileNamePPointer[1],
+													&fileNamePPointer[2],
 													kUTF8CharString);
 	#endif	// defined multispec_win
    
 	#if defined multispec_wx
 		wxChoice* m_maskCtrl = (wxChoice*)(dialogPtr->FindWindow (maskPopupItemNumber));
 		if (m_maskCtrl->GetCount () < 3)
-			m_maskCtrl->Append (&fileNamePPointer[1]);
+			m_maskCtrl->Append (&fileNamePPointer[2]);
 	#endif	// defined multispec_win
 
 }	// end "StatisticsDialogSetMaskFileName"

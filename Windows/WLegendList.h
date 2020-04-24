@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMLegendList class.
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 03/02/2017
+//	Revised By:				Larry L. Biehl			Date: 04/17/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -95,6 +95,10 @@ class CMLegendList : public CListBox
 	protected:
 		// Generated message map functions
 		//{{AFX_MSG (CMLegendList)
+		afx_msg void OnContextMenu (
+				CWnd*									pWnd,
+				CPoint 								point);
+
 		afx_msg void OnDrawItem (
 				int 									nIDCtl,
 				LPDRAWITEMSTRUCT 					lpDrawItemStruct);
@@ -124,6 +128,10 @@ class CMLegendList : public CListBox
 		afx_msg void OnMouseMove (
 				UINT 									nFlags,
 				CPoint 								point);
+
+		afx_msg void OnRButtonDown (
+				UINT 									nFlags,
+				CPoint 								point);
 	
 		afx_msg BOOL OnSetCursor (
 				CWnd* 								pWnd,
@@ -131,13 +139,16 @@ class CMLegendList : public CListBox
 				UINT 									message);
 		//}}AFX_MSG
 		DECLARE_MESSAGE_MAP ()
-	
+
+		BOOL PreTranslateMessage (
+				MSG*									pMsg);
 	
 		DRAWITEMSTRUCT						m_drawItem;
 	
 		Handle								m_bitMapInfoHeaderHandle;
 	
 		Boolean								m_activeFlag,
+												m_controlKeyDownFlag,
 												m_shiftKeyDownFlag;
 	
 		static CPoint						s_lastMouseDnPoint;

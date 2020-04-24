@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/13/2020
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -137,7 +137,13 @@
 
 
 #define	kDoNotCloseOverlayFileIfNoRecordsRead		0
-#define	kCloseOverlayFileIfNoRecordsRead				1	
+#define	kCloseOverlayFileIfNoRecordsRead				1
+
+extern SInt16 ReadVectorWithGDALLibrary (
+				Handle								windowInfoHandle,
+				FileInfoPtr 						fileInfoPtr,
+				char*									headerRecordPtr,
+				SInt16								formatOnlyCode);
 
 
 // Prototypes for routines in this file that are only called by		
@@ -1353,7 +1359,7 @@ SInt32 CheckIfProjectFile (
 // Called By:			LoadImageInformation	in SOpenImage.cpp	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/23/1988
-//	Revised By:			Larry L. Biehl			Date: 08/06/2019
+//	Revised By:			Larry L. Biehl			Date: 03/30/2020
 
 SInt16 CheckImageHeader (
 				Handle								windowInfoHandle,
@@ -1379,11 +1385,11 @@ SInt16 CheckImageHeader (
 
 	SInt16								errCode,
 											fileInfoLoaded,
-											returnCode,
+											returnCode = 0,
 											savedGDALReturnCode,
 											savedProcessorCode,
-											shapeFileIndex,
-											stringNumber,
+											shapeFileIndex = 0,
+											stringNumber = 0,
 											version;
 
 	Boolean								continueFlag = TRUE,
@@ -1585,14 +1591,22 @@ SInt16 CheckImageHeader (
 		#endif	// !include_gdal_capability
 
 				//  Check if this is an ArcView shape file.
-
+		
 		if (fileInfoPtr->format == 0 && count >= 100)
+			/*
+			#if include_gdal_capability && !defined multispec_wxlin
+				returnCode = ReadVectorWithGDALLibrary (windowInfoHandle,
+																		fileInfoPtr,
+																		headerRecordPtr,
+																		formatOnlyCode);
+			#endif
+			*/
 			returnCode = ReadArcViewShapeHeader (fileInfoPtr,
 																 (UCharPtr)headerRecordPtr,
 																 &shapeFileIndex,
 																 &boundingShapeRectangle,
 																 formatOnlyCode);
-
+			 
 		if (fileInfoPtr->format == 0 && count >= 54)
 			returnCode = ReadWindowsBitMapHeader (fileInfoPtr,
 																 headerRecordPtr,
@@ -3103,7 +3117,7 @@ SInt16 GetDatumInfo (
 //							GetDefaultThematicFilePalette in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/04/1988
-//	Revised By:			Larry L. Biehl			Date: 12/09/2019
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean GetDefaultSupportFile (
 				Handle								windowInfoHandle,
@@ -3251,59 +3265,61 @@ Boolean GetDefaultSupportFile (
 															  kResolveAliasChains,
 															  kLockFile,
 															  kVerifyFileStream);
-															  
-						if (errCode == fnfErr)
-							{
-									// File still not found. Check one last place. Check in
-									// the users Data directory. The current working directory
-									// is within a directory inside of directory titled
-									// "Sessions" within this directory. The user may have
-									// copied it up a couple of levels.
-
-							fileNamePtr =
-										(FileStringPtr)supportFileStreamPtr->GetFileNamePPtr ();
-							
-							wxFileName fileName;
-							fileName.Assign (workingDirectory);
-							
-									// Remove the last 2 directories from the full file path
-							
-							if (fileName.GetDirCount () > 0)
-								fileName.RemoveLastDir ();
-							
-							if (fileName.GetDirCount () > 0)
-								fileName.RemoveLastDir ();
-							
-							workingDirectory = fileName.GetFullPath ();
-							charWorkingDirectory = workingDirectory.ToAscii ();
-							/*
-							numberChars = sprintf ((char*)gTextString3,
-																		" workingDirectory: %s%s", 
-																		charWorkingDirectory.data (),
-																		gEndOfLine);
-							ListString ((char*)gTextString3, numberChars, gOutputTextH);
-							
-							numberChars = sprintf ((char*)gTextString3,
-																	" workingDirectory length: %ld%s",
-																	numberChars,
-																	gEndOfLine);
-							ListString ((char*)gTextString3, numberChars, gOutputTextH);
-							*/
-									// Close the current file and reset the path name for new .sta file
-										
-							supportFileStreamPtr->SetFilePathFromCharString (
-														(StringPtr)charWorkingDirectory.data (),
-														TRUE);  // force current file to be closed
-																		
-							fileAlreadyOpenFlag = FileOpen (supportFileStreamPtr);
-
-							errCode = OpenFileReadOnly (supportFileStreamPtr,
-																  kResolveAliasChains,
-																  kLockFile,
-																  kVerifyFileStream);
 						
-							}	// end "if (errCode == fnfErr)"
-					
+						#if defined multispec_wxlin
+							if (errCode == fnfErr)
+								{
+										// File still not found. Check one last place. Check in
+										// the users Data directory. The current working directory
+										// is within a directory inside of directory titled
+										// "Sessions" within this directory. The user may have
+										// copied it up a couple of levels.
+
+								fileNamePtr =
+											(FileStringPtr)supportFileStreamPtr->GetFileNamePPtr ();
+								
+								wxFileName fileName;
+								fileName.Assign (workingDirectory);
+								
+										// Remove the last 2 directories from the full file path
+								
+								if (fileName.GetDirCount () > 0)
+									fileName.RemoveLastDir ();
+								
+								if (fileName.GetDirCount () > 0)
+									fileName.RemoveLastDir ();
+								
+								workingDirectory = fileName.GetFullPath ();
+								charWorkingDirectory = workingDirectory.ToAscii ();
+								/*
+								numberChars = sprintf ((char*)gTextString3,
+																			" workingDirectory: %s%s",
+																			charWorkingDirectory.data (),
+																			gEndOfLine);
+								ListString ((char*)gTextString3, numberChars, gOutputTextH);
+								
+								numberChars = sprintf ((char*)gTextString3,
+																		" workingDirectory length: %ld%s",
+																		numberChars,
+																		gEndOfLine);
+								ListString ((char*)gTextString3, numberChars, gOutputTextH);
+								*/
+										// Close the current file and reset the path name for new .sta file
+											
+								supportFileStreamPtr->SetFilePathFromCharString (
+															(StringPtr)charWorkingDirectory.data (),
+															TRUE);  // force current file to be closed
+																			
+								fileAlreadyOpenFlag = FileOpen (supportFileStreamPtr);
+
+								errCode = OpenFileReadOnly (supportFileStreamPtr,
+																	  kResolveAliasChains,
+																	  kLockFile,
+																	  kVerifyFileStream);
+							
+								}	// end "if (errCode == fnfErr)"
+						#endif	// defined multispec_wxlin
+							
 						}	// end "if (errCode == fnfErr)"
 				#endif	// end "#ifndef NetBeansProject"
 			#endif	// end "#if defined multispec_wx"
@@ -3417,7 +3433,7 @@ Boolean GetDefaultSupportFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/26/1991
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void GetDefaultSupportFileName (
 				CMFileStream*						imageFileStreamPtr,
@@ -3446,7 +3462,7 @@ void GetDefaultSupportFileName (
 	#endif
 
 	#if defined multispec_win || defined multispec_wx
-		supportFileStreamPtr->mFilePathName[0] = 0;
+		supportFileStreamPtr->mWideFilePathName[0] = 0;
 	#endif
 
 }	// end "GetDefaultSupportFileName" 
@@ -3475,7 +3491,7 @@ void GetDefaultSupportFileName (
 //							GetDefaultSupportFile in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/26/1991
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void GetDefaultSupportFileName (
 				CMFileStream*						imageFileStreamPtr,
@@ -3486,8 +3502,9 @@ void GetDefaultSupportFileName (
 
 {
 	UInt16								hdfDataSet,
+											imageFilePathLength,
 											numChars,
-											numberPathCharacters;
+											supportFilePathLength;
 
 
 	if (imageFilePathPtr != NULL && supportFilePathPtr != NULL) 
@@ -3497,33 +3514,35 @@ void GetDefaultSupportFileName (
 				  // The Macintosh version will not.
 
 		#if defined multispec_mac
-			numberPathCharacters = 0;
+			supportFilePathLength = 0;
 		#endif
 		#if defined multispec_wx || defined multispec_win
-			numberPathCharacters = imageFileStreamPtr->mUTF8PathLength;
+			supportFilePathLength = imageFileStreamPtr->mUTF8PathLength;
 		#endif
-		memcpy ((char*)&supportFilePathPtr[1],
-					(char*)&imageFilePathPtr[1],
-					numberPathCharacters);
-		supportFilePathPtr[0] = (UInt8)numberPathCharacters;
-		supportFilePathPtr[numberPathCharacters+1] = 0;
+		memcpy ((char*)&supportFilePathPtr[2],
+					(char*)&imageFilePathPtr[2],
+					supportFilePathLength);
+		//supportFilePathPtr[0] = (UInt8)numberPathCharacters;
+		//supportFilePathPtr[numberPathCharacters+1] = 0;
+		SetFileStringLength (supportFilePathPtr, supportFilePathLength);
 		
 				// If this is a multiple image file window, then get the default prefix.																	
 
 		numChars = 0;
 		if (gImageWindowInfoPtr != NULL && gImageWindowInfoPtr->numberImageFiles > 1) 
 			{
-			numChars = sprintf ((char*)&supportFilePathPtr[numberPathCharacters+1],
+			numChars = sprintf ((char*)&supportFilePathPtr[supportFilePathLength+2],
 											"L%hd-",
 											gImageWindowInfoPtr->numberImageFiles);
-
-			numChars = sprintf ((char*)&supportFilePathPtr[numberPathCharacters + 1],
+			/*
+			numChars = sprintf ((char*)&supportFilePathPtr[numberPathCharacters+2],
 											"L%hd-",
 											gImageWindowInfoPtr->numberImageFiles);
-
+			*/
 			}	// end "if (gImageWindowInfoPtr != NULL && ...)"
-
-		supportFilePathPtr[0] += (UInt8)numChars;
+		
+		//supportFilePathPtr[0] += (UInt8)numChars;
+		supportFilePathLength += numChars;
 
 		gTextString[0] = 0;
 		if (gImageFileInfoPtr != NULL && supportFileType == kISTAFileType &&
@@ -3534,14 +3553,16 @@ void GetDefaultSupportFileName (
 			GetHdfHeaderFileName (gImageFileInfoPtr, gTextString);
 			//RemoveSuffix ((FileStringPtr)gTextString, kASCIICharString);
 			RemoveSuffix ((FileStringPtr)gTextString);
+			int headerFileStringLength = GetFileStringLength (gTextString);
 
-			numChars = MIN (gTextString[0], 250 - supportFilePathPtr[0]);
+			numChars = MIN (headerFileStringLength,
+									gFilePathNameLengthLimit - supportFilePathLength);
 			if (numChars > 0) 
 				{
-				memcpy (&supportFilePathPtr[supportFilePathPtr[0]+1],
-							&gTextString[1],
+				memcpy (&supportFilePathPtr[supportFilePathLength+2],
+							&gTextString[2],
 							numChars);
-				supportFilePathPtr[0] += numChars;
+				supportFilePathLength += numChars;
 
 				}	// end "if (numChars > 0)"
 
@@ -3556,24 +3577,25 @@ void GetDefaultSupportFileName (
 														gImageFileInfoPtr->format == kNETCDFType)
 				hdfDataSet++;
 
-			numChars = MIN (4, 250 - supportFilePathPtr[0]);
+			numChars = MIN (4, gFilePathNameLengthLimit - supportFilePathLength);
 			if (numChars > 0) 
 				{
-				numChars = sprintf ((char*)&supportFilePathPtr[supportFilePathPtr[0]+1],
+				numChars = sprintf ((char*)&supportFilePathPtr[supportFilePathLength+2],
 											"_%hd_",
 											hdfDataSet);
 
-				supportFilePathPtr[0] += (UInt8)numChars;
+				supportFilePathLength += (UInt8)numChars;
 
 				}	// end "if (numChars > 0)"
 
-			numChars = MIN (gTextString[0], 250 - supportFilePathPtr[0]);
+			numChars = MIN (gTextString[0],
+									gFilePathNameLengthLimit - supportFilePathLength);
 			if (numChars > 0)
 				{
-				memcpy (&supportFilePathPtr[supportFilePathPtr[0]+1],
+				memcpy (&supportFilePathPtr[supportFilePathLength+2],
 							&gTextString[1],
 							numChars);
-				supportFilePathPtr[0] += (UInt8)numChars;
+				supportFilePathLength += (UInt8)numChars;
 
 				}	// end "if (numChars > 0)"
 
@@ -3583,16 +3605,20 @@ void GetDefaultSupportFileName (
 
 		if (gTextString[0] == 0) 
 			{
-					// Now append the image file name to the support file name.	
-
-			numChars = imageFilePathPtr[0] - numberPathCharacters;
-			memcpy (&supportFilePathPtr[supportFilePathPtr[0]+1],
+					// Now append the image file name to the support path name.
+			
+			imageFilePathLength = GetFileStringLength (imageFilePathPtr);
+			//numChars = imageFilePathLength - supportFilePathLength;
+			numChars = strlen ((char*)imageFileNameCPtr);
+			memcpy (&supportFilePathPtr[supportFilePathLength+2],
 						imageFileNameCPtr,
 						numChars);
 
 			}	// end "if (gTextString[0] == 0)"
 
-		supportFilePathPtr[0] += (UInt8)numChars;
+		supportFilePathLength += numChars;
+			
+		SetFileStringLength (supportFilePathPtr, supportFilePathLength);
 
 				// Remove the .LAN, .GIS, .IMG or .DAT extension if it exits at the end
 				// of the name.
@@ -3645,7 +3671,7 @@ void GetDefaultSupportFileName (
 //							ReadFastL7AHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1999
-//	Revised By:			Larry L. Biehl			Date: 01/17/2019
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 SInt16 GetFileHeaderString (
 				SInt16								stringID,
@@ -3764,16 +3790,29 @@ SInt16 GetFileHeaderString (
 
 						// Get the string that follows the identifer that is
 						// numberCharacters long.
-						// Note that if wx or windows version, stringPtr is a
-						// path name. Need to copy the name after the directory
+						// Note that if pathLength is > 0, stringPtr is actually a FileStringPtr
+						// for which the first two elements in the array represent the string
+						// length. One needs to copy the name after the directory
 						// path given by pathLength.
 				
-				BlockMoveData (strPtr, &stringPtr[1+pathLength], numberCharacters);
+				if (pathLength > 0)
+					{
+					BlockMoveData (strPtr, &stringPtr[2+pathLength], numberCharacters);
 
-						// Make pascal and c string.
+					SetFileStringLength ((FileStringPtr)stringPtr, pathLength+numberCharacters);
+					
+					}	// end "if (pathLength > 0)"
+				
+				else	// pathLength is assumed to be 0
+					{
+					BlockMoveData (strPtr, &stringPtr[1], numberCharacters);
 
-				stringPtr[0] = (char)(pathLength + numberCharacters);
-				stringPtr[pathLength + numberCharacters + 1] = 0;
+							// Make pascal and c string.
+
+					stringPtr[0] = (char)(numberCharacters);
+					stringPtr[numberCharacters+1] = 0;
+					
+					}	// end "else pathLength == 0"
 
 						// Set numberCharacters so that the comma will be skipped at the
 						// end if needed when set up the return address for the string
@@ -9737,7 +9776,7 @@ SInt16 ReadLARSYSMISTHeader (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1995
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 SInt16 ReadLASHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -9794,9 +9833,14 @@ SInt16 ReadLASHeader (
       fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
 
 				// Get the file name in pascal format.
+				// Note that the file name will be used in CompareSuffixNoCase which is
+				// expecting a FileStringPtr with the first two elements reserved for the
+				// file length.
 
-      GetCopyOfPFileNameFromFileStream (fileStreamPtr, gTextString);
-      fileNamePtr = (FileStringPtr)&gTextString[0];
+      GetCopyOfPFileNameFromFileStream (fileStreamPtr, &gTextString[1]);
+      int stringLength = gTextString[1];
+      fileNamePtr = (FileStringPtr)gTextString;
+      SetFileStringLength (fileNamePtr, stringLength);
 
 				// Check if file is the LAS header file.  File suffix of
 				// .ddr
@@ -14448,10 +14492,9 @@ SInt16 ReadWindowsBitMapHeader	(
 //
 //	Function name:		WindowPtr SetUpEmptyWindow
 //
-//	Software purpose:	The purpose of this routine is to set up a window
-//							for the multispectral image file specified by the
-//							information associated with the input file
-//							information handle.
+//	Software purpose:	The purpose of this routine is to set up a window for the
+//							shape file specified by the information associated with the
+//							input file information handle.
 //
 //	Parameters in:		None
 //
@@ -14463,7 +14506,7 @@ SInt16 ReadWindowsBitMapHeader	(
 //							OpenProjectImageWindow in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/2020
-//	Revised By:			Larry L. Biehl			Date: 01/13/2020
+//	Revised By:			Larry L. Biehl			Date: 03/12/2020
 
 Boolean SetUpEmptyWindow (
 				Handle								windowInfoHandle)
@@ -14471,9 +14514,10 @@ Boolean SetUpEmptyWindow (
 {
 	Boolean continueFlag = FALSE;
 
-	/*
+	
 	if (windowInfoHandle != NULL)
 		{
+		/*
 		#if defined multispec_mac
 					// Create image window for file.
 
@@ -14534,7 +14578,7 @@ Boolean SetUpEmptyWindow (
 
 				}	// end "if (imageWindowCPtr != NULL)"
 		#endif	// defined multispec_win
-
+		*/	/*
 		#if defined multispec_wx
 			WindowInfoPtr windowInfoPtr =
 									(WindowInfoPtr)GetHandlePointer (windowInfoHandle);
@@ -14568,8 +14612,9 @@ Boolean SetUpEmptyWindow (
 
 				}	// end "if (imageWindowCPtr != NULL)"
 		#endif	// defined multispec_wx
+		*/
 		}	// end "if (windowInfoHandle != NULL)"
-	*/
+	
 	return (continueFlag);
 
 }	// end "SetUpEmptyWindow"

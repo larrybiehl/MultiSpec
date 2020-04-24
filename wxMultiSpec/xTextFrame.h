@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMTextFrame class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 04/12/2019
+//	Revised By:				Larry L. Biehl			Date: 04/21/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -86,6 +86,9 @@ class CMTextFrame : public wxDocChildFrame
 	
 		void OnEditUndo (
 				wxCommandEvent& 					event);
+				
+		void OnLeftDown (
+				wxMouseEvent&						event);
 	
 		void OnUpdateEditClear (
 				wxUpdateUIEvent& 					pCmdUI);

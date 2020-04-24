@@ -494,6 +494,7 @@ void CMChangeFormatDlg::OnTransformData (void)
 	DDX_Check (m_dialogToPtr, IDC_TransformData, m_transformDataFlag);
 		
 	SetDLogControlHilite (NULL, IDOK, 0);
+	GetDlgItem (IDOK)->SetFocus ();
 	
 }	// end "OnTransformData"
 

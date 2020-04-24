@@ -128,10 +128,12 @@ CMOpenFileDialog::CMOpenFileDialog (
 		if (gFileFilterIndex == gImageFileFilterIndex)
 			{
 					// Create buffer for multiple file names.
+					// Tried to change maximum path. It did not work.
 					
 			const DWORD numberOfFileNames = 500;
 			const DWORD fileNameMaxLength = MAX_PATH + 1;
-			const DWORD bufferSize = (numberOfFileNames + 1) * fileNameMaxLength + 1;
+			//const DWORD fileNameMaxLength = 1024;
+			const DWORD bufferSize = (numberOfFileNames+1) * fileNameMaxLength + 1;
 			m_filenamesBuffer = new TBYTE[bufferSize];
 			
 					// Initialize beginning and end of buffer.
@@ -152,6 +154,7 @@ CMOpenFileDialog::CMOpenFileDialog (
 		else	// gFileFilterIndex != gImageFileFilterIndex
 			{
 			m_ofn.lpstrFile = m_fileName.GetBuffer (_MAX_PATH);
+			//m_ofn.lpstrFile = m_fileName.GetBuffer (1024);
 			
 			}	// end "else gFileFilterIndex != gImageFileFilterIndex"
 		

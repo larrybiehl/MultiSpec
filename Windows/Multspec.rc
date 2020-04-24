@@ -504,7 +504,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
-    CTEXT           "MultiSpec Application\nVersion 2020.03.09",IDC_STATIC,103,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2020.04.17",IDC_STATIC,103,6,119,17
     CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation",IDC_STATIC,8,40,317,26
     DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
@@ -776,16 +776,16 @@ BEGIN
     LTEXT           "8-bit Unsigned Integer",IDC_ChangeFormatInBits,190,37,121,8
     LTEXT           "Output file:",IDC_STATIC,22,57,38,8
     COMBOBOX        IDC_OutputFileSelection,62,55,73,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_LineStart,70,94,33,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LineEnd,106,94,33,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LineInterval,142,94,33,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnStart,70,111,33,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnEnd,106,111,33,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnInterval,142,111,33,13,ES_AUTOHSCROLL
-    GROUPBOX        "Area to Reformat",IDC_STATIC4,9,73,173,57
+    EDITTEXT        IDC_LineStart,71,94,33,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LineEnd,108,94,33,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LineInterval,145,94,33,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnStart,71,111,33,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnEnd,108,111,33,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnInterval,145,111,33,13,ES_AUTOHSCROLL
+    GROUPBOX        "Area to Reformat",IDC_STATIC4,9,73,175,57
     LTEXT           "Lines",IDC_STATIC6,41,97,18,9
-    LTEXT           "Columns",IDC_STATIC7,41,112,29,8
-    LTEXT           "Start          End          Interval",IDC_STATIC8,78,84,96,8
+    LTEXT           "Columns",IDC_STATIC7,41,112,27,8
+    LTEXT           "Start             End             Interval",IDC_STATIC8,73,84,103,8
     CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,17,100,15,15
     CONTROL         "Transform Data...",IDC_TransformData,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,139,70,10
     LTEXT           "Recommended minimum data bits:",IDC_MinimumBitsPrompt,10,163,144,8
@@ -853,7 +853,7 @@ BEGIN
                     "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,9,279,173,10
     CONTROL         "Adjust Selected Channels",IDC_AdjustSelectedChannels,
                     "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,12,141,10
-    CONTROL         "New Channels from ",IDC_RT_Eigenvectors,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,103,76,10
+    CONTROL         "New Channels from ",IDC_RT_Eigenvectors,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,104,76,10
     CONTROL         "New Channel from General Algebraic Transformation",IDC_RT_AlgebraicTransformation,
                     "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,164,186,10
     CONTROL         "New Channel from Function",IDC_RT_FunctionOfChannels,
@@ -870,8 +870,8 @@ BEGIN
     EDITTEXT        IDC_RT_ACbyC_Factor,71,75,58,13,ES_AUTOHSCROLL
     LTEXT           "* Channel:",IDC_RT_ACbyC_ChannelPrompt,134,77,35,8
     EDITTEXT        IDC_RT_ACbyC_ChannelNumber,171,75,35,13,ES_AUTOHSCROLL
-    LTEXT           "FE Eigenvectors",IDC_RT_EV_FEEigenvectors,87,105,55,8
-    COMBOBOX        IDC_EV_Eigenvectors,205,100,48,44,CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "FE Eigenvectors",IDC_RT_EV_FEEigenvectors,88,104,55,8
+    COMBOBOX        IDC_EV_Eigenvectors,205,101,48,44,CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Recommended minimum number of bits - All PC Components:\r                                                      Selected Components:",IDC_RT_EV_NumberBits,40,126,200,18
     LTEXT           "16",IDC_RT_EV_AllComponents,241,126,12,8
     LTEXT           "16",IDC_RT_EV_SelComponents,241,135,11,8
@@ -880,9 +880,9 @@ BEGIN
     LTEXT           "=",IDC_RT_AT_Equal,21,194,9,8
     EDITTEXT        IDC_RT_AT_Offset,30,193,40,13,ES_AUTOHSCROLL
     LTEXT           "+",IDC_RT_AT_Plus,71,196,8,8
-    EDITTEXT        IDC_RT_AT_Numerator,80,182,145,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RT_AT_Numerator,80,179,145,13,ES_AUTOHSCROLL
     CONTROL         "_____________________________________",IDC_RT_AT_Line,
-                    "Static",SS_LEFTNOWORDWRAP,80,193,148,8
+                    "Static",SS_LEFTNOWORDWRAP,80,194,148,8
     EDITTEXT        IDC_RT_AT_Denominator,81,207,145,13,ES_AUTOHSCROLL
     LTEXT           "*",IDC_RT_AT_Multiply,231,196,9,8
     EDITTEXT        IDC_RT_AT_Factor,240,194,40,13,ES_AUTOHSCROLL
@@ -891,7 +891,7 @@ BEGIN
     EDITTEXT        IDC_FunctionFactor,220,241,56,12,ES_AUTOHSCROLL
     LTEXT           "kth smallest value:",IDC_kthSmallestElementPrompt,54,260,62,8
     EDITTEXT        IDC_kthSmallestElement,115,257,42,12,ES_AUTOHSCROLL
-    LTEXT           "PC Eigenvectors",IDC_RT_EV_PCEigenvectors,87,105,76,8
+    LTEXT           "PC Eigenvectors",IDC_RT_EV_PCEigenvectors,88,104,76,8
 END
 
 IDD_GraphicsStatus DIALOG 0, 0, 185, 92
@@ -1125,8 +1125,8 @@ BEGIN
     GROUPBOX        "Area to Classify",IDC_LineColFrame,6,172,159,56
     LTEXT           "Lines",IDC_LinePrompt,39,192,18,9
     LTEXT           "Columns",IDC_ColumnPrompt,39,211,28,8
-    LTEXT           "Start        End        Interval",IDC_StartEndInterval,74,180,84,8
-    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,16,199,15,15
+    LTEXT           "Start        End      Interval",IDC_StartEndInterval,74,180,87,8
+    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,15,198,15,15
     LTEXT           "Classes:",IDC_ClassPrompt,177,9,28,8
     COMBOBOX        IDC_ClassCombo,207,8,78,39,CBS_DROPDOWNLIST | WS_TABSTOP
     LTEXT           "Class weights:",IDC_WeightsPrompt,177,30,46,8
@@ -2102,16 +2102,16 @@ BEGIN
     COMBOBOX        IDC_xAxis,74,97,87,78,CBS_DROPDOWNLIST
 END
 
-IDD_GaussianParameter DIALOG 0, 0, 260, 113
+IDD_GaussianParameter DIALOGEX 0, 0, 261, 123
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Set Gaussian Stretch Parameter"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,203,92,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,145,92,50,14
+    DEFPUSHBUTTON   "OK",IDOK,204,102,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,145,102,50,14
     LTEXT           "Number Standard Deviations:",IDC_STATIC,7,9,96,11
     EDITTEXT        IDC_GaussianStretch,105,7,40,14,ES_AUTOHSCROLL
-    LTEXT           "Note: The following percent of normally distributed data will be stretched between 0 and 255.\r\n- 1.0 represents 68.3% (more contrast)\r\n- 2.0 represents 95.5%\r\n- 3.0 represents 99.7% (less contrast)",IDC_STATIC,7,37,218,46
+    LTEXT           "Note: The following percent of normally distributed data will be stretched between 0 and 255.\r\n- 1.0 represents 68.3% (more contrast)\r\n- 2.0 represents 95.5%\r\n- 3.0 represents 99.7% (less contrast)\r\n\r\nThe default is 2.3",IDC_STATIC,7,37,218,58
 END
 
 IDD_ReformatRectify DIALOGEX 0, 0, 433, 249
@@ -2341,46 +2341,46 @@ BEGIN
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,17,170,15,14
 END
 
-IDD_ProcessorCreateImageStat DIALOGEX 0, 0, 309, 237
+IDD_ProcessorCreateImageStat DIALOGEX 0, 0, 285, 242
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Create Statistics Images Specifications"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,198,216,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,252,216,50,14
+    DEFPUSHBUTTON   "OK",IDOK,229,222,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,174,222,50,14
     LTEXT           "Channels:",IDC_ChannelPrompt,14,16,32,8
+    COMBOBOX        IDC_ChannelCombo,55,14,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use feature transformation",IDC_FeatureTransformation,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,16,108,10
     LTEXT           "Area(s)",IDC_LineIntervalPrompt,15,33,45,8
     CONTROL         "Classes:",IDC_ClassesRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,20,47,38,10
+    CONTROL         "Selected Area",IDC_SelectedAreaRadio,"Button",BS_AUTORADIOBUTTON,20,80,85,10
+    COMBOBOX        IDC_ClassCombo,69,45,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Create statistics image for each selected",IDC_StatPrompt,32,65,133,8
     CONTROL         "Class",IDC_SelectedClassRadio,"Button",BS_AUTORADIOBUTTON | WS_GROUP,166,65,32,10
     CONTROL         "Field",IDC_SelectedFieldRadio,"Button",BS_AUTORADIOBUTTON,200,65,47,10
-    LTEXT           "Base minimum/maximum settings for each image on",IDC_OptionHeading,17,157,167,8
+    GROUPBOX        "Area for Image Statistics",IDC_LineColFrame,29,95,170,60,WS_GROUP
+    LTEXT           "Start         End         Interval",IDC_StartEndInterval,95,106,98,8
+    LTEXT           "Line",IDC_LinePrompt,63,118,18,9
+    EDITTEXT        IDC_LineStart,92,117,29,13,ES_AUTOHSCROLL | WS_GROUP
+    EDITTEXT        IDC_LineEnd,127,117,29,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LineInterval,162,117,28,13,ES_AUTOHSCROLL
+    LTEXT           "Column",IDC_ColumnPrompt,63,139,25,8
+    EDITTEXT        IDC_ColumnStart,92,136,29,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnEnd,127,136,29,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ColumnInterval,162,136,28,13,ES_AUTOHSCROLL
+    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,38,122,15,15
+    LTEXT           "Base minimum/maximum settings for each image on",IDC_OptionHeading,17,161,167,8
     CONTROL         "Overall values - same for all images",IDC_OverallRadio,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,169,149,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP,15,173,149,10
     CONTROL         "Individual values - each image differs",IDC_IndividualRadio,
-                    "Button",BS_AUTORADIOBUTTON,15,183,149,10
-    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON,15,196,52,10
-    EDITTEXT        IDC_StatisticMin,97,195,40,14,ES_AUTOHSCROLL
-    LTEXT           "max:",IDC_MaxPrompt,139,197,21,8
-    EDITTEXT        IDC_StatisticMax,159,195,40,14,ES_AUTOHSCROLL
-    CONTROL         "Use feature transformation",IDC_FeatureTransformation,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,16,108,10
-    CONTROL         "Selected Area",IDC_SelectedAreaRadio,"Button",BS_AUTORADIOBUTTON,20,80,85,10
-    LTEXT           "-min:",IDC_MinPrompt,75,197,19,8
-    EDITTEXT        IDC_LineStart,75,113,28,13,ES_AUTOHSCROLL | WS_GROUP
-    EDITTEXT        IDC_LineEnd,106,113,27,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_LineInterval,137,113,25,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnStart,78,132,28,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnEnd,107,132,26,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_ColumnInterval,138,132,24,13,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_LineColFrame,20,95,184,56,WS_GROUP
-    LTEXT           "Line",IDC_LinePrompt,49,114,18,9
-    LTEXT           "Column",IDC_ColumnPrompt,49,135,25,8
-    CONTROL         "ToEntireImage",IDEntireImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,119,15,15
-    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,25,119,15,15
-    COMBOBOX        IDC_ChannelCombo,55,14,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_ClassCombo,69,45,48,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Start        End    Interval",IDC_StartEndInterval,81,102,84,8
+                    "Button",BS_AUTORADIOBUTTON,15,187,149,10
+    CONTROL         "User settings",IDC_UserSettingRadio,"Button",BS_AUTORADIOBUTTON,15,200,52,10
+    LTEXT           "-min:",IDC_MinPrompt,75,201,19,8
+    EDITTEXT        IDC_StatisticMin,97,199,40,14,ES_AUTOHSCROLL
+    LTEXT           "max:",IDC_MaxPrompt,139,201,21,8
+    EDITTEXT        IDC_StatisticMax,159,199,40,14,ES_AUTOHSCROLL
+    CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,38,122,15,15
 END
 
 IDD_ClassifyKNNParameters DIALOGEX 0, 0, 201, 87
@@ -3757,9 +3757,9 @@ BEGIN
     IDD_GaussianParameter, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 253
+        RIGHTMARGIN, 254
         TOPMARGIN, 7
-        BOTTOMMARGIN, 106
+        BOTTOMMARGIN, 116
     END
 
     IDD_ReformatRectify, DIALOG
@@ -3804,6 +3804,7 @@ BEGIN
 
     IDD_ProcessorCreateImageStat, DIALOG
     BEGIN
+        BOTTOMMARGIN, 237
     END
 
     IDD_ClassifyKNNParameters, DIALOG
@@ -3921,6 +3922,16 @@ BEGIN
 END
 
 IDD_ClassifySVMParameters AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ReformatTransform AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_GaussianParameter AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -5351,11 +5362,11 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_StatisticsImage1    "    Statistics Image will be created for each selected class"
-    IDS_StatisticsImage2    "    Statistics Image will be created for each selected field."
-    IDS_StatisticsImage3    "    The images will be based on overall min-max values."
-    IDS_StatisticsImage4    "    Each image will be based on respective statistics' min-max values."
-    IDS_StatisticsImage5    "    Statistics Image will be created for the selected area."
+    IDS_StatisticsImage1    "    Statistics Image will be created for each selected class.\r\n"
+    IDS_StatisticsImage2    "    Statistics Image will be created for each selected field.\r\n"
+    IDS_StatisticsImage3    "    The images will be based on overall min-max values.\r\n"
+    IDS_StatisticsImage4    "    Each image will be based on respective statistics' min-max values.\r\n"
+    IDS_StatisticsImage5    "    Statistics Image will be created for the selected area.\r\n"
     IDS_StatisticsImage6    "Area"
     IDS_StatisticsImage7    "Getting covariance for selected area."
     IDS_StatisticsImage8    "Allocating memory"
@@ -5373,7 +5384,7 @@ BEGIN
     IDS_StatisticsImage16   "Creating images for field statistics."
     IDS_StatisticsImage17   "Creating image for selected area."
     IDS_StatisticsImage18   "    Image Statistics Error = '%d'."
-    IDS_StatisticsImage19   "    Image statistics file, '%s', written to disk."
+    IDS_StatisticsImage19   "    Image statistics file, '%s', written to disk.\r\n"
 END
 
 STRINGTABLE

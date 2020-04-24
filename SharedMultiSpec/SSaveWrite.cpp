@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/05/2020
+//	Revision date:			04/15/2020
 //
 //	Language:				C
 //
@@ -313,10 +313,10 @@ SInt16 FindEndOfLineCode (
 		bufferPtr = (UCharPtr)paramBlockPtr->ioParam.ioBuffer;
 	#endif	// defined multispec_mac
 		
-   #if defined multispec_win | defined multispec_wx	
+   #if defined multispec_win || defined multispec_wx
 		count = paramBlockPtr->ioReqCount;
 		bufferPtr = paramBlockPtr->ioBuffer;	
-	#endif	// defined multispec_win | defined multispec_wx
+	#endif	// defined multispec_win || defined multispec_wx
 	/*	
 	#if defined multispec_mac
 		IOParamPtr							ioParamPtr;
@@ -658,7 +658,7 @@ SInt16 GetNextLine (
 		ioParamPtr->ioBuffer[paramBlockPtr->ioParam.ioActCount] = kNullTerminator;	
 	#endif	// defined multispec_mac
 	
-   #if defined multispec_win | defined multispec_wx  	   
+   #if defined multispec_win || defined multispec_wx
 	   UCharPtr 				bufferPtr,
 	   							lastLinePtr,
 	   							newLinePtr,
@@ -794,7 +794,7 @@ SInt16 GetNextLine (
 			}	// end "if (newLinePtr == NULL)"
 			
 		*inputStringPtrPtr = newLinePtr;	
-	#endif	// defined multispec_win | defined multispec_wx
+	#endif	// defined multispec_win || defined multispec_wx
 	
 	return (errCode);
 		
@@ -3503,7 +3503,7 @@ void LoadTiffEntry (
 // Called By:			Menus in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1993
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
 
 void LoadTransformationFile (void)
 
@@ -3520,7 +3520,7 @@ void LoadTransformationFile (void)
 	
 	SInt16								numberFileTypes,
 											tReturnCode,
-											versionNumber;
+											versionNumber = 0;
 	
 	OSErr 								errCode;
 	
@@ -3685,13 +3685,14 @@ void LoadTransformationFile (void)
 												gOutputForce1Code, 
 												continueFlag);
 		
-		char* fileNamePtr = (char*)GetFileNamePPointerFromFileStream (fileStreamPtr);
+		FileStringPtr fileNamePtr =
+						(FileStringPtr)GetFileNameCPointerFromFileStream (fileStreamPtr);
 		continueFlag = ListSpecifiedStringNumber (
 												kFileIOStrID,
 												IDS_FileIO102, 
 												NULL, 
 												gOutputForce1Code,
-												fileNamePtr,
+												(char*)fileNamePtr,
 												continueFlag,
 												kUTF8CharString);
 		
@@ -3727,7 +3728,7 @@ void LoadTransformationFile (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1997
-//	Revised By:			Larry L. Biehl			Date: 11/25/2019
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
 
 Boolean ReadOffsetGainFile (
 				CMFileStream*						fileStreamPtr,
@@ -3791,7 +3792,7 @@ Boolean ReadOffsetGainFile (
 											&numberEndOfLineBytes); 
 	#endif	// defined multispec_mac
 	
-	#if defined multispec_win
+	#if defined multispec_win || defined multispec_wx
 		UInt8									bufferPtr[500];
 		UInt32								numberEndOfLineBytes;
 		SInt16								endOfLineCode;
@@ -3809,14 +3810,14 @@ Boolean ReadOffsetGainFile (
 											&errCode,
 											&endOfLineCode,
 											&numberEndOfLineBytes);         
-	#endif	// defined multispec_win                                                 
+	#endif	// defined multispec_win || defined multispec_wx
 				
 	inputStringPtr = NULL;							
 
 			// Reread the first line and then skip it.
 			
-	if (errCode == noErr)
-		errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
+	//if (errCode == noErr)
+	//	errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
 	
 			// Now get the current=new or new=current line.
 	
@@ -3910,6 +3911,9 @@ Boolean ReadOffsetGainFile (
 			
 		if (numberChannels < 1 || numberChannels > 8192)
 			fileFoundFlag = FALSE;
+			
+		if (!fileFoundFlag)
+			continueFlag = FALSE;
 		
 		}	// end "if (errCode == noErr)"
 		
@@ -4071,7 +4075,7 @@ Boolean ReadOffsetGainFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/08/1997
-//	Revised By:			Larry L. Biehl			Date: 09/01/2011
+//	Revised By:			Larry L. Biehl			Date:04/13/2020
 
 Boolean ReadTransformationFile (
 				CMFileStream*						fileStreamPtr,
@@ -4350,15 +4354,17 @@ Boolean ReadTransformationFile (
 		if (!fileFoundFlag)
 			errCode = 1002;
 			
-		#if defined multispec_win
+		#if defined multispec_win || defined multispec_wx
 			if (fileFoundFlag && eigenvalueValueSize == k68881Bytes)
 				{
 						// Cannot handle this transformation file in Windows version
+						// or the 64-bit MacOS version
+						
 				fileFoundFlag = FALSE;
 				errCode = 1003;
 				
 				}	// end "if (fileFoundFlag && eigenvalueValueSize == k68881Bytes)"
-		#endif	// defined multispec_win 
+		#endif	// defined multispec_win || defined multispec_wx
 		
 		}	// end "if (errCode == noErr)"
 		
@@ -4587,10 +4593,10 @@ Boolean ReadTransformationFile (
 					#endif	// not _MC68881_ 
 				#endif	// defined multispec_mac  
 					
-				#if defined multispec_win 
+				#if defined multispec_win || defined multispec_wx
 					doublePtr = (double*)charPtr;
 					doubleValue =  *doublePtr;
-				#endif	// defined multispec_win				
+				#endif	// defined multispec_win || defined multispec_wx
 								
 				if (swapFlag)
 					Swap8Bytes (&doubleValue, 1);
@@ -4843,7 +4849,7 @@ void ReadTransformationGetFileSizes (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 void SaveImageWindowAs (void)
 
@@ -4926,7 +4932,10 @@ void SaveImageWindowAs (void)
 				
 		if (gMultiSpecWorkflowInfo.workFlowCode > 0 &&
 					gMultiSpecWorkflowInfo.defaultName[0] > 0)
-			CopyPToP (filePathPtr, gMultiSpecWorkflowInfo.defaultName);
+			//CopyPToP (filePathPtr, gMultiSpecWorkflowInfo.defaultName);
+			CopyStringToFileString (gMultiSpecWorkflowInfo.defaultName,
+											filePathPtr,
+											_MAX_FILE);
 			
 		else	// gMultiSpecWorkflowInfo.workFlowCode == 0 || ...
 			{
@@ -4934,7 +4943,10 @@ void SaveImageWindowAs (void)
 										gImageFileInfoPtr,
 										gTextString,
 										TRUE);          
-			CopyPToP (filePathPtr, gTextString);
+			//CopyPToP (filePathPtr, gTextString);
+			CopyFileStringToFileString (gTextString,
+													filePathPtr,
+													_MAX_FILE);
 			
 			}	// end "else gMultiSpecWorkflowInfo.workFlowCode == 0 || ..."
 			
@@ -7095,7 +7107,7 @@ Boolean WriteNewImageHeader (
 																  outFileStreamPtr, 
 																  displaySpecsPtr,
 																  NULL,
-																  tiffSourceCode,	// kFromReformat,
+																  tiffSourceCode,
 																  thematicListType,
 																  paletteSelection,
 																  &writePosOff,
@@ -8462,7 +8474,7 @@ SInt16 WriteTIFFImageData (
 //							WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1994
-//	Revised By:			Larry L. Biehl			Date: 01/27/2017
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 Boolean WriteTIFFImageFile (
 				FileInfoPtr							fileInfoPtr,
@@ -9246,9 +9258,14 @@ Boolean WriteTIFFImageFile (
 													areaRectanglePtr,
 													paletteOffset);
 													
+				// Create the support file if this is a thematic type image.
+				// Note that the support files for classifications are created in
+				// another location.
+				
 		if (errCode == noErr && (fileInfoPtr->thematicType || 
 				(displaySpecsPtr != NULL &&
-							displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)))
+						displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)) &&
+					tiffSourceCode != kFromClassification)
 			{                        
 					// Get copy of fileInfoPtr structure and change the file name so that
 					// it matches that in the fileStreamPtr structure/class. The temp
@@ -9319,7 +9336,7 @@ Boolean WriteTIFFImageFile (
 // Called By:			Menus in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1993
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 04/13/2020
 
 void WriteTransformationFile (void)
 
@@ -9345,13 +9362,9 @@ void WriteTransformationFile (void)
 		#endif                                      
 	#endif  
 	  
-	#if defined multispec_win  
+	#if defined multispec_win || defined multispec_wx
 		double								extendedValue;                                   
 	#endif  
-	
-   #if defined multispec_wx  
-		double extendedValue;
-   #endif 
 	
 	SInt32								fileLength;
 	
@@ -9375,16 +9388,19 @@ void WriteTransformationFile (void)
 		
 			// Set up default name.																
 
-	CopyPToP (filePathPtr, gTransformationMatrix.imageFileName);
+	//CopyPToP (filePathPtr, gTransformationMatrix.imageFileName);
+	CopyStringToFileString (gTransformationMatrix.imageFileName,
+										filePathPtr,
+										_MAX_PATH);
 	RemoveSuffix (filePathPtr);
 
 	#if defined multispec_mac
 		ConcatFilenameSuffix (filePathPtr, (StringPtr)"\0.TransformMatrix\0");
-	#endif	// defined multispec_win
+	#endif	// defined multispec_mac
 	
-	#if defined multispec_win
+	#if defined multispec_win || defined multispec_wx
 		ConcatFilenameSuffix (filePathPtr, (StringPtr)"\0.tra\0");
-	#endif	// defined multispec_win
+	#endif	// defined multispec_win || defined multispec_wx
 
 			// Now get wide character and unicode names.
 
@@ -9399,7 +9415,7 @@ void WriteTransformationFile (void)
 									gTransformationMatrix.numberChannels * sizeof (double);
 							
 	errCode = PutFile (fileStreamPtr, fileLength, IDS_FileIO61, gCreator);
-	continueFlag = (errCode == noErr) && (filePathPtr[0] != 0);
+	continueFlag = (errCode == noErr) && (GetFileStringLength (filePathPtr) != 0);
 		
 	if (!continueFlag)
 		errCode = -1;
@@ -9584,13 +9600,13 @@ void WriteTransformationFile (void)
 			#endif	// _MC68881_ 
 		#endif	// defined multispec_mac 
 		    
-		#if defined multispec_win 
+		#if defined multispec_win || defined multispec_wx
 			count = 2 * gTransformationMatrix.numberFeatures * sizeof (double);		
 			errCode = MWriteData (fileStreamPtr, 
 										&count, 
 										ptr,
 										kErrorMessages); 
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win || defined multispec_wx
 					
 		CheckAndUnlockHandle (gTransformationMatrix.eigenValueHandle);
 		
@@ -9638,9 +9654,9 @@ void WriteTransformationFile (void)
 					#endif	// _MC68881_  
 				#endif	// defined multispec_mac 
 				    
-				#if defined multispec_win  				                   
+				#if defined multispec_win || defined multispec_wx
 					extendedValue = *localEigenVectorPtr;				
-				#endif	// defined multispec_win
+				#endif	// defined multispec_win || defined multispec_wx
 							
 				errCode = MWriteData (fileStreamPtr, 
 												&count,

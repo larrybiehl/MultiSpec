@@ -50,9 +50,11 @@
     #include "wx/txtstrm.h"
 #endif
 
+#include "SMultiSpec.h"
+
+#include "xMultiSpec.h"
 #include "xTextDoc.h"
 #include "xTextView.h"
-#include "SMultiSpec.h"
 
 
 IMPLEMENT_DYNAMIC_CLASS(CMTextDoc, wxDocument)
@@ -83,24 +85,42 @@ bool CMTextDoc::Close (void)
 			if (itemHit == 2)
 				closeFlag = false;
 			*/
-			switch (wxMessageBox (
+			if (((CMultiSpecApp*)wxTheApp)->m_systemTerminationFlag)
+				switch (wxMessageBox (
 							wxString::Format(_("Do you want to save changes to %s?"),
 							GetUserReadableName ()),
 							wxTheApp->GetAppDisplayName (),
-							wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP))
-				{
-				case wxNO:
-					Modify (false);
-					break;
+							wxYES_NO | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP))
+					{
+					case wxNO:
+						Modify (false);
+						break;
 
-				case wxYES:
-					m_applicationExitFlag = Save ();
-					return m_applicationExitFlag;
+					case wxYES:
+						m_applicationExitFlag = Save ();
+						return true;
+							 
+					}	// end "switch (wxMessageBox (... "
+				
+			else
+				switch (wxMessageBox (
+								wxString::Format(_("Do you want to save changes to %s?"),
+								GetUserReadableName ()),
+								wxTheApp->GetAppDisplayName (),
+								wxYES_NO | wxCANCEL | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP))
+					{
+					case wxNO:
+						Modify (false);
+						break;
 
-				case wxCANCEL:
-					return false;
-						 
-				}	// end "switch (wxMessageBox (... "
+					case wxYES:
+						m_applicationExitFlag = Save ();
+						return m_applicationExitFlag;
+
+					case wxCANCEL:
+						return false;
+							 
+					}	// end "switch (wxMessageBox (... "
 				
 			}	// end "if (IsModified() && gOutputViewCPtr->..."
 			

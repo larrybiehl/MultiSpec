@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/09/2020
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -1743,7 +1743,7 @@ void DisplayThematicDialogOK (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 01/08/2020
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 Boolean DisplayThematicImage (void)
 
@@ -1811,6 +1811,19 @@ Boolean DisplayThematicImage (void)
    if (gCallProcessorDialogFlag)
       continueFlag = DisplayThematicDialog (displaySpecsPtr);
 	
+	else	// !gCallProcessorDialogFlag
+		{
+				// Update the combo list in the legend.
+						
+		gClassGroupSelection = abs (displaySpecsPtr->classGroupCode);
+		if (gClassGroupSelection == kGroupClassDisplay)
+			gClassGroupSelection = kGroupDisplay;
+
+		CMLegendView* legendViewCPtr = gActiveImageViewCPtr->GetImageLegendViewCPtr ();
+		legendViewCPtr->UpdateClassGroupComboList (gClassGroupSelection);
+		
+		}	// end "else !gCallProcessorDialogFlag"
+		
 	if (continueFlag)
 		{
 		MSetCursor (kWait);

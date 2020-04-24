@@ -450,7 +450,7 @@ void CMReformatTransformDlg::OnAdjustSelectedChannelsByChannel ()
 	
    ShowHideAdjustChannelItems (dialogPtr, kHide);
 	ShowHideAdjustSelectedChannelsByChannelItems (dialogPtr, kShow);
-   ShowHidePCTransformItems (dialogPtr, kHide, TRUE);
+   ShowHidePCTransformItems (dialogPtr, kHide, FALSE);
 	ShowHideAlgebraicTransformItems (dialogPtr, kHide);
 	ShowHideFunctionChannelsItems (dialogPtr, kHide, 0);
 	
@@ -662,7 +662,7 @@ void CMReformatTransformDlg::OnRTEigenvectors ()
 	
    ShowHideAdjustChannelItems (dialogPtr, kHide);
 	ShowHideAdjustSelectedChannelsByChannelItems (dialogPtr, kHide);
-   ShowHidePCTransformItems (dialogPtr, kShow, TRUE);
+   ShowHidePCTransformItems (dialogPtr, kShow, FALSE);
 	ShowHideAlgebraicTransformItems (dialogPtr, kHide);
 	ShowHideFunctionChannelsItems (dialogPtr, kHide, 0);
 	
@@ -682,7 +682,7 @@ void CMReformatTransformDlg::OnRTFunctionOfChannels ()
 	
    ShowHideAdjustChannelItems (dialogPtr, kHide);
 	ShowHideAdjustSelectedChannelsByChannelItems (dialogPtr, kHide);
-   ShowHidePCTransformItems (dialogPtr, kHide, TRUE);
+   ShowHidePCTransformItems (dialogPtr, kHide, FALSE);
 	ShowHideAlgebraicTransformItems (dialogPtr, kHide);
 	ShowHideFunctionChannelsItems (dialogPtr, kShow, m_functionCode+1);
 	
@@ -817,12 +817,12 @@ void CMReformatTransformDlg::ShowHidePCTransformItems (
 {
    if (pcButtonFlag)
    	{
-		ShowHideDialogItem (dialogPtr, IDC_RT_Eigenvectors, showFlag);
-		ShowHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors, showFlag);
-		ShowHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors, showFlag);
+		ShowHideDialogItem (dialogPtr, IDC_RT_Eigenvectors, kHide);
+		ShowHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors, kHide);
+		ShowHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors, kHide);
 		
    	}	// end "if (pcButtonFlag)"
-	
+
 	ShowHideDialogItem (dialogPtr, IDC_EV_Eigenvectors, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_EV_NumberBits, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_EV_AllComponents, showFlag);

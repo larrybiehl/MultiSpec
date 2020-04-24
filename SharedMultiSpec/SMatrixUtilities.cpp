@@ -2154,7 +2154,7 @@ SInt16 GetAreaStats (
 			// a project for a graph window to be updated which causes this
 			// routine to be called when the project status dialog box is showing.
 			// (It is not to supposed to but it has happened in the past!!)			
-	
+
 	if (gStatusIDNumber == kUpdateStatsInfoID)		
 		LoadDItemValue (gStatusDialogPtr, 
 								IDC_Status20, 

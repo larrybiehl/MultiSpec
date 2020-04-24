@@ -658,10 +658,6 @@ Boolean CreateStatisticsImages (void)
 													kDoNotAllowForThreadedIO,
 													&fileIOInstructionsPtr);
 			
-         //printf ("path:%s\n",
-			//				(Str255*)&fileIOInstructionsPtr->fileInfoPtr->
-			//														fileStreamCPtr->mFilePathName[1]);
-				
 			totalChanStatsHandle = NULL;
 			totalSumSquaresStatsHandle = NULL;
 				

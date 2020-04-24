@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			03/07/2020
+//	Revision date:			04/16/2020
 //
 //	Language:				C
 //
@@ -1141,7 +1141,7 @@ Boolean CreateBackgroundImageFile (
 // Called By:			CreateResultsDiskFiles in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 12/20/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 Boolean CreateResultsDiskFile (
 				SInt32								numberLines, 
@@ -1213,7 +1213,7 @@ Boolean CreateResultsDiskFile (
 	resultsFileStreamPtr = GetFileStreamPointer (resultsFileInfoPtr);
 
 	resultsFilePathPtr =
-					(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
+				(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 		
 	diskFileListPtr->refCon = lOutputStorageType;
 			
@@ -1250,7 +1250,7 @@ Boolean CreateResultsDiskFile (
 		
 		if (filePathPointer != NULL)
 			{
-			CopyPToP (resultsFilePathPtr,  filePathPointer);
+			CopyFileStringToFileString (filePathPointer, resultsFilePathPtr, _MAX_PATH);
 			
 			RemoveCharsAddVersion ((UCharPtr)"\0.project\0", resultsFilePathPtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.prj\0", resultsFilePathPtr);
@@ -1290,7 +1290,7 @@ Boolean CreateResultsDiskFile (
 				filePathPointer =
 					(FileStringPtr)GetFilePathPPointerFromProjectInfo (gProjectInfoPtr);
 			
-			CopyPToP (resultsFilePathPtr,  filePathPointer);
+			CopyFileStringToFileString (filePathPointer, resultsFilePathPtr, _MAX_PATH);
 													
 			RemoveCharsAddVersion ((UCharPtr)"\0_cluster.txt\0", resultsFilePathPtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.cluster\0", resultsFilePathPtr);
@@ -1321,7 +1321,7 @@ Boolean CreateResultsDiskFile (
 			{
 			filePathPointer =
 					(FileStringPtr)GetFilePathPPointerFromProjectInfo (gProjectInfoPtr);
-			CopyPToP (resultsFilePathPtr,  filePathPointer);
+			CopyFileStringToFileString (filePathPointer, resultsFilePathPtr, _MAX_PATH);
 			
 			RemoveCharsAddVersion ((UCharPtr)"\0.Project\0", resultsFilePathPtr);
 			RemoveCharsAddVersion ((UCharPtr)"\0.Prj\0", resultsFilePathPtr);
@@ -1336,7 +1336,7 @@ Boolean CreateResultsDiskFile (
 		{
 		filePathPointer =
 					(FileStringPtr)GetFilePathPPointerFromFileInfo (gImageFileInfoPtr);
-		CopyPToP (resultsFilePathPtr, filePathPointer);
+		CopyFileStringToFileString (filePathPointer, resultsFilePathPtr, _MAX_PATH);
 		RemoveSuffix (resultsFilePathPtr);
 		
 		}	// end "if (resultsFilePathPtr[0] == 0)"
@@ -1616,7 +1616,8 @@ Boolean CreateResultsDiskFile (
 	resultsFilePathPtr =
 				(FileStringPtr)GetFilePathPPointerFromFileStream (resultsFileStreamPtr);
 		
-	abortedFlag = (errCode != noErr) | (resultsFilePathPtr[0] == 0);
+	abortedFlag = (errCode != noErr) ||
+										(GetFileStringLength (resultsFilePathPtr) == 0);
 	
 	if (!abortedFlag && (formatVersion != 0))
 		{		
@@ -3475,7 +3476,7 @@ Boolean GetImageInformationPointers (
 //							ClassifyDialogInitialize in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/1993
-//	Revised By:			Larry L. Biehl			Date: 11/09/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 SInt16 GetImageList (
 				DialogPtr							dialogPtr, 
@@ -3639,7 +3640,8 @@ SInt16 GetImageList (
 																	compareWindowInfoPtr->fileInfoHandle,
 																	&handleStatus3);
 				
-					UCharPtr fileNamePtr = (UCharPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
+					FileStringPtr fileNamePtr = 
+											(FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
 					
 					#if defined multispec_mac  
 						imageListLength++;
@@ -3658,7 +3660,7 @@ SInt16 GetImageList (
 							comboBoxPtr->AddString ((LPCTSTR)_T("\0NewFile"));                            
 							dialogPtr->SetComboItemText (comboListItem, 
 																	imageListLength-1, 
-																	&fileNamePtr[1],
+																	&fileNamePtr[2],
 																	kUTF8CharString);
 							comboBoxPtr->SetItemData (imageListLength-1, windowIndex);
 																	
@@ -3674,13 +3676,13 @@ SInt16 GetImageList (
                      
 							dialogPtr->SetChoiceItemText (comboListItem,
 																	imageListLength-1, 
-																	(char*)&fileNamePtr[1]);
+																	(char*)&fileNamePtr[2]);
                     
                      SInt64 windowIndex_64 = windowIndex;
                      listCtrl->SetClientData (
 													imageListLength - 1, (void*)windowIndex_64);
                      
-                     listCtrl->SetString (imageListLength - 1, (char*)&fileNamePtr[1]);
+                     listCtrl->SetString (imageListLength - 1, (char*)&fileNamePtr[2]);
                     
  							}	// end "if (includeFlag)"
 					#endif	// defined multispec_wx
@@ -6768,7 +6770,7 @@ void PauseIfInBackground (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/1999
-//	Revised By:			Larry L. Biehl			Date: 06/19/2019
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
 void RemoveSuffix (
 				FileStringPtr							fileNamePtr)
@@ -6820,6 +6822,7 @@ void RemoveSuffix (
 	RemoveCharsNoCase ((char*)"\0.nsf\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.pix\0", fileNamePtr);
 	RemoveCharsNoCase ((char*)"\0.vrt\0", fileNamePtr);
+	RemoveCharsNoCase ((char*)"\0.txt\0", fileNamePtr);
 		
 }	// end "RemoveSuffix"  
 

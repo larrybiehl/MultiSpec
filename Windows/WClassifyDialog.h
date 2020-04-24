@@ -100,7 +100,7 @@ class CMClassifyDialog : public CMDialog
 	
 		afx_msg void OnDropdownPaletteCombo ();
 	
-		afx_msg void OnEnChangeThresholdvalue2 ();
+		//afx_msg void OnEnChangeThresholdvalue2 ();
 	
 		afx_msg void OnFeatureTransformation ();
 	
@@ -127,8 +127,6 @@ class CMClassifyDialog : public CMDialog
 		afx_msg void OnSelendokPaletteCombo ();
 	
 		afx_msg void OnSelendokTargetCombo ();
-	
-		afx_msg void OnStnClickedStartendinterval ();
 	
 		afx_msg void OnTestAreas ();
 	

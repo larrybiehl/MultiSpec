@@ -28,7 +28,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 08/03/2015
-//	Revised By:				Larry L. Biehl			Date: 01/10/2019
+//	Revised By:				Larry L. Biehl			Date: 03/17/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -113,6 +113,8 @@ class CMultiSpecApp: public wxApp
 			void MacOpenFiles (
 					const wxArrayString& 			fileNames);
 		#endif
+	
+		Boolean								m_systemTerminationFlag;
 	
 	protected:
 		wxDocManager* 						m_docManager;

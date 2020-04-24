@@ -2510,7 +2510,7 @@ Boolean GetClassColorTable (
 			// Get the requested color scheme for the classes.
 	
 	if (continueFlag && thematicPaletteType != 0)
-		continueFlag = LoadColorSpecTable (NULL, 
+		continueFlag = LoadColorSpecTable (NULL,
 													  NULL,
 													  NULL,
 													  colorSpecPtr,

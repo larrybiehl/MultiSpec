@@ -3820,7 +3820,6 @@ void SetGraphWindowTitle (
 									
 		if (processorCode == kHistogramStatsProcessor)
 			{
-			//fileNamePtr = &gProjectInfoPtr->imageFileName[1];
 			gTextString3[0] = 0;
 			strcpy ((char*)gTextString3, (char*)&gProjectInfoPtr->imageFileName[1]);
 			fileNamePtr = (FileStringPtr)gTextString3;

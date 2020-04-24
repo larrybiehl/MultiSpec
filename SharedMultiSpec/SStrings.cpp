@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/09/2020
+//	Revision date:			04/22/2020
 //
 //	Language:				C
 //
@@ -427,11 +427,11 @@ SInt16 CompareStringsNoCase (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/04/1988
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 Boolean CompareSuffixNoCase (
 				const CharPtr						suffixStringPtr, 
-				StringPtr							stringPtr,
+				FileStringPtr						stringPtr,
 				UInt16*								numSuffixCharsPtr)
 
 {
@@ -442,11 +442,13 @@ Boolean CompareSuffixNoCase (
 								
 	UInt32								lengthSuffixString;
 	
+	UInt16								stringLength;
+	
 	Boolean								returnFlag;
 
 	
 	returnFlag = FALSE;
-	lengthSuffixString = (UInt32)*suffixStringPtr;
+	lengthSuffixString = (UInt32)suffixStringPtr[0];
 
 	if (lengthSuffixString == 0) 
 		{
@@ -461,8 +463,10 @@ Boolean CompareSuffixNoCase (
 	if (numSuffixCharsPtr != NULL)	
 		*numSuffixCharsPtr = (UInt16)lengthSuffixString;
 	
-	index = (SInt32)*stringPtr - lengthSuffixString + 1;
-	if (index > 1)
+	//index = (SInt32)*stringPtr - lengthSuffixString + 1;
+	stringLength = GetFileStringLength (stringPtr);
+	index = (SInt32)stringLength - lengthSuffixString + 2;
+	if (index > 2)
 		{
 		stringPtr = &stringPtr[index];
 		tempPtr = (StringPtr)&suffixStringPtr[1];
@@ -488,7 +492,7 @@ Boolean CompareSuffixNoCase (
 
 																							return (TRUE);
 			
-		}	// end "if (index > 1)" 
+		}	// end "if (index > 2)"
 
 	return (returnFlag);
 
@@ -514,15 +518,16 @@ Boolean CompareSuffixNoCase (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/04/1988
-//	Revised By:			Larry L. Biehl			Date: 03/14/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 Boolean CompareSuffixNoCase (
 				const CharPtr						suffixStringPtr, 
-				wchar_t*								stringPtr,
+				WideFileStringPtr					stringPtr,
 				UInt16*								numSuffixCharsPtr)
 
 {
 	char*									tempPtr;
+	UInt16*								stringLengthPtr;
 	
 	SInt32								diff,
 											index;
@@ -547,7 +552,9 @@ Boolean CompareSuffixNoCase (
 	if (numSuffixCharsPtr != NULL)	
 		*numSuffixCharsPtr = (UInt16)lengthSuffixString;
 	
-	index = (SInt32)stringPtr[0] - lengthSuffixString + 1;
+	//index = (SInt32)stringPtr[0] - lengthSuffixString + 1;
+	stringLengthPtr = (UInt16*)stringPtr;
+	index = (SInt32)stringLengthPtr[0] - lengthSuffixString + 2;
 	if (index > 1)
 		{
 		stringPtr = &stringPtr[index];
@@ -677,13 +684,16 @@ void ConcatFilenameSuffix (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/10/2017
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 04/15/2020
 
 void ConcatFilenameSuffix (
-				UInt8*								fileNamePtr,
+				FileStringPtr						fileNamePtr,
 				UInt8*								charSuffixPtr)
 
 {
+	UInt16								fileNameLength;
+	
+	
 			// Limit combined string to inDestSize chars
 
    UInt16	charsToCopy = charSuffixPtr[0];
@@ -693,17 +703,21 @@ void ConcatFilenameSuffix (
 
 	if (charsToCopy == 0)
 		charsToCopy = (UInt16)strlen ((CharPtr)&charSuffixPtr[1]);
-	
-	if (gFileNameLengthLimit > charsToCopy)
-		{		
-		fileNamePtr[0] = MIN (fileNamePtr[0], gFileNameLengthLimit-charsToCopy);
-		ConcatPStrings ((UCharPtr)fileNamePtr, (UCharPtr)charSuffixPtr, 255);
+
+	fileNameLength = GetFileStringLength (fileNamePtr);
+	if (gFilePathNameLengthLimit > charsToCopy)
+		{
+		fileNameLength = MIN (fileNameLength, gFilePathNameLengthLimit-charsToCopy);
+		memcpy (&fileNamePtr[fileNameLength+2], &charSuffixPtr[1], charsToCopy);
 		
-		}	// end "if (gFileNameLengthLimit > charsToCopy)"
+		SetFileStringLength (fileNamePtr, fileNameLength+charsToCopy);
 		
+		}	// end "if (gFilePathNameLengthLimit > charsToCopy)"
+		
+	else	// gFilePathNameLengthLimit <= charsToCopy
+			// Cannot add the suffix to the input string.
 			// Force a c terminator as the last character of the input string.
-			
-	fileNamePtr[255] = 0;
+		fileNamePtr[fileNameLength+2] = 0;
 	
 }	// end "ConcatFilenameSuffix" 
 
@@ -916,6 +930,7 @@ void ConvertUnicodeStringToMultibyteString (
 											
 		outputUTF8StringPtr[0] = 0;
 		outputUTF8StringPtr[1] = 0;
+		outputUTF8StringPtr[2] = 0;
 		
 		if (numberCharactersToCopy == 0)
 			numberChars = inputUnicodeStringPtr[0];
@@ -1102,6 +1117,105 @@ void ConcatPStringsUnicode (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		CopyFileStringToFileString
+//
+//	Software purpose:	The purpose of this routine is to copy a file string in which
+//							first 2-bytes included the string length to another file string.
+//							Allowance is made for a maximum string length that will be copied.
+//							The output string will be set to null string if the input length
+//							is 0.
+//
+//	Parameters in:		Address of from file string
+//							Address of to file string
+//							Maximum number of characters to copy
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+
+void CopyFileStringToFileString (
+				FileStringPtr						fromFileStringPtr,
+				FileStringPtr						toFileStringPtr,
+				UInt16								maxLength)
+
+{
+	UInt16								fileStringLength;
+	
+	
+	if (fromFileStringPtr != NULL && toFileStringPtr != NULL)
+		{
+		fileStringLength = GetFileStringLength (fromFileStringPtr);
+		fileStringLength = MIN (fileStringLength+3, maxLength);
+		
+		memcpy (toFileStringPtr,
+					fromFileStringPtr,
+					fileStringLength+3);
+		
+		}	// end "if (fromFileStringPtr != NULL && toFileStringPtr != NULL)"
+		
+}	// end "CopyFileStringToFileString"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		CopyFileStringToString
+//
+//	Software purpose:	The purpose of this routine is to copy a file string in which
+//							first 2-bytes included the string length to a string which
+//							contains just 1 byte at the beginning for the length of the string.
+//							The output string length is limited to 254 characters to allow
+//							for one byte for the count and one byte for the termination
+//							character at the end.
+//
+//	Parameters in:		Address of from file string
+//							Address of to file string
+//							Maximum number of characters to copy
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+
+void CopyFileStringToString (
+				FileStringPtr						fromFileStringPtr,
+				char*									toFileStringPtr)
+
+{
+	UInt16								fileStringLength;
+	
+	
+	if (fromFileStringPtr != NULL && toFileStringPtr != NULL)
+		{
+		fileStringLength = GetFileStringLength (fromFileStringPtr);
+		fileStringLength = MIN (fileStringLength, 254);
+		
+		memcpy (&toFileStringPtr[1],
+					&fromFileStringPtr[2],
+					fileStringLength);
+					
+		toFileStringPtr[0] = (char)fileStringLength;
+		toFileStringPtr[fileStringLength+1] = 0;
+		
+		}	// end "if (fromFileStringPtr != NULL && toFileStringPtr != NULL)"
+		
+}	// end "CopyFileStringToString"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		CopyPToP
 //
 //	Software purpose:	The purpose of this routine is to copy a pascal
@@ -1171,6 +1285,62 @@ void CopyPToP (
 		
 }	// end "CopyPToP"  
 */
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		CopyStringToFileString
+//
+//	Software purpose:	The purpose of this routine is to copy a string in which
+//							first byte includes the string length to another file string in
+//							which the first 2-bytes includes the string length.
+//							Allowance is made for a maximum string length that will be copied.
+//							The output string will be set to null string if the input length
+//							is 0.
+//
+//	Parameters in:		Address of from file string
+//							Address of to file string
+//							Maximum number of characters to copy
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+
+void CopyStringToFileString (
+				UCharPtr								fromStringPtr,
+				FileStringPtr						toFileStringPtr,
+				UInt16								maxLength)
+
+{
+	UInt16								stringLength;
+	
+	
+	if (fromStringPtr != NULL && toFileStringPtr != NULL)
+		{
+		stringLength = fromStringPtr[0];
+		stringLength = MIN (stringLength, maxLength-3);
+		
+		memcpy (&toFileStringPtr[2],
+					&fromStringPtr[1],
+					stringLength);
+					
+		SetFileStringLength (toFileStringPtr, stringLength);
+		
+		}	// end "if (fromFileStringPtr != NULL && toFileStringPtr != NULL)"
+		
+	else if (fromStringPtr == NULL && toFileStringPtr != NULL)
+		{
+		SetFileStringLength (toFileStringPtr, 0);
+		
+		}	// end "else if (fromStringPtr == NULL && toFileStringPtr != NULL)"
+		
+}	// end "CopyStringToFileString"
 
 
 //------------------------------------------------------------------------------------
@@ -1269,7 +1439,7 @@ SInt16 CreateNumberWithCommasInString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/1995
-//	Revised By:			Larry L. Biehl			Date: 03/09/2019
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 							               	   
 UCharPtr CtoPstring (
 				UCharPtr								inCStringPtr, 
@@ -1285,8 +1455,10 @@ UCharPtr CtoPstring (
 
 		if (bytesToMove > 0)
 			memmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
-			
-		outPStringPtr[0] = (UInt8)bytesToMove;
+		
+		outPStringPtr[0] = 255;
+		if (bytesToMove < 255)
+			outPStringPtr[0] = (UInt8)bytesToMove;
 		
 				// Also make it a c string.
 				
@@ -1318,7 +1490,7 @@ UCharPtr CtoPstring (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/23/2017
-//	Revised By:			Larry L. Biehl			Date: 03/09/2019
+//	Revised By:			Larry L. Biehl			Date: 04/09/2020
 							               	   
 wchar_t* CtoPstring (
 				wchar_t*								inCStringPtr,
@@ -1335,7 +1507,7 @@ wchar_t* CtoPstring (
 		if (bytesToMove > 0)
 			wmemmove (&outPStringPtr[1], inCStringPtr, bytesToMove);
 			
-		outPStringPtr[0] = (UInt8)bytesToMove;
+		outPStringPtr[0] = (wchar_t)bytesToMove;
 		
 				// Also make it a c string.
 				
@@ -1504,6 +1676,39 @@ void GetActiveImageWindowTitle (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		int GetFileStringLength
+//
+//	Software purpose:	The purpose of this routine is to return the length of the
+//							input file string.
+//
+//	Parameters in:		Wide file string.
+//
+//	Parameters out:	None.
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+ 
+int GetFileStringLength (
+				FileStringPtr						fileStringPtr)
+
+{
+	UInt16*								fileStringLengthPtr;
+	
+	
+	fileStringLengthPtr = (UInt16*)fileStringPtr;
+	return (fileStringLengthPtr[0]);
+
+}	// end "GetFileStringLength"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		void GetImageWindowName
 //
 //	Software purpose:	The purpose of this routine is to get the text for a window
@@ -1521,7 +1726,7 @@ void GetActiveImageWindowTitle (
 //							CreateImageWindow in SImageWindow_class.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2000
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 04/12/2020
 
 void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -1529,7 +1734,11 @@ void GetImageWindowName (
 				UCharPtr								namePtr,
 				Boolean								removeSuffixFlag)
 
-{	
+{
+	unsigned char						windowNameString[512];
+	
+	int									numChars;
+	
 	SInt16								length,
 											savedLength,
 											totalLength;
@@ -1551,10 +1760,15 @@ void GetImageWindowName (
 			
 	if (gImageWindowInfoPtr != NULL && gImageWindowInfoPtr->numberImageFiles > 1)
 		{
-		sprintf ((char*)&namePtr[0], "L%hd-", gImageWindowInfoPtr->numberImageFiles);
-		CtoPstring (namePtr, namePtr);
-		totalLength += namePtr[0];
+		//sprintf ((char*)&namePtr[0], "L%hd-", gImageWindowInfoPtr->numberImageFiles);
+		//CtoPstring (namePtr, namePtr);
+		//totalLength += namePtr[0];
 		
+		numChars = sprintf ((char*)&windowNameString[2],
+									"L%hd-",
+									gImageWindowInfoPtr->numberImageFiles);
+		totalLength += numChars;
+
 		}	// end "if (gImageWindowInfoPtr != NULL && gImageWindowInfoPtr->..."
 	
 	length = 0;		
@@ -1566,7 +1780,11 @@ void GetImageWindowName (
 														60);
 		
 		length = gTextString2[0];
-		sprintf ((char*)&namePtr[totalLength],
+		//sprintf ((char*)&namePtr[totalLength],
+		//				"%s",
+		//				&gTextString2[1]);
+						
+		sprintf ((char*)&windowNameString[totalLength+1],
 						"%s",
 						&gTextString2[1]);
 		
@@ -1576,7 +1794,11 @@ void GetImageWindowName (
 		{
 		char* fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
 		length = (SInt16)strlen (fileNamePtr);
-		sprintf ((char*)&namePtr[totalLength],
+		//sprintf ((char*)&namePtr[totalLength],
+		//				"%s",
+		//				fileNamePtr);
+						
+		sprintf ((char*)&windowNameString[totalLength+1],
 						"%s",
 						fileNamePtr);
 						
@@ -1586,10 +1808,13 @@ void GetImageWindowName (
 	
 	if (removeSuffixFlag)
 		{
-		namePtr[0] = totalLength - 1;
-		//RemoveSuffix ((FileStringPtr)namePtr, kASCIICharString);
-		RemoveSuffix ((FileStringPtr)namePtr);
-		totalLength = namePtr[0] + 1;
+		//namePtr[0] = totalLength - 1;
+		//RemoveSuffix ((FileStringPtr)namePtr);
+		//totalLength = namePtr[0] + 1;
+		
+		SetFileStringLength ((FileStringPtr)windowNameString, totalLength-1);
+		RemoveSuffix ((FileStringPtr)windowNameString);
+		totalLength = GetFileStringLength (windowNameString) + 1;
 		
 		savedLength = totalLength - 1;
 		
@@ -1597,7 +1822,8 @@ void GetImageWindowName (
 		
 	else	// !removeSuffixFlag
 		{
-		sprintf ((char*)&namePtr[totalLength], " ");
+		//sprintf ((char*)&namePtr[totalLength], " ");
+		sprintf ((char*)&windowNameString[totalLength+1], " ");
 		totalLength++;
 		
 		}	// end "else !removeSuffixFlag"
@@ -1687,8 +1913,9 @@ void GetImageWindowName (
 					monthIndex = 11;
 					day = displaySpecsPtr->channelNumber - (334+leapYearOffset);
 					}
-					
-				sprintf (&namePtr[totalLength], 
+
+				//sprintf (&namePtr[totalLength],
+				sprintf ((char*)&windowNameString[totalLength+1],
 							"(%s %hd)",
 							monthString[monthIndex],
 							day);
@@ -1696,12 +1923,14 @@ void GetImageWindowName (
 				
 			#ifndef MONTH_DAY_DESCRIPTION
 				if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
-					sprintf ((char*)&namePtr[totalLength], 
+					//sprintf ((char*)&namePtr[totalLength],
+					sprintf ((char*)&windowNameString[totalLength+1],
 								"(ch_%hdT)",
 								//"(day %hd)",
 								displaySpecsPtr->channelNumber);
 				else
-					sprintf ((char*)&namePtr[totalLength], 
+					//sprintf ((char*)&namePtr[totalLength],
+					sprintf ((char*)&windowNameString[totalLength+1],
 								"(ch_%hd)",
 								//"(day %hd)",
 								displaySpecsPtr->channelNumber);
@@ -1712,7 +1941,8 @@ void GetImageWindowName (
 		else if (displaySpecsPtr->displayType == k3_ChannelDisplayType ||
 										displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 			{
-			sprintf ((char*)&namePtr[totalLength], 
+			//sprintf ((char*)&namePtr[totalLength],
+			sprintf ((char*)&windowNameString[totalLength+1],
 						"(chs_%hd,%hd,%hd)",
 						displaySpecsPtr->redChannelNumber,
 						displaySpecsPtr->greenChannelNumber,
@@ -1756,7 +1986,8 @@ void GetImageWindowName (
 		*/
 		else if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 			{
-			sprintf ((char*)&namePtr[totalLength], 
+			//sprintf ((char*)&namePtr[totalLength],
+			sprintf ((char*)&windowNameString[totalLength+1],
 						"(multichannels)");
 			
 			}	// end "else if (displaySpecsPtr->displayType == ..."
@@ -1767,18 +1998,40 @@ void GetImageWindowName (
 			// verify that the name will not be two long. If so remove the "(...)"
 			// info.
 			
-	totalLength = (SInt16)strlen ((char*)&namePtr[1]);
+	//totalLength = (SInt16)strlen ((char*)&namePtr[1]);
+	totalLength = (SInt16)strlen ((char*)&windowNameString[2]);
+	totalLength = MIN (totalLength, gFileNameLengthLimit);
+	
+			// Copy string to output
 	
 	if (removeSuffixFlag)
 		{
+				// The output string needs to be a File String with first 2 characters
+				// reserved for the name length
+				
 		if (totalLength > gFileNameLengthLimit-4)
 			totalLength = savedLength;
+					
+		memcpy (&namePtr[2],
+					(char*)&windowNameString[2],
+					totalLength);
+					
+		SetFileStringLength ((FileStringPtr)namePtr, totalLength);
 		
 		}	// end "if (removeSuffixFlag)"
-	
-			// Make string a pascal string.
-			
-	namePtr[0] = (char)totalLength;
+		
+	else	// !removeSuffixFlag
+		{
+		memcpy (&namePtr[1],
+					(char*)&windowNameString[2],
+					totalLength);
+		
+				// Include the character count
+				
+		namePtr[0] = (char)totalLength;
+		namePtr[totalLength+1] = 0;
+		
+		}	// end "else	// !removeSuffixFlag"
 	
 }	// end "GetImageWindowName"    	  
 
@@ -2493,7 +2746,40 @@ char* GetStringToComma (
 		
 	return (outputStringPtr);
 	
-}	// end "GetStringToComma"   	  
+}	// end "GetStringToComma"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		int GetWideFileStringLength
+//
+//	Software purpose:	The purpose of this routine is to return the length of the
+//							input wide file string.
+//
+//	Parameters in:		Wide file string.
+//
+//	Parameters out:	None.
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+ 
+int GetWideFileStringLength (
+				WideFileStringPtr					wideFileStringPtr)
+
+{
+	UInt16*								wideFileStringLengthPtr;
+	
+	
+	wideFileStringLengthPtr = (UInt16*)wideFileStringPtr;
+	return (wideFileStringLengthPtr[0]);
+
+}	// end "GetWideFileStringLength"
 
 
 
@@ -2610,14 +2896,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 03/09/2020
+//	Revised By:			Larry L. Biehl			Date: 04/22/2020
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2020.03.09");
+	sprintf (gDateVersionString, "2020.04.22");
 
 		// Application identifier string
 		
@@ -4704,6 +4990,8 @@ Boolean ListSpecifiedStringNumber (
 {
 	CharPtr								stringPtr2;
 	
+	UInt32								numChars;
+	
 	
 	continueFlag = GetSpecifiedStringNumber (
 									strListID, index, gTextString2, continueFlag);
@@ -4712,14 +5000,14 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf ((char*)gTextString,
-				  &stringPtr2[1],
-				  llValue,
-				  lValue2);
+		numChars = sprintf ((char*)gTextString,
+								  &stringPtr2[1],
+								  llValue,
+								  lValue2);
 		
 		continueFlag = OutputString (resultsFileStreamPtr, 
 											  (char*)gTextString, 
-											  0, 
+											  numChars,
 											  outputCode, 
 											  TRUE);
 		
@@ -4809,7 +5097,7 @@ Boolean ListSpecifiedStringNumber (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/05/2017
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017			
+//	Revised By:			Larry L. Biehl			Date: 04/17/2020
 
 Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
@@ -4820,7 +5108,10 @@ Boolean ListSpecifiedStringNumber (
 				Boolean								continueFlag)
 													
 {
+	char									tempString[_MAX_PATH];
 	CharPtr								stringPtr2;
+	
+	int									tempStringLength;
 	
 	
 			// Get the base string from the resource fork.
@@ -4830,15 +5121,15 @@ Boolean ListSpecifiedStringNumber (
 	
 	if (continueFlag)
 		{
-		stringPtr2 = (char*)&gTextString2;
+		stringPtr2 = (char*)gTextString2;
 			
-		sprintf ((char*)gTextString,
-					&stringPtr2[1],
-					inputStringPtr);
+		tempStringLength = sprintf (tempString,
+												&stringPtr2[1],
+												inputStringPtr);
 							
 		continueFlag = OutputString (resultsFileStreamPtr, 
-												(char*)gTextString, 
-												0, 
+												tempString,
+												tempStringLength,
 												outputCode, 
 												TRUE,
 												kASCIICharString);
@@ -4874,7 +5165,7 @@ Boolean ListSpecifiedStringNumber (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1995
-//	Revised By:			Larry L. Biehl			Date: 03/13/2017			
+//	Revised By:			Larry L. Biehl			Date: 04/11/2020
 
 Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
@@ -4886,7 +5177,10 @@ Boolean ListSpecifiedStringNumber (
 				SInt16								charFormatCode)
 													
 {
+	char									textString[1280];
 	CharPtr								stringPtr2;
+	
+	UInt32								numChars;
 	
 	
 			// Get the base string from the resource fork.
@@ -4898,13 +5192,13 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf ((char*)gTextString,
-					&stringPtr2[1],
-					inputStringPtr);
+		numChars = sprintf (textString,
+									&stringPtr2[1],
+									inputStringPtr);
 							
 		continueFlag = OutputString (resultsFileStreamPtr, 
-												(char*)gTextString, 
-												0, 
+												textString,
+												numChars,
 												outputCode, 
 												TRUE,
 												charFormatCode);
@@ -6679,7 +6973,7 @@ CharPtr 	PtoCstring (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1992
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 04/14/2020
 
 void RemoveCharsAddVersion (
 				UCharPtr								removeStringPtr, 
@@ -6713,13 +7007,16 @@ void RemoveCharsAddVersion (
 		
 		}	// end "if (lengthRemoveString == 0)"
 		
-	lengthString = *stringPtr;
+	//lengthString = *stringPtr;
+	lengthString = GetFileStringLength (stringPtr);
 	
-			// Get number of numbers at the end of the input string.	
+			// Get number of numbers at the end of the input string.
+			// Note that need to allow for 2-bytes being used for the string length
+			// at the beginning of the string.
 	
 	numberCharacters = 0;
 	tempString[1] = 0;
-	for (index=lengthString; index>0; index--)
+	for (index=lengthString+1; index>0; index--)
 		{
 		if (stringPtr[index] < 0x30 || stringPtr[index] > 0x39)
 			break;
@@ -6730,16 +7027,21 @@ void RemoveCharsAddVersion (
 		
 			// Now make stringPtr a pascal string without the version information.
 			
-	*stringPtr -= (UInt8)numberCharacters;
+	//*stringPtr -= (UInt8)numberCharacters;
+	lengthString -= numberCharacters;
+	SetFileStringLength (stringPtr, lengthString);
 	 
 	 		// Now determine if input suffix characters can be removed.
 	 		
 	if (CompareSuffixNoCase ((char*)removeStringPtr, stringPtr, &lengthRemoveString))
 		{
-		index = lengthString - lengthRemoveString - numberCharacters + 1;
+		//index = lengthString - lengthRemoveString - numberCharacters + 1;
+		index = lengthString - lengthRemoveString + 2;
 		tempPtr = &stringPtr[index];
 		
-		*stringPtr -= (UInt8)lengthRemoveString;
+		//*stringPtr -= (UInt8)lengthRemoveString;
+		lengthString -= lengthRemoveString;
+		SetFileStringLength (stringPtr, lengthString);
 			
 		if (numberCharacters > 0)
 			{
@@ -6755,14 +7057,17 @@ void RemoveCharsAddVersion (
 			
 			BlockMoveData (removeStringPtr, tempPtr, numberCharacters);
 			
-			*stringPtr += (UInt8)(2 + numberCharacters);
+			//*stringPtr += (UInt8)(2 + numberCharacters);
+			lengthString += (2 + numberCharacters);
+			SetFileStringLength (stringPtr, lengthString);
 			
 			}	// end "if (numberCharacters > 0)"
 			
 		}	// end "if (CompareSuffixNoCase (..."
 		
 	else	// !CompareSuffixNoCase (...
-		*stringPtr += (UInt8)numberCharacters; 
+		//*stringPtr += (UInt8)numberCharacters;
+		SetFileStringLength (stringPtr, lengthString+numberCharacters);
 
 }	// end "RemoveCharsAddVersion"  
 
@@ -6839,7 +7144,7 @@ void RemoveCharsNoCase (
 //							"removeString" from the end of "string" if they exist.
 //							This routine was developed specifically to remove
 //							.lan (ERDAS convention) from the end of filenames to
-//							be ready to add .sta for image statistics file names
+//							be ready to add .sta for image statistics file names.
 //
 //	Parameters in:					
 //
@@ -6850,23 +7155,29 @@ void RemoveCharsNoCase (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/13/2017
-//	Revised By:			Larry L. Biehl			Date: 03/13/2017
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
 
 void RemoveCharsNoCase (
 				const CharPtr						removeStringPtr, 
 				UCharPtr								stringPtr)
 
 {  
-	UInt16		numChars;
+	UInt16								removeStringLength,
+											stringLength;
 	
 	
-	if (CompareSuffixNoCase (removeStringPtr, stringPtr, &numChars))
+	if (CompareSuffixNoCase (removeStringPtr,
+										stringPtr,
+										&removeStringLength))
 		{
-		*stringPtr -= (UInt8)numChars;
+		stringLength = GetFileStringLength (stringPtr);
+		//*stringPtr -= (UInt8)removeStringLength;
+		stringLength -= (UInt8)removeStringLength;
 		
-				// Also make sure this is a valid c-string
+				// Set the new file string length
 				
-		stringPtr[stringPtr[0]+1] = 0;
+		//stringPtr[stringPtr[0]+1] = 0;
+		SetFileStringLength (stringPtr, stringLength);
 		
 		}	// end "if (CompareSuffixNoCase (removeStringPtr, ..."
 
@@ -6926,6 +7237,43 @@ void SetActiveImageWindowTitle (
    #endif
 
 }	// end "SetActiveImageWindowTitle"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void SetFileStringLength
+//
+//	Software purpose:	The purpose of this routine is to set the input length of the
+//							of the input file string in the first 2 bytes of the input
+//							file string.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+
+void SetFileStringLength (
+				FileStringPtr						fileStringPtr,
+				int									fileStringLength)
+
+{
+	UInt16*								fileStringLengthPtr;
+	
+	
+	fileStringLengthPtr = (UInt16*)fileStringPtr;
+	fileStringLengthPtr[0] = fileStringLength;
+	
+	fileStringPtr[fileStringLength+2] = 0;
+
+}	// end "SetFileStringLength"
 
 
 
