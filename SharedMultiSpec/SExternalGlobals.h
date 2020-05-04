@@ -25,7 +25,7 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 04/21/2020
+//	Revised By:				Larry L. Biehl			Date: 05/03/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -1042,6 +1042,11 @@ extern SInt32							gMaxCharsAllowedInLine;
 			// Variable that contains the number of characters in the longest		
 			// line of output text. 															
 extern SInt32							gMaxCharsInLine;
+
+		// The maximum number of files that can be linked.
+		// This may be adjusted lower at start up if the system does not allow
+		//	this many files to be open at a given time.
+extern SInt32							gMaximumNumberOfLinkedFiles;
 
 		// Maximum size of block of memory that can be moved.  The Mac OS 		
 		// as a bug such that if a block of memory more than 9.5 meg or so		

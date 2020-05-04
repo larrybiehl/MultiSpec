@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			05/03/2020
 //
 //	Language:				C
 //
@@ -3828,7 +3828,7 @@ UInt32 GetDataConversionCode (
 //							LoadTransformationFile in SSaveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 04/14/2020
+//	Revised By:			Larry L. Biehl			Date: 05/03/2020
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -3977,13 +3977,13 @@ SInt16 GetFile (
 						filePathName.ReleaseBuffer ();
 						iCtr++;
 						
-						if (iCtr >= 500)
+						if (iCtr >= gMaximumNumberOfLinkedFiles)
 							{
 							DisplayAlert (
 								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
 							break;
 
-							}	// end "if (iCtr >= 500)"
+							}	// end "if (iCtr >= gMaximumNumberOfLinkedFiles)"
 						
 						}	// end "while (fileNamesPosition != NULL)"
 					
@@ -4162,13 +4162,13 @@ SInt16 GetFile (
 						//filePathName.ReleaseBuffer ();
 						iCtr++;
 						
-						if (iCtr >= 500)
+						if (iCtr >= gMaximumNumberOfLinkedFiles)
 							{
 							DisplayAlert (
 								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
 							break;
 
-							}	// end "if (iCtr >= 500)"
+							}	// end "if (iCtr >= gMaximumNumberOfLinkedFiles)"
 						
 						}	// end "for (int i = 0; i < patharray.GetCount (); i++)"
 					
@@ -10027,7 +10027,7 @@ pascal void NavServicesGetEventProc (
 //							LoadTransformationFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/24/2001
-//	Revised By:			Larry L. Biehl			Date: 03/25/2017
+//	Revised By:			Larry L. Biehl			Date: 05/03/2020
 
 SInt16 NavServicesGetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -10610,9 +10610,10 @@ SInt16 NavServicesGetFile (
 						{
 								// Get the rest of the FSRef's. They will get handled
 								// later when the images are linked with the first one.
-								// Note that the count is currently limited to 500.
+								// Note that the count is currently limited to
+								// gMaximumNumberOfLinkedFiles (500).
 						
-						if (itemCount > 500)
+						if (itemCount > gMaximumNumberOfLinkedFiles)
 							DisplayAlert (kErrorAlertID,
 												kStopAlert,
 												kAlertStrID,
@@ -10620,7 +10621,7 @@ SInt16 NavServicesGetFile (
 												0,
 												NULL);
 							
-						itemCount = MIN (itemCount, 500);
+						itemCount = MIN (itemCount, gMaximumNumberOfLinkedFiles);
 						for (countIndex=2; countIndex<=itemCount; countIndex++)
 							{
 							errCode = AEGetNthPtr (&(theReply.selection), 

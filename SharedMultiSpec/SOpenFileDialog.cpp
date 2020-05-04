@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/12/2020
+//	Revision date:			05/03/2020
 //
 //	Language:				C
 //
@@ -4535,7 +4535,7 @@ SInt16 LinkFiles (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 03/09/2013	
+//	Revised By:			Larry L. Biehl			Date: 05/03/2020
 
 SInt16 LinkSelectedFilesToNewWindow (
 				Handle								fileInfoHandle,
@@ -4560,6 +4560,7 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 	errCode = noErr;
 	continueFlag = FALSE;
+	fileInfoLoadedFlag = FALSE;
 	instrumentCode = 0;
 	windowInfoHandle = NULL;
 	
@@ -5294,7 +5295,7 @@ Boolean OpenSeparateImageWindows (
 							// The Workflow items here are for the U2U project to create
 							// the threshold temperature files.
 
-					//gMultiSpecWorkflowInfo.workFlowCode = 2;	
+					//gMultiSpecWorkflowInfo.workFlowCode = 2;
 
 					if (gGetFileImageType == kMultispectralImageType)
 						continueFlag = SetUpImageWindow (windowInfoHandle);

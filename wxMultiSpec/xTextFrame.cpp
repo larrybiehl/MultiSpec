@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			04/12/2019
+//	Revision date:			04/22/2020
 //
 //	Language:				C++
 //
@@ -50,11 +50,13 @@
 IMPLEMENT_DYNAMIC_CLASS (CMTextFrame, wxDocChildFrame)
 
 BEGIN_EVENT_TABLE (CMTextFrame, wxDocChildFrame)
+	//EVT_LEFT_DOWN (CMTextFrame::OnLeftDown)
+
 	EVT_MENU (ID_EDIT_UNDO, CMTextFrame::OnEditUndo)
 	EVT_MENU (wxID_COPY, CMTextFrame::OnEditCopy)
 	EVT_MENU (wxID_CUT, CMTextFrame::OnEditCut)
 	EVT_MENU (wxID_PASTE, CMTextFrame::OnEditPaste)
-
+	
 	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMTextFrame::OnUpdateFilePrintSetup)
 	EVT_UPDATE_UI (wxID_PREVIEW, CMTextFrame::OnUpdateFilePrintPreview)
 	EVT_UPDATE_UI (wxID_PRINT, CMTextFrame::OnUpdateFilePrint)
@@ -162,7 +164,7 @@ CMTextFrame::CMTextFrame (
 	entries[10].Set (wxACCEL_NORMAL, (int) WXK_DELETE, wxID_CLEAR);
 	entries[11].Set (wxACCEL_CTRL, (int) 'A', ID_EDIT_SELECT_ALL);
 	entries[12].Set (wxACCEL_CTRL, (int) ',', ID_EDIT_IMAGE_DESCRIPTION);
-	entries[13].Set (wxACCEL_CTRL, (int) '`', ID_EDIT_IMAGE_MAP_PARAMETERS);
+	entries[13].Set (wxACCEL_CTRL, (int) '-', ID_EDIT_IMAGE_MAP_PARAMETERS);
 	
 	entries[14].Set (wxACCEL_CTRL, (int) 'D', ID_PROC_DISPLAY_IMAGE);
 	entries[15].Set (wxACCEL_CTRL, (int) 'H', ID_PROC_HISTOGRAM_IMAGE);
@@ -240,6 +242,21 @@ void CMTextFrame::OnEditUndo (
 	
 }	// end "OnEditUndo"
 
+
+/*
+void CMTextFrame::OnLeftDown (
+				wxMouseEvent&						event)
+
+{
+	int numberChars = sprintf ((char*)gTextString3,
+				" xTextFrame:OnLeftDown (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+
+	//event.Skip ();
+	
+}	// end "OnLeftDown"
+*/
 
 
 void CMTextFrame::OnUpdateEditClear (
@@ -328,15 +345,6 @@ void CMTextFrame::OnUpdateFilePrintSetup (
 }	// end "OnUpdateFilePrintSetup"
 
 
-void CMTextFrame::OnUpdateWindowNewSelectionGraph (
-				wxUpdateUIEvent& 					pCmdUI)
-
-{
-   pCmdUI.Enable (false);
-
-}	// end "OnUpdateWindowNewSelectionGraph"
-
-
 
 void CMTextFrame::OnUpdateMagnification (
 				wxUpdateUIEvent& 					event)
@@ -349,6 +357,15 @@ void CMTextFrame::OnUpdateMagnification (
 		pMainFrame->UpdateStatusBar (NULL, -1);
 	
 }	// end "OnUpdateMagnification"
+
+
+void CMTextFrame::OnUpdateWindowNewSelectionGraph (
+				wxUpdateUIEvent& 					pCmdUI)
+
+{
+   pCmdUI.Enable (UpdateWindowSelectionGraph ());
+
+}	// end "OnUpdateWindowNewSelectionGraph"
 
 
 

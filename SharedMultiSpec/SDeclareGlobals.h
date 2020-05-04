@@ -26,7 +26,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 04/21/2020
+//	Revised By:				Larry L. Biehl			Date: 05/03/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -1157,6 +1157,11 @@ SInt32							gMaxCharsAllowedInLine = SInt16_MAX - 3;
 			// Variable that contains the number of characters in the longest		
 			// line of output text. 															
 SInt32							gMaxCharsInLine = 1;
+
+		// The maximum number of files that can be linked.
+		// This may be adjusted lower at start up if the system does not allow
+		//	this many files to be open at a given time.
+SInt32							gMaximumNumberOfLinkedFiles = 500;
 
 		// Maximum size of block of memory that can be moved.  The Mac OS 		
 		// as a bug such that if a block of memory more than 9.5 meg or so		

@@ -20,7 +20,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			07/25/2016 by Wei-Kang Hsu
-//								09/01/2019 by Larry L. Biehl
+//								04/22/2020 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -31,11 +31,15 @@
 //
 //------------------------------------------------------------------------------------
 
+#include "SMultiSpec.h"
+
 #include "xMultiSpec.h"
 #include "xTextFrame.h"
 #include "xTextView.h"
 
+#include "wx/clipbrd.h"
 #include "wx/fontenum.h"
+#include "wx/stc/stc.h"
 
 IMPLEMENT_DYNAMIC_CLASS (CMTextView, wxView)
 
@@ -67,6 +71,8 @@ CMTextView::~CMTextView ()
 	gTheActiveWindow = NULL;
 	
 }	// end "~CMTextView"
+
+
 
 //------------------------------------------------------------------------------------
 //                   Copyright 2009-2020 Purdue Research Foundation
@@ -108,14 +114,24 @@ void CMTextView::InitialUpdate (void)
 
 {   
    m_textsw->SetTabWidth (1);
-   m_textsw->SetMarginLeft (-12);
+   m_textsw->SetMarginLeft (-12);	// -12
    m_textsw->SetScrollWidthTracking (true);
    m_textsw->SetFoldMarginColour (true, wxColor (0, 0, 0));
    m_textsw->SetFoldMarginHiColour (true, wxColor (0, 0, 0));
+   
+   #if defined multispec_wxlin
+		m_textsw->SetMouseDownCaptures (false);
+	#endif
+   
 	//m_textsw->MarginSetStyleOffset (0);
 	//m_textsw->SetWrapMode (1);
 	//m_textsw->SetUseHorizontalScrollBar (false);
-
+	
+			// Set the selection mode to stream (SC_SEL_STREAM) or
+			// rectangular (SC_SEL_RECTANGLE/SC_SEL_THIN) or by lines (SC_SEL_LINES).
+			
+   //m_textsw->SetSelectionMode (wxSTC_SEL_LINES);
+	
 }	// end "InitialUpdate"
 
 
@@ -175,19 +191,24 @@ bool CMTextView::OnCreate (
 											wxPoint (0, 0),
 											wxSize (width, height),
 											wxTE_MULTILINE); //wxHSCROLL|wxTE_READONLY|
-	//wxFont textwf (
-				//gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-	wxFont textwf (gFontSize,
-						wxFONTFAMILY_MODERN,
-						wxFONTSTYLE_NORMAL,
-						wxFONTWEIGHT_NORMAL,
-						false,
-						wxT("Courier"));
-				//gFontSize, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	
+	#if defined multispec_wxlin
+		wxFont textwf (
+				gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	#endif
+	#if defined multispec_wxmac
+		wxFont textwf (gFontSize,
+							wxFONTFAMILY_MODERN,
+							wxFONTSTYLE_NORMAL,
+							wxFONTWEIGHT_NORMAL,
+							false,
+							wxT("Courier"));
+		//gFontSize, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+	#endif
 	//wxFont textwf (wxFontInfo(gFontSize).FaceName("Courier New"));
 	m_textsw->StyleSetFont (wxSTC_STYLE_DEFAULT, textwf);
    m_textsw->StyleClearAll ();
-	
+   
 	gOutputViewCPtr = this;
 	gTheActiveWindow = (WindowPtr)this;
 	#ifdef __X__
@@ -334,7 +355,7 @@ bool CMTextView::DoEnumerateFamilies (
 // Called By:			ListString in SStrings.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/1988
-//	Revised By:			Larry L. Biehl			Date: 06/19/2017
+//	Revised By:			Larry L. Biehl			Date: 04/21/2020
 
 bool CMTextView::ListString (
 				HPtr									textPtr,
@@ -352,8 +373,9 @@ bool CMTextView::ListString (
 	
 	//GetEditCtrl().SetModify (TRUE);
 	
-	if (m_frame != NULL)		// It could be null if the application is being closed.
-		m_frame->SetTitle (wxT ("Text Output"));
+	//if (m_frame != NULL)		// It could be null if the application is being closed.
+			// Commented out on 4/21/2020; not sure why it is here.
+	//	m_frame->SetTitle (wxT ("Text Output"));
 	
 	return (true);
 

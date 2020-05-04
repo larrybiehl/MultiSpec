@@ -20,7 +20,7 @@
 //	Authors:					Larry L. Biehl
 //
 //	Revision date:			10/05/2015 by Tsung Tai Yeh
-//								01/11/2020 by Larry L. Biehl
+//								04/22/2020 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -596,7 +596,7 @@ CMainFrame::CMainFrame (
 	m_menuItem28 = new wxMenuItem (
 						editmenu,
 						ID_EDIT_IMAGE_MAP_PARAMETERS,
-						wxString (wxT("Image Map Parameters...")) + wxT('\t') + wxT("Ctrl+`"),
+						wxString (wxT("Image Map Parameters...")) + wxT('\t') + wxT("Ctrl+-"),
 						wxT("View/edit map image map parameters"),
 						wxITEM_NORMAL);
 	editmenu->Append (m_menuItem28);
@@ -2733,7 +2733,7 @@ void CMainFrame::OnUpdateEditCopy (
 					to;
 		
 		
-		pCmdUI.SetText (wxT("&Copy Text\tCtrl+X"));
+		pCmdUI.SetText (wxT("Copy Text\tCtrl+C"));
 		defaultTextFlag = false;
 		
 		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
@@ -2743,7 +2743,7 @@ void CMainFrame::OnUpdateEditCopy (
 		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 	
 	if (defaultTextFlag)
-		pCmdUI.SetText (wxT("Copy\tCtrl+Z"));
+		pCmdUI.SetText (wxT("Copy\tCtrl+C"));
 	
 	pCmdUI.Enable (enableFlag);
 	
@@ -2763,7 +2763,7 @@ void CMainFrame::OnUpdateEditCut (
 		{
 		if (gProjectInfoPtr->statsWindowMode == kClassListMode)
 			{                
-			pCmdUI.SetText (wxT("&Cut Class\tCtrl+X"));
+			pCmdUI.SetText (wxT("Cut Class\tCtrl+X"));
 			defaultTextFlag = false;
 			if (gProjectInfoPtr->currentClass >= 0)
 				enableFlag = true;
@@ -2772,7 +2772,7 @@ void CMainFrame::OnUpdateEditCut (
 			
 		else if (gProjectInfoPtr->statsWindowMode == kFieldListMode)
 			{                                
-			pCmdUI.SetText (wxT("&Cut Field\tCtrl+X"));
+			pCmdUI.SetText (wxT("Cut Field\tCtrl+X"));
 			defaultTextFlag = false;
 			if (gProjectInfoPtr->currentField >= 0)
 				enableFlag = true;
@@ -2798,7 +2798,7 @@ void CMainFrame::OnUpdateEditCut (
 			
 			if (cutPolygonPointFlag)
 				{
-				pCmdUI.SetText (wxT("&Cut Point\tCtrl+X"));
+				pCmdUI.SetText (wxT("Cut Point\tCtrl+X"));
 				defaultTextFlag = false;
 				enableFlag = true;
 				
@@ -2813,7 +2813,7 @@ void CMainFrame::OnUpdateEditCut (
 		long 				from,
 							to;
 		
-		pCmdUI.SetText (wxT("&Cut Text\tCtrl+X"));
+		pCmdUI.SetText (wxT("Cut Text\tCtrl+X"));
 		defaultTextFlag = false;
 		
 		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
@@ -2823,7 +2823,7 @@ void CMainFrame::OnUpdateEditCut (
 		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 			
 	if (defaultTextFlag)
-		pCmdUI.SetText (wxT("&Cut\tCtrl+X"));
+		pCmdUI.SetText (wxT("Cut\tCtrl+X"));
 		
 	pCmdUI.Enable (enableFlag);
 	 
@@ -2942,7 +2942,7 @@ void CMainFrame::OnUpdateEditPaste (
 	
 	else if (gActiveWindowType == kOutputWindowType)
 		{
-		pCmdUI.SetText (wxT("&Paste Text\tCtrl+X"));
+		pCmdUI.SetText (wxT("Paste Text\tCtrl+V"));
 		defaultTextFlag = false;
 		
 		if (gOutputViewCPtr->m_textsw->CanPaste ())
@@ -2981,7 +2981,7 @@ void CMainFrame::OnUpdateEditSelectAll (
 		
 		}	// end "if (gActiveWindowType == kImageWindowType || ..."
 	
-	else	// gActiveWindowType == kOutputWindowType
+	else if (gActiveWindowType == kOutputWindowType)
 		{
 		UpdateEditTextSelectAll (&event);
 		event.Enable (false);
@@ -2989,7 +2989,14 @@ void CMainFrame::OnUpdateEditSelectAll (
       									gOutputViewCPtr->m_textsw->GetLineLength (0) > 0)
          event.Enable (true);
 		
-		}	// end "else gActiveWindowType == kOutputWindowType"
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
+		
+	else	// Select All default
+		{
+		event.SetText (wxT ("Select All\tCtrl+A"));
+		event.Enable (false);
+		
+		}	// end "else Select All default"
 
 }	// end "OnUpdateEditSelectAll"
 
@@ -3028,14 +3035,14 @@ void CMainFrame::OnUpdateEditUndo (
 			{
 			if (gProjectInfoPtr->editClassStorageNumber >= 0)
 				{
-				pCmdUI.SetText ("Undo Cut Class\tCtrl+Z");
+				pCmdUI.SetText (wxT("Undo Cut Class\tCtrl+Z"));
 				defaultTextFlag = false;
 				
 				}	// end "if (gProjectInfoPtr->editClassStorageNumber >= 0)"
 			
 			if (gProjectInfoPtr->editFieldNumber >= 0)
 				{
-				pCmdUI.SetText ("Undo Cut Field\tCtrl+Z");
+				pCmdUI.SetText (wxT("Undo Cut Field\tCtrl+Z"));
 				defaultTextFlag = false;
 				
 				}	// end "if (gProjectInfoPtr->editFieldNumber >= 0)"
@@ -3049,7 +3056,7 @@ void CMainFrame::OnUpdateEditUndo (
 	
 	else if (gActiveWindowType == kOutputWindowType)
 		{
-		pCmdUI.SetText (wxT("&Undo\tCtrl+X"));
+		pCmdUI.SetText (wxT("Undo\tCtrl+Z"));
 		defaultTextFlag = false;
 		
 		if (gOutputViewCPtr->m_textsw->CanUndo ())
@@ -3109,9 +3116,6 @@ void CMainFrame::OnUpdateFileLoadTransMatrix (
 {
     Boolean enableFlag = UpdateFileTransform (&pCmdUI);
 	
-    		// Set to FALSE for now until implemented.
-	
-    enableFlag = FALSE;
     pCmdUI.Enable (enableFlag);
 
 }	// end "OnUpdateFileLoadTransMatrix"
@@ -3811,15 +3815,15 @@ void CMainFrame::OnUpdateProjectAddAsAssociatedImage (
 		if (windowInfoPtr != NULL)
 			{
 			if (windowInfoPtr->projectBaseImageFlag)
-				pCmdUI.SetText ("Base Image");
+				pCmdUI.SetText (wxT("Base Image"));
 
 			else	// !projectBaseImageFlag
 				{
 				if (windowInfoPtr->projectWindowFlag)
-					pCmdUI.SetText ("Remove As Associated Image");
+					pCmdUI.SetText (wxT("Remove As Associated Image"));
 
 				else	// !windowInfoPtr->projectWindowFlag
-					pCmdUI.SetText ("Add As Associated Image");
+					pCmdUI.SetText (wxT("Add As Associated Image"));
 
 				enableFlag = (gProjectInfoPtr != NULL);
 
@@ -4125,14 +4129,14 @@ void CMainFrame::OnUpdateViewCoordinatesBar (
 				((CMImageDoc*)gActiveImageViewCPtr->GetDocument())->GetCoordinateFlag ();
 		event.Enable (true);
 		event.Check (m_displayCoordinatesFlag);
-		
+
 		}	// end "if (gActiveWindowType == kImageWindowType || ..."
 	
 	else	// active window not image window type
 		{
 		event.Enable (false);
 		event.Check (false);
-		
+
 		}	// end "else active window not image window type"
 
 }	// end "OnUpdateViewCoordinatesBar"
@@ -4394,9 +4398,14 @@ void CMainFrame::UpdateWindowMenuList ()
 	
 
 			// First make sure the image and graph window references are removed.
-			
-	ClearMenuItems (windowmenu, 6);
-   
+	
+	#if defined multispec_wxlin
+		ClearMenuItems (windowmenu, 4);
+	#endif
+	#if defined multispec_wxmac
+		ClearMenuItems (windowmenu, 6);
+	#endif
+
    if (gNumberOfIWindows+gNumberOfGWindows > 0)
 		{
       menuItem = ID_WINDOW_MENUITEMSTART;

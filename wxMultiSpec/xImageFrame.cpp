@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			02/23/2020
+//	Revision date:			04/22/2020
 //
 //	Language:				C++
 //
@@ -288,7 +288,7 @@ CMImageFrame::CMImageFrame (
    	bpButtonOverlay->SetToolTip (wxT("Control image and vector overlays on image"));
 	
 		m_toolBar->Realize ();
-	#endif
+	#endif	// defined multispec_wxmac
 
 	Layout ();
 
@@ -345,7 +345,7 @@ CMImageFrame::CMImageFrame (
 	 
 			// Set Accelerator Table
 	
-	wxAcceleratorEntry entries[37];
+	wxAcceleratorEntry entries[39];
 	entries[0].Set (wxACCEL_CTRL, (int) 'O', ID_IMAGE_OPEN);
 	entries[1].Set (wxACCEL_CTRL, (int) ';', ID_FILE_OPEN_PROJECT);
 	entries[2].Set (wxACCEL_CTRL, (int) 'W', ID_FILE_CLOSE_WINDOW);
@@ -360,34 +360,38 @@ CMImageFrame::CMImageFrame (
 	entries[10].Set (wxACCEL_NORMAL, (int) WXK_DELETE, wxID_CLEAR);
 	entries[11].Set (wxACCEL_CTRL, (int) 'A', ID_EDIT_SELECT_ALL);
 	entries[12].Set (wxACCEL_CTRL, (int) ',', ID_EDIT_IMAGE_DESCRIPTION);
-	entries[13].Set (wxACCEL_CTRL, (int) '`', ID_EDIT_IMAGE_MAP_PARAMETERS);
+	entries[13].Set (wxACCEL_CTRL, (int) '-', ID_EDIT_IMAGE_MAP_PARAMETERS);
 	
-	entries[14].Set (wxACCEL_CTRL, (int) 'D', ID_PROC_DISPLAY_IMAGE);
-	entries[15].Set (wxACCEL_CTRL, (int) 'H', ID_PROC_HISTOGRAM_IMAGE);
-	entries[16].Set (wxACCEL_CTRL, (int) 'J', ID_PROC_LISTDATA);
-	entries[17].Set (wxACCEL_CTRL, (int) 'R', ID_PROC_REFORMAT_CHANGE_IMAGE);
-	entries[18].Set (wxACCEL_CTRL, (int) 'L', ID_PROC_CLUSTER);
-	entries[19].Set (wxACCEL_CTRL, (int) 'T', ID_PROC_STATISTICS);
-	entries[20].Set (wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);	
-	entries[21].Set (wxACCEL_CTRL, (int) 'F', ID_PROC_FEATURE_EXTRACTION);	
-	entries[22].Set (wxACCEL_CTRL, (int) 'B', ID_PROC_FEATURE_SELECTION);	
-	entries[23].Set (wxACCEL_CTRL, (int) 'M', ID_PROC_CLASSIFY);	
-	entries[24].Set (wxACCEL_CTRL, (int) 'Y', ID_PROC_LISTRESULTS);	
-	entries[25].Set (wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);	
+	entries[14].Set (wxACCEL_CTRL, (int) '1', ID_VIEW_COORDINATES_BAR);
 	
-	entries[26].Set (wxACCEL_CTRL, (int) 'K', ID_PROC_UTIL_PRIN_COMP_ANALYSIS);
-	entries[27].Set (wxACCEL_CTRL, (int) 'I', ID_PROC_UTIL_CREATE_STAT_IMAGE);
-	entries[28].Set (wxACCEL_CTRL, (int) 'G', ID_PROC_UTIL_BIPLOTS_OF_DATA);
-	entries[29].Set (wxACCEL_CTRL, (int) 'U', ID_PROC_UTIL_LIST_IMAGE_DESC);
-	entries[30].Set (wxACCEL_CTRL, (int) '[', ID_PROC_UTIL_CHECK_COVARIANCES);
-	entries[31].Set (wxACCEL_CTRL, (int) ']', ID_PROC_UTIL_CHECKTRANS_MATRIX);	
+	entries[15].Set (wxACCEL_CTRL, (int) 'D', ID_PROC_DISPLAY_IMAGE);
+	entries[16].Set (wxACCEL_CTRL, (int) 'H', ID_PROC_HISTOGRAM_IMAGE);
+	entries[17].Set (wxACCEL_CTRL, (int) 'J', ID_PROC_LISTDATA);
+	entries[18].Set (wxACCEL_CTRL, (int) 'R', ID_PROC_REFORMAT_CHANGE_IMAGE);
+	entries[19].Set (wxACCEL_CTRL, (int) 'L', ID_PROC_CLUSTER);
+	entries[20].Set (wxACCEL_CTRL, (int) 'T', ID_PROC_STATISTICS);
+	entries[21].Set (wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);
+	entries[22].Set (wxACCEL_CTRL, (int) 'F', ID_PROC_FEATURE_EXTRACTION);
+	entries[23].Set (wxACCEL_CTRL, (int) 'B', ID_PROC_FEATURE_SELECTION);
+	entries[24].Set (wxACCEL_CTRL, (int) 'M', ID_PROC_CLASSIFY);
+	entries[25].Set (wxACCEL_CTRL, (int) 'Y', ID_PROC_LISTRESULTS);
+	entries[26].Set (wxACCEL_CTRL, (int) 'E', ID_PROC_ENHANCE_STATISTICS);
 	
-	entries[32].Set (wxACCEL_NORMAL, (int) WXK_LEFT, ID_LEFT_ARROW);
-	entries[33].Set (wxACCEL_NORMAL, (int) WXK_RIGHT, ID_RIGHT_ARROW);
-	entries[34].Set (wxACCEL_NORMAL, (int) WXK_UP, ID_UP_ARROW);
-	entries[35].Set (wxACCEL_NORMAL, (int) WXK_DOWN, ID_DOWN_ARROW);
-	entries[36].Set (wxACCEL_CTRL, (int) '.', ID_CANCEL_DRAW);
-	wxAcceleratorTable accel (37, entries);
+	entries[27].Set (wxACCEL_CTRL, (int) 'K', ID_PROC_UTIL_PRIN_COMP_ANALYSIS);
+	entries[28].Set (wxACCEL_CTRL, (int) 'I', ID_PROC_UTIL_CREATE_STAT_IMAGE);
+	entries[29].Set (wxACCEL_CTRL, (int) 'G', ID_PROC_UTIL_BIPLOTS_OF_DATA);
+	entries[30].Set (wxACCEL_CTRL, (int) 'U', ID_PROC_UTIL_LIST_IMAGE_DESC);
+	entries[31].Set (wxACCEL_CTRL, (int) '[', ID_PROC_UTIL_CHECK_COVARIANCES);
+	entries[32].Set (wxACCEL_CTRL, (int) ']', ID_PROC_UTIL_CHECKTRANS_MATRIX);
+	
+	entries[33].Set (wxACCEL_CTRL, (int) '2', ID_WINDOW_NEW_SELECTION_GRAPH);
+	
+	entries[34].Set (wxACCEL_NORMAL, (int) WXK_LEFT, ID_LEFT_ARROW);
+	entries[35].Set (wxACCEL_NORMAL, (int) WXK_RIGHT, ID_RIGHT_ARROW);
+	entries[36].Set (wxACCEL_NORMAL, (int) WXK_UP, ID_UP_ARROW);
+	entries[37].Set (wxACCEL_NORMAL, (int) WXK_DOWN, ID_DOWN_ARROW);
+	entries[38].Set (wxACCEL_CTRL, (int) '.', ID_CANCEL_DRAW);
+	wxAcceleratorTable accel (39, entries);
 	SetAcceleratorTable (accel);
 
 }	// end "CMImageFrame"
@@ -839,6 +843,12 @@ void CMImageFrame::OnChar (
 				wxKeyEvent& 						event)
 
 {
+	/*
+	int numberChars = sprintf ((char*)gTextString3,
+				" xImageFrame:OnChar (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+	*/
 	if (event.GetEventType() == wxEVT_KEY_DOWN && gProcessorCode != 0)
 		{
 		
@@ -854,6 +864,12 @@ void CMImageFrame::OnCharHook (
 				wxKeyEvent&							event)
 
 {
+	/*
+	int numberChars = sprintf ((char*)gTextString3,
+				" xImageFrame:OnCharHook (): %s",
+				gEndOfLine);
+	ListString ((char*)gTextString3, numberChars, gOutputTextH);
+	*/
 	event.Skip ();
 	
 }	// end "OnCharHook"
@@ -1348,14 +1364,12 @@ void CMImageFrame::OnUpdateViewCoordinatesBar (
 }	// end "OnUpdateViewCoordinatesBar"
 
 
+
 void CMImageFrame::OnUpdateWindowNewSelectionGraph (
 				wxUpdateUIEvent& 					pCmdUI)
 
 {
-			// Disable for now until implemented.
-	
-	//pCmdUI.Enable (UpdateWindowSelectionGraph ());
-	pCmdUI.Enable (false);
+	pCmdUI.Enable (UpdateWindowSelectionGraph ());
 
 }	// end "OnUpdateWindowNewSelectionGraph"
 
@@ -1377,6 +1391,11 @@ void CMImageFrame::OnWindowNewSelectionGraph (
 				wxCommandEvent& 					event)
 
 {
+	gProcessorCode = kSelectionGraphProcessor;
+	
+   ((CMultiSpecApp*)wxTheApp)->ActivateGraphView ();
+	
+	gProcessorCode = 0;
 
 }	// end "OnWindowNewSelectionGraph"
 

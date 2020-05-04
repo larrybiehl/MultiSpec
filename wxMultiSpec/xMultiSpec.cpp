@@ -20,7 +20,7 @@
 // Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 // Revision date:			09/10/2015 by Tsung Tai Yeh
-//								12/12/2019 by Larry Biehl
+//								05/01/2020 by Larry Biehl
 //
 // Language:				C++
 //
@@ -141,7 +141,7 @@ void CMultiSpecApp::GetUserInputFilePath (
 	
 	UInt8									toolParametersString[5000];
 	
-	wchar_t								wideImageFilePathPtr[256];
+	wchar_t								wideImageFilePathPtr[_MAX_PATH];
 	
 	CMFileStream*						toolParametersFileStreamPtr;
 	
@@ -161,16 +161,18 @@ void CMultiSpecApp::GetUserInputFilePath (
 		{
 		toolParametersFilePathPtr =
 							(FileStringPtr)toolParametersFileStreamPtr->GetFilePathPPtr ();
-		strncpy ((char*)&toolParametersFilePathPtr[1], 
+		strncpy ((char*)&toolParametersFilePathPtr[2],
 					(const char*)(toolParameterFilePath.mb_str (wxConvUTF8)),
 					toolParameterFilePath.Length());
-		toolParametersFilePathPtr[0] = toolParameterFilePath.Length ();
-		toolParametersFilePathPtr[toolParametersFilePathPtr[0]+1] = 0;			
+		//toolParametersFilePathPtr[0] = toolParameterFilePath.Length ();
+		//toolParametersFilePathPtr[toolParametersFilePathPtr[0]+1] = 0;
+		SetFileStringLength (toolParametersFilePathPtr,
+										toolParameterFilePath.Length ());
 		
 		int numberChars = sprintf (
 						(char*)&gTextString3,
 						" xMultiSpec::GetUserInputFilePath: (TOOL_PARAMETERS file): %s%s",
-						toolParametersFilePathPtr,
+						&toolParametersFilePathPtr[2],
 						gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
 		
@@ -271,7 +273,7 @@ void CMultiSpecApp::MacOpenFiles (
 {
 	wxWCharBuffer						wideCharBuffer;
 	
-	wchar_t								wideImageFilePathPtr[256];
+	wchar_t								wideImageFilePathPtr[_MAX_PATH];
 	
 	size_t 								i,
 											fileCount,
@@ -396,6 +398,8 @@ void CMultiSpecApp::OnFileOpen (
 bool CMultiSpecApp::OnInit ()
 
 {
+	m_systemTerminationFlag = FALSE;
+	
     		// Call the base class initialization method; currently it only parses a
     		// few common command-line options but it could be do more in the future
 	
@@ -503,6 +507,11 @@ bool CMultiSpecApp::OnInit ()
 	gOverlayColorList[6].red = 0xFFFF;
 	gOverlayColorList[6].green = 0xFFFF;
 	gOverlayColorList[6].blue = 0x0000;
+	
+			// This structure was used for U2U workflow processing. It
+			// is currently not implemented in the 64 bit version.
+			
+	gMultiSpecWorkflowInfo.workFlowCode = 0;
 
 			// Maximum number of columns possible.
 			// Note that the MaxRowBytes actually represents columns
@@ -514,6 +523,37 @@ bool CMultiSpecApp::OnInit ()
 				// okay
 		gMaxRowBytes = 1000000;
 		gMaxRowBytesFor24Bits = 1000000;
+		
+				// Set limit for maximum number of open files.
+
+		rlimit								resourceLimits;
+		SInt32								numberOfOpenFilesHardLimit;
+		if (getrlimit (RLIMIT_NOFILE, &resourceLimits) == 0)
+			{
+			gNumberOfOpenFilesLimit = (SInt32)resourceLimits.rlim_cur;
+			numberOfOpenFilesHardLimit = (SInt32)MIN (resourceLimits.rlim_max, SInt32_MAX);
+			
+			if (resourceLimits.rlim_cur < 4096)
+				{
+				resourceLimits.rlim_cur = 4096;
+				resourceLimits.rlim_max = MAX (8192, resourceLimits.rlim_max);
+				
+				if (setrlimit (RLIMIT_NOFILE, &resourceLimits) == 0)
+					gNumberOfOpenFilesLimit = (SInt32)resourceLimits.rlim_cur;
+				
+				}	// end "if (resourceLimits.rlim_cur < 4096)"
+			
+			}	// end "if (getrlimit (RLIMIT_NOFILE, &resourceLimits) == 0)"
+		
+				// Indicate a few less than the limit. Going to the limit has
+				// caused MultiSpec to crash.
+				
+		gNumberOfOpenFilesLimit -= 20;
+		
+				// Adjust the maximum number of files that can be linked if needed.
+				
+		gMaximumNumberOfLinkedFiles = MIN (gMaximumNumberOfLinkedFiles,
+														gNumberOfOpenFilesLimit/2);
 	#endif
 	#if defined mulitispec_wxlin
 				// It appears that he limiting factor is really the numer of lines by
@@ -537,7 +577,8 @@ bool CMultiSpecApp::OnInit ()
 	InitializeDateVersionStrings ();
 	
 	#if defined multispec_wxmac
-		wxSystemOptions::SetOption (wxT("osx.openfiledialog.always-show-types"), 1);
+		//wxSystemOptions::SetOption (wxT("osx.openfiledialog.always-show-types"), 1);
+		wxSystemOptions::SetOption (wxOSX_FILEDIALOG_ALWAYS_SHOW_TYPES, 1);
 	#endif
 	
 	wxInitAllImageHandlers ();
@@ -704,7 +745,13 @@ void CMultiSpecApp::OnQueryEndSession (
 
 { 
 	if (!CloseTheProject ())
+		{
 		event.Veto ();
+		
+		}
+	
+	else	// CloseTheProject ()
+		m_systemTerminationFlag = TRUE;
  
 }	// end "OnQueryEndSession"
 
@@ -792,7 +839,7 @@ Handle CMultiSpecApp::SetUpNewImageDocument (
 		{
 		FileStringPtr filePathPtr = (FileStringPtr)fileStreamPtr->GetFilePathPPtr ();
       		
-		wxString filepathstr = wxString::FromUTF8 ((char*)&filePathPtr[1]);
+		wxString filepathstr = wxString::FromUTF8 ((char*)&filePathPtr[2]);
       documentPtr = pImageDocTemplate->CreateDocument (
       													filepathstr, wxDOC_NEW | wxDOC_SILENT);
 		
