@@ -504,7 +504,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
-    CTEXT           "MultiSpec Application\nVersion 2020.04.17",IDC_STATIC,103,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2020.05.14",IDC_STATIC,103,6,119,17
     CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation",IDC_STATIC,8,40,317,26
     DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
@@ -794,7 +794,7 @@ BEGIN
     LTEXT           "Band format:",IDC_BandInterleaveLabel,11,210,43,8
     COMBOBOX        IDC_BandInterleave,54,208,132,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Channels:",IDC_ChannelsLabel,199,80,34,8
-    COMBOBOX        IDC_OutChannels,234,78,48,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ChannelCombo,234,78,48,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "Options",IDC_STATIC,198,96,117,109
     CONTROL         "Invert bottom to top",IDC_InvertBottomToTop,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,108,100,10
     CONTROL         "Invert right to left",IDC_InvertRightToLeft,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,205,124,79,10
@@ -842,22 +842,22 @@ BEGIN
     GROUPBOX        "Range-Interval Choice",IDC_RangeOutline,173,61,90,91
 END
 
-IDD_ReformatTransform DIALOGEX 0, 0, 303, 317
+IDD_ReformatTransform DIALOGEX 0, 0, 342, 357
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Reformat Transform Parameters"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,244,291,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,186,291,50,14
+    DEFPUSHBUTTON   "OK",IDOK,279,331,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,221,331,50,14
     CONTROL         "No Transformation to be Done",IDC_RT_NoTransformation,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,9,279,173,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,9,308,173,10
     CONTROL         "Adjust Selected Channels",IDC_AdjustSelectedChannels,
                     "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,12,141,10
     CONTROL         "New Channels from ",IDC_RT_Eigenvectors,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,104,76,10
-    CONTROL         "New Channel from General Algebraic Transformation",IDC_RT_AlgebraicTransformation,
-                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,164,186,10
+    CONTROL         "New Channel from Algebraic Transformation:",IDC_RT_AlgebraicTransformation,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,164,150,10
     CONTROL         "New Channel from Function",IDC_RT_FunctionOfChannels,
-                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,228,103,10
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,257,103,10
     CONTROL         "Adjust Selected Channels by Selected Channel",IDC_AdjustSelectedChannelsbyChannel,
                     "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,58,172,10
     LTEXT           "=",IDC_RT_AC_Equal,21,31,9,8
@@ -877,21 +877,27 @@ BEGIN
     LTEXT           "16",IDC_RT_EV_SelComponents,241,135,11,8
     LTEXT           "Scale Factor:",IDC_ScaleFactorPrompt,42,151,45,8
     EDITTEXT        IDC_EV_ScaleFactor,87,148,40,13,ES_AUTOHSCROLL
-    LTEXT           "=",IDC_RT_AT_Equal,21,194,9,8
-    EDITTEXT        IDC_RT_AT_Offset,30,193,40,13,ES_AUTOHSCROLL
-    LTEXT           "+",IDC_RT_AT_Plus,71,196,8,8
-    EDITTEXT        IDC_RT_AT_Numerator,80,179,145,13,ES_AUTOHSCROLL
+    LTEXT           "      Radiance =",IDC_RT_AT_Equal,20,195,51,8
+    EDITTEXT        IDC_RT_AT_Offset,74,194,40,13,ES_AUTOHSCROLL
+    LTEXT           "+",IDC_RT_AT_Plus,115,196,8,8
+    EDITTEXT        IDC_RT_AT_Numerator,124,180,145,13,ES_AUTOHSCROLL
     CONTROL         "_____________________________________",IDC_RT_AT_Line,
-                    "Static",SS_LEFTNOWORDWRAP,80,194,148,8
-    EDITTEXT        IDC_RT_AT_Denominator,81,207,145,13,ES_AUTOHSCROLL
-    LTEXT           "*",IDC_RT_AT_Multiply,231,196,9,8
-    EDITTEXT        IDC_RT_AT_Factor,240,194,40,13,ES_AUTOHSCROLL
-    COMBOBOX        IDC_ReformatFunctions,27,241,108,73,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "of selected channels *",IDC_FunctionFactorPrompt,143,244,75,8
-    EDITTEXT        IDC_FunctionFactor,220,241,56,12,ES_AUTOHSCROLL
-    LTEXT           "kth smallest value:",IDC_kthSmallestElementPrompt,54,260,62,8
-    EDITTEXT        IDC_kthSmallestElement,115,257,42,12,ES_AUTOHSCROLL
+                    "Static",SS_LEFTNOWORDWRAP,128,194,137,8,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_RT_AT_Denominator,125,207,145,13,ES_AUTOHSCROLL
+    LTEXT           "*",IDC_RT_AT_Multiply,275,197,8,8
+    EDITTEXT        IDC_RT_AT_Factor,284,195,43,13,ES_AUTOHSCROLL
+    COMBOBOX        IDC_ReformatFunctions,27,270,108,73,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "of selected channels *",IDC_FunctionFactorPrompt,143,273,75,8
+    EDITTEXT        IDC_FunctionFactor,220,270,56,12,ES_AUTOHSCROLL
+    LTEXT           "kth smallest value:",IDC_kthSmallestElementPrompt,54,289,62,8
+    EDITTEXT        IDC_kthSmallestElement,115,286,42,12,ES_AUTOHSCROLL
     LTEXT           "PC Eigenvectors",IDC_RT_EV_PCEigenvectors,88,104,76,8
+    LTEXT           "=",IDC_RT_AT_Therm_Equal,20,231,9,8
+    EDITTEXT        IDC_RT_AT_Therm_K2,29,229,40,13,ES_AUTOHSCROLL
+    LTEXT           " / ln(",IDC_RT_AT_Therm_ln,70,231,16,8
+    EDITTEXT        IDC_RT_AT_Therm_K1,85,229,40,13,ES_AUTOHSCROLL
+    LTEXT           " / Radiance + 1)",IDC_RT_AT_Therm_TOAr,126,231,57,8
+    COMBOBOX        IDC_AlgebraicTransformOptions,162,163,111,60,CBS_DROPDOWNLIST | WS_TABSTOP
 END
 
 IDD_GraphicsStatus DIALOG 0, 0, 185, 92
@@ -2631,9 +2637,9 @@ BEGIN
     IDC_BandInterleave, 0x403, 30, 0
 0x4942, 0x2d53, 0x6142, 0x646e, 0x4920, 0x746e, 0x7265, 0x656c, 0x7661, 
 0x2065, 0x7962, 0x5320, 0x6d61, 0x6c70, 0x0065, 
-    IDC_OutChannels, 0x403, 4, 0
+    IDC_ChannelCombo, 0x403, 4, 0
 0x6c41, 0x006c, 
-    IDC_OutChannels, 0x403, 10, 0
+    IDC_ChannelCombo, 0x403, 10, 0
 0x7553, 0x7362, 0x7465, 0x2e2e, 0x002e, 
     IDC_ChangeHeader, 0x403, 7, 0
 0x4e27, 0x6e6f, 0x2765, "\000" 
@@ -2669,6 +2675,17 @@ BEGIN
     IDC_ReformatFunctions, 0x403, 19, 0
 0x744b, 0x2068, 0x6d53, 0x6c61, 0x656c, 0x7473, 0x5620, 0x6c61, 0x6575, 
 "\000" 
+    IDC_AlgebraicTransformOptions, 0x403, 8, 0
+0x6547, 0x656e, 0x6172, 0x006c, 
+    IDC_AlgebraicTransformOptions, 0x403, 27, 0
+0x6f74, 0x5220, 0x6461, 0x6169, 0x746e, 0x5420, 0x6d65, 0x6570, 0x6172, 
+0x7574, 0x6572, 0x2820, 0x294b, "\000" 
+    IDC_AlgebraicTransformOptions, 0x403, 27, 0
+0x6f74, 0x5220, 0x6461, 0x6169, 0x746e, 0x5420, 0x6d65, 0x6570, 0x6172, 
+0x7574, 0x6572, 0x2820, 0x2943, "\000" 
+    IDC_AlgebraicTransformOptions, 0x403, 27, 0
+0x6f74, 0x5220, 0x6461, 0x6169, 0x746e, 0x5420, 0x6d65, 0x6570, 0x6172, 
+0x7574, 0x6572, 0x2820, 0x2946, "\000" 
     0
 END
 
@@ -3597,7 +3614,8 @@ BEGIN
 
     IDD_ReformatTransform, DIALOG
     BEGIN
-        BOTTOMMARGIN, 305
+        RIGHTMARGIN, 338
+        BOTTOMMARGIN, 345
     END
 
     IDD_StatisticsWindow, DIALOG
@@ -4520,7 +4538,7 @@ BEGIN
     IDS_Classify4           "    Classification cancelled because covariance matrix could not be inverted for one or more classes.\r\n"
     IDS_Classify5           "      Cell Homogeneity Test Threshold:\r\n"
     IDS_Classify6           "\r\n    Bin    Probability Correct   Threshold\r\n"
-    IDS_Classify7           "      Threshold percent: %5.1f\r\n"
+    IDS_Classify7           "      Threshold percent: %7.3f\r\n"
 END
 
 STRINGTABLE
@@ -5114,6 +5132,7 @@ BEGIN
     IDS_Reform31            "    Adjust data values for all channels by a channel\r\n"
     IDS_Reform32            "Shape File to Thematic Image"
     IDS_Reform33            "    Output image file changed to wavelength order.\r\n"
+    IDS_Reform34            "      Transformed to radiant temperature in degrees %s.\r\n"
 END
 
 STRINGTABLE

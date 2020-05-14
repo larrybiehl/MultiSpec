@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			04/12/2020
+//	Revision date:			05/11/2020
 //
 //	Language:				C
 //
@@ -2202,7 +2202,7 @@ UInt32 GetNumberOfMinimumDataValues (
 //							ReadERDAS_staFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
-//	Revised By:			Larry L. Biehl			Date: 12/04/2014
+//	Revised By:			Larry L. Biehl			Date: 05/11/2020
 
 Boolean DecodeSTASupportFile (
 				HistogramSpecsPtr					histogramSpecsPtr, 
@@ -2689,6 +2689,9 @@ Boolean DecodeSTASupportFile (
 								// Note that if the compaction Factor is less than one then,
 								// the data values are just loaded in order.  Force
 								// compactionFactor to be one.
+								// totalCount is not used for this case.
+								
+						totalCount = 0;
 								
 						while (binIndex <= endIndex)
 							{
@@ -3944,7 +3947,7 @@ Boolean GetClippedMinMaxValueIndices (
 				}	// end "for (dataLevel=1; dataLevel<..." 
 			
 					// Get the maximum enhancement data value. We will force it not to 
-					// be the minimum value in the data, which may be a background or 
+					// be the maximum value in the data, which may be a background or 
 					// saturated data value.
 					
 			endValueFoundFlag = FALSE;	

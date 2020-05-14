@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/10/2020
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -2060,7 +2060,7 @@ SInt16 InitializeClassGroupsVector (
 //							DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 11/12/2019
+//	Revised By:			Larry L. Biehl			Date: 05/12/2020
 
 void InvalidateImageSegment (
 				WindowInfoPtr						windowInfoPtr,
@@ -2085,12 +2085,21 @@ void InvalidateImageSegment (
 	destinationRect.bottom = (int)(magnification *
 												(sourceRectPtr->bottom - vOrigin) + .9999);
 	
-	#if defined multispec_mac || defined multispec_win
+	#if defined multispec_mac
 		destinationRect.top += windowInfoPtr->imageTopOffset;
 		destinationRect.bottom += windowInfoPtr->imageTopOffset;
 	#endif
+
+	#if defined multispec_win
+		destinationRect.top += windowInfoPtr->imageTopOffset;
+		destinationRect.bottom += windowInfoPtr->imageTopOffset;
+		destinationRect.top -= lcToWindowUnitsVariablesPtr->lineScrollOffset;
+		destinationRect.bottom -= lcToWindowUnitsVariablesPtr->lineScrollOffset;
+	#endif
 	
 	#if defined multispec_wx
+		destinationRect.top -= lcToWindowUnitsVariablesPtr->lineScrollOffset;
+		destinationRect.bottom -= lcToWindowUnitsVariablesPtr->lineScrollOffset;
 				// The legend is not part of the image window for the wx version
 		legendWidth = 0;
 	#endif
@@ -2114,11 +2123,16 @@ void InvalidateImageSegment (
 		#endif	// defined multispec_mac
 
 		#if defined multispec_win
+			destinationRect.left -= lcToWindowUnitsVariablesPtr->columnScrollOffset;
+			destinationRect.right -= lcToWindowUnitsVariablesPtr->columnScrollOffset;
 			windowInfoPtr->cImageWindowPtr->mImageViewCPtr->
 										InvalidateRect ((RECT*)&destinationRect, FALSE);
 		#endif	// defined multispec_win 
 
 		#if defined multispec_wx
+			destinationRect.left -= lcToWindowUnitsVariablesPtr->columnScrollOffset;
+			destinationRect.right -= lcToWindowUnitsVariablesPtr->columnScrollOffset;
+			
 					// Note that even though false is given for not erasing the background.
 					// In Mac OS version, it is ignored. The background is always erased.
 		

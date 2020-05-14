@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMReformatRectifyDlg class
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 12/13/2019
+//	Revised By:				Larry L. Biehl			Date: 05/06/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -60,12 +60,18 @@ class CMReformatTransformDlg : public CMDialog
 												m_adjustOffset,
 												m_adjustSelectedChannelsFactor,
 												m_functionFactor,
+												m_radianceMult,
+												m_radianceOffset,
 												m_scaleFactor,
+												m_thermalK1,
+												m_thermalK2,
 												m_transformFactor,
 												m_transformOffset;
 	
-		int									m_functionCode,
-												m_transformCode;
+		int									m_defaultThermalChannel,
+												m_functionCode,
+												m_transformCode,
+												m_algebraicTransformOption;
 	
 		UINT									m_adjustSelectedChannel,
 												m_kthSmallestElement,
@@ -89,16 +95,20 @@ class CMReformatTransformDlg : public CMDialog
 		void ShowHideAlgebraicTransformItems (
 				DialogPtr         				dialogPtr,
 				Boolean								showFlag);
-	
-		void ShowHidePCTransformItems (
-				DialogPtr         				dialogPtr,
-				Boolean								showFlag,
-				Boolean								pcButtonFlag);
+
+		void ShowHideAlgebraicTransformThermItems (
+				DialogPtr 							dialogPtr,
+				Boolean 								showFlag);
 	
 		void ShowHideFunctionChannelsItems (
 				DialogPtr							dialogPtr,
 				Boolean								showFlag,
 				UInt16								functionChannelCode);
+
+		void ShowHidePCTransformItems (
+				DialogPtr         				dialogPtr,
+				Boolean								showFlag,
+				Boolean								pcButtonFlag);
 	
 		// Generated message map functions
 		//{{AFX_MSG (CMReformatTransformDlg)
@@ -115,6 +125,8 @@ class CMReformatTransformDlg : public CMDialog
 		afx_msg void OnRTFunctionOfChannels ();
 	
 		afx_msg void OnRTNoTransformation ();
+
+		afx_msg void OnSelendokAlgebraicTransformOptions ();
 	
 		afx_msg void OnSelendokEVEigenvectors ();
 	

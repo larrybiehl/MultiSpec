@@ -26,7 +26,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 12/11/2019
+//	Revised By:				Larry L. Biehl			Date: 05/06/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -340,6 +340,7 @@
 #define IDS_Reform31                    731
 #define IDS_Reform32                    732
 #define IDS_Reform33                    733
+#define IDS_Reform34                    734
 #define IDS_ProjectClassesUsed          801
 #define IDS_Project1                    801
 #define IDS_ClassesUsed2                802
@@ -815,13 +816,19 @@
 #define IDC_AdjustSelectedChannelsbyChannel 1237
 #define IDC_Status4                     1238
 #define IDS_Alert128                    1238
+#define IDC_AlgebraicTransformOptions	 1238
 #define IDC_Status6                     1239
 #define IDS_Alert129                    1239
+#define IDC_RT_AT_Therm_Equal				 1239
 #define IDC_Status7                     1240
 #define IDS_Alert130                    1240
+#define IDC_RT_AT_Therm_K2					 1240
 #define IDS_Alert131                    1241
+#define IDC_RT_AT_Therm_ln					 1241
 #define IDS_Alert132                    1242
+#define IDC_RT_AT_Therm_K1					 1242
 #define IDS_Alert133                    1243
+#define IDC_RT_AT_Therm_TOAr				 1243
 #define IDS_Alert134                    1244
 #define IDS_Alert135                    1245
 #define IDC_Status11                    1246
@@ -2740,6 +2747,8 @@
 #define IDS_ToolTip8413              	 8413
 #define IDS_ToolTip8414              	 8414
 #define IDS_ToolTip8601						 8601
+#define IDS_ToolTip8701						 8701
+#define IDS_ToolTip8702						 8702
 
 #define IDS_DialogMsg0                  8500
 #define IDS_DialogMsg1                  8501

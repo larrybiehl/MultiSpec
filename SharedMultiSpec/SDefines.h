@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 04/12/2020
+//	Revised By:				Larry L. Biehl			Date: 05/11/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -2482,6 +2482,9 @@ typedef struct DisplaySpecsDefault
 			// clipped when determining the minimum and maximum data value.		
 	SInt16							percentTailsClipped;
 	
+			// Pixel depth of image window to be drawn into.
+	SInt16							pixelSize;
+	
 			// Code indicating whether a specified data value (min data value such
 			// as '0' for unsigned data) is to be treated as:
 			// 	0 = data, 
@@ -4339,6 +4342,13 @@ typedef struct ReformatOptions
 	double							adjustDivisor;
 	double							adjustFactor;
 	double							adjustOffset;
+	
+			// Factors to use for converting radiance to radiant temperature
+	double							algebraicTransformK1Value;
+	double							algebraicTransformK2Value;
+	double							algebraicTransformRadianceMult;
+	double							algebraicTransformRadianceOffset;
+	
 	double							functionFactor;
 	double							maximumValue;
 	double							minimumValue;
@@ -4391,10 +4401,18 @@ typedef struct ReformatOptions
 	UInt32							lowSaturationCount;
 	UInt32							numberClasses;
 	UInt32							numberOutputBufferLines;
+	
+			// Code for the type of algebraic transformation to be done
+	SInt16							algebraicTransformOption;
+	
 	SInt16							bandInterleaveSelection;
 	SInt16							channelSet;
 	SInt16							classSet;
 	SInt16							dataValueTypeSelection;
+			
+			// The default for the thermal channel if none.
+	SInt16							defaultThermalChannel;
+	
 	SInt16							eigenSource;
 	SInt16							fieldType;
 	SInt16							fileInfoVersion;

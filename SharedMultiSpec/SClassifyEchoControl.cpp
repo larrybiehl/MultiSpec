@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/23/2019
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -376,7 +376,7 @@ Boolean Interface (
 //	Called by: 			ClassifyArea in SClassify.cpp
 //
 // Coded by				Byeungwoo Jeon			Date: 01/01/1989
-// Revised by			Larry L. Biehl			Date: 11/23/2019
+// Revised by			Larry L. Biehl			Date: 05/12/2020
 
 SInt16 PostEchoClassifier (
 				SInt16								classPointer, 
@@ -527,8 +527,7 @@ SInt16 PostEchoClassifier (
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
 	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
-	nextStatusAtLeastLine =
-							areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
+	nextStatusAtLeastLine = nextStatusAtLeastLineIncrement;
 		
 			// The purpose of skipCount is to only allow updates in drawing the
 			// image overlay every 2 cycles of gNextTime.
@@ -558,7 +557,7 @@ SInt16 PostEchoClassifier (
 											lineCount >= nextStatusAtLeastLine &&
 															skipCount >= 2)
 				{
-				sourceRect.bottom = lineCount;
+				sourceRect.bottom = line;
 
 				InvalidateImageSegment (imageWindowInfoPtr,
 												//displaySpecsPtr,

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2020
+//	Revision date:			05/12/2020
 //
 //	Language:				C++
 //
@@ -306,7 +306,8 @@ void CMChangeFormatDlg::CreateControls ()
    SetUpToolTip (m_staticText161, IDS_ToolTip52);
    bSizer130->Add (
 		m_staticText161,
-		wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
+		wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).ReserveSpaceEvenIfHidden().
+																Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
 	GetAllSubsetMenuControl (kChannelsMenu,
 										this,
@@ -315,7 +316,8 @@ void CMChangeFormatDlg::CreateControls ()
 										IDS_ToolTip52);
 
    bSizer130->Add (m_channelsCtrl,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+													ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
    gbSizer2->Add (bSizer130, wxGBPosition (0, 1), wxGBSpan (1, 1), wxALL|wxEXPAND, 5);
 
@@ -601,7 +603,7 @@ void CMChangeFormatDlg::OnInitDialog (
 											swapBytesFlag;
 
 
-   wxDialog::OnInitDialog (event);
+   //wxDialog::OnInitDialog (event);
 
    ChangeImageFormatDialogInitialize (dialogPtr,
 													gImageWindowInfoPtr,

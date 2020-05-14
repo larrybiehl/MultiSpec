@@ -2910,7 +2910,7 @@ void ISODATAClusterDialogOnTrainingAreas (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/06/1990
-//	Revised By:			Larry L. Biehl			Date: 02/22/2020
+//	Revised By:			Larry L. Biehl			Date: 05/12/2020
 
 SInt16 ISODATAClusterPass (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -3130,7 +3130,7 @@ SInt16 ISODATAClusterPass (
 		if (lineEnd == 0)
 			lineStart = 1;
 		
-		nextStatusAtLeastLine = lineStart + nextStatusAtLeastLineIncrement;
+		nextStatusAtLeastLine = nextStatusAtLeastLineIncrement;
 		
 				// Loop by rest of lines for cluster area.								
 		
@@ -3147,7 +3147,7 @@ SInt16 ISODATAClusterPass (
 												lineCount >= nextStatusAtLeastLine &&
 															skipCount >= 2)
 					{
-					sourceRect.bottom = lineCount;
+					sourceRect.bottom = line;
 					InvalidateImageSegment (imageWindowInfoPtr,
 													//displaySpecsPtr,
 													lcToWindowUnitsVariablesPtr,

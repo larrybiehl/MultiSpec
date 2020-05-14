@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMReformatTransformDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/10/2020
+//	Revised By:				Larry L. Biehl			Date: 05/06/2020
 //
 //------------------------------------------------------------------------------------
 
@@ -80,6 +80,9 @@ class CMReformatTransformDlg : public CMDialog
 	
 		void OnRTNoTransformation (
 				wxCommandEvent& 					event);
+				
+		void OnSelendokAlgebraicTransformOptions (
+				wxCommandEvent& 					event);
 	
 		void OnSelendokEVEigenvectors (
 				wxCommandEvent& 					event);
@@ -99,6 +102,10 @@ class CMReformatTransformDlg : public CMDialog
 				Boolean 								showFlag);
 
 		void ShowHideAlgebraicTransformItems (
+				DialogPtr 							dialogPtr,
+				Boolean 								showFlag);
+				
+		void ShowHideAlgebraicTransformThermItems (
 				DialogPtr 							dialogPtr,
 				Boolean 								showFlag);
 
@@ -135,7 +142,8 @@ class CMReformatTransformDlg : public CMDialog
 												*m_radioBtn9,
 												*m_radioBtn10;
 	
-		wxStaticText						*m_staticText127,
+		wxStaticText						*m_AlgebraicEqualSign1,
+												*m_staticText127,
 												*m_staticText128,
 												*m_staticText129,
 												*m_staticText130,
@@ -147,24 +155,23 @@ class CMReformatTransformDlg : public CMDialog
 												*m_staticText136,
 												*m_staticText137,
 												*m_staticText140,
-												*m_staticText141,
 												*m_staticText142,
 												*m_staticText143,
 												*m_staticText144,
 												*m_staticText145;
 	
-		wxTextCtrl							*m_textCtrl48,
+		wxTextCtrl							*m_AT_denominatorTextCtrl,
+												*m_AT_factorTextCtrl,
+												*m_AT_numereratorTextCtrl,
+												*m_AT_offsetTextCtrl,
+												*m_textCtrl48,
 												*m_textCtrl49,
 												*m_textCtrl50,
 												*m_textCtrl51,
 												*m_textCtrl52,
 												*m_textCtrl53,
 												*m_textCtrl54,
-												*m_textCtrl56,
-												*m_textCtrl57,
-												*m_textCtrl58,
-												*m_textCtrl59,
-												*m_textCtrl60;
+												*m_textCtrl56;
 	
 		double 								m_adjustDivisor,
 												m_adjustFactor,
@@ -173,12 +180,18 @@ class CMReformatTransformDlg : public CMDialog
 												m_functionFactor,
 												m_maxValue,
 												m_minValue,
+												m_radianceMult,
+												m_radianceOffset,
 												m_scaleFactor,
+												m_thermalK1,
+												m_thermalK2,
 												m_transformFactor,
 												m_transformOffset;
 	
-		int 									m_functionCode,
-												m_transformCode;
+		int									m_defaultThermalChannel,
+												m_functionCode,
+												m_transformCode,
+												m_algebraicTransformOption;
 	
 		UInt32								m_adjustSelectedChannel,
 			 									m_kthSmallestElement,

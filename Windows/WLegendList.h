@@ -95,9 +95,9 @@ class CMLegendList : public CListBox
 	protected:
 		// Generated message map functions
 		//{{AFX_MSG (CMLegendList)
-		afx_msg void OnContextMenu (
-				CWnd*									pWnd,
-				CPoint 								point);
+		//afx_msg void OnContextMenu (
+		//		CWnd*									pWnd,
+		//		CPoint 								point);
 
 		afx_msg void OnDrawItem (
 				int 									nIDCtl,
@@ -140,8 +140,8 @@ class CMLegendList : public CListBox
 		//}}AFX_MSG
 		DECLARE_MESSAGE_MAP ()
 
-		BOOL PreTranslateMessage (
-				MSG*									pMsg);
+		//BOOL PreTranslateMessage (
+		//		MSG*									pMsg);
 	
 		DRAWITEMSTRUCT						m_drawItem;
 	

@@ -57,7 +57,7 @@ BEGIN_MESSAGE_MAP (CMChangeFormatDlg, CMDialog)
 	ON_CBN_SELENDOK (IDC_BandInterleave, OnSelendokBandInterleave)
 	ON_CBN_SELENDOK (IDC_ChangeHeader, OnSelendokHeader)
 	ON_CBN_SELENDOK (IDC_DataValueType, OnSelendokDataValueType)
-	ON_CBN_SELENDOK (IDC_OutChannels, OnSelendokOutChannels)
+	ON_CBN_SELENDOK (IDC_ChannelCombo, OnSelendokOutChannels)
 
 	ON_EN_CHANGE (IDC_ColumnEnd, CheckColumnEnd)
 	ON_EN_CHANGE (IDC_ColumnStart, CheckColumnStart)
@@ -119,7 +119,7 @@ void CMChangeFormatDlg::DoDataExchange (
 	DDV_MinMaxLong (pDX, m_LineStart, 1, m_maxNumberLines);
 	DDX_Check (pDX, IDC_SwapBytes, m_swapBytesFlag);
 	DDX_Check (pDX, IDC_TransformData, m_transformDataFlag);
-	DDX_CBIndex (pDX, IDC_OutChannels, m_channelSelection);
+	DDX_CBIndex (pDX, IDC_ChannelCombo, m_channelSelection);
 	DDX_CBIndex (pDX, IDC_ChangeHeader, m_headerListSelection);
 	DDX_CBIndex (pDX, IDC_DataValueType, m_dataValueListSelection);
 	DDX_CBIndex (pDX, IDC_OutputFileSelection, m_outputFileSelection);
@@ -475,7 +475,7 @@ void CMChangeFormatDlg::OnTransformData (void)
 						gReformatOptionsPtr->transformDataCode == kFunctionOfChannels)
 			{
 			MShowDialogItem (dialogPtr, IDC_ChannelsLabel);
-			MShowDialogItem (dialogPtr, IDC_OutChannels);
+			MShowDialogItem (dialogPtr, IDC_ChannelCombo);
 			
 			}	// end "if (...->transformDataCode == kNoTransform || ...)"
 
@@ -483,7 +483,7 @@ void CMChangeFormatDlg::OnTransformData (void)
 									//			transformDataCode == kCreatePCImage)
 			{
 			MHideDialogItem (dialogPtr, IDC_ChannelsLabel);
-			MHideDialogItem (dialogPtr, IDC_OutChannels);
+			MHideDialogItem (dialogPtr, IDC_ChannelCombo);
 			
 			}	// end "else ...->transformDataCode == kTransformChannels || ..."
 		                            	                                   							
@@ -544,7 +544,7 @@ void CMChangeFormatDlg::OnSelendokOutChannels (void)
 {  
 	m_localActiveNumberFeatures = s_reformatOptionsPtr->numberChannels; 
 	
-	HandleChannelsMenu (IDC_OutChannels,
+	HandleChannelsMenu (IDC_ChannelCombo,
 								kNoTransformation,
 								(SInt16)gImageWindowInfoPtr->totalNumberChannels,
 								kImageChannelType,

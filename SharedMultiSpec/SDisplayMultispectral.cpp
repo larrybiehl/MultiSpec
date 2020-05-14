@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/11/2020
+//	Revision date:			05/11/2020
 //
 //	Language:				C
 //
@@ -27,25 +27,6 @@
 //	Brief description:	This file contains routines to handle displaying multispectral
 //								image windows. Some routines which write into the offscreen
 //								buffers are in other files.
-//
-// The Software is provided to you by the Licensor under the License, as defined
-// below, subject to the following condition.
-//
-// Without limiting other conditions in the License, the grant of rights under the
-// License will not include, and the Licensee does not grant to you, the right to
-// Sell the Software.
-//
-// For purposes of the foregoing, “Sell” means practicing any or all of the rights
-// granted to you under the Licensee to provide to third parties, for a fee or
-// other consideration (including without limitation fees for hosting or
-// consulting/ support services related to the Software), a product or service whose
-// value derives, entirely or substantially, from the functionality of the Software.
-// Any license notice or attribution required by the Licensee must also include this
-// Commons Cause License Condition notice.
-//
-// Software: MultiSpec version 2019.01.10
-//
-// License: GPL-2.0 Licensor: Larry Biehl
 //
 //------------------------------------------------------------------------------------
 
@@ -1574,7 +1555,7 @@ void Display4_8ByteImagesSideBySide (
 //
 //	Coded By:			Larry L. Biehl			Date: 02/11/1988
 //	Revised By:			Ravi S. Budruk			Date: 06/17/1988	
-//	Revised By:			Larry L. Biehl			Date: 04/10/2019
+//	Revised By:			Larry L. Biehl			Date: 05/11/2020
 
 Boolean DisplayMultispectralImage (void)
 
@@ -1637,8 +1618,8 @@ Boolean DisplayMultispectralImage (void)
 	fileInfoPtr = gImageFileInfoPtr;
  
 	if (continueFlag && gCallProcessorDialogFlag)
-		continueFlag = DisplayMultispectralDialog (displaySpecsPtr);
-
+			continueFlag = DisplayMultispectralDialog (displaySpecsPtr);
+		
 	if (continueFlag)
 		{
 				// Initialize some global variables pertaining to output.
@@ -1658,10 +1639,11 @@ Boolean DisplayMultispectralImage (void)
 
 				// Determine if Histogram control needs to be called.
 
-		if (GetHistogramRequiredFlag (displaySpecsPtr->displayType,
-                displaySpecsPtr->enhancementCode,
-                displaySpecsPtr->minMaxCode) ||
-                displaySpecsPtr->histogramCompute == kLoadHistogramFromDisk)
+		if (GetHistogramRequiredFlag (
+								displaySpecsPtr->displayType,
+								displaySpecsPtr->enhancementCode,
+								displaySpecsPtr->minMaxCode) ||
+								displaySpecsPtr->histogramCompute == kLoadHistogramFromDisk)
 			{
 					// Indicate that the histogram array does not need to be read in now.
 
@@ -6234,7 +6216,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	07/03/1990
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 05/08/2020
 
 Boolean EqualAreaDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6309,6 +6291,7 @@ Boolean EqualAreaDataToDisplayLevels (
 			rgbOffset = 0;
 			initialValue = rgbOffset;
 			floatMultiplier = 1;
+			highValue = numberDataValues;
 
 			}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
@@ -6451,6 +6434,9 @@ Boolean EqualAreaDataToDisplayLevels (
 				displayValue = initialValue;
 				lastDisplayLevel = numberLevels - 1;
 				lastValue = highValue;
+
+				displaySpecsPtr->thematicBinWidth =
+										histogramSummaryPtr[channelsPtr[channel]].binFactor;
 
 				lowLimitDisplayLevel = 0;
 
@@ -7247,7 +7233,7 @@ Boolean GaussianParameterDialog (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	05/02/2003
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 05/08/2020
 
 Boolean GaussianToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7326,6 +7312,7 @@ Boolean GaussianToDisplayLevels (
 			rgbOffset = 0;
 			initialValue = rgbOffset;
 			floatMultiplier = 1;
+			highValue = numberDataValues;
 
 			}	// end "if (displaySpecsPtr->pixelSize <= 8)"
 
@@ -7523,6 +7510,9 @@ Boolean GaussianToDisplayLevels (
 				displayValue = initialValue;
 				lastDisplayLevel = numberLevels - 1;
 				lastValue = highValue;
+
+				displaySpecsPtr->thematicBinWidth =
+										histogramSummaryPtr[channelsPtr[channel]].binFactor;
 
 				lowLimitDisplayLevel = 0;
 
@@ -8816,7 +8806,7 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 05/11/2020
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
@@ -9511,8 +9501,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
       displaySpecsPtr->thematicValueFactor = 1.0;
 
-            // Make changes in the default set if the last display was for a
-            // thematic type display and the data value types are the same.
+            // Make changes in the default set if the last display was for an image
+            // with similar data value types and the number of channels are the same.
 
       if (gDisplaySpecsDefault.structureLoadedFlag)
          {
@@ -9543,6 +9533,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->minMaxCode = gDisplaySpecsDefault.minMaxCode;
                displaySpecsPtr->percentTailsClipped = 
 												gDisplaySpecsDefault.percentTailsClipped;
+					displaySpecsPtr->pixelSize = gDisplaySpecsDefault.pixelSize;
+					
                displaySpecsPtr->displayType = gDisplaySpecsDefault.lastDisplayType;
                displaySpecsPtr->thematicValueFactor = 
 												gDisplaySpecsDefault.thematicValueFactor;
@@ -9565,6 +9557,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->minMaxCode = gDisplaySpecsDefault.minMaxCode;
                displaySpecsPtr->percentTailsClipped = 
 															gDisplaySpecsDefault.percentTailsClipped;
+					displaySpecsPtr->pixelSize = gDisplaySpecsDefault.pixelSize;
+					
                displaySpecsPtr->displayType = gDisplaySpecsDefault.lastDisplayType;
                displaySpecsPtr->displaySet = gDisplaySpecsDefault.displaySet;
                displaySpecsPtr->invertValuesFlag[2] = 
@@ -9598,6 +9592,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->minMaxCode = gDisplaySpecsDefault.minMaxCode;
                displaySpecsPtr->percentTailsClipped = 
 														gDisplaySpecsDefault.percentTailsClipped;
+					displaySpecsPtr->pixelSize = gDisplaySpecsDefault.pixelSize;
                displaySpecsPtr->displayType = gDisplaySpecsDefault.lastDisplayType;
                displaySpecsPtr->displaySet = gDisplaySpecsDefault.displaySet;
                displaySpecsPtr->rgbColors = gDisplaySpecsDefault.rgbColors;
@@ -10728,7 +10723,7 @@ void SetImageWTitle (
 // Called By:			DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2006
-//	Revised By:			Larry L. Biehl			Date: 11/12/2019
+//	Revised By:			Larry L. Biehl			Date: 05/11/2020
 
 void SaveDisplayStructureSettings (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -10745,6 +10740,7 @@ void SaveDisplayStructureSettings (
 	gDisplaySpecsDefault.enhancementCode = displaySpecsPtr->enhancementCode;
 	gDisplaySpecsDefault.minMaxCode = displaySpecsPtr->minMaxCode;
 	gDisplaySpecsDefault.percentTailsClipped = displaySpecsPtr->percentTailsClipped;
+	gDisplaySpecsDefault.pixelSize = displaySpecsPtr->pixelSize;
 
 	gDisplaySpecsDefault.dataTypeCode = imageWindowInfoPtr->dataTypeCode;
 	gDisplaySpecsDefault.numberBytes = imageWindowInfoPtr->numberBytes;

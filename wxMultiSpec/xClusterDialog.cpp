@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/21/2020
+//	Revision date:			05/14/2020
 //
 //	Language:				C++
 //
@@ -721,7 +721,7 @@ void CMClusterDialog::OnInitDialog (
 
    ((wxChoice*)FindWindow (IDC_SymbolCombo))->Delete (1);
 
-    m_saveStatisticsSelection = 0;
+	//m_saveStatisticsSelection = 0;
 	
    if (TransferDataToWindow ())
       PositionDialogWindow ();

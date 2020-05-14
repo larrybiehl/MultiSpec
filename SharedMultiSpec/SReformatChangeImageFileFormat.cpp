@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -62,7 +62,8 @@
 	#define IDC_BandInterleaveLabel			34
 	#define IDC_BandInterleave					35
 	#define IDC_ChannelsLabel					36
-	#define IDC_OutChannels						37
+	//#define IDC_OutChannels						37
+	#define IDC_ChannelCombo						37
 	#define IDC_SwapBytes						41
 	#define IDC_WriteChanDescriptions		42
 	#define IDC_ChangeHeader					44
@@ -228,6 +229,10 @@ void 		ReformatControl_Old (void);
 void		SaveAlgebraicTransformationFunction (
 				UInt32								numberChannels,
 				SInt16								instrumentCode,
+				ReformatOptionsPtr				reformatOptionsPtr);
+				
+void SetRadiantTemperatureConstants (
+				FileInfoPtr							imageFileInfoPtr,
 				ReformatOptionsPtr				reformatOptionsPtr);
 
 void 		TransformAdjustChannelsByChannel (
@@ -1023,19 +1028,19 @@ Boolean ChangeFormatToBILorBISorBSQ (
 														numberOutChannels,
 														numberColumns, 
 														inputBISFlag);
-					
-				else if (reformatOptionsPtr->transformDataCode == kTransformChannels)
-					TransformData (ioBufferPtr2,
-										reformatOptionsPtr, 
-										numberColumns, 
-										outFileInfoPtr->maxUsableDataValue, 
-										inputBISFlag);
 									
 				else if (reformatOptionsPtr->transformDataCode == kCreatePCImage)
 					CreatePCImage (tempBufferPtr,
 										(HDoublePtr)ioBufferPtr2, 
 										reformatOptionsPtr, 
 										numberColumns,
+										inputBISFlag);
+											
+				else if (reformatOptionsPtr->transformDataCode == kTransformChannels)
+					TransformData (ioBufferPtr2,
+										reformatOptionsPtr,
+										numberColumns,
+										outFileInfoPtr->maxUsableDataValue,
 										inputBISFlag);
 					
 				else if (reformatOptionsPtr->transformDataCode == kFunctionOfChannels)
@@ -2762,7 +2767,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 05/12/2020
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -3087,10 +3092,11 @@ void ChangeImageFormatDialogInitialize (
 		MHideDialogItem (dialogPtr, IDC_BandInterleaveLabel);
 		MHideDialogItem (dialogPtr, IDC_BandInterleave);
 		MHideDialogItem (dialogPtr, IDC_ChannelsLabel);
-		MHideDialogItem (dialogPtr, IDC_OutChannels);
+		MHideDialogItem (dialogPtr, IDC_ChannelCombo);
 		
 		}	// end "if (fileInfoPtr->thematicType)"
-				
+
+	*channelSelectionPtr = kAllMenuItem;
 	if (*channelThematicDisplayFlagPtr)
 		{
 		reformatOptionsPtr->numberChannels = 1;
@@ -3103,7 +3109,6 @@ void ChangeImageFormatDialogInitialize (
 		
 	else	// !*channelThematicDisplayFlagPtr
 		{
-		*channelSelectionPtr = kAllMenuItem;
 		if (reformatOptionsPtr->numberChannels < 
 													gImageWindowInfoPtr->totalNumberChannels)
 			*channelSelectionPtr = kSubsetMenuItem;
@@ -7478,6 +7483,8 @@ Boolean GetDefaultBandRatio (
 		
 	if (!stringsSetFlag)
 		{
+		SetRadiantTemperatureConstants (fileInfoPtr, reformatOptionsPtr);
+		
 		switch (fileInfoPtr->instrumentCode)
 			{
 			case kLandsatMSS:
@@ -8291,11 +8298,11 @@ void InitializeHeaderPopupMenu (
 	#endif	// defined multispec_mac
 					
 	#if defined multispec_win
-		UInt16			comboBoxHeaderItem;
+		int			comboBoxHeaderItem;
 
 		comboBoxHeaderItem = IDC_ChangeHeader;
 		if (popUpHeaderOptionsMenu != NULL)
-			comboBoxHeaderItem = (UInt16)popUpHeaderOptionsMenu;
+			comboBoxHeaderItem = (int)popUpHeaderOptionsMenu;
 
 		CComboBox* comboBoxPtr = 
 									(CComboBox*)(dialogPtr->GetDlgItem (comboBoxHeaderItem));
@@ -8468,7 +8475,7 @@ void InitializeOutputFileInformation (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 03/04/2019
+//	Revised By:			Larry L. Biehl			Date: 05/11/2020
 
 void InitializeReformatStructure (
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -8527,6 +8534,8 @@ void InitializeReformatStructure (
 		reformatOptionsPtr->adjustDivisor = 1;
 		reformatOptionsPtr->adjustFactor = 1;
 		reformatOptionsPtr->adjustOffset = 0;
+		reformatOptionsPtr->algebraicTransformK1Value = 1;
+		reformatOptionsPtr->algebraicTransformK2Value = 1;
 		reformatOptionsPtr->mosaicDirectionCode = 1;
 		reformatOptionsPtr->numberDenominatorTerms = 0;
 		reformatOptionsPtr->numberNumeratorTerms = 0;
@@ -8536,6 +8545,10 @@ void InitializeReformatStructure (
 		reformatOptionsPtr->kthSmallestValue = 1;
 		reformatOptionsPtr->transformAdjustSelectedChannelsFactor = -1.;
 		reformatOptionsPtr->transformAdjustSelectedChannel = 1;
+		
+				// Set radiant temperature conversion constants based on instrument
+				
+		//SetRadiantTemperatureConstants (gImageFileInfoPtr, reformatOptionsPtr);
 		
 		if (gImageWindowInfoPtr != NULL)
 			{
@@ -8552,6 +8565,7 @@ void InitializeReformatStructure (
 			{
 			if (//!gImageFileInfoPtr->thematicType &&
 							(gImageFileInfoPtr->format == kGeoTIFFType ||
+								gImageFileInfoPtr->format == kTIFFType ||
 										FindIfMapInformationExists (gImageWindowInfoPtr)))
 				{
 				reformatOptionsPtr->headerFormat = kTIFFType;
@@ -9203,6 +9217,85 @@ void SaveAlgebraicTransformationFunction (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		void SetRadiantTemperatureConstants
+//
+//	Software purpose:	This routine sets the radiant temperature constants for later
+//							use if requested in reformat transformations.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:			ChangeFormatToBILorBISorBSQ
+//
+//	Coded By:			Larry L. Biehl			Date: 05/06/2020
+//	Revised By:			Larry L. Biehl			Date: 05/06/2020
+
+void SetRadiantTemperatureConstants (
+				FileInfoPtr							imageFileInfoPtr,
+				ReformatOptionsPtr				reformatOptionsPtr)
+
+{
+	switch (imageFileInfoPtr->instrumentCode)
+		{
+		case kLandsatTM:
+			reformatOptionsPtr->defaultThermalChannel = 7;
+			reformatOptionsPtr->algebraicTransformK1Value = 607.76;
+			reformatOptionsPtr->algebraicTransformK2Value = 1260.56;
+			reformatOptionsPtr->algebraicTransformRadianceMult = .055376;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = 1.18;
+			break;
+				
+		case kLandsatTM7:
+			reformatOptionsPtr->defaultThermalChannel = 7;
+			reformatOptionsPtr->algebraicTransformK1Value = 666.09;
+			reformatOptionsPtr->algebraicTransformK2Value = 1282.71;
+			reformatOptionsPtr->algebraicTransformRadianceMult = 6.7087E-02;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = -0.06709;
+			break;
+				
+		case kASTER:
+			reformatOptionsPtr->defaultThermalChannel = 1;
+			reformatOptionsPtr->algebraicTransformK1Value = 641.32;
+			reformatOptionsPtr->algebraicTransformK2Value = 1271.22;
+			reformatOptionsPtr->algebraicTransformRadianceMult = 0.005225;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = 0;
+			break;
+			
+		case kLandsatLC8_OLI_TIRS:
+			reformatOptionsPtr->defaultThermalChannel = 9;
+			reformatOptionsPtr->algebraicTransformK1Value = 774.89;
+			reformatOptionsPtr->algebraicTransformK2Value = 1321.08;
+			reformatOptionsPtr->algebraicTransformRadianceMult = 0.0003342;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = 0.1;
+			break;
+		
+		case kLandsatLC8_TIRS:
+			reformatOptionsPtr->defaultThermalChannel = 1;
+			reformatOptionsPtr->algebraicTransformK1Value = 774.89;
+			reformatOptionsPtr->algebraicTransformK2Value = 1321.08;
+			reformatOptionsPtr->algebraicTransformRadianceMult = 0.0003342;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = 0.1;
+			break;
+			
+		default:
+			reformatOptionsPtr->defaultThermalChannel = 1;
+			reformatOptionsPtr->algebraicTransformK1Value = 1;
+			reformatOptionsPtr->algebraicTransformK2Value = 1;
+			reformatOptionsPtr->algebraicTransformRadianceMult = 1;
+			reformatOptionsPtr->algebraicTransformRadianceOffset = 0;
+			
+		}	// end "switch (imageFileInfoPtr->instrumentCode)"
+	
+}	// end "SetRadiantTemperatureConstants"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		void TransformAdjustChannelsByChannel
 //
 //	Software purpose:	This routine adjusts the data for the change image
@@ -9295,7 +9388,7 @@ void TransformAdjustChannelsByChannel (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/05/1992
-//	Revised By:			Larry L. Biehl			Date: 03/26/2006
+//	Revised By:			Larry L. Biehl			Date: 05/05/2020
 
 void TransformData (
 				HUInt8Ptr							ioBufferPtr, 
@@ -9307,7 +9400,10 @@ void TransformData (
 {								
 	double								channelValue,
 											denominator,
+											k1Value,
+											k2Value,
 											numerator,
+											radiantTemperature,
 											transformFactor,
 											transformOffset;
 									
@@ -9324,6 +9420,8 @@ void TransformData (
 											numberChannels,
 											numberDenominatorTerms,
 											numberNumeratorTerms;
+											
+	SInt16								algebraicTransformOption;
 									
 	
 			// Declare local variables.														
@@ -9333,6 +9431,9 @@ void TransformData (
 	transformFactor = reformatOptionsPtr->transformFactor;
 	transformOffset = reformatOptionsPtr->transformOffset;
 	numberChannels = reformatOptionsPtr->numberChannels;
+	algebraicTransformOption = reformatOptionsPtr->algebraicTransformOption;
+	k1Value = reformatOptionsPtr->algebraicTransformK1Value;
+	k2Value = reformatOptionsPtr->algebraicTransformK2Value;
 	
 	bufferInterval = 1;
 	if (inputBISFlag)
@@ -9408,6 +9509,29 @@ void TransformData (
 			numerator *= transformFactor;
 			numerator += transformOffset;
 			*ioDoubleBufferPtr = numerator;
+				
+			if (algebraicTransformOption >= kAlgebraicTransformThermal_K)
+				{
+						// Convert to radiant temperature
+				
+				if (*ioDoubleBufferPtr > 0)
+					radiantTemperature = k2Value / log (k1Value / *ioDoubleBufferPtr + 1);
+					
+				else	// *ioDoubleBufferPtr <= 0
+					radiantTemperature = 0;
+				
+				if (algebraicTransformOption >= kAlgebraicTransformThermal_C)
+					{
+					radiantTemperature -= 273.15;
+						
+					if (algebraicTransformOption == kAlgebraicTransformThermal_F)
+						radiantTemperature = 1.8 * radiantTemperature + 32;
+						
+					}	// end "if (algebraicTransformOption >= kAlgebraicTransformThermal_C)"
+						
+				*ioDoubleBufferPtr = radiantTemperature;
+				
+				}	// end "if (algebraicTransformOption >= kAlgebraicTransformThermal_K)"
 			
 			}	// end "if (denominator != 0)" 
 			

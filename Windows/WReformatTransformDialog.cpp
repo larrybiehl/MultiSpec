@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			05/12/2020
 //
 //	Language:				C++
 //
@@ -50,6 +50,7 @@ BEGIN_MESSAGE_MAP (CMReformatTransformDlg, CMDialog)
 	ON_BN_CLICKED (IDC_RT_FunctionOfChannels, OnRTFunctionOfChannels)
 	ON_BN_CLICKED (IDC_RT_NoTransformation, OnRTNoTransformation)
 
+	ON_CBN_SELENDOK (IDC_AlgebraicTransformOptions, OnSelendokAlgebraicTransformOptions)
 	ON_CBN_SELENDOK (IDC_EV_Eigenvectors, OnSelendokEVEigenvectors)
 	ON_CBN_SELENDOK (IDC_ReformatFunctions, OnSelendokReformatFunctions)
 	//}}AFX_MSG_MAP
@@ -66,6 +67,7 @@ CMReformatTransformDlg::CMReformatTransformDlg (
 	m_adjustDivisor = 0;
 	m_adjustFactor = 0;
 	m_adjustOffset = 0;
+	m_algebraicTransformOption = 0;
 	m_transformFactor = 0;
 	m_transformOffset = 0;
 	m_denominatorString = "";
@@ -171,6 +173,7 @@ void CMReformatTransformDlg::DoDataExchange (CDataExchange* pDX)
 	DDX_Text2 (pDX, IDC_RT_AC_Divisor, m_adjustDivisor);
 	DDX_Text2 (pDX, IDC_RT_AC_Factor, m_adjustFactor);
 	DDX_Text2 (pDX, IDC_RT_AC_Offset, m_adjustOffset);
+	DDX_CBIndex (pDX, IDC_AlgebraicTransformOptions, m_algebraicTransformOption);
 	DDX_Text2 (pDX, IDC_RT_AT_Factor, m_transformFactor);
 	DDV_MinMaxDouble (pDX, m_transformFactor, -FLT_MAX, FLT_MAX);
 	DDX_Text2 (pDX, IDC_RT_AT_Offset, m_transformOffset);
@@ -179,6 +182,10 @@ void CMReformatTransformDlg::DoDataExchange (CDataExchange* pDX)
 	DDV_MaxChars (pDX, m_denominatorString, 255);
 	DDX_Text (pDX, IDC_RT_AT_Numerator, m_numeratorString);
 	DDV_MaxChars (pDX, m_numeratorString, 255);
+	DDX_Text2 (pDX, IDC_RT_AT_Therm_K1, m_thermalK1);
+	DDV_MinMaxDouble (pDX, m_thermalK1, -FLT_MAX, FLT_MAX);
+	DDX_Text2 (pDX, IDC_RT_AT_Therm_K2, m_thermalK2);
+	DDV_MinMaxDouble (pDX, m_thermalK2, -FLT_MAX, FLT_MAX);
 	DDX_Text2 (pDX, IDC_EV_ScaleFactor, m_scaleFactor);
 	DDV_MinMaxDouble (pDX, m_scaleFactor, 0, FLT_MAX);
 	DDX_CBIndex (pDX, IDC_EV_Eigenvectors, m_channelSelection);
@@ -208,10 +215,10 @@ void CMReformatTransformDlg::DoDataExchange (CDataExchange* pDX)
 							gReformatOptionsPtr->denominatorString);
 
 		numberTerms = DecodeAlgebraicFormula (
-			(unsigned char*)gReformatOptionsPtr->denominatorString, 
-			gReformatOptionsPtr->coefficientsPtr, 
-			gReformatOptionsPtr->transformChannelPtr, 
-			gReformatOptionsPtr->transformOperatorPtr);
+								(unsigned char*)gReformatOptionsPtr->denominatorString, 
+								gReformatOptionsPtr->coefficientsPtr, 
+								gReformatOptionsPtr->transformChannelPtr, 
+								gReformatOptionsPtr->transformOperatorPtr);
 
 		if (numberTerms >= 0)
 			gReformatOptionsPtr->numberDenominatorTerms = numberTerms;
@@ -356,6 +363,8 @@ Boolean CMReformatTransformDlg::DoDialog (
 		if (gReformatOptionsPtr->transformDataCode == kTransformChannels)
 			{
 			item = 0;
+
+			gReformatOptionsPtr->algebraicTransformOption = m_algebraicTransformOption;
 					
 					// Transform offset.										
 						
@@ -380,6 +389,12 @@ Boolean CMReformatTransformDlg::DoDialog (
 					m_minSelectedNumberBits = 16;
 					
 				}	// end "if (...->numberDenominatorTerms > 0)"
+
+			gReformatOptionsPtr->defaultThermalChannel = m_defaultThermalChannel;
+			gReformatOptionsPtr->algebraicTransformRadianceMult = m_radianceMult;
+			gReformatOptionsPtr->algebraicTransformRadianceOffset = m_radianceOffset;
+			gReformatOptionsPtr->algebraicTransformK1Value = m_thermalK1;
+			gReformatOptionsPtr->algebraicTransformK2Value = m_thermalK2;
 
 					// Transform factor.										
 						
@@ -556,20 +571,29 @@ BOOL CMReformatTransformDlg::OnInitDialog ()
 			
 	if (gImageFileInfoPtr->thematicType)
 		MHideDialogItem (dialogPtr, IDC_RT_AlgebraicTransformation);
+
+	m_algebraicTransformOption = gReformatOptionsPtr->algebraicTransformOption;
 	                          
 	if (m_transformCode != kTransformChannels)
 		ShowHideAlgebraicTransformItems (dialogPtr, kHide);
 		
 	else	// m_transformCode == kTransformChannels
 		selectedItem = IDC_RT_AT_Offset;
-		
-	if (!GetDefaultBandRatio (
-								gImageWindowInfoPtr, gImageFileInfoPtr, gReformatOptionsPtr))
+
+	if (!gReformatOptionsPtr->algebraicStringsLoadedFlag)
 		{
-		gReformatOptionsPtr->transformFactor = 1.;
-		gReformatOptionsPtr->transformOffset = 0.;
+		if (!GetDefaultBandRatio (gImageWindowInfoPtr, 
+											gImageFileInfoPtr, 
+											gReformatOptionsPtr))
+			{
+			gReformatOptionsPtr->transformFactor = 1.;
+			gReformatOptionsPtr->transformOffset = 0.;
 		
-		}	// end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+			}	// end "if (!GetDefaultBandRatio (gImageWindowInfoPtr, ..."
+		
+		gReformatOptionsPtr->algebraicStringsLoadedFlag = TRUE;
+
+		}	// end "if (!m_reformatOptionsPtr->algebraicStringsLoadedFlag)"
 		                                                               
 	m_transformOffset = gReformatOptionsPtr->transformOffset;
 
@@ -586,6 +610,12 @@ BOOL CMReformatTransformDlg::OnInitDialog ()
 	_tcscpy (m_denominatorStringPtr, A2T(string));
 	
 	m_transformFactor = gReformatOptionsPtr->transformFactor;
+
+	m_defaultThermalChannel = gReformatOptionsPtr->defaultThermalChannel;
+	m_radianceMult = gReformatOptionsPtr->algebraicTransformRadianceMult;
+	m_radianceOffset = gReformatOptionsPtr->algebraicTransformRadianceOffset;
+	m_thermalK1 = gReformatOptionsPtr->algebraicTransformK1Value;
+	m_thermalK2 = gReformatOptionsPtr->algebraicTransformK2Value;
 
 			// Function of channels items
 
@@ -616,9 +646,24 @@ BOOL CMReformatTransformDlg::OnInitDialog ()
 		PositionDialogWindow ();
 		
 			// Update the radio buttons.
-			
-	if (m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ) 
-		MHideDialogItem (dialogPtr, IDC_RT_Eigenvectors); 
+
+	if (m_numberEigenvectors <= 0 || m_bandInterleaveSelection == kBSQ)
+		{
+		MHideDialogItem (dialogPtr, IDC_RT_Eigenvectors);
+		MHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors);
+		MHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors);
+
+		}	// if (m_numberEigenvectors <= 0 || ...
+
+	else	// if (m_numberEigenvectors > 0 || ...
+		{
+		if (m_eigenSource == 1)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_FEEigenvectors);
+
+		else if (m_eigenSource == 2)
+			MHideDialogItem (dialogPtr, IDC_RT_EV_PCEigenvectors);
+
+		}	// end "else if (m_numberEigenvectors > 0 || ..." 
 	
 	if (gImageFileInfoPtr->thematicType)
 		MHideDialogItem (dialogPtr, IDC_RT_AlgebraicTransformation); 
@@ -710,6 +755,23 @@ void CMReformatTransformDlg::OnRTNoTransformation ()
 
 
 
+void CMReformatTransformDlg::OnSelendokAlgebraicTransformOptions ()
+
+{
+	Boolean 								showFlag = FALSE;
+
+
+	DDX_CBIndex (m_dialogFromPtr, IDC_AlgebraicTransformOptions, m_algebraicTransformOption);
+
+	if (m_algebraicTransformOption >= kAlgebraicTransformThermal_K)
+		showFlag = TRUE;
+
+	ShowHideAlgebraicTransformThermItems (this, showFlag);
+
+}	// end "OnSelendokAlgebraicTransformOptions"
+
+
+
 void CMReformatTransformDlg::OnSelendokEVEigenvectors ()
 
 {
@@ -775,7 +837,8 @@ void CMReformatTransformDlg::ShowHideAlgebraicTransformItems (
 				DialogPtr      					dialogPtr,
 				Boolean								showFlag)
 							
-{                                         
+{
+	ShowHideDialogItem (dialogPtr, IDC_AlgebraicTransformOptions, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Equal, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Offset, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Plus, showFlag);
@@ -783,9 +846,50 @@ void CMReformatTransformDlg::ShowHideAlgebraicTransformItems (
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Line, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Denominator, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Multiply, showFlag);
-	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Factor, showFlag);  
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Factor, showFlag);
+
+	ShowHideAlgebraicTransformThermItems (dialogPtr, showFlag);
 			
 }	// end "ShowHideAlgebraicTransformItems"
+
+
+
+void CMReformatTransformDlg::ShowHideAlgebraicTransformThermItems (
+				DialogPtr 							dialogPtr,
+				Boolean 								showFlag)
+
+{
+	if (m_algebraicTransformOption == kAlgebraicTransformGeneral && showFlag)
+		showFlag = FALSE;
+
+	if (showFlag)
+		{
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Equal, CString("     Radiance ="));
+		sprintf ((char*)gTextString, "C%d", m_defaultThermalChannel);
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Numerator, CString ((char*)gTextString));
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Denominator, CString ("1"));
+		DDX_Text2 (m_dialogToPtr, IDC_RT_AT_Offset, m_radianceOffset);
+		DDX_Text2 (m_dialogToPtr, IDC_RT_AT_Factor, m_radianceMult);
+
+		}	// showFlag
+
+	else	// !showFlag
+		{
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Equal, CString("              ="));
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Numerator, m_numeratorString);
+		DDX_Text (m_dialogToPtr, IDC_RT_AT_Denominator, m_denominatorString);
+		DDX_Text2 (m_dialogToPtr, IDC_RT_AT_Offset, m_transformOffset);
+		DDX_Text2 (m_dialogToPtr, IDC_RT_AT_Factor, m_transformFactor);
+
+		}	// end "else !showFlag"
+
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Therm_Equal, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Therm_K2, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Therm_ln, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Therm_K1, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Therm_TOAr, showFlag);
+
+}	// end "ShowHideAlgebraicTransformTempItems"
 
 
 

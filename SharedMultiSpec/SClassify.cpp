@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -2893,7 +2893,7 @@ void ClassifyControl (void)
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
 //	Revised By:			Jeon						Date: 03/23/2006
-//	Revised By:			Larry L. Biehl			Date: 04/24/2019
+//	Revised By:			Larry L. Biehl			Date: 05/12/2020
 
 SInt16 ClassifyPerPointArea (
 				SInt16								classPointer, 
@@ -3031,8 +3031,7 @@ SInt16 ClassifyPerPointArea (
 	double magnification = lcToWindowUnitsVariablesPtr->magnification;
 	nextStatusAtLeastLineIncrement = (int)((10 * lineInterval) / magnification);
 	nextStatusAtLeastLineIncrement = MAX (nextStatusAtLeastLineIncrement, 10);
-	nextStatusAtLeastLine =
-							areaDescriptionPtr->lineStart + nextStatusAtLeastLineIncrement;
+	nextStatusAtLeastLine = nextStatusAtLeastLineIncrement;
 		
 			// The purpose of skipCount is to only allow updates in drawing the
 			// image overlay every 2 cycles of gNextTime.
@@ -3074,7 +3073,7 @@ SInt16 ClassifyPerPointArea (
 											lineCount >= nextStatusAtLeastLine &&
 														skipCount >= 2)
 				{
-				sourceRect.bottom = lineCount;
+				sourceRect.bottom = line;
 
 				InvalidateImageSegment (imageWindowInfoPtr,
 												//displaySpecsPtr,

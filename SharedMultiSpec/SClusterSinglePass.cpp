@@ -18,7 +18,7 @@
 //
 //	Authors:					Eric E. Demaree, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -697,7 +697,7 @@ SInt16 OnePassCluster (
 //							GetOnePassClusterCenters in SClusterSinglePass.cpp
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 11/21/2019
+//	Revised By:			Larry L. Biehl			Date: 05/12/2020
 
 Boolean OnePassClusterAreas (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -994,7 +994,7 @@ Boolean OnePassClusterAreas (
       if (lineEnd == 0)
          lineStart = 1;
 		
-		nextStatusAtLeastLine = lineStart + nextStatusAtLeastLineIncrement;
+		nextStatusAtLeastLine = nextStatusAtLeastLineIncrement;
 
 				// Loop by rest of lines for cluster area.								
 
@@ -1026,7 +1026,7 @@ Boolean OnePassClusterAreas (
 											lineCount >= nextStatusAtLeastLine &&
 															skipCount >= 2)
 					{
-					sourceRect.bottom = lineCount;
+					sourceRect.bottom = line;
 					InvalidateImageSegment (imageWindowInfoPtr,
 													lcToWindowUnitsVariablesPtr,
 													&sourceRect,

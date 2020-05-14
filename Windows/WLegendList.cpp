@@ -65,7 +65,7 @@ BEGIN_MESSAGE_MAP (CMLegendList, CListBox)
 	ON_WM_MOUSEMOVE ()
 	ON_WM_RBUTTONDOWN ()
 	ON_WM_SETCURSOR ()
-	ON_WM_CONTEXTMENU ()
+	//ON_WM_CONTEXTMENU ()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP ()
 
@@ -413,6 +413,13 @@ void CMLegendList::MeasureItem (
 }	// end "MeasureItem" 
 
 
+/*
+		// Used in testing a problem with left and right mouse button clicks
+		// not being caught when doing blinking in thematic images.
+		// Found problem to be settings in Parallels. Ctrl shift was being
+		// translated to right click for context menus. Turn this off and
+		// also made 'gaming' settings for key clicks so that all up and
+		// and down clicks were caught.
 
 void CMLegendList::OnContextMenu (
 				CWnd* 								pWnd,
@@ -427,40 +434,10 @@ void CMLegendList::OnContextMenu (
 	
 	if (gPresentCursor == kBlinkOpenCursor1)
 		{
-		/*
-		int keyState = GetKeyState (VK_CONTROL);
-		int numberChars = sprintf ((char*)gTextString3,
-			" WLegendList: (OnContextMenu: controlKeyState): %x%s",
-			keyState,
-			gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		
-		s_lastMouseDnPoint = point;
-
-		CMImageDoc* imageDocCPtr = gActiveImageViewCPtr->GetDocument ();
-		CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
-		CMLegendView* legendViewCPtr = imageFrameCPtr->GetLegendViewCPtr ();
-
-		legendViewCPtr->GetDlgItem (IDC_List1)->UpdateWindow ();
-
-		lCell.h = 0;
-		lCell.v = GetCurSel ();
-
-				// Get the bottom of the list box.
-
-		s_listBottom = GetCount () * GetItemHeight (0);
-		GetClientRect (&rect);
-		s_listBottom = MIN (s_listBottom, rect.bottom);
-		DoBlinkCursor1 (this, lCell, (SInt16)m_listType, 2);
-		*/
-	}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
-	
-	//SInt16 code = 1;
-	//if (GetKeyState (VK_CONTROL) < 0)
-	//	code = 2;
+		}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
 
 }	// end "OnContextMenu"
-
+*/
 
 
 void CMLegendList::OnDrawItem (
@@ -889,7 +866,13 @@ BOOL CMLegendList::OnSetCursor (
 }	// end "OnSetCursor"
 
 
-
+/*
+		// Used in testing a problem with left and right mouse button clicks
+		// not being caught when doing blinking in thematic images.
+		// Found problem to be settings in Parallels. Ctrl shift was being
+		// translated to right click for context menus. Turn this off and
+		// also made 'gaming' settings for key clicks so that all up and
+		// and down clicks were caught.
 BOOL CMLegendList::PreTranslateMessage (
 				MSG* 									pMsg)
 
@@ -926,6 +909,7 @@ BOOL CMLegendList::PreTranslateMessage (
 
 				}	// end "if (gPresentCursor == kBlinkOpenCursor1)"
 				*/
+		/*
 			}	// end "if (pMsg->message == WM_RBUTTONDOWN)"
 		/*
 		else if (pMsg->message == WM_RBUTTONUP)
@@ -938,12 +922,13 @@ BOOL CMLegendList::PreTranslateMessage (
 
 			}	// end "if (pMsg->message == WM_RBUTTONUP)"
 		*/
+		/*
 		}	// end "if (pMsg->message != 0x000f)"
 
 	return CListBox::PreTranslateMessage (pMsg);
 
 }	// end "PreTranslateMessage"
-
+*/
 
 
 void CMLegendList::SetBitMapInfoHeaderHandle (

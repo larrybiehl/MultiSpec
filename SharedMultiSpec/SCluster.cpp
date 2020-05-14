@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/23/2019
+//	Revision date:			05/14/2020
 //
 //	Language:				C
 //
@@ -5311,7 +5311,7 @@ Boolean ListClusterInputParameters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/08/1990
-//	Revised By:			Larry L. Biehl			Date: 03/12/2018
+//	Revised By:			Larry L. Biehl			Date: 05/14/2020
 
 Boolean ListClusterStatistics (
 				CMFileStream*						clResultsFileStreamPtr, 
@@ -5776,14 +5776,14 @@ Boolean ListClusterStatistics (
 												continueFlag,
 												kmaxNumberCharactersForLine,
 												kASCIICharString);
-
-   	clusterCount = 0;			
+												
+				// List cluster standard deviations.
+				
+   	clusterCount = 0;
    	currentCluster = gClusterSpecsPtr->clusterHead;														
 	   while (currentCluster != NULL && continueFlag)
 	   	{
 	   	clusterCount++;
-	   	
-	      		// List cluster standard deviations.									
 	      
 			//sprintf (gCharBufferPtr1, "%s  %3d          ", gEndOfLine, clusterCount);
 			//stringPtr1 += 15 + gNumberOfEndOfLineCharacters;
@@ -5808,7 +5808,7 @@ Boolean ListClusterStatistics (
 						// Load the class name into a string.					
 			
 				numChars = sprintf (gCharBufferPtr1, 
-											"      %5d\t %*s  \t          \t  ", 
+											"      %5d\t %*s  \t          \t  ",
 											clusterCount,
 											-((SInt16)(maxNameLength+2)),
 											gTextString);
@@ -5817,7 +5817,7 @@ Boolean ListClusterStatistics (
 							
 			else	// gClusterSpecsPtr->projectClassMeansCode != 1
 				numChars = sprintf (gCharBufferPtr1, 
-											"      %5d\t            \t  ", 
+											"      %5d\t            \t  ",
 											clusterCount);
 		
 			if (areaConversionFactor > 0)
@@ -5825,7 +5825,7 @@ Boolean ListClusterStatistics (
 			
 			gCharBufferPtr1[areaStringStart] = ' ';
 							
-			stringPtr1 = gCharBufferPtr1 + channelStart - 1;
+			stringPtr1 = gCharBufferPtr1 + channelStart;
 		
 	      for (channel=0; channel<numberChannels; channel++)
 	      	{
@@ -5896,7 +5896,7 @@ Boolean ListClusterStatistics (
 // Called By:			ClusterControl
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1989
-//	Revised By:			Larry L. Biehl			Date: 05/16/2017
+//	Revised By:			Larry L. Biehl			Date: 05/13/2020
 
 Boolean LoadClusterSpecs (
 				FileInfoPtr							fileInfoPtr)
@@ -5978,14 +5978,16 @@ Boolean LoadClusterSpecs (
 			gClusterSpecsPtr = (ClusterSpecsPtr)GetHandlePointer (
 										gNonProjProcessorSpecs.clusterSpecsH, kLock, kMoveHi);
 			
-					// Initialize the cluster specification structure.					
-		
+					// Initialize the cluster specification structure.	
+				
+			gClusterSpecsPtr->saveStatisticsCode = kDoNotSaveStatistics;
+			/*
 			if (gProjectInfoPtr->newProjectFlag)	
 				gClusterSpecsPtr->saveStatisticsCode = 1;
 				
 			else	// !gProjectInfoPtr->newProjectFlag 
 				gClusterSpecsPtr->saveStatisticsCode = 1;
-			
+			*/
 			gClusterSpecsPtr->fileInfoHandle = fileInfoHandle;
 			gClusterSpecsPtr->fileInfoVersion = gImageWindowInfoPtr->fileInfoVersion;
 			gClusterSpecsPtr->classificationArea = 0;

@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/23/2020
+//	Revision date:			05/05/2020
 //
 //	Language:				C++
 //
@@ -463,8 +463,8 @@ void CMDisplaySpecsDlg::CreateControls ()
 														wxDefaultPosition,
 														wxDefaultSize,
 														0);
-	m_legendfactorctrl->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
-																		&m_thematicLegendFactorString));
+	wxFloatingPointValidator<double> doubleValue8Digits (8, &m_double8DigitValueCheck);
+   m_legendfactorctrl->SetValidator (doubleValue8Digits);
 	m_legendfactorctrl->Hide ();
 
 	bSizer81->Add (m_legendfactorctrl, 0, wxALL, 5);
@@ -1527,8 +1527,8 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow ()
 	m_GrayChannelString.ToULong (&tempULong);
 	m_GrayChannel = (UInt32)tempULong;
 	
-	wxTextCtrl* legendfactor = (wxTextCtrl*)FindWindow (IDC_LegendFactor);
-	m_thematicLegendFactorString = legendfactor->GetValue ();
+	//wxTextCtrl* legendfactor = (wxTextCtrl*)FindWindow (IDC_LegendFactor);
+	m_thematicLegendFactorString = m_legendfactorctrl->GetValue ();
 	m_thematicLegendFactorString.ToDouble (&m_thematicLegendFactor);
 	
 	m_Magnificationstring = m_magnificationctrl->GetValue ();
@@ -1700,9 +1700,11 @@ bool CMDisplaySpecsDlg::TransferDataToWindow ()
 	m_magnificationctrl->Clear ();
 	m_magnificationctrl->ChangeValue (wxString::Format(wxT("%.3f"), m_Magnification));
 
-	wxTextCtrl* legendfactor = (wxTextCtrl*)FindWindow (IDC_LegendFactor);
-	legendfactor->Clear ();
-	*legendfactor << m_thematicLegendFactor;
+	//wxTextCtrl* legendfactor = (wxTextCtrl*)FindWindow (IDC_LegendFactor);
+	m_legendfactorctrl->Clear ();
+	//*legendfactor << m_thematicLegendFactor;
+	m_legendfactorctrl->ChangeValue (
+									wxString::Format (wxT("%.8f"), m_thematicLegendFactor));
 	
 	TransferLinesColumnsToWindow ();
 

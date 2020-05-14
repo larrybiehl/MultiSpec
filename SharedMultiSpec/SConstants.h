@@ -26,7 +26,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 03/06/2020
+//	Revised By:				Larry L. Biehl			Date: 05/05/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -1541,6 +1541,13 @@
 #define	kTransformChannels					3
 #define	kFunctionOfChannels					4
 #define	kAdjustChannelsByChannel			5
+
+#define	kAlgebraicTransformGeneral			0
+#define	kAlgebraicTransformNDVI				1
+#define	kAlgebraicTransformRadiance		2
+#define	kAlgebraicTransformThermal_K		1
+#define	kAlgebraicTransformThermal_C		2
+#define	kAlgebraicTransformThermal_F		3
 
 #define	kNoFunction								0
 #define	kFunctionMin							1

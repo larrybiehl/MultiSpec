@@ -306,6 +306,7 @@
 #define IDS_Reform31                    731
 #define IDS_Reform32                    732
 #define IDS_Reform33                    733
+#define IDS_Reform34                    734
 #define IDS_ProjectClassesUsed          801
 #define IDS_Project1                    801
 #define IDS_ClassesUsed2                802
@@ -762,6 +763,7 @@
 #define IDS_Alert113                    1223
 #define IDC_RT_AT_Line                  1224
 #define IDS_Alert114                    1224
+#define IDC_RT_AT_Therm_Equal           1225
 #define IDC_RT_AT_Denominator           1226
 #define IDC_RT_AT_Multiply              1227
 #define IDC_RT_AT_Factor                1228
@@ -773,6 +775,7 @@
 #define IDC_EV_Eigenvectors             1231
 #define IDS_Alert121                    1231
 #define IDS_Alert122                    1232
+#define IDC_RT_AT_Therm_K2              1232
 #define IDC_Status2                     1233
 #define IDS_Alert123                    1233
 #define IDC_RT_ACbyC_ChannelPrompt      1233
@@ -788,11 +791,15 @@
 #define IDC_AdjustSelectedChannelsbyChannel 1237
 #define IDC_Status4                     1238
 #define IDS_Alert128                    1238
+#define IDC_RT_AT_Therm_ln              1238
 #define IDC_Status6                     1239
 #define IDS_Alert129                    1239
+#define IDC_RT_AT_Therm_K1              1239
 #define IDC_Status7                     1240
 #define IDS_Alert130                    1240
+#define IDC_RT_AT_Therm_TOAr            1240
 #define IDS_Alert131                    1241
+#define IDC_AlgebraicTransformOptions   1241
 #define IDS_Alert132                    1242
 #define IDS_Alert133                    1243
 #define IDS_Alert134                    1244

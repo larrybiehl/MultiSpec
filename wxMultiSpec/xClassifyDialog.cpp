@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			05/12/2020
 //
 //	Language:				C++
 //
@@ -2192,7 +2192,7 @@ bool CMClassifyDialog::TransferDataToWindow ()
 	TransferLinesColumnsToWindow ();
 
 	wxTextCtrl* clsfythresh = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
-	clsfythresh->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
+	clsfythresh->ChangeValue (wxString::Format (wxT("%.3f"), m_thresholdPercent));
 	
 	wxTextCtrl* classifyKnnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
 	classifyKnnThreshold->ChangeValue (wxString::Format (wxT("%ld"), m_knnThreshold));

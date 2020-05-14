@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        04/14/2020
+//   Revision date:        05/06/2020
 //
 //   Language:					C++
 //
@@ -34,6 +34,8 @@
 #include "xReformatTransformDialog.h"
 #include "xChannelsDialog.h"
 
+#include "wx/valnum.h"
+
 
 
 BEGIN_EVENT_TABLE (CMReformatTransformDlg, CMDialog)
@@ -44,6 +46,7 @@ BEGIN_EVENT_TABLE (CMReformatTransformDlg, CMDialog)
 		EVT_CHOICE (IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
 	#endif
 
+	EVT_CHOICE (IDC_AlgebraicTransformOptions, CMReformatTransformDlg::OnSelendokAlgebraicTransformOptions)
 	EVT_CHOICE (IDC_ReformatFunctions, CMReformatTransformDlg::OnSelendokReformatFunctions)
 
 	EVT_INIT_DIALOG (CMReformatTransformDlg::OnInitDialog)
@@ -70,6 +73,7 @@ CMReformatTransformDlg::CMReformatTransformDlg (
 	m_adjustDivisor = 0;
 	m_adjustFactor = 0;
 	m_adjustOffset = 0;
+	m_algebraicTransformOption = 0;
 	m_transformFactor = 0;
 	m_transformOffset = 0;
 	m_denominatorString = "";
@@ -111,6 +115,8 @@ CMReformatTransformDlg::~CMReformatTransformDlg ()
 void CMReformatTransformDlg::CreateControls ()
 
 {
+	wxFloatingPointValidator<double> doubleValue8Digits (8, &m_double8DigitValueCheck);
+	
 	SetSizeHints (wxDefaultSize, wxDefaultSize);
 	
 	bSizer84 = new wxBoxSizer (wxVERTICAL);
@@ -191,10 +197,12 @@ void CMReformatTransformDlg::CreateControls ()
    SetUpToolTip (m_textCtrl50, IDS_ToolTip251);
 	bSizer92->Add (m_textCtrl50, 0, wxALL, 5);
 	
-	bSizer85->Add (bSizer92, 0, wxEXPAND);
+	//bSizer85->Add (bSizer92, 0, wxEXPAND);
+	bSizer85->Add (bSizer92, wxSizerFlags(0).Expand());
 	
 	bSizer84->Add (bSizer85,
-						wxSizerFlags(0).Expand().Border(wxLEFT|wxTOP|wxRIGHT, 12));
+						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
+							Border(wxLEFT|wxTOP|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer86;
 	bSizer86 = new wxBoxSizer (wxVERTICAL);
@@ -257,7 +265,9 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer86->Add (bSizer94, 0, wxEXPAND);
 	
-	bSizer84->Add (bSizer86, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	bSizer84->Add (bSizer86,
+						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
+								Border(wxLEFT|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer87;
 	bSizer87 = new wxBoxSizer (wxVERTICAL);
@@ -375,7 +385,9 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer87->Add (bSizer111, 1, wxEXPAND);
 	
-	bSizer84->Add (bSizer87, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	bSizer84->Add (bSizer87,
+						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
+								Border(wxLEFT|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer88;
 	bSizer88 = new wxBoxSizer (wxVERTICAL);
@@ -386,12 +398,23 @@ void CMReformatTransformDlg::CreateControls ()
 	m_radioBtn8 = new wxRadioButton (
 									this,
 									IDC_RT_AlgebraicTransformation,
-									wxT("New Channel from General Algebraic Transformation"),
+									wxT("New Channel from Algebraic Transformation: "),
 									wxDefaultPosition,
 									wxDefaultSize,
 									0);
    SetUpToolTip (m_radioBtn8, IDS_ToolTip257);
 	bSizer96->Add (m_radioBtn8, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 5));
+	
+	wxChoice*		comboBox14;
+	comboBox14 = new wxChoice (this,
+										IDC_AlgebraicTransformOptions,
+										wxDefaultPosition,
+										wxDefaultSize);
+	comboBox14->Append (wxT("General"));
+	comboBox14->Append (wxT("to Radiant Temperature (K)"));
+	comboBox14->Append (wxT("to Radiant Temperature (C)"));
+	comboBox14->Append (wxT("to Radiant Temperature (F)"));
+	bSizer96->Add (comboBox14, wxSizerFlags(0).Border(wxALL, 5));
 	
 	bSizer88->Add (bSizer96, 0, wxALL | wxEXPAND, 5);
 	
@@ -400,23 +423,27 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer97->Add (25, 0, 0, wxEXPAND);
 	
-	m_staticText141 = new wxStaticText (this,
+	m_AlgebraicEqualSign1 = new wxStaticText (this,
 													IDC_RT_AT_Equal,
-													wxT("="),
+													//wxT("="),
+													wxT("      Radiance ="),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
-	m_staticText141->Wrap (-1);
-	bSizer97->Add (m_staticText141, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	m_AlgebraicEqualSign1->Wrap (-1);
+	//bSizer97->Add (m_AlgebraicEqualSign1, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	bSizer97->Add (m_AlgebraicEqualSign1,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 	
-	m_textCtrl57 = new wxTextCtrl (this,
-												IDC_RT_AT_Offset,
-												wxEmptyString,
-												wxDefaultPosition,
-												wxDefaultSize,
-												0);
-   SetUpToolTip (m_textCtrl57, IDS_ToolTip250);
-	bSizer97->Add (m_textCtrl57, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	m_AT_offsetTextCtrl = new wxTextCtrl (this,
+														IDC_RT_AT_Offset,
+														wxEmptyString,
+														wxDefaultPosition,
+														wxDefaultSize,
+														0);
+	m_AT_offsetTextCtrl->SetValidator (doubleValue8Digits);
+   SetUpToolTip (m_AT_offsetTextCtrl, IDS_ToolTip250);
+	bSizer97->Add (m_AT_offsetTextCtrl, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	
 	m_staticText142 = new wxStaticText (this,
 													IDC_RT_AT_Plus,
@@ -430,33 +457,40 @@ void CMReformatTransformDlg::CreateControls ()
 	wxBoxSizer* bSizer112;
 	bSizer112 = new wxBoxSizer (wxVERTICAL);
 	
-	m_textCtrl58 = new wxTextCtrl (this,
-												IDC_RT_AT_Numerator,
-												wxEmptyString,
-												wxDefaultPosition,
-												wxSize (200, -1),
-												0);
-   SetUpToolTip (m_textCtrl58, IDS_ToolTip259);
-	bSizer112->Add (m_textCtrl58, 0, wxALIGN_CENTER, 5);
+	m_AT_numereratorTextCtrl = new wxTextCtrl (this,
+																IDC_RT_AT_Numerator,
+																wxEmptyString,
+																wxDefaultPosition,
+																wxSize (200, -1),
+																0);
+   SetUpToolTip (m_AT_numereratorTextCtrl, IDS_ToolTip259);
+	//bSizer112->Add (m_AT_numereratorTextCtrl, 0, wxALIGN_CENTER, 5);
+	bSizer112->Add (m_AT_numereratorTextCtrl, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	m_staticText144 = new wxStaticText (this,
 													IDC_RT_AT_Line,
-													wxT("_____________________________"),
+													wxT("_________________________________"),
 													wxDefaultPosition,
-													wxDefaultSize,
+													//wxDefaultSize,
+													wxSize (-1, 18),
 													0);
 	m_staticText144->Wrap (-1);
-	bSizer112->Add (m_staticText144, 0, wxALIGN_CENTER | wxBOTTOM, 10);
+	//bSizer112->Add (m_staticText144, 0, wxALIGN_CENTER | wxBOTTOM, 10);
+	bSizer112->Add (m_staticText144,
+							wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM, 10));
 	
-	m_textCtrl59 = new wxTextCtrl (this,
-												IDC_RT_AT_Denominator,
-												wxEmptyString,
-												wxDefaultPosition,
-												wxSize (200, -1), 0);
-   SetUpToolTip (m_textCtrl59, IDS_ToolTip260);
-	bSizer112->Add (m_textCtrl59, 0, wxALIGN_CENTER);
+	m_AT_denominatorTextCtrl = new wxTextCtrl (this,
+																IDC_RT_AT_Denominator,
+																wxEmptyString,
+																wxDefaultPosition,
+																wxSize (200, -1),
+																0);
+   SetUpToolTip (m_AT_denominatorTextCtrl, IDS_ToolTip260);
+	//bSizer112->Add (m_AT_denominatorTextCtrl, 0, wxALIGN_CENTER);
+	bSizer112->Add (m_AT_denominatorTextCtrl, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
-	bSizer97->Add (bSizer112, 0, wxEXPAND);
+	//bSizer97->Add (bSizer112, 0, wxEXPAND);
+	bSizer97->Add (bSizer112, wxSizerFlags(0).Expand());
 	
 	m_staticText143 = new wxStaticText (this,
 													IDC_RT_AT_Multiply,
@@ -467,18 +501,94 @@ void CMReformatTransformDlg::CreateControls ()
 	m_staticText143->Wrap (-1);
 	bSizer97->Add (m_staticText143, 0, wxALIGN_CENTER | wxALL, 5);
 	
-	m_textCtrl60 = new wxTextCtrl (this,
-												IDC_RT_AT_Factor,
+	m_AT_factorTextCtrl = new wxTextCtrl (this,
+														IDC_RT_AT_Factor,
+														wxEmptyString,
+														wxDefaultPosition,
+														wxDefaultSize,
+														0);
+	m_AT_factorTextCtrl->SetValidator (doubleValue8Digits);
+   SetUpToolTip (m_AT_factorTextCtrl, IDS_ToolTip258);
+	bSizer97->Add (m_AT_factorTextCtrl, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	
+	bSizer88->Add (bSizer97, 0, wxEXPAND);
+	
+	wxBoxSizer* bHSizer97B;
+	bHSizer97B = new wxBoxSizer (wxHORIZONTAL);
+	
+	bHSizer97B->Add (25, 0, 0, wxEXPAND);
+	
+	wxStaticText*	staticText97B_1;
+	staticText97B_1 = new wxStaticText (this,
+													IDC_RT_AT_Therm_Equal,
+													wxT("="),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	staticText97B_1->Wrap (-1);
+	bHSizer97B->Add (staticText97B_1, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	
+	wxTextCtrl*	textCtrl97B_2;
+	textCtrl97B_2 = new wxTextCtrl (this,
+												IDC_RT_AT_Therm_K2,
 												wxEmptyString,
 												wxDefaultPosition,
 												wxDefaultSize,
 												0);
-   SetUpToolTip (m_textCtrl60, IDS_ToolTip258);
-	bSizer97->Add (m_textCtrl60, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	textCtrl97B_2->SetValidator (doubleValue8Digits);
+   SetUpToolTip (textCtrl97B_2, IDS_ToolTip8702);
+	//bHSizer97B->Add (textCtrl97B_2, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	bHSizer97B->Add (textCtrl97B_2,
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+														Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
-	bSizer88->Add (bSizer97, 0, wxEXPAND);
+	wxStaticText*	staticText97B_3;
+	staticText97B_3 = new wxStaticText (this,
+													IDC_RT_AT_Therm_ln,
+													wxT(" / ln("),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	staticText97B_3->Wrap (-1);
+	//bHSizer97B->Add (staticText97B_3, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	bHSizer97B->Add (staticText97B_3,
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+														Border(wxTOP|wxBOTTOM, 5));
 	
-	bSizer84->Add (bSizer88, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	wxTextCtrl*	textCtrl97B_4;
+	textCtrl97B_4 = new wxTextCtrl (this,
+												IDC_RT_AT_Therm_K1,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
+	textCtrl97B_4->SetValidator (doubleValue8Digits);
+   SetUpToolTip (textCtrl97B_4, IDS_ToolTip8701);
+	//bHSizer97B->Add (textCtrl97B_4, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	bHSizer97B->Add (textCtrl97B_4,
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+														Border(wxTOP|wxBOTTOM, 5));
+	
+	wxStaticText*	staticText97B_5;
+	staticText97B_5 = new wxStaticText (this,
+													IDC_RT_AT_Therm_TOAr,
+													wxT(" / Radiance + 1)"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	staticText97B_5->Wrap (-1);
+	//bHSizer97B->Add (staticText97B_5, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+	bHSizer97B->Add (staticText97B_5,
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+														Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
+	
+	//bSizer88->Add (bHSizer97B, 0, wxEXPAND);
+	bSizer88->Add (bHSizer97B, wxSizerFlags(0).Expand().Border(wxTOP, 5));
+	// ----
+	
+	bSizer84->Add (bSizer88,
+						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
+								Border(wxLEFT|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer89;
 	bSizer89 = new wxBoxSizer (wxVERTICAL);
@@ -558,7 +668,9 @@ void CMReformatTransformDlg::CreateControls ()
 	
 	bSizer89->Add (bSizer102, 1, wxEXPAND);
 	
-	bSizer84->Add (bSizer89, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	bSizer84->Add (bSizer89,
+						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
+								Border(wxLEFT|wxRIGHT, 12));
 	
 	wxBoxSizer* bSizer90;
 	bSizer90 = new wxBoxSizer (wxVERTICAL);
@@ -655,6 +767,8 @@ Boolean CMReformatTransformDlg::DoDialog (
 		if (m_reformatOptionsPtr->transformDataCode == kTransformChannels)
 			{
 			item = 0;
+				
+			m_reformatOptionsPtr->algebraicTransformOption = m_algebraicTransformOption;
 
 					// Transform offset.
 
@@ -679,6 +793,12 @@ Boolean CMReformatTransformDlg::DoDialog (
 					m_minSelectedNumberBits = 16;
 
             }	// end "if (...->numberDenominatorTerms > 0)"
+
+			m_reformatOptionsPtr->defaultThermalChannel = m_defaultThermalChannel;
+			m_reformatOptionsPtr->algebraicTransformRadianceMult = m_radianceMult;
+			m_reformatOptionsPtr->algebraicTransformRadianceOffset = m_radianceOffset;
+			m_reformatOptionsPtr->algebraicTransformK1Value = m_thermalK1;
+			m_reformatOptionsPtr->algebraicTransformK2Value = m_thermalK2;
 
 					// Transform factor.
 
@@ -854,6 +974,8 @@ void CMReformatTransformDlg::OnInitDialog (
 
 	if (gImageFileInfoPtr->thematicType)
 		MHideDialogItem (dialogPtr, IDC_RT_AlgebraicTransformation);
+		
+	m_algebraicTransformOption = m_reformatOptionsPtr->algebraicTransformOption;
 
 	if (m_transformCode != kTransformChannels)
 		ShowHideAlgebraicTransformItems (dialogPtr, kHide);
@@ -889,6 +1011,12 @@ void CMReformatTransformDlg::OnInitDialog (
 	m_denominatorStringPtr[m_reformatOptionsPtr->denominatorString[0]] = 0;
 
 	m_transformFactor = m_reformatOptionsPtr->transformFactor;
+		
+	m_defaultThermalChannel = m_reformatOptionsPtr->defaultThermalChannel;
+	m_radianceMult = m_reformatOptionsPtr->algebraicTransformRadianceMult;
+	m_radianceOffset = m_reformatOptionsPtr->algebraicTransformRadianceOffset;
+	m_thermalK1 = m_reformatOptionsPtr->algebraicTransformK1Value;
+	m_thermalK2 = m_reformatOptionsPtr->algebraicTransformK2Value;
 
 			// Function of channels items
 
@@ -1036,6 +1164,25 @@ void CMReformatTransformDlg::OnRTFunctionOfChannels (
 
 
 
+void CMReformatTransformDlg::OnSelendokAlgebraicTransformOptions (
+				wxCommandEvent& 					event)
+
+{
+	Boolean 								showFlag = FALSE;
+
+
+	wxChoice* optionCode = (wxChoice*)FindWindow (IDC_AlgebraicTransformOptions);
+	m_algebraicTransformOption = optionCode->GetSelection ();
+
+	if (m_algebraicTransformOption >= kAlgebraicTransformThermal_K)
+		showFlag = TRUE;
+	
+	ShowHideAlgebraicTransformThermItems (this, showFlag);
+	
+}	// end "OnSelendokAlgebraicTransformOptions"
+
+
+
 void CMReformatTransformDlg::OnSelendokEVEigenvectors (
 				wxCommandEvent& 					event)
 				
@@ -1107,6 +1254,7 @@ void CMReformatTransformDlg::ShowHideAlgebraicTransformItems (
 				Boolean 								showFlag)
 
 {
+	ShowHideDialogItem (dialogPtr, IDC_AlgebraicTransformOptions, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Equal, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Offset, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Plus, showFlag);
@@ -1116,7 +1264,49 @@ void CMReformatTransformDlg::ShowHideAlgebraicTransformItems (
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Multiply, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_RT_AT_Factor, showFlag);
 	
+	ShowHideAlgebraicTransformThermItems (dialogPtr, showFlag);
+	
 }	// end "ShowHideAlgebraicTransformItems"
+
+
+
+void CMReformatTransformDlg::ShowHideAlgebraicTransformThermItems (
+				DialogPtr 							dialogPtr,
+				Boolean 								showFlag)
+
+{
+	if (m_algebraicTransformOption == kAlgebraicTransformGeneral && showFlag)
+		showFlag = FALSE;
+		
+	if (showFlag)
+		{
+		m_AlgebraicEqualSign1->SetLabel (wxT("      Radiance ="));
+		m_AT_numereratorTextCtrl->ChangeValue (wxString::Format (wxT("C%d"), m_defaultThermalChannel));
+		m_AT_denominatorTextCtrl->ChangeValue (wxT("1"));
+		m_AT_factorTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_radianceMult));
+		m_AT_offsetTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_radianceOffset));
+		
+		}	// showFlag
+		
+	else	// !showFlag
+		{
+		m_AlgebraicEqualSign1->SetLabel (wxT("               ="));
+		m_AT_numereratorTextCtrl->ChangeValue (
+										wxString::Format (wxT("%s"), m_numeratorStringPtr));
+		m_AT_denominatorTextCtrl->ChangeValue (
+										wxString::Format (wxT("%s"), m_denominatorStringPtr));
+		m_AT_factorTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_transformFactor));
+		m_AT_offsetTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_transformOffset));
+		
+		}	// end "else !showFlag"
+		
+	ShowHideDialogItem (this, IDC_RT_AT_Therm_Equal, showFlag);
+	ShowHideDialogItem (this, IDC_RT_AT_Therm_K2, showFlag);
+	ShowHideDialogItem (this, IDC_RT_AT_Therm_ln, showFlag);
+	ShowHideDialogItem (this, IDC_RT_AT_Therm_K1, showFlag);
+	ShowHideDialogItem (this, IDC_RT_AT_Therm_TOAr, showFlag);
+		
+}	// end "ShowHideAlgebraicTransformTempItems"
 
 
 
@@ -1177,17 +1367,23 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 	wxTextCtrl* adjustOffset = (wxTextCtrl*)FindWindow (IDC_RT_AC_Offset);
 	m_adjustOffset = wxAtof (adjustOffset->GetValue());
 	
-	wxTextCtrl* transformFactor = (wxTextCtrl*)FindWindow (IDC_RT_AT_Factor);
-	m_transformFactor = wxAtof (transformFactor->GetValue());
+	wxChoice* optionCode = (wxChoice*)FindWindow (IDC_AlgebraicTransformOptions);
+	m_algebraicTransformOption = optionCode->GetSelection ();
 	
-	wxTextCtrl* transformOffset = (wxTextCtrl*)FindWindow (IDC_RT_AT_Offset);
-	m_transformOffset = wxAtof (transformOffset->GetValue());
+	m_transformFactor = wxAtof (m_AT_factorTextCtrl->GetValue());
+	
+	m_transformOffset = wxAtof (m_AT_offsetTextCtrl->GetValue());
 	
 	wxTextCtrl* denominatorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Denominator);
 	m_denominatorString = denominatorString->GetValue ();
 	
-	wxTextCtrl* numeratorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Numerator);
-	m_numeratorString = numeratorString->GetValue ();
+	m_numeratorString = m_AT_numereratorTextCtrl->GetValue ();
+	
+	wxTextCtrl* thermal_K2 = (wxTextCtrl*)FindWindow (IDC_RT_AT_Therm_K2);
+	m_thermalK2 = wxAtof (thermal_K2->GetValue());
+	
+	wxTextCtrl* thermal_K1 = (wxTextCtrl*)FindWindow (IDC_RT_AT_Therm_K1);
+	m_thermalK1 = wxAtof (thermal_K1->GetValue());
 	
 	wxTextCtrl* scaleFactor = (wxTextCtrl*)FindWindow (IDC_EV_ScaleFactor);
 	m_scaleFactor = wxAtof (scaleFactor->GetValue());
@@ -1206,7 +1402,7 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 	
 	m_channelSelection = m_channelsCtrl->GetSelection ();
 	
-	wxChoice* functionCode = (wxChoice *)FindWindow (IDC_ReformatFunctions);
+	wxChoice* functionCode = (wxChoice*)FindWindow (IDC_ReformatFunctions);
 	m_functionCode = functionCode->GetSelection ();
 	
 			// the value of kFunctionOfChannels = 4
@@ -1336,18 +1532,24 @@ bool CMReformatTransformDlg::TransferDataToWindow ()
 	wxTextCtrl* adjustOffset = (wxTextCtrl*)FindWindow (IDC_RT_AC_Offset);
 	adjustOffset->ChangeValue (wxString::Format (wxT("%.1f"), m_adjustOffset));
 	
-	wxTextCtrl* transformFactor = (wxTextCtrl*)FindWindow (IDC_RT_AT_Factor);
-	transformFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_transformFactor));
+	wxChoice* optionCode = (wxChoice*)FindWindow (IDC_AlgebraicTransformOptions);
+	optionCode->SetSelection (m_algebraicTransformOption);
 	
-	wxTextCtrl* transformOffset = (wxTextCtrl*)FindWindow (IDC_RT_AT_Offset);
-	transformOffset->ChangeValue (wxString::Format (wxT("%.1f"), m_transformOffset));
+	m_AT_factorTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_transformFactor));
 	
-	wxTextCtrl* denominatorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Denominator);
-	denominatorString->ChangeValue (
+	m_AT_offsetTextCtrl->ChangeValue (wxString::Format (wxT("%.8f"), m_transformOffset));
+	
+	//wxTextCtrl* denominatorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Denominator);
+	m_AT_denominatorTextCtrl->ChangeValue (
 										wxString::Format (wxT("%s"), m_denominatorStringPtr));
 	
-	wxTextCtrl* numeratorString = (wxTextCtrl*)FindWindow (IDC_RT_AT_Numerator);
-	numeratorString->ChangeValue (wxString::Format (wxT("%s"), m_numeratorStringPtr));
+	m_AT_numereratorTextCtrl->ChangeValue (wxString::Format (wxT("%s"), m_numeratorStringPtr));
+	
+	wxTextCtrl* thermal_K2 = (wxTextCtrl*)FindWindow (IDC_RT_AT_Therm_K2);
+	thermal_K2->ChangeValue (wxString::Format (wxT("%.6f"), m_thermalK2));
+	
+	wxTextCtrl* thermal_K1 = (wxTextCtrl*)FindWindow (IDC_RT_AT_Therm_K1);
+	thermal_K1->ChangeValue (wxString::Format (wxT("%.6f"), m_thermalK1));
 	
 	wxTextCtrl* scaleFactor = (wxTextCtrl*)FindWindow (IDC_EV_ScaleFactor);
 	scaleFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_scaleFactor));

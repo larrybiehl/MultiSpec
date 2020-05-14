@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2019
+//	Revision date:			05/06/2020
 //
 //	Language:				C
 //
@@ -2071,20 +2071,23 @@ Boolean InsertNewErdasHeader (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 05/14/1992
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 05/06/2020
 
 Boolean ListReformatResultsInformation (
 				ReformatOptionsPtr				reformatOptionsPtr, 
 				FileInfoPtr							outFileInfoPtr)
 
 {  
-	char									formatName[32],
+	char									degreesStrings[6],
+											formatName[32],
 											numberLowCountString[64],
 											numberHighCountString[64];
 											
 	FileStringPtr						fileNamePtr;
 	
 	Handle								mosaicFileInfoHandle;
+	
+	int 									numChars;
 	
 	SInt16								index,
 											numberChars;
@@ -2154,18 +2157,64 @@ Boolean ListReformatResultsInformation (
 																	NULL,  
 																	gOutputForce1Code, 
 																	continueFlag);
-										
-			sprintf ((char*)gTextString, "    = %f + (%s)/(%s) * %f%s",
-						reformatOptionsPtr->transformOffset,
-						&reformatOptionsPtr->numeratorString[1],
-						&reformatOptionsPtr->denominatorString[1],
-						reformatOptionsPtr->transformFactor,
-						gEndOfLine);
-			continueFlag = OutputString ((CMFileStream*)NULL,
-													(char*)gTextString, 
-													0, 
-													gOutputForce1Code,
-													continueFlag);
+																	
+			if (reformatOptionsPtr->algebraicTransformOption == kAlgebraicTransformGeneral)
+				{
+				numChars = sprintf ((char*)gTextString, "     = %f + (%s)/(%s) * %f%s",
+											reformatOptionsPtr->transformOffset,
+											&reformatOptionsPtr->numeratorString[1],
+											&reformatOptionsPtr->denominatorString[1],
+											reformatOptionsPtr->transformFactor,
+											gEndOfLine);
+				continueFlag = OutputString ((CMFileStream*)NULL,
+														(char*)gTextString,
+														numChars,
+														gOutputForce1Code,
+														continueFlag);
+			
+				}	// end "if (...->algebraicTransformOption == kAlgebraicTransformGeneral)"
+																		
+			else	// ...->algebraicTransformOption >= kAlgebraicTransformThermal_K)
+				{
+				degreesStrings[0] = 'K';
+				degreesStrings[1] = 0;
+				degreesStrings[2] = 'C';
+				degreesStrings[3] = 0;
+				degreesStrings[4] = 'F';
+				degreesStrings[5] = 0;
+				int index = (reformatOptionsPtr->algebraicTransformOption - 1) * 2;
+				
+				continueFlag = ListSpecifiedStringNumber (kReformatStrID,
+																		IDS_Reform34,
+																		NULL,
+																		gOutputForce1Code,
+																		&degreesStrings[index],
+																		continueFlag,
+																		kUTF8CharString);
+																		
+				numChars = sprintf ((char*)gTextString, "      Radiance = %f + (%s)/(%s) * %f%s",
+											reformatOptionsPtr->transformOffset,
+											&reformatOptionsPtr->numeratorString[1],
+											&reformatOptionsPtr->denominatorString[1],
+											reformatOptionsPtr->transformFactor,
+											gEndOfLine);
+				continueFlag = OutputString ((CMFileStream*)NULL,
+														(char*)gTextString,
+														numChars,
+														gOutputForce1Code,
+														continueFlag);
+																		
+				numChars = sprintf ((char*)gTextString, "      Radiant Temperature = %f / ln(%f/Radiance + 1)%s",
+											reformatOptionsPtr->algebraicTransformK2Value,
+											reformatOptionsPtr->algebraicTransformK1Value,
+											gEndOfLine);
+				continueFlag = OutputString ((CMFileStream*)NULL,
+														(char*)gTextString,
+														numChars,
+														gOutputForce1Code,
+														continueFlag);
+				
+				}	// end "if (...->algebraicTransformOption >= kAlgebraicTransformThermal_K)"
 												
 			}	// end "else if (...->transformDataCode == kTransformChannels)" 
 			

@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 03/07/2020
+# Revised by Larry Biehl on 05/12/2020
 
 #include "resource.h"
 
@@ -300,6 +300,8 @@ Redo the specifications?"
 "
 #732 "Shape File to Thematic Image"
 #733 "    Output image file changed to wavelength order.
+"
+#734 "      Transformed to radiant temperature in degrees %s.
 "
 
 #801 "    Project Classes used:                "
@@ -676,7 +678,7 @@ Save changes in project and/or output text window if they are important."
 #1406           "
     Bin    Probability Correct   Threshold
 "
-#1407           "      Threshold percent: %5.1f
+#1407           "      Threshold percent: %7.3f
 "
 
 #1408           "     Cell width is %d.
@@ -2316,5 +2318,9 @@ Transformation matrix was loaded from '%s'.
 
 // More xStatisticsDialog
 #8601			"Allows one to select the channels to be used for the statistics; note that the statistics need to be cleared (not calculated) for one to use this option."
+
+// more xReformatTransformDialog
+#8701			"K1 value to use for conversion from radiance to radiant temperature"
+#8702			"K2 value to use for conversion from radiance to radiant temperature"
 
 ID_OPTIONS_SWITCHCROSSCURSOR "Switch cross cursor"

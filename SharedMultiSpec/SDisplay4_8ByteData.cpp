@@ -26,6 +26,13 @@
 //
 //	Brief description:
 //
+//   Following is template for debugging
+//   int numberChars2 = sprintf ((char*)gTextString2,
+//                       " SDisplay4_8ByteData:: (displaySpecsPtr): %d, %s",
+//                        displaySpecsPtr,
+//                        gEndOfLine);
+//   ListString ((char*)gTextString2, numberChars2, gOutputTextH);
+
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
@@ -83,6 +90,7 @@ void Display1Channel4Byte8BitLine (
 	for (j=0; j<numberSamples; j+=interval)
 		{
 		doubleBinIndex = (ioBuffer1Ptr[j] - minValue1)*binFactor1 + 1.00000001;
+
 		if (doubleBinIndex < 0)
 			binIndex = 0;
 			

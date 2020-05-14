@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			05/12/2020
 //
 //	Language:				C
 //
@@ -2279,9 +2279,9 @@ void ClassifyDialogInitialize (
 	
 			// Classification output to disk file.											
 	
-	*outputFormatCodePtr = 2;
-	if (mapInfoExistsFlag)
-		*outputFormatCodePtr = 4;
+	*outputFormatCodePtr = 4;
+	if (gImageFileInfoPtr->format == kErdas74Type)
+		*outputFormatCodePtr = 2;
 		
 	if (gClassifySpecsPtr->diskFileFormat == kMultiSpecClassificationType)
 		*outputFormatCodePtr = 1;
@@ -2579,7 +2579,7 @@ void ClassifyDialogOK (
 	
 			// Write classification to disk file.
 	
-	gClassifySpecsPtr->diskFileFormat	= 0;
+	gClassifySpecsPtr->diskFileFormat = 0;
 	if (diskFileFlag)
 		{
 		switch (outputFormatCode)
