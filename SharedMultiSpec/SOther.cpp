@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			05/31/2020
 //
 //	Language:				C
 //
@@ -2528,7 +2528,7 @@ void ListDescriptionInformation (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 06/28/2010
-//	Revised By:			Larry L. Biehl			Date: 07/30/2015
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 Boolean ListDescriptionInformationForFile (
 				FileInfoPtr							fileInfoPtr,
@@ -2972,7 +2972,7 @@ Boolean ListDescriptionInformationForFile (
 		if (continueFlag && fileInfoPtr->noDataValueFlag)
 			{
 			sprintf ((char*)gTextString,
-						"    No Data (or Fill) Value:  %14g%s",	// 14.7e%s used in past.
+						"    No Data (or Fill) Value: %15.9g%s",	// 14.7e%s used in past.
 																				// Will try g for now.
 						fileInfoPtr->noDataValue,
 						gEndOfLine);

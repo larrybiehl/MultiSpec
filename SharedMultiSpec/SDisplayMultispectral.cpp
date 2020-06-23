@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/11/2020
+//	Revision date:			05/31/2020
 //
 //	Language:				C
 //
@@ -6632,7 +6632,7 @@ Boolean EqualAreaDataToDisplayLevels (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	04/21/1988
-//	Revised By:			Larry L. Biehl			Date: 11/13/2019
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 Boolean FillDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7010,13 +7010,21 @@ Boolean FillDataToDisplayLevels (
 				indexForMinDataValue = 0;
 				indexForMaxDataValue = (UInt16)(dataDisplayVectorLength - 1);
 
-				if (displaySpecsPtr->thematicTypeMinMaxValues[0] <
-												histogramSummaryPtr[channelNumberIndex].minValue)
+				if ((!gImageFileInfoPtr->noDataValueFlag ||
+						(gImageFileInfoPtr->noDataValueFlag &&
+								gImageFileInfoPtr->noDataValue >
+										histogramSummaryPtr[channelNumberIndex].maxValue)) &&
+							(displaySpecsPtr->thematicTypeMinMaxValues[0] <
+												histogramSummaryPtr[channelNumberIndex].minValue))
 					dataDisplayPtr[indexForMinDataValue] = (UInt8)classForMinDataValue;
 
 
-				if (displaySpecsPtr->thematicTypeMinMaxValues[1] >
-												histogramSummaryPtr[channelNumberIndex].maxValue)
+				if ((!gImageFileInfoPtr->noDataValueFlag ||
+						(gImageFileInfoPtr->noDataValueFlag &&
+								gImageFileInfoPtr->noDataValue <
+								histogramSummaryPtr[channelNumberIndex].minValue)) &&
+							(displaySpecsPtr->thematicTypeMinMaxValues[1] >
+												histogramSummaryPtr[channelNumberIndex].maxValue))
 					dataDisplayPtr[indexForMaxDataValue] = (UInt8)classForMaxDataValue;
 
 				}	// end "if (histogramSummaryPtr[channelNumberIndex].binType == kBinWidthNotOne)"

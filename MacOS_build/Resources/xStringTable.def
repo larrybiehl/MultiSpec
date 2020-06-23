@@ -5,7 +5,7 @@
 # Warning: Strings should not contain chars like #[No.] in them and string maybe on multiple lines (limited to 255 chars)
 # If need arises for this, try to space them apart
 # string id should be in numerical order
-# Revised by Larry Biehl on 05/12/2020
+# Revised by Larry Biehl on 05/28/2020
 
 #include "resource.h"
 
@@ -33,14 +33,14 @@
     AFX_IDS_SCTASKLIST      "Activate Task List"
     AFX_IDS_MDICHILD        "</kml>"
 
-#51    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2|Thematic (*.gis;*.tif) |*.gis;*.tif|Shape (*.shp) |*.shp"
+#51    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2;*.jpg) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2;*.jpg|Thematic (*.gis;*.tif) |*.gis;*.tif|Shape (*.shp) |*.shp"
 #52    "All Files (*.*) |*.*|Project (*.prj, *project) |*.prj;*project"
 #53    "All Files (*.*) |*.*|Transformation Matrix (*.tra) |*.tra"
 #54    "All Files (*.*) |*.*|TIFF (*.tif) |*.tif"
 #55    "All Files (*.*) |*.*|Image Statistics (*.sta) |*.sta"
 #56    "All Files (*.*) |*.*|Thematic (*.gis;*.tif) |*.gis;*.tif"
 #57    "All Files (*.*) |*.*|Trailer (*.trl) |*.trl"
-#58    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2"
+#58    "All Files (*.*) |*.*|Multispectral (*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2;*.jpg) |*.lan;*.img;*.bil;*.bsq;*.tif;*.hdf;*.h5;*.nc;*.ecw;*.jp2;*.jpg"
 #59    "All Files (*.*) |*.*|Text (*.txt) |*.txt"
 
 #104 "Control display of overlays"
@@ -499,7 +499,7 @@ Click on 'Add to Equal Weight Set' to make selected classes part of equal weight
 #1122  "A histogram statistics file is needed for the requested display parameters. Try saving the statistics information after histogramming. For now a linear stretch enhancement with no clipping will be used."
 #1123  "Finish the current iteration and then save the new modified statistics?"
 #1124  "Finish the current channel combination and then list the results to now?"
-#1125  "This image file is the base for the current opent project. Changes are not allowed while the project is open."
+#1125  "This image file is the base for the current open project. Changes are not allowed while the project is open."
 #1126  "The cluster statistics in the project will be lost since no statistics are being saved to the project disk file. Do you want to change the settings for saving the statistics?"
 #1127  "The nuber of bits for each TIFF layer (or channel) was not the same; MultiSpec expects them to be the same."
 #1128  "MultiSpec cannot open TIFF images that are in a compressed format."
@@ -678,7 +678,7 @@ Save changes in project and/or output text window if they are important."
 #1406           "
     Bin    Probability Correct   Threshold
 "
-#1407           "      Threshold percent: %7.3f
+#1407           "      Threshold percent: %7.4g
 "
 
 #1408           "     Cell width is %d.
@@ -1030,7 +1030,7 @@ Save changes in project and/or output text window if they are important."
 "
 #1739           "    Output cluster source statistics mask file = '%s'
 "
-#1740           "    Cluster%s   	    	       	Channel Standard Deviations
+#1740           "%s	   Channel Standard Deviations
 "
 #1741           "    Clusters from selected area.
 "
@@ -1041,11 +1041,11 @@ Save changes in project and/or output text window if they are important."
 
 #1744           "    Project class means included as initial cluster centers.
 "
-#1745           "    Cluster%s 	%sPixels  	 %%   "
+#1745           "    Cluster%s	%sPixels	    %%  "
 #1746           "Creating Cluster Mask Background"
 #1747           "Creating Cluster Mask File"
 #1748           "	Area "
-#1749           "    Channel Means
+#1749           "	   Channel Means
 "
 #1750           "      Try reducing the number of pixels used for clustering."
 #1751           "There are too many pixels in the selected area for clustering. The selected number of pixels needs to be less than 1,073,741,824. Memory allocation for this limit may not be possible on some computers. Try increasing the line or column intervals."

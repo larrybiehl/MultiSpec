@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2020
+//	Revision date:			05/31/2020
 //
 //	Language:				C
 //
@@ -3947,7 +3947,7 @@ Boolean FileSpecificationDialogOK (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
-//	Revised By:			Larry L. Biehl			Date: 11/11/2019
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 SInt16 FileSpecificationDialogSetHDFValues (
 				DialogPtr							dialogPtr,
@@ -4140,7 +4140,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 			SetDLogControl (dialogPtr,
 									IDC_FillDataValueExists,
 									(SInt16)hdfFileInfo.noDataValueFlag);
-			LoadDItemRealValue (dialogPtr, IDC_FillDataValue, hdfFileInfo.noDataValue, 0);
+			LoadDItemRealValue (dialogPtr, IDC_FillDataValue, hdfFileInfo.noDataValue, 9);
 			ShowHideDialogItem (dialogPtr,
 										IDC_FillDataValue,
 										(Boolean)hdfFileInfo.noDataValueFlag);

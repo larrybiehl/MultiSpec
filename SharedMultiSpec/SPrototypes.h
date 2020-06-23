@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 04/11/2020
+//	Revised By:				Larry L. Biehl			Date: 06/22/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -5870,6 +5870,7 @@ extern void ConvertWinRectToMapRect (
 				LongRect*							windowRectPtr,
 				DoubleRect*							boundingMapRectPtr,
 				Boolean								winUseOriginFlag,
+				Boolean								force01MagnificationFlag,
 				UInt16								boundingCode);
 
 extern Boolean CoordinateDialog (void);

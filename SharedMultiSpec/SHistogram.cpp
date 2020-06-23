@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			05/11/2020
+//	Revision date:			06/05/2020
 //
 //	Language:				C
 //
@@ -2935,13 +2935,13 @@ UInt32 DetermineBytesForHistogramText (
 // Called By:			HistogramControl   in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/22/2003	
-//	Revised By:			Larry L. Biehl			Date: 01/04/2006
+//	Revised By:			Larry L. Biehl			Date: 05/30/2020
 
 Boolean DetermineMinAndMaxValuesForEachChannel (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,  
 				HistogramSpecsPtr					histogramSpecsPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
-				UInt16								*channelListPtr,
+				UInt16*								channelListPtr,
 				SInt16								channelOffset,
 				double								maxSaturatedValue,
 				Boolean								BISFlag,
@@ -2952,7 +2952,10 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 {
 	double*								ioBuffer8Ptr;
 											    
-	double								dataValue;
+	double								dataValue,
+											maxDataValue,
+											minDataValue,
+											noDataValue;
 	
 	UInt32								columnEnd,
 											columnInterval,
@@ -2967,6 +2970,9 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 											errCode = noErr;
 	
 	UInt16								channel;
+	
+	Boolean								checkForNoDataFlag,
+											dataOkayFlag;
 											
 	#if defined multispec_mac
 		Pattern								black;
@@ -2980,15 +2986,40 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 	lineEnd = histogramSpecsPtr->lineEnd;
 	lineInterval = histogramSpecsPtr->lineInterval;
 	
+	checkForNoDataFlag = FALSE;
+	if (fileIOInstructionsPtr->fileInfoPtr->noDataValueFlag)
+		{
+		checkForNoDataFlag = TRUE;
+		
+			  // Want to ignore these data values.
+			  
+		noDataValue = fileIOInstructionsPtr->fileInfoPtr->noDataValue;
+
+		if (noDataValue >= 0)
+		  {
+		  maxDataValue = 1.00000001 * noDataValue;
+		  minDataValue = 0.99999999 * noDataValue;
+		  
+		  }	// end "if (noDataValue) >= 0)"
+
+		else if (noDataValue < 0)
+		  {
+		  minDataValue = 1.00000001 * noDataValue;
+		  maxDataValue = 0.99999999 * noDataValue;
+		  
+		  }	// end "if (noDataValue) < 0)"
+		
+		}	// end "if (fileIOInstructionsPtr->fileInfoPtr->noDataValueFlag)"
+
 			// Read line of image as specified by HistogramSpecs.
 
 	for (line=lineStart; line<=lineEnd; line+=lineInterval)
 		{
-				// Get all channels for the line of image data.  Return 		
-				// if there is a file IO error.										
+				// Get all channels for the line of image data.  Return
+				// if there is a file IO error.
 			 
 		errCode = GetLineOfData (fileIOInstructionsPtr,
-											line, 
+											line,
 											columnStart,
 											columnEnd,
 											columnInterval,
@@ -2996,18 +3027,18 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 											gOutputBufferPtr);
 
 		if (errCode != noErr)
-			{			
-			gConvertSignedDataFlag = FALSE;	
-			histogramSpecsPtr->loadedFlag = FALSE;					
+			{
+			gConvertSignedDataFlag = FALSE;
+			histogramSpecsPtr->loadedFlag = FALSE;
 																							return (FALSE);
 																		
-			}	// end "if (errCode != noErr)" 
+			}	// end "if (errCode != noErr)"
 	
 				// This part of the program determines the min and max value for
-				// the requested channels in this particular file.																
+				// the requested channels in this particular file.
 				
-		for (channel=0; 
-				channel<imageFileNumberChannels; 
+		for (channel=0;
+				channel<imageFileNumberChannels;
 				channel++)
 			{
 			chanIndex = channelListPtr[channelOffset+channel];
@@ -3027,70 +3058,82 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 				{
 				dataValue = ioBuffer8Ptr[index];
 				
-						// Get the maximum data values.
-				
-				if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
+				dataOkayFlag = TRUE;
+				if (checkForNoDataFlag)
 					{
-					histogramSummaryPtr[chanIndex].maxNonSatValue =
-														histogramSummaryPtr[chanIndex].maxValue;
+					if (dataValue > minDataValue && dataValue < maxDataValue)
+						dataOkayFlag = FALSE;
 					
-					histogramSummaryPtr[chanIndex].maxValue = dataValue;
+					}	// end "if (checkForNoDataFlag)"
 					
-					}	// end "if (dataValue > ...[chanIndex].maxValue)"
-				
-				else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
-										dataValue != histogramSummaryPtr[chanIndex].maxValue)
-					histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
-				
-						// Get the minimum data values.
-				
-				if (dataValue < histogramSummaryPtr[chanIndex].minValue)
+				if (dataOkayFlag)
 					{
-					histogramSummaryPtr[chanIndex].minNonSatValue =
-														histogramSummaryPtr[chanIndex].minValue;
+							// Get the maximum data values.
 					
-					histogramSummaryPtr[chanIndex].minValue = dataValue;
+					if (dataValue > histogramSummaryPtr[chanIndex].maxValue)
+						{
+						histogramSummaryPtr[chanIndex].maxNonSatValue =
+															histogramSummaryPtr[chanIndex].maxValue;
+						
+						histogramSummaryPtr[chanIndex].maxValue = dataValue;
+						
+						}	// end "if (dataValue > ...[chanIndex].maxValue)"
 					
-					}	// end "if (dataValue > ...[chanIndex].maxValue)"
-				
-				else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
-										dataValue != histogramSummaryPtr[chanIndex].minValue)
-					histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
-				
-						// Compute the channel sum.
-				
-				histogramSummaryPtr[chanIndex].averageValue += dataValue;
+					else if (dataValue > histogramSummaryPtr[chanIndex].maxNonSatValue &&
+											dataValue != histogramSummaryPtr[chanIndex].maxValue)
+						histogramSummaryPtr[chanIndex].maxNonSatValue = dataValue;
+					
+							// Get the minimum data values.
+					
+					if (dataValue < histogramSummaryPtr[chanIndex].minValue)
+						{
+						histogramSummaryPtr[chanIndex].minNonSatValue =
+															histogramSummaryPtr[chanIndex].minValue;
+						
+						histogramSummaryPtr[chanIndex].minValue = dataValue;
+						
+						}	// end "if (dataValue > ...[chanIndex].maxValue)"
+					
+					else if (dataValue < histogramSummaryPtr[chanIndex].minNonSatValue &&
+											dataValue != histogramSummaryPtr[chanIndex].minValue)
+						histogramSummaryPtr[chanIndex].minNonSatValue = dataValue;
+					
+							// Compute the channel sum.
+					
+					histogramSummaryPtr[chanIndex].averageValue += dataValue;
 
-						// Compute the sum of the data value square for
-						// each channel
+							// Compute the sum of the data value square for
+							// each channel
 
-				histogramSummaryPtr[chanIndex].stdDeviation += dataValue * dataValue;
-	
+					histogramSummaryPtr[chanIndex].stdDeviation += dataValue * dataValue;
+					
+					}	// end "if (dataOkayFlag)"
+		
 				}	// end "for (index=0; ..."
 				
-			}	// end "for (channel=0; channel<..." 
+			}	// end "for (channel=0; channel<..."
 			
-				// Check if user wants to exit histogramming.					
+				// Check if user wants to exit histogramming.
 		
 		if (TickCount () >= gNextTime)
 			{
 			if (!CheckSomeEvents (osMask+keyDownMask+updateMask+mDownMask+mUpMask))
 				{
-				histogramSpecsPtr->loadedFlag = FALSE;			
-				gConvertSignedDataFlag = FALSE;	
+				histogramSpecsPtr->loadedFlag = FALSE;
+				gConvertSignedDataFlag = FALSE;
 																							return (FALSE);
 					
-				}	// end "if (!CheckSomeEvents (..." 
+				}	// end "if (!CheckSomeEvents (..."
 				
-			}	// end "if (TickCount () >= nextTime)" 
+			}	// end "if (TickCount () >= nextTime)"
 			
 		if (TickCount () >= gNextStatusTime)
 			{
 			gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
 
 			#if defined multispec_mac
-				if (gStatusProgressControlHandle != NULL)		
-					SetControlValue (gStatusProgressControlHandle, 
+				if (gStatusProgressControlHandle != NULL)
+					SetControlValue (gStatusProgressControlHandle,
 											gStatusGraphicsBox.right);
 				
 				else	// gStatusProgressControlHandle == NULL
@@ -3102,7 +3145,7 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 																SetPos ((SInt32)gStatusGraphicsRight);
 			#endif	// defined multispec_win
 
-         #if defined multispec_wx
+			#if defined multispec_wx
 				((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 														SetValue ((SInt32)gStatusGraphicsRight);
 				CheckSomeEvents (osMask+updateMask);
@@ -3110,11 +3153,11 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 			
 			gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 			
-			}	// end "if (TickCount () >= gNextStatusTime)" 
+			}	// end "if (TickCount () >= gNextStatusTime)"
 
 				// Update the new right location of the graphics box which
-				// represents the portion of the computation that has been	
-				// completed.																
+				// represents the portion of the computation that has been
+				// completed.
 				
 		gStatusGraphicsRight += gStatusBoxIncrement;
 						
@@ -4704,7 +4747,7 @@ void GetDataFormatString (
 //
 //	Coded By:			Ravi S. Budruk			Date: 05/21/1988
 //	Revised By:			Ravi S. Budruk			Date: 09/16/1988	
-//	Revised By:			Larry L. Biehl			Date: 06/30/2016
+//	Revised By:			Larry L. Biehl			Date: 06/05/2020
 
 Boolean HistogramControl (
 				SInt16								computeCode)
@@ -4796,6 +4839,14 @@ Boolean HistogramControl (
             
          else     // gFromToolParameterFileFlag
             continueFlag = TRUE;
+
+			if (gImageFileInfoPtr->bandInterleave == kBSQ)
+						// Do not do all channels at once. If there are many channels, do all
+						// channels at once can cause a lot of IO time since one is reading a
+						// a channel for line n and then skipping to the next channel for line n.
+						// Doing things a channel at at time will cause the file to be read
+						// in sequential order.
+				histogramSpecsPtr->allChannelsAtOnceFlag = FALSE;
 			
 			}	// end "else computeCode != kLoadHistogramFromDisk" 
 			
@@ -4904,6 +4955,16 @@ Boolean HistogramControl (
 				// release the memory assigned to it.										
 				
 		CloseResultsFiles ();
+							
+				// List the CPU time taken for histogramming.
+		
+		SInt16 savedProcessorCode = gProcessorCode;
+		gProcessorCode = kHistogramInDisplayProcessor;
+		//if (gProcessorCode == kHistogramProcessor)
+			continueFlag = ListCPUTimeInformation (NULL,
+																	continueFlag,
+																	startTime);
+		gProcessorCode = savedProcessorCode;
 			
 		}	// end "if (histogramSpecsPtr && histogramSpecsPtr->..." 
 		
@@ -4925,13 +4986,6 @@ Boolean HistogramControl (
 		MInitCursor ();
 		
 		}	// end "if (gProcessorCode == kHistogramProcessor && ...)"
-						
-			// List the CPU time taken for histogramming.		
-	
-	if (gProcessorCode == kHistogramProcessor)
-		continueFlag = ListCPUTimeInformation (NULL,
-																continueFlag, 
-																startTime);
 	
 			// Scroll output window to the selection and adjust the scroll		
 			// bar.																				

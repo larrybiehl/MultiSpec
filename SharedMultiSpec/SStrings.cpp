@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/14/2020
+//	Revision date:			06/23/2020
 //
 //	Language:				C
 //
@@ -2896,14 +2896,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 05/14/2020
+//	Revised By:			Larry L. Biehl			Date: 06/23/2020
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2020.05.14");
+	sprintf (gDateVersionString, "2020.06.23");
 
 		// Application identifier string
 		
@@ -3590,7 +3590,7 @@ SInt16 ListCountValue (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/1993
-//	Revised By:			Larry L. Biehl			Date: 06/29/2016			
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 Boolean ListCPUTimeInformation (
 				CMFileStream*						resultsFileStreamPtr, 
@@ -3627,6 +3627,7 @@ Boolean ListCPUTimeInformation (
 			break;
 			
 		case kHistogramProcessor:
+		case kHistogramInDisplayProcessor:
 			sprintf ((char*)gTextString2, "histograming image");
 			break;
 			
@@ -3806,13 +3807,14 @@ Boolean ListCPUTimeInformation (
 	*/					
 			// List the dashed line separator string to indicate end of processor
 			// output.
-			
-	continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
-															IDS_Shared6, 
-															(unsigned char*)gTextString, 
-															resultsFileStreamPtr, 
-															gOutputForce1Code, 
-															continueFlag);
+	
+	if (gProcessorCode != kHistogramInDisplayProcessor)
+		continueFlag = ListSpecifiedStringNumber (kSharedStrID,
+																IDS_Shared6,
+																(unsigned char*)gTextString,
+																resultsFileStreamPtr,
+																gOutputForce1Code,
+																continueFlag);
 	
 	return (continueFlag);
 		

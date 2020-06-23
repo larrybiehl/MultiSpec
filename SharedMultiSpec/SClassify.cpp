@@ -8486,6 +8486,8 @@ SInt16 MaximumLikelihoodClassifier (
 	thresholdTablePtr =	 	gClassifySpecsPtr->thresholdTablePtr;
 	thresholdProbabilityPtr = gClassifySpecsPtr->thresholdProbabilityPtr;
 	
+	sameDistanceCount =		0;
+	
 	continueFlag = TRUE;
 	
   	if (gTestFlag)

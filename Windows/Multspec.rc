@@ -504,7 +504,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
-    CTEXT           "MultiSpec Application\nVersion 2020.05.14",IDC_STATIC,103,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2020.06.23",IDC_STATIC,103,6,119,17
     CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation",IDC_STATIC,8,40,317,26
     DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
@@ -1146,7 +1146,7 @@ BEGIN
     CONTROL         "Threshold results at",IDC_ThresholdResults,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,145,76,10
     CONTROL         "Create Probability Results File",IDC_CreateProbabilityFile,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,179,112,10
-    EDITTEXT        IDC_ThresholdValue,256,144,26,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ThresholdValue,256,144,30,13,ES_AUTOHSCROLL
     LTEXT           "%",IDC_PercentSymbol,287,146,13,8
     CONTROL         "ToSelectedImage",IDSelectedImage,"Button",BS_OWNERDRAW | WS_TABSTOP,15,198,15,15
     COMBOBOX        IDC_PaletteCombo,227,123,72,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -1156,14 +1156,14 @@ BEGIN
     EDITTEXT        IDC_CorrelationCoefficientThreshold,255,163,45,13,ES_AUTOHSCROLL
     CONTROL         "Training (leave-one-out)",IDC_TrainingLOO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,131,97,10
     LTEXT           "Class areas:",IDC_STATIC,9,107,43,8
-    LTEXT           "o",IDC_DegreeSymbol,285,141,8,8
-    EDITTEXT        IDC_CEMThreshold,256,144,26,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_CorrelationAngleThreshold,256,144,27,13,ES_AUTOHSCROLL
+    LTEXT           "o",IDC_DegreeSymbol,287,141,8,8
+    EDITTEXT        IDC_CEMThreshold,256,144,30,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_CorrelationAngleThreshold,256,144,30,13,ES_AUTOHSCROLL
     LTEXT           "Default set",IDC_SymbolsDefaultSet,209,49,50,8
     LTEXT           "Equal",IDC_WeightsEqual,225,30,49,9
     COMBOBOX        IDC_ImageOverlayCombo,195,105,110,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_NearestNeighborThreshold,256,144,27,13,ES_AUTOHSCROLL
-    LTEXT           "neighbors",IDC_NearestNeighbor,285,146,36,8
+    LTEXT           "neighbors",IDC_NearestNeighbor,287,146,36,8
 END
 
 IDD_DisplayThematic DIALOGEX 0, 0, 300, 230
@@ -4538,7 +4538,7 @@ BEGIN
     IDS_Classify4           "    Classification cancelled because covariance matrix could not be inverted for one or more classes.\r\n"
     IDS_Classify5           "      Cell Homogeneity Test Threshold:\r\n"
     IDS_Classify6           "\r\n    Bin    Probability Correct   Threshold\r\n"
-    IDS_Classify7           "      Threshold percent: %7.3f\r\n"
+    IDS_Classify7           "      Threshold percent: %7.4g\r\n"
 END
 
 STRINGTABLE
@@ -4733,7 +4733,7 @@ BEGIN
     IDS_Cluster37           "\r\n    Number of total clusters = %ld\r\n    Number of final clusters = %ld\r\n"
     IDS_Cluster38           "    Cluster algorithm is ""ISODATA""\r\n"
     IDS_Cluster39           "    Output cluster source statistics mask file = '%s'\r\n"
-    IDS_Cluster40           "    Cluster%s   \t    \t       \tChannel Standard Deviations\r\n"
+    IDS_Cluster40           "%s\t   Channel Standard Deviations\r\n"
     IDS_Cluster41           "    Clusters from selected area.\r\n"
     IDS_Cluster42           "     Cluster %2ld classification size:  %ld\r\n"
     IDS_Cluster43           "    Initialize within correlation matrix eigenvector volume.\r\n"
@@ -4846,11 +4846,11 @@ END
 STRINGTABLE
 BEGIN
     IDS_Cluster44           "    Project class means included as initial cluster centers.\r\n"
-    IDS_Cluster45           "    Cluster%s \t%sPixels  \t %%   "
+    IDS_Cluster45           "    Cluster%s\t%sPixels\t    %%  "
     IDS_Cluster46           "Creating Cluster Mask Background"
     IDS_Cluster47           "Creating Cluster Mask File"
     IDS_Cluster48           "\tArea "
-    IDS_Cluster49           "\tChannel Means\r\n"
+    IDS_Cluster49           "\t   Channel Means\r\n"
     IDS_Cluster50           "      Try reducing the number of pixels used for clustering."
     IDS_Cluster51           "There are too many pixels in the selected area for clustering. The selected number of pixels needs to be less than 1,073,741,824. Memory allocation for this limit may not be possible on some computers. Try increasing the line or column intervals."
     IDS_Cluster52           "\r\n    Classify threshold: %g\r\n"
@@ -5441,7 +5441,7 @@ BEGIN
     IDS_Alert107            "Select the algorithm to be used."
     IDS_Alert108            "The shape file may be corrupted. It was not used."
     IDS_Alert109            "Click on the graph or use the right arrow key to go to the plot for the next pixel. Select the graph close box or strike the 'esc' key to cancel the operation."
-    IDS_Alert110            "FYI. This image appears to actually be a multispectral image file that is being treated as a thematic image."
+    IDS_Alert110            "\r\n    Classification of Training Fields (Leave-One-Out Method)\r\n"
     IDS_Alert111            "The size of the selected class info file does not agree with what is expected for the number of classes in the thematic image."
     IDS_Alert112            "MultiSpec cannot handle the compressed data in this Windows bitmap formatted image file."
     IDS_Alert113            "MultiSpec cannot handle image data defined by 1-bit values in this Windows bitmap formatted image file."

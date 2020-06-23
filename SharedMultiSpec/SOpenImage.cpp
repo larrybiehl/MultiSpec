@@ -1505,12 +1505,12 @@ SInt16 CheckImageHeader (
 		#endif	// use_multispec_tiffcode
 
 				//  Check if image file is in HDF format.
-
+		
 		#if include_hdf_capability
 			if (fileInfoPtr->format == 0 && count >= 32)
 				returnCode = ReadHDFHeader (fileInfoPtr, headerRecordPtr, formatOnlyCode);
 		#endif		// include_hdf_capability
-
+		
 				// Check if file is an ERDAS Imagine HFA file
 
 		#if !include_gdal_capability

@@ -26,7 +26,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 05/05/2020
+//	Revised By:				Larry L. Biehl			Date: 05/31/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -773,6 +773,7 @@
 #define	kDisplayProcessor							10	
 #define	kDisplayOverlayProcessor				15
 #define	kHistogramProcessor						20
+#define	kHistogramInDisplayProcessor			21
 #define	kReformatProcessor						30
 #define	kRefChangeHeaderProcessor				3010
 #define	kRefChangeFileFormatProcessor			3020

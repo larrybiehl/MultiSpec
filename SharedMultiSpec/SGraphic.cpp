@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl and Nicus, Inc
 //
-//	Revision date:			02/29/2020
+//	Revision date:			05/29/2020
 //
 //	Language:				C
 //
@@ -1480,7 +1480,7 @@ void	FormatR (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/1999
-//	Revised By:			Larry L. Biehl			Date: 02/29/2020
+//	Revised By:			Larry L. Biehl			Date: 05/29/2020
 
 void	HistogramPlotV (
 				GraphPtr								graph, 
@@ -1649,7 +1649,7 @@ void	HistogramPlotV (
                   newPenPtr = &brush;
                   break;    	
                case magentaColor:
-                  brush.SetColour (*wxRED);
+                  brush.SetColour (magentaColor);
                   newPenPtr = &brush;
                   break; 
                case redColor:

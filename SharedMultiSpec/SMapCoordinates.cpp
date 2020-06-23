@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/11/2020
+//	Revision date:			06/22/2020
 //
 //	Language:				C
 //
@@ -1805,13 +1805,14 @@ void ConvertMetersToFeet (
 //							GetWindowMapRect in SMapCoordinates.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2001
-//	Revised By:			Larry L. Biehl			Date: 03/12/2015		
+//	Revised By:			Larry L. Biehl			Date: 06/22/2020
 
 void ConvertWinRectToMapRect (
 				Handle								windowInfoH,
 				LongRect*							windowRectPtr, 
 				DoubleRect*							boundingMapRectPtr, 
 				Boolean								winUseOriginFlag,
+				Boolean								force01MagnificationFlag,
 				UInt16								boundingCode)
 
 {
@@ -1860,6 +1861,8 @@ void ConvertWinRectToMapRect (
 	if (displaySpecsPtr != NULL && mapProjectionInfoPtr != NULL)
 		{
 		magnification = displaySpecsPtr->magnification;
+		if (force01MagnificationFlag)
+			magnification = 1;
 		
 				// Get the v (or y) window offset.
 		
@@ -7206,7 +7209,7 @@ Boolean GetCursorCoordinates (
 // Called By:			DrawArcViewShapes in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2003
-//	Revised By:			Larry L. Biehl			Date: 07/20/2006		
+//	Revised By:			Larry L. Biehl			Date: 06/22/2020
 
 void GetBoundingMapRectangle (
 				WindowPtr							windowPtr,
@@ -7233,6 +7236,7 @@ void GetBoundingMapRectangle (
 		ConvertWinRectToMapRect (windowInfoHandle,
 											&windowLongRect, 
 											&boundingMapRect, 
+											FALSE,
 											FALSE,
 											kAllCorners);	
 		
@@ -8608,7 +8612,7 @@ SInt16 GetSpheroidCodeFromMajorMinorAxes (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2001
-//	Revised By:			Larry L. Biehl			Date: 07/20/2006		
+//	Revised By:			Larry L. Biehl			Date: 06/22/2020
 
 void GetWindowMapRect (
 				WindowPtr							windowPtr,
@@ -8669,6 +8673,7 @@ void GetWindowMapRect (
 										&windowLongRect, 
 										boundingMapRectPtr, 
 										winUseOriginFlag,
+										FALSE,
 										boundingCode);
 
 }	// end "GetWindowMapRect" 

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/14/2020
+//	Revision date:			05/18/2020
 //
 //	Language:				C
 //
@@ -227,6 +227,19 @@ Boolean 	GetProbabilityFile (
 Boolean 	ListClusterInputParameters (
 				FileInfoPtr							fileInfoPtr,
 				CMFileStream*						resultsFileStreamPtr);
+
+Boolean ListClusterStatisticsChannelListLine (
+				CMFileStream*						clResultsFileStreamPtr,
+				SInt16*								outputCodePtr,
+				SInt16*								channelsPtr,
+				double								areaConversionFactor,
+				Handle								baseImageWindowHandle,
+				SInt16								characterIncrement,
+				SInt16								maxNameLength,
+				SInt16								numberPixelsInClusterWidth,
+				SInt16								numberChannels,
+				SInt16								totalAreaNumberWidth,
+				Boolean								stdDevFlag);
 
 Boolean 	LoadClusterSpecs (
 				FileInfoPtr							fileInfoPtr);
@@ -5311,7 +5324,7 @@ Boolean ListClusterInputParameters (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/08/1990
-//	Revised By:			Larry L. Biehl			Date: 05/14/2020
+//	Revised By:			Larry L. Biehl			Date: 05/18/2020
 
 Boolean ListClusterStatistics (
 				CMFileStream*						clResultsFileStreamPtr, 
@@ -5339,8 +5352,7 @@ Boolean ListClusterStatistics (
 											maxNameLength,
 											numberBytes;
 	
-	SInt16								areaStringStart,
-											areaUnitsStringWidth,
+	SInt16								areaUnitsStringWidth,
 											channel,
 											characterIncrement,
 											classStorage,
@@ -5348,6 +5360,7 @@ Boolean ListClusterStatistics (
 											fieldSize,
 											numberChannels,
 											numChars,
+											numChars2,
 											numberPixelsInClusterWidth,
 											strLength,
 											tempInteger,
@@ -5413,8 +5426,8 @@ Boolean ListClusterStatistics (
 																							return (FALSE);
 
 			// Get the number width for the number of pixels in each cluster. Allow
-			// for maximum number of pixels that were clustered. The minimum number will be
-			// 6 characters.
+			// for maximum number of pixels that were clustered. The minimum number
+			// will be 6 characters.
 						
 	numberPixelsInClusterWidth = CreateNumberWithCommasInString (
 														(char*)pixelCountString, 
@@ -5451,6 +5464,8 @@ Boolean ListClusterStatistics (
    		// List the first title line for cluster means.									
    
    channelStart = 27;
+   maxNameLength = 0;
+   
 	if (gClusterSpecsPtr->projectClassMeansCode == 1)
 		{						
 		UInt32 numberProjectClassClusters = 
@@ -5463,18 +5478,18 @@ Boolean ListClusterStatistics (
 															NULL);
 		maxNameLength = MAX (13, maxNameLength);
 		
-   	channelStart += maxNameLength + 4;
-		sprintf (gCharBufferPtr1, 
-					"  %*s", 
-					-((SInt16)(maxNameLength+2)),
-					"\t Project_Class");
+		numChars = sprintf (gCharBufferPtr1,
+									"%*s",
+									-((SInt16)(maxNameLength+4)),
+									"\t Project_Class");
+		channelStart += numChars;
   		
   		}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
   		
   	else	// gClusterSpecsPtr->projectClassMeansCode != 1
 		sprintf (gCharBufferPtr1, "");
 
-  	sprintf (titleSpaceString, "%*s", numberPixelsInClusterWidth-6, ""); 
+  	sprintf (titleSpaceString, "%*s", numberPixelsInClusterWidth-6, " ");
 
 	continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
 															IDS_Cluster45,
@@ -5483,63 +5498,29 @@ Boolean ListClusterStatistics (
 															gCharBufferPtr1, 
 															titleSpaceString,
 															continueFlag);
-	
-			// Get a blank string and force the pascal string count to be blank.
-								
-	if (continueFlag)						
-		continueFlag = MGetString ((UCharPtr)gCharBufferPtr1, 
-												kSharedStrID, 
-												IDS_Shared4);
-													
-	gCharBufferPtr1[0] = ' ';
-			
-			// strLength represents the length of the line to the start of 
-			// any area information.
-			
-	areaStringStart = (SInt16)channelStart;
-	
+
 			// Now enter title for the area information if needed.
 							
 	if (areaConversionFactor > 0)
-		{											
-		numChars = (totalAreaNumberWidth + 2 - 6)/2;
-		if (numChars > 0)
-			{
-			continueFlag = OutputString (clResultsFileStreamPtr, 
-													gCharBufferPtr1, 
-													numChars, 
-													*outputCodePtr, 
-													continueFlag);
-													
-			#if defined multispec_win || defined multispec_wx   
-				gCharBufferPtr1[numChars] = ' '; 
-			#endif	// defined multispec_win || defined multispec_wx  
-
-			}	// end "if (numChars > 0)"
-		
-		continueFlag = ListSpecifiedStringNumber (kClusterStrID, 
-																IDS_Cluster48,
-																(unsigned char*)gTextString, 
-																clResultsFileStreamPtr, 
-																*outputCodePtr, 
-																continueFlag);
-										
-		numChars = totalAreaNumberWidth + 2 - 6 - numChars;
-		if (numChars > 0)
-			{
-			continueFlag = OutputString (clResultsFileStreamPtr, 
-													gCharBufferPtr1, 
-													numChars, 
-													*outputCodePtr, 
-													continueFlag);
-													
-			#if defined multispec_win || defined multispec_wx  
-				gCharBufferPtr1[numChars] = ' '; 
-			#endif	// defined multispec_win || defined multispec_wx 
-
-			}	// end "if (numChars > 0)"
+		{
+		numChars = (totalAreaNumberWidth - 6)/2;
+		numChars2 = totalAreaNumberWidth - 6 - numChars;
+		numChars2 = MAX (0, numChars2);
+		numChars = sprintf (gCharBufferPtr1,
+									"\t%*s Area %*s ",
+									numChars,
+									" ",
+									numChars2,
+									" ");
 									
-   	channelStart += totalAreaNumberWidth + 2;
+		continueFlag = OutputString (clResultsFileStreamPtr,
+												gCharBufferPtr1,
+												numChars,
+												*outputCodePtr,
+												continueFlag);
+									
+   	//channelStart += totalAreaNumberWidth + 2;
+   	channelStart += numChars;
 		
 		}	// end "if (areaConversionFactor > 0)"
 		
@@ -5550,45 +5531,22 @@ Boolean ListClusterStatistics (
 															*outputCodePtr, 
 															continueFlag);
 															
-   		// List the second title line for cluster means.	
-		
-	if (gClusterSpecsPtr->projectClassMeansCode == 1)
-		sprintf (&gCharBufferPtr1[areaStringStart-3], "\t");
-	
-	sprintf (&gCharBufferPtr1[areaStringStart-2], "\t\t   ");
-									
-	if (areaConversionFactor > 0)
-		{
-		GetAreaUnitString (baseImageWindowHandle, FALSE, (char*)gTextString);
-		
-		strLength = sprintf (&gCharBufferPtr1[channelStart-totalAreaNumberWidth-2],
-									"\t(%s) ",
-									(char*)&gTextString[1]);
-										
-		gCharBufferPtr1[channelStart-totalAreaNumberWidth-2+strLength] = ' ';
-		
-		}	// end "if (areaConversionFactor > 0)"
+   		// List the second title line for cluster means which includes the
+   		// channel list.
 
-	stringPtr1 = gCharBufferPtr1 + channelStart - 1;
-	tempInteger = characterIncrement - 1;
-	for (channel=0; channel<numberChannels; channel++)
-		{
-		sprintf (stringPtr1, "\t%*d", tempInteger, (int)(channelsPtr[channel]+1));
-		stringPtr1 += characterIncrement;
-										
-		}	// end "for (channel=0; channel<numberChannels; channel++)"
-		
-			// Add the carriage return 
-			
-	sprintf (stringPtr1, "%s", gEndOfLine);
-	
-	continueFlag = OutputString2 (clResultsFileStreamPtr, 
-											gCharBufferPtr1, 
-											0, 
-											*outputCodePtr, 
-											continueFlag,
-											kmaxNumberCharactersForLine,
-											kASCIICharString);
+	if (continueFlag)
+		continueFlag = ListClusterStatisticsChannelListLine (
+																		clResultsFileStreamPtr,
+																		outputCodePtr,
+																		channelsPtr,
+																		areaConversionFactor,
+																		baseImageWindowHandle,
+																		characterIncrement,
+																		maxNameLength,
+																		numberPixelsInClusterWidth,
+																		numberChannels,
+																		totalAreaNumberWidth,
+																		FALSE);
 
 			// Now list the cluster means for each of the clusters.
 			
@@ -5656,15 +5614,17 @@ Boolean ListClusterStatistics (
 							
 		if (areaConversionFactor > 0)
 			{
-			sprintf (&gCharBufferPtr1[numChars], 
-							"\t%*.*f ", 
-							totalAreaNumberWidth,
-							areaPrecision,
-							(double)currentCluster->numPixels * areaConversionFactor);
+			numChars2 = sprintf (&gCharBufferPtr1[numChars],
+										"\t%*.*f ",
+										totalAreaNumberWidth,
+										areaPrecision,
+										(double)currentCluster->numPixels * areaConversionFactor);
+			numChars += numChars2;
 			
 			}	// end "if (areaConversionFactor > 0)"
 						
 		stringPtr1 += channelStart;
+		//stringPtr1 += numChars;
       for (channel=0; channel<numberChannels; channel++)
       	{
 			LoadRealValueString (stringPtr1,
@@ -5706,77 +5666,60 @@ Boolean ListClusterStatistics (
    if (stdDevFlag && continueFlag)
    	{
    			// List the first title line for cluster standard deviations.	
-   	
-   	if (gClusterSpecsPtr->projectClassMeansCode == 1)		
-			sprintf (gCharBufferPtr1, 
-							"  %*s", 
-							-((SInt16)(maxNameLength+2)),
-							"\t Project_Class");
-  		
-  		else	// gClusterSpecsPtr->projectClassMeansCode != 1
-			sprintf ((char*)gCharBufferPtr1, 
-							"");			
-   		
-				// "\r\nCluster          Channel Standard Deviations\r\n");
-		continueFlag = ListSpecifiedStringNumber (
-										kClusterStrID, 
-										IDS_Cluster40,
-										clResultsFileStreamPtr, 
-										*outputCodePtr, 
-										gCharBufferPtr1, 
-										continueFlag);
-	
-				// Get a blank string and force the pascal string count to be blank.
-									
-		if (continueFlag)						
-			continueFlag = MGetString ((UCharPtr)gCharBufferPtr1, 
-													kSharedStrID, 
-													IDS_Shared4);
-														
-		gCharBufferPtr1[0] = ' ';
-		/*		
-				// Allow for width for the area if it was used.
-									
-		if (areaConversionFactor > 0)
-			totalAreaNumberWidth += 2;
-		else	// areaConversionFactor <= 0
-			totalAreaNumberWidth = 0;
-		*/		
-   	if (gClusterSpecsPtr->projectClassMeansCode == 1)
-			sprintf (&gCharBufferPtr1[areaStringStart-3], "\t");
-		
-		sprintf (&gCharBufferPtr1[areaStringStart-2], "\t\t   ");
-		
-		if (areaConversionFactor > 0)
-			sprintf (&gCharBufferPtr1[areaStringStart], "\t  ");
-		
-		gCharBufferPtr1[areaStringStart+3] = ' ';
-	
-		stringPtr1 = gCharBufferPtr1 + channelStart - 1;
-		
-		tempInteger = characterIncrement - 1;
-		for (channel=0; channel<numberChannels; channel++)
+
+		if (gClusterSpecsPtr->projectClassMeansCode == 1)
 			{
-			numChars = sprintf (stringPtr1, 
-										"\t%*d",
-										tempInteger, 
-										(int)(channelsPtr[channel]+1));
-			stringPtr1 += numChars;
-											
-			}	// end "for (channel=0; channel<numberChannels; channel++)" 
-		
-				// Add the carriage return 
-				
-		sprintf (stringPtr1, "%s", gEndOfLine);
+					// Load spaces in place of class name into a string.
+
+			numChars = sprintf (gCharBufferPtr1,
+										"    Cluster\t %*s  \t %*s\t       ",
+										-((SInt16)(maxNameLength)),
+										"Project_Class",
+										numberPixelsInClusterWidth,
+										" ");
+							
+			}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+						
+		else	// gClusterSpecsPtr->projectClassMeansCode != 1
+			numChars = sprintf (gCharBufferPtr1,
+										"    Cluster\t %*s\t       ",
+										numberPixelsInClusterWidth,
+										" ");
+										
+		if (areaConversionFactor > 0)
+			{
+			strLength = sprintf (&gCharBufferPtr1[numChars],
+										"\t%*s ",
+										totalAreaNumberWidth,
+										" ");
 			
-		continueFlag = OutputString2 (clResultsFileStreamPtr, 
-												gCharBufferPtr1, 
-												0, 
-												*outputCodePtr, 
-												continueFlag,
-												kmaxNumberCharactersForLine,
-												kASCIICharString);
-												
+			}	// end "if (areaConversionFactor > 0)"
+				
+				// "\t   Channel Standard Deviations\r\n");
+		continueFlag = ListSpecifiedStringNumber (kClusterStrID,
+																IDS_Cluster40,
+																clResultsFileStreamPtr,
+																*outputCodePtr,
+																gCharBufferPtr1,
+																continueFlag);
+
+				// List the second title line for cluster means which includes the
+				// channel list.
+
+		if (continueFlag)
+			continueFlag = ListClusterStatisticsChannelListLine (
+																			clResultsFileStreamPtr,
+																			outputCodePtr,
+																			channelsPtr,
+																			areaConversionFactor,
+																			baseImageWindowHandle,
+																			characterIncrement,
+																			maxNameLength,
+																			numberPixelsInClusterWidth,
+																			numberChannels,
+																			totalAreaNumberWidth,
+																			stdDevFlag);
+
 				// List cluster standard deviations.
 				
    	clusterCount = 0;
@@ -5808,24 +5751,30 @@ Boolean ListClusterStatistics (
 						// Load the class name into a string.					
 			
 				numChars = sprintf (gCharBufferPtr1, 
-											"      %5d\t %*s  \t          \t  ",
+											"      %5d\t %*s  \t %*s\t       ",
 											clusterCount,
-											-((SInt16)(maxNameLength+2)),
-											gTextString);
+											-((SInt16)(maxNameLength)),
+											gTextString,
+											numberPixelsInClusterWidth,
+											" ");
 								
 				}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
 							
 			else	// gClusterSpecsPtr->projectClassMeansCode != 1
 				numChars = sprintf (gCharBufferPtr1, 
-											"      %5d\t            \t  ",
-											clusterCount);
+											"      %5d\t %*s\t       ",
+											clusterCount,
+											numberPixelsInClusterWidth,
+											" ");
 		
+			numChars2 = 0;
 			if (areaConversionFactor > 0)
-				sprintf (&gCharBufferPtr1[areaStringStart-1], "\t");
-			
-			gCharBufferPtr1[areaStringStart] = ' ';
+				numChars2 = sprintf (&gCharBufferPtr1[numChars],
+											"\t%*s ",
+											totalAreaNumberWidth,
+											" ");
 							
-			stringPtr1 = gCharBufferPtr1 + channelStart;
+			stringPtr1 = &gCharBufferPtr1[numChars+numChars2];
 		
 	      for (channel=0; channel<numberChannels; channel++)
 	      	{
@@ -5873,7 +5822,131 @@ Boolean ListClusterStatistics (
    	
    return (continueFlag);
    	
-}	// end "ListClusterStatistics" 
+}	// end "ListClusterStatistics"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		Boolean ListClusterStatisticsChannelListLine
+//
+//	Software purpose:	The purpose of this routine is to list the information in the
+//							channel list title line.
+//
+//	Parameters in:		Pointer to output results file information structure.
+//							Code indicating where the cluster statistics are to
+//									be listed - text window and/or disk file.
+//							Flag indicating whether the standard deviation is
+//									to be listed.
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 05/18/2020
+//	Revised By:			Larry L. Biehl			Date: 05/18/2020
+
+Boolean ListClusterStatisticsChannelListLine (
+				CMFileStream*						clResultsFileStreamPtr,
+				SInt16*								outputCodePtr,
+				SInt16*								channelsPtr,
+				double								areaConversionFactor,
+				Handle								baseImageWindowHandle,
+				SInt16								characterIncrement,
+				SInt16								maxNameLength,
+				SInt16								numberPixelsInClusterWidth,
+				SInt16								numberChannels,
+				SInt16								totalAreaNumberWidth,
+				Boolean								stdDevFlag)
+				
+{
+	char*									stringPtr1;
+	
+	int									channel,
+											numChars,
+											stringWidth,
+											stringWidth2,
+											strLength;
+											
+	Boolean								continueFlag = true;
+
+
+	if (gClusterSpecsPtr->projectClassMeansCode == 1)
+		{
+				// Load spaces in place of class name into a string.
+
+		numChars = sprintf (gCharBufferPtr1,
+									"           \t %*s\t %*s\t       ",
+									-((SInt16)(maxNameLength+2)),
+									" ",
+									numberPixelsInClusterWidth,
+									" ");
+						
+		}	// end "if (gClusterSpecsPtr->projectClassMeansCode == 1)"
+					
+	else	// gClusterSpecsPtr->projectClassMeansCode != 1
+		numChars = sprintf (gCharBufferPtr1,
+									"           \t %*s\t       ",
+									numberPixelsInClusterWidth,
+									" ");
+
+	strLength = 0;
+	if (areaConversionFactor > 0)
+		{
+		if (stdDevFlag)
+			strLength = sprintf (&gCharBufferPtr1[numChars],
+										"\t%*s ",
+										totalAreaNumberWidth,
+										" ");
+										
+		else	// !stdDevFlag
+			{
+			GetAreaUnitString (baseImageWindowHandle, FALSE, (char*)gTextString);
+			
+			stringWidth2 = (totalAreaNumberWidth - (gTextString[0]+2))/2;
+			stringWidth2 = MAX (0, stringWidth2);
+			stringWidth = totalAreaNumberWidth - (gTextString[0]+2) - stringWidth2;
+			stringWidth = MAX (0, stringWidth);
+
+			strLength = sprintf (&gCharBufferPtr1[numChars],
+										"\t%*s(%s)%*s ",
+										stringWidth,
+										"",
+										(char*)&gTextString[1],
+										stringWidth2,
+										"");
+										
+			}	// end "else !stdDevFlag"
+		
+		}	// end "if (areaConversionFactor > 0)"
+
+	stringPtr1 = &gCharBufferPtr1[numChars + strLength];
+	stringWidth = characterIncrement - 1;
+	for (channel=0; channel<numberChannels; channel++)
+		{
+		sprintf (stringPtr1, "\t%*d", stringWidth, (int)(channelsPtr[channel]+1));
+		stringPtr1 += characterIncrement;
+										
+		}	// end "for (channel=0; channel<numberChannels; channel++)"
+		
+			// Add the carriage return
+			
+	sprintf (stringPtr1, "%s", gEndOfLine);
+	
+	continueFlag = OutputString2 (clResultsFileStreamPtr,
+											gCharBufferPtr1,
+											0,
+											*outputCodePtr,
+											continueFlag,
+											kmaxNumberCharactersForLine,
+											kASCIICharString);
+											
+	return (continueFlag);
+   	
+}	// end "ListClusterStatisticsChannelListLine"
 
 
 

@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/22/2020
+//	Revision date:			06/17/2020
 //
 //	Language:				C++
 //
@@ -285,17 +285,12 @@ void CMISODATAClusterDialog::CreateControls ()
                                       IDC_NumberClustersPrompt,
                                       wxT("Number Clusters: "),
                                       wxDefaultPosition,
-                                      wxSize (140, -1),
+                                      wxSize (160, -1),
                                       0);
    m_staticText33->Wrap (-1);
    SetUpToolTip (m_staticText33, IDS_ToolTip101);
-   m_staticText33->SetFont (wxFont (wxNORMAL_FONT->GetPointSize (),
-												wxFONTFAMILY_MODERN,
-												wxFONTSTYLE_NORMAL,
-												wxFONTWEIGHT_NORMAL,
-												false,
-												wxEmptyString));
-   bSizer47->Add (m_staticText33, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer47->Add (m_staticText33,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl16 = new wxTextCtrl (sbSizer4->GetStaticBox (),
                                   IDC_NumberClusters,
@@ -317,14 +312,15 @@ void CMISODATAClusterDialog::CreateControls ()
 												  IDC_ConvergencePrompt,
 												  wxT("Convergence (%): "),
 												  wxDefaultPosition,
-												  wxSize (140, -1),
+												  wxSize (160, -1),
 												  0);
    m_staticText34->Wrap (-1);
    SetUpToolTip (m_staticText34, IDS_ToolTip102);
 	//wxFloatingPointValidator<double> _val (1, &m_convergence);
 	//_val.SetRange (0.0, 100.);
 	//m_staticText34->SetValidator (_val);
-   bSizer48->Add (m_staticText34, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer48->Add (m_staticText34,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl17 = new wxTextCtrl (sbSizer4->GetStaticBox (),
 											 IDC_Convergence,
@@ -349,11 +345,12 @@ void CMISODATAClusterDialog::CreateControls ()
 												  IDC_MinClusterSizePrompt,
 												  wxT("Minimum Cluster size: "),
 												  wxDefaultPosition,
-												  wxSize (140, -1),
+												  wxSize (160, -1),
 												  0);
    m_staticText35->Wrap (-1);
    SetUpToolTip (m_staticText35, IDS_ToolTip91);
-   bSizer50->Add (m_staticText35, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer50->Add (m_staticText35,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl18 = new wxTextCtrl (sbSizer4->GetStaticBox (),
 											 IDC_MinClusterSize,
@@ -375,11 +372,12 @@ void CMISODATAClusterDialog::CreateControls ()
 												  IDC_Distance1Prompt,
 												  wxT("Distance 1 (first line): "),
 												  wxDefaultPosition,
-												  wxSize (140, -1),
+												  wxSize (160, -1),
 												  0);
    m_staticText36->Wrap (-1);
    SetUpToolTip (m_staticText36, IDS_ToolTip92);
-   bSizer51->Add (m_staticText36, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer51->Add (m_staticText36,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl19 = new wxTextCtrl (sbSizer4->GetStaticBox (),
 											 IDC_Distance1,
@@ -399,13 +397,14 @@ void CMISODATAClusterDialog::CreateControls ()
 
    m_staticText37 = new wxStaticText (sbSizer4->GetStaticBox (),
 												  IDC_Distance2Prompt,
-												  wxT("Distance 2 (other line): "),
+												  wxT("Distance 2 (other lines): "),
 												  wxDefaultPosition,
-												  wxSize (140, -1),
+												  wxSize (160, -1),
 												  0);
    m_staticText37->Wrap (-1);
    SetUpToolTip (m_staticText37, IDS_ToolTip93);
-   bSizer52->Add (m_staticText37, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer52->Add (m_staticText37,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl20 = new wxTextCtrl (sbSizer4->GetStaticBox (),
 											 IDC_Distance2,

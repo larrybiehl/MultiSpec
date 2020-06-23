@@ -20,7 +20,7 @@
 // Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 // Revision date:			09/10/2015 by Tsung Tai Yeh
-//								05/01/2020 by Larry Biehl
+//								05/29/2020 by Larry Biehl
 //
 // Language:				C++
 //
@@ -570,6 +570,7 @@ bool CMultiSpecApp::OnInit ()
 	gBluePen.SetColour (*wxBLUE);
 	gCyanPen.SetColour (*wxCYAN);
 	gGreenPen.SetColour (*wxGREEN);
+	gMagentaPen.SetColour (magentaColor);
 	gRedPen.SetColour (*wxRED);
 	gWhitePen.SetColour (*wxWHITE);
 	gYellowPen.SetColour (*wxYELLOW);

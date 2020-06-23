@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			05/28/2020
 //
 //	Language:				C++
 //
@@ -774,10 +774,10 @@ void CMClassifyDialog::CreateControls ()
 												IDC_ThresholdValue,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxSize (50, -1),
+												wxSize (60, -1),
 												0);
 	m_textCtrl85->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_ThresholdString));
-	wxFloatingPointValidator<double> _val (3, &m_thresholdPercent);
+	wxFloatingPointValidator<double> _val (4, &m_thresholdPercent);
 	_val.SetRange (0.0, 100.);
 	m_textCtrl85->SetValidator (_val);
 	SetUpToolTip (m_textCtrl85, IDS_ToolTip183);
@@ -2192,7 +2192,7 @@ bool CMClassifyDialog::TransferDataToWindow ()
 	TransferLinesColumnsToWindow ();
 
 	wxTextCtrl* clsfythresh = (wxTextCtrl*)FindWindow (IDC_ThresholdValue);
-	clsfythresh->ChangeValue (wxString::Format (wxT("%.3f"), m_thresholdPercent));
+	clsfythresh->ChangeValue (wxString::Format (wxT("%.4f"), m_thresholdPercent));
 	
 	wxTextCtrl* classifyKnnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
 	classifyKnnThreshold->ChangeValue (wxString::Format (wxT("%ld"), m_knnThreshold));

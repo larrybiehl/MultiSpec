@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			05/29/2020
 //
 //	Language:				C
 //
@@ -2060,7 +2060,7 @@ SInt16 InitializeClassGroupsVector (
 //							DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1994
-//	Revised By:			Larry L. Biehl			Date: 05/12/2020
+//	Revised By:			Larry L. Biehl			Date: 06/23/2020
 
 void InvalidateImageSegment (
 				WindowInfoPtr						windowInfoPtr,
@@ -2071,6 +2071,11 @@ void InvalidateImageSegment (
 
 {
 	Rect									destinationRect;
+	
+	int									columnInterval,
+											columnOffset,
+											lineInterval,
+											lineOffset;
 
 
 			// Get the destination rectangle for the input source.
@@ -2080,11 +2085,23 @@ void InvalidateImageSegment (
 	double vOrigin = lcToWindowUnitsVariablesPtr->yOrigin;
 	SInt32 legendWidth = windowInfoPtr->legendWidth;
 
+	columnInterval = lineInterval = 1;
+	columnOffset = lineOffset = 0;
+	if (gProcessorCode != kDisplayProcessor)
+		{
+		columnInterval = lcToWindowUnitsVariablesPtr->columnInterval;
+		lineInterval = lcToWindowUnitsVariablesPtr->lineInterval;
+		
+		columnOffset = lcToWindowUnitsVariablesPtr->columnOffset;
+		lineOffset = lcToWindowUnitsVariablesPtr->lineOffset;
+		
+		}	// end "if (gProcessorCode != kDisplayProcessor)"
+
 	destinationRect.top = (int)(magnification *
-												(sourceRectPtr->top - vOrigin));
+		((sourceRectPtr->top+lineOffset)/lineInterval - vOrigin));
 	destinationRect.bottom = (int)(magnification *
-												(sourceRectPtr->bottom - vOrigin) + .9999);
-	
+		((sourceRectPtr->bottom+lineOffset)/lineInterval - vOrigin) + .9999);
+						
 	#if defined multispec_mac
 		destinationRect.top += windowInfoPtr->imageTopOffset;
 		destinationRect.bottom += windowInfoPtr->imageTopOffset;
@@ -2107,9 +2124,9 @@ void InvalidateImageSegment (
 	if (destinationRect.bottom - destinationRect.top > 2) 
 		{
 		destinationRect.left = (int)(legendWidth + magnification *
-												(sourceRectPtr->left - hOrigin));
+			((sourceRectPtr->left+columnOffset)/columnInterval - hOrigin));
 		destinationRect.right = (int)(legendWidth + magnification *
-												(sourceRectPtr->right - hOrigin) + .9999);
+			((sourceRectPtr->right+columnOffset)/columnInterval - hOrigin) + .9999);
 
 				// Now invalidate this area in the image window.
 
@@ -2151,7 +2168,7 @@ void InvalidateImageSegment (
 			sourceRectPtr->bottom = -1;
 
 		}	// end "if (destinationRect.bottom - destinationRect.top > 2)"
-	
+		
 	if (sourceRectPtr->bottom >= displayBottomMax)
 		sourceRectPtr->bottom = -1;
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			05/31/2020
 //
 //	Language:				C
 //
@@ -1771,7 +1771,7 @@ SInt16 GetHDF4Line (
 // Called By:			LoadHDFDataSetInformation in SReadHDFHeader.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/28/2005
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 intn GetHDFProjectionInformation (
 				SInt32		 						id,
@@ -2727,9 +2727,16 @@ intn GetHDFProjectionInformation (
 														verticalPixelSizePtr,
 														projectionParametersPtr,
 														convertLowerLeftFromLatLongToMapFlagPtr);
-														
-				fileInfoPtr->noDataValue = noDataValue;
-				fileInfoPtr->noDataValueFlag = noDataValueExistsFlag;
+				
+						// Load the noDataValue if it exists. We do not want to zero
+						// out anything that may already be loaded from earlier information.
+						
+				if (noDataValueExistsFlag)
+					{
+					fileInfoPtr->noDataValue = noDataValue;
+					fileInfoPtr->noDataValueFlag = noDataValueExistsFlag;
+					
+					}	// end "if (noDataValueExistsFlag)"
 				/*
 				if (*mapProjectionCodePtr != 0)
 					fileInfoPtr->treatLinesAsBottomToTopFlag = TRUE;

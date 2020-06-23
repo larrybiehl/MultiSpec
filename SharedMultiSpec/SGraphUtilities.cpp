@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/04/2019
+//	Revision date:			05/05/2020
 //
 //	Language:				C
 //
@@ -2757,7 +2757,7 @@ void ListBinWidthValue (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1994
-//	Revised By:			Larry L. Biehl			Date: 03/15/2019		
+//	Revised By:			Larry L. Biehl			Date: 05/29/2020
 
 void LoadGraphSupportArrays (
 				GraphPtr								graphRecordPtr,
@@ -2957,7 +2957,7 @@ void LoadGraphSupportArrays (
 			{
 			for (index=0; index<numberVectors; index++)
 				{
-				colorIndex = (index % 6);
+				colorIndex = (index % 7);
 			
 				if (colorIndex == 0)
 					vectorPalettePtr[index] = redColor;
@@ -2976,6 +2976,9 @@ void LoadGraphSupportArrays (
 					
 				else if (colorIndex == 5)
 					vectorPalettePtr[index] = yellowColor;
+						
+				else if (colorIndex == 6)
+					vectorPalettePtr[index] = blackColor;
 
 				}	// end "for (index=0; index<numberVectors; index++)" 
 			

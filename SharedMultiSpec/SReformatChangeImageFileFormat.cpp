@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			05/28/2020
 //
 //	Language:				C
 //
@@ -8475,7 +8475,7 @@ void InitializeOutputFileInformation (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 05/11/2020
+//	Revised By:			Larry L. Biehl			Date: 05/28/2020
 
 void InitializeReformatStructure (
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -8557,12 +8557,13 @@ void InitializeReformatStructure (
 			
 			}	// end "gImageWindowInfoPtr != NULL" 
 			
-		reformatOptionsPtr->headerFormat = kErdas74Type;
-		reformatOptionsPtr->bandInterleaveSelection = kBIL;
+		reformatOptionsPtr->headerFormat = kTIFFType;
+		reformatOptionsPtr->bandInterleaveSelection = kBSQ;
 		if (gProcessorCode == kRefChangeFileFormatProcessor ||
 						gProcessorCode == kRectifyImageProcessor ||
 									gProcessorCode == kRefMosaicImagesProcessor)
 			{
+			/*
 			if (//!gImageFileInfoPtr->thematicType &&
 							(gImageFileInfoPtr->format == kGeoTIFFType ||
 								gImageFileInfoPtr->format == kTIFFType ||
@@ -8572,8 +8573,8 @@ void InitializeReformatStructure (
 				reformatOptionsPtr->bandInterleaveSelection = kBSQ;
 				
 				}	// end "if (gImageFileInfoPtr->format == kGeoTIFFType || ..."
-				
-			else if (gImageFileInfoPtr->format == kArcViewType)
+			*/
+			if (gImageFileInfoPtr->format == kArcViewType)
 				{
 				reformatOptionsPtr->headerFormat = kArcViewType;
 				reformatOptionsPtr->bandInterleaveSelection = 
@@ -8581,9 +8582,13 @@ void InitializeReformatStructure (
 				
 				}	// end "else if (gImageFileInfoPtr->format == kArcViewType)"
 				
-			if (reformatOptionsPtr->headerFormat == kErdas74Type &&
-													gImageFileInfoPtr->numberBytes > 2)
-				reformatOptionsPtr->headerFormat = kTIFFType;
+			else if (reformatOptionsPtr->headerFormat == kErdas74Type &&
+													gImageFileInfoPtr->numberBytes <= 2)
+				{
+				reformatOptionsPtr->headerFormat = kErdas74Type;
+				reformatOptionsPtr->bandInterleaveSelection = kBIL;
+				
+				}	// end "else if (...->headerFormat == kErdas74Type && ..."
 			
 			}	// end "if (gProcessorCode == kRefChangeFileFormatProcessor || ..."
 		

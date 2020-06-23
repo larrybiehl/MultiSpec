@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			06/23/2020
 //
 //	Language:				C
 //
@@ -440,7 +440,7 @@ void CopyToOffscreenBuffer (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/06/2003
-//	Revised By:			Larry L. Biehl			Date: 04/23/2019
+//	Revised By:			Larry L. Biehl			Date: 06/23/2020
 
 void DrawImageOverlays  (
 				WindowPtr							windowPtr,
@@ -669,6 +669,7 @@ void DrawImageOverlays  (
 																&intersectWindowRectangle,
 																&boundingMapRectangle,
 																FALSE,
+																FALSE,
 																kUpperLeftLowerRightCorners);
 
 									// Force upper left and lower right for map rectangle.
@@ -752,7 +753,8 @@ void DrawImageOverlays  (
 						}	// end "if (copyBitsFlag)"
 				#endif // defined multispec_win 
 
-				#if defined multispec_wx     
+				#if defined multispec_wx
+					DoubleRect							boundingMapRectangle;
 					Rect									destinationRect;
 					LongRect								intersectWindowRectangle;
 					
@@ -914,9 +916,9 @@ void DrawImageOverlays  (
 						intersectWindowRectangle.bottom = MIN (inputWindowRectPtr->bottom,
 																		overlayDestinationRect.bottom);
 
-						if (intersectWindowRectangle.left >
+						if (intersectWindowRectangle.left >=
 																intersectWindowRectangle.right ||
-								  intersectWindowRectangle.top >
+								  intersectWindowRectangle.top >=
 								  									intersectWindowRectangle.bottom)
 							copyBitsFlag = FALSE;
 
@@ -927,6 +929,35 @@ void DrawImageOverlays  (
 							destinationRect.left = intersectWindowRectangle.left;
 							destinationRect.bottom = intersectWindowRectangle.bottom;
 							destinationRect.right = intersectWindowRectangle.right;
+										
+							ConvertWinRectToMapRect (windowInfoHandle,
+																&intersectWindowRectangle,
+																&boundingMapRectangle,
+																FALSE,
+																TRUE,
+																kUpperLeftLowerRightCorners);
+
+									// Force upper left and lower right for map rectangle.
+									
+							ConvertMapRectToLCRect (windowInfoHandle,
+																&boundingMapRectangle,
+																&overlayDestinationRect,
+																1);
+				
+							sourceRectPtr->top = MAX (0, overlayDestinationRect.top -
+																	overlayInfoPtr->lineColumnRect.top);
+							sourceRectPtr->left = MAX (0, overlayDestinationRect.left -
+																overlayInfoPtr->lineColumnRect.left);
+							sourceRectPtr->bottom = MIN (
+												overlayDestinationRect.bottom -
+															overlayInfoPtr->lineColumnRect.top + 1,
+												overlayInfoPtr->lineColumnRect.bottom -
+															overlayInfoPtr->lineColumnRect.top + 1);
+							sourceRectPtr->right = MIN (
+												overlayDestinationRect.right -
+															overlayInfoPtr->lineColumnRect.left + 1,
+												overlayInfoPtr->lineColumnRect.right -
+															overlayInfoPtr->lineColumnRect.left + 1);
 
 							}	// end "if (copyBitsFlag)"
 
@@ -947,28 +978,43 @@ void DrawImageOverlays  (
 						destinationRect.left = overlayDestinationRect.left;
 						destinationRect.bottom = overlayDestinationRect.bottom;
 						destinationRect.right = overlayDestinationRect.right;
+						
+						sourceRectPtr->top = 0;
+						sourceRectPtr->bottom = overlayBitmapPtr->GetHeight ();
+						sourceRectPtr->left = 0;
+						sourceRectPtr->right = overlayBitmapPtr->GetWidth ();
 
 						}	// end "else !...->usePlanarCoordinateInfoFlag"
-
-					int destinationRectWidth = MAX (
-											(destinationRect.right - destinationRect.left), 0);
-					int destinationRectHeight = MAX (
-											(destinationRect.bottom - destinationRect.top), 0);
-
-					wxMemoryDC overlaydc;
-					overlaydc.SelectObject (*overlayBitmapPtr);
+						
 					if (copyBitsFlag)
 						{
+						int destinationRectWidth = MAX (
+												(destinationRect.right - destinationRect.left), 0);
+						int destinationRectHeight = MAX (
+												(destinationRect.bottom - destinationRect.top), 0);
+												
+						int sourceRectWidth = MAX (
+												(sourceRectPtr->right - sourceRectPtr->left), 0);
+						int sourceRectHeight = MAX (
+												(sourceRectPtr->bottom - sourceRectPtr->top), 0);
+												
+						wxMemoryDC overlaydc;
+						overlaydc.SelectObject (*overlayBitmapPtr);
 						/*
 						int numberChars = sprintf ((char*)gTextString3,
-							" SImageOverlays.cpp:DrawImageOverlays (left, right, top, bottom): %d, %d, %d, %d%s",
+							" SImageOverlays.cpp:DrawImageOverlays (left, top, width, height; left, top, width, height): %d, %d, %d, %d; %d, %d, %d, %d%s",
 							destinationRect.left,
-							destinationRect.right,
 							destinationRect.top,
-							destinationRect.bottom,
+							destinationRectWidth,
+							destinationRectHeight,
+							sourceRectPtr->left,
+							sourceRectPtr->top,
+							sourceRectWidth,
+							sourceRectHeight,
 							gEndOfLine);
 						ListString ((char*)gTextString3, numberChars, gOutputTextH);
 						*/
+						/*
 						pDC->Blit (destinationRect.left, 	// DestX
 									destinationRect.top, 	// DestY
 									destinationRectWidth, 	// nDestWidth
@@ -980,16 +1026,30 @@ void DrawImageOverlays  (
 									useMaskFlag, // useMask
 									wxDefaultCoord, //
 									wxDefaultCoord); //
-						
+						*/
+						pDC->StretchBlit (destinationRect.left, 	// DestX
+												destinationRect.top, 	// DestY
+												destinationRectWidth, 	// nDestWidth
+												destinationRectHeight, 	// nDestHeight
+												&overlaydc,
+												sourceRectPtr->left,          // SrcX
+												sourceRectPtr->top,   			// SrcY
+												sourceRectWidth,         		// wSrcWidth
+												sourceRectHeight,        		// wSrcHeight
+												wxCOPY, //
+												useMaskFlag, // useMask
+												wxDefaultCoord, //
+												wxDefaultCoord); //
+					
+								// Deselect the object. May not need to do this.
+								// One reference indicates this needs to be done before
+								// changing the data in the bitmap. But the memory dc goes away
+								// at the close of the routine so maybe it does not make a
+								// difference
+					
+						overlaydc.SelectObject (wxNullBitmap);
+					
 						}	// end "if (copyBitsFlag)"
-					
-							// Deselect the object. May not need to do this.
-							// One reference indicates this needs to be done before
-							// changing the data in the bitmap. But the memory dc goes away
-							// at the close of the routine so maybe it does not make a
-							// difference
-					
-					overlaydc.SelectObject (wxNullBitmap);
 					
 					#if defined multispec_wxlin
 									// Get the bitmap raw data pointer again. It may have
@@ -1188,7 +1248,7 @@ void FillLineOfOffscreenBuffer (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/2003
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 05/28/2020
 
 void GetDefaultImageOverlayName (
 				SInt16								imageOverlayIndex)
@@ -1276,6 +1336,7 @@ void GetDefaultImageOverlayName (
 													"_Clas_Quad_%u",
 													(unsigned int)gClassifySpecsPtr->numberClasses);
 					thresholdValue = gClassifySpecsPtr->probabilityThreshold;
+					thresholdPrecision = 4;
 					break;
 
 				case kMahalanobisMode:			// Mahalanobis
@@ -1344,7 +1405,7 @@ void GetDefaultImageOverlayName (
 			if (gClassifySpecsPtr->thresholdFlag)
 				{
 				namePtr[0] += sprintf ((char*)&namePtr[namePtr[0]+1],
-												"_%5.*f",
+												"_%-5.*g",
 												thresholdPrecision,
 												thresholdValue);
 				

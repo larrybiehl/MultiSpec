@@ -238,6 +238,7 @@ void CopyOffScreenImage (
 
       switch (copyType)
 			{
+			/*
          case kClipboardCopy:
 						// This case is currently not implemented for wxWidgets base apps
 						// Map sourceRect to destination that starts at (0,0)
@@ -257,12 +258,12 @@ void CopyOffScreenImage (
             lDestinationRect.right = legendWidth + (SInt32)
 									((lSourceRect.right - lSourceRect.left) * magnification);
             break;
-
+				*/
          case kSourceCopy:
 						// Map to wherever sourceRect * magnification indicates.  This
 						// allows one to draw parts of the window at a time.
 						// Note that the update rectangle that comes from wxWidgets seems
-						// to leave off the a pixel to the right and left.
+						// to leave off the a pixel to the right and bottom.
 
             lSourceRect.top = inSourceRect->top;
             lSourceRect.left = inSourceRect->left;
@@ -331,14 +332,14 @@ void CopyOffScreenImage (
 				tSourceRect.top = MAX (0, tSourceRect.top);
 				*/
             break;
-
+			/*
          case kScrollCopy: // scroll copy
 						// This case is currently not implemented for wxWidgets base apps
 						// Copy portion of offscreen image map that fits in the invalid
 						// region of the window. 	This is from a scroll operation.
 
             //lDestinationRect = (*invalidRgn)->rgnBBox;
-
+			*/
          case kDestinationCopy:
 						// Copy portion of offscreen map that fits within the input
 						// destination area of the window.  This is from a window update
@@ -377,7 +378,7 @@ void CopyOffScreenImage (
 				lSourceRect.left = MAX (0, lSourceRect.left);
 				lSourceRect.top = MAX (0, lSourceRect.top);
 				break;	// end "case: kDestinationCopy"
-
+			/*
 			case kPrinterCopy:
 						// This case is currently not implemented for wxWidgets base apps
 						// Printer. Just map the source to a destination rectangle that
@@ -401,7 +402,7 @@ void CopyOffScreenImage (
 							(legendWidth * imageViewCPtr->m_printerTextScaling * 1.4 +
 								magnification * (lSourceRect.right - lSourceRect.left) + .5);
 				break;
-
+			*/
 			}	// end "switch (copyType)"
 
 		sourceRect.top = (int)lSourceRect.top;
@@ -409,10 +410,10 @@ void CopyOffScreenImage (
 		sourceRect.bottom = (int)lSourceRect.bottom;
 		sourceRect.right = (int)lSourceRect.right;
 
-		destinationRect.top = (int) lDestinationRect.top;
-		destinationRect.left = (int) lDestinationRect.left;
-		destinationRect.bottom = (int) lDestinationRect.bottom;
-		destinationRect.right = (int) lDestinationRect.right;
+		destinationRect.top = (int)lDestinationRect.top;
+		destinationRect.left = (int)lDestinationRect.left;
+		destinationRect.bottom = (int)lDestinationRect.bottom;
+		destinationRect.right = (int)lDestinationRect.right;
 		
 		//ClipRect (&destinationRect);
 	
@@ -523,20 +524,20 @@ void CopyOffScreenImage (
 		
 		if (numberImageOverlays > 0 || numberVectorOverlays > 0 || projectWindowFlag)
 			{
-			windowCode = 1;
+			windowCode = kToImageWindow;
 			if (copyType == kClipboardCopy)
-				windowCode = 3;
+				windowCode = kToClipboardWindow;
 			else if (copyType == kPrinterCopy)
-				windowCode = 2;
+				windowCode = kToPrintWindow;
 
-			if (windowCode >= 2)
+			if (windowCode >= kToPrintWindow)
 				{
 				displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
 				displaySpecsPtr->origin[kVertical] = lSourceRect.top;
 				displaySpecsPtr->origin[kHorizontal] = lSourceRect.left;
 				
-				}	// end "if (windowCode >= 2)"
+				}	// end "if (windowCode >= kToPrintWindow)"
 			
 			}	// end "if (numberImageOverlays > 0 || numberVectorOverlays > 0 || ..."
 					  
@@ -627,13 +628,14 @@ void CopyOffScreenImage (
 		
 		if (numberImageOverlays > 0)
 			DrawImageOverlays (imageViewCPtr,
-									  imageWindowCPtr->GetWindowInfoHandle (),
-									  pDC,
-									  NULL,
-									  NULL,
-									  &destinationRect,
-									  &sourceRect, // sourceRect changed inside
-									  windowCode);
+										imageWindowCPtr->GetWindowInfoHandle (),
+										pDC,
+										NULL,
+										NULL,
+										&destinationRect,
+										//&windowRect,
+										&sourceRect, // sourceRect changed inside
+										windowCode);
 		  
 			// Draw the vector overlays if they exist.
 		
@@ -664,7 +666,7 @@ void CopyOffScreenImage (
 					numberVectorOverlays > 0 ||
 							(projectWindowFlag && windowCode >= 2))
 			{
-			displaySpecsPtr = (DisplaySpecsPtr) GetHandlePointer (displaySpecsHandle);
+			displaySpecsPtr = (DisplaySpecsPtr)GetHandlePointer (displaySpecsHandle);
 
 			displaySpecsPtr->origin[kVertical] = vOrigin;
 			displaySpecsPtr->origin[kHorizontal] = hOrigin;

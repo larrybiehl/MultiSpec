@@ -6139,7 +6139,7 @@ Boolean	WriteErdasHeader (
 // Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/04/2002
-//	Revised By:			Larry L. Biehl			Date: 02/05/2020
+//	Revised By:			Larry L. Biehl			Date: 05/31/2020
 
 SInt16 WriteGeoTIFFInformation (
 				FileInfoPtr 						fileInfoPtr,
@@ -6372,7 +6372,7 @@ SInt16 WriteGeoTIFFInformation (
 			if (fileInfoPtr->noDataValueFlag)
 				{	
 				numberGDALNoDataValueDigits = sprintf ((char*)gTextString,
-																		"%g", 
+																		"%.9g",
 																		fileInfoPtr->noDataValue);
 																						
 				if (!countOnlyFlag)

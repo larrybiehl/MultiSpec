@@ -4484,7 +4484,7 @@ SInt16 UpdateProjectAreaStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1998
-//	Revised By:			Larry L. Biehl			Date: 08/15/2019
+//	Revised By:			Larry L. Biehl			Date: 05/30/2020
 
 SInt16 UpdateProjectMaskStats (
 				SInt16								statsUpdateCode,
@@ -4786,6 +4786,7 @@ SInt16 UpdateProjectMaskStats (
 			    
 			   tOutputBufferPtr = (HDoublePtr)gOutputBufferPtr;
 				maskIndex = maskColumnStart;
+				usePixelFlag = FALSE;
 			   
 				for (column=0; column<numberSamples; column++)
 					{

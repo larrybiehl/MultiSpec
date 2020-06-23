@@ -19,7 +19,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								04/22/2020 by Larry L. Biehl
+//								06/10/2020 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -124,7 +124,7 @@ BEGIN_EVENT_TABLE (CMGraphFrame, wxDocChildFrame)
 							ID_GRAPHOVERLAYMENUITEMSTART+10,
 							CMGraphFrame::OnOverlay)
 	EVT_MENU_RANGE (ID_SELECTVECTORMENUITEMSTART,
-							ID_SELECTVECTORMENUITEMSTART+50,
+							ID_SELECTVECTORMENUITEMSTART+255,
 							CMGraphFrame::OnSelectVector)
 
 	EVT_PAINT (CMGraphFrame::OnPaint)

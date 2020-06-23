@@ -190,4 +190,6 @@ class CMClassifyDialog : public CMDialog
 												m_thresholdAllowedFlag,
 												m_trainingFieldsExistFlag;
 	
+public:
+	afx_msg void OnEnChangeThresholdvalue();
 };	// end class CMClassifyDialog
