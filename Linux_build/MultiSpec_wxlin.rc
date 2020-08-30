@@ -1,5 +1,6 @@
 // String Defines for About Dialog Box
-#define AboutStaticText "MultiSpec Application for mygeohub.org\n April 22, 2020\n\n (64-bit version) \n\n Copyright © 2015-2020\nPurdue Research Foundation\n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n and NSF Grant-#1261727 \n\n Supported by AmericaView (www.americaview.org)\n\n wxWidgets, GDAL, HDF5, OpenJPEG2000, \n NetCDF, and HDF4 software libraries are used.\n\nChih-Chung Chang and Chih-Jen Lin LIBSVM: a library for support vector machines is also used.\nACM Transactions on Intelligent Systems and Technology, 2:27:1--23:27, 2011.\nSoftware and information available at www.csie.ntu.edu.tw/~cjlin/libsvm/." 
+#define AboutStaticText "MultiSpec Application for mygeohub.org\n August 30, 2020\n\n (64-bit version) \n\n Copyright © 2015-2020\nPurdue Research Foundation\n\n Work leading to MultiSpec was funded in part by NASA Grants \n NAGW-925, NAGW-3924 and NAGW5-3975\n\n and NSF Grant-#1261727 \n\n Supported by AmericaView (www.americaview.org)\n\n wxWidgets, GDAL, HDF5, OpenJPEG2000, \n NetCDF, and HDF4 software libraries are used.\n\nChih-Chung Chang and Chih-Jen Lin LIBSVM: a library for support vector machines is also used.\nACM Transactions on Intelligent Systems and Technology, 2:27:1--23:27, 2011.\nSoftware and information available at www.csie.ntu.edu.tw/~cjlin/libsvm/." 
+
 
 #define AboutImagePath "../SharedMultispec/res/mspec.xpm"
 

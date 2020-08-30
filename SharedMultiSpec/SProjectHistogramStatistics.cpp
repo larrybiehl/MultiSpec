@@ -3586,7 +3586,7 @@ Boolean ListChannelInformation (
 	
 	else	// channelDescriptionPtr != NULL
 		{
-		BlockMoveData (&channelDescriptionPtr[featureNumber], gTextString3, 16);
+		BlockMoveData (&channelDescriptionPtr[featureNumber], gTextString3, 24);
 		gTextString3[16] = 0;
 		
 		sprintf ((char*)&gTextString[numberCharacters],

@@ -504,7 +504,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
-    CTEXT           "MultiSpec Application\nVersion 2020.06.23",IDC_STATIC,103,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2020.08.30",IDC_STATIC,103,6,119,17
     CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation",IDC_STATIC,8,40,317,26
     DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
@@ -1959,20 +1959,20 @@ BEGIN
     LISTBOX         IDC_ClassPairWeightList,218,39,122,126,LBS_MULTIPLESEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
-IDD_ChangeChannelDescriptions DIALOG 0, 0, 275, 190
+IDD_ChangeChannelDescriptions DIALOGEX 0, 0, 275, 190
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Channel Descriptions"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,205,159,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,143,159,50,14
     LTEXT           "Modify Channel Information for Channel:",IDC_Prompt,16,16,136,8
-    LTEXT           "Description\r\n  example: 0.45-0.52 um\r\n  (Limit is 16 characters.)",IDC_STATIC,18,49,94,26
+    LTEXT           "Description\r\n  example: 0.45-0.52 um\r\n  (Limit is 24 characters.)",IDC_STATIC,18,49,94,26
     EDITTEXT        IDC_Description,29,79,126,16,ES_AUTOHSCROLL
     LTEXT           "Value\r\n  example: 0.485\r\n  (Limit is 10 digits.)",IDC_STATIC,20,105,77,27
     EDITTEXT        IDC_Value,29,137,125,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Next channel",IDC_NextChannelButton,29,29,56,14
-    PUSHBUTTON      "Prev channel",IDC_PreviousChannelButton,95,29,53,14
+    PUSHBUTTON      "Next channel",IDC_NextChannelButton,98,28,56,14
+    PUSHBUTTON      "Prev channel",IDC_PreviousChannelButton,28,28,53,14
     LTEXT           "9999",IDC_ChannelNumber,156,16,27,8
 END
 
@@ -3954,6 +3954,11 @@ BEGIN
     0
 END
 
+IDD_ChangeChannelDescriptions AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -4151,6 +4156,7 @@ BEGIN
     IDS_FileIO99            "\r\nClass information for '%s' was loaded successfully from '%s'.\r\n"
     IDS_FileIO100           "\r\nGroup information for '%s' was saved to '%s'.\r\n"
     IDS_FileSizeLimit       "The size of the file is less than what the specifications indicate."
+    IDS_ChannelDescription2 "CHANNEL DESCRIPTION2"
 END
 
 STRINGTABLE
@@ -4178,7 +4184,7 @@ BEGIN
     IDS_HistogramTitle7     "    Total Number of Pixels = %s\r\n\r\n"
     IDS_HistogramTitle8     "    Histogram Summary Table\r\n"
     IDS_HistogramTitle9     "    First     Last      Line     First      Last    Column\r\n    Line      Line    Interval   Column    Column  Interval\r\n"
-    IDS_HistogramTitle10    "    Channel\t     Channel    \t\t%*sData Range\t%*sMean\t%*sMedian\t%*sStandard \r\n       \t       Description  \t\t          \t\t    \t      \t%*sDeviation\r\n"
+    IDS_HistogramTitle10    "    Channel\t     Channel            \t\t%*sData Range\t\t%*sMean\t%*sMedian\t%*sStandard\r\n\t              Description          \t\t          \t\t    \t      \t %*sDeviation\r\n"
     IDS_HistogramTitle11    "    Histogram Vectors (line format)\r\n    Channel         Data Value\r\n"
 END
 
@@ -4401,7 +4407,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_ChannelValues       "CHANNEL VALUES      "
-    IDS_BlankString16       "                "
+    IDS_BlankString16       "                        "
     IDS_FileIO58            "ORG='BSQ'"
     IDS_FileIO59            "ORG='BIS'"
     IDS_FileIO60            "FORMAT='BYTE'"
@@ -5182,13 +5188,13 @@ BEGIN
     IDS_FileIO198           "BAND4_FILENAME"
     IDS_FileIO199           "BAND5_FILENAME"
     IDS_FileIO200           "BAND6_FILENAME"
-    IDS_ChanDescription1    "0.485 0.070 0.45- 0.52 um"
-    IDS_ChanDescription2    "0.570 0.080 0.53- 0.61 um"
-    IDS_ChanDescription3    "0.660 0.060 0.63- 0.69 um"
-    IDS_ChanDescription4    "0.840 0.120 0.78- 0.90 um"
-    IDS_ChanDescription5    "1.650 0.200 1.55- 1.75 um"
-    IDS_ChanDescription6    "11.45 2.100 10.4 -12.5  um"
-    IDS_ChanDescription7    "2.220 0.260 2.09- 2.35 um"
+    IDS_ChanDescription1    "0.485 0.070 B1) 0.45- 0.52 um"
+    IDS_ChanDescription2    "0.570 0.080 B2) 0.53- 0.61 um"
+    IDS_ChanDescription3    "0.660 0.060 B3) 0.63- 0.69 um"
+    IDS_ChanDescription4    "0.840 0.120 B4) 0.78- 0.90 um"
+    IDS_ChanDescription5    "1.650 0.200 B5) 1.55- 1.75 um"
+    IDS_ChanDescription6    "11.45 2.100 B6) 10.4 -12.5  um"
+    IDS_ChanDescription7    "2.220 0.260 B7) 2.09- 2.35 um"
     IDS_ChanDescription8    "0.710 0.380 0.52- 0.90 um"
     IDS_ChanDescription9    "0.545 0.090 0.50- 0.59 um"
     IDS_ChanDescription10   "0.645 0.070 0.61- 0.68 um"
@@ -5790,13 +5796,13 @@ BEGIN
     IDS_ChanDescription34   "0.8715 0.011 0.866-0.877 um"
     IDS_ChanDescription35   "1.6000 0.080 1.560-1.640 um"
     IDS_ChanDescription36   "0.0 0.0 not known"
-    IDS_ChanDescription37   "0.443 0.020 0.433- 0.453 um"
-    IDS_ChanDescription38   "0.482 0.065 0.450- 0.515 um"
-    IDS_ChanDescription39   "0.562 0.075 0.525- 0.600 um"
-    IDS_ChanDescription40   "0.655 0.050 0.630- 0.680 um"
-    IDS_ChanDescription41   "0.865 0.040 0.845- 0.885 um"
-    IDS_ChanDescription42   "1.610 0.100 1.560-1.660 um"
-    IDS_ChanDescription43   "2.220 0.200 2.100-2.300 um"
+    IDS_ChanDescription37   "0.443 0.020 B1) 0.433- 0.453 um"
+    IDS_ChanDescription38   "0.482 0.065 B2) 0.450- 0.515 um"
+    IDS_ChanDescription39   "0.562 0.075 B3) 0.525- 0.600 um"
+    IDS_ChanDescription40   "0.655 0.050 B4) 0.630- 0.680 um"
+    IDS_ChanDescription41   "0.865 0.040 B5) 0.845- 0.885 um"
+    IDS_ChanDescription42   "1.610 0.100 B6) 1.560-1.660 um"
+    IDS_ChanDescription43   "2.220 0.200 B7) 2.100-2.300 um"
 END
 
 STRINGTABLE
@@ -5813,22 +5819,22 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription44   "0.590 0.180 0.500- 0.680 um"
-    IDS_ChanDescription45   "1.375 0.030 1.360-1.390 um"
-    IDS_ChanDescription46   "10.80 1.000 10.30-11.30 um"
-    IDS_ChanDescription47   "12.00 1.000 11.50-12.50 um"
-    IDS_ChanDescription48   "0.55 0.100 0.50- 0.60 um"
-    IDS_ChanDescription49   "0.65 0.100 0.60- 0.70 um"
-    IDS_ChanDescription50   "0.75 0.100 0.70- 0.80 um"
-    IDS_ChanDescription51   "0.95 0.300 0.80- 1.10 um"
-    IDS_ChanDescription52   "11.51 2.190 10.41-12.6 um"
-    IDS_ChanDescription53   "0.444 0.027 0.430-0.457 um"
-    IDS_ChanDescription54   "0.497 0.098 0.448-0.546 um"
-    IDS_ChanDescription55   "0.560 0.045 0.538-0.583 um"
-    IDS_ChanDescription56   "0.665 0.038 0.646-0.684 um"
-    IDS_ChanDescription57   "0.704 0.019 0.694-0.713 um"
-    IDS_ChanDescription58   "0.740 0.018 0.731-0.749 um"
-    IDS_ChanDescription59   "0.783 0.028 0.769-0.797 um"
+    IDS_ChanDescription44   "0.590 0.180 B8) 0.500- 0.680 um"
+    IDS_ChanDescription45   "1.375 0.030 B9) 1.360-1.390 um"
+    IDS_ChanDescription46   "10.80 1.000 B10) 10.30-11.30 um"
+    IDS_ChanDescription47   "12.00 1.000 B11) 11.50-12.50 um"
+    IDS_ChanDescription48   "0.55 0.100 B1) 0.50- 0.60 um"
+    IDS_ChanDescription49   "0.65 0.100 B2) 0.60- 0.70 um"
+    IDS_ChanDescription50   "0.75 0.100 B3) 0.70- 0.80 um"
+    IDS_ChanDescription51   "0.95 0.300 B4) 0.80- 1.10 um"
+    IDS_ChanDescription52   "11.51 2.190 B5) 10.41-12.6 um"
+    IDS_ChanDescription53   "0.444 0.027 B1) 0.430-0.457 um"
+    IDS_ChanDescription54   "0.497 0.098 B2) 0.448-0.546 um"
+    IDS_ChanDescription55   "0.560 0.045 B3) 0.538-0.583 um"
+    IDS_ChanDescription56   "0.665 0.038 B4) 0.646-0.684 um"
+    IDS_ChanDescription57   "0.704 0.019 B5) 0.694-0.713 um"
+    IDS_ChanDescription58   "0.740 0.018 B6) 0.731-0.749 um"
+    IDS_ChanDescription59   "0.783 0.028 B7) 0.769-0.797 um"
 END
 
 STRINGTABLE
@@ -5893,29 +5899,29 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription60   "0.835 0.145 0.763-0.908 um"
-    IDS_ChanDescription61   "0.865 0.033 0.848-0.881 um"
-    IDS_ChanDescription62   "0.945 0.026 0.932-0.958 um"
-    IDS_ChanDescription63   "1.374 0.075 1.336-1.411 um"
-    IDS_ChanDescription64   "1.614 0.143 1.542-1.685 um"
-    IDS_ChanDescription65   "2.202 0.242 2.081-2.323 um"
-    IDS_ChanDescription66   "0.442 0.045 0.420-0.465 um"
-    IDS_ChanDescription67   "0.492 0.098 0.443-0.541 um"
-    IDS_ChanDescription68   "0.559 0.046 0.544-0.590 um"
-    IDS_ChanDescription69   "0.665 0.039 0.646-0.685 um"
-    IDS_ChanDescription70   "0.704 0.020 0.694-0.714 um"
-    IDS_ChanDescription71   "0.739 0.018 0.730-0.748 um"
-    IDS_ChanDescription72   "0.780 0.028 0.766-0.794 um"
-    IDS_ChanDescription73   "0.833 0.133 0.767-0.900 um"
-    IDS_ChanDescription74   "0.864 0.032 0.848-0.880 um"
-    IDS_ChanDescription75   "0.943 0.027 0.930-0.957 um"
+    IDS_ChanDescription60   "0.835 0.145 B8) 0.763-0.908 um"
+    IDS_ChanDescription61   "0.865 0.033 B8A) 0.848-0.881 um"
+    IDS_ChanDescription62   "0.945 0.026 B9) 0.932-0.958 um"
+    IDS_ChanDescription63   "1.374 0.075 B10) 1.336-1.411 um"
+    IDS_ChanDescription64   "1.614 0.143 B11) 1.542-1.685 um"
+    IDS_ChanDescription65   "2.202 0.242 B12) 2.081-2.323 um"
+    IDS_ChanDescription66   "0.442 0.045 B1) 0.420-0.465 um"
+    IDS_ChanDescription67   "0.492 0.098 B2) 0.443-0.541 um"
+    IDS_ChanDescription68   "0.559 0.046 B3) 0.544-0.590 um"
+    IDS_ChanDescription69   "0.665 0.039 B4) 0.646-0.685 um"
+    IDS_ChanDescription70   "0.704 0.020 B5) 0.694-0.714 um"
+    IDS_ChanDescription71   "0.739 0.018 B6) 0.730-0.748 um"
+    IDS_ChanDescription72   "0.780 0.028 B7) 0.766-0.794 um"
+    IDS_ChanDescription73   "0.833 0.133 B8) 0.767-0.900 um"
+    IDS_ChanDescription74   "0.864 0.032 B8A) 0.848-0.880 um"
+    IDS_ChanDescription75   "0.943 0.027 B9) 0.930-0.957 um"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_ChanDescription76   "1.377 0.076 1.339-1.415 um"
-    IDS_ChanDescription77   "1.610 0.141 1.540-1.681 um"
-    IDS_ChanDescription78   "2.186 0.238 2.067-2.305 um"
+    IDS_ChanDescription76   "1.377 0.076 B10) 1.339-1.415 um"
+    IDS_ChanDescription77   "1.610 0.141 B11) 1.540-1.681 um"
+    IDS_ChanDescription78   "2.186 0.238 B12) 2.067-2.305 um"
     IDS_ChanDescription79   "0.485 0.070 0.450-0.520 um"
     IDS_ChanDescription80   "0.560 0.060 0.530-0.590 um"
     IDS_ChanDescription81   "0.665 0.070 0.630-0.700 um"

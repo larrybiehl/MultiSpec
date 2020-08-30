@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/06/2020
+//	Revision date:			08/29/2020
 //
 //	Language:				C
 //
@@ -149,7 +149,7 @@ SInt16	WriteChannelValues (
 // Called By:			GetReformatOutputFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 SInt16 AppendFile (
 				FileInfoPtr 						fileInfoPtr, 
@@ -468,7 +468,7 @@ SInt16 AppendFile (
 					{
 					for (index=0; index<appendToFileNumberChannels; index++)
 						{
-						BlockMoveData ((char*)&blankString[1], descriptionPtr, 16);
+						BlockMoveData ((char*)&blankString[1], descriptionPtr, kChannelDescriptionLength);
 						descriptionPtr++; 
 						
 						}	// end "for (index=0; index<appendToFileNumberChannels; ..."
@@ -1352,7 +1352,7 @@ void GetOutputBufferParameters (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2013
-//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 08/28/2020
 
 void GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
@@ -1481,13 +1481,13 @@ void GetOutputFileName (
 										&verticalPixelSize);
 											
 					if (horizontalPixelSize == 10 && verticalPixelSize == 10)
-						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_10m", 254);
+						ConcatFilenameSuffix (outFileNamePtr, (UCharPtr)"\0_10m");
 						
 					else if (horizontalPixelSize == 20 && verticalPixelSize == 20)
-						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_20m", 254);
+						ConcatFilenameSuffix (outFileNamePtr, (UCharPtr)"\0_20m");
 						
 					else if (horizontalPixelSize == 60 && verticalPixelSize == 60)
-						ConcatPStrings (outFileNamePtr, (UCharPtr)"\0_60m", 254);
+						ConcatFilenameSuffix (outFileNamePtr, (UCharPtr)"\0_60m");
 					
 					}	// end "if (inputFileInfoPtr->instrumentCode == kSentinel2_MSI ..."
 				
@@ -1527,7 +1527,7 @@ void GetOutputFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 Boolean GetReformatOutputFile (
 				FileInfoPtr							outFileInfoPtr, 
@@ -1573,7 +1573,7 @@ Boolean GetReformatOutputFile (
 			// the number of bytes for them.													
 			
 	if (reformatOptionsPtr->channelDescriptions)
-		numberBytes += (20 + outFileInfoPtr->numberChannels*16);
+		numberBytes += (20 + outFileInfoPtr->numberChannels*kChannelDescriptionLength);
 		
 			// Get the output file name and volume to write file to.					
 			// Check if enough space on volume.												
@@ -2630,7 +2630,7 @@ void LoadCurrentHeaderParametersInDialog (
 // Called By:			ModifyChannelDescriptionsViaKeyboard   in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/16/1992
-//	Revised By:			Larry L. Biehl			Date: 09/16/1992
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 void LoadDescriptionIntoDItem (
 				DialogPtr							dialogPtr, 
@@ -2645,9 +2645,11 @@ void LoadDescriptionIntoDItem (
 	if (dialogPtr == NULL)
 																								return;
 	
-	BlockMoveData (channelDescriptionPtr, &descriptionString[1], 16);
+	BlockMoveData (channelDescriptionPtr,
+						&descriptionString[1],
+						kChannelDescriptionLength);
 			
-	for (index=16; index> 0; index--)
+	for (index=kChannelDescriptionLength; index> 0; index--)
 		if (descriptionString[index] != ' ') 
 			break;
 			
@@ -2680,7 +2682,7 @@ void LoadDescriptionIntoDItem (
 // Called By:			ReformatControl in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 void ModifyChannelDescriptions (
 				SInt16								requestedProcedure)
@@ -2723,7 +2725,7 @@ void ModifyChannelDescriptions (
 	errCode = GetSizeOfFile (fileStreamPtr, &sizeImageDiskFile);
 	
 	bytesToAdd = sizeImageFile + 40 + 
-								gImageFileInfoPtr->numberChannels*(16+10) -
+						gImageFileInfoPtr->numberChannels*(kChannelDescriptionLength+10) -
 																			sizeImageDiskFile;
 																				
 			// Skip check if no bytes will be added.										
@@ -2785,7 +2787,9 @@ void ModifyChannelDescriptions (
 					
 			if (!gImageFileInfoPtr->descriptionsFlag)
 				for (channel=0; channel<gImageFileInfoPtr->numberChannels; channel++)
-					BlockMoveData (blankPtr, &channelDescriptionPtr[channel], 16);
+					BlockMoveData (blankPtr,
+										&channelDescriptionPtr[channel],
+										kChannelDescriptionLength);
 			
 			}	// end "if (continueFlag)" 
 			
@@ -2842,11 +2846,11 @@ void ModifyChannelDescriptions (
 		else if (returnCode == 2)			// Remove all channel descriptions.
 			{ 
 			alertReturnCode = DisplayAlert (kYesCancelAlertID, 
-													kCautionAlert, 
-													kAlertStrID, 
-													IDS_Alert84, 
-													0, 
-													NULL);
+														kCautionAlert,
+														kAlertStrID,
+														IDS_Alert84,
+														0,
+														NULL);
 													
 			if (alertReturnCode == 1)
 				{
@@ -3000,7 +3004,9 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 	   		{
 	   				// Get the new description
 	   				
-				BlockMoveData (&blankPtr[1], &descriptionString[1], 16);
+				BlockMoveData (&blankPtr[1],
+									&descriptionString[1],
+									kChannelDescriptionLength);
 				GetDialogItem (dialogPtr, 
 										IDC_Description,  
 										&theType, 
@@ -3192,7 +3198,7 @@ SInt16 ModifyChannelDescriptionsViaKeyboard (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/1999
-//	Revised By:			Larry L. Biehl			Date: 01/10/2017
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 Boolean ModifyChannelDescriptionsUpdate (
 				DialogPtr							dialogPtr, 
@@ -3208,21 +3214,20 @@ Boolean ModifyChannelDescriptionsUpdate (
 			// appropriate structures.		
 	
 	if (stringPtr[0] == 0 || strncmp (&stringPtr[1],
-						(char*)&channelDescriptionPtr[channelIndex], 16) != 0)
+			(char*)&channelDescriptionPtr[channelIndex], kChannelDescriptionLength) != 0)
 		{
 				// First copy in a blank string to handle case where new string is
 				// shorter than the previous one.
 				
-		BlockMoveData ("                ", 
+		BlockMoveData ("                        ",
 								&channelDescriptionPtr[channelIndex], 
-								16);
+								kChannelDescriptionLength);
 		BlockMoveData (&stringPtr[1], 
 								&channelDescriptionPtr[channelIndex], 
 								stringPtr[0]);
 		changeFlag = TRUE;
 		
 		}	// end "if (strncmp (&gTextString[1], ..." 
-			
 	
 	if (channelValuesPtr[channelIndex] != realValue)
 		{
@@ -3450,7 +3455,7 @@ void UpdateOutputFileStructure (
 // Called By:			WriteChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/1989
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 SInt16 WriteChannelDescriptions (
 				FileInfoPtr							fileInfoPtr, 
@@ -3483,7 +3488,7 @@ SInt16 WriteChannelDescriptions (
 	
 			// Write channel description identifier to the image file.				
 
-	MGetString (gTextString, kFileIOStrID, IDS_ChannelDescriptions);
+	MGetString (gTextString, kFileIOStrID, IDS_ChannelDescription2);
     
 	count = gTextString[0];
 	errCode = MWriteData (fileStreamPtr, 
@@ -3492,7 +3497,7 @@ SInt16 WriteChannelDescriptions (
 									kErrorMessages);
 			
 			// Get a blank string. We will ignore any error in getting the string.
-			// We will just use what is in the first 16 characters of gTextString3.																
+			// We will just use what is in the first 24 characters of gTextString3.
 			
 	MGetString (gTextString3, kFileIOStrID, IDS_BlankString16);
 	blankPtr = (char*)&gTextString3[1];
@@ -3558,7 +3563,7 @@ SInt16 WriteChannelDescriptions (
 			else	// channelDescriptionPtr == NULL
 				descriptionPtr = blankPtr;
 				
-			count = 16;
+			count = kChannelDescriptionLength;
 			errCode = MWriteData (fileStreamPtr,
 											&count,
 											descriptionPtr,

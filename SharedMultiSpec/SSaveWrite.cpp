@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			08/24/2020
 //
 //	Language:				C
 //
@@ -8022,7 +8022,7 @@ SInt16 WriteTIFFColorMap (
 // Called By:			WriteTIFFImageFile
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 04/02/2019
+//	Revised By:			Larry L. Biehl			Date: 08/24/2020
 
 SInt16 WriteTIFFImageData (
 				CMFileStream* 						fileStreamPtr,
@@ -8218,7 +8218,7 @@ SInt16 WriteTIFFImageData (
 															
 	#ifdef multispec_wx	
 		//offset = areaRectanglePtr->left * linuxIncrement;
-		offset = areaRectanglePtr->left;
+		offset = areaRectanglePtr->left * numberBytes;
 	#endif	
 													
 	#ifndef multispec_wx		
@@ -8400,12 +8400,23 @@ SInt16 WriteTIFFImageData (
 					column<(UInt32)areaRectanglePtr->right;
 						column++)
 				{
-				tOffScreenBufferPtr++;
+				#if defined multispec_wxmac_alpha
+							// Need to skip the alpha byte
+			
+					tOffScreenBufferPtr++;
+				#endif
+				
 				*tempBufferPtr++ = *tOffScreenBufferPtr++;
 				*tempBufferPtr++ = *tOffScreenBufferPtr++;
 				*tempBufferPtr++ = *tOffScreenBufferPtr++;
 				
-				}	// end "for (column=areaRectanglePtr->left; ..." 
+				#if defined multispec_wxlin_alpha
+							// Need to skip the alpha byte
+			
+					tOffScreenBufferPtr++;
+				#endif
+
+				}	// end "for (column=areaRectanglePtr->left; ..."
 				
 			errCode = MWriteData (fileStreamPtr, 
 											&count, 

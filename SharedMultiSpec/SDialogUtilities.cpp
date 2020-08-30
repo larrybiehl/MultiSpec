@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			04/13/2020
+//	Revision date:			08/25/2020
 //
 //	Language:				C
 //
@@ -143,7 +143,7 @@ void ActivateDialogItem (
 //							FalseColorPaletteDialog in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 08/25/2020
 
 SInt32 AddChannelsToDialogList (
 			#ifdef multispec_wx
@@ -188,10 +188,10 @@ SInt32 AddChannelsToDialogList (
    index = 0;
 	
 			// Get estimate of the length of the description in the list.			
-			// Use 22 for the description list - 4 for channel number and 18 		
+			// Use 30 for the description list - 4 for channel number and 26
 			// for the channel description.													
 		
-	estimatedLengthListDescription = (SInt32)numberInputChannels * 22;
+	estimatedLengthListDescription = (SInt32)numberInputChannels * 30;
 									
 	if (listHandle != NULL)
 		{
@@ -264,8 +264,8 @@ SInt32 AddChannelsToDialogList (
 					startString += 2;
 					fileChanNum = layerInfoPtr[channelNum].fileChannelNumber;
 					BlockMoveData (&channelDescriptionPtr[fileChanNum-1],
-																&gTextString[startString], 16);
-					gTextString[0] += 18;
+																&gTextString[startString], 24);
+					gTextString[0] += 26;
 					gTextString[gTextString[0]+1] = 0;
 					
 					}	// end "if (channelDescriptionPtr != NULL)" 

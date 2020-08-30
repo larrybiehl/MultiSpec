@@ -26,7 +26,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 05/31/2020
+//	Revised By:				Larry L. Biehl			Date: 08/29/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -552,6 +552,8 @@
 #define	kNotApplicable					0
 #define	kInOrder							1
 #define	kNotInOrder						2
+
+#define	kChannelDescriptionLength		24
 
 		// Graph window constants
 #define	kNextGraphSetControl				0

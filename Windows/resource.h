@@ -185,6 +185,7 @@
 #define IDS_FileIO99                    299
 #define IDS_FileIO100                   300
 #define IDS_FileSizeLimit               301
+#define IDS_ChannelDescription2         303
 #define IDS_DisplayColumnLimit          308
 #define IDS_32BitDisplayColumnLimit     314
 #define IDS_DisplayLineLimit            319

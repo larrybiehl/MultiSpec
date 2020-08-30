@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/04/2018
+//	Revision date:			08/29/2020
 //
 //	Language:				C++
 //
@@ -82,7 +82,7 @@ void CMChangeChannelDescriptionDlg::DoDataExchange (
 	CDialog::DoDataExchange (pDX);
 	//{{AFX_DATA_MAP (CMChangeChannelDescriptionDlg)
 	DDX_Text (pDX, IDC_Description, m_description);
-	DDV_MaxChars (pDX, m_description, 16);
+	DDV_MaxChars (pDX, m_description, kChannelDescriptionLength);
 	DDX_Text2 (pDX, IDC_Value, m_value);
 	//}}AFX_DATA_MAP
 	
@@ -229,6 +229,10 @@ void CMChangeChannelDescriptionDlg::OnSetfocusValue ()
 void CMChangeChannelDescriptionDlg::Update (void)
 
 {
+	USES_CONVERSION;
+
+	char							inputUTF8DescriptionSring[256];
+
 	Str255						descriptionString;
 
 	SInt16						stringLength;
@@ -239,7 +243,8 @@ void CMChangeChannelDescriptionDlg::Update (void)
 	
 	MGetString (descriptionString, kFileIOStrID, IDS_BlankString16);
 	stringLength = m_description.GetLength ();
-	BlockMoveData (m_description, &descriptionString[1], stringLength);
+	strcpy ((char*)inputUTF8DescriptionSring, T2A(m_description));
+	BlockMoveData (inputUTF8DescriptionSring, &descriptionString[1], stringLength);
 	
 			// Get the new value
 

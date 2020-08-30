@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			08/29/2020
 //
 //	Language:				C
 //
@@ -249,7 +249,8 @@ SInt16 ReadMacSADIEHeader (
 				SInt16								formatOnlyCode);
 
 SInt16 ReadMultiSpecChannelDescriptions (
-				FileInfoPtr							fileInfoPtr);
+				FileInfoPtr							fileInfoPtr,
+				SInt16								versionNumber);
 
 void ReadMultiSpecChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr);
@@ -4209,7 +4210,7 @@ SInt32 GetFileHeaderValues (
 // Called By:			ReadChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1999
-//	Revised By:			Larry L. Biehl			Date: 09/04/2018
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 void GetInstrumentChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -4827,10 +4828,10 @@ void GetInstrumentChannelDescriptionsAndValues (
 					//charPtr++;
 
 							// Now get the length of the channel description string.
-							// Force it to be no more than 16 characters.
+							// Force it to be no more than kChannelDescriptionLength characters.
 
 					count = (UInt32)strlen (charPtr);
-					count = MIN (16, count);
+					count = MIN (kChannelDescriptionLength, count);
 
 							// Move the channel description to the channel description
 							// variable and set rest of string to blank.
@@ -4839,12 +4840,12 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 					charPtr = (char*)channelDescriptionPtr;
 					index = count;
-					while (index < 16)
+					while (index < kChannelDescriptionLength)
 						{
 						charPtr[index] = ' ';
 						index++;
 
-						}	// end "while (index < 16)"
+						}	// end "while (index < kChannelDescriptionLength)"
 
 					fileInfoPtr->descriptionsFlag = TRUE;
 
@@ -5319,7 +5320,7 @@ SInt16 GetMapProjectionCodeFromGCTPNumber (
 // Called By:			ReadMultiSpecChannelDescriptionsAndValues in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/29/2018
-//	Revised By:			Larry L. Biehl			Date: 06/28/2018
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 void GetMultiSpecChannelWidths (
 				FileInfoPtr							fileInfoPtr)
@@ -5365,13 +5366,26 @@ void GetMultiSpecChannelWidths (
 		for (channel=0; channel<fileInfoPtr->numberChannels; channel++)
 			{
 					// Copy the channel description for the string to the temporary
-					// string and forcd a string terminator after the 16th character.
+					// string and forcd a string terminator the end of the channel
+					// description.
 					// The channel descriptions may not have a c terminator at the end
-					// of the string and the string can be up to 16 characters long.
+					// of the string and the string can be up to kChannelDescriptionLength
+					// characters long.
 					
-			BlockMoveData (channelDescriptionPtr, tempString, 16);
-			tempString[16] = 0;
-			returnCode = sscanf ((char*)tempString, 
+			BlockMoveData (channelDescriptionPtr, tempString, kChannelDescriptionLength);
+			tempString[kChannelDescriptionLength] = 0;
+			
+					// Skip the band identifer information if it exists. Current
+					// standard is for this to end with ')'.
+
+			tempStringPtr = strchr ((char*)tempString, ')');
+			if (tempStringPtr == NULL)
+				tempStringPtr = tempString;
+				
+			else	// the ')' character exists, skip it
+				tempStringPtr++;
+			
+			returnCode = sscanf ((char*)tempStringPtr,
 										 (char*)"%f-%f",
 										 &bandStart,
 										 &bandEnd);
@@ -5381,7 +5395,7 @@ void GetMultiSpecChannelWidths (
 						// Assume that bandEnd was not found because the '-' was next
 						// to the band end value.
 				
-				tempStringPtr = strchr ((char*)tempString, '-');
+				tempStringPtr = strchr ((char*)tempStringPtr, '-');
 				if (tempStringPtr != NULL)
 					{
 					tempStringPtr++;
@@ -7385,7 +7399,7 @@ SInt16 ReadENVIHeaderBandNamesInfo (
 				if (stringPtr != NULL)
 					{
 					charPtr = (char*)&channelDescriptionPtr[channel];
-					BlockMoveData ((char*)&gTextString3[1], charPtr, 16);
+					BlockMoveData ((char*)&gTextString3[1], charPtr, 24);
 
 					}	// end "if (stringPtr != NULL)"
 
@@ -8047,7 +8061,7 @@ void ReadENVIChannelDescriptionsAndValues (
 						// Now add any units to the end of the description if there is
 						// space.
 						
-				if (count+1+unitStringLength < 16)
+				if (count+1+unitStringLength < 24)
 					{
 					charPtr = (char*)channelDescriptionPtr;
 					memcpy (&charPtr[count+1],
@@ -8056,7 +8070,7 @@ void ReadENVIChannelDescriptionsAndValues (
 					
 					count += 1 + unitStringLength;
 								
-					}	// end "if (count+1+unitStringLength < 16)"
+					}	// end "if (count+1+unitStringLength < 24)"
 				
 				*channelValuesPtr = (float)atof (metaDataStringPtr);
 				
@@ -11482,6 +11496,9 @@ void ReadLARSYSChannelDescriptionsAndValues (
 //							of channel descriptions and or values are located 
 //							at the end of the image data.  A flag is set for the
 //							file information structure accordingly.
+// 						There are 2 possible positions. On 8/28/2020, the max length
+//							of the channel descriptions was changed from 16 to 24.
+//							Now need to check for both.
 //
 //	Parameters in:		None
 //
@@ -11493,7 +11510,7 @@ void ReadLARSYSChannelDescriptionsAndValues (
 //							ModalFileSpecification in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 07/09/2018
+//	Revised By:			Larry L. Biehl			Date: 08/28/2020
 
 void ReadMultiSpecChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -11501,9 +11518,13 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 {
 	CMFileStream*						fileStreamPtr;
 
-	UInt32								count;
+	UInt32								channelDescriptionLength1,
+											channelDescriptionLength2,
+											count;
 
-	SInt64								sizeFile,
+	SInt64								channelDescription1Index,
+											channelDescription2Index,
+											sizeFile,
 											sizeImageFile;
 
 	SInt16								errCode,
@@ -11531,16 +11552,80 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 					// Try that location.
 			
 			errCode = GetSizeOfFile (fileInfoPtr, &sizeFile);
+			foundCode = -1;
 			
 			if (errCode == noErr)
 				{
+				channelDescriptionLength1 = 20 + fileInfoPtr->numberChannels * 16 +
+																20 + fileInfoPtr->numberChannels * 9;
+
+				channelDescriptionLength2 = 20 +
+							fileInfoPtr->numberChannels * kChannelDescriptionLength +
+														20 + fileInfoPtr->numberChannels * 9;
+																
 						// Get size of the channel descriptions.
 			
-				sizeFile -= (20 + fileInfoPtr->numberChannels * 16 +
-															20 + fileInfoPtr->numberChannels * 9);
+				channelDescription1Index = sizeFile - channelDescriptionLength1;
+				channelDescription2Index = sizeFile - channelDescriptionLength2;
+				
+				//sizeFile -= (20 + fileInfoPtr->numberChannels * 16 +
+				//											20 + fileInfoPtr->numberChannels * 9);
+				//
+				//if (sizeFile >= 0)
+				//	sizeImageFile = sizeFile;
+					
+				MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
 			
-				if (sizeFile >= 0)
-					sizeImageFile = sizeFile;
+				if (gTextString2[0] > 0)
+					{
+					if (channelDescription1Index >= 0)
+						{
+								// Now need to check if "CHANNEL DESCRIPTION" is at the
+								// location expected for Channel Description version 1
+									
+						sizeImageFile = channelDescription1Index;
+						
+						errCode = MSetMarker (fileStreamPtr,
+													 fsFromStart,
+													 sizeImageFile,
+													 kNoErrorMessages);
+						if (errCode != eofErr)
+							IOCheck (errCode, fileStreamPtr);
+
+						if (errCode == noErr)
+							{
+							count = 20;
+							errCode = MReadData (fileStreamPtr,
+															&count,
+															gTextString,
+															kNoErrorMessages);
+
+							if (errCode != eofErr)
+								IOCheck (errCode, fileStreamPtr);
+							
+							}	// end "if (errCode == noErr)"
+
+						if (errCode == noErr)
+							{
+							if (strncmp ((char*)gTextString,
+												(char*)&gTextString2[1],
+												19) == 0)
+								foundCode = 1;
+								
+							}	// end "if (errCode == noErr && ...)"
+						
+						}	// end "if (channelDescription1Index >= 0)"
+						
+					if (foundCode == -1 && channelDescription2Index >= 0)
+						{
+								// Assume that any channel descriptions that exist represent
+								// version 2. The next section of code will confirm this.
+											
+						sizeImageFile = channelDescription2Index;
+						
+						}	// end "if (foundCode == -1 && channelDescription2Index >= 0)"
+											
+					}	// end "if (gTextString2[0] > 0)"
 			
 				}	// end "if (errCode == noErr)"
 			
@@ -11569,24 +11654,43 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 			
 			}	// end "if (errCode == noErr)"
 
-				// If not at end of the file, then check if characters read in are
-				// "CHANNEL DESCRIPTIONS".
-
-		MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions); // 54
 		foundCode = -1;
-
-		if (errCode == noErr && gTextString2[0] > 0)
+		if (errCode == noErr)
 			{
-			if (strncmp ((char*)gTextString,
-								(char*)&gTextString2[1],
-								gTextString2[0]) == 0)
-				foundCode = 0;
+					// If not at end of the file, then check if characters read in are
+					// "CHANNEL DESCRIPTIONS" or "CHANNEL DESCRIPTION2"
 
-			}	// end "if (errCode == noErr && ...)"
+			MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
+
+			if (gTextString2[0] > 0)
+				{
+				if (strncmp ((char*)gTextString,
+									(char*)&gTextString2[1],
+									gTextString2[0]) == 0)
+					foundCode = 1;
+					
+				}	// end "if (errCode == noErr && ...)"
+
+			if (foundCode == -1)
+				{
+				MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescription2);
+				
+				if (gTextString2[0] > 0)
+					{
+					if (strncmp ((char*)gTextString,
+										(char*)&gTextString2[1],
+										gTextString2[0]) == 0)
+						foundCode = 2;
+						
+					}	// end "if (gTextString2[0] > 0)"
+					
+				}	// end "if (foundCode == -1)"
+			
+			}	// end "if (errCode == noErr)"
 
 		if (foundCode >= 0)
 			{
-			errCode = ReadMultiSpecChannelDescriptions (fileInfoPtr);
+			errCode = ReadMultiSpecChannelDescriptions (fileInfoPtr, foundCode);
 
 			if (errCode == noErr)
 				{
@@ -11643,10 +11747,11 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 // Called By:			ReadMultiSpecChannelDescriptionsAndValues in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 SInt16 ReadMultiSpecChannelDescriptions (
-				FileInfoPtr							fileInfoPtr)
+				FileInfoPtr							fileInfoPtr,
+				SInt16								versionNumber)
 				
 {
 	ChannelDescriptionPtr			channelDescriptionPtr;
@@ -11680,12 +11785,16 @@ SInt16 ReadMultiSpecChannelDescriptions (
 																	  kLock);
 
 			channel = 0;
-			count = 16;
+			
+			count = 16;			// for versionNumber == 1
+			if (versionNumber == 2)
+				count = kChannelDescriptionLength;
+				
 			errCode = noErr;
 
 					// Get a blank string.
 
-			MGetString (gTextString3, kFileIOStrID, IDS_BlankString16); // 57
+			MGetString (gTextString3, kFileIOStrID, IDS_BlankString16);
 
 			while (channel < fileInfoPtr->numberChannels)
 				{
@@ -11704,22 +11813,22 @@ SInt16 ReadMultiSpecChannelDescriptions (
 						// in for the channel.
 
 				if (errCode != noErr)
-					BlockMoveData ((char*)&gTextString3[1], charPtr, 16);
+					BlockMoveData ((char*)&gTextString3[1], charPtr, 24);
 
 				else	// errCode == noErr
 					{
-					charPtr += 15;
+					charPtr += kChannelDescriptionLength - 1;
 
 							// Determine maximum number of non-blank characters.
 
-					for (index=16; index>0; index--)
+					for (index=kChannelDescriptionLength; index>0; index--)
 						{
 						if (*charPtr != ' ')
 							break;
 
 						charPtr--;
 
-						}	// end "for (index=16; index>0; index--)"
+						}	// end "for (index=kChannelDescriptionLength; index>0; index--)"
 
 					maxNumberCharactersUsed = MAX (index, maxNumberCharactersUsed);
 

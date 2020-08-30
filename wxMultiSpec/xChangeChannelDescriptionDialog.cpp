@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			08/29/2020
 //
 //	Language:				C++
 //
@@ -160,7 +160,7 @@ void CMChangeChannelDescriptionDlg::CreateControls ()
 	m_staticText325 = new wxStaticText (this, 
 													IDC_DescriptionExample, 
 													wxString::Format (
-															wxT("           example: 0.45-0.52:%cm"), 
+															wxT("           example: 0.45-0.52 %cm"),
 													wxChar (181)), 
 													wxDefaultPosition, 
 													wxDefaultSize, 
@@ -170,7 +170,7 @@ void CMChangeChannelDescriptionDlg::CreateControls ()
 	
 	m_staticText326 = new wxStaticText (this, 
 													IDC_DescriptionLimit, 
-													wxT("           (Limit is 16 characters.)"), 
+													wxT("           (Limit is 24 characters.)"),
 													wxDefaultPosition, 
 													wxDefaultSize, 
 													0);
@@ -189,7 +189,7 @@ void CMChangeChannelDescriptionDlg::CreateControls ()
 												wxDefaultPosition, 
 												wxSize (200,30), 
 												0);
-	m_textCtrl143->SetMaxLength (16); 
+	m_textCtrl143->SetMaxLength (kChannelDescriptionLength); 
 	bSizer334->Add (m_textCtrl143, 0, wxALL, 5);
 	
 	

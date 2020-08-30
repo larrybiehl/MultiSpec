@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/23/2020
+//	Revision date:			08/30/2020
 //
 //	Language:				C
 //
@@ -2896,14 +2896,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 06/23/2020
+//	Revised By:			Larry L. Biehl			Date: 08/30/2020
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2020.06.23");
+	sprintf (gDateVersionString, "2020.08.30");
 
 		// Application identifier string
 		
@@ -3163,7 +3163,7 @@ SInt16 InsertCommasInNumberString (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/04/1989
-//	Revised By:			Larry L. Biehl			Date: 11/25/2019
+//	Revised By:			Larry L. Biehl			Date: 08/25/2020
 
 Boolean ListChannelsUsed (
 				FileInfoPtr							fileInfoPtr, 
@@ -3211,7 +3211,7 @@ Boolean ListChannelsUsed (
 	channelDescriptionPtr = NULL;
 	localFileInfoPtr = NULL;
 	continueFlag = TRUE;
-	gTextString2[16] = 0;
+	gTextString2[24] = 0;
 	shortListFlag = TRUE;
 	
 	lChannelsPtr = channelsPtr;
@@ -3344,7 +3344,7 @@ Boolean ListChannelsUsed (
 					
 					}	// end "if ((index < (UInt16)numberChannels - 1))"
 					
-				if (stringLength >= 256-15)
+				if (stringLength >= 256-23)
 					break;
 					
 				}	// end "if (listFlag)"
@@ -3445,7 +3445,7 @@ Boolean ListChannelsUsed (
 					channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
 																localFileInfoPtr->channelDescriptionH,
 																kLock);
-					stringLength = 23 + channelNumberLength + gNumberOfEndOfLineCharacters;
+					stringLength = 31 + channelNumberLength + gNumberOfEndOfLineCharacters;
 					
 					}	// end "if (localFileInfoPtr->channelDescriptionH)" 
 				
@@ -3464,7 +3464,7 @@ Boolean ListChannelsUsed (
 				if (localImageLayerInfoPtr != NULL)
 					fileChanNum = localImageLayerInfoPtr[layerChanIndex].fileChannelNumber;
 					
-				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], gTextString2, 16);
+				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], gTextString2, 24);
 				sprintf ((char*)gTextString, 
 							"     %*u: %s%s", 
 							channelNumberLength,
@@ -4610,7 +4610,7 @@ Boolean ListProjectAndImageName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1993
-//	Revised By:			Larry L. Biehl			Date: 10/28/1993			
+//	Revised By:			Larry L. Biehl			Date: 08/24/2020
 
 Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
@@ -4621,14 +4621,14 @@ Boolean ListSpecifiedStringNumber (
 				Boolean								continueFlag)
 													
 {
-	Str255*								str255Ptr;
+	//Str255*								str255Ptr;
 	
 	
 	if (continueFlag)
 		{
-		str255Ptr = (Str255*)stringPtr;
+		//str255Ptr = (Str255*)stringPtr;
 		
-		continueFlag = MGetString (*str255Ptr, strListID, index);
+		continueFlag = MGetString (stringPtr, strListID, index);
 				                                  
 		if (continueFlag)
 			continueFlag = OutputString (resultsFileStreamPtr, 

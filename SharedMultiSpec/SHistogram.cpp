@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			06/05/2020
+//	Revision date:			08/25/2020
 //
 //	Language:				C
 //
@@ -6777,7 +6777,7 @@ void InitializeHistogramSummaryStructure (
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/18/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/11/1988	
-//	Revised By:			Larry L. Biehl			Date: 05/27/2015	
+//	Revised By:			Larry L. Biehl			Date: 08/25/2020
 
 Boolean ListHistogramSummary (
 				FileInfoPtr							fileInfoPtr, 
@@ -6790,7 +6790,7 @@ Boolean ListHistogramSummary (
 
 	char									formatString[256];
 	char									string[1000];
-	char									*blankPtr = (char*)"                ";
+	char									*blankPtr = (char*)"                        ";
 	
 	ChannelDescriptionPtr			channelDescriptionPtr;
 	FileInfoPtr							localFileInfoPtr;
@@ -6891,7 +6891,7 @@ Boolean ListHistogramSummary (
 	
 				// List the statistics in the output window for each channel [i]	
 
-		gTextString2[16] = 0;
+		gTextString2[24] = 0;
 		fileInfoIndex = -1;
 		numberChannels = histogramSpecsPtr->numberChannels;
 		channelsPtr = (SInt16*)GetHandlePointer (histogramSpecsPtr->channelsHandle);
@@ -7036,11 +7036,11 @@ Boolean ListHistogramSummary (
 									
 			if (!localFileInfoPtr->descriptionsFlag ||
 														localImageType != kMultispectralImageType)
-				BlockMoveData (blankPtr, gTextString2, 16);
+				BlockMoveData (blankPtr, gTextString2, 24);
 											
 			else	// localFileInfoPtr->descriptionsFlag && ... 
 				BlockMoveData (
-					&channelDescriptionPtr[fileChannelNumber-1], gTextString2, 16);
+					&channelDescriptionPtr[fileChannelNumber-1], gTextString2, 24);
 			/*
 			if (localFileInfoPtr->dataTypeCode == kIntegerType)
 				{		
@@ -7327,7 +7327,7 @@ Boolean ListHistogramTitle (
 //
 //	Coded By:			Ravi S. Budruk			Date: 07/13/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 12/21/2016	
+//	Revised By:			Larry L. Biehl			Date: 08/24/2020
 
 Boolean ListHistogramValues (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7655,6 +7655,8 @@ Boolean ListHistogramValues (
 																	value * (countTextWidth+1) + 128;
 				
 				}	// end "else !lineFormatHistFlag"
+				
+			numberBytes = MAX (256, numberBytes);
 			
 			if (numberBytes > (SInt32)numberBufferBytes)
 				{

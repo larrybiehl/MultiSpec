@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 05/11/2020
+//	Revised By:				Larry L. Biehl			Date: 08/25/2020
 //	
 //------------------------------------------------------------------------------------
 
@@ -1588,7 +1588,7 @@ typedef struct 	CEMParameters
 	
 typedef struct ChannelDescription
 	{
-	Str15					description;
+	unsigned char		description[24];
 	
 	} ChannelDescription, *ChannelDescriptionPtr;
 	

@@ -4812,7 +4812,7 @@ void SetUpVectorPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2018
-//	Revised By:			Larry L. Biehl			Date: 03/09/2019
+//	Revised By:			Larry L. Biehl			Date: 08/29/2020
 
 SInt16 SetUpXAxisPopUpMenu (
 				GraphPtr								graphRecordPtr,
@@ -4835,6 +4835,10 @@ SInt16 SetUpXAxisPopUpMenu (
 
 	#if defined multispec_wx
 		wxChoice*							xLabelComboBoxPtr = (wxChoice*)popUpMenuHandle;
+
+				// Note that choice menu items in wxWidgets cannot be disabled.
+				
+		useDisabledMenuItemFlag	= FALSE;
 	
 		//int									currentSelection;
 	
@@ -4920,7 +4924,6 @@ SInt16 SetUpXAxisPopUpMenu (
 					xAxisLabel[0] = length;
 					if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
 						{
-              
 						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
       
 						#if defined multispec_wx
@@ -4944,7 +4947,7 @@ SInt16 SetUpXAxisPopUpMenu (
 						{
 						if (useDisabledMenuItemFlag &&
 														!(descriptionCode & kBandWidthInfoExists))
-							DisableMenuItem (popUpMenuHandle, kBandWidths);
+							DisableMenuItem (popUpMenuHandle, kBandWidths-1);
 						
 								// Both Reflective and Thermal data exists, allow the ability
 								// for the user to select one or the other.
@@ -4976,7 +4979,6 @@ SInt16 SetUpXAxisPopUpMenu (
 						if (useDisabledMenuItemFlag ||
 														(descriptionCode & kBandWidthInfoExists))
 							{
-                    
 							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
                  
                      #if defined multispec_wx
@@ -4996,9 +4998,11 @@ SInt16 SetUpXAxisPopUpMenu (
 								newSelection = kReflectiveBandWidths;
 							
 							}	// end "if (descriptionCode & kBandWidthInfoExists)"
-					
-						else if (useDisabledMenuItemFlag) // bandWidth info does not exist
-							DisableMenuItem (popUpMenuHandle, kReflectiveBandWidths);
+
+						#if defined multispec_win
+							else if (useDisabledMenuItemFlag) // bandWidth info does not exist
+								DisableMenuItem (popUpMenuHandle, kReflectiveBandWidths-1);
+						#endif
 										
 						length = sprintf (&xAxisLabel[1],
 												"Wavelength-thermal (%s",
@@ -5049,7 +5053,7 @@ SInt16 SetUpXAxisPopUpMenu (
 							}	// end "if (descriptionCode & kBandWidthInfoExists)"
 					
 						else if (useDisabledMenuItemFlag)	// bandWidth info does not exist
-							DisableMenuItem (popUpMenuHandle, kThermalBandWidths);
+							DisableMenuItem (popUpMenuHandle, kThermalBandWidths-1);
 								
 						}	// end "if (descriptionCode & kReflectiveData && ...)"
 					
