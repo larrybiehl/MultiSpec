@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -318,7 +318,7 @@ Boolean ClassGroupDialog (
 // Called By:			DisplayColorImage
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 04/15/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -518,7 +518,7 @@ void DisplayColorThematicImage (
 												tiledBufferPtr,
 												0,
 												kDoNotPackData,
-												kDoNotForceBISFormat,	
+												kDoNotForceFormat,	
 												kDoNotForceBytes,
 												&fileIOInstructionsPtr);  
 				
@@ -1743,7 +1743,7 @@ void DisplayThematicDialogOK (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 03/30/2020
 
 Boolean DisplayThematicImage (void)
 
@@ -1756,7 +1756,7 @@ Boolean DisplayThematicImage (void)
 	GrafPtr								savedPort;
 	
 	SInt16								previousClassGroupCode,
-											returnCode,
+											//returnCode,
 											savedNumberGroups;
 	
 	Boolean								continueFlag = TRUE,
@@ -1782,7 +1782,7 @@ Boolean DisplayThematicImage (void)
 		{															
 				// Display an alert.																
 		
-		returnCode = DisplayAlert (
+		DisplayAlert (
 						kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert16, 0, NULL);
 																		return (imageDisplayedFlag);
 																							
@@ -1971,8 +1971,9 @@ Boolean DisplayThematicImage (void)
 				gPaletteOffset = displaySpecsPtr->paletteOffset;
 				gClassPaletteEntries = displaySpecsPtr->numPaletteEntriesUsed;
 				
-				if (gImageWindowInfoPtr->imageBaseAddressH ||
-													gImageWindowInfoPtr->offscreenGWorld)
+				if (gImageWindowInfoPtr->showLegend &&
+                        (gImageWindowInfoPtr->imageBaseAddressH ||
+													gImageWindowInfoPtr->offscreenGWorld))
 					{
 					if (displayChangedFlag || previousClassGroupCode != 
 									displaySpecsPtr->classGroupCode ||
@@ -2887,7 +2888,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 		else	// !displaySpecsPtr->filePaletteFlag 
 			{
 					// Determine if this is a statistics image file by whether		
-					// .STI is in the file name.  If so then make the default		
+					// .sti is in the file name.  If so then make the default		
 					// palette the correlation palette.										
 			
 			FileStringPtr fileNamePtr =

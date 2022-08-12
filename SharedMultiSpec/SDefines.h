@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 08/25/2020
+//	Revised By:				Larry L. Biehl			Date: 08/08/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -1123,7 +1123,7 @@ typedef double				CMeanType2;
 	typedef struct FSRef
 		{
 		//UInt8			hidden[_MAX_PATH];
-		TBYTE				hidden[_MAX_PATH];
+		TBYTE				hidden[_MAX_PATH+4];
 
 		}	FSRef;
 
@@ -2881,6 +2881,11 @@ typedef struct MFileInfo
 	
 	UInt16							numberChannels;
 	
+			// This stores the start index and the number of channels in a channel list
+			// that is spread across multiple files
+	UInt16							splitChannelsStart;
+	UInt16							numberSplitChannels;
+	
 			// Number of groups in thematic type images.
 	UInt16							numberGroups;
 	
@@ -2958,6 +2963,12 @@ typedef struct FileIOInstructions
 	SInt16								bufferUsedForApp;
 	SInt16								errCode;
 	
+			// Index within channel list to start processing. Normally this will be
+			// 0, but for cases like histogram processing where linked files are
+			// handled one at a time, this will be used in 'GetLineOfData' to know
+			// which channel in the linked set of files to begin reading data.
+	UInt16								channelListIndexStart;
+	
 			// Code to indicate how many bytes the input data are to be forced to
 			// in the output buffer to be used. The choices are:
 			//		kDoNotForceBytes - leave as originally stored in the image file.
@@ -2968,9 +2979,13 @@ typedef struct FileIOInstructions
 			//		kForceFloat8Bytes
 	UInt16								forceByteCode;
 	
+			// kBIL is only used in the change image file format processor
+			// as an option in forceOutputFormatCode
+	UInt16								forceOutputFormatCode;
+	
 	Boolean								bufferReadyFlag;
 	Boolean								doneFlag;
-	Boolean								forceBISFormatFlag;
+	
 	Boolean								oneReadFlag;
 	Boolean								packDataFlag;
 	Boolean								fileIOThreadStartedFlag;
@@ -3303,7 +3318,10 @@ typedef struct HistogramSummary
 	double 					stdDeviation;	// Standard deviation of data 		
 													// 	values for channel					
 		
-	SInt32					badValues;		// Number of bad values for channel	
+	SInt32					badValues;		// Number of bad values for channel
+	
+	SInt32					signedValueOffset;	// Offset to be used for channels with signed
+															// data. Will be 0 for all 4-byte & 8-byte data
 													 
 	UInt32					numberBins;		// Number bins used for histogram
 													// 	including the min and max
@@ -4300,6 +4318,21 @@ typedef struct ProjectInfo
 #endif
 	
 	
+typedef struct RefCompareImagesOptions
+	{
+	SInt16	 				*compareImagesChannelPtr;
+	Handle					referenceWindowInfoHandle;
+	
+			// Compare images procedure
+			//		=1 (difference)
+			//		=2 (sum)
+	SInt16					procedureCode;
+	
+	UInt16					numberChannelsToCompare;
+	
+	} RefCompareImagesOptions, *RefCompareImagesOptionsPtr;
+	
+	
 typedef struct RectifyImageOptions
 	{
 	TransMapMatrix			mapMatrix;
@@ -4371,6 +4404,7 @@ typedef struct ReformatOptions
 	HDoublePtr						eigenVectorPtr;
 	HUCharPtr						ioOutAdjustBufferPtr;
 	HUCharPtr						ioOutBufferPtr;
+   RefCompareImagesOptionsPtr    compareImagesOptionsPtr;
 	RectifyImageOptionsPtr		rectifyImageOptionsPtr;
 	double*	 						coefficientsPtr;
 	SInt32*							fileInfoListPtr;
@@ -4392,6 +4426,7 @@ typedef struct ReformatOptions
 	SInt32							stopLine;
 	SInt32							startColumn;
 	SInt32							stopColumn;
+	SInt32							thresholdValue;
 	
 			// Defines the data value conversion to be done. See GetDataConversionCode
 			// routine.

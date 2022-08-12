@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 06/22/2020
+//	Revised By:				Larry L. Biehl			Date: 05/22/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -4421,15 +4421,22 @@ extern Boolean CreateThematicSupportFile (
 				UInt32								supportFileType);
 
 extern SInt16 CreateNewFile (
-        CMFileStream*						fileStreamPtr,
-        SInt16								vRefNum,
-        SInt32								creator,
-        SInt16								messageCode,
-        Boolean								doNotReplaceFlag);
+			  CMFileStream*						fileStreamPtr,
+			  SInt16									vRefNum,
+			  SInt32									creator,
+			  SInt16									messageCode,
+			  Boolean								doNotReplaceFlag);
+
+extern Boolean DetermineIfRequestedChannelsFromSingleFile (
+			  WindowInfoPtr						windowInfoPtr,
+			  LayerInfoPtr							layerInfoPtr,
+			  FileInfoPtr							fileInfoPtr,
+			  UInt16									numberListChannels,
+			  UInt16*								channelListPtr);
 
 extern void DiskFullAlert (
-        SInt64								bytesNeeded,
-        Str255*								fileNamePtr);
+			SInt64									bytesNeeded,
+			Str255*									fileNamePtr);
 
 extern CMFileStream* DisposeCMFileStream (
 				CMFileStream*						fileStreamPtr);
@@ -4803,7 +4810,7 @@ extern void SetUpGeneralFileIOInstructions (
 				HUCharPtr							tiledBufferPtr,
 				UInt32								bufferOffset,
 				Boolean								packDataFlag,
-				Boolean								forceBISFormatFlag,
+				UInt16								forceOutputFormatCode,
 				UInt16								forceByteCode,
 				FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr);
 
@@ -5605,7 +5612,7 @@ extern Boolean LoadImagineImageStatistics (
 				SInt16								channelStartIndex,
 				Boolean								summaryFlag);
 
-extern Boolean LoadImagineImageStatisticsForChannel (
+extern Boolean LoadImagineImageStatisticsForChannel2 (
 				FileInfoPtr							fileInfoPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				HUInt32Ptr							histogramArrayPtr,
@@ -6903,7 +6910,7 @@ extern Boolean GetIOBufferPointers (
 				UInt16								numberChannels,
 				UInt16*								channelListPtr,
 				Boolean								packDataFlag,
-				Boolean								forceBISflag,
+				UInt16								forceOutputFormatCode,
 				UInt16								forceOutputByteCode,
 				Boolean								allowForThreadedIOFlag,
 				FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr);
@@ -9222,6 +9229,49 @@ extern void ReleaseReformatOutputFileInfoAndBuffers (
 		// end SReformatChangeImageFileFormat.cpp
 
 
+		// Routines in SReformtCompareImages.cpp
+
+extern void CompareImagesControl (void);
+
+extern void	CompareImagesDialogInitialize (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							fileInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				SInt16*								headerOptionsSelectionPtr,
+				SInt16*								channelSelectionPtr,
+				SInt16*								procedureCodePtr,
+				SInt16*								resampleCodePtr,
+				SInt16*								fileNamesSelectionPtr,
+				Handle*								referenceWindowInfoHandlePtr);
+
+extern void CompareImagesDialogOK (
+				DialogPtr							dialogPtr,
+				FileInfoPtr							outFileInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr,
+				DialogSelectArea*					dialogSelectAreaPtr,
+				ReformatOptionsPtr				reformatOptionsPtr,
+				SInt16								headerOptionsSelection,
+				SInt16								channelSelection,
+				SInt16								procedureCode,
+				Handle								referenceWindowInfoHandle);
+
+extern void CompareImagesDialogOnRectifyCode (
+				DialogPtr							dialogPtr,
+				SInt16								rectifyCode);
+				
+extern SInt16 	CompareImagesDialogOnReferenceFile (
+				DialogPtr							dialogPtr,
+				SInt16								procedureCode,
+				SInt16								fileNamesSelection,
+				Handle*								targetWindowInfoHandlePtr,
+				DialogSelectArea*					dialogSelectAreaPtr);
+
+		// end SReformtCompareImages.cpp
+
+
 		//	Routines in SReformatUtilities.cpp
 
 extern void ChangeErdasHeader (void);
@@ -10133,13 +10183,18 @@ extern void ConvertUnicodeStringToMultibyteString (
 				UCharPtr								outputUTF8StringPtr,
 				UInt16								numberCharacters,
 				SInt16*								outputStringLengthPtr);
+				
+extern int CopyFileStringToCString (
+				FileStringPtr						fromFileStringPtr,
+				unsigned char*						toCStringPtr,
+				int									maxCopyLength);
 
 extern void CopyFileStringToFileString (
 				FileStringPtr						fromFileStringPtr,
 				FileStringPtr						toFileStringPtr,
 				UInt16								maxLength);
 
-extern void CopyFileStringToString (
+extern void CopyFileStringToPString (
 				FileStringPtr						fromFileStringPtr,
 				char*									toFileStringPtr);
 
@@ -10915,8 +10970,7 @@ extern Boolean GetCommonArea (
 
 extern double GetDataValueForBinIndex (
 				UInt32								binIndex,
-				HistogramSummaryPtr				histogramSummaryPtr,
-				SInt32								signedValueOffset);
+				HistogramSummaryPtr				histogramSummaryPtr);
 
 extern Handle GetDisplaySpecsHandle (
 				Handle								windowInfoHandle);
@@ -11348,6 +11402,13 @@ extern SInt16 GetDisplayClassGroupCode (
 
 extern UInt32 GetDisplayedLineStart (
 				WindowInfoPtr						windowInfoPtr);
+								
+void GetFileFormatsInFile (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				Boolean*								bilFormatFlagPtr,
+				Boolean*								bsqFormatFlagPtr,
+				Boolean*								bisFormatFlagPtr);
 
 extern Handle GetFileInfoHandle (
 				Handle								windowInfoHandle);

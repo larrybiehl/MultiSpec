@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/30/2020
+//	Revision date:			08/11/2022
 //
 //	Language:				C
 //
@@ -85,6 +85,9 @@ extern void	ListString (
 extern Boolean	ListString (
 				char*									textBuffer,
 				unsigned int						textLength=0);
+
+extern void DebugString (
+            char*                         stringBufferPtr);
 
 
 		// Prototypes for routines in this file that are only called by
@@ -208,6 +211,12 @@ void CheckStringLength (
 		}	// end "if (inputStringWidth > maxWidth)" 
 	
 }	// end "CheckStringLength"
+
+DebugString (
+             char*                         stringBufferPtr)
+{
+   
+}
 #endif	// defined multispec_mac 
 				
 
@@ -827,7 +836,7 @@ wchar_t* ConvertMultibyteStringToUnicodeString (
 														&numberUnicodeChars);
 																			
 		wcsncpy (&gWideTextString[1], unicodeString, numberUnicodeChars);
-		gWideTextString[0] = numberUnicodeChars;
+		gWideTextString[0] = (wchar_t)numberUnicodeChars;
 	#endif // end "multispec_wx"
 
 	#if defined multispec_win
@@ -1114,6 +1123,58 @@ void ConcatPStringsUnicode (
 */
 
 
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		CopyFileStringToCString
+//
+//	Software purpose:	The purpose of this routine is to copy a file string in which
+//							first 2-bytes included the string length to a c string.
+//							The output string length is limited to the input limit for
+//							the number of characters in the output string.
+//
+//	Parameters in:		Address of from file string
+//							Address of to file string
+//							Maximum number of characters to copy
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/04/2022
+//	Revised By:			Larry L. Biehl			Date: 04/04/2022
+
+int CopyFileStringToCString (
+				FileStringPtr						fromFileStringPtr,
+				unsigned char*						toCStringPtr,
+				int									maxCopyLength)
+
+{
+	UInt16								fileStringLength = 0;
+	
+	
+	if (fromFileStringPtr != NULL && toCStringPtr != NULL)
+		{
+		fileStringLength = GetFileStringLength (fromFileStringPtr);
+		fileStringLength = MIN (fileStringLength, maxCopyLength);
+		
+		memcpy (toCStringPtr,
+					&fromFileStringPtr[2],
+					fileStringLength);
+					
+		toCStringPtr[fileStringLength] = 0;
+		
+		}	// end "if (fromFileStringPtr != NULL && toFileStringPtr != NULL)"
+		
+	return (fileStringLength);
+		
+}	// end "CopyFileStringToCString"
+
+
+
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
@@ -1165,7 +1226,7 @@ void CopyFileStringToFileString (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		CopyFileStringToString
+//	Function name:		CopyFileStringToPString
 //
 //	Software purpose:	The purpose of this routine is to copy a file string in which
 //							first 2-bytes included the string length to a string which
@@ -1187,7 +1248,7 @@ void CopyFileStringToFileString (
 //	Coded By:			Larry L. Biehl			Date: 04/16/2020
 //	Revised By:			Larry L. Biehl			Date: 04/16/2020
 
-void CopyFileStringToString (
+void CopyFileStringToPString (
 				FileStringPtr						fromFileStringPtr,
 				char*									toFileStringPtr)
 
@@ -1209,7 +1270,7 @@ void CopyFileStringToString (
 		
 		}	// end "if (fromFileStringPtr != NULL && toFileStringPtr != NULL)"
 		
-}	// end "CopyFileStringToString"
+}	// end "CopyFileStringToPString"
 
 
 
@@ -1341,6 +1402,7 @@ void CopyStringToFileString (
 		}	// end "else if (fromStringPtr == NULL && toFileStringPtr != NULL)"
 		
 }	// end "CopyStringToFileString"
+
 
 
 //------------------------------------------------------------------------------------
@@ -1822,9 +1884,10 @@ void GetImageWindowName (
 		
 	else	// !removeSuffixFlag
 		{
-		//sprintf ((char*)&namePtr[totalLength], " ");
 		sprintf ((char*)&windowNameString[totalLength+1], " ");
 		totalLength++;
+		
+		savedLength = totalLength;
 		
 		}	// end "else !removeSuffixFlag"
 		
@@ -2896,14 +2959,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 08/30/2020
+//	Revised By:			Larry L. Biehl			Date: 08/11/2022
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2020.08.30");
+	sprintf (gDateVersionString, "2022.08.11");
 
 		// Application identifier string
 		
@@ -2943,13 +3006,20 @@ void InitializeDateVersionStrings ()
    #if defined multispec_wx
 		#ifdef NetBeansProject
 			sprintf ((char*)gApplicationIdentifierString,
-						"MultiSpecLinux_%s",
+						"MultiSpec_Linux_%s",
 						gDateVersionString);
 		#else
 			#if defined multispec_wxmac
-				sprintf ((char*)gApplicationIdentifierString,
-							"MultiSpec64_%s",
-							gDateVersionString);
+            #if defined(__aarch64__)
+               sprintf ((char*)gApplicationIdentifierString,
+                        "MultiSpec_AppleSilicon_%s",
+                        gDateVersionString);
+            #endif
+            #if defined(__x86_64__)
+               sprintf ((char*)gApplicationIdentifierString,
+                        "MultiSpec_Intel_%s",
+                        gDateVersionString);
+            #endif
 			#else
 				sprintf ((char*)gApplicationIdentifierString,
 							"MultiSpec_on_MyGeohub_%s",
@@ -2994,7 +3064,7 @@ SInt16 InsertCommasInNumberString (
 											index,
 											newIndex;
 											
-	UInt32								numberBlanks,
+	UInt32								//numberBlanks,
 											numberCommas,
 											numberPlaces,
 											numberWholeValueDigits;
@@ -3039,7 +3109,7 @@ SInt16 InsertCommasInNumberString (
 		
 		}	// end "while (inputStringPtr[index] == ' ')"
 		
-	numberBlanks = index;
+	//numberBlanks = index;
 	
 			// Do not include a leading '-' as a whole number digit
 			
@@ -4205,7 +4275,7 @@ Boolean ListMemoryMessage (
 // Called By:			ListHeaderInfo in SStrings.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1991
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 08/10/2022
 
 Boolean ListProcessorTitleLine (
 				CMFileStream*	 					resultsFileStreamPtr, 
@@ -4227,7 +4297,11 @@ Boolean ListProcessorTitleLine (
 	listClassificationIdentifierFlag = FALSE;
 	stringIndex = IDS_ProcessorDisplay;
 	switch (gProcessorCode)
-		{		
+		{
+		case kOpenImageFileProcessor:
+			stringIndex = IDS_OpenImage;
+			break;
+		
 		case kDisplayProcessor:
 			stringIndex = IDS_ProcessorDisplay;
 			break;
@@ -6983,8 +7057,8 @@ void RemoveCharsAddVersion (
 
 {
 	UInt8									tempString[2];
-	FileStringPtr						tempPtr,
-											temp2Ptr;
+   FileStringPtr						tempPtr;
+											//temp2Ptr;
 	
 	SInt16								index,
 											lengthString,
@@ -7055,7 +7129,7 @@ void RemoveCharsAddVersion (
 					
 			tempPtr += 2;
 			
-			temp2Ptr = &tempPtr[lengthRemoveString-2];
+			//temp2Ptr = &tempPtr[lengthRemoveString-2];
 			
 			BlockMoveData (removeStringPtr, tempPtr, numberCharacters);
 			
@@ -7586,7 +7660,7 @@ void StringToNumber (
 #endif	// defined multispec_mac_swift
 
 #if defined multispec_win | defined multispec_wx
-	*theNumPtr = atol (stringPtr);
+	*theNumPtr = (SInt32)atol (stringPtr);
 #endif	// defined multispec_win
 
 }	// end "StringToNumber"

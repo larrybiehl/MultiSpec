@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			07/01/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -3486,7 +3486,7 @@ Boolean ListReliabilityAccuracyLine (
 // Called By:			ListResultsControl
 //
 //	Coded By:			Larry L. Biehl			Date: 02/19/1991
-//	Revised By:			Larry L. Biehl			Date: 02/14/2014
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean ListResultsAreasControl (
 				FileInfoPtr							fileInfoPtr, 
@@ -3587,7 +3587,7 @@ Boolean ListResultsAreasControl (
 														1,
 														NULL,
 														kPackData,
-														kDoNotForceBISFormat,
+														kDoNotForceFormat,
 														kForce2Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructions1Ptr);
@@ -3609,7 +3609,7 @@ Boolean ListResultsAreasControl (
 														1,
 														NULL,
 														kPackData,
-														kDoNotForceBISFormat,
+														kDoNotForceFormat,
 														kForce2Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructions2Ptr);

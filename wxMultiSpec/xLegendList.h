@@ -134,6 +134,7 @@ class CMLegendList : public wxListView
 		
 		Handle								m_bitMapInfoHeaderHandle;
 	
-		Boolean								m_activeFlag;
+		Boolean								m_activeFlag,
+                                    m_drawLegendlistIsActive;
 		
 };	// end "class CMLegendList"  

@@ -19,7 +19,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								01/11/2020 by Larry L. Biehl
+//								02/26/2022 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -305,8 +305,8 @@ bool CMGraphView::LoadChannelDescriptionIntoList (
 		fileChanNum = layerInfoPtr[channelNum].fileChannelNumber;
 		BlockMoveData (&channelDescriptionPtr[fileChanNum - 1],
 							&gTextString[startString],
-							16);
-		gTextString[0] += 18;
+							20);
+		gTextString[0] += 22;
 		gTextString[ gTextString[0] + 1 ] = 0;   
 			         
 		}	// end "if (channelDescriptionPtr != NULL)" 
@@ -652,7 +652,7 @@ void CMGraphView::OnDraw (
 
 {
 	wxFont 								font;
-	wxFont* 								pOldFont;
+	//wxFont* 								pOldFont;
 	SignedByte							handleStatus;
 	Boolean								continueFlag;
 	
@@ -679,13 +679,13 @@ void CMGraphView::OnDraw (
 							wxEmptyString,
 							wxFONTENCODING_DEFAULT);
 		
-		pOldFont = &font;
+		//pOldFont = &font;
       
 		}	// end "if (m_printCopyModeFlag)"
 	
    else
 		{
-      pOldFont = &s_font;
+      //pOldFont = &s_font;
       
 				// Save the display pixels per inch.
 		
@@ -1026,8 +1026,8 @@ ShapeInfoPtr CMGraphView::GetShapeInfoFromHandle (
    SInt16								shapeFileIndex;
    WindowInfoPtr						windowInfoPtr;
    SignedByte							windowHandleStatus;
-   OverlaySpecsPtr				   overlayListPtr;
-   int                           numberOverlays;
+   //OverlaySpecsPtr				   overlayListPtr;
+   //int                           numberOverlays;
          
    windowInfoPtr = (WindowInfoPtr)GetHandleStatusAndPointer (
 									activeImageWindowHandle, &windowHandleStatus);
@@ -1035,8 +1035,8 @@ ShapeInfoPtr CMGraphView::GetShapeInfoFromHandle (
    if (windowInfoPtr == NULL)
 																							return NULL;
    
-   numberOverlays = windowInfoPtr->numberVectorOverlays;
-   overlayListPtr = windowInfoPtr->overlayList;
+   //numberOverlays = windowInfoPtr->numberVectorOverlays;
+   //overlayListPtr = windowInfoPtr->overlayList;
    
    shapeHandlePtr = (Handle*)GetHandlePointer (shapeFilesHandle);
    
@@ -1168,7 +1168,7 @@ void CMGraphView::UpdateFieldValues (
 											fieldValuesInt,
 											numberPoints,
 											partIndex,
-											pointIndex,
+											//pointIndex,
 											pointStart,
 											pointStop,
                                  numberFields,
@@ -1214,7 +1214,7 @@ void CMGraphView::UpdateFieldValues (
       	{
          if (PointInRectangle (&mapPoint, &arcViewPolyLinePtr->box))
          	{
-            pointIndex = 0;
+            //pointIndex = 0;
             doublePointPtr = (ArcViewDoublePoint*)
                				&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
 

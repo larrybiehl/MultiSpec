@@ -1198,7 +1198,7 @@ void CMClassifyDialog::OnChangeKNNThreshold (
 	wxTextCtrl* knnThreshold = (wxTextCtrl*)FindWindow (IDC_NearestNeighborThreshold);
 	wxString knnThresholdString = knnThreshold->GetValue ();
 	knnThresholdString.ToLong (&m_knnThreshold);
-	int	savedKNNThresholdValue = m_knnThreshold;
+	int	savedKNNThresholdValue = (int)m_knnThreshold;
 
 	if (m_knnThreshold < 1)
 		m_knnThreshold = 1;

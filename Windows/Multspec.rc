@@ -504,7 +504,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,29,18,20,20
-    CTEXT           "MultiSpec Application\nVersion 2020.08.30",IDC_STATIC,103,6,119,17
+    CTEXT           "MultiSpec Application\nVersion 2022.08.11",IDC_STATIC,103,6,119,17
     CTEXT           "Copyright © 1995-2020\nPurdue Research Foundation",IDC_STATIC,8,40,317,26
     DEFPUSHBUTTON   "OK",IDOK,283,222,42,14,WS_GROUP
     LTEXT           "Available Memory:",IDC_STATIC,103,176,63,8
@@ -842,15 +842,15 @@ BEGIN
     GROUPBOX        "Range-Interval Choice",IDC_RangeOutline,173,61,90,91
 END
 
-IDD_ReformatTransform DIALOGEX 0, 0, 342, 357
+IDD_ReformatTransform DIALOGEX 0, 0, 342, 381
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Set Reformat Transform Parameters"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,279,331,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,221,331,50,14
+    DEFPUSHBUTTON   "OK",IDOK,279,355,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,221,355,50,14
     CONTROL         "No Transformation to be Done",IDC_RT_NoTransformation,
-                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,9,308,173,10
+                    "Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,9,333,173,10
     CONTROL         "Adjust Selected Channels",IDC_AdjustSelectedChannels,
                     "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,12,141,10
     CONTROL         "New Channels from ",IDC_RT_Eigenvectors,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,9,104,76,10
@@ -898,6 +898,8 @@ BEGIN
     EDITTEXT        IDC_RT_AT_Therm_K1,85,229,40,13,ES_AUTOHSCROLL
     LTEXT           " / Radiance + 1)",IDC_RT_AT_Therm_TOAr,126,231,57,8
     COMBOBOX        IDC_AlgebraicTransformOptions,162,163,111,60,CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "Threshold value:",IDC_Threshold_Value_Prompt,54,310,62,8
+    EDITTEXT        IDC_Threshold_Value,115,308,42,12,ES_AUTOHSCROLL
 END
 
 IDD_GraphicsStatus DIALOG 0, 0, 185, 92
@@ -2675,6 +2677,12 @@ BEGIN
     IDC_ReformatFunctions, 0x403, 19, 0
 0x744b, 0x2068, 0x6d53, 0x6c61, 0x656c, 0x7473, 0x5620, 0x6c61, 0x6575, 
 "\000" 
+    IDC_ReformatFunctions, 0x403, 25, 0
+0x614c, 0x6574, 0x7473, 0x5420, 0x7268, 0x7365, 0x6f68, 0x646c, 0x4320, 
+0x6168, 0x6e6e, 0x6c65, "\000" 
+    IDC_ReformatFunctions, 0x403, 27, 0
+0x6145, 0x6c72, 0x6569, 0x7473, 0x5420, 0x7268, 0x7365, 0x6f68, 0x646c, 
+0x4320, 0x6168, 0x6e6e, 0x6c65, "\000" 
     IDC_AlgebraicTransformOptions, 0x403, 8, 0
 0x6547, 0x656e, 0x6172, 0x006c, 
     IDC_AlgebraicTransformOptions, 0x403, 27, 0
@@ -3615,7 +3623,7 @@ BEGIN
     IDD_ReformatTransform, DIALOG
     BEGIN
         RIGHTMARGIN, 338
-        BOTTOMMARGIN, 345
+        BOTTOMMARGIN, 369
     END
 
     IDD_StatisticsWindow, DIALOG
@@ -4127,7 +4135,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_FileIO01            "There isn't enough room on the disk for the file - '%s'.  %s additional bytes are needed."
-    IDS_FileIO2             ". Additional bytes needed = "
+    IDS_FileIO_NoSuchFileOrDirectory "No such file or directory."
     IDS_ImageFile           "image.lan"
     IDS_FileIO4             "File IO error"
     IDS_FileIO5             " accessing "
@@ -4155,7 +4163,7 @@ BEGIN
     IDS_FileIO98            "\r\nGroup information for '%s' was loaded successfully from '%s'.\r\n"
     IDS_FileIO99            "\r\nClass information for '%s' was loaded successfully from '%s'.\r\n"
     IDS_FileIO100           "\r\nGroup information for '%s' was saved to '%s'.\r\n"
-    IDS_FileSizeLimit       "The size of the file is less than what the specifications indicate."
+    IDS_FileSizeLimit       "The size of the file, '%s', is %.0f bytes less than what the specifications indicate. Redo the specifications?"
     IDS_ChannelDescription2 "CHANNEL DESCRIPTION2"
 END
 
@@ -4227,6 +4235,7 @@ BEGIN
     IDS_Processor24         "Reformat: Convert Project Fields to Thematic Image"
     IDS_Processor25         "Reformat: Convert ENVI ROI Text File to Thematic Image"
     IDS_Processor26         "Reformat: Mosaic 2 Images Side by Side"
+    IDS_ProcessorCreateImageStat "Set Create Statistics Images Specifications"
 END
 
 STRINGTABLE
@@ -4343,6 +4352,7 @@ BEGIN
     IDS_SaveProjectFile     "Save Project File As:"
     IDS_SaveClassificationAs "Save Classification As:"
     IDS_SelectImageStatistics "Select Image Statistics File"
+    IDS_EndOfFileError      "Tried to read past end-of-file"
 END
 
 STRINGTABLE
@@ -4426,11 +4436,13 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_FileIO_Error        "FileIO error accessing: '"
     IDS_SelectThematicImage "Select Thematic Image."
     IDS_MultiSpecType       "MultiSpec Classification"
     IDS_NumberClasses       "Number classes ="
     IDS_ClassifySelectedArea "Classification of Selected Area"
     IDS_ClassesUsed         "Classes used:                   "
+    IDS_FileIO_PermissionDenied "Permission is denied; read only."
     IDS_SaveProbabilityAs   "Save Probablility Map As:"
     IDS_SelectNewBaseImage  "Select New Project Base Image."
     IDS_ImageStartLine      "Image start line and column ="
@@ -4518,6 +4530,7 @@ BEGIN
     IDS_DisplayColumnLimit  "There are too many columns to be displayed. The limit for MultiSpec is set at  1,000,000 columns."
     IDS_32BitDisplayColumnLimit 
                             "There are too many columns to be displayed. The limit for MultiSpec is set at  1,000,000 columns."
+    IDS_FILEIO316           "\r\n  %d of %d files were linked to active image window.\r\n"
     IDS_DisplayLineLimit    "There are too many lines to be displayed. The limit is 100,000 lines."
 END
 
@@ -4679,12 +4692,12 @@ BEGIN
     IDS_FileIO76            "Select Thematic Class Info File"
     IDS_FileIO77            "Select File With Thematic Group Info"
     IDS_PDSIdentifier       "CCSD3ZF00001"
-    IDS_FileIO79            "RECORD_BYTES="
-    IDS_FileIO80            "LABEL_RECORDS="
-    IDS_FileIO81            "LINE_SAMPLES="
-    IDS_FileIO82            "LINES="
-    IDS_FileIO83            "BANDS="
-    IDS_FileIO84            "SAMPLE_BITS="
+    IDS_FileIO79            "RECORD_BYTES"
+    IDS_FileIO80            "LABEL_RECORDS"
+    IDS_FileIO81            "LINE_SAMPLES"
+    IDS_FileIO82            "LINES"
+    IDS_FileIO83            "BANDS"
+    IDS_FileIO84            "SAMPLE_BITS"
     IDS_FileIO85            "SAMPLE_TYPE=BYTE"
     IDS_FileIO86            "SAMPLE_TYPE=INTEGER"
     IDS_FileIO87            "BAND_STORAGE_ORDER=LINE INTERLEAVED"
@@ -4809,7 +4822,7 @@ BEGIN
     IDS_Alert60             "MultiSpec cannot handle image data defined by 1-bit values in this ERDAS Imagine formatted image file."
     IDS_Alert61             "MultiSpec cannot handle image data defined by 2-bit values in this ERDAS Imagine formatted image file."
     IDS_Alert62             "MultiSpec is reading the information for data set:"
-    IDS_Alert63             "MultiSpec cannot handle image data defined by 32-bit float values in this ERDAS Imagine formatted image file."
+    IDS_Alert63             "Linking file %d of %d"
     IDS_Alert64             "MultiSpec cannot handle image data defined by complex values in this ERDAS Imagine formatted image file."
     IDS_Alert65             "MultiSpec cannot handle the data values in this ERDAS Imagine formatted image file."
     IDS_Alert66             "MultiSpec did not find any multispectral channels or thematic image layers in this ERDAS Imagine formatted image file."
@@ -5195,7 +5208,7 @@ BEGIN
     IDS_ChanDescription5    "1.650 0.200 B5) 1.55- 1.75 um"
     IDS_ChanDescription6    "11.45 2.100 B6) 10.4 -12.5  um"
     IDS_ChanDescription7    "2.220 0.260 B7) 2.09- 2.35 um"
-    IDS_ChanDescription8    "0.710 0.380 0.52- 0.90 um"
+    IDS_ChanDescription8    "0.710 0.380 B8) 0.52- 0.90 um"
     IDS_ChanDescription9    "0.545 0.090 0.50- 0.59 um"
     IDS_ChanDescription10   "0.645 0.070 0.61- 0.68 um"
     IDS_ChanDescription11   "0.840 0.100 0.79- 0.89 um"
@@ -5248,7 +5261,7 @@ BEGIN
     IDS_FileIO140           "DATUM"
     IDS_FileIO141           "ULXMAP"
     IDS_FileIO142           "ULYMAP"
-    IDS_FileIO143           "XDIM"
+    IDS_FileIO143           "SAMPLE_BITS"
     IDS_FileIO144           "YDIM"
     IDS_FileIO145           "MAPUNITS"
     IDS_FileIO146           "Select ENVI ROI File"
@@ -5616,11 +5629,11 @@ BEGIN
     IDS_FileIO172           "USGS_PROJECTION_PARAMETERS="
     IDS_FileIO173           "DATA_SET_TYPE="
     IDS_FileIO174           "PIXEL_ORDER="
-    IDS_FileIO175           "not used"
-    IDS_FileIO176           "not used"
-    IDS_FileIO177           "not used"
-    IDS_FileIO178           "not used"
-    IDS_FileIO179           "not used"
+    IDS_FileIO175           "Simple RLE"
+    IDS_FileIO176           "N-bit"
+    IDS_FileIO177           "Skipping Huffman"
+    IDS_FileIO178           "gzip"
+    IDS_FileIO179           "szip"
 END
 
 STRINGTABLE
@@ -5724,6 +5737,7 @@ BEGIN
     IDS_Alert148            "The number of files to be opened will be reduced to fit within the total image window limit of 50."
     IDS_Alert149            "The number of lines in the left and right images need to be the same."
     IDS_Alert150            "The number of columns in the top and bottom images need to be the same."
+    IDS_Alert151            "The path name length is too long. The maximum needs to less than 260 characters. Shorten file or folder names."
 END
 
 STRINGTABLE
@@ -5823,11 +5837,11 @@ BEGIN
     IDS_ChanDescription45   "1.375 0.030 B9) 1.360-1.390 um"
     IDS_ChanDescription46   "10.80 1.000 B10) 10.30-11.30 um"
     IDS_ChanDescription47   "12.00 1.000 B11) 11.50-12.50 um"
-    IDS_ChanDescription48   "0.55 0.100 B1) 0.50- 0.60 um"
-    IDS_ChanDescription49   "0.65 0.100 B2) 0.60- 0.70 um"
-    IDS_ChanDescription50   "0.75 0.100 B3) 0.70- 0.80 um"
-    IDS_ChanDescription51   "0.95 0.300 B4) 0.80- 1.10 um"
-    IDS_ChanDescription52   "11.51 2.190 B5) 10.41-12.6 um"
+    IDS_ChanDescription48   "0.55 0.100 B4) 0.50- 0.60 um"
+    IDS_ChanDescription49   "0.65 0.100 B5) 0.60- 0.70 um"
+    IDS_ChanDescription50   "0.75 0.100 B6) 0.70- 0.80 um"
+    IDS_ChanDescription51   "0.95 0.300 B7) 0.80- 1.10 um"
+    IDS_ChanDescription52   "11.51 2.190 B8) 10.41-12.6 um"
     IDS_ChanDescription53   "0.444 0.027 B1) 0.430-0.457 um"
     IDS_ChanDescription54   "0.497 0.098 B2) 0.448-0.546 um"
     IDS_ChanDescription55   "0.560 0.045 B3) 0.538-0.583 um"
@@ -5839,8 +5853,8 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_InstrumentName01    "Landsat MSS"
-    IDS_InstrumentName02    "Landsat MSS5"
+    IDS_InstrumentName01    "Landsat1-3 MSS"
+    IDS_InstrumentName02    "Landsat3 MSS5"
     IDS_InstrumentName03    "Landsat TM"
     IDS_InstrumentName04    "Landsat ETM+"
     IDS_InstrumentName05    "SPOT"
@@ -5861,6 +5875,7 @@ BEGIN
     IDS_InstrumentName16    "Sentinel-2A MSI"
     IDS_InstrumentName17    "Sentinel-2B MSI"
     IDS_InstrumentName18    "PeruSat 1"
+    IDS_InstrumentName19    "Landsat4-5 MSS"
 END
 
 STRINGTABLE
@@ -5871,6 +5886,8 @@ BEGIN
     IDS_ChannelFunction04   "Average"
     IDS_ChannelFunction05   "Median"
     IDS_ChannelFunction06   "Kth Smallest Value"
+    IDS_ChannelFunction07   "Latest Threshold Channel"
+    IDS_ChannelFunction08   "Earliest Threshold Channel"
 END
 
 STRINGTABLE
@@ -5927,6 +5944,14 @@ BEGIN
     IDS_ChanDescription81   "0.665 0.070 0.630-0.700 um"
     IDS_ChanDescription82   "0.819 0.133 0.752-0.885 um"
     IDS_ChanDescription83   "0.600 0.300 0.450-0.750 um"
+    IDS_ChanDescription84   "0.55 0.100 B1) 0.50- 0.60 um"
+    IDS_ChanDescription85   "0.65 0.100 B2) 0.60- 0.70 um"
+    IDS_ChanDescription86   "0.75 0.100 B3) 0.70- 0.80 um"
+    IDS_ChanDescription87   "0.95 0.300 B4) 0.80- 1.10 um"
+    IDS_ChanDescription88   "11.45 2.100 B6L) 10.4 -12.5 um"
+    IDS_ChanDescription89   "11.45 2.100 B6H) 10.4 -12.5 um"
+    IDS_ChanDescription590  "11.45 2.100 B6) Brightness Temp"
+    IDS_ChanDescription91   "11.45 2.100 Surface Temperature"
 END
 
 STRINGTABLE
@@ -5953,6 +5978,29 @@ BEGIN
     IDS_Classify85          "      gamma: %f\r\n"
     IDS_Classify86          "      coef0: %f\r\n"
     IDS_Classify87          "      cache size: %.0f\r\n"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ChanDescription92   "10.80 1.000 B10) Brightness Temp"
+    IDS_ChanDescription93   "12.00 1.000 B11) Brightness Temp"
+    IDS_ChanDescription94   "0.0 0.0 Surface Temperature"
+    IDS_ChanDescription95   "0.440 0.020 B1) 0.430- 0.450 um"
+    IDS_ChanDescription96   "0.480 0.060 B2) 0.450- 0.510 um"
+    IDS_ChanDescription97   "0.560 0.060 B3) 0.530- 0.590 um"
+    IDS_ChanDescription98   "0.655 0.030 B4) 0.640- 0.670 um"
+    IDS_ChanDescription99   "0.865 0.030 B5) 0.850- 0.880 um"
+    IDS_ChanDescription100  "1.610 0.080 B6) 1.570- 1.650 um"
+    IDS_ChanDescription101  "2.200 0.180 B7) 2.110- 2.290 um"
+    IDS_ChanDescription102  "0.590 0.180 B8) 0.500- 0.680 um"
+    IDS_ChanDescription103  "1.370 0.020 B9) 1.360- 1.380 um"
+    IDS_ChanDescription104  "10.90 0.590 B10) 10.60-11.19 um"
+    IDS_ChanDescription105  "12.01 1.010 B11) 11.50-12.51 um"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_OpenImage           "Open Image"
 END
 
 #endif    // English (United States) resources

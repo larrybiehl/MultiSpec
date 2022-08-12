@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			09/13/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -5060,7 +5060,7 @@ SInt16 UpdateProjectMaskStats (
 //							ListStatsControl in SProjectListStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/17/1988
-//	Revised By:			Larry L. Biehl			Date: 09/16/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 SInt16 UpdateStatsControl (
 				SInt16								statsWindowMode, 
@@ -5209,7 +5209,7 @@ SInt16 UpdateStatsControl (
 														gProjectInfoPtr->numberStatisticsChannels,
 														(UInt16*)gProjectInfoPtr->channelsPtr,
 														kDoNotPackData,
-														kForceBISFormat,
+														kBIS,		// kForceBISFormat,
 														kForceReal8Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsPtr);

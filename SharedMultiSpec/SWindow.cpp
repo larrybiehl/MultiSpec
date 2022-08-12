@@ -74,7 +74,7 @@ Boolean SaveIfWindowChanged (
 				Boolean								forceCloseFlag)
 
 {
-	SInt16								alertID,
+	SInt16								//alertID,
 											windowType;
 	
 	
@@ -87,9 +87,9 @@ Boolean SaveIfWindowChanged (
 																						
 	windowType = windowInfoPtr->windowType;
 	
-	alertID = kSaveAlertID;
-	if (forceCloseFlag)
-		alertID = kSaveDontSaveAlertID;
+	//alertID = kSaveAlertID;
+	//if (forceCloseFlag)
+	//	alertID = kSaveDontSaveAlertID;
 	
 	if (windowType == kThematicWindowType)
 		{

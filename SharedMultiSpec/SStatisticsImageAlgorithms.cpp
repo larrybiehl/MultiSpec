@@ -444,7 +444,7 @@ void FS_find_STI_size (
 																			numberFeatures*0.01);
 	
 	if (STI_size != NULL)
-		*STI_size = L_final_size_row * L_final_size_col;
+		*STI_size = (UInt32)(L_final_size_row * L_final_size_col);
 
 	L_V_wave_length_location = numberFeatures*L_enlargement + 1;
 	
@@ -569,7 +569,7 @@ void FS_gen_make_stat_image_same_scale (
       
 				// create memory for statistic image files
 				
-		final_cor_size = no_class * L_size_row * L_size_col * sizeof (char);
+		final_cor_size = (UInt32)(no_class * L_size_row * L_size_col * sizeof (char));
       cor = (unsigned char*)MNewPointer (final_cor_size);
       
       if (cor == NULL)
@@ -586,8 +586,8 @@ void FS_gen_make_stat_image_same_scale (
 
 				// Allocate memory for image
 				
-      L_image_size_row = L_final_size_row + 20;
-      final_cor_size = no_class * L_image_size_row * L_final_size_col * sizeof (char);
+      L_image_size_row = (UInt32)(L_final_size_row + 20);
+      final_cor_size = (UInt32)(no_class * L_image_size_row * L_final_size_col * sizeof (char));
       final_cor = (unsigned char*)MNewPointer (final_cor_size);
       
       if (final_cor == NULL)
@@ -622,7 +622,7 @@ void FS_gen_make_stat_image_same_scale (
 				// Make ERDAS Header
       
       newFileInfoPtr->numberLines = L_image_size_row;
-      newFileInfoPtr->numberColumns = L_final_size_col * no_class;
+      newFileInfoPtr->numberColumns = (UInt32)(L_final_size_col * no_class);
      
       newFileInfoPtr->numberClasses = NO_PALETTE_CLASSES + 2;
       newFileInfoPtr->mapProjectionHandle = NULL;
@@ -727,7 +727,7 @@ void FS_gen_make_stat_image_same_scale (
 	
       if (errCode == noErr)
 			{
-         count = L_image_size_row * L_final_size_col *no_class;
+         count = (UInt32)(L_image_size_row * L_final_size_col *no_class);
 			//count = final_cor_size * 2;
       
          errCode = MWriteData (newFileStreamPtr, 

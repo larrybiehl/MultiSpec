@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/18/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -2768,7 +2768,7 @@ void 	ClusterDialogOK (
 //							ClusterOnePassControl in SClusterSinglePass.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/12/1999
-//	Revised By:			Larry L. Biehl			Date: 05/18/2018
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean CreateClusterMaskFile (void)
 
@@ -2917,7 +2917,7 @@ Boolean CreateClusterMaskFile (void)
 													NULL,
 													0,
 													kDoNotPackData,
-													kDoNotForceBISFormat,	
+													kDoNotForceFormat,	
 													kDoNotForceBytes,
 													&fileIOInstructionsPtr);
 	  	
@@ -4762,7 +4762,7 @@ Boolean GetProbabilityFile (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1991
-//	Revised By:			Larry L. Biehl			Date: 01/11/2003	
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean InitializeClusterMemory (
 				FileIOInstructionsPtr*			fileIOInstructionsPtrPtr)
@@ -4819,7 +4819,7 @@ Boolean InitializeClusterMemory (
 														numberChannels,
 														channelsPtr, 
 														kPackData, 
-														kForceBISFormat, 
+														kBIS,		// kForceBISFormat,
 														kForceReal8Bytes,
 														kDoNotAllowForThreadedIO,
 														fileIOInstructionsPtrPtr);

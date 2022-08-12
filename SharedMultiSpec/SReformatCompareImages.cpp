@@ -14,11 +14,11 @@
 // MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
 // Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
-//	File:						SRectifyImage.cpp
+//	File:						SReformatCompareImages.cpp
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			05/14/2022
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -26,8 +26,9 @@
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //
-//	Brief description:	This file contains routine to handle the processor Reformat->
-//								rectify image processor.
+//	Brief description:	This file contains routine to compare two image files by
+//								finding the difference in the image files and writing the
+//								difference out to another file.
 //
 //------------------------------------------------------------------------------------
 
@@ -36,7 +37,7 @@
 #if defined multispec_wx
 	 #include "xImageView.h"
 	 #include "xMultiSpec.h"
-	 #include "xReformatRectifyDialog.h"
+	 #include "xReformatCompareImagesDialog.h"
 #endif	// defined multispec_wx 
 	
 #if defined multispec_mac || defined multispec_mac_swift
@@ -72,35 +73,20 @@
 #define	kMajorityRule					2
 //#define	kMean							3
 
-SInt16							gResampleSelection;
+SInt16							gCompareSelection;
 
 								
 
 			// Prototypes for routines in this file that are only called by		
 			// other routines in this file.													
 			
-void ConcatenateMapping (
-				TransMapMatrix* 					dstMapMatrixPtr,
-				TransMapMatrix* 					mapMatrixPtr);
-
-Boolean DetermineIfIdentityMatrix (
-				TransMapMatrix* 					mapMatrixPtr);
-
 #if defined multispec_mac
 	pascal void DrawResamplePopUp (
 					DialogPtr							dialogPtr,
 					SInt16								itemNumber);
 #endif
 
-void ExtendRealRect (
-				DoubleRect* 						realRectPtr,
-				double 								line, 
-				double 								column);
-
-void GetMappingMatrix (
-				RectifyImageOptionsPtr			rectifyImageOptionsPtr);
-
-SInt16 GetReprojectToImageList (
+SInt16 GetCompareToImageList (
 				DialogPtr							dialogPtr,
 				Handle								windowInfoHandle, 
 				Boolean								loadListFlag,
@@ -113,205 +99,24 @@ void InitializeLineToBackgroundValue (
 				UInt32								countOutBytes,
 				double								backgroundValue);
 
-Boolean InvertMappingMatrix (
-				TransMapMatrix* 					mapMatrixPtr,
-				TransMapMatrix* 					inverseMapMatrixPtr);
-
-Boolean IsPointInPolygon (
-				UInt32								nvert,
-				double*								vertx, 
-				double*								verty, 
-				double								testx, 
-				double								testy);
-
-Boolean ListRectifyResultsInformation (
+Boolean ListCompareImageResultsInformation (
 				ReformatOptionsPtr				reformatOptionsPtr,
 				FileInfoPtr							outFileInfoPtr);
 
-void MapControlPoints (
-				FileInfoPtr 						fileInfoPtr,
-				TransMapMatrix*					mapMatrixPtr);
-
-void MapLineColumn (
-				TransMapMatrix* 					mapMatrixPtr,
-				double* 								linePtr, 
-				double* 								columnPtr);
-
-void MapNearestNeighborLineColumn (
-				TransMapMatrix* 					mapMatrixPtr,
-				SInt32	 							line, 
-				SInt32	 							column, 
-				SInt32* 								inputLinePtr, 
-				SInt32* 								inputColumnPtr);
-
-void MapOutputImageRectangle (
-				TransMapMatrix* 					mapMatrixPtr,
-				LongRect* 							inputRectanglePtr, 
-				LongRect* 							outputRectanglePtr);
-
-void OffsetMappingMatrix (
-				TransMapMatrix* 					mapMatrixPtr,
-				SInt32	 							columnOffset, 
-				SInt32	 							lineOffset);
-
-Boolean RectifyImage (
+Boolean CompareImage (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				FileInfoPtr 						outFileInfoPtr, 
 				ReformatOptionsPtr 				reformatOptionsPtr);
 
-Boolean RectifyImageDialog (
+Boolean CompareImagesDialog (
 				FileInfoPtr 						fileInfoPtr,
 				FileInfoPtr 						outFileInfoPtr, 
-				ReformatOptionsPtr 				reformatOptionsPtr,
-				double								minBackgroundValue,
-				double								maxBackgroundValue);
+				ReformatOptionsPtr 				reformatOptionsPtr);
 
-void RectifyUpdateMapProjectionStructure (
-				Handle								inputWindowInfoHandle,
-				FileInfoPtr							outFileInfoPtr,
-				SInt32								columnStart, 
-				SInt32								lineStart,
-				SInt16								procedureCode,
-				Handle								referenceWindowInfoHandle,
-				SInt32								columnShift, 
-				SInt32								lineShift,
-				double								columnScaleFactor,
-				double								lineScaleFactor,
-				TransMapMatrix*					mapMatrixPtr,
-				TransMapMatrix*					inverseMapMatrixPtr,
-				double								rotationAngle);
-
-Boolean ReprojectImage (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				FileInfoPtr							outFileInfoPtr, 
-				ReformatOptionsPtr				reformatOptionsPtr);
-
-void ReprojectNearestNeighborLineColumn (
-				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				DoubleRect*							boundingRectPtr,
-				SInt32								line, 
-				SInt32								column, 
-				SInt32*								inputLinePtr, 
-				SInt32*								inputColumnPtr);
-
-void ReprojectWithMajorityRule (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				UInt32*								histogramVector,
-				SInt32								outputLine, 
-				SInt32								outputColumn,
-				SInt32								maxNumberInputColumns,
-				SInt32								maxNumberInputLines,
-				SInt16								backgroundValue, 
-				SInt32*								outputPixelValuePtr);
-
-void ScaleMappingMatrix (
-				TransMapMatrix* 					mapMatrixPtr,
-				TransMapMatrix* 					scaleMapMatrixPtr,
-				double 								columnScale, 
-				double 								lineScale, 
-				double 								aboutColumn, 
-				double 								aboutLine);
-
-void SetIdentityMappingMatrix (
-				TransMapMatrix* 					mapMatrixPtr);
-
-void SetUpResampleMethodPopupMenu (
+void SetUpCompareMethodPopupMenu (
 				DialogPtr							dialogPtr,
 				MenuHandle							popUpResampleSelectionMenu,
 				Boolean								thematicTypeFlag);
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean ConcatenateMapping
-//
-//	Software purpose:	The purpose of this routine is to concatenate two input matrices.
-//							The new matrix is returned in the dstMapMatrix location.
-//
-//	Parameters in:		two input matrices
-//
-//	Parameters out:	the output of the concatenate process.
-//
-// Value Returned:	None				
-// 
-// Called By:	
-//
-//	Coded By:			Larry L. Biehl			Date: 08/12/1992
-//	Revised By:			Larry L. Biehl			Date: 08/12/1992	
-
-void ConcatenateMapping (
-				TransMapMatrix*					dstMapMatrixPtr,
-				TransMapMatrix*					mapMatrixPtr)				
-
-{
-	TransMapMatrix						concat;
-	
-
-	concat.map[0][0] = dstMapMatrixPtr->map[0][0] * mapMatrixPtr->map[0][0] + 
-										dstMapMatrixPtr->map[0][1] * mapMatrixPtr->map[1][0];
-	concat.map[0][1] = dstMapMatrixPtr->map[0][0] * mapMatrixPtr->map[0][1] + 
-										dstMapMatrixPtr->map[0][1] * mapMatrixPtr->map[1][1];
-	concat.map[1][0] = dstMapMatrixPtr->map[1][0] * mapMatrixPtr->map[0][0] + 
-										dstMapMatrixPtr->map[1][1] * mapMatrixPtr->map[1][0];
-	concat.map[1][1] = dstMapMatrixPtr->map[1][0] * mapMatrixPtr->map[0][1] + 
-										dstMapMatrixPtr->map[1][1] * mapMatrixPtr->map[1][1];
-	concat.map[2][0] = dstMapMatrixPtr->map[2][0] * mapMatrixPtr->map[0][0] + 
-									dstMapMatrixPtr->map[2][1] * mapMatrixPtr->map[1][0] + 
-																				mapMatrixPtr->map[2][0];
-	concat.map[2][1] = dstMapMatrixPtr->map[2][0] * mapMatrixPtr->map[0][1] + 
-									dstMapMatrixPtr->map[2][1] * mapMatrixPtr->map[1][1] + 
-																				mapMatrixPtr->map[2][1];
-
-	*dstMapMatrixPtr = concat;
-	
-}	// end "ConcatenateMapping"
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean DetermineIfIdentityMatrix
-//
-//	Software purpose:	The purpose of this routine is to determine if the
-//							input mapping matrix is the identity matrix.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None				
-// 
-// Called By:	
-//
-//	Coded By:			Larry L. Biehl			Date: 08/12/1992
-//	Revised By:			Larry L. Biehl			Date: 08/12/1992	
-
-Boolean DetermineIfIdentityMatrix (
-				TransMapMatrix*					mapMatrixPtr)
-
-{
-	Boolean								identityFlag;
-	
-												
-					// Determine if this mapping is just a shift in the lines		
-					// and/or columns.															
-			
-	identityFlag = FALSE;
-	if (mapMatrixPtr->map[0][0] == 1 && 
-			mapMatrixPtr->map[1][1] == 1 &&
-				mapMatrixPtr->map[0][1] == 0 && 
-					mapMatrixPtr->map[1][0] == 0)
-		identityFlag = TRUE;
-		
-	return (identityFlag);
-	
-}	// end "DetermineIfIdentityMatrix" 
 
 
 
@@ -347,7 +152,7 @@ pascal void DrawResamplePopUp (
 	DrawPopUpMenuItem (dialogPtr, 
 								itemNumber, 
 								gPopUpResampleMenu, 
-								gResampleSelection, 
+								gCompareSelection,
 								TRUE);
 	
 }	// end "DrawResamplePopUp" 
@@ -355,110 +160,10 @@ pascal void DrawResamplePopUp (
 
 
 
-void ExtendRealRect (
-				DoubleRect*							realRectPtr, 
-				double 								line, 
-				double 								column)
-				
-{
-	if (column < realRectPtr->left)
-		realRectPtr->left = column;
-		
-	else if (column > realRectPtr->right)
-		realRectPtr->right = column;
-
-	if (line < realRectPtr->top)
-		realRectPtr->top = line;
-	else if (line > realRectPtr->bottom)
-		realRectPtr->bottom = line;
-		
-}	// end "ExtendRealRect" 
-
-
-
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		Boolean GetMappingMatrix
-//
-//	Software purpose:	This routine determines the mapping matrix based on the input 
-//							user parameters.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:		
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 08/07/1992
-//	Revised By:			Larry L. Biehl			Date: 02/14/2012
-
-void GetMappingMatrix (
-				RectifyImageOptionsPtr			rectifyImageOptionsPtr)
-
-{
-	double								rotationAngle;
-	
-	TransMapMatrix						*mapMatrixPtr,
-											*rotateMapMatrixPtr;
-	
-	SInt32								aboutColumn,
-											aboutLine;
-	
-	
-	mapMatrixPtr			= &rectifyImageOptionsPtr->mapMatrix;
-	rotateMapMatrixPtr	= &rectifyImageOptionsPtr->tempMapMatrix;
-	aboutColumn 			= (SInt32)rectifyImageOptionsPtr->rotationColumnCenter;
-	aboutLine 				= (SInt32)rectifyImageOptionsPtr->rotationLineCenter;
-	rotationAngle			= -rectifyImageOptionsPtr->rotationAngle;
-	
-	SetIdentityMappingMatrix (mapMatrixPtr);
-
-	ScaleMappingMatrix (mapMatrixPtr,
-								&rectifyImageOptionsPtr->tempMapMatrix,
-								rectifyImageOptionsPtr->columnScaleFactor, 
-								rectifyImageOptionsPtr->lineScaleFactor, 
-								aboutColumn, 
-								aboutLine);
-	
-			// Get rotation matrix.															
-			
-	rotateMapMatrixPtr->map[0][0] = cos (kDegreesToRadians*rotationAngle);
-	if (rotationAngle == 90 || rotationAngle == -90)
-		rotateMapMatrixPtr->map[0][0] = 0;
-	
-	rotateMapMatrixPtr->map[0][1] = -sin (kDegreesToRadians*rotationAngle);
-	
-	rotateMapMatrixPtr->map[1][0] = -rotateMapMatrixPtr->map[0][1];
-	rotateMapMatrixPtr->map[1][1] =  rotateMapMatrixPtr->map[0][0];
-	
-			// Get the offsets.																
-			
-	rotateMapMatrixPtr->map[2][0] = aboutColumn - 
-								rotateMapMatrixPtr->map[0][0] * aboutColumn - 
-													rotateMapMatrixPtr->map[1][0] * aboutLine;
-	rotateMapMatrixPtr->map[2][1] = aboutLine - 
-								rotateMapMatrixPtr->map[0][1] * aboutColumn - 
-													rotateMapMatrixPtr->map[1][1] * aboutLine;
-												
-	if (DetermineIfIdentityMatrix (mapMatrixPtr) && 
-			mapMatrixPtr->map[2][0] == 0 && 
-				mapMatrixPtr->map[2][1] == 0)
-		*mapMatrixPtr = *rotateMapMatrixPtr;
-		
-	else	// *mapMatrixPtr is not an identity matrix
-		ConcatenateMapping (mapMatrixPtr, rotateMapMatrixPtr);
-
-}	// end "GetMappingMatrix"  
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		SInt16 GetReprojectToImageList
+//	Function name:		SInt16 GetCompareToImageList
 //
 //	Software purpose:	The purpose of this routine is to determine the number of image 
 //							windows that the file represented by the active image window can
@@ -479,10 +184,10 @@ void GetMappingMatrix (
 // 
 // Called By:			
 //
-//	Coded By:			Larry L. Biehl			Date: 02/15/2007
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Coded By:			Larry L. Biehl			Date: 05/15/2022
+//	Revised By:			Larry L. Biehl			Date: 05/15/2022
 
-SInt16 GetReprojectToImageList (
+SInt16 GetCompareToImageList (
 				DialogPtr							dialogPtr, 
 				Handle								windowInfoHandle, 
 				Boolean								loadListFlag,
@@ -651,247 +356,14 @@ SInt16 GetReprojectToImageList (
 		
 	return (imageListLength);
 			
-}	// end "GetReprojectToImageList" 
+}	// end "GetCompareToImageList"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void InitializeLineToBackgroundValue
-//
-//	Software purpose:	This routine initializes the input line to the requested
-//							background value.  It takes into account the type of data value.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 01/20/2006
-//	Revised By:			Larry L. Biehl			Date: 01/23/2006
-
-void InitializeLineToBackgroundValue (
-				FileInfoPtr							outFileInfoPtr, 
-				HUInt8Ptr							outputBufferPtr,
-				UInt32								countOutBytes,
-				double								backgroundValue)
-
-{
-	HDoublePtr							outputBufferDoublePtr;
-	HUInt16Ptr							outputBufferUInt16Ptr;
-	HUInt32Ptr							outputBufferUInt32Ptr;
-	
-	float									backgroundFloatValue;
-	
-	UInt32								count,
-											numberSamples;
-	
-	SInt32								backgroundSInt32Value;
-	UInt32								backgroundUInt32Value;
-	SInt16								backgroundSInt16Value;
-	UInt16								backgroundUInt16Value;
-	SInt8									backgroundSInt8Value;
-	UInt8									backgroundUInt8Value;
-	
-	
-		
-			// Initialize a background line that will be copied from as			
-			// needed.																			
-	
-	if (outFileInfoPtr->numberBytes == 1)
-		{
-		if (outFileInfoPtr->signedDataFlag)
-			{
-			backgroundSInt8Value = (SInt8)backgroundValue;
-			memcpy (&backgroundUInt8Value, &backgroundSInt8Value, 1);
-			
-			}	// end "if (outFileInfoPtr->signedDataFlag)"
-			
-		else	// !outFileInfoPtr->signedDataFlag
-			backgroundUInt8Value = (UInt8)backgroundValue;
-			
-		for (count=0; count<countOutBytes; count++)
-			{
-			*outputBufferPtr = backgroundUInt8Value;
-			outputBufferPtr++;
-			
-			}	// end "for (count=0; count<countOutBytes; count++)" 
-			
-		}	// end "if (outFileInfoPtr->numberBytes == 1)"
-		
-	else if (outFileInfoPtr->numberBytes == 2)
-		{
-		if (outFileInfoPtr->signedDataFlag)
-			{
-			backgroundSInt16Value = (SInt16)backgroundValue;
-			memcpy (&backgroundUInt16Value, &backgroundSInt16Value, 2);
-			
-			}	// end "if (outFileInfoPtr->signedDataFlag)"
-			
-		else	// !outFileInfoPtr->signedDataFlag
-			backgroundUInt16Value = (UInt16)backgroundValue;
-			
-		numberSamples = countOutBytes/2;
-		outputBufferUInt16Ptr = (HUInt16Ptr)outputBufferPtr;
-		for (count=0; count<numberSamples; count++)
-			{
-			*outputBufferUInt16Ptr = backgroundUInt16Value;
-			outputBufferUInt16Ptr++;
-			
-			}	// end "for (count=0; count<countOutBytes; count++)" 
-			
-		}	// end "else outFileInfoPtr->numberSamples == 2"
-		
-	else if (outFileInfoPtr->numberBytes == 4)
-		{
-		if (outFileInfoPtr->dataTypeCode == kIntegerType)
-			{
-			if (outFileInfoPtr->signedDataFlag)
-				{
-				backgroundSInt32Value = (SInt32)backgroundValue;
-				memcpy (&backgroundUInt32Value, &backgroundSInt32Value, 4);
-				
-				}	// end "if (outFileInfoPtr->signedDataFlag)"
-				
-			else	// !outFileInfoPtr->signedDataFlag
-				backgroundUInt32Value = (UInt32)backgroundValue;
-				
-			}	// end "if (outFileInfoPtr->dataTypeCode == kIntegerType)"
-			
-		else	// outFileInfoPtr->dataTypeCode == kRealType
-			{
-			backgroundFloatValue = (float)backgroundValue;
-			memcpy (&backgroundUInt32Value, &backgroundFloatValue, 4);
-			
-			}	// end "else outFileInfoPtr->dataTypeCode == kRealType"
-			
-		numberSamples = countOutBytes/4;
-		outputBufferUInt32Ptr = (HUInt32Ptr)outputBufferPtr;
-		for (count=0; count<numberSamples; count++)
-			{
-			*outputBufferUInt32Ptr = backgroundUInt32Value;
-			outputBufferUInt32Ptr++;
-			
-			}	// end "for (count=0; count<numberSamples; count++)" 
-			
-		}	// end "else outFileInfoPtr->numberBytes == 4"
-		
-	else if (outFileInfoPtr->numberBytes == 8)
-		{
-		numberSamples = countOutBytes/8;
-		outputBufferDoublePtr = (HDoublePtr)outputBufferPtr;
-		for (count=0; count<numberSamples; count++)
-			{
-			*outputBufferDoublePtr = backgroundValue;
-			outputBufferDoublePtr++;
-			
-			}	// end "for (count=0; count<numberSamples; count++)" 
-			
-		}	// end "else outFileInfoPtr->numberBytes == 8"
-
-}	// end "InitializeLineToBackgroundValue"
-
-
-
-Boolean InvertMappingMatrix (
-				TransMapMatrix*					mapMatrixPtr, 
-				TransMapMatrix*					inverseMapMatrixPtr)
-		
-{
-	double								determinant;
-
-	
-			// Get the inverse mapping.													
-
-	determinant = mapMatrixPtr->map[0][0] * mapMatrixPtr->map[1][1] - 
-								mapMatrixPtr->map[0][1] * mapMatrixPtr->map[1][0];
-
-	if (determinant != 0)
-		{
-		inverseMapMatrixPtr->map[0][0] = mapMatrixPtr->map[1][1]/determinant;
-		inverseMapMatrixPtr->map[0][1] = - mapMatrixPtr->map[0][1]/determinant;
-		inverseMapMatrixPtr->map[1][0] = - mapMatrixPtr->map[1][0]/determinant;
-		inverseMapMatrixPtr->map[1][1] = mapMatrixPtr->map[0][0]/determinant;
-		
-		inverseMapMatrixPtr->map[2][0] = 
-				- mapMatrixPtr->map[2][0] * inverseMapMatrixPtr->map[0][0]
-						- mapMatrixPtr->map[2][1] * inverseMapMatrixPtr->map[1][0];
-								
-		inverseMapMatrixPtr->map[2][1] = 
-				- mapMatrixPtr->map[2][0] * inverseMapMatrixPtr->map[0][1]
-						- mapMatrixPtr->map[2][1] * inverseMapMatrixPtr->map[1][1];
-						
-		return (TRUE);
-						
-		}	// end "if (determinant != 0)" 
-		
-	else	// determinant == 0 
-		return (FALSE);
-		
-}	// end "InvertMappingMatrix" 
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean IsPointInPolygon
-//
-//	Software purpose:	The purpose of this routine is determine if the input point
-//							is within the polygon described by the input vertices.
-//							The code comes from 
-//							"http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html".
-//							And is provided by W. Randolph Franklin
-//
-//	Parameters in:		
-//
-//	Parameters out:	None
-//
-// Value Returned:	TRUE if point is within the polygon
-//							FALSE if the point is not within the polygon
-//
-// Called By:	
-//
-//	Coded By:			Larry L. Biehl			Date: 05/22/2012
-//	Revised By:			Larry L. Biehl			Date: 05/22/2012
-
-Boolean IsPointInPolygon (
-				UInt32								nvert, 
-				double*								vertx, 
-				double*								verty, 
-				double								testx, 
-				double								testy)
-
-	{
-	UInt32								i, 
-											j;
-	
-	Boolean								inPolygonFlag = FALSE;
-	
-	
-	for (i = 0, j = nvert-1; i < nvert; j = i++) 
-		{
-		if (((verty[i]>testy) != (verty[j]>testy)) &&
-				(testx < 
-					(vertx[j]-vertx[i])*(testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]))
-			inPolygonFlag = !inPolygonFlag;
-			
-		}	// end "for (i = 0, j = nvert-1; i < nvert; j = i++)"
-		
-  return (inPolygonFlag);
-		
-}	// end "IsPointInPolygon"
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:				Boolean ListRectifyResultsInformation
+//	Function name:				Boolean ListCompareImagesResultsInformation
 //
 //	Software purpose:	The purpose of this routine is to list the results
 //							of the reformat rectify operation.
@@ -907,7 +379,7 @@ Boolean IsPointInPolygon (
 //	Coded By:			Larry L. Biehl			Date: 03/03/2007
 //	Revised By:			Larry L. Biehl			Date: 09/01/2017
 
-Boolean ListRectifyResultsInformation (
+Boolean ListCompareImagesResultsInformation (
 				ReformatOptionsPtr				reformatOptionsPtr, 
 				FileInfoPtr							outFileInfoPtr)
 
@@ -1143,204 +615,14 @@ Boolean ListRectifyResultsInformation (
 		
 	return (continueFlag);
 	
-}	// end "ListRectifyResultsInformation" 
-							
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		void MapControlPoints
-//
-//	Software purpose:	This routine maps the control points for the files to reflect
-//							the new line column values in the output image.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-//	Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 03/06/2007
-//	Revised By:			Larry L. Biehl			Date: 03/06/2007
-
-void MapControlPoints (
-				FileInfoPtr 						fileInfoPtr,
-				TransMapMatrix*					mapMatrixPtr)
-
-{
-	double								columnValue,
-											lineValue;
-											
-	ControlPointsPtr					controlPointsPtr;
-	
-	UInt32								count,
-											numberControlPoints;
-	
-				
-	if (fileInfoPtr != NULL)
-		{
-		controlPointsPtr = GetControlPointVectorPointers (
-											fileInfoPtr->controlPointsHandle,
-											kNoLock);
-							
-		numberControlPoints = 0;								
-		if (controlPointsPtr != NULL)
-			numberControlPoints = controlPointsPtr->count;
-		
-		for (count = 0; count<numberControlPoints; count++)
-			{
-			columnValue = controlPointsPtr->easting1Ptr[count];
-			lineValue = controlPointsPtr->northing1Ptr[count];
-			
-			MapLineColumn (mapMatrixPtr, 
-									&lineValue, 
-									&columnValue);
-									
-			controlPointsPtr->easting1Ptr[count] = columnValue;
-			controlPointsPtr->northing1Ptr[count] = lineValue;
-			
-			}	// end "for (count = 0; count<numberControlPoints; count++)"
-			
-		CloseControlPointVectorPointers (fileInfoPtr->controlPointsHandle);
-		
-		}	// end "if (fileInfoPtr != NULL)"
-	
-}	// end "MapControlPoints" 
-
-
-
-//------------------------------------------------------------------------------------
-//	[x  y] [a  b] = [newX  newY]
-//		    [c  d]
-
-void MapLineColumn (
-				TransMapMatrix*					mapMatrixPtr, 
-				double*								linePtr, 
-				double*								columnPtr)
-				
-{
-	double* 								mx = &mapMatrixPtr->map[0][0];
-	double* 								my = &mapMatrixPtr->map[1][0];
-	double* 								mt = &mapMatrixPtr->map[2][0];
-	
-	double 								tmpCol = *columnPtr;
-	double 								tmpLine = *linePtr;
-
-	*columnPtr = *mx++ * tmpCol + *my++ * tmpLine + *mt++;
-	*linePtr = *mx * tmpCol + *my * tmpLine + *mt;
-	
-}	// end "MapLineColumn" 
-
-
-
-//------------------------------------------------------------------------------------
-//	[x  y] [a  b] = [newX  newY]
-//		    [c  d]
-
-void MapNearestNeighborLineColumn (
-				TransMapMatrix*					mapMatrixPtr, 
-				SInt32								line, 
-				SInt32								column, 
-				SInt32*								inputLinePtr, 
-				SInt32*								inputColumnPtr)
-				
-{
-	double* 								mx = &mapMatrixPtr->map[0][0];
-	double* 								my = &mapMatrixPtr->map[1][0];
-	double* 								mt = &mapMatrixPtr->map[2][0];
-	
-
-	*inputColumnPtr = (SInt32)(*mx++ * column + *my++ * line + *mt++ + .5);
-	*inputLinePtr = (SInt32)(*mx * column + *my * line + *mt + .5);
-	
-}	// end "MapNearestNeighborLineColumn" 
+}	// end "ListCompareImagesResultsInformation"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void MapOutputImageRectangle
-//
-//	Software purpose:	The purpose of this routine is to determine the size
-//							of the output image that contains the requested input
-// 						image to be rectified.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None				
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 08/06/1992
-//	Revised By:			Larry L. Biehl			Date: 08/11/1992	
-
-void MapOutputImageRectangle (
-				TransMapMatrix*					mapMatrixPtr, 
-				LongRect*							inputRectanglePtr, 
-				LongRect*							outputRectanglePtr)
-
-{
-	DoubleRect 							bounds;
-	
-	double								column,
-											line;
-	
-	
-	line = inputRectanglePtr->top;
-	column = inputRectanglePtr->left;
-	MapLineColumn (mapMatrixPtr, &line, &column);
-	bounds.top = bounds.bottom = line;
-	bounds.left = bounds.right = column;
-	
-	line = inputRectanglePtr->top;
-	column = inputRectanglePtr->right;
-	MapLineColumn (mapMatrixPtr, &line, &column);
-	ExtendRealRect (&bounds, line, column);
-	
-	line = inputRectanglePtr->bottom;
-	column = inputRectanglePtr->right;
-	MapLineColumn (mapMatrixPtr, &line, &column);
-	ExtendRealRect (&bounds, line, column);
-	
-	line = inputRectanglePtr->bottom;
-	column = inputRectanglePtr->left;
-	MapLineColumn (mapMatrixPtr, &line, &column);
-	ExtendRealRect (&bounds, line, column);
-
-	outputRectanglePtr->left = (SInt32)floor (bounds.left);
-	outputRectanglePtr->top = (SInt32)floor (bounds.top);
-	outputRectanglePtr->right = (SInt32)ceil (bounds.right);
-	outputRectanglePtr->bottom = (SInt32)ceil (bounds.bottom);
-
-}	// end "MapOutputImageRectangle" 
-
-
-
-//------------------------------------------------------------------------------------
-
-void OffsetMappingMatrix (
-				TransMapMatrix*					mapMatrixPtr, 
-				SInt32								columnOffset, 
-				SInt32								lineOffset)
-
-{
-	mapMatrixPtr->map[2][0] += columnOffset;
-	mapMatrixPtr->map[2][1] += lineOffset;
-	
-}	// end "OffsetMappingMatrix" 
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean RectifyImage
+//	Function name:		Boolean CompareImage
 //
 //	Software purpose:	This routine does the rectification of the image.
 //
@@ -1355,7 +637,7 @@ void OffsetMappingMatrix (
 //	Coded By:			Larry L. Biehl			Date: 08/06/1992
 //	Revised By:			Larry L. Biehl			Date: 02/26/2013
 
-Boolean RectifyImage (
+Boolean CompareImage (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				FileInfoPtr							outFileInfoPtr, 
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -1866,14 +1148,6 @@ Boolean RectifyImage (
 										
 				for (column=1; column<=numberOutputColumns; column++)
 					{
-							// Get the input line and column that matches the 			
-							// output line and column.											
-				
-					MapNearestNeighborLineColumn (inverseMapMatrixPtr,
-															line + mapLineShift, 
-															column + mapColumnShift, 
-															&inputMapLine, 
-															&inputColumn);
 					
 					if (inputMapLine >= (SInt32)startLine && 
 								inputColumn >= (SInt32)startColumn &&
@@ -2078,14 +1352,14 @@ Boolean RectifyImage (
 		
 	return (!continueFlag);
 			
-}	// end "RectifyImage" 
+}	// end "CompareImage"
 
 
-
+/*
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void RectifyImageControl
+//	Function name:		void CompareImagesControl
 //
 //	Software purpose:	This routine controls the process of rectifying the
 //							input image.
@@ -2098,17 +1372,14 @@ Boolean RectifyImage (
 //
 // Called By:	
 //
-//	Coded By:			Larry L. Biehl			Date: 08/06/1992
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Coded By:			Larry L. Biehl			Date: 05/14/2022
+//	Revised By:			Larry L. Biehl			Date: 05/22/2022
 
-void RectifyImageControl (void)
+void CompareImagesControl (void)
 
 {
 			// Declare local variables & structures
 			
-	double								minBackgroundValue,
-											maxBackgroundValue;
-														
 	FileIOInstructionsPtr			fileIOInstructionsPtr;
 	
 	Handle								outFileInfoHandle,
@@ -2118,7 +1389,7 @@ void RectifyImageControl (void)
 											outputRectangle;
 	
 	FileInfoPtr							outFileInfoPtr;	
-	RectifyImageOptionsPtr			rectifyImageOptionsPtr;
+	RefCompareImagesOptionsPtr		compareImagesOptionsPtr;
 	ReformatOptionsPtr				reformatOptionsPtr;
 	
 	time_t								startTime;
@@ -2130,8 +1401,7 @@ void RectifyImageControl (void)
 	UInt32								numberBytes;					
 	
 	Boolean								continueFlag,
-											returnFlag,
-											updateMapProjectionFlag;
+											returnFlag;
 	
 	
 			// If spare memory had to be used to load code resources, then exit	
@@ -2148,7 +1418,7 @@ void RectifyImageControl (void)
 			// Initialize local variables.													
 			
 	continueFlag = TRUE;
-	rectifyImageOptionsPtr = NULL;
+	compareImagesOptionsPtr = NULL;
 	outFileInfoHandle = NULL;
 	reformatOptionsH = NULL;
 	fileIOInstructionsPtr = NULL;
@@ -2187,52 +1457,19 @@ void RectifyImageControl (void)
 			
 	if (continueFlag)
 		{		
-		rectifyImageOptionsPtr = 
-						(RectifyImageOptionsPtr)MNewPointer (sizeof (RectifyImageOptions));
-		if (rectifyImageOptionsPtr)
+		compareImagesOptionsPtr =
+						(RefCompareImagesOptionsPtr)MNewPointer (sizeof (RefCompareImagesOptions));
+		if (compareImagesOptionsPtr)
 			{
-			rectifyImageOptionsPtr->columnScaleFactor = 1.0;
-			rectifyImageOptionsPtr->lineScaleFactor = 1.0;
-			rectifyImageOptionsPtr->rotationAngle = 0.0;
-			rectifyImageOptionsPtr->rotationColumnCenter = 
-						((double)reformatOptionsPtr->columnStart + 
-																	reformatOptionsPtr->columnEnd)/2.;
-			rectifyImageOptionsPtr->rotationLineCenter = 
-						((double)reformatOptionsPtr->lineStart + 
-																	reformatOptionsPtr->lineEnd)/2.;
-			rectifyImageOptionsPtr->rectifyChannelPtr = NULL;
-			rectifyImageOptionsPtr->numberChannelsToRectify = 
+			compareImagesOptionsPtr->compareImagesChannelPtr = NULL;
+			compareImagesOptionsPtr->numberChannelsToCompare =
 														gImageWindowInfoPtr->totalNumberChannels;
-			
-			if (gImageWindowInfoPtr->dataTypeCode == kIntegerType)
-				{
-				rectifyImageOptionsPtr->backgroundValue = 
-															gImageWindowInfoPtr->minUsableDataValue;
-				
-				if (gImageWindowInfoPtr->numberBytes == 4)
-					rectifyImageOptionsPtr->backgroundValue = 0;
-				
-				}	// end "if (gImageWindowInfoPtr->dataTypeCode == kIntegerType)"
-				
-			else	// gImageWindowInfoPtr->dataTypeCode == kRealType
-				rectifyImageOptionsPtr->backgroundValue = 0;
-				
-			minBackgroundValue = gImageWindowInfoPtr->minUsableDataValue;
-			maxBackgroundValue = gImageWindowInfoPtr->maxUsableDataValue;
 	
 					// Get handle to window information for reference image
 			
-			rectifyImageOptionsPtr->referenceWindowInfoHandle = NULL;
-				
-			rectifyImageOptionsPtr->columnShift = 0;
-			rectifyImageOptionsPtr->lineShift = 0;
-			rectifyImageOptionsPtr->nonRectifiedInputOffset = 0;
-			rectifyImageOptionsPtr->rectifiedInputOffset = 0;
-			rectifyImageOptionsPtr->procedureCode = kTranslateScaleRotate;
-			rectifyImageOptionsPtr->blankOutsideSelectedAreaFlag = TRUE;
-			rectifyImageOptionsPtr->shiftOnlyFlag = FALSE;
+			compareImagesOptionsPtr->referenceWindowInfoHandle = NULL;
 			
-			reformatOptionsPtr->rectifyImageOptionsPtr = rectifyImageOptionsPtr;
+			reformatOptionsPtr->compareImagesOptionsPtr = compareImagesOptionsPtr;
 			
 			}	// end "if (rectifyImageOptionsPtr)" 
 			
@@ -2250,7 +1487,7 @@ void RectifyImageControl (void)
 																				
 		Boolean tempFlag;
 		continueFlag = CheckPointerSize (
-											(Ptr*)&rectifyImageOptionsPtr->rectifyChannelPtr,
+											(Ptr*)&compareImagesOptionsPtr->compareImagesChannelPtr,
 											numberBytes, 
 											&tempFlag);
 		
@@ -2262,8 +1499,8 @@ void RectifyImageControl (void)
 		{
 				// Fill in vector of all rectification channels.						
 		
-		for (index=0; index<rectifyImageOptionsPtr->numberChannelsToRectify; index++)
-			rectifyImageOptionsPtr->rectifyChannelPtr[index] = (SInt16)index;
+		for (index=0; index<compareImagesOptionsPtr->numberChannelsToCompare; index++)
+         compareImagesOptionsPtr->compareImagesChannelPtr[index] = (SInt16)index;
 			
 				// Initialize the format information for the output file		
 				
@@ -2282,11 +1519,9 @@ void RectifyImageControl (void)
 													
 				// Get Changes that the user wants to make in the file format		
 				
-		if (RectifyImageDialog (gImageFileInfoPtr, 
+		if (CompareImagesDialog (gImageFileInfoPtr,
 											outFileInfoPtr, 
-											reformatOptionsPtr,
-											minBackgroundValue,
-											maxBackgroundValue))
+											reformatOptionsPtr))
 			{
 					// List the processor name, date and time.							
 				
@@ -2296,93 +1531,6 @@ void RectifyImageControl (void)
 														&gOutputForce1Code, 
 														kNoStatisticsUsed, 
 														continueFlag);
-														
-			if (rectifyImageOptionsPtr->procedureCode == kTranslateScaleRotate)
-				{
-						// Get the mapping matrix.					
-						
-				GetMappingMatrix (rectifyImageOptionsPtr);
-		
-					// Determine the size of the output image that contains the 		
-					// requested input image to be rectified.									
-				
-				inputRectangle.left = reformatOptionsPtr->columnStart; 
-				inputRectangle.top = reformatOptionsPtr->lineStart; 
-				inputRectangle.right = reformatOptionsPtr->columnEnd; 
-				inputRectangle.bottom = reformatOptionsPtr->lineEnd;
-				MapOutputImageRectangle (&rectifyImageOptionsPtr->mapMatrix, 
-													&inputRectangle,
-													&outputRectangle);
-					
-						// Adjust the mapping so that the output rectangle starts from	
-						// line 1 and column 1.														
-										
-				OffsetMappingMatrix (&rectifyImageOptionsPtr->mapMatrix,
-											1 - outputRectangle.left,
-											1 - outputRectangle.top);
-											
-				savedOutputRectangleStartLine = outputRectangle.top;
-				savedOutputRectangleStartColumn = outputRectangle.left;
-											
-						// Now apply any line and column shifts that the user wants 	
-						// to apply for the rectified data.										
-										
-				OffsetMappingMatrix (&rectifyImageOptionsPtr->mapMatrix,
-											rectifyImageOptionsPtr->columnShift,
-											rectifyImageOptionsPtr->lineShift);
-											
-						// Now adjust the output rectangle so that it includes all of the
-						// requested input rectangle allowing for any user requested line
-						// and column shifts.
-						
-				if (rectifyImageOptionsPtr->lineShift > 0)
-					outputRectangle.bottom += rectifyImageOptionsPtr->lineShift;
-					
-				else if (rectifyImageOptionsPtr->lineShift < 0)
-					outputRectangle.top += rectifyImageOptionsPtr->lineShift;
-						
-				if (rectifyImageOptionsPtr->columnShift > 0)
-					outputRectangle.right += rectifyImageOptionsPtr->columnShift;
-					
-				else if (rectifyImageOptionsPtr->columnShift < 0)
-					outputRectangle.left += rectifyImageOptionsPtr->columnShift;
-													
-						// Determine if this mapping is just a shift in the lines		
-						// and/or columns.															
-				
-				rectifyImageOptionsPtr->shiftOnlyFlag = 
-						DetermineIfIdentityMatrix (&rectifyImageOptionsPtr->mapMatrix);
-				
-						// Now get the inverse mapping.											
-						
-				continueFlag = InvertMappingMatrix (
-													&rectifyImageOptionsPtr->mapMatrix,
-													&rectifyImageOptionsPtr->inverseMapMatrix);
-					
-				if (continueFlag)
-					{					
-							// Keep the user selected lines and columns of the input  	
-							// image that are to be used in the rectification process.	
-							
-					reformatOptionsPtr->startLine = reformatOptionsPtr->lineStart;
-					reformatOptionsPtr->stopLine =  reformatOptionsPtr->lineEnd;
-					reformatOptionsPtr->startColumn = reformatOptionsPtr->columnStart;
-					reformatOptionsPtr->stopColumn =  reformatOptionsPtr->columnEnd;
-					
-							// Make certain that these parameters reflect the 				
-							// output data to be read so that the updating of the			
-							// output file structure works properly.							
-					
-					reformatOptionsPtr->lineStart = 1;
-					reformatOptionsPtr->lineEnd =  
-											outputRectangle.bottom - outputRectangle.top + 1;
-					reformatOptionsPtr->columnStart = 1;
-					reformatOptionsPtr->columnEnd =  
-											outputRectangle.right - outputRectangle.left + 1;
-											
-					}	// end "if (continueFlag)"
-													
-				}	// end "if (...->procedureCode == kTranslateScaleRotate)"	
 
 			if (continueFlag)
 				{														
@@ -2393,141 +1541,6 @@ void RectifyImageControl (void)
 													1, 
 													1, 
 													NULL);
-														
-				if (rectifyImageOptionsPtr->procedureCode == kTranslateScaleRotate)
-					{
-							// Make certain that these ReformatOption parameters now 	
-							// reflect the input data to be read that will include		
-							// that needed for rectified and non-rectified channels.		
-											
-							// Copy the adjusted output image size back to the output	
-							// rectangle if the data is only being shifted.
-							
-					if (rectifyImageOptionsPtr->shiftOnlyFlag)
-						{
-						outputRectangle.left -= reformatOptionsPtr->startColumn - 1; 
-						outputRectangle.top -= reformatOptionsPtr->startLine - 1; 
-						outputRectangle.right -= reformatOptionsPtr->startColumn - 1; 
-						outputRectangle.bottom -= reformatOptionsPtr->startLine - 1;
-						
-						}	// end "if (rectifyImageOptionsPtr->shiftOnlyFlag)"
-						
-					else	// !rectifyImageOptionsPtr->shiftOnlyFlag
-						{
-								// The '-1's keep the output rectangle relative to 1
-								// based instead of 0 based.
-								
-						outputRectangle.left -= (savedOutputRectangleStartColumn-1); 
-						outputRectangle.top -= (savedOutputRectangleStartLine-1); 
-						outputRectangle.right -= (savedOutputRectangleStartColumn-1); 
-						outputRectangle.bottom -= (savedOutputRectangleStartLine-1);
-						
-						}	// end "else !rectifyImageOptionsPtr->shiftOnlyFlag"
-					
-							// Determine the input data that is needed for the rectified	
-							// output data.															
-							
-					MapOutputImageRectangle (&rectifyImageOptionsPtr->inverseMapMatrix, 
-														&outputRectangle, &inputRectangle);
-					
-					reformatOptionsPtr->lineStart = MAX (1, inputRectangle.top);
-					reformatOptionsPtr->lineEnd = MIN (
-						(SInt32)gImageWindowInfoPtr->maxNumberLines, inputRectangle.bottom);
-					reformatOptionsPtr->columnStart = MAX (1,inputRectangle.left);
-					reformatOptionsPtr->columnEnd = MIN (
-						(SInt32)gImageWindowInfoPtr->maxNumberColumns, inputRectangle.right);
-					
-							// Determine if the map projection stucture should be updated.
-						
-					updateMapProjectionFlag = TRUE;
-					if (rectifyImageOptionsPtr->numberChannelsToRectify != 
-														gImageWindowInfoPtr->totalNumberChannels)
-						updateMapProjectionFlag = FALSE;
-						
-					}	// end "if (...->procedureCode == kTranslateScaleRotate"
-					
-				else	// ...->procedureCode == kReprojectToReferenceImage
-					{
-							// Now make sure that these parameters reflect the data to be
-							// read from the input file.  The parameters for the size of
-							// the output file are reflected in the outFileInfoPtr
-							// structure.
-							
-					reformatOptionsPtr->columnStart = reformatOptionsPtr->startColumn;
-					reformatOptionsPtr->columnEnd = reformatOptionsPtr->stopColumn;
-					reformatOptionsPtr->lineStart = reformatOptionsPtr->startLine;
-					reformatOptionsPtr->lineEnd = reformatOptionsPtr->stopLine;
-					
-					reformatOptionsPtr->startColumn = 1;
-					reformatOptionsPtr->startLine = 1;
-					
-							// Indicate that the map projection stucture should be updated.
-							
-					updateMapProjectionFlag = TRUE;
-												
-					}	// end "else ...->procedureCode == kReprojectToReferenceImage"
-				
-						// Update the map information for the output structure if all
-						// channels of data are only going to be shifted and/or scaled.  
-						// Otherwise do not provide map information for the output file.	
-				
-				if (updateMapProjectionFlag)										
-					RectifyUpdateMapProjectionStructure (
-												gActiveImageWindowInfoH,
-												outFileInfoPtr,
-												reformatOptionsPtr->startColumn,
-												reformatOptionsPtr->startLine,
-												rectifyImageOptionsPtr->procedureCode,
-												rectifyImageOptionsPtr->referenceWindowInfoHandle,
-												rectifyImageOptionsPtr->columnShift, 
-												rectifyImageOptionsPtr->lineShift,
-												rectifyImageOptionsPtr->columnScaleFactor,
-												rectifyImageOptionsPtr->lineScaleFactor,
-												&rectifyImageOptionsPtr->mapMatrix,
-												&rectifyImageOptionsPtr->inverseMapMatrix,
-												rectifyImageOptionsPtr->rotationAngle);
-				
-				if (rectifyImageOptionsPtr->procedureCode == kTranslateScaleRotate)
-					{		
-							// Save the input rectified start column.							
-							
-					inputRectangle.left = reformatOptionsPtr->columnStart;
-					
-					if (reformatOptionsPtr->numberChannels > 
-												rectifyImageOptionsPtr->numberChannelsToRectify)
-						{
-						reformatOptionsPtr->lineStart = MIN (
-																	reformatOptionsPtr->lineStart,
-																	reformatOptionsPtr->startLine);
-						reformatOptionsPtr->lineEnd = MAX (
-																	reformatOptionsPtr->lineEnd,
-																	reformatOptionsPtr->stopLine);
-						reformatOptionsPtr->columnStart = MIN (
-																	reformatOptionsPtr->columnStart,
-																	reformatOptionsPtr->startColumn);
-						reformatOptionsPtr->columnEnd = MAX (
-																	reformatOptionsPtr->columnEnd,
-																	reformatOptionsPtr->stopColumn);
-							
-						}	// end "if (reformatOptionsPtr->numberChannels > ..." 
-						
-							// Get the offset to start reading data from the input		
-							// for non-rectified channels.										
-							
-					rectifyImageOptionsPtr->nonRectifiedInputOffset =
-							reformatOptionsPtr->startColumn - inputRectangle.left;
-					rectifyImageOptionsPtr->nonRectifiedInputOffset = MAX (
-										rectifyImageOptionsPtr->nonRectifiedInputOffset, 0);
-						
-							// Get the offset to start reading data from the input		
-							// for rectified channels.												
-							
-					rectifyImageOptionsPtr->rectifiedInputOffset =
-							inputRectangle.left - reformatOptionsPtr->startColumn;
-					rectifyImageOptionsPtr->rectifiedInputOffset = MAX (
-											rectifyImageOptionsPtr->rectifiedInputOffset, 0);
-											
-					}	// end "if (...->procedureCode == kTranslateScaleRotate)"
 				
 						// Get pointer to memory to use to read an image file line
 						// into.
@@ -2596,18 +1609,13 @@ void RectifyImageControl (void)
 							
 					startTime = time (NULL);
 					
-					if (rectifyImageOptionsPtr->procedureCode == kTranslateScaleRotate)									
-						returnFlag = RectifyImage (
-								fileIOInstructionsPtr, outFileInfoPtr, reformatOptionsPtr);
-					
-					else if (rectifyImageOptionsPtr->procedureCode ==
-																			kReprojectToReferenceImage)
-						returnFlag = ReprojectImage (
+					if (compareImagesOptionsPtr->procedureCode == kTranslateScaleRotate)									
+						returnFlag = CompareImage (
 								fileIOInstructionsPtr, outFileInfoPtr, reformatOptionsPtr);
 					
 							// List Reformat information.										
 							
-					continueFlag = ListRectifyResultsInformation (
+					continueFlag = ListCompareImagesResultsInformation (
 																reformatOptionsPtr, outFileInfoPtr);
 				
 							// List the CPU time taken for reformatting.					
@@ -2645,14 +1653,14 @@ void RectifyImageControl (void)
 			
 	//ReleaseReformatSpecsMemory (&reformatOptionsH, gImageFileInfoPtr);
 					
-}	// end "RectifyImageControl" 
-
+}	// end "CompareImagesControl"
+*/
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		RectifyImageDialog
+//	Function name:		CompareImagesDialog
 //
 //	Software purpose:	This routine handle the rectify image dialog box.
 //
@@ -2664,15 +1672,13 @@ void RectifyImageControl (void)
 //
 // Called By:
 //
-//	Coded By:			Larry L. Biehl			Date: 08/06/1992
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Coded By:			Larry L. Biehl			Date: 05/14/2022
+//	Revised By:			Larry L. Biehl			Date: 05/14/2022
 
-Boolean RectifyImageDialog (
+Boolean CompareImagesDialog (
 				FileInfoPtr							fileInfoPtr, 
 				FileInfoPtr							outFileInfoPtr, 
-				ReformatOptionsPtr				reformatOptionsPtr,
-				double								minBackgroundValue,
-				double								maxBackgroundValue)
+				ReformatOptionsPtr				reformatOptionsPtr)
 
 {
 	Boolean								OKFlag;
@@ -2745,7 +1751,7 @@ Boolean RectifyImageDialog (
 												&blankOutsideSelectedAreaFlag,
 												&lastBackgroundValue,
 												&procedureCode,
-												&gResampleSelection,
+												&gCompareSelection,
 												&gFileNamesSelection,
 												&referenceWindowInfoHandle,
 												&lastLineShift,
@@ -2922,11 +1928,6 @@ Boolean RectifyImageDialog (
 					SetDLogControl (dialogPtr, IDC_TranslateScaleRotateRadio, 1);
 					SetDLogControl (dialogPtr, IDC_ReprojectToRadio, 0);
 					procedureCode = kTranslateScaleRotate;
-		
-					RectifyImageDialogOnRectifyCode (dialogPtr, 
-																	procedureCode,
-																	blankOutsideSelectedAreaFlag,
-																	mapOrientationAngle);
 					
 					RectifyImageDialogOnReferenceFile (dialogPtr,
 																	procedureCode,
@@ -3044,11 +2045,6 @@ Boolean RectifyImageDialog (
 					SetDLogControl (dialogPtr, IDC_TranslateScaleRotateRadio, 0);
 					SetDLogControl (dialogPtr, IDC_ReprojectToRadio, 1);
 					procedureCode = kReprojectToReferenceImage;
-		
-					RectifyImageDialogOnRectifyCode (dialogPtr, 
-																	procedureCode,
-																	TRUE,
-																	mapOrientationAngle);
 					
 					RectifyImageDialogOnReferenceFile (dialogPtr,
 																	procedureCode,
@@ -3092,11 +2088,11 @@ Boolean RectifyImageDialog (
 															itemHit-1, 
 															itemHit, 
 															gPopUpResampleMenu, 
-															gResampleSelection,
+															gCompareSelection,
 															kPopUpResampleMenuID);
 													
 					if (itemHit2 != 0)
-						gResampleSelection = itemHit2;
+						gCompareSelection = itemHit2;
 	
 							// Make certain that the correct label is drawn in the	
 							// resample code pop up box.										
@@ -3156,7 +2152,7 @@ Boolean RectifyImageDialog (
 												gChannelSelection,
 												lastBackgroundValue,
 												procedureCode,
-												gResampleSelection,
+												gCompareSelection,
 												referenceWindowInfoHandle,
 												lastLineShift,
 												lastColumnShift,
@@ -3213,31 +2209,29 @@ Boolean RectifyImageDialog (
 	#endif	// defined multispec_win
 
 	#if defined multispec_wx
-		CMReformatRectifyDlg*		dialogPtr = NULL;
+		CMReformatCompareImagesDlg*		dialogPtr = NULL;
 	
-		dialogPtr = new CMReformatRectifyDlg (NULL);
+		dialogPtr = new CMReformatCompareImagesDlg (NULL);
 		
 		OKFlag = dialogPtr->DoDialog (outFileInfoPtr,
 														fileInfoPtr,
 														gImageWindowInfoPtr,
 														gImageLayerInfoPtr,
-														reformatOptionsPtr,
-														minBackgroundValue,
-														maxBackgroundValue); 
+														reformatOptionsPtr);
 			
 		delete dialogPtr;
 	#endif	// defined multispec_wx
 	
 	return (OKFlag);
 	
-}	// end "RectifyImageDialog"
+}	// end "CompareImagesDialog"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void RectifyImageDialogInitialize
+//	Function name:		void CompareImagesDialogInitialize
 //
 //	Software purpose:	This routine handle the rectify image dialog box.
 //
@@ -3249,28 +2243,20 @@ Boolean RectifyImageDialog (
 //
 // Called By:
 //
-//	Coded By:			Larry L. Biehl			Date: 04/13/2005
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Coded By:			Larry L. Biehl			Date: 05/14/2022
+//	Revised By:			Larry L. Biehl			Date: 05/22/2022
 
-void RectifyImageDialogInitialize (
+void CompareImagesDialogInitialize (
 				DialogPtr							dialogPtr,
 				FileInfoPtr							fileInfoPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
 				ReformatOptionsPtr				reformatOptionsPtr,
 				SInt16*								headerOptionsSelectionPtr,
 				SInt16*								channelSelectionPtr,
-				Boolean*								blankOutsideSelectedAreaFlagPtr,
-				double*								lastBackgroundValuePtr,
 				SInt16*								procedureCodePtr,
 				SInt16*								resampleCodePtr,
 				SInt16*								fileNamesSelectionPtr,
-				Handle*								referenceWindowInfoHandlePtr,
-				SInt32*								lastLineShiftPtr,
-				SInt32*								lastColumnShiftPtr,
-				double*								lastLineScaleFactorPtr,
-				double*								lastColumnScaleFactorPtr,
-				double*								lastRotationAnglePtr,
-				double*								mapOrientationAnglePtr)
+				Handle*								referenceWindowInfoHandlePtr)
 
 {
 	RectifyImageOptionsPtr			rectifyImageOptionsPtr;
@@ -3328,29 +2314,9 @@ void RectifyImageDialogInitialize (
 	else if (fileInfoPtr->format == kGAIAType || fileInfoPtr->format == kGAIA2Type)
 		*headerOptionsSelectionPtr = kGAIAMenuItem;
 	
-	*blankOutsideSelectedAreaFlagPtr =
-											rectifyImageOptionsPtr->blankOutsideSelectedAreaFlag;
-			
-	*lastBackgroundValuePtr = rectifyImageOptionsPtr->backgroundValue;
-	
 			// Get the procedure to be used.
 	
 	*procedureCodePtr = rectifyImageOptionsPtr->procedureCode;
-   
-   		// Load the default rectification settings.									
-			
-	*lastLineShiftPtr = rectifyImageOptionsPtr->lineShift;
-	
-	*lastColumnShiftPtr = rectifyImageOptionsPtr->columnShift;
-			
-	*lastLineScaleFactorPtr = rectifyImageOptionsPtr->lineScaleFactor;
-			
-	*lastColumnScaleFactorPtr = rectifyImageOptionsPtr->columnScaleFactor;
-	
-	*lastRotationAnglePtr = rectifyImageOptionsPtr->rotationAngle;
-	
-	*mapOrientationAnglePtr =
-		GetMapOrientationAngle (fileInfoPtr->mapProjectionHandle) * kRadiansToDegrees;
 
 			//	Set the draw routine for the rectification channel popup box.		
 			
@@ -3365,7 +2331,7 @@ void RectifyImageDialogInitialize (
 	
 			// Check if any images can be used for reference images.
 			
-	*fileNamesSelectionPtr = GetReprojectToImageList (dialogPtr, 
+	*fileNamesSelectionPtr = GetCompareToImageList (dialogPtr,
 																		gActiveImageWindowInfoH, 
 																		TRUE, 
 																		referenceWindowInfoHandlePtr,
@@ -3393,23 +2359,21 @@ void RectifyImageDialogInitialize (
 			// Set sampling procedure
 			
 	*resampleCodePtr = kNearestNeighbor;
-	SetUpResampleMethodPopupMenu (dialogPtr,
+	SetUpCompareMethodPopupMenu (dialogPtr,
 											gPopUpResampleMenu,
 											fileInfoPtr->thematicType);
 					
-	RectifyImageDialogOnRectifyCode (dialogPtr, 
-												*procedureCodePtr,
-												*blankOutsideSelectedAreaFlagPtr,
-												*mapOrientationAnglePtr);
+	//ompareImagesDialogOnRectifyCode (dialogPtr,
+	//											*procedureCodePtr);
 	
-}	// end "RectifyImageDialogInitialize"
+}	// end "CompareImagesDialogInitialize"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void RectifyImageDialogOK
+//	Function name:		void CompareImagesDialogOK
 //
 //	Software purpose:	This routine handle the rectify image dialog box.
 //
@@ -3421,10 +2385,10 @@ void RectifyImageDialogInitialize (
 //
 // Called By:
 //
-//	Coded By:			Larry L. Biehl			Date: 04/19/2005
-//	Revised By:			Larry L. Biehl			Date: 05/25/2012
+//	Coded By:			Larry L. Biehl			Date: 05/14/2022
+//	Revised By:			Larry L. Biehl			Date: 05/22/2022
 
-void RectifyImageDialogOK (
+void CompareImagesDialogOK (
 				DialogPtr							dialogPtr,
 				FileInfoPtr							outFileInfoPtr,
 				FileInfoPtr							fileInfoPtr,
@@ -3433,33 +2397,25 @@ void RectifyImageDialogOK (
 				DialogSelectArea*					dialogSelectAreaPtr,
 				ReformatOptionsPtr				reformatOptionsPtr,
 				SInt16								headerOptionsSelection,
-				Boolean								blankOutsideSelectedAreaFlag,
 				SInt16								channelSelection,
-				double								lastBackgroundValue,
 				SInt16								procedureCode,
-				SInt16								resampleCode,
-				Handle								referenceWindowInfoHandle,
-				SInt32								lastLineShift,
-				SInt32								lastColumnShift,
-				double								lastLineScaleFactor,
-				double								lastColumnScaleFactor,
-				double								lastRotationAngle)
+				Handle								referenceWindowInfoHandle)
 
 {		
-	RectifyImageOptionsPtr			rectifyImageOptionsPtr;
-	SInt16								*rectifyChannelPtr;
+	RefCompareImagesOptionsPtr	      compareImagesOptionsPtr;
+	SInt16									*compareImagesChannelPtr;
 	
-	SInt32								index,
-											rectifyIndex;
+	SInt32									index,
+												rectifyIndex;
 											
 	
-	rectifyImageOptionsPtr = reformatOptionsPtr->rectifyImageOptionsPtr;
-	rectifyChannelPtr = rectifyImageOptionsPtr->rectifyChannelPtr;
+	compareImagesOptionsPtr = reformatOptionsPtr->compareImagesOptionsPtr;
+	compareImagesChannelPtr = compareImagesOptionsPtr->compareImagesChannelPtr;
 	
 			// Rectify procedure code.
 											
-	rectifyImageOptionsPtr->procedureCode = procedureCode;
-	rectifyImageOptionsPtr->referenceWindowInfoHandle = referenceWindowInfoHandle;
+	compareImagesOptionsPtr->procedureCode = procedureCode;
+	compareImagesOptionsPtr->referenceWindowInfoHandle = referenceWindowInfoHandle;
 	
 			// Selected area for output file.									
 	
@@ -3469,13 +2425,6 @@ void RectifyImageDialogOK (
 	reformatOptionsPtr->columnStart = (SInt32)dialogSelectAreaPtr->columnStart;
 	reformatOptionsPtr->columnEnd = (SInt32)dialogSelectAreaPtr->columnEnd;
 	reformatOptionsPtr->columnInterval = 1;
-	
-	rectifyImageOptionsPtr->rotationColumnCenter = 
-				((double)dialogSelectAreaPtr->columnStart + 
-												dialogSelectAreaPtr->columnEnd)/2.;
-	rectifyImageOptionsPtr->rotationLineCenter = 
-				((double)dialogSelectAreaPtr->lineStart + 
-												dialogSelectAreaPtr->lineEnd)/2.;
 
 			// Item 17: "Write Erdas Header" popup box.	
 						
@@ -3496,20 +2445,6 @@ void RectifyImageDialogOK (
 	else if (reformatOptionsPtr->headerFormat == kTIFFType)
 		outFileInfoPtr->bandInterleave = kBSQ;
 
-			// Item 21: Nonselected pixels to background.					
-		
-	rectifyImageOptionsPtr->blankOutsideSelectedAreaFlag = 
-																		blankOutsideSelectedAreaFlag;
-		
-			// Items 25, 26, 27, 28, & 31.										
-			
-	rectifyImageOptionsPtr->backgroundValue = lastBackgroundValue;
-	rectifyImageOptionsPtr->lineShift = lastLineShift;
-	rectifyImageOptionsPtr->lineScaleFactor = lastLineScaleFactor;
-	rectifyImageOptionsPtr->columnShift = lastColumnShift;
-	rectifyImageOptionsPtr->columnScaleFactor = lastColumnScaleFactor;
-	rectifyImageOptionsPtr->rotationAngle = lastRotationAngle;
-
 			// Item 33; Channels to be rectified before copying to 		
 			// output file.															
 			// Make the rectifyChannel Vector a vector of 0's or 1's		
@@ -3517,12 +2452,12 @@ void RectifyImageDialogOK (
 			
 	if (channelSelection == kAllMenuItem)
 		{
-		rectifyImageOptionsPtr->numberChannelsToRectify = 
+		compareImagesOptionsPtr->numberChannelsToCompare =
 																reformatOptionsPtr->numberChannels;
 		for (index=0; 
-				index<rectifyImageOptionsPtr->numberChannelsToRectify; 
+				index<compareImagesOptionsPtr->numberChannelsToCompare;
 					index++)
-			rectifyChannelPtr[index] = 1;
+			compareImagesChannelPtr[index] = 1;
 			
 		}	// end "if (channelSelection == kAllMenuItem)" 
 				
@@ -3532,14 +2467,14 @@ void RectifyImageDialogOK (
 				// channel not to be rectified and 1 for channel to be 	
 				// rectified.															
 		
-		rectifyIndex = rectifyImageOptionsPtr->numberChannelsToRectify - 1;
+		rectifyIndex = compareImagesOptionsPtr->numberChannelsToCompare - 1;
 		for (index = reformatOptionsPtr->numberChannels-1;
 				index >= 0; 
 					index--)
 			{
-			if (rectifyChannelPtr[rectifyIndex] == index)
+			if (compareImagesChannelPtr[rectifyIndex] == index)
 				{
-				rectifyChannelPtr[index] = 1;
+				compareImagesChannelPtr[index] = 1;
 				
 				if (rectifyIndex > 0)
 					rectifyIndex--;
@@ -3547,7 +2482,7 @@ void RectifyImageDialogOK (
 				}	// end "if (rectifyChannelPtr... == index)" 
 				
 			else	// rectifyChannelPtr[rectifyIndex] != index 
-				rectifyChannelPtr[index] = 0;
+				compareImagesChannelPtr[index] = 0;
 				
 			}	// end "for (index=...->numberChannels-1; ..." 
 			
@@ -3578,7 +2513,7 @@ void RectifyImageDialogOK (
 														windowInfoPtr->localBytesDifferFlag)
 		reformatOptionsPtr->forceByteCode = kForceReal8Bytes;
 		
-	if (rectifyImageOptionsPtr->procedureCode == kReprojectToReferenceImage)
+	if (compareImagesOptionsPtr->procedureCode == kReprojectToReferenceImage)
 		{
 				// Save the selected area for the input image.
 				
@@ -3592,29 +2527,23 @@ void RectifyImageDialogOK (
 		
 		reformatOptionsPtr->columnStart = 1;
 		reformatOptionsPtr->columnEnd = GetMaxNumberColumns (
-											rectifyImageOptionsPtr->referenceWindowInfoHandle);
+											compareImagesOptionsPtr->referenceWindowInfoHandle);
 		reformatOptionsPtr->lineStart = 1;
 		reformatOptionsPtr->lineEnd = GetMaxNumberLines (
-											rectifyImageOptionsPtr->referenceWindowInfoHandle);
-	
-		rectifyImageOptionsPtr->columnScaleFactor = 1.0;
-		rectifyImageOptionsPtr->lineScaleFactor = 1.0;
-		rectifyImageOptionsPtr->rotationAngle = 0.0;
-		rectifyImageOptionsPtr->lineShift = 0;
-		rectifyImageOptionsPtr->columnShift = 0;
+											compareImagesOptionsPtr->referenceWindowInfoHandle);
 		
-		rectifyImageOptionsPtr->resampleCode = resampleCode;
+		compareImagesOptionsPtr->procedureCode = procedureCode;
 		
 		}	// end "if (...->procedureCode == kReprojectToReferenceImage)"
 	
-}	// end "RectifyImageDialogOK"
+}	// end "CompareImagesDialogOK"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void RectifyImageDialogOnRectifyCode
+//	Function name:		void CompareImagesDialogOnAlgorithmCode
 //
 //	Software purpose:	This routine handles showing and hiding options relative to
 //							the rectification code that the user has selected.
@@ -3630,7 +2559,7 @@ void RectifyImageDialogOK (
 //	Coded By:			Larry L. Biehl			Date: 02/24/2007
 //	Revised By:			Larry L. Biehl			Date: 07/10/2015
 
-void RectifyImageDialogOnRectifyCode (
+void CompareImagesDialogOnAlgorithmCode (
 				DialogPtr							dialogPtr,
 				SInt16								rectifyCode,
 				Boolean								blankOutsideSelectedAreaFlag,
@@ -3700,7 +2629,7 @@ void RectifyImageDialogOnRectifyCode (
 		
 		}	// else "else rectifyCode != kTranslateScaleRotate"
 	
-}	// end "RectifyImageDialogOnRectifyCode"
+}	// end "CompareImagesDialogOnAlgorithmCode"
 
 
                    
@@ -3723,7 +2652,7 @@ void RectifyImageDialogOnRectifyCode (
 //	Coded By:			Larry L. Biehl			Date: 02/20/2007
 //	Revised By:			Larry L. Biehl			Date: 11/08/2019
 	                
-SInt16 RectifyImageDialogOnReferenceFile (
+SInt16 CompareImagesDialogOnReferenceFile (
 				DialogPtr							dialogPtr,
 				SInt16								procedureCode,
 				SInt16								fileNamesSelection,
@@ -3831,268 +2760,14 @@ SInt16 RectifyImageDialogOnReferenceFile (
 	*/	
 	return (fileNamesSelection);
 	
-}	// end "RectifyImageDialogOnReferenceFile"
+}	// end "CompareImagesDialogOnReferenceFile"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		void RectifyUpdateMapProjectionStructure
-//
-//	Software purpose:	The purpose of this routine is to update parameters in the map 
-//							projection structure based on the input arguments.
-//
-//	Parameters in:		None
-//
-//	Parameters out:	None
-//
-// Value Returned:	None
-//
-// Called By:			
-//
-//	Coded By:			Larry L. Biehl			Date: 07/13/2005
-//	Revised By:			Larry L. Biehl			Date: 03/28/2017
-
-void RectifyUpdateMapProjectionStructure (
-				Handle								inputWindowInfoHandle,
-				FileInfoPtr							outFileInfoPtr,
-				SInt32								columnStart, 
-				SInt32								lineStart,
-				SInt16								procedureCode,
-				Handle								referenceWindowInfoHandle,
-				SInt32								columnShift, 
-				SInt32								lineShift,
-				double								columnScaleFactor,
-				double								lineScaleFactor,
-				TransMapMatrix*					mapMatrixPtr,
-				TransMapMatrix*					inverseMapMatrixPtr,
-				double								rotationAngle)
-
-{
-	double								cosOrientAngle,
-				  							doubleColumn,
-				  							doubleLine,
-				  							leftEdgeOfPixel11,
-				  							sinOrientAngle,
-				  							topEdgeOfPixel11,
-											xOffset,
-											yOffset;
-											
-	Handle								inputMapProjectionHandle,
-											referenceFileInfoHandle;
-									
-	MapProjectionInfoPtr				mapProjectionInfoPtr;
-	
-	SInt16								errCode;
-	
-	
-	inputMapProjectionHandle = GetFileMapProjectionHandle2 (inputWindowInfoHandle);
-	if (procedureCode == kReprojectToReferenceImage)
-		inputMapProjectionHandle =
-										GetFileMapProjectionHandle2 (referenceWindowInfoHandle);
-	
-	if (inputMapProjectionHandle != NULL && outFileInfoPtr != NULL)
-		{
-				// Put copy of the input map projection structure in the output
-				// map projection structure.
-				
-		CopyMapProjectionHandle (inputMapProjectionHandle,
-											&outFileInfoPtr->mapProjectionHandle);
-											
-		mapProjectionInfoPtr = (MapProjectionInfoPtr)
-										GetHandlePointer (outFileInfoPtr->mapProjectionHandle);
-     
-		if (mapProjectionInfoPtr != NULL)
-     		{
-			/*
-					This is just for some special processing. Take out or comment out 
-					when done.
-									
-			mapProjectionInfoPtr->gridCoordinate.longitudeCentralMeridian = 
-																				gCentralLongitudeSetting;
-			gCentralLongitudeSetting += 15;
-			if (gCentralLongitudeSetting > 180)
-				gCentralLongitudeSetting -= 360;
-			*/
-			if (procedureCode == kTranslateScaleRotate)
-				{
-	     		if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle == 0 &&
-	     																				rotationAngle == 0)
-		     		{
-		     				// Take care of the area being a selected portion of the entire
-							// image. Note that the column/line shift is relative to the new
-							// pixels size.
-		     				                                                                   
-					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-							(columnStart - 1) *
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-		                                                                           
-					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-							(lineStart - 1)  *
-									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-										
-					leftEdgeOfPixel11 =
-							mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 -
-								mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize/2;
-										
-					topEdgeOfPixel11 =
-							mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 +
-								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
-					
-					mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize /= 
-																						columnScaleFactor;
-					
-					mapProjectionInfoPtr->planarCoordinate.verticalPixelSize /= 
-																						lineScaleFactor;
-					
-							// Now take into account the new center of pixel because of the 
-							// scale change.  We are assuming that any translation of the
-							// pixels are relative to the fixed map coordinates for the image.
-									
-					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 = 
-							leftEdgeOfPixel11 +
-								mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize/2;
-									
-					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 = 
-							topEdgeOfPixel11 -
-								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
-					/*
-					if (columnScaleFactor < 1)
-						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 +=
-							(-0.5 - columnShift) *
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-					
-					if (lineScaleFactor < 1)
-						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -=
-							(-0.5 - lineShift) *
-									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-					
-					if (columnScaleFactor > 1)
-						mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 +=
-							(0.5 - columnShift) * /
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-					
-					if (lineScaleFactor > 1)
-						mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -=
-							(0.5 - lineShift) * /
-									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-		     		*/
-		     		}	// end "if (...mapOrientationAngle == 0 && rotationAngle == 0)"
-		     		
-		     	else	// ...mapOrientationAngle != 0 || rotationAngle != 0
-		     		{	 	     				
-					if (mapProjectionInfoPtr->planarCoordinate.polynomialOrder > 0 &&
-																						rotationAngle != 0)
-						{
-								// Update the control points.
-								
-						MapControlPoints (outFileInfoPtr, mapMatrixPtr);
-						
-						}	// end "...->planarCoordinate.polynomialOrder > 0 &&"
-						
-							// Determine the input line/column needed for the upper left
-							// pixel in the new image to be created taking the image
-							// rotation angle into account.
-					
-					doubleColumn = 1;
-					doubleLine = 1;		
-					MapLineColumn (inverseMapMatrixPtr, &doubleLine, &doubleColumn);
-					
-					cosOrientAngle = 
-							cos (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
-					sinOrientAngle = 
-							sin (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle);
-							
-					xOffset = (doubleColumn - 1) * 
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-							
-					yOffset = -(doubleLine - 1) * 
-									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-																													 
-					mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 += 
-												xOffset*cosOrientAngle + yOffset*sinOrientAngle;
-																											
-					mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -= 
-												xOffset*sinOrientAngle - yOffset*cosOrientAngle;
-					
-					mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize /= 
-																						columnScaleFactor;
-					
-					mapProjectionInfoPtr->planarCoordinate.verticalPixelSize /= 
-																						lineScaleFactor;
-					
-					rotationAngle *= kDegreesToRadians;
-					mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle -=
-																							rotationAngle;
-					if (fabs (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle) < 
-																										0.00001)
-						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle = 0.;
-							
-		     		}	// end "else ...mapOrientationAngle != 0"
-		     		
-		     	}	// end "if (procedureCode == kTranslateScaleRotate)"
-		     	
-		   else	// procedureCode == kReprojectToReferenceImage
-		   	{
-						// If the rectify procedure is to rectify to a reference image, we
-						// need to be sure that any control points for the output image 
-						// reflects those for the reference image.
-							
-				if (outFileInfoPtr->controlPointsHandle != 
-															gImageFileInfoPtr->controlPointsHandle)
-														
-					UnlockAndDispose (outFileInfoPtr->controlPointsHandle);
-				
-				referenceFileInfoHandle = GetFileInfoHandle (referenceWindowInfoHandle);
-
-				outFileInfoPtr->controlPointsHandle = 
-												GetControlPointsHandle (referenceFileInfoHandle);
-											
-				if (outFileInfoPtr->controlPointsHandle != NULL)
-					{
-					errCode = HandToHand (&outFileInfoPtr->controlPointsHandle);
-					if (errCode != noErr)
-						outFileInfoPtr->controlPointsHandle = NULL;
-				
-					}	// end "if (outFileInfoPtr->controlPointsHandle != NULL)"
-		   	
-		   	}	// end "else procedureCode == kReprojectToReferenceImage"
-			/*
-			if (rightToLeftFlag)
-				{
-				mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11 +=
-						(outFileInfoPtr->numberColumns - 1) *
-									mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-				
-				mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize = 
-								-mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize;
-							
-				}	// end "if (rightToLeftFlag)"
-															
-			if (bottomToTopFlag)
-				{
-				mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11 -=
-						(outFileInfoPtr->numberLines - 1) *
-									mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-									
-				mapProjectionInfoPtr->planarCoordinate.verticalPixelSize = 
-									-mapProjectionInfoPtr->planarCoordinate.verticalPixelSize;
-							
-				}	// end "if (bottomToTopFlag)"
-			*/
-			}	// end "if (mapProjectionInfoPtr != NULL)"
-			
-		}	// end "if (inputMapProjectionHandle != NULL && outFileInfoPtr != NULL)"
-				 										
-}	// end "RectifyUpdateMapProjectionStructure"  
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean ReprojectImage
+//	Function name:		Boolean CompareImages
 //
 //	Software purpose:	This routine does the rectification of the image.
 //
@@ -4107,7 +2782,7 @@ void RectifyUpdateMapProjectionStructure (
 //	Coded By:			Larry L. Biehl			Date: 11/02/2006
 //	Revised By:			Larry L. Biehl			Date: 07/16/2018
 
-Boolean ReprojectImage (
+Boolean CompareImages (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				FileInfoPtr							outFileInfoPtr, 
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -4490,17 +3165,6 @@ Boolean ReprojectImage (
 					{
 					if (resampleCode == kNearestNeighbor)
 						{
-								// Get the input line and column that matches the 			
-								// output line and column.										
-					
-						ReprojectNearestNeighborLineColumn (
-													referenceMapProjectionInfoPtr,
-													mapProjectionInfoPtr,
-													&boundingRect,
-													line, 
-													column, 
-													&inputLine, 
-													&inputColumn);
 							
 						if (inputLine >= (SInt32)lineStart && 
 									inputColumn >= (SInt32)columnStart &&
@@ -4567,20 +3231,7 @@ Boolean ReprojectImage (
 						}	// end "if (resampleCode == kNearestNeighbor)"
 						
 					else if (resampleCode == kMajorityRule)
-						{
-								// Note that this is for thematic images only.
-								
-						ReprojectWithMajorityRule (fileIOInstructionsPtr,
-															referenceMapProjectionInfoPtr,
-															mapProjectionInfoPtr,
-															histogramVector,
-															line, 
-															column,
-															fileInfoPtr->numberColumns,
-															fileInfoPtr->numberLines,
-															(SInt16)backgroundValue, 
-															&outputPixelValue);
-																
+						{																
 						if (numberBytes == 1)
 							savedOutBufferPtr[column-1] = (UInt8)outputPixelValue;
 																
@@ -4744,425 +3395,14 @@ Boolean ReprojectImage (
 		
 	return (!continueFlag);
 			
-}	// end "ReprojectImage" 
+}	// end "CompareImages"
 
 
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
-//	Function name:		Boolean ReprojectWithMajorityRule
-//
-//	Software purpose:	This routine maps the input line column in the reference image
-//							to the same line-column (latitude-longitude) in the input image.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 05/22/2012
-//	Revised By:			Larry L. Biehl			Date: 05/24/2012
-
-void ReprojectWithMajorityRule (
-				FileIOInstructionsPtr			fileIOInstructionsPtr,
-				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				UInt32*								histogramVector,
-				SInt32								outputLine, 
-				SInt32								outputColumn,
-				SInt32								maxNumberInputColumns,
-				SInt32								maxNumberInputLines,
-				SInt16								backgroundValue,
-				SInt32*								outputPixelValuePtr)
-				
-{	
-	DoublePoint								mapPoint,
-												llPoint,
-												lrPoint,
-												ulPoint,
-												urPoint;
-												
-	DoubleRect								outputPixelInsideLimit;
-												
-	LongPoint								lineColumnPoint,
-												llLineColumn,
-												lrLineColumn,
-												ulLineColumn,
-												urLineColumn;
-												
-	double									horizontalCoordinates[4],
-												halfHorizontalPixelSize,
-												halfVerticalPixelSize,
-												verticalCoordinates[4];
-												
-	FileInfoPtr								fileInfoPtr;
-	UInt16*									output2ByteBufferPtr;
-												
-	SInt32									column,
-												columnEnd,
-												columnStart,
-												line,
-												lineEnd,
-												lineStart,
-												valueWithMaxCount;
-												
-	UInt32									index,
-												maxCount;
-												
-	SInt16									errCode;
-												
-	Boolean									twoByteFlag,
-												validPointFlag;
-	
-	
-	valueWithMaxCount = backgroundValue;
-	
-	lineColumnPoint.h = outputColumn;
-	lineColumnPoint.v = outputLine;
-	
-	ConvertLCPointToMapPoint (referenceMapProjectionInfoPtr, 
-										&lineColumnPoint, 
-										&mapPoint);
-										
-			// Find the vertices for the four corners of this pixel in
-			// map units
-			
-	halfHorizontalPixelSize = 
-				referenceMapProjectionInfoPtr->planarCoordinate.horizontalPixelSize/2;
-	halfVerticalPixelSize = 
-				referenceMapProjectionInfoPtr->planarCoordinate.verticalPixelSize/2;
-			
-	ulPoint.h = mapPoint.h - halfHorizontalPixelSize;
-	ulPoint.v = mapPoint.v + halfVerticalPixelSize;
-	
-	urPoint.h = mapPoint.h + halfHorizontalPixelSize;
-	urPoint.v = ulPoint.v;
-	
-	lrPoint.h = urPoint.h;
-	lrPoint.v = mapPoint.v - halfVerticalPixelSize;
-	
-	llPoint.h = ulPoint.h;
-	llPoint.v = lrPoint.v;
-	
-			// Find the vertices for the four corners of this pixel in
-			// lat-long units.
-	
-	validPointFlag = ConvertMapPointToLatLongPoint (referenceMapProjectionInfoPtr,
-																	&ulPoint);
-	
-	if (validPointFlag)
-		validPointFlag = ConvertMapPointToLatLongPoint (
-																	referenceMapProjectionInfoPtr,
-																	&urPoint);
-	
-	if (validPointFlag)
-		validPointFlag = ConvertMapPointToLatLongPoint (
-																	referenceMapProjectionInfoPtr,
-																	&lrPoint);
-	
-	if (validPointFlag)
-		validPointFlag = ConvertMapPointToLatLongPoint (
-																	referenceMapProjectionInfoPtr,
-																	&llPoint);
-	
-	if (validPointFlag)
-		{
-				// Set up limits to use to check if input pixel is within the internal
-				// rectangle that fits within the output pixel polygon.
-				 
-		outputPixelInsideLimit.left = MAX (ulPoint.h, llPoint.h);
-		outputPixelInsideLimit.top = MIN (ulPoint.v, urPoint.v);
-		outputPixelInsideLimit.right = MIN (urPoint.h, lrPoint.h);
-		outputPixelInsideLimit.bottom = MAX (llPoint.v, lrPoint.v);
-		
-				// Set up vectors for checking (when needed) if input pixel is within
-				// output pixel polygon
-												
-		horizontalCoordinates[0] = ulPoint.h;
-		horizontalCoordinates[1] = urPoint.h;
-		horizontalCoordinates[2] = lrPoint.h;
-		horizontalCoordinates[3] = llPoint.h;
-													
-		verticalCoordinates[0] = ulPoint.v;
-		verticalCoordinates[1] = urPoint.v;
-		verticalCoordinates[2] = lrPoint.v;
-		verticalCoordinates[3] = llPoint.v;
-		
-				// Now find the lines and columns in the target image that
-				// these four vertices represent
-			
-		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
-													&ulPoint);
-		
-		ConvertMapPointToLC (mapProjectionInfoPtr, 
-									&ulPoint,
-									&ulLineColumn);
-										
-		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
-													&urPoint);
-		
-		ConvertMapPointToLC (mapProjectionInfoPtr, 
-									&urPoint,
-									&urLineColumn);
-										
-		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
-													&lrPoint);
-		
-		ConvertMapPointToLC (mapProjectionInfoPtr, 
-									&lrPoint,
-									&lrLineColumn);
-										
-		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
-													&llPoint);
-		
-		ConvertMapPointToLC (mapProjectionInfoPtr, 
-									&llPoint,
-									&llLineColumn);
-										
-				// Now find the columns and lines in the target image to check if they
-				// are to be included in the input reference pixel.
-				
-		columnStart = MIN (ulLineColumn.h, llLineColumn.h);		
-		columnEnd = MAX (urLineColumn.h, lrLineColumn.h);		
-		lineStart = MIN (ulLineColumn.v, urLineColumn.v);		
-		lineEnd = MAX (llLineColumn.v, lrLineColumn.v);
-		
-		if (columnStart <= maxNumberInputColumns && 
-				columnEnd >= 1 &&
-					lineStart <= maxNumberInputLines &&
-						lineEnd >= 1)
-			{		
-			columnStart = MAX (columnStart, 1);
-			columnEnd = MIN (columnEnd, maxNumberInputColumns);
-			lineStart = MAX (lineStart, 1);
-			lineEnd = MIN (lineEnd, maxNumberInputLines);
-			
-					// Now loop through these input pixels to see if they are included
-					// within the output pixel
-			
-			errCode = noErr;
-			
-			fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
-			twoByteFlag = FALSE;
-			if (fileInfoPtr->numberBytes == 2)
-				twoByteFlag = TRUE;
-			
-			output2ByteBufferPtr = (UInt16*)gOutputBufferPtr;
-			for (line=lineStart; line<=lineEnd; line++)
-				{
-						// Get thematic data for this line of image data. 
-						// Return if there is a file IO error.	
-			 
-				errCode = GetLineOfData (fileIOInstructionsPtr,
-													line, 
-													columnStart,
-													columnEnd,
-													1,
-													gInputBufferPtr,  
-													gOutputBufferPtr);
-															
-				if (errCode != noErr)
-																									break;
-									
-				for (column=columnStart; column<=columnEnd; column++)
-					{
-					lineColumnPoint.h = column;
-					lineColumnPoint.v = line;
-		
-					ConvertLCPointToMapPoint (mapProjectionInfoPtr, 
-														&lineColumnPoint, 
-														&mapPoint);
-														
-					ConvertMapPointToLatLongPoint (mapProjectionInfoPtr,
-																&mapPoint);
-					
-					if ((mapPoint.h > outputPixelInsideLimit.left &&
-							mapPoint.h < outputPixelInsideLimit.right &&
-								mapPoint.v < outputPixelInsideLimit.top &&
-									mapPoint.v > outputPixelInsideLimit.bottom) ||
-										(IsPointInPolygon (4,
-																	horizontalCoordinates,
-																	verticalCoordinates, 
-																	mapPoint.h, 
-																	mapPoint.v)))
-						{
-						if (twoByteFlag)
-							histogramVector[output2ByteBufferPtr[column-columnStart]]++;
-							
-						else
-							histogramVector[gOutputBufferPtr[column-columnStart]]++;
-						
-						}	// end "if (IsPointInPolygon (4, ..."
-					
-					}	// end "for (column=columnStart; column<=columnEnd; column++)"
-				
-				}	// end "for (line=lineStart; line<=lineEnd; line++)"
-				
-			if (errCode == noErr)
-				{
-						// Find the value with the highest count. While doing this
-						// zero the vector out to be ready for the next pixel.
-						
-				maxCount = 0;
-				for (index=0; index<fileInfoPtr->maxClassNumberValue; index++)
-					{
-					if (histogramVector[index] > maxCount)
-						{
-						maxCount = histogramVector[index];
-						valueWithMaxCount = index;
-						
-						}	// end "if (histogramVector[index] > maxNumber)"
-						
-					histogramVector[index] = 0;
-					
-					}	// end "for (index=0; index<fileInfoPtr->maxClassNumberValue; ..."
-									
-				}	// end "if (errCode == noErr)"
-				
-			}	// end "if (columnStart <= maxNumberInputColumns && ..."
-													
-		}	// end "if (validPointFlag)"
-		
-	*outputPixelValuePtr = valueWithMaxCount;
-		
-}	// end "ReprojectWithMajorityRule" 
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		Boolean ReprojectNearestNeighborLineColumn
-//
-//	Software purpose:	This routine maps the input line column in the reference image
-//							to the same line-column (latitude-longitude) in the input image.
-//
-//	Parameters in:					
-//
-//	Parameters out:				
-//
-// Value Returned:	
-//
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 11/02/2006
-//	Revised By:			Larry L. Biehl			Date: 07/16/2018
-
-void ReprojectNearestNeighborLineColumn (
-				MapProjectionInfoPtr				referenceMapProjectionInfoPtr,
-				MapProjectionInfoPtr				mapProjectionInfoPtr,
-				DoubleRect*							boundingRectPtr,
-				SInt32								line, 
-				SInt32								column, 
-				SInt32*								inputLinePtr, 
-				SInt32*								inputColumnPtr)
-				
-{
-	DoublePoint							mapPoint,
-											referenceMapPoint;
-												
-	LongPoint							inputLineColumn,
-											lineColumnPoint;
-												
-	Boolean								validPointFlag;
-	
-	
-	lineColumnPoint.h = column;
-	lineColumnPoint.v = line;
-	
-	
-	ConvertLCPointToMapPoint (referenceMapProjectionInfoPtr, 
-										&lineColumnPoint, 
-										&referenceMapPoint);
-	
-	mapPoint = referenceMapPoint;
-	validPointFlag = ConvertMapPointToLatLongPoint (referenceMapProjectionInfoPtr,
-																	&mapPoint);
-	
-	//if (referenceMapProjectionInfoPtr->gridCoordinate.referenceSystemCode ==
-	//																					kGeographicRSCode)
-	//	referenceMapPoint = mapPoint;
-	/*
-	if (validPointFlag &&
-			(referenceMapPoint.h < boundingRectPtr->left ||
-				referenceMapPoint.h > boundingRectPtr->right ||
-					referenceMapPoint.v < boundingRectPtr->top ||
-						referenceMapPoint.v > boundingRectPtr->bottom))
-		validPointFlag = FALSE;
-	
-	*/
-	if (validPointFlag)
-		{
-		ConvertLatLongPointToMapPoint (mapProjectionInfoPtr,
-													&mapPoint);
-		
-		ConvertMapPointToLC (mapProjectionInfoPtr, 
-										&mapPoint, 
-										&inputLineColumn);
-										
-		*inputLinePtr = inputLineColumn.v;
-		*inputColumnPtr = inputLineColumn.h;
-			
-		}	// end "if (validPointFlag)"
-		
-	else	// !validPointFlag
-		{
-				// Indicate that point is not valid.  Negative line and column
-				// values indicate this.
-										
-		*inputLinePtr = -1;
-		*inputColumnPtr = -1;
-			
-		}	// end "if (validPointFlag)"
-		
-}	// end "ReprojectNearestNeighborLineColumn" 
-
-
-
-void ScaleMappingMatrix (
-				TransMapMatrix*					mapMatrixPtr, 
-				TransMapMatrix*					scaleMapMatrixPtr,
-				double								columnScale,
-				double								lineScale,
-				double								aboutColumn,
-				double								aboutLine)
-
-{
-	SetIdentityMappingMatrix (scaleMapMatrixPtr);
-	scaleMapMatrixPtr->map[0][0] = columnScale;
-	scaleMapMatrixPtr->map[1][1] = lineScale;
-	scaleMapMatrixPtr->map[2][0] = aboutColumn - columnScale * aboutColumn;
-	scaleMapMatrixPtr->map[2][1] = aboutLine - lineScale * aboutLine;
-
-	ConcatenateMapping (mapMatrixPtr, scaleMapMatrixPtr);
-	
-}	// end "ScaleMappingMatrix" 
-
-
-
-void SetIdentityMappingMatrix (
-				TransMapMatrix*					mapMatrixPtr)
-
-{
-	mapMatrixPtr->map[0][0] = 1;
-	mapMatrixPtr->map[0][1] = 0;
-	mapMatrixPtr->map[1][0] = 0;
-	mapMatrixPtr->map[1][1] = 1;
-	mapMatrixPtr->map[2][0] = 0;
-	mapMatrixPtr->map[2][1] = 0;
-	
-}	// end "SetIdentityMapping"  
-
-
-
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		void SetUpResampleMethodPopupMenu
+//	Function name:		void SetUpCompareMethodPopupMenu
 //
 //	Software purpose:	The purpose of this routine is to set up the resample
 //							method popup menu.
@@ -5178,7 +3418,7 @@ void SetIdentityMappingMatrix (
 //	Coded By:			Larry L. Biehl			Date: 06/07/2012
 //	Revised By:			Larry L. Biehl			Date: 11/08/2019
 
-void SetUpResampleMethodPopupMenu (
+void SetUpCompareMethodPopupMenu (
 				DialogPtr							dialogPtr,
 				MenuHandle							popUpResampleSelectionMenu,
 				Boolean								thematicTypeFlag)
@@ -5234,6 +3474,6 @@ void SetUpResampleMethodPopupMenu (
 			}	// end "if (thematicTypeFlag)"
    #endif	// defined multispec_wx
 	
-}	// end "SetUpResampleMethodPopupMenu" 
+}	// end "SetUpCompareMethodPopupMenu" 
 
  

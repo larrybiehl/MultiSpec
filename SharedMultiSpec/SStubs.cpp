@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			02/21/2020
+//	Revision date:			04/09/2022
 //
 //	Language:				C
 //
@@ -1171,7 +1171,9 @@ SInt16 LAddRow (
 				
 {
 	#ifdef multispec_wx
-		wxString								label ("");
+			// Need to add at least at the number of blanks for the largest string
+			// there will be for the label; starting with wxWidget 3.1.5
+		wxString								label ("                              ");
 		unsigned int						i,
 												lastRow;
 												
@@ -1541,7 +1543,7 @@ Boolean LGetSelect (
 				{
 						// Single selection list
 
-				cellIndex = listBoxCPtr->GetFirstSelected ();
+				cellIndex = (int)listBoxCPtr->GetFirstSelected ();
 				if (cellIndex != -1) 
 					{
 					cellPtr->v = cellIndex;
@@ -1558,7 +1560,7 @@ Boolean LGetSelect (
 
 				cellIndex = cellPtr->v;
 				selectionCode = 0;
-				selectionCode = listBoxCPtr->GetNextSelected (cellIndex);
+				selectionCode = (int)listBoxCPtr->GetNextSelected (cellIndex);
 				if (selectionCode != -1) 
 					{
 					cellPtr->v = cellIndex;
@@ -1647,13 +1649,13 @@ void LSetCell (
 				
 {
 	wxListItem							mvitem;
-	SInt16								numberListItems;
+	//SInt16								numberListItems;
 	SInt16								numberCols = listBoxCPtr->GetColumnCount ();
 
 
 			// Index are zero based rows in the list
 
-	numberListItems = listBoxCPtr->GetItemCount ();
+	//numberListItems = listBoxCPtr->GetItemCount ();
 	for (int i=0; i<numberCols; i++) 
 		{
 		mvitem.SetId (mvindex);

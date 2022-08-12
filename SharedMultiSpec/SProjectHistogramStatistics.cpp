@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/06/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -1901,7 +1901,7 @@ SInt16 HistogramProjectStats (
 // Called By:			StatisticsWControlEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1990
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 SInt16 HistogramStatsControl (
 				SInt16								statsWindowMode, 
@@ -2183,7 +2183,7 @@ SInt16 HistogramStatsControl (
 															gStatHistogramSpecsPtr->numberChannels,
 															channelsPtr,
 															kPackData,
-															kForceBISFormat,
+															kBIS,	// kForceBISFormat,
 															kForceReal8Bytes,
 															kDoNotAllowForThreadedIO,
 															&fileIOInstructionsPtr);

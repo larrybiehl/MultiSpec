@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMReformatRectifyDlg class
 //
 //	Written By:				Larry L. Biehl			Date: ??/??/1995?
-//	Revised By:				Larry L. Biehl			Date: 05/06/2020
+//	Revised By:				Larry L. Biehl			Date: 08/09/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -68,10 +68,11 @@ class CMReformatTransformDlg : public CMDialog
 												m_transformFactor,
 												m_transformOffset;
 	
-		int									m_defaultThermalChannel,
+		int									m_algebraicTransformOption,
+												m_defaultThermalChannel,
 												m_functionCode,
-												m_transformCode,
-												m_algebraicTransformOption;
+												m_thresholdValue,
+												m_transformCode;
 	
 		UINT									m_adjustSelectedChannel,
 												m_kthSmallestElement,

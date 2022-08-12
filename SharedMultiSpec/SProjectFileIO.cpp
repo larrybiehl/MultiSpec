@@ -925,10 +925,8 @@ Boolean GetProjectFileName (
 				// Save copy of filename in case it has to be loaded back in 		
 				// because the user cancelled.												
 		
-		//savedNameLength = projectFileNamePtr[0];
 		savedNameLength = GetFileStringLength (projectFileNamePtr);
 		
-		//if (projectFileNamePtr[0] == 0)
 		if (savedNameLength == 0)
 			{
 					// If this is the first time to save the file, then make the 	
@@ -1000,7 +998,6 @@ Boolean GetProjectFileName (
 			{
 					// Load old file name back.							
 				
-			//projectFileNamePtr[0] = (UInt8)savedNameLength;
 			SetFileStringLength (projectFileNamePtr, savedNameLength);
 			
 					// Load original save statistics type settings.	
@@ -2016,6 +2013,8 @@ SInt16 ReadProjectFile (void)
    returnCode = -1;
    intTemp = 0;
    intTemp2 = 0;
+   fieldIncrement = 0;
+   
 	gNextTime = TickCount ();    
 	
 			// Check input pointers.  Continue if not NULL.								
@@ -4245,7 +4244,7 @@ UCharPtr SkipNTabs (
 // Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/21/1992
-//	Revised By:			Larry L. Biehl			Date: 01/28/2001	
+//	Revised By:			Larry L. Biehl			Date: 03/08/2022
 
 void UpdateGraphicStatusBox (
 				double*								rightBoxPtr,
@@ -4260,7 +4259,11 @@ void UpdateGraphicStatusBox (
 	if (gStatusDialogPtr != NULL)
 		{                  
 		*rightBoxPtr += boxIncrement;
-		gStatusGraphicsBox.right = (SInt16)*rightBoxPtr;
+		#if defined multispec_mac
+			gStatusGraphicsBox.right = (SInt16)*rightBoxPtr;
+		#else	// !defined multispec_mac
+			gStatusGraphicsBox.right = (SInt32)*rightBoxPtr;
+		#endif	// defined multispec_mac
 		
 		#if defined multispec_mac
 			if (gStatusProgressControlHandle != NULL)		
@@ -5276,7 +5279,7 @@ Boolean WriteModifiedStats (
 // Called By:			SaveProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1998
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 03/08/2022
 
 SInt16 WriteProjectFile (
 				SInt16								saveCode)
@@ -5327,6 +5330,7 @@ SInt16 WriteProjectFile (
 			
 	classNamesPtr = gProjectInfoPtr->classNamesPtr;
 	fieldIdentPtr = gProjectInfoPtr->fieldIdentPtr;
+	fieldIncrement = 0;
 	numberCovarianceEntries = gProjectInfoPtr->numberCovarianceEntries;
 	numberChannels = gProjectInfoPtr->numberStatisticsChannels;
 	gNextTime = TickCount ();

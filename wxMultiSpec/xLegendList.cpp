@@ -20,7 +20,7 @@
 //	Authors:					Wei-Kang Hsu, Larry L. Biehl
 //
 //	Revision date:			01/24/2019 by Tsung Tai
-//								11/27/2019 by Larry L. Biehl
+//								03/30/2022 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -121,6 +121,7 @@ CMLegendList::CMLegendList (
 	m_paletteOffset = 0;           
 	m_classPaletteEntries = 0;
 	m_activeFlag = FALSE;
+   m_drawLegendlistIsActive = FALSE;
 	s_lastMouseDnPoint.x = 0; 
 	s_lastMouseDnPoint.y = 0;  
    m_listReadyFlag = false;
@@ -157,7 +158,7 @@ void CMLegendList::DrawItem (
 
 {
 
-	double 								magnification;
+	//double 								magnification;
 		
 	char*									namePtr;
 	Handle								nameHandle;
@@ -180,9 +181,9 @@ void CMLegendList::DrawItem (
 	
 	wxicolor = new wxColour (*wxWHITE);
 	
-	magnification = 1.0;
-	if (s_isPrintingFlag)                              
-		magnification = gActiveImageViewCPtr->m_printerTextScaling;
+	//magnification = 1.0;
+	//if (s_isPrintingFlag)
+	//	magnification = gActiveImageViewCPtr->m_printerTextScaling;
 
 			// Now get the class-group tag (sign bit of 16 bit number)
 			//  if == 0 then class index, if == 1 then group index
@@ -261,12 +262,13 @@ void CMLegendList::DrawItem (
 		imdc.SetBackground (*wxWHITE);
 		imdc.Clear ();
 	
-		wxBitmap bmp (legrect);
-		wxMemoryDC mdc (bmp);
-		mdc.SetPen (*wxTRANSPARENT_PEN);
-		mdc.SetBrush (*wxicolor);
-		mdc.DrawRoundedRectangle (0, 0, 16, 16, 3);
-		m_ilist->Add (bmp);
+		//wxBitmap bmp (legrect);
+		//wxMemoryDC mdc (bmp);
+      imdc.SetPen (*wxTRANSPARENT_PEN);
+      imdc.SetBrush (*wxicolor);
+      imdc.DrawRoundedRectangle (0, 0, 16, 16, 3);
+      imdc.SelectObject (wxNullBitmap);
+		m_ilist->Add (legrect);
 	#endif
 	
 			// Now draw the text.
@@ -323,9 +325,9 @@ void CMLegendList::DrawItem (
 
 void CMLegendList::DrawLegendList ()
 
-{	
-	
-	DrawListItems ();
+{
+   if (!m_drawLegendlistIsActive)
+      DrawListItems ();
 
 }	// end "DrawLegendList"
 
@@ -344,11 +346,12 @@ void CMLegendList::DrawListItems ()
    if (!m_listReadyFlag)
       																					return;
 
-	m_ilist->RemoveAll ();
+   m_drawLegendlistIsActive = TRUE;
+   m_ilist->RemoveAll ();
 
 	for (int count=0; count<listcount; count++)
 		{
-		itemData = GetItemData (count);
+		itemData = (int)GetItemData (count);
 		itemID = count;
 
 		DrawItem (itemData, itemID);
@@ -366,6 +369,8 @@ void CMLegendList::DrawListItems ()
 	
    SetColumnWidth (1, wxLIST_AUTOSIZE);
    Show ();
+   
+   m_drawLegendlistIsActive = FALSE;
 
 }	// end "DrawListItems"
 
@@ -567,7 +572,7 @@ void CMLegendList::OnLButtonDblClk (
 	
 	if (gPresentCursor != kBlinkOpenCursor1 && gPresentCursor != kBlinkShutCursor1)
 		{
-		selection = event.GetIndex ();
+		selection = (int)event.GetIndex ();
 		
 		wxPoint scrnpt = wxGetMousePosition ();
 		s_lastMouseDnPoint = ScreenToClient (scrnpt);

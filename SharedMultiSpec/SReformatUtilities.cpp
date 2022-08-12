@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/29/2020
+//	Revision date:			02/26/2022
 //
 //	Language:				C
 //
@@ -567,14 +567,16 @@ SInt16 AppendFileDialog (
 				SInt64*						bytesToSkipPtr)
 
 {
-	SInt32  								newAfterLineChannel;
+   #if defined multispec_mac || defined multispec_win 
+      SInt32  								newAfterLineChannel;
+      Boolean                       lineFlag;
+   #endif	// defined multispec_mac || defined multispec_win
 	
 	SInt16								effectiveAppendFileBandInterleave,
 											effectiveNewFileBandInterleave,
 											returnCode;
 	                
-	Boolean								appendFileBandSequentialFlag,
-											lineFlag;
+	Boolean								appendFileBandSequentialFlag;
 	
 	
 	if (appendFileInfoPtr == NULL || newFileInfoPtr == NULL)
@@ -629,8 +631,11 @@ SInt16 AppendFileDialog (
 		{
 		if (appendFileInfoPtr->numberChannels != newFileInfoPtr->numberChannels)
 																							return (-2);
-		lineFlag = TRUE;
-		newAfterLineChannel = appendFileInfoPtr->numberLines;
+         
+      #if defined multispec_mac
+         lineFlag = TRUE;
+         newAfterLineChannel = appendFileInfoPtr->numberLines;
+      #endif
 		
 		}	// end "if (appendFileInfoPtr->thematicType || ..." 
 		
@@ -638,8 +643,10 @@ SInt16 AppendFileDialog (
 		{
 		if (appendFileInfoPtr->numberLines != newFileInfoPtr->numberLines)
 																			return (-2);
-		lineFlag = FALSE;
-		newAfterLineChannel = appendFileInfoPtr->numberChannels;
+      #if defined multispec_mac
+         lineFlag = FALSE;
+         newAfterLineChannel = appendFileInfoPtr->numberChannels;
+      #endif
 		
 		}	// end "else !appendFileInfoPtr->thematicType && ..."
 		
@@ -1352,7 +1359,7 @@ void GetOutputBufferParameters (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/2013
-//	Revised By:			Larry L. Biehl			Date: 08/28/2020
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
 
 void GetOutputFileName (
 				FileInfoPtr							inputFileInfoPtr,
@@ -1437,11 +1444,15 @@ void GetOutputFileName (
 				if (inputFileInfoPtr->instrumentCode == kLandsatTM ||
 						inputFileInfoPtr->instrumentCode == kLandsatTM7 ||
 							inputFileInfoPtr->instrumentCode == kLandsatMSS ||
-								inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
-									inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
-										inputFileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
-						inputFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
-							inputFileInfoPtr->instrumentCode == kSentinel2B_MSI)
+								inputFileInfoPtr->instrumentCode == kLandsatMSS4_5 ||
+									inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
+										inputFileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
+						inputFileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
+									inputFileInfoPtr->instrumentCode == kLandsatLC9_OLI_TIRS ||
+										inputFileInfoPtr->instrumentCode == kLandsatLC9_OLI ||
+						inputFileInfoPtr->instrumentCode == kLandsatLC9_TIRS ||
+							inputFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
+								inputFileInfoPtr->instrumentCode == kSentinel2B_MSI)
 					{
 					if (stringLength == originalStringLength)
 						{
@@ -2071,7 +2082,7 @@ Boolean InsertNewErdasHeader (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 05/14/1992
-//	Revised By:			Larry L. Biehl			Date: 05/06/2020
+//	Revised By:			Larry L. Biehl			Date: 08/08/2022
 
 Boolean ListReformatResultsInformation (
 				ReformatOptionsPtr				reformatOptionsPtr, 
@@ -2302,6 +2313,21 @@ Boolean ListReformatResultsInformation (
 				continueFlag = OutputString ((CMFileStream*)NULL,
 													(char*)gTextString, 
 													0, 
+													gOutputForce1Code,
+													continueFlag);
+				
+				}	// and "if (...->functionCode == kFunctionKthSmallestElement)"
+													
+			if (reformatOptionsPtr->functionCode == kFunctionLatestThreshold ||
+					reformatOptionsPtr->functionCode == kFunctionEarliestThreshold)
+				{
+				sprintf ((char*)gTextString,
+							"      Threshold value: %d%s",
+							(int)reformatOptionsPtr->thresholdValue,
+							gEndOfLine);
+				continueFlag = OutputString ((CMFileStream*)NULL,
+													(char*)gTextString,
+													0,
 													gOutputForce1Code,
 													continueFlag);
 				

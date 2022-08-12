@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMReformatTransformDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 05/06/2020
+//	Revised By:				Larry L. Biehl			Date: 08/08/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -164,6 +164,7 @@ class CMReformatTransformDlg : public CMDialog
 												*m_AT_factorTextCtrl,
 												*m_AT_numereratorTextCtrl,
 												*m_AT_offsetTextCtrl,
+												*m_textCtrl44,
 												*m_textCtrl48,
 												*m_textCtrl49,
 												*m_textCtrl50,
@@ -188,10 +189,11 @@ class CMReformatTransformDlg : public CMDialog
 												m_transformFactor,
 												m_transformOffset;
 	
-		int									m_defaultThermalChannel,
+		int									m_algebraicTransformOption,
+												m_defaultThermalChannel,
 												m_functionCode,
-												m_transformCode,
-												m_algebraicTransformOption;
+												m_thresholdValue,
+												m_transformCode;
 	
 		UInt32								m_adjustSelectedChannel,
 			 									m_kthSmallestElement,

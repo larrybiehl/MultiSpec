@@ -26,7 +26,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 05/03/2020
+//	Revised By:				Larry L. Biehl			Date: 03/08/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -830,8 +830,18 @@ Ptr								gGWorldPlaceHolderList[kMaxNumberIWindows];
 		// structure to coordinates of drag gray rectangle 							
 Rect								gGrayRect;
 
-		// Rectangle for the graphics box in the graphics status dialog.			
-Rect								gStatusGraphicsBox;
+		// Rectangle for the graphics box in the graphics status dialog.
+#if defined multispec_mac
+	Rect								gStatusGraphicsBox;
+#endif	// defined multispec_mac
+
+#if defined multispec_win
+	LongRect								gStatusGraphicsBox;
+#endif	// defined multispec_win
+
+#if defined multispec_wx
+	LongRect								gStatusGraphicsBox;
+#endif	// defined multispec_wx
 
 		// rectangle to be used for storage for temporary rectangles.				
 Rect								gTempRect; 
@@ -1706,6 +1716,7 @@ SInt16							gSymbolSelection = 0;
 		//		1 = 68K
 		//		2 = PowerPC
 		//		3 = Intel
+      //    4 = Apple Silicon (arm64)
 UInt16							gSystemArchitectureCode = 0;
 
 			// Code to indicate that memory for text window operation is short.	

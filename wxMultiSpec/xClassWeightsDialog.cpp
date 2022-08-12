@@ -291,7 +291,7 @@ SInt16 CMClassWeightsDlg::DoDialog (
 
 {
 	SInt16								returnCode;
-   Boolean								OKFlag = FALSE;
+   //Boolean								OKFlag = FALSE;
 	
 	
 			// Make sure intialization has been completed.
@@ -309,7 +309,7 @@ SInt16 CMClassWeightsDlg::DoDialog (
 
    if (returnCode == wxID_OK)
 		{
-      OKFlag = TRUE;
+      //OKFlag = TRUE;
 
       weightsSelection = m_weightsSelection;
 

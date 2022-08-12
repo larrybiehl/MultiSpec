@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			01/11/2020
+//	Revision date:			08/08/2022
 //
 //	Language:				C++
 //
@@ -287,7 +287,7 @@ void CMImageCanvas::DoMouseWheel (
 		
 		if (axis == wxMOUSE_WHEEL_VERTICAL)
 			{
-			UInt32 currentTickCount = GetTickCount ();
+			time_t currentTickCount = GetTickCount ();
 			if (currentTickCount >= GetMainFrame()->GetNextControlTime ())
 				{
 				GetMainFrame()->SetNextControlTime (gControlOffset/4);
@@ -860,7 +860,8 @@ void CMImageCanvas::OnLeaveImageWindow (
    	{
 		m_View->UpdateCursorCoordinates ();
 		
-		MSetCursor (kArrow);
+		if (gProcessorCode != kOpenImageFileProcessor)
+			MSetCursor (kArrow);
 		
 		}	// end "OnLeaveImageWindow"
 		
@@ -1289,10 +1290,10 @@ void CMImageCanvas::OnPaint (
 	wxRegionIterator upd (GetUpdateRegion ()); // get the update rect list
 	while (upd)
 		{
-		m_View->s_updateRect.left = upd.GetX ();
-		m_View->s_updateRect.right = m_View->s_updateRect.left + upd.GetW ();
-		m_View->s_updateRect.top = upd.GetY ();
-		m_View->s_updateRect.bottom = m_View->s_updateRect.top + upd.GetH ();
+		m_View->s_updateRect.left = (int)upd.GetX ();
+		m_View->s_updateRect.right = (int)(m_View->s_updateRect.left + upd.GetW ());
+		m_View->s_updateRect.top = (int)upd.GetY ();
+		m_View->s_updateRect.bottom = (int)(m_View->s_updateRect.top + upd.GetH ());
 
 		m_View->OnDraw (&dc);
 		
@@ -1306,18 +1307,18 @@ void CMImageCanvas::OnPaint (
 	//if (m_displayImageFlag && bitMapOKFlag)
 	if (m_displayImageFlag)
 		{
-   	UInt32								numberOverlays;
+   	//UInt32								numberOverlays;
 	
-		Boolean								drawVectorOverlaysFlag,
-												projectWindowFlag;
+		//Boolean								drawVectorOverlaysFlag,
+		//										projectWindowFlag;
 		
 		CMImageWindow* imageWindowCPtr = m_View->GetImageWindowCPtr ();
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 													imageWindowCPtr->GetWindowInfoHandle ());
 		
-		drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
-		projectWindowFlag = windowInfoPtr->projectWindowFlag;
-		numberOverlays = windowInfoPtr->numberVectorOverlays;
+		//drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
+		//projectWindowFlag = windowInfoPtr->projectWindowFlag;
+		//numberOverlays = windowInfoPtr->numberVectorOverlays;
 
 				// Outline training/test areas.
 		
@@ -1357,7 +1358,7 @@ void CMImageCanvas::OnPaint (
 			
 			}	// end "else !bitMapOKFlag"
 
-				//Sets the virtual size of the window in pixels.
+				// Sets the virtual size of the window in pixels.
 		
 		SetVirtualSize (m_size_w, m_size_h);
 		
@@ -1382,7 +1383,7 @@ void CMImageCanvas::OnPaint (
 		CMImageDoc* pDoc = m_View->GetDocument ();
 		pDoc->DrawObjects (&dc, m_View);
 		
-		}	// end "if (m_displayImageFlag && ...)"
+		}	// end "if (m_displayImageFlag)"
 	
 }	// end "OnPaint"
 

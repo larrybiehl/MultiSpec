@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -545,7 +545,7 @@ void WriteProbabilityGrouping (
 // Called By:			ClassifyControl
 //
 //	Coded By:			Larry L. Biehl			Date: 08/21/1997
-//	Revised By:			Larry L. Biehl			Date: 12/22/2005
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void CEMClsfierControl (
 				FileInfoPtr							fileInfoPtr)
@@ -747,7 +747,7 @@ void CEMClsfierControl (
 													numberCorrelationMatrixChannels,
 													(HUInt16Ptr)correlationMatrixChannelsPtr,
 													kPackData,
-													kForceBISFormat,
+													kBIS,		// kForceBISFormat,
 													kForceReal8Bytes,
 													kDoNotAllowForThreadedIO,
 													&fileIOInstructionsPtr);
@@ -6021,7 +6021,7 @@ void FisherClsfierControl (
 // Called By:			ClassifyAreasControl
 //
 //	Coded By:			Larry L. Biehl			Date: 08/18/1993
-//	Revised By:			Larry L. Biehl			Date: 12/29/2005
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean GetClassifyDataBuffers (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -6187,7 +6187,7 @@ Boolean GetClassifyDataBuffers (
 													tiledBufferPtr,
 													bufferOffset,
 													kPackData,
-													kForceBISFormat,	
+													kBIS,		// kForceBISFormat,	
 													kForceReal8Bytes,
 													outputFileIOInstructionsPtrPtr);
 													

@@ -38,6 +38,10 @@
 	#include "wchar.h"
 #endif
 
+//#if defined (__arm64__)   // __x86_64__    __arm64__
+//int test = 1
+//#endif
+
 #if defined multispec_win
 	#include "stdafx.h"
 	//#ifndef WINVER
@@ -65,7 +69,7 @@
 		#define include_gdal_capability 0
 		#define include_hdf5_capability 0
 	#else
-		#define include_hdf_capability 1 
+		#define include_hdf_capability 1
 		#define include_gdal_capability 1
 		#define include_hdf5_capability 1
 	#endif

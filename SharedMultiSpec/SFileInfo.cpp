@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			05/04/2022
 //
 //	Language:				C
 //
@@ -357,7 +357,7 @@ UInt32 GetActiveNumberClasses (void)
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/2013
-//	Revised By:			Larry L. Biehl			Date: 01/10/2013	
+//	Revised By:			Larry L. Biehl			Date: 03/07/2022
 
 SInt16 GetBandInterleave (
 				Handle								fileInfoHandle)
@@ -369,7 +369,19 @@ SInt16 GetBandInterleave (
 	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
 	
 	if (fileInfoPtr != NULL)
-		bandInterleave = fileInfoPtr->bandInterleave;			
+		{
+				// Take into account if the file is being read by gdal. If so the data
+				// from gdal is always BSQ. We want the original format of the data here.
+				// Tried to allow this in 2022. Several changes still need to be made
+				// to handle mixing bis and bsq/bil data in linked files.
+				//kBIS allow or not allow
+				
+		if (fileInfoPtr->gdalBandInterleave > 0)
+			bandInterleave = fileInfoPtr->gdalBandInterleave;
+		else	// fileInfoPtr->gdalBandInterleave <= 0
+			bandInterleave = fileInfoPtr->bandInterleave;
+
+		}	// end "if (fileInfoPtr != NULL)"
 									
 	return (bandInterleave);
 	
@@ -1218,7 +1230,7 @@ Boolean GetThematicType (
 //							... and many others
 //
 //	Coded By:			Larry L. Biehl			Date: 03/05/1991
-//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 05/04/2022
 
 Handle InitializeFileInfoStructure (
 				Handle								fileInfoHandle,
@@ -1360,6 +1372,8 @@ Handle InitializeFileInfoStructure (
 		fileInfoPtr->numberBits = 8;
 		fileInfoPtr->numberBytes = 1;
 		fileInfoPtr->numberChannels = 1;
+		fileInfoPtr->splitChannelsStart = 0;
+		fileInfoPtr->numberSplitChannels = 0;
 		fileInfoPtr->numberGroups = 0;
 
 		fileInfoPtr->asciiSymbols = FALSE;

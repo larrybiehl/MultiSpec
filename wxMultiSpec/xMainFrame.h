@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 04/12/2019
+//	Revised By:				Larry L. Biehl			Date: 05/14/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -171,6 +171,7 @@ class CMainFrame : public wxDocParentFrame
 		void OnProcReformatRecodeThematic (wxCommandEvent& event);
 		void OnProcReformatRectifyImage (wxCommandEvent& event);
 		void OnProcReformatConvertEnvi (wxCommandEvent& event);
+		void OnProcReformatCompareImages (wxCommandEvent& event);
 	
 				// Processor->Utility Menu Items
 		void OnProcUtilPrinCompAnalysis (wxCommandEvent& event);
@@ -273,6 +274,7 @@ class CMainFrame : public wxDocParentFrame
 		void OnUpdateProcReformatRectifyImage (wxUpdateUIEvent& pCmdUI);
 		void OnUpdateProcReformatConvertShape (wxUpdateUIEvent& pCmdUI);
 		void OnUpdateProcReformatConvertEnvi (wxUpdateUIEvent& pCmdUI);
+		void OnUpdateProcReformatCompareImages (wxUpdateUIEvent& pCmdUI);
 	
 				// Processor->Utility Menu Items
 		void OnUpdateProcUtilBiplotsOfData (wxUpdateUIEvent& pCmdUI);

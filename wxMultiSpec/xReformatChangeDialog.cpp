@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			03/05/2022
 //
 //	Language:				C++
 //
@@ -1035,6 +1035,7 @@ void CMChangeFormatDlg::OnTransformData (
 }	// end "OnTransformData"
 
 
+
 void CMChangeFormatDlg::OnWriteChanDescriptions (
 				wxCommandEvent& 					event)
 
@@ -1131,6 +1132,10 @@ bool CMChangeFormatDlg::TransferDataFromWindow ()
 bool CMChangeFormatDlg::TransferDataToWindow ()
 
 {
+	m_staticText147->SetLabel (m_inputDataValueTypeString);
+	
+	m_staticText143->SetLabel (m_inputBandInterleaveString);
+	
 	TransferLinesColumnsToWindow ();
 
    wxCheckBox* tdata = (wxCheckBox*)FindWindow (IDC_TransformData);

@@ -309,7 +309,6 @@ void  CMEvalCovarianceDialog::OnInitDialog (
 
 {
 	UInt16								index;
-	Boolean								tempFlag;
 	
    
    CMDialog::OnInitDialog (event);
@@ -348,11 +347,11 @@ void  CMEvalCovarianceDialog::OnInitDialog (
 		m_featureTransformationFlag =
 									m_evaluateCovarianceSpecsPtr->featureTransformationFlag;
 									
-	tempFlag = CheckFeatureTransformationDialog (this,
-																m_featureTransformAllowedFlag,
-																IDC_Transformation,
-																IDC_ChannelCombo,
-																(SInt16*)&m_featureTransformationFlag);
+	CheckFeatureTransformationDialog (this,
+                                       m_featureTransformAllowedFlag,
+                                       IDC_Transformation,
+                                       IDC_ChannelCombo,
+                                       (SInt16*)&m_featureTransformationFlag);
 	                                                        							
 			//	Channels to use													
 			                                                                   

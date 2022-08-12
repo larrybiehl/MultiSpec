@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/27/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -258,7 +258,7 @@ SInt16 BiPlotClassData (
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
 //	Revised By:			Wei-Kang Hsu			Date: 08/03/2016
-//	Revised By:			Larry L. Biehl			Date: 05/03/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void BiPlotDataControl (void)
 
@@ -589,7 +589,7 @@ void BiPlotDataControl (void)
 												//(HUInt16Ptr)*channelsPtr,
                                     channelsPtr,
 												kPackData,
-												kForceBISFormat,
+												kBIS,		// kForceBISFormat,
 												kForceReal8Bytes,
 												kDoNotAllowForThreadedIO,
 												&fileIOInstructionsPtr);
@@ -2333,7 +2333,7 @@ SInt16 BiPlotFieldData (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 10/20/1999	
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean BiPlotProjectData ()
 
@@ -2394,7 +2394,7 @@ Boolean BiPlotProjectData ()
 								//(HUInt16Ptr)*channelsPtr,
                         channelsPtr,
 								kPackData,
-								kForceBISFormat,
+								kBIS,	// kForceBISFormat,
 								kForceReal8Bytes,
 								kDoNotAllowForThreadedIO,
 								&fileIOInstructionsPtr))

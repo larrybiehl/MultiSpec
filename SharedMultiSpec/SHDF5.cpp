@@ -596,9 +596,7 @@ SInt16 GetHDF5CompressionInformation (
 	SInt32								dataCompressionCode = kNoCompression;
 	
 	
-	#ifndef multispec_win
-		dataCompressionCode = (SInt32)GH5_GetDataSetCompressionCode (hDS);
-	#endif
+	dataCompressionCode = (SInt32)GH5_GetDataSetCompressionCode (hDS);
 	
 	if (dataCompressionCode != kNoCompression)
 		{

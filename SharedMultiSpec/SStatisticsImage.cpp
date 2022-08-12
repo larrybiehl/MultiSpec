@@ -19,7 +19,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			11/11/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -122,7 +122,7 @@ Boolean	StatisticsImageDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 11/15/1991
-//	Revised By:			Larry L. Biehl			Date: 08/24/2017
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean CreateStatisticsImages (void)
 
@@ -653,7 +653,7 @@ Boolean CreateStatisticsImages (void)
 													numberFeatureChannels,
 													(HUInt16Ptr)channelsPtr,
 													kPackData,				// kDoNotPackData,
-													kForceBISFormat,		// kDoNotForceBISFormat,
+													kBIS,		// kForceBISFormat,	// kDoNotForceBISFormat,
 													kForceReal8Bytes,
 													kDoNotAllowForThreadedIO,
 													&fileIOInstructionsPtr);

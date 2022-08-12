@@ -299,39 +299,39 @@ void CMFalseColorDlg::OnInitDialog (
 bool CMFalseColorDlg::TransferDataFromWindow ()
 
 {
-   SInt16								badChannel;
+   //SInt16								badChannel;
 	
 	
 	wxTextCtrl* red = (wxTextCtrl*)FindWindow (IDC_EDITRed);
    m_redChannel = wxAtoi (red->GetValue ());
 	SInt16 itemHit = FalseColorCheckColorChannel (
-												this, 4, m_redChannel, &m_redChannelIndex);
+												this, 4, (SInt32)m_redChannel, &m_redChannelIndex);
 	
 	if (itemHit == 1)
 		{                      
       wxTextCtrl* green = (wxTextCtrl*)FindWindow (IDC_EDITGreen);
    	m_greenChannel =  wxAtoi (green->GetValue ());
 		itemHit = FalseColorCheckColorChannel (
-												this, 6, m_greenChannel, &m_greenChannelIndex);
+												this, 6, (SInt32)m_greenChannel, &m_greenChannelIndex);
 		if (itemHit == 1)
 			{          
          wxTextCtrl* blue = (wxTextCtrl*)FindWindow (IDC_EDITBlue);
 			m_blueChannel = wxAtoi (blue->GetValue ());
 			itemHit = FalseColorCheckColorChannel (
-												this, 8, m_blueChannel, &m_blueChannelIndex);
+												this, 8, (SInt32)m_blueChannel, &m_blueChannelIndex);
 				
-			if (itemHit != 1)  
-				badChannel = IDC_EDITBlue;
+			//if (itemHit != 1)
+			//	badChannel = IDC_EDITBlue;
 				
 			}	// end "if (itemHit == 1)"
 			
-		else	// itemHit != 1
-			badChannel = IDC_EDITGreen;
+		//else	// itemHit != 1
+		//	badChannel = IDC_EDITGreen;
 			
 		}	// end "if (itemHit == 1)"
 	
-	else	// itemHit != 1
-		badChannel = IDC_EDITRed;
+	//else	// itemHit != 1
+	//	badChannel = IDC_EDITRed;
    
    return true;
 	

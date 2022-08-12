@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/31/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -278,8 +278,7 @@ void UpdateMinMaxValueIndices (
 				DisplaySpecsPtr					displaySpecsPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				SInt16								numberChannels,
-				UInt16*								channelsPtr,
-				SInt32								signedValueOffset);
+				UInt16*								channelsPtr);
 
 void UpdateThematicTypeMinMaxes (
 				SInt16								numberClassBins,
@@ -307,7 +306,7 @@ void UpdateThematicTypeMinMaxes (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 04/24/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -470,7 +469,7 @@ void DisplayImagesSideBySide (
 										numberChannels,
 										channelsPtr,
 										kDoNotPackData,
-										kDoNotForceBISFormat,
+										kDoNotForceFormat,
 										kDoNotForceBytes,
 										gHasThreadManager,
 										&fileIOInstructionsPtr))
@@ -976,7 +975,9 @@ void DisplayImagesSideBySide (
 //
 //	Software purpose:	The purpose of this routine is to display selected
 //							channels of an image side by side in color in a window 
-//							on the screen.
+//							on the screen. This routine will also handle side by side for
+//							1 and 2 bytes data values. It is used when there are link files
+//							with a combination of 1 or 2 byte data and 4 or 8 byte data.
 //
 //	Parameters in:					
 //
@@ -987,7 +988,7 @@ void DisplayImagesSideBySide (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/2006
-//	Revised By:			Larry L. Biehl			Date: 04/15/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void Display4_8ByteImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -1150,7 +1151,7 @@ void Display4_8ByteImagesSideBySide (
 										numberChannels,
 										channelsPtr,
 										kPackData,
-										kDoNotForceBISFormat,
+										kDoNotForceFormat,
 										kForceReal8Bytes,
 										gHasThreadManager,
 										&fileIOInstructionsPtr))
@@ -1324,6 +1325,8 @@ void Display4_8ByteImagesSideBySide (
 						binFactor = histogramSummaryPtr[channelsPtr[chanIndex]].binFactor;
 						minValue =
 								histogramSummaryPtr[channelsPtr[chanIndex]].minNonSatValue;
+						if (localFileInfoPtr->numberBytes <= 2)
+						minValue = 0;
 						maxBin = histogramSummaryPtr[channelsPtr[chanIndex]].numberBins - 1;
 
 						if (BISFlag)
@@ -1806,7 +1809,7 @@ Boolean DisplayMultispectralImage (void)
 		if (gCallProcessorDialogFlag)
 			MInitCursor ();
 
-				// Get the end time and print the time elapsed in the output window.
+				// Get the end time and list the time elapsed in the output window.
 
 		continueFlag = ListCPUTimeInformation (NULL, continueFlag, startTime);
 
@@ -1853,7 +1856,7 @@ Boolean DisplayMultispectralImage (void)
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 11/02/2019
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void DisplayCImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -1930,6 +1933,7 @@ void DisplayCImage (
 											numberListChannels;
 
 	UInt16								channelPtr[3],
+											forceOutputFormatCode,
 											forceOutputByteCode,
 											sortedChannelPtr[3];
 
@@ -1937,7 +1941,6 @@ void DisplayCImage (
 											bytesEqualOneFlag1,
 											bytesEqualOneFlag2,
 											bytesEqualOneFlag3,
-											forceBISflag,
 											packDataFlag;
 	
 	/*
@@ -2014,17 +2017,17 @@ void DisplayCImage (
 		}	// end "else numberChannels == 3"
 
 	numberListChannels = numberChannels;
-
+	
 			// Get the pointers to the file information for each channel.
 
 	localFileInfoPtr1 =
-            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[0] + 1].fileInfoIndex];
+            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[0]+1].fileInfoIndex];
 
 	localFileInfoPtr2 =
-            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[1] + 1].fileInfoIndex];
+            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[1]+1].fileInfoIndex];
 
 	localFileInfoPtr3 =
-            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[2] + 1].fileInfoIndex];
+            &fileInfoPtr[gImageLayerInfoPtr[channelPtr[2]+1].fileInfoIndex];
 
 	bytesEqualOneFlag1 = (localFileInfoPtr1->numberBytes == 1) ? TRUE : FALSE;
 	bytesEqualOneFlag2 = (localFileInfoPtr2->numberBytes == 1) ? TRUE : FALSE;
@@ -2045,7 +2048,26 @@ void DisplayCImage (
 	maxBin1 = histogramSummaryPtr[channelPtr[0]].numberBins - 1;
 	maxBin2 = histogramSummaryPtr[channelPtr[1]].numberBins - 1;
 	maxBin3 = histogramSummaryPtr[channelPtr[2]].numberBins - 1;
-
+/*
+			// Need to check case for linked data files with different data types.
+			// The displayCode of 1, 51, 101 or 151 may have been set wrong. It is
+			// based on gImageWindowInfoPtr->localMaxNumberBytes which may not have been
+			// correct when it was original set in "DisplayColorImage".
+			
+	if ((displayCode == 1 || displayCode == 51 || displayCode == 101 || displayCode == 151) &&
+						gImageWindowInfoPtr->numberImageFiles > 1)
+		{
+		SInt32 fileInfoIndex = gImageLayerInfoPtr[channelPtr[0]+1].fileInfoIndex;
+		FileInfoPtr localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+		
+		if ((displayCode == 1 || displayCode == 51) && localFileInfoPtr->numberBytes >= 4)
+			displayCode += 100;
+	
+		else if ((displayCode == 101 || displayCode == 151) && localFileInfoPtr->numberBytes <= 2)
+			displayCode -= 100;
+			
+		}	// end "if ((displayCode == 1 || displayCode == 51 || ..."
+*/
 	if (displayCode == 101)
 		{
 		if (histogramSummaryPtr[channelPtr[0]].binType == kBinWidthOfOne)
@@ -2094,7 +2116,7 @@ void DisplayCImage (
 		{
 		forceOutputByteCode = kDoNotForceBytes;
 		//forceOutputByteCode = kForce2Bytes;
-		forceBISflag = kDoNotForceBISFormat;
+		forceOutputFormatCode = kDoNotForceFormat;
 		packDataFlag = kDoNotPackData;
 		columnInterval = 1;
 
@@ -2103,7 +2125,7 @@ void DisplayCImage (
 	else	// displayCode >= 100
 		{
 		forceOutputByteCode = kForceReal8Bytes;
-		forceBISflag = kDoNotForceBISFormat;
+		forceOutputFormatCode = kDoNotForceFormat;
 		packDataFlag = kPackData;
 		columnInterval = displaySpecsPtr->columnInterval;
 
@@ -2130,7 +2152,7 @@ void DisplayCImage (
 										numberChannels,
 										sortedChannelPtr,
 										packDataFlag,
-										forceBISflag,
+										forceOutputFormatCode,
 										forceOutputByteCode,
 										kDoNotAllowForThreadedIO,
 										&fileIOInstructionsPtr))
@@ -2162,7 +2184,7 @@ void DisplayCImage (
 	dataDisplay3Ptr = (HUCharPtr)&dataDisplay1Ptr [2 * bytesOffset];
 
 	backgroundValueCode = displaySpecsPtr->backgroundValueCode;
-
+			
 	lineCount = 0;
 	longSourceRect.bottom = kCopyInterval;
 	lineEnd = displaySpecsPtr->lineEnd;
@@ -5519,8 +5541,8 @@ void Display3Channel8BitLine (
 //
 //	Function name:		void DoNextDisplayChannelEvent
 //
-//	Software purpose:	This routine handles mouse down events in the
-//							grow box for non-graphics windows.
+//	Software purpose:	This routine handles arrow keys for displaying the next or
+//							previous channel.
 //
 //	Parameters in:				
 //
@@ -6216,7 +6238,7 @@ SInt16 EnhanceMinMaxPopUpMenu (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	07/03/1990
-//	Revised By:			Larry L. Biehl			Date: 05/08/2020
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 Boolean EqualAreaDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6357,7 +6379,8 @@ Boolean EqualAreaDataToDisplayLevels (
 											  channel,
 											  channelsPtr[channel],
 											  TRUE,
-											  gImageFileInfoPtr->signedValueOffset,
+											  //gImageFileInfoPtr->signedValueOffset,
+											  histogramSummaryPtr[channelsPtr[channel]].signedValueOffset,
 											  numberDataValues,
 											  (UInt16)numberLevels,
 											  &minValueIndex,
@@ -6632,7 +6655,7 @@ Boolean EqualAreaDataToDisplayLevels (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	04/21/1988
-//	Revised By:			Larry L. Biehl			Date: 05/31/2020
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 Boolean FillDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6652,6 +6675,7 @@ Boolean FillDataToDisplayLevels (
 	HistogramSummaryPtr				histogramSummaryPtr;
 
 	SInt32								dataLevel,
+											imageFileNumberBytes,
 											maxBinIndex,
 											minBinIndex,
 											startValue;
@@ -6779,22 +6803,27 @@ Boolean FillDataToDisplayLevels (
 			}	// end "else displaySpecsPtr->pixelSize > 8 "
 
 		channelNumberIndex = channelsPtr[channel];
+		
+		SInt32 fileInfoIndex = gImageLayerInfoPtr[channelNumberIndex+1].fileInfoIndex;
+		FileInfoPtr localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
+		imageFileNumberBytes = localFileInfoPtr->numberBytes;
+		
+				// Get number of bytes for this channel allowing for linked image files
 
-		GetMinMaxValuesIndices (displaySpecsPtr,
-										 histogramSpecsPtr,
-										 &histogramSummaryPtr[channelNumberIndex],
-										 channel,
-										 channelNumberIndex,
-										 FALSE,
-										 gImageFileInfoPtr->signedValueOffset,
-										 numberBins,
-										 numberLevels,
-										 &minBinIndex,
-										 &maxBinIndex,
-										 //&classForMinThematicValue,
-										 //&classForMaxThematicValue,
-										 &classForMinDataValue,
-										 &classForMaxDataValue);
+		GetMinMaxValuesIndices (
+								displaySpecsPtr,
+								histogramSpecsPtr,
+								&histogramSummaryPtr[channelNumberIndex],
+								channel,
+								channelNumberIndex,
+								FALSE,
+								histogramSummaryPtr[channelNumberIndex].signedValueOffset,
+								numberBins,
+								numberLevels,
+								&minBinIndex,
+								&maxBinIndex,
+								&classForMinDataValue,
+								&classForMaxDataValue);
 
 				// Set the multiplier for this channel to be used to determine
 				// the look up table for the data values to color value table.
@@ -6835,12 +6864,12 @@ Boolean FillDataToDisplayLevels (
 
 				floatDisplayLevel = 1;
 
-				if (gImageWindowInfoPtr->localMaxNumberBytes >= 4)
+				if (imageFileNumberBytes >= 4)
 					{
 					displayInterval = 1;
 					maxBinIndex = numberLevels - 1;
 
-					}	// end "if (gImageWindowInfoPtr->localMaxNumberBytes >= 4)"
+					}	// end "if (imageFileNumberBytes >= 4)"
 
 				if (histogramSummaryPtr[channelNumberIndex].binType == kBinWidthOfOne)
 					{
@@ -6851,7 +6880,7 @@ Boolean FillDataToDisplayLevels (
 						{
 						thematicInterval = 1;
 
-						if (gImageWindowInfoPtr->localMaxNumberBytes >= 4)
+						if (imageFileNumberBytes >= 4)
 							maxBinIndex = numberLevels - 2;
 
 						}	// end "else if (numberLevels-2 == thematicRange)"
@@ -6860,7 +6889,7 @@ Boolean FillDataToDisplayLevels (
 
 				displaySpecsPtr->thematicBinWidth = 1 / thematicInterval;
 
-				if (gImageWindowInfoPtr->localMaxNumberBytes >= 4)
+				if (imageFileNumberBytes >= 4)
 					minBinIndex = 1;
 
 				}	// end "if (numberLevels >= 3)"
@@ -7241,7 +7270,7 @@ Boolean GaussianParameterDialog (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	05/02/2003
-//	Revised By:			Larry L. Biehl			Date: 05/08/2020
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 Boolean GaussianToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7458,7 +7487,8 @@ Boolean GaussianToDisplayLevels (
 											  channel,
 											  channelsPtr[channel],
 											  TRUE,
-											  gImageFileInfoPtr->signedValueOffset,
+											  //gImageFileInfoPtr->signedValueOffset,
+											  histogramSummaryPtr[channelsPtr[channel]].signedValueOffset,
 											  numberDataValues,
 											  (UInt16)numberLevels,
 											  &minValueIndex,
@@ -8060,7 +8090,7 @@ SInt16 GetMinMaxPopupCode (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/22/2006 
-//	Revised By:			Larry L. Biehl			Date: 12/09/2011	
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void GetMinMaxValuesIndices (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -8169,12 +8199,10 @@ void GetMinMaxValuesIndices (
 												displaySpecsPtr->minMaxCode == kPerChannelMinMax) 
 			{
 			minThematicValue = GetDataValueForBinIndex (minBinIndex,
-																	  histogramSummaryPtr,
-																	  signedValueOffset);
+																	  histogramSummaryPtr);
 
 			maxThematicValue = GetDataValueForBinIndex (maxBinIndex,
-																	  histogramSummaryPtr,
-																	  signedValueOffset);
+																	  histogramSummaryPtr);
 
 			}	// end "if (displaySpecsPtr->minMaxCode == kEntireDataRange || ..." 
 
@@ -8364,7 +8392,7 @@ SInt16 GetThematicClassForDataValue (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/21/2006
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 03/04/2022
 
 void GetThematicTypeMinMaxIndices (
 				SInt16								numberClassBins,
@@ -8375,11 +8403,6 @@ void GetThematicTypeMinMaxIndices (
 				SInt32*								maxValueIndexPtr)
 
 {
-	double								//maxThematicValue,
-											maxThematicValueWithSignedOffset,
-											//minThematicValue,
-											minThematicValueWithSignedOffset;
-
 	HistogramSpecsPtr					histogramSpecsPtr = NULL;
 	HistogramSummaryPtr				histogramSummaryPtr;
 
@@ -8418,16 +8441,12 @@ void GetThematicTypeMinMaxIndices (
 												  minThematicValuePtr,
 												  maxThematicValuePtr);
 
-			minThematicValueWithSignedOffset =
-							*minThematicValuePtr + gImageFileInfoPtr->signedValueOffset;
 			*minValueIndexPtr = GetBinIndexForDataValue (
-																  minThematicValueWithSignedOffset,
+																  *minThematicValuePtr,
 																  histogramSummaryPtr);
 
-			maxThematicValueWithSignedOffset =
-							*maxThematicValuePtr + gImageFileInfoPtr->signedValueOffset;
 			*maxValueIndexPtr = GetBinIndexForDataValue (
-																  maxThematicValueWithSignedOffset,
+																  *maxThematicValuePtr,
 																  histogramSummaryPtr);
 
 			}	// "if (histogramSpecsPtr->histogramSummaryPtr != NULL)"
@@ -8604,7 +8623,17 @@ Boolean HistogramVector (
 			redoFlag = TRUE;
 			break;
 
-		}	// end "switch (displaySpecsPtr->displayType)" 
+		}	// end "switch (displaySpecsPtr->displayType)"
+					
+			// Make certain that we have the file information for the selected channels
+			// is correct. That information will be loaded into the window information
+			// structure.
+		
+	GetFileInformationForChannelList (gImageWindowInfoPtr,
+													gImageLayerInfoPtr,
+													gImageFileInfoPtr,
+													(SInt16*)channelsPtr,
+													numberChannels);
 
 			// Fill vector to be used to assign data values to image display		
 			// levels if it is not up-to-date												
@@ -8714,8 +8743,7 @@ Boolean HistogramVector (
 				UpdateMinMaxValueIndices (displaySpecsPtr,
 													histogramSummaryPtr,
 													numberChannels,
-													channelsPtr,
-													gImageFileInfoPtr->signedValueOffset);
+													channelsPtr);
 
 				dataDisplayPtr = (HUCharPtr)GetHandlePointer (
 									gToDisplayLevels.vectorHandle, kLock);
@@ -8814,7 +8842,7 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 05/11/2020
+//	Revised By:			Larry L. Biehl			Date: 04/06/2022
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
@@ -9058,7 +9086,8 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
                }	// end "if (gImageFileInfoPtr->instrumentCode == kSPOT
 
-            else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS)
+            else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS ||
+								gImageFileInfoPtr->instrumentCode == kLandsatMSS4_5)
                {
                displaySpecsPtr->blueChannelNumber = 2;
                displaySpecsPtr->greenChannelNumber = 2;
@@ -9066,7 +9095,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                if (displaySpecsPtr->pixelSize >= 16)
                   displaySpecsPtr->blueChannelNumber = 1;
 
-               }	// end "else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS)
+               }	// end "else if (gImageFileInfoPtr->instrumentCode == kLandsatMSS || ...)
 
             else if (gImageFileInfoPtr->instrumentCode == kSentinel2A_MSI ||
 								gImageFileInfoPtr->instrumentCode == kSentinel2B_MSI)
@@ -9188,9 +9217,10 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             }	// end "if (windowInfoPtr->totalNumberChannels == 6 ...)"
 
          else if (gImageWindowInfoPtr->totalNumberChannels == 7 &&
-                    gImageFileInfoPtr->instrumentCode == kLandsatLC8_OLI)
+						(gImageFileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
+							gImageFileInfoPtr->instrumentCode == kLandsatLC9_OLI))
             {
-                  // Assume Landsat 8 surface reflectance
+                  // Assume Landsat 8 or 9 surface reflectance
 
             if (useNaturalColorBandsFlag)
                {
@@ -9213,10 +9243,12 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
             }	// end "if (windowInfoPtr->totalNumberChannels == 7 && ..."
 
          else if (gImageWindowInfoPtr->totalNumberChannels == 8 &&
-                    gImageFileInfoPtr->instrumentCode != kLandsatLC8_OLI_TIRS &&
-                    gImageFileInfoPtr->instrumentCode != kLandsatLC8_OLI)
+							gImageFileInfoPtr->instrumentCode != kLandsatLC8_OLI_TIRS &&
+							gImageFileInfoPtr->instrumentCode != kLandsatLC8_OLI &&
+							gImageFileInfoPtr->instrumentCode != kLandsatLC9_OLI_TIRS &&
+							gImageFileInfoPtr->instrumentCode != kLandsatLC9_OLI)
             {
-                  // Assume Landsat 7
+                  // Assume Landsat 8 or 9
 
             if (useNaturalColorBandsFlag)
                {
@@ -9242,7 +9274,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                     gImageWindowInfoPtr->totalNumberChannels <= 10)
             {
                   // Assume Advance Land Imager (ALI) data or
-                  // Landsat 8
+                  // Landsat 8 or 9
                
             if (useNaturalColorBandsFlag)
                {
@@ -9485,13 +9517,19 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
       else	// gImageFileInfoPtr->gdalBandInterleave <= 0
          dataBandInterleave = MAX (0, gImageFileInfoPtr->bandInterleave);
          
+				// This check is to handle 'RGB' images which tend to be the result of
+				// of a saved image which has already been stretch to 0 to 255 counts.
+				// These images do not need to be stretched. Note though that this
+				// check is not perfect for all situations.
+				
       if ((gImageFileInfoPtr->format == kTIFFType ||
              gImageFileInfoPtr->format == kGeoTIFFType ||
              gImageFileInfoPtr->format == kJPEGType ||
              gImageFileInfoPtr->format == kPNGType) &&
              dataBandInterleave == kBIS &&
              gImageFileInfoPtr->numberBytes == 1 &&
-             gImageFileInfoPtr->numberChannels <= 3)
+             gImageFileInfoPtr->numberChannels <= 3 &&
+             gImageFileInfoPtr->dataCompressionCode == kNoCompression)
          displaySpecsPtr->minMaxCode = kEntireDataRange;
 
       displaySpecsPtr->minMaxValuesIndex[0][0] = 0;
@@ -11119,7 +11157,7 @@ void UpdateDialogChannelItems (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/1993
-//	Revised By:			Larry L. Biehl			Date: 09/13/2007	
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void UpdateEnhancementMinMaxes (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -11140,8 +11178,6 @@ void UpdateEnhancementMinMaxes (
 											redMinDataValue;
 
 	HistogramSummaryPtr				histogramSummaryPtr;
-
-	SInt32								signedValueOffset;
 
 	SInt16								blueNumberEDecimalDigits,
 											blueNumberFDecimalDigits,
@@ -11165,8 +11201,6 @@ void UpdateEnhancementMinMaxes (
 
 	if (histogramSummaryPtr != NULL) 
 		{
-		signedValueOffset = gImageFileInfoPtr->signedValueOffset;
-
 		if (localMinMaxCode == kPerChannelMinMax) 
 			{
 					//	Enhancement minimum and maximum for red channel. 					
@@ -11218,11 +11252,7 @@ void UpdateEnhancementMinMaxes (
 											FALSE))
 					loadBlueChannelLimitsFlag = TRUE;
 
-				}	// end "if (channelsPtr[2] >= 0)" 
-
-					// Indicate that any offset has been taken into account.
-
-			signedValueOffset = 0;
+				}	// end "if (channelsPtr[2] >= 0)"
 
 			}	// end "if (localMinMaxCode == kPerChannelMinMax)" 
 
@@ -11364,20 +11394,20 @@ void UpdateEnhancementMinMaxes (
 			{
 					//	Enhancement minimum and maximum for red channel. 					
 
-			redMinDataValue = minMaxValuesPtr[0] - gImageFileInfoPtr->signedValueOffset;
-			redMaxDataValue = minMaxValuesPtr[1] - gImageFileInfoPtr->signedValueOffset;
+			redMinDataValue = minMaxValuesPtr[0] - histogramSummaryPtr[channelsPtr[0] - 1].signedValueOffset;
+			redMaxDataValue = minMaxValuesPtr[1] - histogramSummaryPtr[channelsPtr[0] - 1].signedValueOffset;
 			loadRedChannelLimitsFlag = TRUE;
 
 					//	Enhancement minimum and maximum for green channel. 				
 
-			greenMinDataValue = minMaxValuesPtr[2] - gImageFileInfoPtr->signedValueOffset;
-			greenMaxDataValue = minMaxValuesPtr[3] - gImageFileInfoPtr->signedValueOffset;
+			greenMinDataValue = minMaxValuesPtr[2] - histogramSummaryPtr[channelsPtr[1] - 1].signedValueOffset;
+			greenMaxDataValue = minMaxValuesPtr[3] - histogramSummaryPtr[channelsPtr[1] - 1].signedValueOffset;
 			loadGreenChannelLimitsFlag = TRUE;
 
 					//	Enhancement minimum and maximum for blue channel. 					
 
-			blueMinDataValue = minMaxValuesPtr[4] - gImageFileInfoPtr->signedValueOffset;
-			blueMaxDataValue = minMaxValuesPtr[5] - gImageFileInfoPtr->signedValueOffset;
+			blueMinDataValue = minMaxValuesPtr[4] - histogramSummaryPtr[channelsPtr[2] - 1].signedValueOffset;
+			blueMaxDataValue = minMaxValuesPtr[5] - histogramSummaryPtr[channelsPtr[2] - 1].signedValueOffset;
 			loadBlueChannelLimitsFlag = TRUE;
 
 			}	// end "else if (localMinMaxCode == kUserSpecified && ...)" 
@@ -11468,14 +11498,13 @@ void UpdateEnhancementMinMaxes (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/21/2006
-//	Revised By:			Larry L. Biehl			Date: 10/22/2006	
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void UpdateMinMaxValueIndices (
 				DisplaySpecsPtr					displaySpecsPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				SInt16								numberChannels,
-				UInt16*								channelsPtr,
-				SInt32								signedValueOffset)
+				UInt16*								channelsPtr)
 
 {
 	UInt32								index;
@@ -11488,12 +11517,14 @@ void UpdateMinMaxValueIndices (
 			index = displaySpecsPtr->minMaxPointers[0];
 
 			displaySpecsPtr->minMaxValuesIndex[index][0] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][0] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[0]]);
+					displaySpecsPtr->minMaxValues[index][0], // +
+										//histogramSummaryPtr[channelsPtr[0]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[0]]);
 
 			displaySpecsPtr->minMaxValuesIndex[index][1] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][1] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[0]]);
+					displaySpecsPtr->minMaxValues[index][1], // +
+										//histogramSummaryPtr[channelsPtr[0]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[0]]);
 
 			}	// end "if (numberChannels >= 1)"
 
@@ -11502,12 +11533,14 @@ void UpdateMinMaxValueIndices (
 			index = displaySpecsPtr->minMaxPointers[1];
 
 			displaySpecsPtr->minMaxValuesIndex[index][0] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][0] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[1]]);
+				  displaySpecsPtr->minMaxValues[index][0], // +
+										// histogramSummaryPtr[channelsPtr[1]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[1]]);
 
 			displaySpecsPtr->minMaxValuesIndex[index][1] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][1] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[1]]);
+				  displaySpecsPtr->minMaxValues[index][1], // +
+										// histogramSummaryPtr[channelsPtr[1]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[1]]);
 
 			}	// end "if (numberChannels >= 2)"
 
@@ -11516,12 +11549,14 @@ void UpdateMinMaxValueIndices (
 			index = displaySpecsPtr->minMaxPointers[2];
 
 			displaySpecsPtr->minMaxValuesIndex[index][0] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][0] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[2]]);
+				  displaySpecsPtr->minMaxValues[index][0], // +
+										//histogramSummaryPtr[channelsPtr[2]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[2]]);
 
 			displaySpecsPtr->minMaxValuesIndex[index][1] = GetBinIndexForDataValue (
-							  displaySpecsPtr->minMaxValues[index][1] + signedValueOffset,
-							  &histogramSummaryPtr[channelsPtr[2]]);
+				  displaySpecsPtr->minMaxValues[index][1], // +
+										//histogramSummaryPtr[channelsPtr[2]].signedValueOffset,
+					&histogramSummaryPtr[channelsPtr[2]]);
 
 			}	// end "if (numberChannels == 3)"
 

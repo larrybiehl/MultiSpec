@@ -926,7 +926,7 @@ Boolean ClusterStatisticsVerification (void)
 					// Cluster fields exist and the statistics are not 		
 					// being saved to disk.												
 			
-			returnCode = DisplayAlert (1164, kStopAlert, 158, 26, 0, NULL);
+			returnCode = DisplayAlert (1164, kStopAlert, 158, IDS_Alert26, 0, NULL);
 			
 			if (returnCode == 3)
 				continueFlag = TRUE;

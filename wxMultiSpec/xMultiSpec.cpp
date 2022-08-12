@@ -527,11 +527,11 @@ bool CMultiSpecApp::OnInit ()
 				// Set limit for maximum number of open files.
 
 		rlimit								resourceLimits;
-		SInt32								numberOfOpenFilesHardLimit;
+		//SInt32								numberOfOpenFilesHardLimit;
 		if (getrlimit (RLIMIT_NOFILE, &resourceLimits) == 0)
 			{
 			gNumberOfOpenFilesLimit = (SInt32)resourceLimits.rlim_cur;
-			numberOfOpenFilesHardLimit = (SInt32)MIN (resourceLimits.rlim_max, SInt32_MAX);
+			//numberOfOpenFilesHardLimit = (SInt32)MIN (resourceLimits.rlim_max, SInt32_MAX);
 			
 			if (resourceLimits.rlim_cur < 4096)
 				{

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			04/22/2020
+//	Revision date:			04/08/2022
 //
 //	Language:				C++
 //
@@ -870,6 +870,23 @@ void CMImageFrame::OnCharHook (
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 	*/
+	int keyCode = event.GetKeyCode ();
+	int keyUP = WXK_UP;
+	int keyDOWN = WXK_DOWN;
+	if ((keyCode == WXK_UP || keyCode == WXK_DOWN) && event.ShiftDown())
+		{
+		char	theChar;
+		if (keyCode == WXK_UP)
+			theChar = 0x26;
+			
+		else	// keyCode == WXK_DOWN
+			theChar = 0x28;
+			
+		DoNextDisplayChannelEvent (m_imageViewCPtr, theChar);
+		event.Skip (false);
+		
+		}	// if ((event.GetKeyCode () == WXK_UP || ...
+	
 	event.Skip ();
 	
 }	// end "OnCharHook"

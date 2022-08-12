@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/17/2020
+//	Revision date:			03/02/2022
 //
 //	Language:				C
 //
@@ -149,8 +149,8 @@ void AddCellsToLegendList (
 											group,
 											numberClasses,
 											numberGroups,
-											numberInList,
-											row;
+                                 numberInList;
+											//row;
 	
 		
 			// Now load the legend list table.
@@ -235,7 +235,7 @@ void AddCellsToLegendList (
 				// Now add rows to get the number required.	
 				
 		count = numberInList - count;
-		row = LAddRow (count, numberInOldList, legendListHandle);
+		LAddRow (count, numberInOldList, legendListHandle);
 		
 		}	// end "else if (count < numberInList)"
 		
@@ -2748,7 +2748,7 @@ UInt16 GetPaletteEntry (
 //							PrintImageWindow in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1989
-//	Revised By:			Larry L. Biehl			Date: 11/20/2019
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void LoadThematicLegendList (
 				LegendListHandle					legendListHandle,
@@ -2785,7 +2785,7 @@ void LoadThematicLegendList (
 	UInt32								channelIndex,
 											dataValueIndex,
 											index,
-											maxBin,
+											//maxBin,
 											maxIndex,
 											minIndex,
 											numberClasses;
@@ -2854,7 +2854,7 @@ void LoadThematicLegendList (
 		histogramSummaryPtr = (HistogramSummaryPtr)GetHandlePointer (
 																				histogramSummaryHandle);
 											
-		maxBin = histogramSummaryPtr[channelIndex].numberBins - 1;
+		//maxBin = histogramSummaryPtr[channelIndex].numberBins - 1;
 																						
 				// Load default class names for thematic type one-channel display.	
 		
@@ -2949,13 +2949,11 @@ void LoadThematicLegendList (
 						 
 				startBinValue = GetDataValueForBinIndex (
 																1,
-																&histogramSummaryPtr[channelIndex],
-																fileInfoPtr->signedValueOffset);
+																&histogramSummaryPtr[channelIndex]);
 				
 				interval = GetDataValueForBinIndex (
 														1 + displaySpecsPtr->smallestIndexInterval,
-														&histogramSummaryPtr[channelIndex],
-														fileInfoPtr->signedValueOffset);
+														&histogramSummaryPtr[channelIndex]);
 				
 				interval -= startBinValue;
 				interval *= displaySpecsPtr->thematicValueFactor;
@@ -3045,8 +3043,7 @@ void LoadThematicLegendList (
 							{
 							endBinValue = GetDataValueForBinIndex (
 																dataValueIndex+dataValueIndexOffset,
-																&histogramSummaryPtr[channelIndex],
-																fileInfoPtr->signedValueOffset);
+																&histogramSummaryPtr[channelIndex]);
 							endBinValue *= displaySpecsPtr->thematicValueFactor;
 								
 							}	// end "else ...->enhancementCode != kLinearStretch"

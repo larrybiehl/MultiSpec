@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/31/2020
+//	Revision date:			08/09/2022
 //
 //	Language:				C
 //
@@ -187,6 +187,14 @@ Boolean CheckForLandsat8FileList (
 				SInt16*								fileVectorPtr,
 				char*									bandStringPtr,
 				SInt16*								instrumentCodePtr);
+
+Boolean CheckForLandsat9FileList (
+				UInt32								itemCount,
+				FSRef*								fileAsFSRefPtr,
+				FSRef*								savedFileAsFSRefPtr,
+				SInt16*								fileVectorPtr,
+				char*									bandStringPtr,
+				SInt16*								instrumentCodePtr);
 				
 Boolean CheckForSentinel2FileList (
 				UInt32								itemCount,
@@ -224,6 +232,10 @@ SInt16 OpenSpecifiedFile (
 				FSRef									fileAsFSRef);
 
 void ReorderLandsat8FileList (
+				SInt16*								fileVectorPtr,
+				SInt16*								instrumentCodePtr);
+
+void ReorderLandsat9FileList (
 				SInt16*								fileVectorPtr,
 				SInt16*								instrumentCodePtr);
 
@@ -266,7 +278,7 @@ SInt16 gCollapseClassSelection = 1;
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/12/1999
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 08/09/2022
 
 Boolean AddSelectedFilesToWindow (
 				Handle								windowInfoHandle,
@@ -277,6 +289,9 @@ Boolean AddSelectedFilesToWindow (
 				Boolean								firstFileStreamLoadedFlag)
 
 {
+	Str255								localTextString1,
+											localTextString2;
+											
 	WindowInfoPtr						windowInfoPtr;
 
 	UInt32								fileNumber,
@@ -297,6 +312,7 @@ Boolean AddSelectedFilesToWindow (
 
 	errCode = noErr;
 	continueFlag = FALSE;
+	fileInfoLoadedFlag = FALSE;
 
 	if (windowInfoHandle != NULL && fileInfoHandle != NULL)
 		{
@@ -312,8 +328,35 @@ Boolean AddSelectedFilesToWindow (
 
 		if (itemCount <= 0)
 			doneFlag = continueFlag = TRUE;
+			
+		if (itemCount > 20)
+			{
+			gStatusDialogPtr = GetStatusDialog (kShortStatusInfoID, FALSE);
+			if (gStatusDialogPtr != NULL)
+				{
+				ShowHideDialogItem (
+									gStatusDialogPtr, IDC_ShortStatusText, TRUE);
+				ShowHideDialogItem (
+									gStatusDialogPtr, IDC_ShortStatusValue, FALSE);
+				MGetString (localTextString2, kAlertStrID, IDS_Alert63);
+				sprintf ((char*)localTextString1, (char*)localTextString2, fileNumber, itemCount);
+				
+				LoadDItemString (gStatusDialogPtr,
+										IDC_ShortStatusText,
+										(Str255*)localTextString1);
+				//LoadDItemValue (gStatusDialogPtr,
+				//						IDC_ShortStatusValue,
+				//						(SInt32)1);
+				ShowStatusDialogWindow (kShortStatusInfoID);
+				
+				}	// end "if (gStatusDialogPtr != NULL)"
+			
+			CheckSomeEvents (osMask+updateMask);
+			
+			}	// end "if (itemCount > 20)"
 
 		gNextTime = TickCount ();
+		gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 
 		while (!doneFlag)
 			{
@@ -374,9 +417,10 @@ Boolean AddSelectedFilesToWindow (
 				{
 						// Add to the active image window as long as the band interleave
 						// is not BIS
+						// This restraint was relaxed in 2022.
 
-				if (GetBandInterleave (fileInfoHandle) != kBIS)
-					{
+				//if (GetBandInterleave (fileInfoHandle) != kBIS)
+					//{
 					continueFlag = AddToImageWindowFile (windowInfoHandle, fileInfoHandle);
 
 					if (formatVersionCode == 1)
@@ -391,11 +435,11 @@ Boolean AddSelectedFilesToWindow (
 
 					linkOffsetIndex++;
 
-					}	// end "if (GetBandInterleave (fileInfoHandle) != kBIS)"
+					//}	// end "if (GetBandInterleave (fileInfoHandle) != kBIS)"
 
-				else	// ...bandInterleave == kBIS 
+				//else	// ...bandInterleave == kBIS
 							// Can not logically link BIS interleaved files. 	
-					DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, 15, 0, NULL);
+					//DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert15, 0, NULL);
 
             }	// end "if (fileInfoLoadedFlag && fileFormat != kArcViewShapeType)"
 
@@ -416,13 +460,29 @@ Boolean AddSelectedFilesToWindow (
 						// There is a problem reading this set of files. This could be because of a
 						// file limit in the hdf4 library. User has requested to stop linking the files.
 				doneFlag = TRUE;
+				
+			if (TickCount () >= gNextStatusTime)
+				{
+				sprintf ((char*)localTextString1, (char*)localTextString2, fileNumber, itemCount);
+				LoadDItemString (gStatusDialogPtr,
+										IDC_ShortStatusText,
+										(Str255*)localTextString1);
+				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
+				
+				}	// end "if (TickCount () >= gNextStatusTime)"
 
 						// Cause the cursor to spin.
 
 			if (TickCount () >= gNextTime)
-				CheckSomeEvents (0);
+				{
+				if (!CheckSomeEvents (0))
+					doneFlag = TRUE;
+				
+				}	// end "if (TickCount () >= gNextTime)"
 
 			}	// end "while (!doneFlag)"
+
+		CloseStatusDialog (TRUE);
 
 				// Update the title for the window to indicate that the		
 				// window represents more than 1 file layer.		
@@ -463,6 +523,20 @@ Boolean AddSelectedFilesToWindow (
 									 gTextString2,
 									 kASCIICharString);
 		#endif	// defined multispec_mac
+		
+				// List information file linking information.
+				
+		MGetString (localTextString2, kAlertStrID, IDS_FileIO316);
+		SInt16 stringLength = sprintf ((char*)localTextString1,
+													(char*)&localTextString2[1],
+													fileNumber,
+													itemCount);
+
+		OutputString (NULL,
+							(char*)localTextString1,
+							stringLength,
+							gOutputForce1Code,
+							TRUE);
 
 		}	// end "if (windowInfoHandle != NULL && fileInfoHandle != NULL)"
 
@@ -491,7 +565,7 @@ Boolean AddSelectedFilesToWindow (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/07/2017
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 09/03/2020
 
 Boolean CheckForLandsatAnalysisReadyFileList (
 				UInt32								itemCount,
@@ -555,7 +629,7 @@ Boolean CheckForLandsatAnalysisReadyFileList (
 					instrumentCode = kLandsatTM;
 					
 				else if (CompareStringsNoCase (
-													(UCharPtr)"LT07", &savedFileName[2], 4) == 0)
+													(UCharPtr)"LE07", &savedFileName[2], 4) == 0)
 					instrumentCode = kLandsatTM7;
 					
 				else if (CompareStringsNoCase (
@@ -855,7 +929,7 @@ Boolean CheckForLandsatETMFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 08/22/2017
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
 
 Boolean CheckForInstrumentFileList (
 				UInt32								itemCount,
@@ -933,6 +1007,17 @@ Boolean CheckForInstrumentFileList (
 		if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)
 			{
 			continueFlag = CheckForLandsat8FileList (itemCount,
+																  fileAsFSRefPtr,
+																  savedFsRef,
+																  fileVector,
+																  bandString,
+																  instrumentCodePtr);
+
+			}	// end "if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)"
+
+		if (*instrumentCodePtr == 0 && itemCount >= 2 && itemCount <= 12)
+			{
+			continueFlag = CheckForLandsat9FileList (itemCount,
 																  fileAsFSRefPtr,
 																  savedFsRef,
 																  fileVector,
@@ -1042,7 +1127,7 @@ Boolean CheckForInstrumentFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2013
-//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 09/04/2020
 
 Boolean CheckForLandsatMSSFileList (
 				UInt32								itemCount,
@@ -1062,6 +1147,7 @@ Boolean CheckForLandsatMSSFileList (
 
 	SInt16								bandNameStart,
 											bandNumber,
+											bandNumberStart,
 											errCode,
 											numberBandDigits,
 											tReturnCode;
@@ -1071,6 +1157,7 @@ Boolean CheckForLandsatMSSFileList (
 	
 	bandNameStart = 2;
 	numberBandDigits = 0;
+	bandNumberStart = 1;
 	continueFlag = FALSE;
 	fileStringLength = 2;
 	for (fileIndex=0; fileIndex<itemCount; fileIndex++)
@@ -1086,13 +1173,31 @@ Boolean CheckForLandsatMSSFileList (
 
 			if (fileIndex == 0)
 				{
-				//CopyPToP (savedFileName, fileName);
 				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
-				if (CompareStringsNoCase ((UCharPtr)"M1", &savedFileName[2], 2) == 0)
+				if (CompareStringsNoCase ((UCharPtr)"M1", &savedFileName[2], 2) == 0 ||
+							CompareStringsNoCase ((UCharPtr)"LM1", &savedFileName[2], 3) == 0)
+					{
 					numberBandDigits = 2;
+					bandNumberStart = 4;
+					
+					}	// end "if (CompareStringsNoCase (..."
 
 				else if (CompareStringsNoCase ((UCharPtr)"LM", &savedFileName[2], 2) == 0)
+					{
 					numberBandDigits = 1;
+					
+					bandNumberStart = 1;
+					if (CompareStringsNoCase ((UCharPtr)"LM01", &savedFileName[2], 4) == 0 ||
+							CompareStringsNoCase ((UCharPtr)"LM02", &savedFileName[2], 4) == 0 ||
+								CompareStringsNoCase ((UCharPtr)"LM03", &savedFileName[2], 4) == 0)
+						bandNumberStart = 4;
+						
+					else if (CompareStringsNoCase ((UCharPtr)"LM1", &savedFileName[2], 3) == 0 ||
+							CompareStringsNoCase ((UCharPtr)"LM2", &savedFileName[2], 3) == 0 ||
+								CompareStringsNoCase ((UCharPtr)"LM3", &savedFileName[2], 3) == 0)
+						bandNumberStart = 4;
+					
+					}	// end "else if (CompareStringsNoCase ((UCharPtr)"LM", &savedFileName[2], 2) == 0)"
 
 				else	// correct prefix was not found.
 					break;
@@ -1107,8 +1212,9 @@ Boolean CheckForLandsatMSSFileList (
 
             }	// end "if (fileIndex == 0)"
 
-					// For Landsat MSS, the band name is like _Bn0 where n can be 4
-					// through 7. Fill vector with the order of the n's
+					// For Landsat1-3 MSS, the band name is like _Bn0 or Bn where n can be 4
+					// through 7.  Or for Landsat4-5 MSS, the band name is like _Bn0 or Bn where n
+					// can be 1. Fill vector with the order of the n's.
 
 			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
 											"_B%hd",
@@ -1120,12 +1226,14 @@ Boolean CheckForLandsatMSSFileList (
 			if (tReturnCode == 1 &&
 					!CompareStringsNoCase (
 									&savedFileName[2], &fileName[2], fileStringLength) &&
-						bandNumber >= 4 &&
-							bandNumber <= 7)
+						bandNumber >= bandNumberStart &&
+							bandNumber <= bandNumberStart+3)
 				{
 						// Verify that there are no duplicate bands
-
-				bandNumber -= 4;
+						
+				if (bandNumberStart == 4)
+					bandNumber -= 4;
+					
 				if (fileVectorPtr[bandNumber] == -1)
 					{
 					fileVectorPtr[bandNumber] = (SInt16)fileIndex;
@@ -1143,8 +1251,13 @@ Boolean CheckForLandsatMSSFileList (
 		}	// end "for (fileNumber=1; fileNumber<=itemCount; fileNumber++)"
 
 	if (continueFlag)
+		{
 			// This is a Landsat MSS list of files.
 		*instrumentCodePtr = kLandsatMSS;
+		if (bandNumberStart == 1)
+			*instrumentCodePtr = kLandsatMSS4_5;
+			
+		}	// end "if (continueFlag)"
 
 	return (continueFlag);
 
@@ -1170,7 +1283,7 @@ Boolean CheckForLandsatMSSFileList (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/2017
-//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 09/07/2020
 
 Boolean CheckForLandsatSurfaceReflectanceFileList (
 				UInt32								itemCount,
@@ -1224,7 +1337,9 @@ Boolean CheckForLandsatSurfaceReflectanceFileList (
 				//CopyPToP (savedFileName, fileName);
 				//savedFileName[0] -= 9;
 				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
-				fileStringLength = GetFileStringLength (savedFileName) - 9;
+				fileStringLength = GetFileStringLength (savedFileName);
+				if (fileStringLength > 9)
+					fileStringLength -= 9;
 				SetFileStringLength (savedFileName, fileStringLength);
 				if (CompareStringsNoCase ((UCharPtr)"LT04", &savedFileName[2], 4) == 0 ||
 						CompareStringsNoCase ((UCharPtr)"LT05", &savedFileName[2], 4) == 0)
@@ -1392,8 +1507,6 @@ Boolean CheckForLandsatTMFileList (
 
 			if (!firstFileFoundFlag)
 				{
-				//CopyPToP (savedFileName, fileName);
-				//savedFileName[0] -= 3;
 				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
 				fileStringLength = GetFileStringLength (savedFileName) - 3;
 				SetFileStringLength (savedFileName, fileStringLength);
@@ -1497,7 +1610,7 @@ Boolean CheckForLandsatTMFileList (
 //
 //	Function name:		Boolean CheckForLandsat8FileList
 //
-//	Software purpose:	The purpose of this routine is to check for a Landsat 8 
+//	Software purpose:	The purpose of this routine is to check for a Landsat 8
 //							file list and adjust the list if needed so that the bands are
 //							in wavelength order.
 //
@@ -1506,8 +1619,8 @@ Boolean CheckForLandsatTMFileList (
 //	Parameters out:	None
 //
 // Value Returned:	True: first item in the FSRef file has been change.
-// 
-// Called By:			
+//
+// Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/01/2013
 //	Revised By:			Larry L. Biehl			Date: 04/11/2020
@@ -1560,9 +1673,9 @@ Boolean CheckForLandsat8FileList (
 
          if (fileIndex == 0)
 				{
-						
-            //CopyPToP (savedFileName, fileName);
 				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				//fileStringLength = GetFileStringLength (savedFileName) - 3;
+				//SetFileStringLength (savedFileName, fileStringLength);
 				
 						// There are 4 possible prefixes for Landsat 8
 
@@ -1574,18 +1687,16 @@ Boolean CheckForLandsat8FileList (
 
 						// Remove _Bn or _Bnn from the saved file name.
 
-				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)&savedFileName[2], "_B");
 
 				if (startBandIdentiferPtr == NULL)
 					break;
 					
 				bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
-				//savedFileName[0] = (UInt8)bandNameStart;
 				fileStringLength = bandNameStart;
 				SetFileStringLength (savedFileName, fileStringLength);
 
-				//bandNameStart++;
-				bandNameStart += 2;
+				bandNameStart += 1;
 
             }	// end "if (fileIndex == 0)"
 
@@ -1651,6 +1762,166 @@ Boolean CheckForLandsat8FileList (
 	return (continueFlag);
 
 }	// end "CheckForLandsat8FileList"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		Boolean CheckForLandsat9FileList
+//
+//	Software purpose:	The purpose of this routine is to check for a Landsat 9
+//							file list and adjust the list if needed so that the bands are
+//							in wavelength order.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	True: first item in the FSRef file has been change.
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 02/26/2022
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
+
+Boolean CheckForLandsat9FileList (
+				UInt32								itemCount,
+				FSRef*								fileAsFSRefPtr,
+				FSRef*								savedFsRefPtr,
+				SInt16*								fileVectorPtr,
+				char*									bandStringPtr,
+				SInt16*								instrumentCodePtr)
+
+{
+	UCharPtr								startBandIdentiferPtr;
+	UInt8									fileName[_MAX_FILE],
+											savedFileName[_MAX_FILE];
+											
+	int									fileStringLength;
+
+   UInt32								fileIndex,
+											fileVectorIndex;
+
+   SInt16								bandNameStart,
+											bandNumber,
+											errCode,
+											tReturnCode;
+
+	Boolean								continueFlag;
+
+
+	bandNameStart = 2;
+	continueFlag = FALSE;
+	fileStringLength = 2;
+	
+			// Check if Landsat 9
+			// This can be just the reflective bands (1,2,3,4,5,6,7,9) or
+			// 9 or 10 channels including 1 or 2 of the thermal channels 10 and 11.
+			// Band 8 if included will be ignored.
+
+   for (fileIndex=0; fileIndex<itemCount; fileIndex++)
+		{
+		continueFlag = FALSE;
+		errCode = GetFileNameFromFSRef (&fileAsFSRefPtr[fileIndex], fileName);
+
+		if (errCode == noErr)
+			{
+         RemoveSuffix ((FileStringPtr)fileName);
+
+					// Save the first file name to compare to the rest in the list.
+
+         if (fileIndex == 0)
+				{
+				CopyFileStringToFileString (fileName, savedFileName, _MAX_FILE);
+				//fileStringLength = GetFileStringLength (savedFileName) - 3;
+				//SetFileStringLength (savedFileName, fileStringLength);
+				
+						// There are 4 possible prefixes for Landsat 9
+
+				if (CompareStringsNoCase ((UCharPtr)"LC9", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LO9", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LT9", &savedFileName[2], 3) != 0 &&
+						CompareStringsNoCase ((UCharPtr)"LC09", &savedFileName[2], 4) != 0)
+					break;
+
+						// Remove _Bn or _Bnn from the saved file name.
+
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)&savedFileName[2], "_B");
+
+				if (startBandIdentiferPtr == NULL)
+					break;
+					
+				bandNameStart = (SInt16)(startBandIdentiferPtr - savedFileName - 1);
+				fileStringLength = bandNameStart;
+				SetFileStringLength (savedFileName, fileStringLength);
+
+				bandNameStart += 1;
+
+            }	// end "if (fileIndex == 0)"
+
+					// For Landsat 9, the band name is like _Bn where n can be 1 through 11.
+					// Fill vector with the order of the n's
+			
+			tReturnCode = sscanf ((char*)&fileName[bandNameStart],
+										  "_B%hd",
+										  &bandNumber);
+
+			if (tReturnCode == 0)
+				{
+						// Check if this is the BQA band.
+
+				if (CompareStringsNoCase (
+											&fileName[bandNameStart], (UCharPtr)"_QA", 3) == 0)
+					{
+					continueFlag = TRUE;
+					tReturnCode = 1;
+					bandNumber = 12;
+					
+					}	// end "if (CompareStringsNoCase (..."
+
+            }	// end "if (tReturnCode == 0)"
+
+			if (tReturnCode == 1 &&
+					!CompareStringsNoCase (
+										&savedFileName[2], &fileName[2], fileStringLength) &&
+						bandNumber >= 1 &&
+							bandNumber <= 12)
+				{
+				fileVectorIndex = bandNumber - 1;
+
+						// Verify that there are no duplicate bands
+
+				if (fileVectorPtr[fileVectorIndex] == -1)
+					{
+					fileVectorPtr[fileVectorIndex] = (SInt16)fileIndex;
+					continueFlag = TRUE;
+
+					}	// end "if (fileVector[fileVectorIndex] == -1)"
+
+            }	// end "if (tReturnCode == 1 && ..."
+
+			}	// end "if (errCode == noErr)"
+
+		if (!continueFlag)
+			break;
+
+		}	// end "for (fileIndex=0; fileIndex<itemCount; fileIndex++)"
+
+	if (continueFlag)
+		{
+				// This is a Landsat 9 list of files.
+				// Now put the bands in order.
+				// Put band 9 in wavelenght order with the rest and leave band 8 out.
+				// If the QA band is included, place it at the end of the list.
+				
+		ReorderLandsat9FileList (fileVectorPtr, instrumentCodePtr);
+		
+		}	// end "if (continueFlag)"
+
+	return (continueFlag);
+
+}	// end "CheckForLandsat9FileList"
 
 
 
@@ -1744,7 +2015,7 @@ Boolean CheckForSentinel2FileList (
 
 						// Remove _Bn or _Bnn from the saved file name.
 
-				startBandIdentiferPtr = (UCharPtr)strstr ((char*)savedFileName, "_B");
+				startBandIdentiferPtr = (UCharPtr)strstr ((char*)&savedFileName[2], "_B");
 				
 				if (startBandIdentiferPtr == NULL)
 					break;
@@ -1755,7 +2026,7 @@ Boolean CheckForSentinel2FileList (
 				SetFileStringLength (savedFileName, fileStringLength);
 				
 				//bandNameStart++;
-				bandNameStart += 2;
+				bandNameStart += 1;
 
             }	// end "if (fileIndex == 0)"
 
@@ -1825,6 +2096,301 @@ Boolean CheckForSentinel2FileList (
 	return (continueFlag);
 
 }	// end "CheckForSentinel2FileList"
+
+
+
+#if defined multispec_mac
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2017)
+//								© Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void DoWorkFlow
+//
+//	Software purpose:	This routine handles doing a specific workflow that was set
+//							up to create images for SC09. GOES hdf file Images are mapped to
+//							a given size and projection, displayed as channels 4, 4, 2 and saved
+//							to a geotiff file.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:	None
+//
+// Called By:			main
+//
+//	Coded By:			Larry L. Biehl			Date: 11/04/2009
+//	Revised By:			Larry L. Biehl			Date: 09/19/2017
+//	Revised By:			Larry L. Biehl			Date: 08/07/2022
+
+void DoWorkFlow ()
+
+{
+//	Str255								savedImageFileName;
+	SInt32								menuData;
+	
+	
+/*			// Allow user to select the file(s) to be worked on.
+			// One case was for GOES HDF File
+	
+	gMultiSpecWorkflowInfo.workFlowCode = 2;
+	menuData = (kFileMenuID<<16) + kOpenImage;
+	Menus (menuData);
+*/
+			// Save the name of the last file to be used later.
+			
+//	CopyPToP ((char*)savedImageFileName,
+//					(char*)gMultiSpecWorkflowInfo.lastFileReadName);
+	
+			// Reformat Image
+			// The following is special for U2U project
+			
+	gMultiSpecWorkflowInfo.workFlowCode = 1;
+	
+	gMultiSpecWorkflowInfo.functionCode = 98;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 25;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p25_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 26;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p26_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 27;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p27_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 28;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p28_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 29;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p29_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 30;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p30_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 31;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p31_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 32;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p32_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 33;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p33_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 34;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p34_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+				
+	gMultiSpecWorkflowInfo.thresholdValue = 35;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p35_1latest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.functionCode = 99;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 25;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p25_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 26;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p26_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 27;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p27_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 28;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p28_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 29;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p29_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 30;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p30_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 31;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p31_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 32;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p32_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 33;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p33_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 34;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p34_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+	gMultiSpecWorkflowInfo.thresholdValue = 35;
+	CopyPToP (gMultiSpecWorkflowInfo.defaultName, (UCharPtr)"\p35_3earliest_2021_mint_20220425");
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatChangeImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+	
+/*
+			// Rectify Image
+			
+	gMultiSpecWorkflowInfo.workFlowCode = 1;
+	gConfirmReplacementAlertFlag = FALSE;
+	menuData = (kReformatMenuID<<16) + kReformatRectifyImageRequest;
+	Menus (menuData);
+	gConfirmReplacementAlertFlag = TRUE;
+*/
+/*			// Open File resulting image file.
+
+	gDisplaySpecsDefault.lastDisplayType = k3_2_ChannelDisplayType;
+	gDisplaySpecsDefault.displaySet = 6;
+	gDisplaySpecsDefault.rgbColors = 5;
+	
+	gDisplaySpecsDefault.enhancementCode = kLinearStretch;
+	gDisplaySpecsDefault.minMaxCode = kPerChannelMinMax;
+	gDisplaySpecsDefault.percentTailsClipped = 2;
+		
+	gDisplaySpecsDefault.dataTypeCode = kIntegerType;
+	gDisplaySpecsDefault.numberBytes = 2;
+	gDisplaySpecsDefault.numberChannels = 5;
+	gDisplaySpecsDefault.signedDataFlag = TRUE;
+	gDisplaySpecsDefault.backgroundValueCode = 1;
+	gDisplaySpecsDefault.backgroundDataValue = 0;
+				
+	gDisplaySpecsDefault.magnification = 1/3;
+	
+	gDisplaySpecsDefault.redChannelNumber = 4;
+	gDisplaySpecsDefault.greenChannelNumber = 4;
+	gDisplaySpecsDefault.blueChannelNumber = 2;
+	gDisplaySpecsDefault.invertValuesFlag[0] = TRUE;
+	gDisplaySpecsDefault.invertValuesFlag[1] = TRUE;
+	gDisplaySpecsDefault.invertValuesFlag[2] = TRUE;
+	gDisplaySpecsDefault.numberLevels = 256;
+	
+	gDisplaySpecsDefault.structureLoadedFlag = TRUE;
+*/
+/*			// Open last file that was saved or provide open image window.
+			
+	gMultiSpecWorkflowInfo.workFlowCode = 1;
+	if (gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName[0] > 0)
+		{
+				// Open the last file that was saved.
+				
+		OpenImageFile (&gMultiSpecWorkflowInfo.lastFileSavedInfo, FALSE, 0);
+		gMultiSpecWorkflowInfo.lastFileSavedInfo.fileName[0] = 0;
+		
+		}		// end "if (gLastFileSavedInfo.fileName[0] > 0)"
+	
+	else		// gLastFileSavedInfo.fileName[0] == 0
+		{
+		menuData = (kFileMenuID<<16) + kOpenImage;
+		Menus (menuData);
+		
+		}		// end "else gLastFileSavedInfo.fileName[0] == 0"
+*/
+/*			// Set default name to use for the next file to be saved.
+			
+	RemoveCharsNoCase ((char*)"\p-12.global.gvar.hdf", savedImageFileName);
+	ConcatPStrings ((UCharPtr)savedImageFileName, (StringPtr)"\p_global442", 255);
+	CopyPToP ((char*)gMultiSpecWorkflowInfo.defaultName,
+								(char*)savedImageFileName);
+*/
+			// Save Image As
+/*
+	gMultiSpecWorkflowInfo.workFlowCode = 3;
+	menuData = (kFileMenuID<<16) + kSaveOutputAs;
+	Menus (menuData);
+	gMultiSpecWorkflowInfo.defaultName[0] = 0;
+*/
+			// Close Window
+			
+//	menuData = (kFileMenuID<<16) + kCloseImage;
+//	Menus (menuData);
+	
+			// Close 2nd Window
+/*
+	menuData = (kFileMenuID<<16) + kCloseImage;
+	Menus (menuData);
+*/
+	gMultiSpecWorkflowInfo.workFlowCode = 0;
+	
+}		// end "DoWorkFlow"
+#endif	// defined multispec_mac
 
 
 
@@ -2204,7 +2770,7 @@ Boolean FileSpecificationDialog (
 		HiliteControl ((ControlHandle)okHandle, 255);
 		checkOKFlag = TRUE;
 		okHiliteFlag = FALSE;
-		itemHit = DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, 25, 0, NULL);
+		itemHit = DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert25, 0, NULL);
 
 				// Force the main dialog box to be redrawn.
 
@@ -4640,8 +5206,9 @@ SInt16 LinkSelectedFilesToNewWindow (
 
 						// Now add the rest of the files to the window.
 
-				//MSetCursor (kWait);
-				gPresentCursor = kSpin;
+				MSetCursor (kWait);	// kSpin
+				gPresentCursor = kWait;
+				
 				fileNumber++;
 				continueFlag = AddSelectedFilesToWindow (windowInfoHandle,
 																		fileInfoHandle,
@@ -4670,7 +5237,10 @@ SInt16 LinkSelectedFilesToNewWindow (
 					Handle layerInfoHandle = GetLayerInfoHandle (windowInfoHandle);
 					UnlockAndDispose (layerInfoHandle);
 
-					windowInfoHandle = UnlockAndDispose (windowInfoHandle);
+							// Do not dispose of the handle here. It is used in a view class.
+							// It will get dispose of when that class is closed.
+							
+					//windowInfoHandle = UnlockAndDispose (windowInfoHandle);
 
 					}	// end "if (!continueFlag)"
 
@@ -4858,7 +5428,7 @@ SInt16 LoadSelectedDataSetInformation (
 //							OpenMultiSpecDocument in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1989
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 08/10/2022
 
 SInt32 OpenImageFile (
 				LocalAppFile*						localAppFilePtr,
@@ -4909,9 +5479,19 @@ SInt32 OpenImageFile (
                 0,
                 NULL);
 
-		return (0);
+																							return (0);
 
 		}	// end "if (gNumberOfIWindows >= kMaxNumberIWindows)"
+
+			// Force text selection to start from end of present text.
+
+	ForceTextToEnd ();
+
+	continueFlag = ListHeaderInfo (NULL,
+												0,
+												&gOutputForce1Code,
+												kNoStatisticsUsed,
+												TRUE);
 
 			// Make certain that the cursor has been set for the pointer.  It		
 			// is possible for the cursor to be something else if this open 		
@@ -5528,7 +6108,62 @@ void ReorderLandsat8FileList (
 				fileVectorPtr[6] == -1 && fileVectorPtr[7] == -1)
 		*instrumentCodePtr = kLandsatLC8_TIRS;
 
-}	// end "ReorderLandsat8FileList"	
+}	// end "ReorderLandsat8FileList"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void ReorderLandsat9FileList
+//
+//	Software purpose:	The purpose of this routine is to reorder the Landsat 8 file
+//							list so that the list is in wavelength order. Put band 9 in
+//							wavelength order with the rest and leave band 8 out if it
+//							exists.  The BQA band (band 12) should be at the end of the list
+//							if it is included.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned:	None
+//
+// Called By:			FileSpecificationDialogOK
+//
+//	Coded By:			Larry L. Biehl			Date: 02/26/2022
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
+
+void ReorderLandsat9FileList (
+				SInt16*								fileVectorPtr,
+				SInt16*								instrumentCodePtr)
+				
+{
+	SInt16								savedIndex,
+											savedIndex8;
+											
+											
+	savedIndex8 = fileVectorPtr[7];
+	savedIndex = fileVectorPtr[8];
+	fileVectorPtr[7] = fileVectorPtr[6];
+	fileVectorPtr[6] = fileVectorPtr[5];
+	fileVectorPtr[5] = savedIndex;
+	fileVectorPtr[8] = fileVectorPtr[9];
+	fileVectorPtr[9] = fileVectorPtr[10];
+	fileVectorPtr[10] = savedIndex8;
+
+	*instrumentCodePtr = kLandsatLC9_OLI_TIRS;
+
+	if (fileVectorPtr[8] == -1 && fileVectorPtr[9] == -1)
+		*instrumentCodePtr = kLandsatLC9_OLI;
+
+	else if (fileVectorPtr[0] == -1 && fileVectorPtr[1] == -1 &&
+				fileVectorPtr[2] == -1 && fileVectorPtr[3] == -1 &&
+				fileVectorPtr[4] == -1 && fileVectorPtr[5] == -1 &&
+				fileVectorPtr[6] == -1 && fileVectorPtr[7] == -1)
+		*instrumentCodePtr = kLandsatLC9_TIRS;
+
+}	// end "ReorderLandsat9FileList"
 
 
 

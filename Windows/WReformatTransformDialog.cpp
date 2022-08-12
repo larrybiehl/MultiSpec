@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			08/09/2022
 //
 //	Language:				C++
 //
@@ -79,6 +79,7 @@ CMReformatTransformDlg::CMReformatTransformDlg (
 	m_transformCode = -1;
 	m_functionFactor = 1;
 	m_kthSmallestElement = 1;
+	m_thresholdValue = 25;
 	m_functionCode = -1;
 	m_adjustSelectedChannelsFactor = -1.;
 	m_adjustSelectedChannel = 1;
@@ -197,6 +198,8 @@ void CMReformatTransformDlg::DoDataExchange (CDataExchange* pDX)
 	DDV_MinMaxDouble (pDX, m_functionFactor, -FLT_MAX, FLT_MAX);
 	DDX_Text (pDX, IDC_kthSmallestElement, m_kthSmallestElement);
 	DDV_MinMaxUInt (pDX, m_kthSmallestElement, 1, 1000);
+	DDX_Text (pDX, IDC_Threshold_Value, m_thresholdValue);
+	DDV_MinMaxInt (pDX, m_thresholdValue, INT_MIN, INT_MAX);
 	DDX_Text2 (pDX, IDC_RT_ACbyC_Factor, m_adjustSelectedChannelsFactor);
 	DDV_MinMaxDouble (pDX, m_adjustSelectedChannelsFactor, -FLT_MAX, FLT_MAX);
 	DDX_Text (pDX, IDC_RT_ACbyC_ChannelNumber, m_adjustSelectedChannel);
@@ -622,6 +625,7 @@ BOOL CMReformatTransformDlg::OnInitDialog ()
 	m_functionCode = gReformatOptionsPtr->functionCode - 1;
 	m_functionFactor = gReformatOptionsPtr->functionFactor;
 	m_kthSmallestElement = gReformatOptionsPtr->kthSmallestValue;
+	m_thresholdValue = gReformatOptionsPtr->thresholdValue;
 
 	ShowHideFunctionChannelsItems (dialogPtr, 
 												m_transformCode==kFunctionOfChannels, 
@@ -632,6 +636,10 @@ BOOL CMReformatTransformDlg::OnInitDialog ()
 		selectedItem = IDC_FunctionFactor;
 		if (m_functionCode == kFunctionKthSmallestElement - 1)
 			selectedItem = IDC_kthSmallestElement;
+
+		else if (m_functionCode == kFunctionLatestThreshold - 1 ||
+			m_functionCode == kFunctionEarliestThreshold - 1)
+			selectedItem = IDC_Threshold_Value;
 
 		}	// end "if (m_transformCode == kFunctionOfChannels)"
 
@@ -788,16 +796,32 @@ void CMReformatTransformDlg::OnSelendokEVEigenvectors ()
 void CMReformatTransformDlg::OnSelendokReformatFunctions ()
 
 {
-	Boolean								showFlag = FALSE;
+	Boolean								showFlag;
 
 
 	DDX_CBIndex (m_dialogFromPtr, IDC_ReformatFunctions, m_functionCode);
-	
+
+	showFlag = FALSE;
 	if (m_functionCode == kFunctionKthSmallestElement-1)
 		showFlag = TRUE;
 
 	ShowHideDialogItem (this, IDC_kthSmallestElementPrompt, showFlag);
 	ShowHideDialogItem (this, IDC_kthSmallestElement, showFlag);
+
+	showFlag = FALSE;
+	if (m_functionCode == kFunctionLatestThreshold - 1 ||
+		m_functionCode == kFunctionEarliestThreshold - 1)
+		showFlag = TRUE;
+
+	ShowHideDialogItem (this, IDC_Threshold_Value_Prompt, showFlag);
+	ShowHideDialogItem (this, IDC_Threshold_Value, showFlag);
+
+	if (m_functionCode == kFunctionKthSmallestElement - 1)
+		SelectDialogItemText (this, IDC_kthSmallestValue, 0, SInt16_MAX);
+
+	else if (m_functionCode == kFunctionLatestThreshold - 1 ||
+		m_functionCode == kFunctionEarliestThreshold - 1)
+		SelectDialogItemText (this, IDC_Threshold_Value, 0, SInt16_MAX);
 
 }	// end "OnSelendokReformatFunctions"
                           
@@ -899,15 +923,27 @@ void CMReformatTransformDlg::ShowHideFunctionChannelsItems (
 				UInt16								functionChannelCode)
 
 {
+	Boolean								localShowFlag;
+
+
 	ShowHideDialogItem (dialogPtr, IDC_ReformatFunctions, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_FunctionFactorPrompt, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_FunctionFactor, showFlag);
 
+	localShowFlag = showFlag;
 	if (functionChannelCode != kFunctionKthSmallestElement)
-		showFlag = FALSE;
+		localShowFlag = FALSE;
 
-	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElementPrompt, showFlag);
-	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElement, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElementPrompt, localShowFlag);
+	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElement, localShowFlag);
+
+	localShowFlag = showFlag;
+	if (functionChannelCode != kFunctionLatestThreshold &&
+		functionChannelCode != kFunctionEarliestThreshold)
+		localShowFlag = FALSE;
+
+	ShowHideDialogItem (dialogPtr, IDC_Threshold_Value_Prompt, localShowFlag);
+	ShowHideDialogItem (dialogPtr, IDC_Threshold_Value, localShowFlag);
 	
 }	// end "ShowHideFunctionChannelsItems"
 

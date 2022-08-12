@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/15/2020
+//	Revision date:			09/09/2020
 //
 //	Language:				C
 //
@@ -52,6 +52,7 @@
 #if defined multispec_win || defined multispec_wx
 	//#pragma pack (push, 2)
 	#pragma pack (2)
+	//#pragma pack (4)
 #endif	// defined multispec_win || ...
 	
 //#if PRAGMA_ALIGN_SUPPORTED
@@ -437,6 +438,17 @@ Boolean	ReadImagineLayerBlockParameters (
 void	ReadImagineNumberOfClasses (
 				FileInfoPtr							fileInfoPtr,
 				Ehfa_Entry*							ehfaEntryLayerPtr);
+
+Boolean LoadImagineImageStatisticsForChannel (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				HCharPtr								statBufferPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr,
+				UInt32								channel,
+				UInt32*								currentLayerChannelPtr,
+				UInt32								expectedNumberBins,
+				Boolean								summaryFlag);
 
 
 
@@ -1832,7 +1844,7 @@ Boolean LoadImagineImageMapInfoForChannel (
 // Called By:			LoadSupportFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/18/1999
-//	Revised By:			Larry L. Biehl			Date: 07/08/2009
+//	Revised By:			Larry L. Biehl			Date: 09/05/2020
 
 Boolean LoadImagineImageStatistics (
 				FileInfoPtr							fileInfoPtr, 
@@ -1842,6 +1854,8 @@ Boolean LoadImagineImageStatistics (
 				Boolean								summaryFlag)
 
 {
+	Ehfa_Entry 							ehfaEntryLayer;
+	
 	HistogramSummaryPtr				histogramSummaryPtr;
 	HUInt32Ptr							savedHistogramArrayPtr;
 	
@@ -1891,7 +1905,8 @@ Boolean LoadImagineImageStatistics (
 
 			// Continue if everything is okay.	
 	
-	if (continueFlag)	
+
+	if (continueFlag)
 		{
 				// Make cursor the watch cursor to indicate to the user that work	
 				// is in process.																	
@@ -1931,6 +1946,7 @@ Boolean LoadImagineImageStatistics (
 																	histogramSummaryPtr, 
 																	histogramArrayPtr, 
 																	histogramSpecsPtr->statBufferPtr,
+																	&ehfaEntryLayer,
 																	channel,
 																	&currentLayerChannel,
 																	fileInfoPtr->numberBins, 
@@ -2022,13 +2038,14 @@ Boolean LoadImagineImageStatistics (
 // Called By:			LoadImagineImageStatistics in SImagine.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/19/1999
-//	Revised By:			Larry L. Biehl			Date: 07/08/2009
+//	Revised By:			Larry L. Biehl			Date: 09/05/2020
 
 Boolean LoadImagineImageStatisticsForChannel (
 				FileInfoPtr							fileInfoPtr, 
 				HistogramSummaryPtr				histogramSummaryPtr, 
 				HUInt32Ptr							histogramArrayPtr, 
 				HCharPtr								statBufferPtr,
+				Ehfa_Entry*							ehfaEntryLayerPtr,
 				UInt32								channel, 
 				UInt32*								currentLayerChannelPtr,
 				UInt32								expectedNumberBins,
@@ -2045,8 +2062,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 	
 	Ehfa_Entry							ehfaEntryEdscBinFunction,
 											ehfaEntryEdscColumnHistogram,
-											ehfaEntryEstaStatistics,
-											ehfaEntryLayer;
+											ehfaEntryEstaStatistics;
 	
 	Boolean								continueFlag = FALSE;
 	
@@ -2058,7 +2074,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 	if (supportFileStreamPtr != NULL)	
 		{	
 		continueFlag = GetLayerForRequestedChannel (supportFileStreamPtr,
-																	&ehfaEntryLayer,
+																	ehfaEntryLayerPtr,
 																	currentLayerChannelPtr,
 																	channel);
 
@@ -2068,7 +2084,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 			{
 			if (continueFlag)
 				continueFlag = GetNextNode (supportFileStreamPtr, 
-														&ehfaEntryLayer,
+														ehfaEntryLayerPtr,
 														&ehfaEntryEstaStatistics,
 														(char*)"Esta_Statistics",
 														TRUE);
@@ -2151,7 +2167,7 @@ Boolean LoadImagineImageStatisticsForChannel (
 			{
 			if (continueFlag)
 				continueFlag = GetEdscColumnNode (supportFileStreamPtr,
-																&ehfaEntryLayer,
+																ehfaEntryLayerPtr,
 																&ehfaEntryEdscColumnHistogram,
 																&ehfaEntryEdscBinFunction,
 																(char*)"Histogram");
@@ -2231,6 +2247,59 @@ Boolean LoadImagineImageStatisticsForChannel (
 	return (continueFlag);
 	
 }	// end "LoadImagineImageStatisticsForChannel"
+
+	
+	
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		Boolean LoadImagineImageStatisticsForChannel2
+//
+//	Software purpose:	This routine loads the image statistics information for the
+//							request channel from the imagine formatted image file into memory.
+//							This is an intermediate file so that Ehfa_Entry can just be
+// 						defined for within the SImagine.cpp file.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	None
+//
+// Called By:			GetHistogramVectorForChannel in SHistogram.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 09/05/2020
+//	Revised By:			Larry L. Biehl			Date: 09/09/2020
+
+Boolean LoadImagineImageStatisticsForChannel2 (
+				FileInfoPtr							fileInfoPtr,
+				HistogramSummaryPtr				histogramSummaryPtr,
+				HUInt32Ptr							histogramArrayPtr,
+				HCharPtr								statBufferPtr,
+				UInt32								channel,
+				UInt32*								currentLayerChannelPtr,
+				UInt32								expectedNumberBins,
+				Boolean								summaryFlag)
+				
+{
+	Ehfa_Entry 							ehfaEntryLayer;
+	
+	Boolean								continueFlag;
+	
+	
+	continueFlag = LoadImagineImageStatisticsForChannel (fileInfoPtr,
+																			histogramSummaryPtr,
+																			histogramArrayPtr,
+																			statBufferPtr,
+																			&ehfaEntryLayer,
+																			channel,
+																			currentLayerChannelPtr,
+																			expectedNumberBins,
+																			summaryFlag);
+	
+	return (continueFlag);
+
+}	// end "LoadImagineImageStatisticsForChannel2"
 
 
 
@@ -3443,8 +3512,7 @@ Boolean ReadImagineEdscColumn (
 	SInt16								errCode;
 	
 	Boolean								continueFlag = TRUE;
-										
-			
+													
 	errCode = MSetMarker (fileStreamPtr, 
 									fsFromStart, 
 									edscColumnOffset,

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			01/10/2020
+//	Revision date:			04/05/2022
 //
 //	Language:				C
 //
@@ -101,7 +101,7 @@ void* BeginBitMapRawDataAccess (
 //							DoThematicWColorsUpdate in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 01/10/2020
+//	Revised By:			Larry L. Biehl			Date: 03/30/2022
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -132,8 +132,8 @@ void CopyOffScreenImage (
 	wxPoint								scrollOffset;
 	
    Handle								displaySpecsHandle,
-											imageBaseAddressH,
-											offScreenMapHandle;
+                                 imageBaseAddressH;
+											//offScreenMapHandle;
 
    WindowInfoPtr						windowInfoPtr;
 
@@ -147,10 +147,10 @@ void CopyOffScreenImage (
 
    UInt32								numberVectorOverlays;
 
-   SInt16								grafPortType;
+   //SInt16								grafPortType;
 
-   SInt16								legendWidth,
-											titleHeight,
+   SInt16								//legendWidth,
+											//titleHeight,
 											windowCode;
 
    Boolean								drawBaseImageFlag,
@@ -165,16 +165,16 @@ void CopyOffScreenImage (
 	
    if (windowInfoPtr->drawBitMapFlag)
 		{
-      legendWidth = 0;
+      //legendWidth = 0;
 
-      titleHeight = windowInfoPtr->titleHeight;
-      grafPortType = windowInfoPtr->grafPortType;
+      //titleHeight = windowInfoPtr->titleHeight;
+      //grafPortType = windowInfoPtr->grafPortType;
       numberImageOverlays = windowInfoPtr->numberImageOverlays;
       drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
       numberVectorOverlays = windowInfoPtr->numberVectorOverlays;
       drawBaseImageFlag = windowInfoPtr->drawBaseImageFlag;
 
-      offScreenMapHandle = windowInfoPtr->offScreenMapHandle;
+      //offScreenMapHandle = windowInfoPtr->offScreenMapHandle;
       imageBaseAddressH = windowInfoPtr->imageBaseAddressH;
 
       projectWindowFlag = windowInfoPtr->projectWindowFlag;
@@ -512,7 +512,8 @@ void CopyOffScreenImage (
 
 						// Draw the legend
 				
-				imageViewCPtr->DrawLegend ();
+            if (windowInfoPtr->showLegend)
+               imageViewCPtr->DrawLegend ();
 				
 				}	// end "if (displaySpecsPtr->displayType == ...)"
 		
@@ -1256,7 +1257,8 @@ void GetScrollOffset (
 }	// end "GetScrollOffset"
 
 
-
+/*
+// This was moved to SUtilities so that it can also be used by the Windows version.
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
@@ -1286,7 +1288,7 @@ void NumToString (
 	stringPtr[0] = strlen ((CharPtr)&stringPtr[1]);
 
 }	// end "NumToString"   
-
+*/
 
 /*
 //------------------------------------------------------------------------------------

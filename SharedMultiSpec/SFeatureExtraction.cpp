@@ -19,7 +19,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			11/09/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -292,7 +292,7 @@ PascalVoid DrawPreprocessingPopUp (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/22/1992
-//	Revised By:			Larry L. Biehl			Date: 08/26/2010
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean FeatureExtraction (void)
 
@@ -546,7 +546,7 @@ Boolean FeatureExtraction (void)
 															(UInt16)numberChannels,
 															channelsPtr,
 															kPackData,
-															kForceBISFormat,
+															kBIS,		// kForceBISFormat,
 															kForceReal8Bytes,
 															kDoNotAllowForThreadedIO,
 															&fileIOInstructionsPtr);

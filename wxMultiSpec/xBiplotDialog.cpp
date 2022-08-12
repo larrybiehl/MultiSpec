@@ -840,7 +840,7 @@ bool CMBiPlotDialog::TransferDataFromWindow ()
    wxString thresholdString  = thresholdLevel->GetValue ();
    thresholdString.ToDouble (&m_thresholdPercent);
    if (m_thresholdPercent > kMaxThreshold)
-      DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID,IDS_Alert115, 0, NULL);
+      DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert115, 0, NULL);
 		
 	if (m_thresholdPercent >= 0 && m_thresholdPercent <= kMaxThreshold)
 		m_saveThresholdPercent = m_thresholdPercent;

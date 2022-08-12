@@ -193,9 +193,9 @@ Boolean CMImageWindow::CreateImageWindow (
 	
 	Boolean								continueFlag = TRUE;
 	
-	CMFileStream						*fileStreamCPtr;
+	//CMFileStream						*fileStreamCPtr;
 	
-	LWindow								*theWindow = NULL; 
+	//LWindow								*theWindow = NULL;
 	                                      
 	FileInfoPtr							fileInfoPtr;
 	WindowInfoPtr						windowInfoPtr;
@@ -230,7 +230,7 @@ Boolean CMImageWindow::CreateImageWindow (
 		if (fileInfoPtr->descriptionsFlag)
 			windowInfoPtr->descriptionCode |= fileInfoPtr->descriptionCode;
 													 
-		fileStreamCPtr = fileInfoPtr->fileStreamCPtr;
+		//fileStreamCPtr = fileInfoPtr->fileStreamCPtr;
 		
 		if (gProjectInfoPtr != NULL)
 			{
@@ -283,7 +283,7 @@ Boolean CMImageWindow::CreateImageWindow (
 		UnlockAndDispose (selectionInfoH);
 		UnlockAndDispose (offScreenMapH);
 		UnlockAndDispose (statFileInfoHandle);
-		theWindow = NULL;
+		//theWindow = NULL;
 		
 		}	// end "if (!continueFlag)"
 	

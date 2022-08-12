@@ -149,14 +149,14 @@ void CMChannelsDlg::OnInitDialog (
 				wxInitDialogEvent&				event)
 
 {
-	ChannelDescriptionPtr			channelDescriptionPtr;
+	//ChannelDescriptionPtr			channelDescriptionPtr;
 	DialogPtr							dialogPtr = this;
-	FileInfoPtr							localFileInfoPtr;
+	//FileInfoPtr							localFileInfoPtr;
 	wxListBox*							listBoxPtr = NULL;
 
-	SInt32								estimatedLengthListDescription;
+	//SInt32								estimatedLengthListDescription;
 
-	SInt16								fileInfoIndex;
+	//SInt16								fileInfoIndex;
 	
 	Boolean								showChannelListFlag = true;
 
@@ -165,9 +165,9 @@ void CMChannelsDlg::OnInitDialog (
 
 			// Initialize local variables.
 
-	channelDescriptionPtr = NULL;
-	fileInfoIndex = -1;
-	localFileInfoPtr = NULL;
+	//channelDescriptionPtr = NULL;
+	//fileInfoIndex = -1;
+	//localFileInfoPtr = NULL;
 
 	if (m_useTransformFlag) 
 		{
@@ -190,7 +190,7 @@ void CMChannelsDlg::OnInitDialog (
 			// Use 22 for the description list = 4 for channel number and 18
 			// for the channel description.
 
-	estimatedLengthListDescription = (SInt32) m_numberInputVecItems * 22;
+	//estimatedLengthListDescription = (SInt32) m_numberInputVecItems * 22;
 
 	SetLabel (wxT("Select Channels"));
 	LoadDItemString (IDC_ListTitle, (Str255*)"\0Channel List:");

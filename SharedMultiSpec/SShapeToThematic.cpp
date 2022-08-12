@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/27/2018
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -289,14 +289,14 @@ SInt16 ConvertPolygonShapeToClassNumber (
 	UInt32								classNumber,
 											column,
 											currentLine,
-											featureNumber,
-											lastClassNumber,
-											lastRecordIndex,
+											//featureNumber,
+											//lastClassNumber,
+											//lastRecordIndex,
 											line,
 											lineCount,
 											numberPoints,
 											partIndex,
-											pointIndex,
+											//pointIndex,
 											pointStart,
 											pointStop,
 											recordIndex,
@@ -316,7 +316,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 	lineColumnRect.bottom = lineColumnRect.right = 0 - 2147483647; // SInt32_MIN;
 		
 	vectorDataIndex = 0;
-	featureNumber = 8;
+	//featureNumber = 8;
 	for (recordIndex=0; recordIndex<shapeInfoPtr->numberRecords; recordIndex++)
 		{
 		arcViewPolyLinePtr = (ArcViewPolyLinePtr)&vectorDataPtr[vectorDataIndex];
@@ -379,8 +379,8 @@ SInt16 ConvertPolygonShapeToClassNumber (
 			
 			}	// end "if (TickCount () >= gNextStatusTime)"
 		
-		lastRecordIndex = shapeInfoPtr->numberRecords + 1;
-		lastClassNumber = 0;
+		//lastRecordIndex = shapeInfoPtr->numberRecords + 1;
+		//lastClassNumber = 0;
 		for (column=(UInt32)lineColumnRect.left;
 					column<=(UInt32)lineColumnRect.right;
 							column++)
@@ -403,7 +403,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 					{
 					if (PointInRectangle (&mapPoint, &arcViewPolyLinePtr->box))
 						{
-						pointIndex = 0;
+						//pointIndex = 0;
 						doublePointPtr = (ArcViewDoublePoint*)
 									&arcViewPolyLinePtr->parts[arcViewPolyLinePtr->numParts];
 						
@@ -510,7 +510,7 @@ SInt16 ConvertPolygonShapeToClassNumber (
 // Called By:			AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/2001
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean ConvertShapeToClassNumber (
 				FileInfoPtr							outFileInfoPtr,
@@ -578,7 +578,7 @@ Boolean ConvertShapeToClassNumber (
 													NULL,
 													0,
 													kDoNotPackData,
-													kDoNotForceBISFormat,	
+													kDoNotForceFormat,	
 													kDoNotForceBytes,
 													&fileIOInstructionsPtr);  
 		

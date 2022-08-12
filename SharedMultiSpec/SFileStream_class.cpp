@@ -695,7 +695,6 @@ void* CMFileStream::GetFileNamePPtr (
 		
 			mWideFileName[nameLength+1] = 0;
 			
-			//mWideFileName[0] = (UInt8)nameLength;
 			SetWideFileStringLength(mWideFileName, nameLength);
 			
 			}	// end "if (wideFileNamePtr[0] == 0)"
@@ -716,7 +715,10 @@ void* CMFileStream::GetFileNamePPtr (
 //	Function name:		void* GetFilePathPPtr
 //
 //	Software purpose:	The purpose of this routine is to get a pointer
-//							to the specified full file path name.
+//							to the specified full file path name. One has to keep in mind
+//							that the length of the UTF8 file name is in the first two
+//							characters, not the first single character to allow for string
+//							lengths longer that 256.
 //		
 //	Parameters in:		Code indicating whether the length of the ASCII or wide
 //							character path name should be returned
@@ -2011,8 +2013,8 @@ void CMFileStream::SetFileName (
 				FileStringPtr						inFileNamePtr)
                      
 {			
-	WideFileStringPtr					fileNamePtr,
-											filePathNamePtr;
+   WideFileStringPtr					fileNamePtr;
+											//filePathNamePtr;
 
 	int									sizeNeeded;
 	UInt16								inFileNameLength,
@@ -2038,7 +2040,7 @@ void CMFileStream::SetFileName (
 					// the existing uft8 formatted string
 					
 			inFileNamePtr = mUTF8FilePathName;
-			filePathNamePtr = mWideFilePathName;
+			//filePathNamePtr = mWideFilePathName;
 
 			#if defined multispec_wx
 				sizeNeeded = converter.ToWChar (NULL, -1, (char*)&mUTF8FilePathName[2]);

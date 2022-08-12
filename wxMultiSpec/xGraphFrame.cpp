@@ -19,7 +19,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								06/10/2020 by Larry L. Biehl
+//								03/28/2022 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -1269,9 +1269,10 @@ void CMGraphFrame::OnPaint (
 				wxPaintEvent&						event)
 
 {
-   if (gProcessorCode == kSelectionGraphProcessor)
+   GraphPtr graphRecordPtr = (GraphPtr)GetHandlePointer (
+                                 m_graphViewCPtr->m_graphRecordHandle);
+   if (graphRecordPtr->processorCode == kSelectionGraphProcessor)
 																								return;
-   
    wxPaintDC dc (this);
    m_graphViewCPtr->OnDraw (&dc);
 	
@@ -1590,7 +1591,7 @@ Boolean CMGraphFrame::UpdateGraphChannels (void)
    GraphPtr       					graphRecordPtr;
 	
 	SInt16								numberSets,
-											numberVectors,
+											//numberVectors,
 											set;
 	
 	Boolean								returnFlag = TRUE;
@@ -1600,7 +1601,7 @@ Boolean CMGraphFrame::UpdateGraphChannels (void)
 	
    numberSets = graphRecordPtr->numberSets;
 	set = graphRecordPtr->set;
-	numberVectors = graphRecordPtr->numberVectors;
+	//numberVectors = graphRecordPtr->numberVectors;
 	
    if (numberSets <= 1)
    	{
@@ -1675,13 +1676,13 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
 		  
    if (dataListShowFlag == false && featureListShowFlag == false)
 		{
-		Boolean  splitter1SplitFlag,
-					splitter2SplitFlag,
-					splitter3SplitFlag;
+      Boolean  splitter1SplitFlag;
+					//splitter2SplitFlag,
+					//splitter3SplitFlag;
 		
 		splitter1SplitFlag = m_splitter1->IsSplit ();
-		splitter2SplitFlag = m_splitter2->IsSplit ();
-		splitter3SplitFlag = m_splitter3->IsSplit ();
+		m_splitter2->IsSplit ();
+		m_splitter3->IsSplit ();
 		
       splitterWinSize = m_splitter2->GetSize ();
 		windowSize = GetSize ();

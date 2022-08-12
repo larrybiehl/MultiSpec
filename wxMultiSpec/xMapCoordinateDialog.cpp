@@ -1304,11 +1304,9 @@ void CMMapCoordinateDlg::OnEnChangeZone (
 	SInt16								gridZone,
 											maxZone,
 											minZone,
-											projectionSelection,
-											savedGridZone;
+											projectionSelection;
 
 
-	savedGridZone = m_gridZone;
 	wxTextCtrl* gridZonetext = (wxTextCtrl*)FindWindow (IDC_Zone);
 	m_gridZone = wxAtoi (gridZonetext->GetValue ());
 

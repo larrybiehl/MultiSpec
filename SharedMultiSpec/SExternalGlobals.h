@@ -25,7 +25,7 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 05/03/2020
+//	Revised By:				Larry L. Biehl			Date: 03/08/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -740,8 +740,18 @@ extern Ptr								gGWorldPlaceHolderList[kMaxNumberIWindows];
 		// structure to coordinates of drag gray rectangle 							
 extern Rect								gGrayRect;
 
-		// Rectangle for the graphics box in the graphics status dialog.			
-extern Rect								gStatusGraphicsBox;
+		// Rectangle for the graphics box in the graphics status dialog.
+#if defined multispec_mac
+	extern Rect								gStatusGraphicsBox;
+#endif	// defined multispec_mac
+
+#if defined multispec_win
+	extern LongRect								gStatusGraphicsBox;
+#endif	// defined multispec_win
+
+#if defined multispec_wx
+	extern LongRect								gStatusGraphicsBox;
+#endif	// defined multispec_wx
 
 		// rectangle to be used for storage for temporary rectangles.				
 extern Rect								gTempRect; 

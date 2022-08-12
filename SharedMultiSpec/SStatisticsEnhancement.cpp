@@ -19,7 +19,7 @@
 //	Authors:					Behzad M Shahshahani
 //								Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -1611,7 +1611,7 @@ SInt16 GetLongestDistanceField (
 											lineEnd,
 											lineStart;
 								
-	UInt32								charIndex,
+	UInt32								//charIndex,
 											column,
 											columnEnd,
 											columnStart,
@@ -1746,7 +1746,7 @@ SInt16 GetLongestDistanceField (
 		   
 			for (column=columnStart; column<=columnEnd; column++)
 				{
-				charIndex = 0;
+				//charIndex = 0;
 				point.h = (SInt16)column;
 			
 				includePixelFlag = FALSE;
@@ -2033,14 +2033,14 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 {
 	double								ratio;
 	
-	SInt16*								classPtr;
+	//SInt16*								classPtr;
 	
 	SInt64								lContBlock,
+                                 memoryLeft,
 											numberPixels;
 											
 	UInt32								bytesNeeded,
 											interval,
-											memoryLeft,
 											numberChannels,
 											numberClasses,
 											numberULPixels;
@@ -2050,7 +2050,7 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 			
 	numberClasses = gStatEnhanceSpecsPtr->numberClasses;
 	numberChannels = gProjectInfoPtr->numberStatisticsChannels;	
-	classPtr = (SInt16*)GetHandlePointer (gStatEnhanceSpecsPtr->classHandle);
+	//classPtr = (SInt16*)GetHandlePointer (gStatEnhanceSpecsPtr->classHandle);
 	
 			// Determine memory for the structure which contains pointers to the 	
 			// class statistics and labeled data values.
@@ -2128,7 +2128,7 @@ UInt32 GetStatisticsEnhancePixelInterval (void)
 		if (gStatEnhanceSpecsPtr->softThresholdCode != kUseNoThreshold)
 			bytesNeeded += numberClasses * sizeof (double);
 	
-		numberULPixels = memoryLeft / bytesNeeded;
+		numberULPixels = (UInt32)(memoryLeft / bytesNeeded);
 		
 				// The default is for the number of unlabeled pixels to be not a lot
 				// more than the number labeled samples.
@@ -2847,7 +2847,7 @@ Boolean LoadStatEnhanceClassStatistics (
 {
 	double								totalProbability;
 	
-	HPClassNamesPtr					classNamesPtr;
+	//HPClassNamesPtr					classNamesPtr;
 										
 	SInt16*								classPtr;
 	
@@ -2871,7 +2871,7 @@ Boolean LoadStatEnhanceClassStatistics (
 														
 	numberChannels = gProjectInfoPtr->numberStatisticsChannels;
 	numberClasses = gStatEnhanceSpecsPtr->numberClasses;
-	classNamesPtr = gProjectInfoPtr->classNamesPtr;
+	//classNamesPtr = gProjectInfoPtr->classNamesPtr;
 	continueFlag = TRUE;
 		
 			// Load the class covariance matrix and mean vector. Be certain that the 
@@ -3253,7 +3253,7 @@ Boolean LoadStatisticsEnhanceSpecs (void)
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/19/1993
-//	Revised By:			Larry L. Biehl			Date: 08/27/2010	
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean StatisticsEnhance (void)
 
@@ -3464,7 +3464,7 @@ Boolean StatisticsEnhance (void)
 														(UInt16)numberChannels,
 														gProjectInfoPtr->channelsPtr,
 														kPackData,
-														kForceBISFormat,
+														kBIS,		// kForceBISFormat,
 														kForceReal8Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsPtr);

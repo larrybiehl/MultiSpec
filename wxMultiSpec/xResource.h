@@ -26,7 +26,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 05/06/2020
+//	Revised By:				Larry L. Biehl			Date: 08/09/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -126,6 +126,7 @@
 #define IDS_SaveProjectFile             212
 #define IDS_SaveClassificationAs        213
 #define IDS_SelectImageStatistics       214
+#define IDS_EndOfFileError			       215
 #define IDD_ThematicRecode              215
 #define IDD_EnhanceStatistics           217
 #define IDD_ClassWeights                219
@@ -222,6 +223,8 @@
 #define IDS_DisplayColumnLimit          308
 #define IDS_32BitDisplayColumnLimit_lin	314
 #define IDS_32BitDisplayColumnLimit_mac   315
+#define IDS_FileIO316						 316
+
 #define IDS_DisplayLineLimit            319
 #define IDS_HistogramStatus1            401
 #define IDS_HistogramStatus2            402
@@ -268,6 +271,8 @@
 #define IDS_Processor25                 525
 #define IDS_Processor26                 526
 #define IDS_ProcessorCreateImageStat    527
+#define IDS_OpenImage					    528
+
 #define IDS_DialogThematicSpecs         601
 #define IDS_DialogNumberClasses         602
 #define IDS_DialogBackgroundColor       603
@@ -1633,12 +1638,14 @@
 #define IDC_RT_FunctionOfChannels       1848
 #define IDC_Reformat_Functions          1851
 #define IDC_ReformatFunctions           1851
-#define IDC_kthSmallestValue            1852
-#define IDC_kthSmallestElement          1852
+#define IDC_kth_SmallestValue           1852
+//#define IDC_kthSmallestElement          1852
 #define IDC_kth_SmallestValuePrompt     1853
-#define IDC_kthSmallestElementPrompt    1853
+//#define IDC_kthSmallestElementPrompt    1853
 #define IDC_LinkComboBox                1854
 #define IDC_FunctionFactorPrompt        1855
+#define IDC_Threshold_Value_Prompt	    1856
+#define IDC_Threshold_Value			    1857
 #define IDC_StartPrompt                 1901
 #define IDC_EndPrompt                   1902
 #define IDC_IntervalPrompt              1903
@@ -2008,6 +2015,18 @@
 #define IDS_ChanDescription81           2581
 #define IDS_ChanDescription82           2582
 #define IDS_ChanDescription83           2583
+#define IDS_ChanDescription84           2584
+#define IDS_ChanDescription95           2595
+#define IDS_ChanDescription96           2596
+#define IDS_ChanDescription97           2597
+#define IDS_ChanDescription98           2598
+#define IDS_ChanDescription99           2599
+#define IDS_ChanDescription100          2600
+#define IDS_ChanDescription101          2601
+#define IDS_ChanDescription102          2602
+#define IDS_ChanDescription103          2603
+#define IDS_ChanDescription104          2604
+#define IDS_ChanDescription105          2605
 #define IDS_FileIO201                   2701
 #define IDS_FileIO202                   2702
 #define IDS_FileIO203                   2703
@@ -2029,6 +2048,7 @@
 #define IDS_InstrumentName16            3016
 #define IDS_InstrumentName17            3017
 #define IDS_InstrumentName18            3018
+#define IDS_InstrumentName19            3019
 /*Mosaic*/
 //#define IDD_Mosaic                    3030
 #define	IDC_MosaicDirection            3031
@@ -2321,6 +2341,8 @@
 #define IDS_ChannelFunction04           7004
 #define IDS_ChannelFunction05           7005
 #define IDS_ChannelFunction06           7006
+#define IDS_ChannelFunction07           7007
+#define IDS_ChannelFunction08           7008
 
 #define IDS_DataType01                  7101
 #define IDS_DataType02                  7102
@@ -2874,6 +2896,7 @@
 #define ID_PROC_REFORMAT_RECODE_THEMATIC 12880
 #define ID_PROC_REFORMAT_RECTIFY_IMAGE  12881
 #define ID_PROC_REFORMAT_CONVERT_ENVI   12882
+#define ID_PROC_REFORMAT_COMPARE_IMAGES 12883
 #define ID_PROCESSOR_REFORMAT           12885
 #define ID_PROC_REFORMAT_CONVERT_SHAPE  12894
 #define ID_VIEW_COORDINATES_BAR          12895

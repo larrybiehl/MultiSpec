@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/10/2020
+//	Revision date:			09/09/2020
 //
 //	Language:				C++
 //
@@ -194,13 +194,15 @@
 					// length for the file name is 256 character but 2-bytes are used
 					// to be consistent with the full utf8 file path name.
 					// the last byte is reserved for a c terminator
+					// For windows allow for full 256 character name, string length, &
+					// and c-terminator plus keep a multple of 8 bytes.
 			
 			#if defined multispec_win
-				TBYTE						mWideFilePathName[_MAX_PATH];
+				TBYTE						mWideFilePathName[_MAX_PATH+4];
 
-				UInt8						mUTF8FilePathName[_MAX_PATH];
+				UInt8						mUTF8FilePathName[_MAX_PATH+4];
 				
-				UInt8						mUTF8FileName[256];
+				UInt8						mUTF8FileName[264];
 			#endif	// defined multispec_win 
 									         
 			#if defined multispec_wx

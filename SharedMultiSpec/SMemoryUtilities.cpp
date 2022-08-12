@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/29/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -554,7 +554,7 @@ Ptr CheckHandleSize (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/25/2010
-//	Revised By:			Larry L. Biehl			Date: 09/14/2018			
+//	Revised By:			Larry L. Biehl			Date: 04/27/2022
 
 Boolean CheckIfBytesRequestedAreWithinLimit (
 				SInt64								bytesRequested)
@@ -563,7 +563,7 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 	Boolean								memoryRequestFlag = TRUE;
 	
 	#if defined multispec_mac || defined multispec_wx
-		if (bytesRequested > SInt32_MAX)
+		if (bytesRequested > UInt32_MAX)
 	#endif
 	#if defined multispec_win
 		if (bytesRequested > SInt32_MAX)
@@ -1510,7 +1510,7 @@ Ptr GetHandleStatusAndPointer (
 //							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1989
-//	Revised By:			Larry L. Biehl			Date: 02/24/2020
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean GetIOBufferPointers (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -1524,8 +1524,8 @@ Boolean GetIOBufferPointers (
 				UInt32 								columnInterval, 
 				UInt16								numberChannels, 
 				UInt16*								channelListPtr, 
-				Boolean								packDataFlag, 
-				Boolean								forceBISflag, 
+				Boolean								packDataFlag,
+				UInt16								forceOutputFormatCode,
 				UInt16								forceOutputByteCode,
 				Boolean								allowForThreadedIOFlag,
 				FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr)
@@ -1596,7 +1596,14 @@ Boolean GetIOBufferPointers (
 		numberImageFiles = imageWindowInfoPtr->numberImageFiles;
 		maxNumberBytes = imageWindowInfoPtr->localMaxNumberBytes;
 		bytesDifferFlag = imageWindowInfoPtr->localBytesDifferFlag;
-		bandInterleave = imageWindowInfoPtr->bandInterleave;
+		
+				// Not sure on the following yet. 'imageWindowInfoPtr->bandInterleave'
+				// reflects the file band leave format. 'imageFileInfoPtr->bandInterleave'
+				// represents what comes from gdal reads. So need to work with what
+				// gdal provides, when those calls are used.
+				
+		if (imageWindowInfoPtr->bandInterleave == kMixed)
+			bandInterleave = imageWindowInfoPtr->bandInterleave;
 		
 		}	// end "if (imageWindowInfoPtr != NULL)"
 
@@ -1670,13 +1677,40 @@ Boolean GetIOBufferPointers (
 				
 				bytesNeeded = localFileInfoPtr->numberColumns;
 				bytesNeeded *= localFileInfoPtr->numberBytes;
+				
+				if (localFileInfoPtr->bandInterleave == kBIL)
+					{
+					if (channelListPtr == NULL)
+						bytesNeeded *= numberChannels;
+						
+					else	// channelListPtr != NULL
+						{
+						if (DetermineIfRequestedChannelsFromSingleFile (imageWindowInfoPtr,
+																						imageLayerInfoPtr,
+																						localFileInfoPtr,
+																						numberChannels,
+																						channelListPtr))
+							{
+									// Allow for possible BIL special case when more channels
+									// are read in than actually used.
+									
+							startChannel = MIN (channelListPtr[numberChannels-1], channelListPtr[0]);
+							endChannel = MAX (channelListPtr[numberChannels-1], channelListPtr[0]);
+											
+							bytesNeeded *= (endChannel - startChannel + 1);
+							
+							}	// if (DetermineIfRequestedChannelsFromSingleFile (...
+									
+						}	// end "else channelListPtr != NULL"
+					
+					}	// end "if (localFileInfoPtr->bandInterleave == kBIL)"
 			
 						// Adjust number of bytes needed by the number of channels.		
 						
-				if (localFileInfoPtr->bandInterleave == kBIS)
+				else if (localFileInfoPtr->bandInterleave == kBIS)
 					bytesNeeded *= localFileInfoPtr->numberChannels;
 								
-				else	// localFileInfoPtr->bandInterleave != kBIS 
+				else	// localFileInfoPtr->bandInterleave != kBIS && != kBIL
 					bytesNeeded *= fileNumberChannels;
 					
 				inputBytesNeeded = MAX (inputBytesNeeded, bytesNeeded);
@@ -1736,13 +1770,26 @@ Boolean GetIOBufferPointers (
 			(maxNumberBytes != numberOutBytes || bytesDifferFlag))
 		overlapInputAndOutputBufferFlag = FALSE;
 											
-	else if (bandInterleave != kBIS && forceBISflag)
+	else if (bandInterleave != kBIS && forceOutputFormatCode == kBIS)
+		overlapInputAndOutputBufferFlag = FALSE;
+															
+	else if (bandInterleave == kBIS && forceOutputFormatCode == kBIL)
+		overlapInputAndOutputBufferFlag = FALSE;
+												
+	else if (bandInterleave == kBIS &&
+					forceOutputFormatCode != kBIS &&
+					columnInterval > 1 && packDataFlag)
+		overlapInputAndOutputBufferFlag = FALSE;
+													
+	else if (bandInterleave == kBIS && forceOutputFormatCode != kBIS &&
+					numberChannels < imageWindowInfoPtr->totalNumberChannels &&
+							 packDataFlag)
 		overlapInputAndOutputBufferFlag = FALSE;
 		
 			// Do not allow the buffers to overlap if more than one disk file 	
 			// is linked together to represent the image.								
 			
-	if (numberImageFiles != 1 && ioBufferPtrPtr != ioBuffer2PtrPtr && packDataFlag)
+	if (numberImageFiles > 1 && ioBufferPtrPtr != ioBuffer2PtrPtr && packDataFlag)
 		overlapInputAndOutputBufferFlag = FALSE;
 		
 			// Get the total bytes that are needed.	
@@ -1809,7 +1856,7 @@ Boolean GetIOBufferPointers (
 													tiledBufferPtr,
 													inputBufferLength,
 													packDataFlag,
-													forceBISflag,	
+													forceOutputFormatCode,	
 													forceOutputByteCode,
 													outputFileIOInstructionsPtrPtr);
 														

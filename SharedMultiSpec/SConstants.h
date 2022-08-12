@@ -26,7 +26,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 08/29/2020
+//	Revised By:				Larry L. Biehl			Date: 08/08/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -103,6 +103,7 @@
 	#define	k4ByteUnsignedIntegerMenuItem		6
 	#define	k4ByteRealMenuItem					7
 	#define	k8ByteRealMenuItem					8
+	#define	kBytesDifferMenuItem					9
 
 	#define	ID_CLEAROVERLAYMENUITEMSTART		30001
 	#define	ID_CLEAROVERLAYMENUITEMEND			30100
@@ -334,6 +335,7 @@
 	#define  k68K							1
 	#define  kPPC							2
 	#define  kIntel						3
+   #define  kARM64                  4
 
 			// Constants for suspend/resume and mouse moved events sent by 			
 			// Multifinder.																			
@@ -386,6 +388,7 @@
 	#define	k4ByteUnsignedIntegerMenuItem		6
 	#define	k4ByteRealMenuItem					7 
 	#define	k8ByteRealMenuItem					8
+	#define	kBytesDifferMenuItem					9
 	
 			// Header Popup Menu
 	#define	kNoneMenuItem					0
@@ -677,8 +680,12 @@
 #define	kSentinel2A_MSI					16
 #define	kSentinel2B_MSI					17
 #define	kPeruSat								18
+#define	kLandsatMSS4_5						19
+#define	kLandsatLC9_OLI_TIRS				20
+#define	kLandsatLC9_OLI					21
+#define	kLandsatLC9_TIRS					22
 
-#define	kNumberInstrumentCodes			18
+#define	kNumberInstrumentCodes			22
 
 		// Image type codes
 #define	kNoImageType						0
@@ -787,6 +794,7 @@
 #define	kMultispecToThematicProcessor			3080
 #define	kENVIROItoThematicProcessor 			3090
 #define	kRecodeThematicImageProcessor			3100
+#define	kCompareImagesProcessor					3110
 #define	kClusterProcessor							40
 #define	kStatisticsProcessor						50
 #define	kListStatsProcessor						51
@@ -1080,6 +1088,7 @@
 #define	kReformatRecodeThematicRequest			8
 #define	kReformatRectifyImageRequest				9
 #define	kReformatConvertENVIASCIIRequest			10
+#define	kReformatCompareImagesRequest				11
 
 		// Status Dialog Item Number Set Constants.									
 #define	kStatusTitle1			1
@@ -1559,6 +1568,8 @@
 #define	kFunctionAverage						4
 #define	kFunctionMedian						5
 #define	kFunctionKthSmallestElement		6
+#define	kFunctionLatestThreshold			7
+#define	kFunctionEarliestThreshold			8
 
 #define	kDoNotKeepSameFormatAsInput		0
 #define	kKeepSameFormatAsInput				1
@@ -1592,9 +1603,12 @@
 #define	kMatlabCreator							0x4D41544C	// 'MATL'
 
 		// File IO Constants
-#define	kDoNotForceBISFormat					0
+//#define	kDoNotForceBILFormat					0
+//#define	kDoNotForceBISFormat					0
+#define	kDoNotForceFormat						0
 #define	kDoNotPackData							0
-#define	kForceBISFormat						1
+//#define	kForceBILFormat						1
+//#define	kForceBISFormat						1
 #define	kNoSpecialFlag							0
 #define	kPackData								1 
 

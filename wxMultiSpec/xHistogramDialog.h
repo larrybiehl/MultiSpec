@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMHistogramSpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/07/2019
+//	Revised By:				Larry L. Biehl			Date: 04/26/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -169,6 +169,7 @@ class CMHistogramSpecsDlg : public CMDialog
 	
 		bool 									m_computeOnlyMinMaxFlag,
 		 	 									m_diskFileFlag,
+		 	 									m_histogramInMemoryAvailableFlag,
 		 	 									m_includeEmptyBinsFlag,
 		 	 									m_listHistogramSummaryFlag,
 		 	 									m_listHistogramValuesFlag,

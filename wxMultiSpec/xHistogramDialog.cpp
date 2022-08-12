@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/02/2020
+//	Revision date:			04/26/2022
 //
 //	Language:				C++
 //
@@ -619,6 +619,7 @@ void CMHistogramSpecsDlg::OnInitDialog (
 										  &m_allChannelsAtOnceFlag);
 			  
 	m_computeOnlyMinMaxFlag = computeOnlyMinMaxFlag;
+	m_histogramInMemoryAvailableFlag = histogramInMemoryAvailableFlag;
 	m_listHistogramSummaryFlag = listHistogramSummaryFlag;
 	m_listHistogramValuesFlag = listHistogramValuesFlag;
 	m_includeEmptyBinsFlag = includeEmptyBinsFlag;
@@ -642,12 +643,12 @@ void CMHistogramSpecsDlg::OnInitDialog (
 
    else	// !fileInfoPtr->thematicType
    	{
-      if (!histogramInMemoryAvailableFlag)
+      if (!m_histogramInMemoryAvailableFlag)
       	{
          m_methodCtrl->Delete (0);
          m_histogramMethod--;
 
-      	}	// end "if (!histogramInMemoryAvailableFlag)"
+      	}	// end "if (!m_histogramInMemoryAvailableFlag)"
 
    	}	// end "else !fileInfoPtr->thematicType"
 
@@ -753,6 +754,9 @@ void CMHistogramSpecsDlg::OnSelendokMethod (
    previousMethodCode = GetItemCode (prvsel);
    
    localMethod = m_methodCtrl->GetSelection ();
+   if (!m_histogramInMemoryAvailableFlag)
+		localMethod++;
+		
    m_histogramMethodCode = (SInt16)localMethod + 1;
 
    m_histogramMethodCode = HistogramDialogHandleMethod (

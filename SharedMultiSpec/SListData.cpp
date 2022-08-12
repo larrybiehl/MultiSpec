@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -776,7 +776,7 @@ SInt16 ListClassData (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/1990
-//	Revised By:			Larry L. Biehl			Date: 06/29/2018
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void ListDataControl (void)
 
@@ -882,7 +882,7 @@ void ListDataControl (void)
 				 						gListDataSpecsPtr->numberChannels,
 										channelsPtr,
 										kPackData,
-										kForceBISFormat,
+										kBIS,		// kForceBISFormat,
 										kForceReal8Bytes,
 										kDoNotAllowForThreadedIO,
 										&fileIOInstructionsPtr);

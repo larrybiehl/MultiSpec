@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			04/16/2020
+//	Revision date:			05/04/2022
 //
 //	Language:				C
 //
@@ -2844,8 +2844,8 @@ double DetermineHistogramBinWidth (
 //
 //	Function name:		double GetBinIndexForDataValue
 //
-//	Software purpose:	This routine determines the data value for the input index into
-//							the medianArray depending upon the type of array.
+//	Software purpose:	This routine determines the bin index in the medianArray for the
+//							input data value depending upon the type of array.
 //
 //	Parameters in:					
 //
@@ -2862,7 +2862,7 @@ double DetermineHistogramBinWidth (
 //							ConvertDataValueToBinValue in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2005
-//	Revised By:			Larry L. Biehl			Date: 12/08/2011
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 UInt32 GetBinIndexForDataValue (
 				double								dataValue,
@@ -2876,7 +2876,7 @@ UInt32 GetBinIndexForDataValue (
 	binType = histogramSummaryPtr->binType;
 		
 	if (binType == kDataValueIsBinIndex)
-		binIndex = (SInt32)dataValue;
+		binIndex = (SInt32)(dataValue + histogramSummaryPtr->signedValueOffset);
 	
 	else if (binType == kBinWidthOfOne)
 		binIndex = (SInt32)(dataValue - histogramSummaryPtr->minNonSatValue) + 1;
@@ -3089,12 +3089,11 @@ Boolean GetCommonArea (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/20/2005
-//	Revised By:			Larry L. Biehl			Date: 01/19/2006
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 double GetDataValueForBinIndex (
 				UInt32								binIndex,
-				HistogramSummaryPtr				histogramSummaryPtr,
-				SInt32								signedValueOffset)
+				HistogramSummaryPtr				histogramSummaryPtr)
 
 {
 	double								dataValue;
@@ -3105,7 +3104,7 @@ double GetDataValueForBinIndex (
 	binType = histogramSummaryPtr->binType;
 	
 	if (binType == kDataValueIsBinIndex)
-		dataValue = (SInt32)binIndex - signedValueOffset;
+		dataValue = (SInt32)binIndex - histogramSummaryPtr->signedValueOffset;
 		
 	else	// binType != kDataValueIsBinIndex
 		{
@@ -3261,7 +3260,7 @@ SDouble GetShortDoubleValue (
 //							ChangeImageFormatDialog in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1991
-//	Revised By:			Larry L. Biehl			Date: 10/26/1999	
+//	Revised By:			Larry L. Biehl			Date: 05/04/2022
 
 Boolean GetFileInformationForChannelList (
 				WindowInfoPtr						windowInfoPtr, 
@@ -3278,7 +3277,8 @@ Boolean GetFileInformationForChannelList (
 	SInt16								channelIndex,
 											channelNumber;
 	
-	UInt16              				fileInfoIndex;
+	UInt16              				channelSplitStart,
+											fileInfoIndex;
 	
 	
 			// Check some input variables. If 'windowInfoPtr' or 'layerInfoPtr'
@@ -3298,6 +3298,7 @@ Boolean GetFileInformationForChannelList (
 			// the maximum number of bytes for the channel to be used.				
 					
 	channelNumber = 0;
+	channelSplitStart = 0;
 	if (windowInfoPtr->numberImageFiles >= 1)
 		{
 		if (channelListPtr)
@@ -3319,6 +3320,12 @@ Boolean GetFileInformationForChannelList (
 				
 			if (fileInfoIndex != layerInfoPtr[channelNumber].fileInfoIndex)
 				{
+						// Save number of channels in the list that are in the previous file
+
+				localFileInfoPtr->splitChannelsStart = channelSplitStart;
+				localFileInfoPtr->numberSplitChannels = channelIndex - channelSplitStart;
+				channelSplitStart += (channelIndex - channelSplitStart);
+				
 				fileInfoIndex = layerInfoPtr[channelNumber].fileInfoIndex;
 				multipleImageFileFlag = TRUE;
 				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
@@ -3332,9 +3339,14 @@ Boolean GetFileInformationForChannelList (
 					
 					}	// end "if (windowInfoPtr->localMaxNumberBytes != ..." 
 				
-				}	// end "if (fileInfoIndex != layerInfoPtr..." 
+				}	// end "if (fileInfoIndex != layerInfoPtr..."
 				
-			}	// end "for (channel=1; channel<..." 
+			}	// end "for (channelIndex=1; channelIndex<..."
+					
+				// Save number of channels in the list that are in the last file
+				
+		localFileInfoPtr->splitChannelsStart = channelSplitStart;
+		localFileInfoPtr->numberSplitChannels = numberChannels - channelSplitStart;
 			
 		}	// end "if (windowInfoPtr->numberImageFiles >= 1)" 
 		
@@ -5672,7 +5684,7 @@ void GetWindowClipRectangle (
 		#endif	// defined multispec_win
 					
 		#if defined multispec_wx
-			CMImageFrame*						imageFramePtr;
+			//CMImageFrame*						imageFramePtr;
 			wxRect								frameArea;
 			wxRect								tempArea;
 
@@ -5688,7 +5700,7 @@ void GetWindowClipRectangle (
 			windowPtr->GetClientRect ((RECT*) & inRect);
 			wxRect imagearea = ((windowPtr->m_frame)->m_mainWindow)->GetClientRect ();
 			*/
-			imageFramePtr = windowPtr->GetImageFrameCPtr ();
+			//imageFramePtr = windowPtr->GetImageFrameCPtr ();
 
 			switch (areaCode)
 				{
@@ -6703,6 +6715,38 @@ void MSetCursor (
    gPresentCursor = cursorIndex;  
 
 }	// end "MSetCursor"  
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void NumToString
+//
+//	Software purpose:	This routine is a Windows substitute for the
+//							function of the same name in the Mac Toolbox.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+//	Value Returned:	None
+// 
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 06/27/1995
+//	Revised By:			Larry L. Biehl			Date: 06/27/1995	
+
+void NumToString (
+	SInt32								numberValue,
+	UCharPtr								stringPtr)
+
+{
+	sprintf ((CharPtr)&stringPtr[1], "%d", (int)numberValue);
+
+	stringPtr[0] = strlen ((CharPtr)&stringPtr[1]);
+
+}	// end "NumToString"   
 
 
 

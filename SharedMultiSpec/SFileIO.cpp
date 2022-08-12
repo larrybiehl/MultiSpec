@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/03/2020
+//	Revision date:			05/09/2022
 //
 //	Language:				C
 //
@@ -252,14 +252,17 @@ Boolean	NavServicesCheckForIgnoredFiles (
 #endif	// defined multispec_mac 
 													
 void 		PackBISData (
-				UInt32								columnInterval, 
+				LayerInfoPtr						layerInfoPtr,
+				UInt32								columnInterval,
+				UInt32								numberOutputBufferChannels,
 				UInt32								numberBufferChannels, 
-				UInt32								numberChannels, 
+				UInt32								numberChannels,
+				UInt16*								channelListPtr,
 				UInt32								numberSamples, 
 				UInt32								dataConversionCode, 
 				HUCharPtr 							ioCharBufferPtr,
-				HUCharPtr 							dataCharBufferPtr, 
-				UInt16*								channelListPtr);
+				HUCharPtr 							dataCharBufferPtr,
+				Boolean								toBISFormatFlag);
 							
 UInt32 	PackMaskData (
 				HUInt16Ptr							maskBufferPtr,
@@ -299,6 +302,7 @@ void 		PackBlockedData (
 				HUCharPtr							outputBufferPtr);
 
 SInt16 	SetUpDataConversionCode (
+				WindowInfoPtr						windowInfoPtr,
 				LayerInfoPtr						layerInfoPtr,
 				FileInfoPtr							fileInfoPtr,
 				UInt16								numberListChannels,
@@ -867,7 +871,7 @@ void CloseUpFileIOInstructions (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1999
-//	Revised By:			Larry L. Biehl			Date: 10/26/2007
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void CloseUpGeneralFileIOInstructions (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
@@ -905,7 +909,7 @@ void CloseUpGeneralFileIOInstructions (
 		fileIOInstructionsPtr->numberChannels = 0;
 		
 		fileIOInstructionsPtr->forceByteCode = kDoNotForceBytes;
-		fileIOInstructionsPtr->forceBISFormatFlag = FALSE;
+		fileIOInstructionsPtr->forceOutputFormatCode = kDoNotForceFormat;
 		fileIOInstructionsPtr->packDataFlag = FALSE;
 		
 		}	// end "if (fileIOInstructionsPtr != NULL)"
@@ -3006,6 +3010,83 @@ Boolean CreateTRLSupportFile (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		DetermineIfRequestedChannelsFromSingleFile
+//
+//	Software purpose:	This routine determines if the requested channels all come
+//							from the a single image file.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+// Value Returned:
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 05/03/2022
+//	Revised By:			Larry L. Biehl			Date: 05/03/2022
+
+Boolean DetermineIfRequestedChannelsFromSingleFile (
+				WindowInfoPtr						windowInfoPtr,
+				LayerInfoPtr						layerInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				UInt16								numberListChannels,
+				UInt16*								channelListPtr)
+
+{
+	FileInfoPtr						localFileInfoPtr;
+	
+	UInt16							channel,
+										fileInfoIndex;
+	
+	Boolean							fromSameFileFlag = FALSE;
+	
+	
+			// If there is more than one image file for the window "file", then
+			// determine if the channels all come from the same image file.
+			// If the selected do not then return BILSpecialFlag as FALSE. It gets
+			// more complicated to determine whether BILSpecialFlag can be used.
+			
+	if (windowInfoPtr != NULL && windowInfoPtr->numberImageFiles > 1)
+		{
+		if (channelListPtr != NULL)
+			{
+			if (layerInfoPtr != NULL)
+				{
+						// Determine if the selected channels all come from the same
+						// image file.
+						
+				fromSameFileFlag = TRUE;
+				fileInfoIndex = layerInfoPtr[channelListPtr[0]+1].fileInfoIndex;
+				
+				for (channel=0; channel<numberListChannels; channel++)
+					{
+					if (fileInfoIndex !=
+									layerInfoPtr[channelListPtr[channel]+1].fileInfoIndex)
+						fromSameFileFlag = FALSE;
+						
+					}	// end "for (channel=0; channel<..."
+					
+				if (!fromSameFileFlag)
+					channel = numberListChannels;
+																						
+				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+				
+				}	// end "if (layerInfoPtr != NULL)"
+																					
+			}	// end "if (channelListPtr != NULL)"
+			
+		}	// end "if (if (windowInfoPtr != NULL && ...->numberImageFiles > 1)"
+		
+	return (fromSameFileFlag);
+
+}	// end "CreateTRLSupportFile"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		DisposeCMFileStream
 //
 //	Software purpose:	This routine disposes of the input CMFileStream pointer. This
@@ -3237,7 +3318,7 @@ Boolean FileOpen (
 //							HistogramFieldStats in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1989
-//	Revised By:			Larry L. Biehl			Date: 01/24/2000
+//	Revised By:			Larry L. Biehl			Date: 05/14/2022
 
 Boolean GetBILSpecial (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -3293,26 +3374,34 @@ Boolean GetBILSpecial (
 			{
 			if (layerInfoPtr == NULL)
 																							return (FALSE);
-			
-					// Determine if the selected channels all come from the same 	
-					// image file.																	
-					
-			BILSpecialFlag = TRUE;
-			fileInfoIndex = layerInfoPtr[channelListPtr[0]+1].fileInfoIndex;
-			
-			for (channel=0; channel<numberListChannels; channel++)
+																							
+			if (numberListChannels < windowInfoPtr->totalNumberChannels)
 				{
-				if (fileInfoIndex != 
-								layerInfoPtr[channelListPtr[channel]+1].fileInfoIndex)
-					BILSpecialFlag = FALSE;
-					
-				}	// end "for (channel=0; channel<..." 
+						// Determine if the selected channels all come from the same
+						// image file.
+						
+				BILSpecialFlag = TRUE;
+				fileInfoIndex = layerInfoPtr[channelListPtr[0]+1].fileInfoIndex;
 				
-			if (!BILSpecialFlag)
-																							return (FALSE);
-																					
-			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
-																					
+				for (channel=0; channel<numberListChannels; channel++)
+					{
+					if (fileInfoIndex !=
+									layerInfoPtr[channelListPtr[channel]+1].fileInfoIndex)
+						BILSpecialFlag = FALSE;
+						
+					}	// end "for (channel=0; channel<..."
+					
+				if (!BILSpecialFlag)
+																								return (FALSE);
+																						
+				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+				
+				}	// end "if (numberListChannels < windowInfoPtr->totalNumberChannels)"
+				
+					// If all channels in the linked file are being used then it may be
+					// possible to do a single read for the BIL formatted files.
+					// Do further checks.
+																						
 			}	// end "else channelListPtr != NULL" 
 			
 		}	// end "if (if (windowInfoPtr != NULL && ...->numberImageFiles > 1)"
@@ -3640,7 +3729,7 @@ void GetCopyOfPFileNameFromFileInfo (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 01/11/2006
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 02/27/2022
 
 UInt32 GetDataConversionCode (
 				UInt32								inputDataTypeCode,
@@ -3731,7 +3820,7 @@ UInt32 GetDataConversionCode (
 		changePossibleFlag = TRUE;
 		
 	if (changePossibleFlag && changePossibleFlagPtr == NULL &&
-						inputNumberBytes != 8 && forceOutByteCode != kForceReal4Bytes)
+				inputNumberBytes != 8 && forceOutByteCode != kForceReal4Bytes)
 		{
 				// This call is for conversion in the ReadLine routine.  We will not
 				// do down conversion here.  Force conversion for reals to be to 64-bit 
@@ -3828,7 +3917,7 @@ UInt32 GetDataConversionCode (
 //							LoadTransformationFile in SSaveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 05/03/2020
+//	Revised By:			Larry L. Biehl			Date: 09/09/2020
 
 SInt16 GetFile (
 				CMFileStream* 						fileStreamPtr, 
@@ -3867,6 +3956,8 @@ SInt16 GetFile (
 
 	#if defined multispec_wx || defined multispec_win
 		#if defined multispec_win
+			USES_CONVERSION;
+
 					// Initialize variables.
 				
 			gGetFileStatus = 3;
@@ -3876,6 +3967,8 @@ SInt16 GetFile (
 					// to be changed or an application manifest. Not sure about backwards
 					// capability though.
 			//#define WinMaxPath 260	// _MAX_PATH which is equal to 260
+			//The length of FSRef is _MAX_PATH+4 to allow for length at the beginning
+			// and a c terminator plus 1 extra. It also makes it a multiple of 8 bytes.
 		
 			TBYTE	filterString[512];
 
@@ -3917,11 +4010,11 @@ SInt16 GetFile (
 		 
 			CMOpenFileDialog		dialog (NULL, (TBYTE*)&filterString[1]);
 			#if defined _UNICODE
-				TBYTE					string[_MAX_PATH];
+				TBYTE					string[_MAX_PATH+4];
 			#endif
 			CString 					filePathName;
 			FSRef*					localFileAsFSRefPtr;
-			TBYTE						pathName[_MAX_PATH];
+			TBYTE						pathName[_MAX_PATH+4];
 			SInt16					pathLength;
 
 			if (itemCountPtr != NULL)
@@ -3963,33 +4056,59 @@ SInt16 GetFile (
 					while (fileNamesPosition != NULL)
 						{
 						filePathName = dialog.GetNextPathName (fileNamesPosition);
-						localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH);
+						localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH+4);
 						pathLength = filePathName.GetLength ();
 
-								// Get copy of the path name so that it can be modified.
-								// Convert to Pascal string so that it is in the same format
-								// as the file name in the Macintosh version.
-								// CtoPstring adds a C string terminator at the end.		
+						if (pathLength < _MAX_PATH)
+							{
+									// Get copy of the path name so that it can be modified.
+									// Convert to Pascal string so that it is in the same format
+									// as the file name in the Macintosh version.
+									// CtoPstring adds a C string terminator at the end.		
 						
-						wcscpy ((wchar_t*)&fileAsFSRefPtr[iCtr].hidden[1], localAppFilePtr);  
-						fileAsFSRefPtr[iCtr].hidden[0] = pathLength;
+							wcscpy ((wchar_t*)&fileAsFSRefPtr[iCtr].hidden[1], localAppFilePtr);  
+							fileAsFSRefPtr[iCtr].hidden[0] = pathLength;
 
-						filePathName.ReleaseBuffer ();
-						iCtr++;
+							filePathName.ReleaseBuffer ();
+							iCtr++;
 						
-						if (iCtr >= gMaximumNumberOfLinkedFiles)
+							if (iCtr >= gMaximumNumberOfLinkedFiles)
+								{
+								DisplayAlert (
+									kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
+								break;
+
+								}	// end "if (iCtr >= gMaximumNumberOfLinkedFiles)"
+
+							}	// end "if (pathLength < _MAX_PATH)"
+
+						else
 							{
 							DisplayAlert (
-								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert147, 0, NULL);
+								kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert151, 0, NULL);
 							break;
 
-							}	// end "if (iCtr >= gMaximumNumberOfLinkedFiles)"
+							}	// end "pathLength >= _MAX_PATH"
 						
 						}	// end "while (fileNamesPosition != NULL)"
 					
 					if (itemCountPtr != NULL)
 						*itemCountPtr = iCtr;
+					/*		
+							// There are multiple files and linking was not requested. Verify that the multiple 
+							// files are not to be linked. 
+							// Decided this is not needed since it is automatic to link multiple files together
+							// for WindowsOS version.
+					
+					if (iCtr > 1 && gMultipleImageFileCode == 0)
+						{
+						int itemHit = AfxMessageBox ((LPCTSTR)A2T("Multiple files selected. Link them together?"), MB_YESNO, 0);
+						
+						if (itemHit == IDYES)
+							gMultipleImageFileCode = 2;
 
+						}	// end "if (iCtr > 1 && gMultipleImageFileCode == 1)"
+					*/
 					if (iCtr > 1 && gMultipleImageFileCode == 2)
 						gMultipleImageFileCode = 2;
 
@@ -4002,7 +4121,7 @@ SInt16 GetFile (
 							// Only one file is being selected.
 						
 					filePathName = dialog.GetPathName ();
-					localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH);
+					localAppFilePtr = (TBYTE*)filePathName.GetBuffer (_MAX_PATH+4);
 					pathLength = filePathName.GetLength ();
 					wcscpy (string, localAppFilePtr);  
 					CtoPstring (string, pathName);
@@ -4323,7 +4442,7 @@ SInt32 GetFileCreator (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/13/2012
-//	Revised By:			Larry L. Biehl			Date: 12/13/2012	
+//	Revised By:			Larry L. Biehl			Date: 04/25/2022	
 
 Boolean GetFileDlgDetermineLinkVisibility ()
 
@@ -4335,8 +4454,8 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 	
 	if	(windowInfoPtr == NULL ||
 			windowInfoPtr->windowType != kImageWindowType ||
-				windowInfoPtr->projectBaseImageFlag ||
-					windowInfoPtr->bandInterleave == kBIS)
+				windowInfoPtr->projectBaseImageFlag) // ||
+					//windowInfoPtr->bandInterleave == kBIS)
 		return (FALSE);
 			
 	else
@@ -6106,7 +6225,7 @@ SInt16 GetLine (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1988
-//	Revised By:			Larry L. Biehl			Date: 12/11/2012
+//	Revised By:			Larry L. Biehl			Date: 05/06/2022
 
 SInt16 GetLineOfData (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -6125,7 +6244,8 @@ SInt16 GetLineOfData (
 											
 	LayerInfoPtr						layerInfoPtr;
 	
-	UInt16*								channelListPtr;
+	UInt16								*channelListPtr,
+											*splitChannelListPtr;
 	
 	WindowInfoPtr						windowInfoPtr; 
 	
@@ -6143,7 +6263,8 @@ SInt16 GetLineOfData (
 											fileInfoIndex,
 											numberBytes;
 											
-	UInt16								forceOutByteCode;
+	UInt16								channelListIndex,
+											forceOutByteCode;
 											
 	Boolean								callPackLineOfDataFlag,
 											differentBuffersFlag,
@@ -6168,11 +6289,14 @@ SInt16 GetLineOfData (
 	layerInfoPtr = fileIOInstructionsPtr->layerInfoPtr;
 	fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
 	packDataFlag = fileIOInstructionsPtr->packDataFlag; 
-	toBISFormatFlag = fileIOInstructionsPtr->forceBISFormatFlag, 
+	toBISFormatFlag = (fileIOInstructionsPtr->forceOutputFormatCode == kBIS);
 	forceOutByteCode = fileIOInstructionsPtr->forceByteCode;
 	oneReadFlag = fileIOInstructionsPtr->oneReadFlag;
 	callPackLineOfDataFlag = fileIOInstructionsPtr->callPackLineOfDataFlag;
-	differentBuffersFlag = fileIOInstructionsPtr->differentBuffersFlag;		
+	differentBuffersFlag = fileIOInstructionsPtr->differentBuffersFlag;
+	
+	if (numberChannels == windowInfoPtr->totalNumberChannels)
+		channelListPtr = NULL;
 	
 	if (oneReadFlag)
 		{
@@ -6254,6 +6378,7 @@ SInt16 GetLineOfData (
 	fileNumberChannels = 0;
 	fileInfoIndex = -1;
 	channel = 0;
+	channelListIndex = fileIOInstructionsPtr->channelListIndexStart;
 	
 			// If gdal will be used to read the data, check if all channels can be read
 			// with one gdal call. If the last channel in the list is larger than the 
@@ -6279,45 +6404,73 @@ SInt16 GetLineOfData (
 	for (index=0; index<numberChannels; index++)
 		{														
 		if (channelListPtr != NULL)
-			channel = channelListPtr[index];
+			channel = channelListPtr[channelListIndex];
 		
 		channel++;
 		if (fileInfoIndex != (SInt16)layerInfoPtr[channel].fileInfoIndex &&
 				callPackLineOfDataFlag &&
-					localFileInfoPtr != NULL &&
-						localFileInfoPtr->bandInterleave != kBIS)
+					localFileInfoPtr != NULL)
 			{
-					// Pack the data in the line leaving the unused columns out 	
-					// and/or convert to BIS format if either has been 				
-					// requested.  Also repack if 1 byte data is to be 				
-					// converted to 2 byte data. Update the data buffer pointer.
-					// Note that input BIS data does	not need to be packed here since
-					// all channels were read at one time. Packing for that data will
-					// be done outside the channel loop.
-					// Note that for this call of PackNonBISData, the "channelListPtr"
-					// parameter (the 4) one will never be used
+			if (localFileInfoPtr->bandInterleave != kBIS)
+				{
+				toBISFormatFlag = (fileIOInstructionsPtr->forceOutputFormatCode == kBIS);
 				
-			PackNonBISData (columnOffset,
+						// Pack the data in the line leaving the unused columns out
+						// and/or convert to BIS format if either has been
+						// requested.  Also repack if 1 byte data is to be
+						// converted to 2 byte data. Update the data buffer pointer.
+						// Note that for this call of PackNonBISData, the "channelListPtr"
+						// parameter (the 4) one will never be used
+					
+				PackNonBISData (columnOffset,
+										columnInterval,
+										numberColumnsPerChannel,
+										(UInt32)fileNumberChannels,
+										(UInt32)numberChannels,
+										NULL,		// "channelListPtr"
+										numberSamples,
+										localFileInfoPtr->dataConversionCode,
+										fileIOBufferPtr,
+										dataBufferPtr,
+										toBISFormatFlag);
+										
+				}	// end "if (localFileInfoPtr->bandInterleave != kBIS)"
+												
+					// Do channel and sample packing for BIS formats here.
+			
+			else	// localFileInfoPtr->bandInterleave == kBIS)
+				{
+				splitChannelListPtr = NULL;
+				if (channelListPtr != NULL)
+					splitChannelListPtr = (HUInt16Ptr)&channelListPtr[localFileInfoPtr->splitChannelsStart];
+
+				toBISFormatFlag = (fileIOInstructionsPtr->forceOutputFormatCode == kBIS);
+				if (fileIOInstructionsPtr->forceOutputFormatCode == 0)
+					toBISFormatFlag = TRUE;
+					
+				PackBISData (layerInfoPtr,
 									columnInterval,
-									numberColumnsPerChannel,
-									(UInt32)fileNumberChannels, 
-									(UInt32)numberChannels,
-									NULL,		// "channelListPtr"
+									numberChannels,
+									localFileInfoPtr->numberChannels,
+									fileNumberChannels,
+									splitChannelListPtr,
 									numberSamples,
 									localFileInfoPtr->dataConversionCode,
-									fileIOBufferPtr, 
-									dataBufferPtr, 
+									fileIOBufferPtr,
+									dataBufferPtr,
 									toBISFormatFlag);
-			
+										
+				}	// end "else localFileInfoPtr->bandInterleave==kBIS"
+										
 			if (toBISFormatFlag)
-				dataBufferPtr = 
+				dataBufferPtr =
 						&dataBufferPtr[(SInt32)numberBytes * fileNumberChannels];
 			
-			else	// !toBISFormatFlag 						
-				dataBufferPtr = &dataBufferPtr[(SInt32)numberBytes * 
+			else	// !toBISFormatFlag
+				dataBufferPtr = &dataBufferPtr[(SInt32)numberBytes *
 					fileNumberChannels * ((numberSamples + columnInterval - 1)/
 																					columnInterval)];
-					
+						
 			ioBufferPtr = (UCharPtr)fileIOBufferPtr;
 									
 			fileNumberChannels = 0;
@@ -6378,62 +6531,99 @@ SInt16 GetLineOfData (
       		// all channels have been read.  All channels for a line are read	
       		// by GetLine if the band interleave is BIS.	 Also if the read		
       		// was a special case of BIL format done with dgal routines then all the 
-				// data for all channels was read at one time.											
+				// data for all channels was read at one time.
       		
-      if (localFileInfoPtr->bandInterleave == kBIS || 
-				oneReadFlag ||
-				useMultipleChannelGDALFlag)
-      	fileNumberChannels = index = numberChannels;
+      if (localFileInfoPtr->bandInterleave == kBIS ||
+					oneReadFlag ||
+					useMultipleChannelGDALFlag)
+			{
+					// For this case one may or may not have linked files
+			
+			if (windowInfoPtr->numberImageFiles == 1 || localFileInfoPtr->bandInterleave != kBIS)
+				fileNumberChannels = index = numberChannels;
+				
+			else	// windowInfoPtr->numberImageFiles > 1 && ...->bandInterleave == kBIS
+				{
+				fileNumberChannels += localFileInfoPtr->numberSplitChannels - 1;
+					
+				index += localFileInfoPtr->numberSplitChannels - 1;		// 0 based
+				channel = index + 1; 												// 1 based
+				
+				}	// end "else windowInfoPtr->numberImageFiles > 1"
+      	
+      	}	// end "if (localFileInfoPtr->bandInterleave == kBIS || ..."
+      	
+		channelListIndex++;
       			
       }	// end "for (index=0; index<numberChannels..."
 	
 			// Repack the line of data	if needed.											
 	
 	if (callPackLineOfDataFlag)
-		{															
-		if (fileInfoPtr->bandInterleave != kBIS)
+		{
+		splitChannelListPtr = NULL;
+		if (channelListPtr != NULL)
 			{
-			if (!oneReadFlag || numberChannels == 
-											fileIOInstructionsPtr->bilSpecialNumberChannels)
-				channelListPtr = NULL;
+			if (numberChannels == 1)
+						// This implies reading one channel at at time such as coming from Change Image File
+						// Format.
+				splitChannelListPtr = channelListPtr;
 			
-					// Pack the data in the line leaving the unused columns out 	
-					// and/or convert to BIS format if either has been 				
-					// requested.  Also repack if 1 byte data is to be 				
+			else	// numberChannels > 1
+				splitChannelListPtr = (HUInt16Ptr)&channelListPtr[localFileInfoPtr->splitChannelsStart];
+				
+			}	// end "if (channelListPtr != NULL)"
+			
+		if (localFileInfoPtr->bandInterleave != kBIS)
+			{
+			if (!oneReadFlag || numberChannels ==
+											fileIOInstructionsPtr->bilSpecialNumberChannels)
+				splitChannelListPtr = NULL;
+			
+					// Pack the data in the line leaving the unused columns out
+					// and/or convert to BIS format if either has been
+					// requested.  Also repack if 1 byte data is to be
 					// converted to 2 byte data or 1 or 2 byte data is to be converted
-					// to 4 byte data. Update the data buffer pointer.	
+					// to 4 byte data. Update the data buffer pointer.
 				
 			PackNonBISData (columnOffset,
 									columnInterval,
 									numberColumnsPerChannel,
-									(UInt32)fileNumberChannels, 
+									(UInt32)fileNumberChannels,
 									(UInt32)numberChannels,
-									(HUInt16Ptr)channelListPtr,
+									splitChannelListPtr,
 									numberSamples,
 									localFileInfoPtr->dataConversionCode,
-									fileIOBufferPtr, 
-									dataBufferPtr, 
+									fileIOBufferPtr,
+									dataBufferPtr,
 									toBISFormatFlag);
 				
-			}	// end "if (fileInfoPtr->bandInterleave!=kBIS)" 
-					
+			}	// end "if (localFileInfoPtr->bandInterleave != kBIS)"
+			
 				// Do channel and sample packing for BIS formats here.					
 		
-		else	// fileInfoPtr->bandInterleave == kBIS 
-			{								
-			PackBISData (columnInterval,
-								localFileInfoPtr->numberChannels, 
-								numberChannels, 
+		else	// localFileInfoPtr->bandInterleave == kBIS
+			{
+			toBISFormatFlag = (fileIOInstructionsPtr->forceOutputFormatCode == kBIS);
+			if (fileIOInstructionsPtr->forceOutputFormatCode == 0)
+				toBISFormatFlag = TRUE;
+				
+			PackBISData (layerInfoPtr,
+								columnInterval,
+								numberChannels,
+								localFileInfoPtr->numberChannels,
+								fileNumberChannels,
+								splitChannelListPtr,
 								numberSamples,
 								localFileInfoPtr->dataConversionCode, 
 								fileIOBufferPtr,
-								dataBufferPtr, 
-								(HUInt16Ptr)channelListPtr);
+								dataBufferPtr,
+								toBISFormatFlag);
+								
+			}	// end "else localFileInfoPtr->bandInterleave == kBIS"
 									
-			}	// end "else fileInfoPtr->bandInterleave==kBIS" 
-			
-		}	// end "if (callPackLineOfData)" 
-	
+		}	// end "if (callPackLineOfDataFlag)"
+				
 			// If mask buffer is being used then get just those data values requested
 			// by the mask. Note that this is currently only set up for BIS output
 			// data.
@@ -7597,7 +7787,7 @@ void IndicateFileClosed (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 05/31/1996
-//	Revised By:			Larry L. Biehl			Date: 11/26/2007
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void InitializeFileIOInstructions (
 				FileIOInstructionsPtr			fileIOInstructionsPtr)
@@ -7619,6 +7809,7 @@ void InitializeFileIOInstructions (
 	fileIOInstructionsPtr->bufferReadyFlag = FALSE;
 	fileIOInstructionsPtr->doneFlag = FALSE;
 	fileIOInstructionsPtr->fileIOThreadStartedFlag = FALSE;
+	fileIOInstructionsPtr->forceOutputFormatCode = kDoNotForceFormat;
 	
 }	// end "InitializeFileIOInstructions"
 
@@ -7898,10 +8089,79 @@ void IOCheck (
 			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
 		#endif	// defined multispec_mac
 
+		#if defined multispec_win || defined multispec_wx
+
+			unsigned char					textString[_MAX_PATH];
+
+			SInt16							returnCode,
+												stringIndex,
+												stringLength,
+												subStringLength;
+
+					// Get error alert string.
+
+			MGetString (textString, kFileIOStrID, IDS_FileIO_Error);
+
+					// Append the file name to the string.
+
+			subStringLength = CopyFileStringToCString ((FileStringPtr)fileNamePtr,
+				&textString[textString[0] + 1],
+				(int)_MAX_PATH - textString[0] - 10);
+			stringLength = textString[0] + subStringLength;
+
+			subStringLength = strlen("'.  (");
+			subStringLength = MIN (subStringLength, _MAX_PATH - stringLength - subStringLength);
+			memcpy (&textString[stringLength + 1], (StringPtr)"'.  (", subStringLength);
+			stringLength += subStringLength;
+
+					// Convert the error code to a string.
+
+			NumToString ((SInt32)errCode, (UCharPtr)gTextString2);
+			subStringLength = MIN (gTextString2[0], _MAX_PATH - stringLength - gTextString2[0]);
+			memcpy (&textString[stringLength + 1], &gTextString2[1], subStringLength);
+			stringLength += gTextString2[0];
+
+					// Get the error description string.
+
+			stringIndex = 0;
+			if (errCode == 2)
+				stringIndex = IDS_FileIO_NoSuchFileOrDirectory;
+			else if (errCode == 13)
+				stringIndex = IDS_FileIO_PermissionDenied;
+			else if (errCode == eofErr)
+				stringIndex = IDS_EndOfFileError;
+
+			if (stringIndex != 0)
+				{
+				subStringLength = strlen ("): ");
+				subStringLength = MIN (subStringLength, _MAX_PATH - stringLength - subStringLength);
+				memcpy (&textString[stringLength + 1], (StringPtr)"): ", subStringLength);
+				stringLength += subStringLength;
+
+				MGetString (gTextString3, kFileIOStrID, stringIndex);
+				subStringLength = MIN (gTextString3[0], _MAX_PATH - stringLength - gTextString3[0]);
+				memcpy (&textString[stringLength + 1], &gTextString3[1], gTextString3[0]);
+				stringLength += gTextString3[0];
+
+				}	// end "if (stringIndex != 0)"
+
+			else	// stringIndex == 0
+				gTextString3[0] = 0;
+
+			textString[stringLength + 1] = 0;
+		#endif	// defined multispec_win || defined multispec_wx
+
 		#if defined multispec_win
 			TBYTE 				wideTempString[32];
+
+			USES_CONVERSION;
+
+			if (errCode == eofErr)
+				{
+				errCode = CFileException::endOfFile;
+
+				}	// end "if (errCode == eofErr)"
 			
-	 
 			switch (errCode)
 				{        
 				case CFileException::genericException:
@@ -7999,7 +8259,8 @@ void IOCheck (
 		   		break;    
 		   		
 				case CFileException::endOfFile:
-					MessageBox (NULL, (LPCTSTR)_T("End of File Reached"), NULL, MB_OK);
+					//MessageBox (NULL, (LPCTSTR)_T("End of File Reached"), NULL, MB_OK);
+					MessageBox (NULL, (LPCTSTR)A2T((LPCSTR)&textString[1]), NULL, MB_OK);
 					
 					#ifdef _DEBUG  
 		   			afxDump << "End of File Reached " << errCode << "\n";
@@ -8019,24 +8280,30 @@ void IOCheck (
 		   	}	// end "switch (errCode)"                
 		#endif	// defined multispec_win 
 
-		#if defined multispec_wx
-			SInt16							returnCode,
-												stringIndex;
-			
-			
+		#if defined multispec_wx			
+		/*	
 					// Get error alert string.
 			
-			MGetString (gTextString, kFileIOStrID, IDS_FileIO_Error);
+			MGetString (textString, kFileIOStrID, IDS_FileIO_Error);
 			
 					// Append the file name to the string.
 			
-			ConcatPStrings (gTextString, (StringPtr)fileNamePtr, 255);
-			ConcatPStrings (gTextString, (StringPtr)"\0'.  \0", 255);
+			subStringLength = CopyFileStringToCString ((FileStringPtr)fileNamePtr,
+																		&textString[textString[0]+1],
+																		(int)_MAX_PATH-textString[0]-10);
+			stringLength = textString[0] + subStringLength;
+			
+			subStringLength = strlen("'.  (");
+			subStringLength = MIN (subStringLength, _MAX_PATH-stringLength-subStringLength);
+			memcpy (&textString[stringLength+1], (StringPtr)"'.  (", subStringLength);
+			stringLength += subStringLength;
 			
 					// Convert the error code to a string.
 			
 			NumToString ((SInt32)errCode, gTextString2);
-			ConcatPStrings (gTextString, gTextString2, 255);
+			subStringLength = MIN (gTextString2[0], _MAX_PATH-stringLength-gTextString2[0]);
+			memcpy (&textString[stringLength+1], &gTextString2[1], subStringLength);
+			stringLength += gTextString2[0];
 			
 					// Get the error description string.
 			
@@ -8045,21 +8312,30 @@ void IOCheck (
 				stringIndex = IDS_FileIO_NoSuchFileOrDirectory;
 			else if (errCode == 13)
 				stringIndex = IDS_FileIO_PermissionDenied;
+			else if (errCode == eofErr)
+				stringIndex = IDS_EndOfFileError;
 			
 			if (stringIndex != 0)
 				{
-				ConcatPStrings (gTextString, (StringPtr)"\0: \0", 255);
+				subStringLength = strlen ("): ");
+				subStringLength = MIN (subStringLength, _MAX_PATH-stringLength-subStringLength);
+				memcpy (&textString[stringLength+1], (StringPtr)"): ", subStringLength);
+				stringLength += subStringLength;
 				
 				MGetString (gTextString3, kFileIOStrID, stringIndex);
-				ConcatPStrings (gTextString, gTextString3, 255);
+				subStringLength = MIN (gTextString3[0], _MAX_PATH-stringLength-gTextString3[0]);
+				memcpy (&textString[stringLength+1], &gTextString3[1], gTextString3[0]);
+				stringLength += gTextString3[0];
 				
 				}	// end "if (stringIndex != 0)"
 			
 			else	// stringIndex == 0
 				gTextString3[0] = 0;
-			
+				
+			textString[stringLength+1] = 0;
+			*/
 			MInitCursor ();
-			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString);
+			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, textString);
 			/*
 			int numberChars = sprintf ((char*)gTextString3,
 													" File error: %d for '%s'. %s", 
@@ -11730,41 +12006,61 @@ SInt16 OpenFileReadOnly (
 //	Function name:		void PackBISData
 //
 //	Software purpose:	The purpose of this routine is to pack the line
-//							of data for BIS formated files if the column
+//							of data for BIS formated input files if the column
 //							interval is more than 1 and/or the number of
 //							reqested channels is less than the number of 
-//							available channels.
+//							available channels. The output will be either BIS formatted
+//							line of data our BSQ/BIL formatted line of data
 //
 //	Parameters in:				
 //
-//	Parameters out:	Number of samples loaded into buffer
+//	Parameters out:	
 //
-//Value Returned:		Error code for file operations.
+// Value Returned:
 //
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 04/12/2006
+//	Revised By:			Larry L. Biehl			Date: 05/09/2022
 
 void PackBISData (
-				UInt32								columnInterval, 
+				LayerInfoPtr						layerInfoPtr,
+				UInt32								columnInterval,
+				UInt32								numberOutputBufferChannels,
 				UInt32								numberBufferChannels, 
-				UInt32								numberChannels, 
+				UInt32								numberChannels,
+				UInt16*								channelListPtr,
 				UInt32								numberSamples, 
 				UInt32								dataConversionCode, 
 				HUCharPtr 							ioCharBufferPtr,
-				HUCharPtr 							dataCharBufferPtr, 
-				UInt16*								channelListPtr)
+				HUCharPtr 							dataCharBufferPtr,
+				Boolean								toBISFormatFlag)
 
 {
 	SInt32								skipSamples;
 	
 	UInt32								channel,
 											index,
-											sample;
+											sample,
+											toBufferSkip;
 			
 	
 	skipSamples = columnInterval * numberBufferChannels;
+	
+	if (toBISFormatFlag)
+		toBufferSkip = 1;
+		 
+	else // !toBISFormatFlag
+		{
+				// The number of channels for the channelList for the loop is the
+				// minimum of the numberOutputBufferChannels and numberChannels.
+				// This is to handle case when the reformat processor is handling one
+				// channel at a time.
+		numberChannels = MIN (numberChannels, numberOutputBufferChannels);
+			
+		toBufferSkip = (numberSamples-1)/columnInterval + 1;
+		
+		}	// end "else !toBISFormatFlag"
 	
 			// Note that the brackets for each of the cases was included to provide
 			// scope for the variables within each case.
@@ -11773,29 +12069,40 @@ void PackBISData (
 		{
 		case k8BitTo8Bit: 
 			{
-			HUCharPtr	 		fromCharPtr;
-			HUCharPtr 			toCharPtr;
+			HUCharPtr	 			fromCharPtr;
+			HUCharPtr 				toCharPtr;
+			HUCharPtr 				savedToCharPtr;
 			
 			toCharPtr = dataCharBufferPtr;
 			fromCharPtr = ioCharBufferPtr;
+			
+			savedToCharPtr = toCharPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toCharPtr = savedToCharPtr;
 				while (index < numberChannels)
 					{		
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toCharPtr = fromCharPtr[channel];
-					toCharPtr++;
+					toCharPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToCharPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToCharPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
@@ -11804,29 +12111,40 @@ void PackBISData (
 			
 		case k8BitIntSignedTo16BitIntSigned: 
 			{
-			HSInt16Ptr 			toIntPtr;
-			HSInt8Ptr 			fromCharPtr;
+			HSInt8Ptr 				fromCharPtr;
+			HSInt16Ptr 				toIntPtr;
+			HSInt16Ptr 				savedToIntPtr;
 			
 			toIntPtr = (HSInt16Ptr)dataCharBufferPtr;
 			fromCharPtr = (HSInt8Ptr)ioCharBufferPtr;
+			
+			savedToIntPtr = toIntPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toIntPtr = savedToIntPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					toIntPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToIntPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToIntPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
@@ -11836,29 +12154,40 @@ void PackBISData (
 		case k8BitIntUnsignedTo16BitIntUnsigned: 
 		case k8BitIntUnsignedTo16BitIntSigned:
 			{
-			HUInt16Ptr 			toIntPtr;
-			HUInt8Ptr 			fromCharPtr;
+			HUInt8Ptr 				fromCharPtr;
+			HUInt16Ptr 				toInt16Ptr;
+			HUInt16Ptr 				savedToInt16Ptr;
 			
-			toIntPtr = (HUInt16Ptr)dataCharBufferPtr;
+			toInt16Ptr = (HUInt16Ptr)dataCharBufferPtr;
 			fromCharPtr = ioCharBufferPtr;
+			
+			savedToInt16Ptr = toInt16Ptr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toInt16Ptr = savedToInt16Ptr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					*toInt16Ptr = fromCharPtr[channel];
+					toInt16Ptr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToInt16Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToInt16Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..." 
 				
@@ -11867,29 +12196,40 @@ void PackBISData (
 			
 		case k8BitIntSignedTo32BitIntSigned: 
 			{
-			HSInt32Ptr 			toIntPtr;
-			HSInt8Ptr 			fromCharPtr;
+			HSInt8Ptr 				fromCharPtr;
+			HSInt32Ptr 				toSInt32Ptr;
+			HSInt32Ptr 				savedToSInt32Ptr;
 			
-			toIntPtr = (HSInt32Ptr)dataCharBufferPtr;
+			toSInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
 			fromCharPtr = (HSInt8Ptr)ioCharBufferPtr;
+			
+			savedToSInt32Ptr = toSInt32Ptr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toSInt32Ptr = savedToSInt32Ptr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					*toSInt32Ptr = fromCharPtr[channel];
+					toSInt32Ptr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToSInt32Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToSInt32Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -11899,29 +12239,40 @@ void PackBISData (
 		case k8BitIntUnsignedTo32BitIntUnsigned: 
 		case k8BitIntUnsignedTo32BitIntSigned:
 			{
-			HSInt32Ptr 			toIntPtr;
-			HUCharPtr 			fromCharPtr;
+			HUCharPtr 				fromCharPtr;
+			HSInt32Ptr 				toInt32Ptr;
+			HSInt32Ptr 				savedToInt32Ptr;
 			
-			toIntPtr = (HSInt32Ptr)dataCharBufferPtr;
 			fromCharPtr = ioCharBufferPtr;
+			toInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
+			
+			savedToInt32Ptr = toInt32Ptr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toInt32Ptr = savedToInt32Ptr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					*toInt32Ptr = fromCharPtr[channel];
+					toInt32Ptr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToInt32Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToInt32Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -11930,29 +12281,40 @@ void PackBISData (
 							
 		case k8BitIntSignedTo32BitReal: 
 			{
-			HFloatPtr 			toFloatPtr;
-			HSInt8Ptr 			fromCharPtr;
+			HSInt8Ptr 				fromCharPtr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
-			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
 			fromCharPtr = (HSInt8Ptr)ioCharBufferPtr;
+			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toFloatPtr = fromCharPtr[channel];
-					toFloatPtr++;
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "for (index=0; index<numberColumns;..." 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -11961,29 +12323,40 @@ void PackBISData (
 							
 		case k8BitIntUnsignedTo32BitReal: 
 			{
-			HFloatPtr 			toFloatPtr;
-			HUInt8Ptr 			fromCharPtr;
+			HUInt8Ptr 				fromCharPtr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
-			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
 			fromCharPtr = (HUInt8Ptr)ioCharBufferPtr;
+			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toFloatPtr = fromCharPtr[channel];
-					toFloatPtr++;
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -11992,29 +12365,40 @@ void PackBISData (
 							
 		case k8BitIntSignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HSInt8Ptr 			fromCharPtr;
+			HSInt8Ptr 				fromCharPtr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
 			fromCharPtr = (HSInt8Ptr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "for (index=0; index<numberColumns;..." 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12023,29 +12407,40 @@ void PackBISData (
 							
 		case k8BitIntUnsignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HUInt8Ptr 			fromCharPtr;
+			HUInt8Ptr 				fromCharPtr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
-			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
 			fromCharPtr = (HUInt8Ptr)ioCharBufferPtr;
+			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12054,17 +12449,49 @@ void PackBISData (
 							
 		case k16BitTo16Bit: 
 			{
-			UInt32					index,
-										sample,
-										channel;
-			HSInt16Ptr 				fromIntPtr;
-			HSInt16Ptr 				toIntPtr;
+			HSInt16Ptr 				fromInt16Ptr;
+			HSInt16Ptr 				toInt16Ptr;
+			HSInt16Ptr 				savedToInt16Ptr;
 			
-			toIntPtr = (HSInt16Ptr)dataCharBufferPtr;
-			fromIntPtr = (HSInt16Ptr)ioCharBufferPtr;
-				
-			for (sample=0;  sample<numberSamples; sample+=columnInterval)
+			
+			toInt16Ptr = (HSInt16Ptr)dataCharBufferPtr;
+			fromInt16Ptr = (HSInt16Ptr)ioCharBufferPtr;
+			
+			savedToInt16Ptr = toInt16Ptr;
+			/*
+			if (toBISFormatFlag)
 				{
+				for (sample=0; sample<numberSamples; sample+=columnInterval)
+					{
+					index = 0;
+					channel = 0;
+					toIntPtr = savedToIntPtr;
+					while (index < numberChannels)
+						{
+						if (channelListPtr)
+							channel = channelListPtr[index];
+								
+						*toIntPtr = fromIntPtr[channel];
+						toIntPtr++;
+						index++;
+						channel++;
+						
+						}	// end "while (index < numberBufferChannels)"
+							
+					savedToIntPtr += numberOutputBufferChannels;
+						
+					fromIntPtr += skipSamples;
+					
+					}	// end "for (sample=0; sample<numberSamples; ..."
+				
+				}	// end "if (toBISFormatFlag)"
+				
+			else	// !toBISFormatFlag
+				{
+				HSInt16Ptr 				savedFromIntPtr;
+				
+				savedFromIntPtr = fromIntPtr;
+				skipSamples = columnInterval * numberBufferChannels;
 				index = 0;
 				channel = 0;
 				while (index < numberChannels)
@@ -12072,14 +12499,47 @@ void PackBISData (
 					if (channelListPtr)
 						channel = channelListPtr[index];
 							
-					*toIntPtr = fromIntPtr[channel];
-					toIntPtr++;
+					fromIntPtr = savedFromIntPtr + channel;
+					for (sample=0; sample<numberSamples; sample+=columnInterval)
+						{
+						*toIntPtr = *fromIntPtr;
+						fromIntPtr += skipSamples;
+						toIntPtr++;
+						
+						}	// end "for (sample=0; sample<numberSamples; ..."
+						
 					index++;
 					channel++;
 					
-					}	// end "while (index < numberChannels)" 
+					}	// end "while (index < numberBufferChannels)"
+				
+				}	// end "else !toBISFormatFlag"
+			*/
+			for (sample=0; sample<numberSamples; sample+=columnInterval)
+				{
+				index = 0;
+				channel = 0;
+				toInt16Ptr = savedToInt16Ptr;
+				while (index < numberChannels)
+					{
+					if (channelListPtr)
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
+							
+					*toInt16Ptr = fromInt16Ptr[channel];
+					toInt16Ptr += toBufferSkip;
+					index++;
+					channel++;
 					
-				fromIntPtr += skipSamples;
+					}	// end "while (index < numberBufferChannels)"
+					
+				fromInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToInt16Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToInt16Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12088,29 +12548,40 @@ void PackBISData (
 							
 		case k16BitIntSignedTo32BitIntSigned: 
 			{
-			HSInt32Ptr 			toIntPtr;
-			HSInt16Ptr 			fromCharPtr;
+			HSInt16Ptr 				fromSInt16Ptr;
+			HSInt32Ptr 				toSInt32Ptr;
+			HSInt32Ptr 				savedToSInt32Ptr;
 			
-			toIntPtr = (HSInt32Ptr)dataCharBufferPtr;
-			fromCharPtr = (HSInt16Ptr)ioCharBufferPtr;
+			fromSInt16Ptr = (HSInt16Ptr)ioCharBufferPtr;
+			toSInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
+			
+			savedToSInt32Ptr = toSInt32Ptr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toSInt32Ptr = savedToSInt32Ptr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					*toSInt32Ptr = fromSInt16Ptr[channel];
+					toSInt32Ptr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromSInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToSInt32Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToSInt32Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12120,29 +12591,40 @@ void PackBISData (
 		case k16BitIntUnsignedTo32BitIntUnsigned:
 		case k16BitIntUnsignedTo32BitIntSigned: 
 			{
-			HUInt32Ptr 			toIntPtr;
-			HUInt16Ptr 			fromCharPtr;
+			HUInt16Ptr 				fromUInt16Ptr;
+			HUInt32Ptr 				toInt32Ptr;
+			HUInt32Ptr 				savedToInt32Ptr;
 			
-			toIntPtr = (HUInt32Ptr)dataCharBufferPtr;
-			fromCharPtr = (HUInt16Ptr)ioCharBufferPtr;
+			fromUInt16Ptr = (HUInt16Ptr)ioCharBufferPtr;
+			toInt32Ptr = (HUInt32Ptr)dataCharBufferPtr;
+			
+			savedToInt32Ptr = toInt32Ptr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toInt32Ptr = savedToInt32Ptr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+					*toInt32Ptr = fromUInt16Ptr[channel];
+					toInt32Ptr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromUInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToInt32Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToInt32Ptr++;
 				
 				}	// end "for (sample=0;  sample<numberSamples; ..."
 				
@@ -12151,29 +12633,40 @@ void PackBISData (
 							
 		case k16BitIntSignedTo32BitReal: 
 			{
-			HFloatPtr 			toFloatPtr;
-			HSInt16Ptr 			fromCharPtr;
+			HSInt16Ptr 				fromSInt16Ptr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
+			fromSInt16Ptr = (HSInt16Ptr)ioCharBufferPtr;
 			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
-			fromCharPtr = (HSInt16Ptr)ioCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toFloatPtr = fromCharPtr[channel];
-					toFloatPtr++;
+					*toFloatPtr = fromSInt16Ptr[channel];
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromSInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0;  sample<numberSamples; ..."
 				
@@ -12182,29 +12675,40 @@ void PackBISData (
 							
 		case k16BitIntUnsignedTo32BitReal: 
 			{
-			HFloatPtr 			toFloatPtr;
-			HUInt16Ptr 			fromCharPtr;
+			HUInt16Ptr 				fromCharPtr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
 			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
 			fromCharPtr = (HUInt16Ptr)ioCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
 					*toFloatPtr = fromCharPtr[channel];
-					toFloatPtr++;
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
 				fromCharPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12213,29 +12717,40 @@ void PackBISData (
 							
 		case k16BitIntSignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HSInt16Ptr 			fromCharPtr;
+			HSInt16Ptr 				fromSInt16Ptr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
-			fromCharPtr = (HSInt16Ptr)ioCharBufferPtr;
+			fromSInt16Ptr = (HSInt16Ptr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromSInt16Ptr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromSInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12244,29 +12759,40 @@ void PackBISData (
 							
 		case k16BitIntUnsignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HUInt16Ptr 			fromCharPtr;
+			HUInt16Ptr 				fromUInt16Ptr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
-			fromCharPtr = (HUInt16Ptr)ioCharBufferPtr;
+			fromUInt16Ptr = (HUInt16Ptr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromUInt16Ptr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromUInt16Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12275,60 +12801,144 @@ void PackBISData (
 							
 		case k32BitTo32Bit: 
 			{
-			HSInt32Ptr 			toIntPtr;
-			HSInt32Ptr 			fromCharPtr;
+			HSInt32Ptr 				fromInt32Ptr;
+			HSInt32Ptr 				toInt32Ptr;
+			HSInt32Ptr 				savedToInt32Ptr;
 			
-			toIntPtr = (HSInt32Ptr)dataCharBufferPtr;
-			fromCharPtr = (HSInt32Ptr)ioCharBufferPtr;
+			fromInt32Ptr = (HSInt32Ptr)ioCharBufferPtr;
+			toInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
 			
-			for (sample=0;  sample<numberSamples; sample+=columnInterval)
+			savedToInt32Ptr = toInt32Ptr;
+			/*
+			if (toBISFormatFlag)
 				{
+				HSInt32Ptr 				savedToIntPtr;
+				
+				savedToIntPtr = toIntPtr;
+				for (sample=0; sample<numberSamples; sample+=columnInterval)
+					{
+					index = 0;
+					channel = 0;
+					toIntPtr = savedToIntPtr;
+					while (index < numberChannels)
+						{
+						if (channelListPtr)
+							{
+							//channel = channelListPtr[index];
+							channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
+							
+							}	// end "if (channelListPtr)"
+								
+						*toIntPtr = fromIntPtr[channel];
+						toIntPtr++;
+						index++;
+						channel++;
+						
+						}	// end "while (index < numberBufferChannels)"
+							
+					savedToIntPtr += numberOutputBufferChannels;
+						
+					fromIntPtr += skipSamples;
+					
+					}	// end "for (sample=0; sample<numberSamples; ..."
+				
+				}	// end "if (toBISFormatFlag)"
+			
+			else	// !toBISFormatFlag
+				{
+				HSInt32Ptr 				savedFromIntPtr;
+				
+				savedFromIntPtr = fromIntPtr;
 				index = 0;
 				channel = 0;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
+							
+					fromIntPtr = savedFromIntPtr + channel;
+					for (sample=0; sample<numberSamples; sample+=columnInterval)
+						{
+						*toIntPtr = *fromIntPtr;
+						fromIntPtr += skipSamples;
+						toIntPtr++;
 						
-					*toIntPtr = fromCharPtr[channel];
-					toIntPtr++;
+						}	// end "for (sample=0; sample<numberSamples; ..."
+						
 					index++;
 					channel++;
 					
-					}	// end "while (index < numberChannels)" 
+					}	// end "while (index < fileNumberChannels)"
+				
+				}	// end "else !toBISFormatFlag"
+			*/
+			for (sample=0;  sample<numberSamples; sample+=columnInterval)
+				{
+				index = 0;
+				channel = 0;
+				toInt32Ptr = savedToInt32Ptr;
+				while (index < numberChannels)
+					{
+					if (channelListPtr)
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
+						
+					*toInt32Ptr = fromInt32Ptr[channel];
+					toInt32Ptr += toBufferSkip;
+					index++;
+					channel++;
 					
-				fromCharPtr += skipSamples;
+					}	// end "while (index < numberChannels)"
+					
+				fromInt32Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToInt32Ptr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToInt32Ptr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
-				
 			}
 			break;
 							
 		case k32BitIntSignedTo32BitReal:
 			{
-			HFloatPtr 			toFloatPtr;
-			HSInt32Ptr 			fromCharPtr;
+			HSInt32Ptr 				fromSInt32Ptr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
+			fromSInt32Ptr = (HSInt32Ptr)ioCharBufferPtr;
 			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
-			fromCharPtr = (HSInt32Ptr)ioCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toFloatPtr = (float)fromCharPtr[channel];
-					toFloatPtr++;
+					*toFloatPtr = (float)fromSInt32Ptr[channel];
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromSInt32Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12337,29 +12947,40 @@ void PackBISData (
 							
 		case k32BitIntUnsignedTo32BitReal: 
 			{
-			HFloatPtr 			toFloatPtr;
-			HUInt32Ptr 			fromCharPtr;
+			HUInt32Ptr 				fromUInt32Ptr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
+			fromUInt32Ptr = (HUInt32Ptr)ioCharBufferPtr;
 			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
-			fromCharPtr = (HUInt32Ptr)ioCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toFloatPtr = (float)fromCharPtr[channel];
-					toFloatPtr++;
+					*toFloatPtr = (float)fromUInt32Ptr[channel];
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromUInt32Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12368,29 +12989,40 @@ void PackBISData (
 							
 		case k32BitIntSignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HSInt32Ptr 			fromCharPtr;
+			HSInt32Ptr 				fromSInt32Ptr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
-			fromCharPtr = (HSInt32Ptr)ioCharBufferPtr;
+			fromSInt32Ptr = (HSInt32Ptr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromSInt32Ptr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
-					}	// end "while (index < numberChannels)" 
+					}	// end "while (index < numberChannels)"
 					
-				fromCharPtr += skipSamples;
+				fromSInt32Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12399,30 +13031,41 @@ void PackBISData (
 							
 		case k32BitIntUnsignedTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HUInt32Ptr 			fromCharPtr;
+			HUInt32Ptr 				fromUInt32Ptr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
+			fromUInt32Ptr = (HUInt32Ptr)ioCharBufferPtr;
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
-			fromCharPtr = (HUInt32Ptr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromUInt32Ptr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
-				
+				fromUInt32Ptr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
+					
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
@@ -12430,29 +13073,40 @@ void PackBISData (
 			
 		case k32BitRealTo64BitReal: 
 			{
-			HDoublePtr 			toDoublePtr;
-			HFloatPtr 			fromCharPtr;
+			HFloatPtr 				fromFloatPtr;
+			HDoublePtr 				toDoublePtr;
+			HDoublePtr 				savedToDoublePtr;
 			
+			fromFloatPtr = (HFloatPtr)ioCharBufferPtr;
 			toDoublePtr = (HDoublePtr)dataCharBufferPtr;
-			fromCharPtr = (HFloatPtr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromFloatPtr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 				
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromFloatPtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12461,30 +13115,41 @@ void PackBISData (
 							
 		case k64BitTo64Bit: 
 			{
-			DoublePtr 			toDoublePtr;
-			DoublePtr 			fromCharPtr;
+			DoublePtr 				fromDoublePtr;
+			DoublePtr 				toDoublePtr;
+			DoublePtr 				savedToDoublePtr;
 			
+			fromDoublePtr = (DoublePtr)ioCharBufferPtr;
 			toDoublePtr = (DoublePtr)dataCharBufferPtr;
-			fromCharPtr = (DoublePtr)ioCharBufferPtr;
+			
+			savedToDoublePtr = toDoublePtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toDoublePtr = savedToDoublePtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toDoublePtr = fromCharPtr[channel];
-					toDoublePtr++;
+					*toDoublePtr = fromDoublePtr[channel];
+					toDoublePtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
-				
+				fromDoublePtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToDoublePtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToDoublePtr++;
+					
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
 			}
@@ -12492,29 +13157,40 @@ void PackBISData (
 		
 		case k64BitRealTo32BitReal:
 			{
-			HFloatPtr 			toFloatPtr;
-			HDoublePtr 			fromCharPtr;
+			HDoublePtr 				fromDoublePtr;
+			HFloatPtr 				toFloatPtr;
+			HFloatPtr 				savedToFloatPtr;
 			
+			fromDoublePtr = (HDoublePtr)ioCharBufferPtr;
 			toFloatPtr = (HFloatPtr)dataCharBufferPtr;
-			fromCharPtr = (HDoublePtr)ioCharBufferPtr;
+			
+			savedToFloatPtr = toFloatPtr;
 			
 			for (sample=0;  sample<numberSamples; sample+=columnInterval)
 				{
 				index = 0;
 				channel = 0;
+				toFloatPtr = savedToFloatPtr;
 				while (index < numberChannels)
 					{
 					if (channelListPtr)
-						channel = channelListPtr[index];
+						//channel = channelListPtr[index];
+						channel = layerInfoPtr[channelListPtr[index]+1].fileChannelNumber-1;
 						
-					*toFloatPtr = (float)fromCharPtr[channel];
-					toFloatPtr++;
+					*toFloatPtr = (float)fromDoublePtr[channel];
+					toFloatPtr += toBufferSkip;
 					index++;
 					channel++;
 					
 					}	// end "while (index < numberChannels)" 
 					
-				fromCharPtr += skipSamples;
+				fromDoublePtr += skipSamples;
+						
+				if (toBISFormatFlag)
+					savedToFloatPtr += numberOutputBufferChannels;
+					
+				else	// !toBISFormatFlag
+					savedToFloatPtr++;
 				
 				}	// end "for (sample=0; sample<numberSamples; ..."
 				
@@ -12943,10 +13619,13 @@ void PackNonBISData (
 			
 		case k8BitIntSignedTo16BitIntSigned: 
 			{
-			HSInt16Ptr			dataIntPtr;
+			HSInt16Ptr			dataSInt16Ptr,
+									savedDataSInt16Ptr;
 			HSInt8Ptr			ioCharPtr;
 		
-			dataIntPtr = (HSInt16Ptr)dataCharBufferPtr;
+			dataSInt16Ptr = (HSInt16Ptr)dataCharBufferPtr;
+			savedDataSInt16Ptr = dataSInt16Ptr;
+			
 			ioCharPtr = (HSInt8Ptr)ioCharBufferPtr;
 			ioCharPtr = &ioCharPtr[columnOffset];
 			
@@ -12967,12 +13646,13 @@ void PackNonBISData (
 					}	// end "if (channelListPtr != NULL)"
 					
 				if (toBISFormat)
-					dataIntPtr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
+					//dataSInt16Ptr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
+					dataSInt16Ptr = savedDataSInt16Ptr + channel;
 			
 				for (sample=0;  sample<numberSamples; sample+=columnInterval)
 					{
-					*dataIntPtr = ioCharPtr[sample];
-					dataIntPtr += dataPtrIncrement;
+					*dataSInt16Ptr = ioCharPtr[sample];
+					dataSInt16Ptr += dataPtrIncrement;
 					
 					}	// end "for (sample=0;  sample<numberChan..." 
 					
@@ -13323,13 +14003,15 @@ void PackNonBISData (
 			
 		case k16BitTo16Bit: 
 			{
-			HSInt16Ptr					dataIntPtr,
-											ioIntPtr;
+			HSInt16Ptr					dataSInt16Ptr,
+											ioSInt16Ptr,
+											savedDataSInt16Ptr;
 		
-			dataIntPtr = (HSInt16Ptr)dataCharBufferPtr;
+			dataSInt16Ptr = (HSInt16Ptr)dataCharBufferPtr;
+			savedDataSInt16Ptr = dataSInt16Ptr;
 			
-			ioIntPtr = (HSInt16Ptr)ioCharBufferPtr;
-			ioIntPtr = &ioIntPtr[columnOffset];
+			ioSInt16Ptr = (HSInt16Ptr)ioCharBufferPtr;
+			ioSInt16Ptr = &ioSInt16Ptr[columnOffset];
 			
 					// Loop through by number of channels.										
 				
@@ -13339,7 +14021,7 @@ void PackNonBISData (
 					{
 					while (channelListPtr[channel] != currentChannel)
 						{
-						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
+						ioSInt16Ptr = &ioSInt16Ptr[numberColumnsPerChannel];
 						currentChannel++;
 						
 						}	// end "while (channelListPtr[channel] != currentChannel)"
@@ -13347,19 +14029,20 @@ void PackNonBISData (
 					}	// end "if (channelListPtr != NULL)"
 					
 				if (toBISFormat)
-					dataIntPtr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
+					//dataIntPtr = (HSInt16Ptr)&dataCharBufferPtr[channel*2];
+					dataSInt16Ptr = savedDataSInt16Ptr + channel;
 					
 				for (sample=0;  sample<numberSamples; sample+=columnInterval)
 					{
-					*dataIntPtr = ioIntPtr[sample];
-					dataIntPtr += dataPtrIncrement;
+					*dataSInt16Ptr = ioSInt16Ptr[sample];
+					dataSInt16Ptr += dataPtrIncrement;
 					
 					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
 				
-				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
+				ioSInt16Ptr = &ioSInt16Ptr[numberColumnsPerChannel];
 				currentChannel++;
 				
 				}	// end "for (channel=0; channel<numberBufferChannels; channel++)" 
@@ -13414,12 +14097,14 @@ void PackNonBISData (
 			
 		case k16BitIntUnsignedTo32BitIntUnsigned: 
 			{
-			HSInt32Ptr					dataSInt32Ptr;
-			HUInt16Ptr					ioIntPtr;
+			HUInt32Ptr					dataUInt32Ptr;
+			HUInt16Ptr					ioUIntPtr;
+			HUInt32Ptr					savedDataUInt32Ptr;
 		
-			dataSInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
-			ioIntPtr = (HUInt16Ptr)ioCharBufferPtr;
-			ioIntPtr = &ioIntPtr[columnOffset];
+			dataUInt32Ptr = (HUInt32Ptr)dataCharBufferPtr;
+			savedDataUInt32Ptr = dataUInt32Ptr;
+			ioUIntPtr = (HUInt16Ptr)ioCharBufferPtr;
+			ioUIntPtr = &ioUIntPtr[columnOffset];
 			
 					// Loop through by number of channels.										
 				
@@ -13429,7 +14114,7 @@ void PackNonBISData (
 					{
 					while (channelListPtr[channel] != currentChannel)
 						{
-						ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
+						ioUIntPtr = &ioUIntPtr[numberColumnsPerChannel];
 						currentChannel++;
 						
 						}	// end "while (channelListPtr[channel] != currentChannel)"
@@ -13437,19 +14122,20 @@ void PackNonBISData (
 					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
-					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
+					//dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
+					dataUInt32Ptr = savedDataUInt32Ptr + channel;
 					
 				for (sample=0;  sample<numberSamples; sample+=columnInterval)
 					{
-					*dataSInt32Ptr = ioIntPtr[sample];
-					dataSInt32Ptr += dataPtrIncrement;
+					*dataUInt32Ptr = ioUIntPtr[sample];
+					dataUInt32Ptr += dataPtrIncrement;
 					
 					}	// end "for (sample=0;  sample<numberChan..." 
 					
 						// Update the input buffer pointer to point to beginning of		
 						// data for next channel.													
 				
-				ioIntPtr = &ioIntPtr[numberColumnsPerChannel];
+				ioUIntPtr = &ioUIntPtr[numberColumnsPerChannel];
 				currentChannel++;
 				
 				}	// end "for (channel=0; channel<numberBufferChannels; channel++)"
@@ -13641,8 +14327,10 @@ void PackNonBISData (
 			{
 			HSInt32Ptr					dataSInt32Ptr;
 			HSInt32Ptr					ioIntPtr;
+			HSInt32Ptr					savedDataSInt32Ptr;
 		
 			dataSInt32Ptr = (HSInt32Ptr)dataCharBufferPtr;
+			savedDataSInt32Ptr = dataSInt32Ptr;
 			ioIntPtr = (HSInt32Ptr)ioCharBufferPtr;
 			ioIntPtr = &ioIntPtr[columnOffset];
 			
@@ -13662,7 +14350,8 @@ void PackNonBISData (
 					}	// end "if (channelListPtr != NULL)"
 				
 				if (toBISFormat)
-					dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
+					//dataSInt32Ptr = (HSInt32Ptr)&dataCharBufferPtr[channel*4];
+					dataSInt32Ptr = savedDataSInt32Ptr + channel;
 					
 				for (sample=0;  sample<numberSamples; sample+=columnInterval)
 					{
@@ -14112,7 +14801,7 @@ SInt16 PutFile (
 	
 		fileSelected = FALSE;
 				
-		wideFileNamePtr =
+		wideFileNamePtr =(LPTSTR)
 					(WideFileStringPtr)fileStreamPtr->GetFileNameCPtr (kReturnUnicode);
 			
 		do	
@@ -14573,7 +15262,6 @@ void SetCFileName (
 		
 		oldNameLength = (SInt32)strlen ((char*)fileNameCPtr);
 		newNameLength = (SInt32)strlen ((char*)inputFileNameCPtr);
-		//oldPathNameLength = filePathPPtr[0];
 		oldPathNameLength = GetFileStringLength (filePathPPtr);
 		
 		
@@ -14593,7 +15281,6 @@ void SetCFileName (
 		
 				// Now update the character count.
 				
-		//filePathPPtr[0] = (UInt8)strlen ((char*)&filePathPPtr[1]);
 		SetFileStringLength (filePathPPtr,
 									strlen ((char*)&filePathPPtr[2]));
 
@@ -15074,7 +15761,7 @@ SInt16 SetUpFileIOInstructions (
 // Called By:			DisplayCImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1999
-//	Revised By:			Larry L. Biehl			Date: 10/17/2012
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 SInt16 SetUpFileIOInstructions (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -15098,7 +15785,10 @@ SInt16 SetUpFileIOInstructions (
 	UInt32								gdalIndex,
 											index;
 	
-	Boolean								BILSpecialFlag,
+	Boolean								bilFormatFlag,
+											BILSpecialFlag,
+											bisFormatFlag,
+											bsqFormatFlag,
 											callPackLineOfDataFlag,
 											differentBuffersFlag,
 											useMultipleChannelGDALFlag;
@@ -15253,9 +15943,19 @@ SInt16 SetUpFileIOInstructions (
 			
 			}	// end "if (windowInfoPtr->localMaxNumberBytes <= 4 || ...)" 
 			
-		}	// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)" 
+		}	// end "else if (fileIOInstructionsPtr->forceByteCode == kForceFloat8Bytes)"
+		
+			// Determine if the file format(s) in the file (or linked file) ...
+			// BIL, BSQ, and/or BIS formatted files.
+			
+	GetFileFormatsInFile (windowInfoPtr,
+									fileInfoPtr,
+									&bilFormatFlag,
+									&bsqFormatFlag,
+									&bisFormatFlag);
 																
-	if (fileInfoPtr->bandInterleave != kBIS)
+	//if (fileInfoPtr->bandInterleave != kBIS)
+	if (bilFormatFlag || bsqFormatFlag)
 		{
 		if (fileIOInstructionsPtr->packDataFlag)
 			{
@@ -15268,21 +15968,30 @@ SInt16 SetUpFileIOInstructions (
 				
 			}	// end "if (fileIOInstructionsPtr->packDataFlag)"
 			
-		if (fileIOInstructionsPtr->forceBISFormatFlag)
+		if (fileIOInstructionsPtr->forceOutputFormatCode == kBIS)
 			{
 			callPackLineOfDataFlag = TRUE;
 			differentBuffersFlag = TRUE;
 			
-			}	// end "if (fileIOInstructionsPtr->toBISFormatFlag)" 
+			}	// end "if (fileIOInstructionsPtr->forceOutputFormatCode == kBIS)"
 			
 		}	// end "if (fileInfoPtr->bandInterleave != kBIS)" 				
 	
-	else	// fileInfoPtr->bandInterleave == kBIS 
+	//else	// fileInfoPtr->bandInterleave == kBIS
+	if (bisFormatFlag)
 		{
 		if (fileIOInstructionsPtr->packDataFlag && 
 				(fileIOInstructionsPtr->numberChannels<fileInfoPtr->numberChannels || 
-															fileIOInstructionsPtr->columnInterval>1))
+							fileIOInstructionsPtr->columnInterval > 1 ||
+								fileIOInstructionsPtr->windowInfoPtr->numberImageFiles > 1 ||
+									fileIOInstructionsPtr->forceOutputFormatCode == kBIL))
+			{
 			callPackLineOfDataFlag = TRUE;
+			
+			if (fileIOInstructionsPtr->forceOutputFormatCode != kBIS)
+				differentBuffersFlag = TRUE;
+			
+			}	// end "if (fileIOInstructionsPtr->packDataFlag && ..."
 			
 		}	// end "else fileInfoPtr->bandInterleave == kBIS" 
 		
@@ -15354,7 +16063,7 @@ SInt16 SetUpFileIOInstructions (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1999
-//	Revised By:			Larry L. Biehl			Date: 11/26/2007
+//	Revised By:			Larry L. Biehl			Date: 05/06/2022
 
 void SetUpGeneralFileIOInstructions (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -15368,7 +16077,7 @@ void SetUpGeneralFileIOInstructions (
 				HUCharPtr							tiledBufferPtr,
 				UInt32								bufferOffset,
 				Boolean								packDataFlag,
-				Boolean								forceBISFormatFlag,	
+				UInt16								forceOutputFormatCode,	// forceBISFormatFlag,
 				UInt16								forceOutByteCode,
 				FileIOInstructionsPtr*			outputFileIOInstructionsPtrPtr)
 							
@@ -15382,6 +16091,7 @@ void SetUpGeneralFileIOInstructions (
 	
 	fileIOInstructionsPtr->channelListPtr = channelListPtr;
 	fileIOInstructionsPtr->numberChannels = numberListChannels;
+	fileIOInstructionsPtr->channelListIndexStart = 0;
 	fileIOInstructionsPtr->channelStart = 0;
 	fileIOInstructionsPtr->channelEnd = 0;
 	
@@ -15399,13 +16109,15 @@ void SetUpGeneralFileIOInstructions (
 	fileIOInstructionsPtr->bufferOffset = bufferOffset;
 	
 	fileIOInstructionsPtr->forceByteCode = forceOutByteCode;
-	fileIOInstructionsPtr->forceBISFormatFlag = forceBISFormatFlag;
+	fileIOInstructionsPtr->forceOutputFormatCode = forceOutputFormatCode;
+	//fileIOInstructionsPtr->forceBISFormatFlag = forceBISFormatFlag;
 	fileIOInstructionsPtr->packDataFlag = packDataFlag;
 	
 	fileIOInstructionsPtr->callPackLineOfDataFlag = FALSE;
 	fileIOInstructionsPtr->differentBuffersFlag = FALSE;
 	
-	returnCode = SetUpDataConversionCode (layerInfoPtr,
+	returnCode = SetUpDataConversionCode (windowInfoPtr,
+														layerInfoPtr,
 														fileInfoPtr,
 														numberListChannels,
 														channelListPtr,	
@@ -15442,12 +16154,13 @@ void SetUpGeneralFileIOInstructions (
 //
 // Value Returned:	None
 //
-// Called By:			
+// Called By:			SetUpGeneralFileIOInstructions
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/2005
-//	Revised By:			Larry L. Biehl			Date: 01/16/2006
+//	Revised By:			Larry L. Biehl			Date: 02/28/2022
 
 SInt16 SetUpDataConversionCode (
+				WindowInfoPtr						windowInfoPtr,
 				LayerInfoPtr						layerInfoPtr,
 				FileInfoPtr							fileInfoPtr,
 				UInt16								numberListChannels,
@@ -15461,7 +16174,6 @@ SInt16 SetUpDataConversionCode (
 											layerFileInfoIndex;
 	
 	UInt32								channel,
-											dataConversionCode,
 											index;
 											
 	SInt16								returnCode = 0;
@@ -15485,7 +16197,6 @@ SInt16 SetUpDataConversionCode (
 		if (fileInfoIndex != layerFileInfoIndex)
 			{
 			fileInfoIndex = layerFileInfoIndex;
-			dataConversionCode = 0;
 			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 			
 			signedDataFlag = localFileInfoPtr->signedDataFlag;

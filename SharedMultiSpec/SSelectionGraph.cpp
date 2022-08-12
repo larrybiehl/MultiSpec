@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/20/2019
+//	Revision date:			05/06/2022
 //
 //	Language:				C
 //
@@ -204,7 +204,7 @@ Boolean SelectionGraphControl (
 	GraphPtr								oldSelectionGraphRecordPtr,
 											selectionGraphRecordPtr;
 	
- 	SelectionIOInfoPtr				selectionIOPtr;
+ 	//SelectionIOInfoPtr				selectionIOPtr;
  	CMGraphView*						oldSelectionGraphViewCPtr;
  	                     	                          
  	Handle								oldSelectionGraphRecHandle, 
@@ -217,7 +217,7 @@ Boolean SelectionGraphControl (
  	                                              
 			// Initialize some local variables.
 			
-	selectionIOPtr = NULL;             
+	//selectionIOPtr = NULL;
 	selectionGraphRecHandle = NULL;
 	selectionGraphRecordPtr = NULL;
 	
@@ -362,7 +362,7 @@ void SetDefaultSelectionGraphWindowTitle (
 // Called By:			ShowGraphSelection in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/27/1991
-//	Revised By:			Larry L. Biehl			Date: 11/14/2019
+//	Revised By:			Larry L. Biehl			Date: 05/06/2022
 
 void ShowGraphWindowSelection (
 				Handle								oldSelectionGraphRecHandle)
@@ -644,6 +644,17 @@ void ShowGraphWindowSelection (
 			gAreaDescription.lineInterval = 1;
 			gAreaDescription.columnInterval = 1;
 			GetSelectionBoundary (gActiveImageWindow, &gAreaDescription);
+					
+				// Make certain that we have the file information for the selected channels
+				// is correct. That information will be loaded into the window information
+				// structure.
+			
+			GetFileInformationForChannelList (gImageWindowInfoPtr,
+															gImageLayerInfoPtr,
+															gImageFileInfoPtr,
+															NULL,
+															gImageWindowInfoPtr->totalNumberChannels);
+
 													
 					// Determine if only a single pixel is being selected.			
 					
@@ -732,7 +743,7 @@ void ShowGraphWindowSelection (
 														tiledBufferPtr,
 														0,
 														kDoNotPackData,
-														kForceBISFormat,
+														kBIS,		// kForceBISFormat,
 														kForceReal8Bytes,
 														&fileIOInstructionsPtr);
 													

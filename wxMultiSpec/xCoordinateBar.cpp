@@ -137,13 +137,13 @@ void CMCoordinateBar::OnMouseMove (
 				wxMouseEvent&						event)
 
 {
-	if (gPresentCursor != kArrow)
+	if (gProcessorCode != kOpenImageFileProcessor && gPresentCursor != kArrow)
 		{
 		SetCursor (wxCursor (wxCURSOR_ARROW));
 		wxSetCursor (wxNullCursor);
 		gPresentCursor = kArrow;
 		
-		}	// end "if (gPresentCursor != kArrow)"
+		}	// end "if (gProcessorCode != kOpenImageFileProcessor && ..."
 	
 }	// end "OnMouseMove"
 

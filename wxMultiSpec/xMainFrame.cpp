@@ -145,6 +145,7 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_MENU (ID_PROC_REFORMAT_RECODE_THEMATIC, CMainFrame::OnProcReformatRecodeThematic)
 	EVT_MENU (ID_PROC_REFORMAT_RECTIFY_IMAGE, CMainFrame::OnProcReformatRectifyImage)
 	EVT_MENU (ID_PROC_REFORMAT_CONVERT_ENVI, CMainFrame::OnProcReformatConvertEnvi)
+	EVT_MENU (ID_PROC_REFORMAT_COMPARE_IMAGES, CMainFrame::OnProcReformatCompareImages)
 
 				// Processor->Utility Menu Items
 	EVT_MENU (ID_PROC_UTIL_PRIN_COMP_ANALYSIS, CMainFrame::OnProcUtilPrinCompAnalysis)
@@ -243,6 +244,7 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_UPDATE_UI (ID_PROC_REFORMAT_RECODE_THEMATIC, CMainFrame::OnUpdateProcReformatRecodeThematic)
 	EVT_UPDATE_UI (ID_PROC_REFORMAT_RECTIFY_IMAGE, CMainFrame::OnUpdateProcReformatRectifyImage)
 	EVT_UPDATE_UI (ID_PROC_REFORMAT_CONVERT_ENVI, CMainFrame::OnUpdateProcReformatConvertEnvi)
+	EVT_UPDATE_UI (ID_PROC_REFORMAT_COMPARE_IMAGES, CMainFrame::OnUpdateProcReformatCompareImages)
 
 				// Processor->Utility Menu Items
 	EVT_UPDATE_UI (ID_PROC_UTIL_PRIN_COMP_ANALYSIS, CMainFrame::OnUpdateProcUtilPrincipalComponentAnalysis)
@@ -837,6 +839,15 @@ CMainFrame::CMainFrame (
 								wxEmptyString,
 								wxITEM_NORMAL);
 	m_menu2->Append (m_menuItem53);
+
+	wxMenuItem* m_menuItem54;
+	m_menuItem54 = new wxMenuItem (
+								m_menu2,
+								ID_PROC_REFORMAT_COMPARE_IMAGES,
+								wxString (wxT("Compare Image Files...")),
+								wxEmptyString,
+								wxITEM_NORMAL);
+	m_menu2->Append (m_menuItem54);
 
 	processormenu->Append (-1, wxT("Reformat"), m_menu2);
 
@@ -2354,6 +2365,19 @@ void CMainFrame::OnProcReformatConvertEnvi (
 
 
 
+void CMainFrame::OnProcReformatCompareImages (
+				wxCommandEvent& 					event)
+
+{
+	gProcessorCode = kCompareImagesProcessor;
+   ReformatControl (kReformatCompareImagesRequest);
+	gMemoryTypeNeeded = 0;
+	gProcessorCode = 0;
+	
+}	// end "OnProcReformatCompareImages"
+
+
+
 void CMainFrame::OnProcReformatConvertProject (
 				wxCommandEvent& 					event)
 
@@ -3563,6 +3587,21 @@ void CMainFrame::OnUpdateProcReformatChangeImage (
 
 
 
+void CMainFrame::OnUpdateProcReformatCompareImages (
+				wxUpdateUIEvent& 					pCmdUI)
+
+{
+	Boolean enableFlag = FALSE;
+
+	if (gActiveImageWindowInfoH != NULL)
+		enableFlag = TRUE;
+
+	pCmdUI.Enable (enableFlag);
+
+}	// end "OnUpdateProcReformatCompareImages"
+
+
+
 void CMainFrame::OnUpdateProcReformatConvertEnvi (
 				wxUpdateUIEvent& 					pCmdUI)
 
@@ -3957,14 +3996,14 @@ void CMainFrame::OnUpdateToolBarMagnification (
 				wxUpdateUIEvent& 					event)
 
 {
-	double magnification = -1;
+	//double magnification = -1;
 	Boolean enableFlag = FALSE;
 
 	if (gActiveImageViewCPtr != NULL &&
 									gActiveImageViewCPtr->ImageWindowIsAvailable ())
 		{
 		CMDisplay* displayMultiCPtr = gActiveImageViewCPtr->m_displayMultiCPtr;
-		magnification = displayMultiCPtr->GetMagnification ();
+		//magnification = displayMultiCPtr->GetMagnification ();
 		if (displayMultiCPtr->GetMagnification () != 1.0)
 			enableFlag = TRUE;
 

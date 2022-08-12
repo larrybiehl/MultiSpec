@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/04/2019
+//	Revision date:			04/25/2022
 //
 //	Language:				C++
 //
@@ -88,8 +88,8 @@ void MyExtraPanel::OnInitDialog (void)
 			
       if (windowInfoPtr == NULL ||
             windowInfoPtr->imageType != kMultispectralImageType ||
-            windowInfoPtr->projectBaseImageFlag ||
-            windowInfoPtr->bandInterleave == kBIS)
+            windowInfoPtr->projectBaseImageFlag) // ||
+            //windowInfoPtr->bandInterleave == kBIS)
 			{
 			m_showLinkPopupMenuFlag = FALSE;
 			

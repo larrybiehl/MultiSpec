@@ -14,12 +14,12 @@
 // MultiSpec is curated by the Laboratory for Applications of Remote Sensing at
 // Purdue University in West Lafayette, IN and licensed by Larry Biehl.
 //
-//   File:                 xReformatRectifyDialog.cpp : class implementation file
-//   Class Definition:     xReformatRectifyDialog.h
+//   File:                 xReformatCompareImagesDialog.cpp : class implementation file
+//   Class Definition:     xReformatCompareImagesDialog.h
 //
-//   Authors:              Abdur Rahman Maud, Larry L. Biehl
+//   Authors:              Larry L. Biehl
 //
-//   Revision date:        01/03/2020
+//   Revision date:        05/14/2022
 //
 //   Language:					C++
 //
@@ -37,8 +37,8 @@
  */
 //------------------------------------------------------------------------------------
 
-#include   "SMultiSpec.h"
-#include "xReformatRectifyDialog.h"
+#include "SMultiSpec.h"
+#include "xReformatCompareImagesDialog.h"
 #include "wx/gbsizer.h"
 #include "xChannelsDialog.h"
 #include "xImageView.h"
@@ -47,43 +47,30 @@
 
 
 
-BEGIN_EVENT_TABLE (CMReformatRectifyDlg, CMDialog)
-	EVT_BUTTON (IDEntireImage, CMReformatRectifyDlg::ToEntireImage)
-	EVT_BUTTON (IDSelectedImage, CMReformatRectifyDlg::ToSelectedImage)
+BEGIN_EVENT_TABLE (CMReformatCompareImagesDlg, CMDialog)
+	EVT_BUTTON (IDEntireImage, CMReformatCompareImagesDlg::ToEntireImage)
+	EVT_BUTTON (IDSelectedImage, CMReformatCompareImagesDlg::ToSelectedImage)
 
-	EVT_CHECKBOX (IDC_UseMapOrientationAngle, CMReformatRectifyDlg::OnBnClickedUseMapOrientationAngle)
+	EVT_CHOICE (IDC_ReferenceFileList, CMReformatCompareImagesDlg::OnCbnSelendokTargetCombo)
+	EVT_CHOICE (IDC_ResampleMethod, CMReformatCompareImagesDlg::OnCbnSelendokResampleMethod)
 
-	#if defined multispec_wxlin
-		EVT_COMBOBOX (IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
-	#endif
-	#if defined multispec_wxmac
-		EVT_CHOICE (IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
-	#endif
+	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMReformatCompareImagesDlg::OnChannelComboDropDown)
 
-	EVT_CHOICE (IDC_ReferenceFileList, CMReformatRectifyDlg::OnCbnSelendokTargetCombo)
-	EVT_CHOICE (IDC_ResampleMethod, CMReformatRectifyDlg::OnCbnSelendokResampleMethod)
+	EVT_INIT_DIALOG (CMReformatCompareImagesDlg::OnInitDialog)
 
-	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMReformatRectifyDlg::OnChannelComboDropDown)
-
-	EVT_INIT_DIALOG (CMReformatRectifyDlg::OnInitDialog)
-
-	EVT_RADIOBUTTON (IDC_ReprojectToRadio, CMReformatRectifyDlg::OnBnClickedReprojectToRadio)
-	EVT_RADIOBUTTON (IDC_TranslateScaleRotateRadio, CMReformatRectifyDlg::OnBnClickedTranslateScaleRotateRadio)
-
-	EVT_TEXT (IDC_ColumnStart, CMReformatRectifyDlg::CheckColumnStart)
-	EVT_TEXT (IDC_ColumnEnd, CMReformatRectifyDlg::CheckColumnEnd)
-	EVT_TEXT (IDC_LineStart, CMReformatRectifyDlg::CheckLineStart)
-	EVT_TEXT (IDC_LineEnd, CMReformatRectifyDlg::CheckLineEnd)
-	EVT_TEXT (IDC_RotationClockwise, CMReformatRectifyDlg::OnEnChangeRotationClockwise)
+	EVT_TEXT (IDC_ColumnStart, CMReformatCompareImagesDlg::CheckColumnStart)
+	EVT_TEXT (IDC_ColumnEnd, CMReformatCompareImagesDlg::CheckColumnEnd)
+	EVT_TEXT (IDC_LineStart, CMReformatCompareImagesDlg::CheckLineStart)
+	EVT_TEXT (IDC_LineEnd, CMReformatCompareImagesDlg::CheckLineEnd)
 END_EVENT_TABLE ()
 
 
 
-CMReformatRectifyDlg::CMReformatRectifyDlg (
+CMReformatCompareImagesDlg::CMReformatCompareImagesDlg (
 				wxWindow* 							pParent,
 				wxWindowID 							id,
 				const wxString& 					title/*=NULL*/)
-		: CMDialog (CMReformatRectifyDlg::IDD, pParent, title)
+		: CMDialog (CMReformatCompareImagesDlg::IDD, pParent, title)
 
 {
    m_kNoneMenuItem = kNoneMenuItem;
@@ -93,20 +80,12 @@ CMReformatRectifyDlg::CMReformatRectifyDlg (
    m_kTIFFGeoTIFFMenuItem = kTIFFGeoTIFFMenuItem;
    m_kMatlabMenuItem = kMatlabMenuItem;
    
-   m_backgroundValue = 0;
-   m_blankOutsideSelectedAreaFlag = FALSE;
    m_channelSelection = -1;
-   m_columnScaleFactor = 0.0;
-   m_columnShift = 0;
    m_fileNamesSelection = -1;
    m_headerListSelection = -1;
    m_headerOptionsSelection = -1;
-   m_lineScaleFactor = 0.0;
-   m_lineShift = 0;
    m_procedureCode = 0;
    m_resampleSelection = 0;
-   m_rotationAngle = 0.0;
-   m_useMapOrientationAngleFlag = FALSE;
    
    m_referenceWindowInfoHandle = NULL;
    m_initializedFlag = CMDialog::m_initializedFlag;
@@ -114,19 +93,19 @@ CMReformatRectifyDlg::CMReformatRectifyDlg (
    CreateControls ();
    SetSizerAndFit (bSizer119);
 	
-}	// end "CMReformatRectifyDlg"
+}	// end "CMReformatCompareImagesDlg"
 
 
 
-CMReformatRectifyDlg::~CMReformatRectifyDlg ()
+CMReformatCompareImagesDlg::~CMReformatCompareImagesDlg ()
 
 {
    
-}	// end "~CMReformatRectifyDlg"
+}	// end "~CMReformatCompareImagesDlg"
 
 
 
-void CMReformatRectifyDlg::CreateControls ()
+void CMReformatCompareImagesDlg::CreateControls ()
 
 {
    SetSizeHints (wxDefaultSize, wxDefaultSize);
@@ -311,7 +290,7 @@ void CMReformatRectifyDlg::CreateControls ()
    bSizer278->Add (m_fileFormatCtrl, 0, wxALL, 5);
    
    outputOptionsSizer->Add (bSizer278, 0, wxALL|wxEXPAND, 5);
-   
+   /*
    wxBoxSizer* bSizer279;
    bSizer279 = new wxBoxSizer (wxHORIZONTAL);
    
@@ -351,7 +330,7 @@ void CMReformatRectifyDlg::CreateControls ()
    bSizer280->Add (m_textCtrl154, 0, wxALL, 5);
    
    outputOptionsSizer->Add (bSizer280, 0, wxEXPAND);
-   
+   */
    wxBoxSizer* bSizer281;
    bSizer281 = new wxBoxSizer (wxHORIZONTAL);
    
@@ -393,7 +372,7 @@ void CMReformatRectifyDlg::CreateControls ()
    													wxFILTER_ASCII|wxFILTER_INCLUDE_CHAR_LIST);
    wxString valid_str = "'-','0','1','2','3','4','5','6','7','8','9'";
    negativeIntegerValidator.SetCharIncludes (valid_str);
-   
+   /*
    m_radioBtn18 = new wxRadioButton (rectifySettingsBox,
    												IDC_TranslateScaleRotateRadio,
    												wxT("Translate, Scale and/or Rotate"),
@@ -581,7 +560,7 @@ void CMReformatRectifyDlg::CreateControls ()
 	
    rectifySettingsSizer->Add (
 								bSizer269, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
+   */
    wxBoxSizer* bSizer270;
    bSizer270 = new wxBoxSizer (wxHORIZONTAL);
    
@@ -669,14 +648,12 @@ void CMReformatRectifyDlg::CreateControls ()
 
 
 
-Boolean CMReformatRectifyDlg::DoDialog (
+Boolean CMReformatCompareImagesDlg::DoDialog (
 				FileInfoPtr                   outFileInfoPtr,
 				FileInfoPtr                   fileInfoPtr,
 				WindowInfoPtr                 imageWindowInfoPtr,
 				LayerInfoPtr                  imageLayerInfoPtr,
-				ReformatOptionsPtr            reformatOptionsPtr,
-				double                        minBackgroundValue,
-				double                        maxBackgroundValue)
+				ReformatOptionsPtr            reformatOptionsPtr)
 
 {
    SInt16                			returnCode;
@@ -694,8 +671,6 @@ Boolean CMReformatRectifyDlg::DoDialog (
    m_imageLayerInfoPtr = imageLayerInfoPtr;
    m_reformatOptionsPtr = reformatOptionsPtr;
    m_rectifyImageOptionsPtr = reformatOptionsPtr->rectifyImageOptionsPtr;
-   m_minBackgroundValue = minBackgroundValue;
-   m_maxBackgroundValue = maxBackgroundValue;
    
    		// Selected area for output file.
 	
@@ -720,7 +695,7 @@ Boolean CMReformatRectifyDlg::DoDialog (
       m_dialogSelectArea.columnEnd = m_ColumnEnd;
       m_dialogSelectArea.columnInterval = 1;
       
-      RectifyImageDialogOK (this,
+      CompareImagesDialogOK (this,
                             m_outputFileInfoPtr,
                             m_fileInfoPtr,
                             m_imageWindowInfoPtr,
@@ -728,17 +703,9 @@ Boolean CMReformatRectifyDlg::DoDialog (
                             &m_dialogSelectArea,
                             m_reformatOptionsPtr,
                             (SInt16)m_headerOptionsSelection,
-                            (Boolean)m_blankOutsideSelectedAreaFlag,
                             (SInt16)m_channelSelection,
-                            m_backgroundValue,
                             (SInt16)(m_procedureCode+1),
-                            (SInt16)m_resampleMethodCode,
-                            m_referenceWindowInfoHandle,
-                            (SInt32)m_lineShift,
-                            (SInt32)m_columnShift,
-                            m_lineScaleFactor,
-                            m_columnScaleFactor,
-                            m_rotationAngle);
+                            m_referenceWindowInfoHandle);
       
    	} 	// end "if (returnCode == IDOK)"
    
@@ -748,46 +715,7 @@ Boolean CMReformatRectifyDlg::DoDialog (
 
 
 
-void CMReformatRectifyDlg::OnBnClickedUseMapOrientationAngle (
-				wxCommandEvent& 					event)
-
-{
-	SInt16         					numberDecimalPlaces;
-	
-   
-   wxCheckBox* mapOrientationAngle =
-   									(wxCheckBox*)FindWindow (IDC_UseMapOrientationAngle);
-   m_useMapOrientationAngleFlag = mapOrientationAngle->GetValue ();
-   
-   m_rotationAngle = 0.;
-   numberDecimalPlaces = 1;
-   if (m_useMapOrientationAngleFlag)
-   	{
-      m_rotationAngle = m_mapOrientationAngle;
-      numberDecimalPlaces = 6;
-      
-   	}	// end "if (m_useMapOrientationAngleFlag)"
-   
-   wxTextCtrl* rotationAngle = (wxTextCtrl*)FindWindow (IDC_RotationClockwise);
-   rotationAngle->ChangeValue (
-   				wxString::Format (wxT("%.*f"), numberDecimalPlaces, m_rotationAngle));
-   
-} 	// end "OnBnClickedUseMapOrientationAngle"
-
-
-
-void CMReformatRectifyDlg::OnBnClickedTranslateScaleRotateRadio (
-				wxCommandEvent& 					event)
-
-{
-   m_procedureCode = kTranslateScaleRotate - 1;
-   UpdateProcedureItems (IDC_LineOffset, m_blankOutsideSelectedAreaFlag);
-   
-}	// end "OnBnClickedTranslateScaleRotateRadio"
-
-
-
-void CMReformatRectifyDlg::OnBnClickedReprojectToRadio (
+void CMReformatCompareImagesDlg::OnBnClickedReprojectToRadio (
 				wxCommandEvent& 					event)
 
 {
@@ -798,7 +726,7 @@ void CMReformatRectifyDlg::OnBnClickedReprojectToRadio (
 
 
 
-void CMReformatRectifyDlg::OnCbnSelendokTargetCombo (
+void CMReformatCompareImagesDlg::OnCbnSelendokTargetCombo (
 				wxCommandEvent& 					event)
 
 {
@@ -826,7 +754,7 @@ void CMReformatRectifyDlg::OnCbnSelendokTargetCombo (
 
 
 
-void CMReformatRectifyDlg::OnCbnSelendokResampleMethod (
+void CMReformatCompareImagesDlg::OnCbnSelendokResampleMethod (
 				wxCommandEvent& 					event)
 
 {
@@ -846,32 +774,7 @@ void CMReformatRectifyDlg::OnCbnSelendokResampleMethod (
 
 
 
-void CMReformatRectifyDlg::OnEnChangeRotationClockwise (
-				wxCommandEvent& 					event)
-
-{
-   if (m_mapOrientationAngle != 0)
-   	{
-      wxTextCtrl* rotationAngle = (wxTextCtrl*)FindWindow (IDC_RotationClockwise);
-      rotationAngle->ChangeValue (wxString::Format (wxT("%.1f"), m_rotationAngle));
-      
-      if (m_rotationAngle == m_mapOrientationAngle)
-         m_useMapOrientationAngleFlag = TRUE;
-	
-      else	// m_rotationAngle != m_mapOrientationAngle
-         m_useMapOrientationAngleFlag = FALSE;
-      
-      wxCheckBox* mapOrientationAngle =
-      								(wxCheckBox*)FindWindow (IDC_UseMapOrientationAngle);
-      mapOrientationAngle->SetValue (m_useMapOrientationAngleFlag);
-      
-   	}	// end "if (m_mapOrientationAngle != 0)"
-   
-}	// end "OnEnChangeRotationClockwise"
-
-
-
-void CMReformatRectifyDlg::OnInitDialog (
+void CMReformatCompareImagesDlg::OnInitDialog (
 				wxInitDialogEvent& 				event)
 
 {
@@ -885,24 +788,16 @@ void CMReformatRectifyDlg::OnInitDialog (
    										mapInfoExistsFlag;
    
 	
-   RectifyImageDialogInitialize (this,
+   CompareImagesDialogInitialize (this,
                                  m_fileInfoPtr,
                                  &m_dialogSelectArea,
                                  m_reformatOptionsPtr,
                                  &headerOptionsSelection,
                                  &channelSelection,
-                                 &blankOutsideSelectedAreaFlag,
-                                 &m_backgroundValue,
                                  &procedureCode,
                                  &resampleMethodCode,
                                  &fileNamesSelection,
-                                 &m_referenceWindowInfoHandle,
-                                 (SInt32*)&m_lineShift,
-                                 (SInt32*)&m_columnShift,
-                                 &m_lineScaleFactor,
-                                 &m_columnScaleFactor,
-                                 &m_rotationAngle,
-                                 &m_mapOrientationAngle);
+                                 &m_referenceWindowInfoHandle);
    
    m_LineStart = m_reformatOptionsPtr->lineStart;
    m_LineEnd = m_reformatOptionsPtr->lineEnd;
@@ -958,7 +853,7 @@ void CMReformatRectifyDlg::OnInitDialog (
 
 
 
-void CMReformatRectifyDlg::OnSelendokOutChannels (
+void CMReformatCompareImagesDlg::OnSelendokOutChannels (
 				wxCommandEvent& 					event)
 
 {
@@ -975,17 +870,13 @@ void CMReformatRectifyDlg::OnSelendokOutChannels (
 }	// end "OnSelendokOutChannels"
 
 
-void CMReformatRectifyDlg::UpdateProcedureItems (
+
+void CMReformatCompareImagesDlg::UpdateProcedureItems (
 				int   								selectItemNumber,
 				Boolean  							blankOutsideSelectedAreaFlag)
 
-{
-   RectifyImageDialogOnRectifyCode (this,
-                                    m_procedureCode+1,
-                                    blankOutsideSelectedAreaFlag,
-                                    m_mapOrientationAngle);
-   
-   RectifyImageDialogOnReferenceFile (this,
+{   
+   CompareImagesDialogOnReferenceFile (this,
                                       m_procedureCode+1,
                                       m_fileNamesSelection+1,
                                       &m_referenceWindowInfoHandle,
@@ -999,7 +890,7 @@ void CMReformatRectifyDlg::UpdateProcedureItems (
 
 
 
-bool CMReformatRectifyDlg::TransferDataFromWindow ()
+bool CMReformatCompareImagesDlg::TransferDataFromWindow ()
 
 {
    SInt16      						continueCode = 1,
@@ -1021,30 +912,6 @@ bool CMReformatRectifyDlg::TransferDataFromWindow ()
    wxTextCtrl* c_end = (wxTextCtrl*)FindWindow (IDC_ColumnEnd);
    m_ColumnEndString = c_end->GetValue ();
    m_ColumnEnd = wxAtoi (m_ColumnEndString);
-	
-   wxTextCtrl* backgroundValue = (wxTextCtrl*)FindWindow (IDC_BackgroundValue);
-   m_backgroundValueString = backgroundValue->GetValue ();
-   m_backgroundValue = wxAtof (m_backgroundValueString);
-	
-   wxTextCtrl* lineShift = (wxTextCtrl*)FindWindow (IDC_LineOffset);
-   m_lineOffsetString = lineShift->GetValue ();
-   m_lineShift = wxAtoi (m_lineOffsetString);
-	
-   wxTextCtrl* columnShift = (wxTextCtrl*)FindWindow (IDC_ColumnOffset);
-   m_columnOffsetString = columnShift->GetValue ();
-   m_columnShift = wxAtoi (m_columnOffsetString);
-	
-   wxTextCtrl* lineScaleFactor = (wxTextCtrl*)FindWindow (IDC_LineScale);
-   m_lineScaleString = lineScaleFactor->GetValue ();
-   m_lineScaleFactor = wxAtof (m_lineScaleString);
-	
-   wxTextCtrl* columnScaleFactor = (wxTextCtrl*)FindWindow (IDC_ColumnScale);
-   m_columnScaleString = columnScaleFactor->GetValue ();
-   m_columnScaleFactor = wxAtof (m_columnScaleString);
-	
-   wxTextCtrl* rotationAngle = (wxTextCtrl*)FindWindow (IDC_RotationClockwise);
-   m_rotationAngleString = rotationAngle->GetValue ();
-   m_rotationAngle = wxAtof (m_rotationAngleString);
    
    m_headerListSelection = m_fileFormatCtrl->GetSelection ();
    SInt64 headerList =
@@ -1052,15 +919,6 @@ bool CMReformatRectifyDlg::TransferDataFromWindow ()
    m_headerOptionsSelection = (SInt16)headerList;
    
    m_channelSelection = m_channelsCtrl->GetSelection ();
-	
-   returnCode = CheckDialogRealValue (this,
-                                      IDC_BackgroundValue,
-                                      m_minBackgroundValue,
-                                      m_maxBackgroundValue,
-                                      0,
-                                      true,      // minValue is allowed.
-                                      true,      // maxValue is allowed,
-                                      kDisplayRangeAlert);
    
    if (m_procedureCode == kTranslateScaleRotate - 1)
    	{
@@ -1132,12 +990,11 @@ bool CMReformatRectifyDlg::TransferDataFromWindow ()
 
 
 
-bool CMReformatRectifyDlg::TransferDataToWindow ()
+bool CMReformatCompareImagesDlg::TransferDataToWindow ()
 
 {
 	
 	
-   m_radioBtn18->SetValue (m_procedureCode == kTranslateScaleRotate-1);
    m_radioBtn19->SetValue (m_procedureCode == kReprojectToReferenceImage-1);
    
    wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
@@ -1151,28 +1008,6 @@ bool CMReformatRectifyDlg::TransferDataToWindow ()
 	
    wxTextCtrl* c_end = (wxTextCtrl*)FindWindow (IDC_ColumnEnd);
    c_end->ChangeValue (wxString::Format (wxT("%d"), m_ColumnEnd));
-   
-   wxTextCtrl* backgroundValue = (wxTextCtrl*)FindWindow (IDC_BackgroundValue);
-   backgroundValue->ChangeValue (wxString::Format (wxT("%.1f"), m_backgroundValue));
-	
-   wxTextCtrl* lineShift = (wxTextCtrl*)FindWindow (IDC_LineOffset);
-   lineShift->ChangeValue (wxString::Format (wxT("%ld"), m_lineShift));
-	
-   wxTextCtrl* columnShift = (wxTextCtrl*)FindWindow (IDC_ColumnOffset);
-   columnShift->ChangeValue (wxString::Format (wxT("%ld"), m_columnShift));
-	
-   wxTextCtrl* lineScaleFactor = (wxTextCtrl*)FindWindow (IDC_LineScale);
-   lineScaleFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_lineScaleFactor));
-	
-   wxTextCtrl* columnScaleFactor = (wxTextCtrl*)FindWindow (IDC_ColumnScale);
-   columnScaleFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_columnScaleFactor));
-	
-   wxTextCtrl* rotationAngle = (wxTextCtrl*)FindWindow (IDC_RotationClockwise);
-   rotationAngle->ChangeValue (wxString::Format (wxT("%.1f"), m_rotationAngle));
-	
-   wxCheckBox* mapOrientationAngle =
-   										(wxCheckBox*)FindWindow (IDC_UseMapOrientationAngle);
-	mapOrientationAngle->SetValue (m_useMapOrientationAngleFlag);
 	
    m_channelsCtrl->SetSelection (m_channelSelection);
 	

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			08/25/2020
+//	Revision date:			08/11/2022
 //
 //	Language:				C
 //
@@ -273,13 +273,11 @@ void	SetHistogramLineColumnSpecs (
 
 void 	SetNumberOfMaximumDataValuesInArray (
 				HistogramSummaryPtr				histogramSummaryPtr,
-				HUInt32Ptr							histogramArrayPtr,
-				SInt32								signedValueOffset);
+				HUInt32Ptr							histogramArrayPtr);
 
 void	SetNumberOfMinimumDataValuesInArray (
 				HistogramSummaryPtr				histogramSummaryPtr,
-				HUInt32Ptr							histogramArrayPtr,
-				SInt32								signedValueOffset);
+				HUInt32Ptr							histogramArrayPtr);
 
 void	UpdateSupportFileTypeSetting (
 				WindowInfoPtr						windowInfoPtr,
@@ -463,7 +461,7 @@ void CloseUpHistogramArrayReadParameters (void)
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/09/1988
 //	Revised By:			Ravi S. Budruk			Date: 07/26/1988	
-//	Revised By:			Larry L. Biehl			Date: 03/01/2013	
+//	Revised By:			Larry L. Biehl			Date: 05/08/2022
 		
 Boolean ComputeHistogram (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,  
@@ -628,6 +626,49 @@ Boolean ComputeHistogram (
 		
 			localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
 			
+			Boolean checkFlag = FALSE;
+			if (fileInfoIndex == 1)
+				checkFlag = TRUE;
+				
+					// Force signed data to be converted to unsigned data if the number
+					// of bytes is less than equal to 2. The integer value itself is the
+					// index into an array.
+		
+			gConvertSignedDataFlag = TRUE;
+			if (localFileInfoPtr->numberBytes >= 4)
+				gConvertSignedDataFlag = FALSE;
+				
+					// For linked image files, need to make sure the data conversion code is
+					// correct for the per file data type.
+					
+			if (gImageWindowInfoPtr->localBytesDifferFlag)
+				{
+						// Need to take care of situation for linkedimages with differing byte counts.
+						// Be sure to force 8 output bytes for number bytes greater than or equal to 4.
+						
+				SInt16 forceByteCode = kForce4Bytes;
+				if (localFileInfoPtr->numberBytes >= 4)
+					forceByteCode = kForceReal8Bytes;
+					
+				Boolean signedDataFlag = localFileInfoPtr->signedDataFlag;
+				if (localFileInfoPtr->numberBytes <= 2 && gConvertSignedDataFlag)
+					signedDataFlag = FALSE;
+
+				fileIOInstructionsPtr->forceByteCode = forceByteCode;
+				integerFlag = FALSE;
+				if (fileIOInstructionsPtr->forceByteCode == kForce4Bytes)
+					integerFlag = TRUE;
+							
+				localFileInfoPtr->dataConversionCode = GetDataConversionCode (
+																		localFileInfoPtr->dataTypeCode,
+																		localFileInfoPtr->numberBytes,
+																		signedDataFlag,
+																		forceByteCode,
+																		signedDataFlag,
+																		NULL);
+				
+				}	// end "gImageWindowInfoPtr->localBytesDifferFlag"
+			
 					// Initialize image file min and max values and the number of decimal
 					// digits the data value statistic information is being computed.
 	
@@ -640,18 +681,10 @@ Boolean ComputeHistogram (
 				
 				}	// end "if (computeAveEtcFlag)"
 			
-					// Force signed data to be converted to unsigned data if the number
-					// of bytes is less than equal to 2. The integer value itself is the
-					// index into an array.
-		
-			gConvertSignedDataFlag = TRUE;
-			if (localFileInfoPtr->numberBytes >= 4)
-				gConvertSignedDataFlag = FALSE;
-			
 					// Get some information about this image file.						
 					
 					// Create a channel list for the current image file.				
-			
+			/*
 			imageFileNumberChannels = 0;
 			for (index=channelOffset; index<totalNumberChannels; index++)
 				{
@@ -667,7 +700,21 @@ Boolean ComputeHistogram (
 					break;
 				
 				}	// end "for (index=channelOffset+1; index..." 
+			*/
+			if (allChannelsAtTimeFlag)
+				{
+				localChannelListPtr = &channelListPtr[localFileInfoPtr->splitChannelsStart];
+				imageFileNumberChannels = localFileInfoPtr->numberSplitChannels;
 				
+				}	// end "if (allChannelsAtTimeFlag)"
+				
+			else	// !allChannelsAtTimeFlag
+				{
+				localChannelListPtr = channelListPtr;
+				imageFileNumberChannels = totalNumberChannels;
+			
+				}	// end "else !allChannelsAtTimeFlag"
+			
 			maxSaturatedValue = (double)(localFileInfoPtr->numberBins - 1);
 			numberSamples = (columnEnd - columnStart + columnInterval)/columnInterval;
 		
@@ -697,8 +744,14 @@ Boolean ComputeHistogram (
 												columnEnd,
 												columnInterval, 
 												imageFileNumberChannels,
-												localChannelListPtr,
+												channelListPtr,		// localChannelListPtr,
 												kDetermineSpecialBILFlag);
+
+			if (allChannelsAtTimeFlag)
+				fileIOInstructionsPtr->channelListIndexStart =
+															localFileInfoPtr->splitChannelsStart;
+			else	// !allChannelsAtTimeFlag
+				fileIOInstructionsPtr->channelListIndexStart = 0;
 				
 			if (localFileInfoPtr->numberBytes <= 2)
 				{	
@@ -706,12 +759,16 @@ Boolean ComputeHistogram (
 						channel<imageFileNumberChannels; 
 						channel++)
 					{
-					chanIndex = channelListPtr[channelOffset+channel];
+					//chanIndex = channelListPtr[channelOffset+channel];
+					chanIndex = localChannelListPtr[channel];
 										
 					histogramSummaryPtr[chanIndex].numberBins = 256;
 					
 					if (localFileInfoPtr->numberBytes == 2)
 						histogramSummaryPtr[chanIndex].numberBins = 65536;
+						
+					histogramSummaryPtr[chanIndex].signedValueOffset =
+													localFileInfoPtr->signedValueOffset;
 				
 					histogramSummaryPtr[chanIndex].binType = kDataValueIsBinIndex;
 					histogramSummaryPtr[chanIndex].binFactor = 1;
@@ -739,7 +796,8 @@ Boolean ComputeHistogram (
 						channel<imageFileNumberChannels; 
 						channel++)
 					{
-					chanIndex = channelListPtr[channelOffset+channel];					
+					//chanIndex = channelListPtr[channelOffset+channel];
+					chanIndex = localChannelListPtr[channel];
 					
 					limitDifference = histogramSummaryPtr[chanIndex].maxNonSatValue - 
 													histogramSummaryPtr[chanIndex].minNonSatValue;
@@ -778,6 +836,9 @@ Boolean ComputeHistogram (
 					else	// histogramSummaryPtr[chanIndex].binType == kBinWidthNotOne
 						histogramSummaryPtr[chanIndex].binFactor = 
 							(double)(histogramSummaryPtr[chanIndex].numberBins-3)/limitDifference;
+								
+					histogramSummaryPtr[chanIndex].signedValueOffset =
+																	localFileInfoPtr->signedValueOffset;
 						
 					}	// end "for (channel=0; channel<..." 
 					
@@ -825,7 +886,8 @@ Boolean ComputeHistogram (
 						channel<imageFileNumberChannels; 
 						channel++)
 					{
-					chanIndex = channelListPtr[channelOffset+channel];
+					//chanIndex = channelListPtr[channelOffset+channel];
+					chanIndex = localChannelListPtr[channel];
 					binFactor = histogramSummaryPtr[chanIndex].binFactor;
 					binType = histogramSummaryPtr[chanIndex].binType;
 					minValue = histogramSummaryPtr[chanIndex].minValue;
@@ -1048,9 +1110,8 @@ Boolean ComputeHistogram (
 				
 				if (TickCount () >= gNextStatusTime)
 					{
-					gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
-
 					#if defined multispec_mac
+						gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
 						if (gStatusProgressControlHandle != NULL)		
 							SetControlValue (gStatusProgressControlHandle, 
 													gStatusGraphicsBox.right);
@@ -1060,11 +1121,13 @@ Boolean ComputeHistogram (
 					#endif	// defined multispec_mac
 
 					#if defined multispec_win
+						gStatusGraphicsBox.right = (SInt32)gStatusGraphicsRight;
 						((CProgressCtrl*)(gStatusDialogPtr->GetDlgItem (IDC_Status7)))->
 															SetPos ((SInt32)gStatusGraphicsRight);
 					#endif	// defined multispec_win
 
                #if defined multispec_wx
+						gStatusGraphicsBox.right = (SInt32)gStatusGraphicsRight;
 						((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 															SetValue ((SInt32)gStatusGraphicsRight);
 						CheckSomeEvents (osMask+updateMask);
@@ -1326,8 +1389,8 @@ Boolean ComputeHistogram (
 		
 				// Update the status dialog box.												
 				
-		gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
 		#if defined multispec_mac
+			gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
 			if (gStatusProgressControlHandle != NULL)		
 				SetControlValue (gStatusProgressControlHandle, 
 										gStatusGraphicsBox.right);
@@ -1451,7 +1514,7 @@ UInt32 CountTotalNumberHistogramPixels (
 // Called By:			DoHistogramRequests in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1988
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 08/11/2022
 
 Boolean CreateSTASupportFile (
 				FileInfoPtr							fileInfoPtr, 
@@ -1470,6 +1533,8 @@ Boolean CreateSTASupportFile (
 	CMFileStream						supportFileStreamCopy,
 											*fileStreamPtr,
 											*supportFileStreamPtr;
+											
+	FileInfoPtr							localFileInfoPtr;
 	
 	HistogramSummaryPtr				histogramSummaryPtr;
 	
@@ -1478,17 +1543,13 @@ Boolean CreateSTASupportFile (
 	UInt32								*ioTempBufferPtr;
 	
 	SInt32								channel,
-											//compaction,
-											//endValue,
 											fourBytesZero = 0,
 											signedValueOffset,
-											//startValue,
 											tempLongInt,
 											tempSInt32;
 	
 	UInt32								binIndex,
 											count,
-											//channelOffsetCount,
 											endValue,
 											imageValue,
 											numberBins,
@@ -1498,6 +1559,7 @@ Boolean CreateSTASupportFile (
 	
 	SInt16								channelEnd,
 											errCode = noErr,
+											fileInfoIndex,
 											twoBytesZero = 0;
 	
 	UInt16								tempInt,
@@ -1534,7 +1596,6 @@ Boolean CreateSTASupportFile (
 			// Initialize local variables.													
 			
 	continueFlag = TRUE;
-	signedValueOffset = gImageFileInfoPtr->signedValueOffset;
 	numberBytes = 9 * 128;
 	histogramSummaryPtr = histogramSpecsPtr->histogramSummaryPtr;
 	
@@ -1669,10 +1730,21 @@ Boolean CreateSTASupportFile (
 				
 		gSwapBytesFlag = gBigEndianFlag;
 		
+		fileInfoIndex = -1;
 		for (channel=channelIndex; 
 				channel<channelEnd; 
 				channel++)
 			{
+					// Get the proper fileInfoPtr for the specified window "channel".
+				
+			if (fileInfoIndex != (SInt16)gImageLayerInfoPtr[channel+1].fileInfoIndex)
+				{
+				fileInfoIndex = gImageLayerInfoPtr[channel+1].fileInfoIndex;
+				localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+				signedValueOffset = localFileInfoPtr->signedValueOffset;
+				
+				}	// end "if (fileInfoIndex != ..."
+				
 					// Load in 'TRAIL74'.										
 			
 			BlockMoveData ((char*)erdasHeader, ioChanBufferPtr, 7);
@@ -1682,14 +1754,26 @@ Boolean CreateSTASupportFile (
 			theChar = (char)channel+1;
 			BlockMoveData (&theChar, &ioChanBufferPtr[7], 1);
 	
-					// Write maximum value for band.											
+					// Write maximum value for band.
+					// This value is not used in .sta when data values are
+					// more than 1 byte. Just enter max value when value is more than 255.
 	
-			theChar = (char)(histogramSummaryPtr[channel].maxValue + signedValueOffset);
+			if (localFileInfoPtr->numberBytes > 1)
+			// histogramSummaryPtr[channel].maxValue + signedValueOffset > 255)
+				theChar = 255;
+			else	// histogramSummaryPtr[channel].maxValue + signedValueOffset <= 255)
+				theChar = (char)(histogramSummaryPtr[channel].maxValue + signedValueOffset);
 			BlockMoveData (&theChar, &ioChanBufferPtr[8], 1);
 	
-					// Write minimum value for band.											
+					// Write minimum value for band.
+					// This value is not used in .sta is not used when data values are
+					// more than 1 byte. Just enter max value when value is more than 255.
 	
-			theChar = (char)(histogramSummaryPtr[channel].minValue + signedValueOffset);
+			if (localFileInfoPtr->numberBytes > 1)
+			// histogramSummaryPtr[channel].minValue + signedValueOffset > 255)
+				theChar = 255;
+			else	// histogramSummaryPtr[channel].minValue + signedValueOffset <= 255)
+				theChar = (char)(histogramSummaryPtr[channel].minValue + signedValueOffset);
 			BlockMoveData (&theChar, &ioChanBufferPtr[9], 1);
 	
 					// Write zeros for unused bytes.											
@@ -1706,7 +1790,7 @@ Boolean CreateSTASupportFile (
 	
 			BlockMoveData ((char*)&fourBytesZero, &ioChanBufferPtr[16], 4);
 	
-					// Write channel medium.													
+					// Write channel median.
 	
 			tempLongInt = ConvertRealAT (
 					(double)(histogramSummaryPtr[channel].medianValue + signedValueOffset));
@@ -1718,17 +1802,27 @@ Boolean CreateSTASupportFile (
 											(double)histogramSummaryPtr[channel].stdDeviation);
 			BlockMoveData ((char*)&tempLongInt, &ioChanBufferPtr[24], 4);
 	
-					// Write maximum value for band (two bytes format).				
+					// Write maximum value for band (two bytes format).
+					// This value in .sta files is not used when data values are
+					// more than 2 byte. Just enter max 16-bit value.
 	
-			tempUInt16 = (UInt16)(
+			if (localFileInfoPtr->numberBytes > 2)
+				tempUInt16 = UInt16_MAX;
+			else	// localFileInfoPtr->numberBytes <= 2
+				tempUInt16 = (UInt16)(
 								histogramSummaryPtr[channel].maxValue + signedValueOffset);
       	tempInt = GetShortIntValue ((char*)&tempUInt16);
 			BlockMoveData ((char*)&tempInt, &ioChanBufferPtr[28], 2);
 	
-					// Write minimum value for band (two bytes format).				
-	
+					// Write minimum value for band (two bytes format).
+					// This value in .sta files is not used when data values are
+					// more than 2 byte. Just enter min 16-bit value.
+
+		if (localFileInfoPtr->numberBytes > 2)
+			tempUInt16 = 0;
+		else	// localFileInfoPtr->numberBytes <= 2
 			tempUInt16 =
-						(UInt16)(histogramSummaryPtr[channel].minValue + signedValueOffset);
+					(UInt16)(histogramSummaryPtr[channel].minValue + signedValueOffset);
       	tempInt = GetShortIntValue ((char*)&tempUInt16);
 			BlockMoveData ((char*)&tempInt, &ioChanBufferPtr[30], 2);
 			/*
@@ -1862,7 +1956,7 @@ Boolean CreateSTASupportFile (
 				tempDoubleValue = GetDoubleValue ((UCharPtr)&tempDoubleValue);
 				BlockMoveData ((char*)&tempDoubleValue, &ioChanBufferPtr[82], 8);
 	
-						// Write channel medium value for band (8-byte real format).					
+						// Write channel median value for band (8-byte real format).
 						// (MultiSpec specific field)																								
 		
 				tempDoubleValue = histogramSummaryPtr[channel].medianValue + 
@@ -1884,6 +1978,8 @@ Boolean CreateSTASupportFile (
 			if (medianArrayPtr != NULL)
 				{
 				numberBins = histogramSummaryPtr[channel].numberBins;
+				startValue = 0;
+				endValue = numberBins;
 				
 						// Write histogram values compaction value.	
 						
@@ -1891,7 +1987,7 @@ Boolean CreateSTASupportFile (
 					compaction = 1;
 				
 				else	// numberBins > 256 
-					{						
+					{
 					if (histogramSummaryPtr[channel].binType == kDataValueIsBinIndex)
 						{
 						startValue = (SInt32)(histogramSummaryPtr[channel].minNonSatValue +
@@ -2202,7 +2298,7 @@ UInt32 GetNumberOfMinimumDataValues (
 //							ReadERDAS_staFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
-//	Revised By:			Larry L. Biehl			Date: 05/11/2020
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 Boolean DecodeSTASupportFile (
 				HistogramSpecsPtr					histogramSpecsPtr, 
@@ -2218,6 +2314,8 @@ Boolean DecodeSTASupportFile (
 											minNonSatIndexValue,
 											nextBinForSTABinRead,
 											tempDoubleValue;
+											
+	FileInfoPtr							localFileInfoPtr;
 	
 	HistogramSummaryPtr				histogramSummaryPtr;
 	
@@ -2229,6 +2327,7 @@ Boolean DecodeSTASupportFile (
 	
 	SInt32								compactionCount,
 											count,
+											fileInfoIndex,
 											numberBinsPerInputDataValue,
 											numberBytesPerChannel,
 											signedValueOffset,
@@ -2275,12 +2374,12 @@ Boolean DecodeSTASupportFile (
 														gImageFileInfoPtr->minUsableDataValue);
 	else	// gImageFileInfoPtr->numberBits > 16
 		maxImageIndexValue = UInt16_MAX;
-	signedValueOffset = gImageFileInfoPtr->signedValueOffset;
 	maxHistogramIndexValue = MIN (255, maxImageIndexValue);
 	numberBytesPerChannel = 9 * 128;
 	channel = 0;
 	histogramSummaryPtr = histogramSpecsPtr->histogramSummaryPtr;
 	savedHistogramArrayPtr = histogramArrayPtr;
+	signedValueOffset = 0;
 	
 	if (summaryFlag)
 		{
@@ -2295,11 +2394,30 @@ Boolean DecodeSTASupportFile (
 			
 	gSwapBytesFlag = gBigEndianFlag;
 			
+	fileInfoIndex = -1;
 	for (index=0; 
 			index<numberChannels; 
 			index++)
 		{
 		channel = channelListPtr[index];
+		
+		if (fileInfoIndex !=
+							(SInt16)gImageLayerInfoPtr[channel+1].fileInfoIndex)
+			{
+			fileInfoIndex = gImageLayerInfoPtr[channel+1].fileInfoIndex;
+			localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
+
+			signedValueOffset = localFileInfoPtr->signedValueOffset;
+				
+			if (localFileInfoPtr->numberBits <= 16)
+				maxImageIndexValue = (UInt32)(localFileInfoPtr->maxUsableDataValue -
+																localFileInfoPtr->minUsableDataValue);
+			else	// localFileInfoPtr->numberBits > 16
+				maxImageIndexValue = UInt16_MAX;
+
+			maxHistogramIndexValue = MIN (255, maxImageIndexValue);
+				
+			}	// end "if (fileInfoIndex != ..."
 		
 				// Determine whether this is modified version, i.e. 'VER2'.			
 			
@@ -2325,7 +2443,7 @@ Boolean DecodeSTASupportFile (
 									(double)ConvertATRealtoReal (&statBufferPtr[12]);
 			histogramSummaryPtr[channel].averageValue -= signedValueOffset;
 	
-					// Get channel medium.														
+					// Get channel median.
 	
 			histogramSummaryPtr[channel].medianValue = 
 									(double)ConvertATRealtoReal (&statBufferPtr[20]);
@@ -2353,6 +2471,8 @@ Boolean DecodeSTASupportFile (
 					
 			histogramSummaryPtr[channel].maxNonSatValue = SInt32_MAX;
 			histogramSummaryPtr[channel].minNonSatValue = SInt32_MAX;
+			
+			histogramSummaryPtr[channel].signedValueOffset = signedValueOffset;
 			
 
 			if (versionCode == 0)		
@@ -2454,6 +2574,26 @@ Boolean DecodeSTASupportFile (
 
 			else if (versionCode == 3)
 				{
+						// Get number of bins in original histogram
+														
+				histogramSummaryPtr[channel].numberBins =
+																GetLongIntValue (&statBufferPtr[76]);
+				/*
+						// Try to catch case for a mixture of original data types if this was
+						// as .sta file for a linked set of files that had different data types.
+						// Specifically 1-byte or 2-byte integer for which a signedValueOffset is
+						// need or 4-byte integer/real or 8-byte real data type for which the
+						// signedValueOffset is 0.
+						
+				if (histogramSummaryPtr[channel].numberBins == 256 ||
+															histogramSummaryPtr[channel].numberBins > 2048)
+					signedValueOffset = 32768;
+				
+				else	// histogramSummaryPtr[channel].numberBins == 2048
+					signedValueOffset = 0;
+				*/
+				histogramSummaryPtr[channel].signedValueOffset = signedValueOffset;
+																
 						// Get the maximum value for the band.			
 				
 				tempDoubleValue = GetDoubleValue ((UCharPtr)&statBufferPtr[36]);
@@ -2483,11 +2623,6 @@ Boolean DecodeSTASupportFile (
 				if (histogramSpecsPtr->totalPixels == 0)
 					histogramSpecsPtr->totalPixels = 
 															GetLongIntValue (&statBufferPtr[68]);
-														
-						// Get number of bins in original histogram
-														
-				histogramSummaryPtr[channel].numberBins = 
-															GetLongIntValue (&statBufferPtr[76]);
 														
 						// Get the bin type		
 				
@@ -2796,8 +2931,7 @@ Boolean DecodeSTASupportFile (
 				}	// end "else numberBins > 256 ..." 
 				
 			SetNumberOfMinimumDataValuesInArray (&histogramSummaryPtr[channel],
-																savedHistogramArrayPtr,
-																signedValueOffset);
+																savedHistogramArrayPtr);
 			
 					// Get the number of maximum data values.						
 					
@@ -2805,8 +2939,7 @@ Boolean DecodeSTASupportFile (
 													ConvertATRealtoInt (&statBufferPtr[1148]);
 			
 			SetNumberOfMaximumDataValuesInArray (&histogramSummaryPtr[channel],
-																savedHistogramArrayPtr,
-																signedValueOffset);
+																savedHistogramArrayPtr);
 				
 			savedHistogramArrayPtr += histogramSpecsPtr->maxNumberBins;
 			histogramArrayPtr = savedHistogramArrayPtr;
@@ -3129,9 +3262,8 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 			
 		if (TickCount () >= gNextStatusTime)
 			{
-			gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
-
 			#if defined multispec_mac
+				gStatusGraphicsBox.right = (SInt16)gStatusGraphicsRight;
 				if (gStatusProgressControlHandle != NULL)
 					SetControlValue (gStatusProgressControlHandle,
 											gStatusGraphicsBox.right);
@@ -3141,11 +3273,13 @@ Boolean DetermineMinAndMaxValuesForEachChannel (
 			#endif	// defined multispec_mac
 
 			#if defined multispec_win
+				gStatusGraphicsBox.right = (SInt32)gStatusGraphicsRight;
 				((CProgressCtrl*)(gStatusDialogPtr->GetDlgItem (IDC_Status7)))->
 																SetPos ((SInt32)gStatusGraphicsRight);
 			#endif	// defined multispec_win
 
 			#if defined multispec_wx
+				gStatusGraphicsBox.right = (SInt32)gStatusGraphicsRight;
 				((wxGauge*)(gStatusDialogPtr->FindWindow (IDC_Status7)))->
 														SetValue ((SInt32)gStatusGraphicsRight);
 				CheckSomeEvents (osMask+updateMask);
@@ -3255,7 +3389,7 @@ Boolean DetermineIfEFormatRequired (
 // Called By:			HistogramControl   in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/14/1993	
-//	Revised By:			Larry L. Biehl			Date: 05/02/2018
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean DoHistogramRequests (
 				HistogramSpecsPtr					histogramSpecsPtr)
@@ -3301,7 +3435,7 @@ Boolean DoHistogramRequests (
 		computeCode = 3;
 	
 	forceByteCode = kForce4Bytes;
-	if (gImageFileInfoPtr->numberBytes >= 4)
+	if (gImageWindowInfoPtr->numberBytes >= 4)
 		forceByteCode = kForceReal8Bytes;
 		
 	summaryFlag = TRUE;
@@ -3356,7 +3490,7 @@ Boolean DoHistogramRequests (
 				if (continueFlag)
 					{
 					gConvertSignedDataFlag = TRUE;
-					if (gImageWindowInfoPtr->numberBytes >= 4)
+					if (gImageWindowInfoPtr->numberBytes >= 4 && !gImageWindowInfoPtr->localBytesDifferFlag)
 						gConvertSignedDataFlag = FALSE;
 				
 					continueFlag = GetIOBufferPointers (&gFileIOInstructions[0],
@@ -3371,7 +3505,7 @@ Boolean DoHistogramRequests (
 																	(SInt16)numberChannels, 
 																	channelsPtr,
 																	kPackData, 
-																	kDoNotForceBISFormat, 
+																	kDoNotForceFormat, 
 																	forceByteCode,
 																	kDoNotAllowForThreadedIO,
 																	&fileIOInstructionsPtr);
@@ -3396,6 +3530,7 @@ Boolean DoHistogramRequests (
 						histogramSummaryPtr[cIndex].minNonSatValue = DBL_MAX;
 						histogramSummaryPtr[cIndex].maxNonSatValue = -DBL_MAX;
 						histogramSummaryPtr[cIndex].badValues = 0;
+						histogramSummaryPtr[cIndex].signedValueOffset = 0;
 						histogramSummaryPtr[cIndex].stdDeviation = 0;
 						histogramSummaryPtr[cIndex].averageValue = 0;
 						histogramSummaryPtr[cIndex].medianValue = 0;
@@ -3776,7 +3911,7 @@ void ForceHistogramCodeResourceLoad ()
 //							UpdateEnhancementMinMaxes in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	09/30/1993
-//	Revised By:			Larry L. Biehl			Date: 10/21/2006
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 Boolean GetClippedMinMaxValues (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -3812,13 +3947,11 @@ Boolean GetClippedMinMaxValues (
 	
 		*minValueIndexPtr = GetDataValueForBinIndex (
 												minValueIndex,
-												&histogramSummaryPtr[channel],
-												gImageFileInfoPtr->signedValueOffset);
+												&histogramSummaryPtr[channel]);
 			
 		*maxValueIndexPtr = GetDataValueForBinIndex (
 												maxValueIndex,
-												&histogramSummaryPtr[channel],
-												gImageFileInfoPtr->signedValueOffset);
+												&histogramSummaryPtr[channel]);
 
 		}	// end "if (continueFlag)"
 		
@@ -3891,14 +4024,14 @@ Boolean GetClippedMinMaxValueIndices (
 			// Intialize the min and max bin indices.
 			
 	*minValueIndexPtr = GetBinIndexForDataValue (
-											histogramSummaryPtr[channel].minNonSatValue + 
-													gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channel]);
+									histogramSummaryPtr[channel].minNonSatValue, // +
+											// histogramSummaryPtr[channel].signedValueOffset,
+									&histogramSummaryPtr[channel]);
 			
 	*maxValueIndexPtr = GetBinIndexForDataValue (
-											histogramSummaryPtr[channel].maxNonSatValue + 
-													gImageFileInfoPtr->signedValueOffset,
-											&histogramSummaryPtr[channel]);	
+									histogramSummaryPtr[channel].maxNonSatValue, // +
+											// histogramSummaryPtr[channel].signedValueOffset,
+									&histogramSummaryPtr[channel]);
 											
 	continueFlag = TRUE;
 	
@@ -4052,8 +4185,8 @@ Boolean GetClippedMinMaxValueIndices (
 				
 	if (continueFlag && adjustDataFlag && gImageFileInfoPtr->signedDataFlag)
 		{
-		*minValueIndexPtr -= gImageFileInfoPtr->signedValueOffset;
-		*maxValueIndexPtr -= gImageFileInfoPtr->signedValueOffset;
+		*minValueIndexPtr -= histogramSummaryPtr[channel].signedValueOffset;
+		*maxValueIndexPtr -= histogramSummaryPtr[channel].signedValueOffset;
 		
 		}	// end "if (continueFlag && adjustDataFlag && ..."
 		
@@ -4270,7 +4403,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 //							GetClippedMinMaxValues in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/09/1995
-//	Revised By:			Larry L. Biehl			Date: 10/22/1999
+//	Revised By:			Larry L. Biehl			Date: 09/05/2020
 
 Boolean GetHistogramVectorForChannel (
 				HistogramSpecsPtr					histogramSpecsPtr,  
@@ -4299,7 +4432,7 @@ Boolean GetHistogramVectorForChannel (
 				
 		currentLayerChannel = ULONG_MAX;
 
-		continueFlag = LoadImagineImageStatisticsForChannel (
+		continueFlag = LoadImagineImageStatisticsForChannel2 (
 														gImageFileInfoPtr,
 														histogramSpecsPtr->histogramSummaryPtr, 
 														histogramSpecsPtr->histogramArrayPtr, 
@@ -6517,7 +6650,7 @@ Boolean HistogramDialogUpdateAllChannelsAtOnceFlag (
 //							DisplayMultispectralImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/01/1993
-//	Revised By:			Larry L. Biehl			Date: 06/09/2004
+//	Revised By:			Larry L. Biehl			Date: 02/28/2022
 
 Handle InitializeHistogramInfoStructure (
 				Handle								histogramSpecsHandle,
@@ -6620,7 +6753,7 @@ Handle InitializeHistogramInfoStructure (
 			histogramSpecsPtr->totalPixels = 0;
 			
 			histogramSpecsPtr->maxNumberBins = gImageWindowInfoPtr->numberBins;
-			if (gImageWindowInfoPtr->numberBytes > 2)
+			if (gImageWindowInfoPtr->numberBytes > 2 && !gImageWindowInfoPtr->localBytesDifferFlag)
 				histogramSpecsPtr->maxNumberBins = 2048;
 			
 			histogramSpecsPtr->numberChannels = 
@@ -6701,7 +6834,7 @@ Handle InitializeHistogramInfoStructure (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 06/09/2004
-//	Revised By:			Larry L. Biehl			Date: 12/16/2005
+//	Revised By:			Larry L. Biehl			Date: 03/01/2022
 
 void InitializeHistogramSummaryStructure (
 				HistogramSummaryPtr 				histogramSummaryPtr,
@@ -6725,6 +6858,7 @@ void InitializeHistogramSummaryStructure (
 		histogramSummaryPtr[chanIndex].minValue = 0.;
 		histogramSummaryPtr[chanIndex].stdDeviation = 0.;
 		histogramSummaryPtr[chanIndex].badValues = 0;
+		histogramSummaryPtr[chanIndex].signedValueOffset = 0;
 		histogramSummaryPtr[chanIndex].numberBins = 256;
 		histogramSummaryPtr[chanIndex].binType = kDataValueIsBinIndex;
 		histogramSummaryPtr[chanIndex].numberEDecimalDigits = 0;
@@ -6777,7 +6911,7 @@ void InitializeHistogramSummaryStructure (
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/18/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/11/1988	
-//	Revised By:			Larry L. Biehl			Date: 08/25/2020
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 Boolean ListHistogramSummary (
 				FileInfoPtr							fileInfoPtr, 
@@ -6830,6 +6964,7 @@ Boolean ListHistogramSummary (
 	
 	
 	continueFlag = TRUE;
+	localFileInfoPtr = NULL;
 	
 	if (histogramSpecsPtr->loadedFlag && 
 							histogramSpecsPtr->listHistSummaryFlag)
@@ -7012,7 +7147,7 @@ Boolean ListHistogramSummary (
 			if (fileInfoIndex != 
 								(SInt16)gImageLayerInfoPtr[channelNum+1].fileInfoIndex)
 				{
-				if (fileInfoIndex != -1)	
+				if (fileInfoIndex != -1 && localFileInfoPtr != NULL)
 					CheckAndUnlockHandle (localFileInfoPtr->channelDescriptionH);
 						
 				fileInfoIndex = gImageLayerInfoPtr[channelNum+1].fileInfoIndex;
@@ -7327,7 +7462,7 @@ Boolean ListHistogramTitle (
 //
 //	Coded By:			Ravi S. Budruk			Date: 07/13/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 08/24/2020
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 Boolean ListHistogramValues (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -7339,6 +7474,8 @@ Boolean ListHistogramValues (
 {
 			// Declare parameters																
 	
+	//FileInfoPtr							localFileInfoPtr;
+	
 	HPtr									charPtr;
 											
 	GrafPtr								savedPort;
@@ -7349,11 +7486,10 @@ Boolean ListHistogramValues (
 	double								binFactor,
 											dataValue,
 											forLineMaxValue,
-											forLineMinValue,
-											maxValue,
-											minValue;
+											forLineMinValue;
 	
 	SInt32								endValue,
+											//fileInfoIndex,
 											index,
 											m,
 											numberBytes,
@@ -7363,6 +7499,8 @@ Boolean ListHistogramValues (
 	
 	UInt32								channelIndex,
 											lastChannelIndex,
+											maxIndexValue,
+											minIndexValue,
 											numberBufferBytes,
 											summaryIndex,
 											textLength;
@@ -7415,8 +7553,6 @@ Boolean ListHistogramValues (
 			
 	numberChannels = histogramSpecsPtr->numberChannels;
 	
-	signedValueOffset = fileInfoPtr->signedValueOffset;
-	
 	continueFlag = TRUE;
 	
 			// Determine if one set of title lines will work for all channels.
@@ -7464,6 +7600,7 @@ Boolean ListHistogramValues (
 			channelIndex++)
 		{
 		summaryIndex = featurePtr[channelIndex];
+		signedValueOffset = histogramSummaryPtr[summaryIndex].signedValueOffset;
 		
 		if (!oneTitleLinesForAllChannelsFlag || startChannelIndex == 0)
 			{
@@ -7474,26 +7611,30 @@ Boolean ListHistogramValues (
 						// byte data.  If 4-byte or more data are listed with one title
 						// then this logic will have to be changed.														
 			
-				minValue = UInt16_MAX;
-				maxValue = 0;
+				minIndexValue = UInt16_MAX;
+				maxIndexValue = 0;
 				 
 				for (index=0; index<numberChannels; index++)
 					{
 					m = featurePtr[index];
 					
-					value = (SInt32)(histogramSummaryPtr[m].minValue + signedValueOffset);
+					//fileInfoIndex = gImageLayerInfoPtr[m+1].fileInfoIndex;
+					//localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+					SInt32 signedValueOffset2 = histogramSummaryPtr[m].signedValueOffset;
+					
+					value = (SInt32)(histogramSummaryPtr[m].minValue + signedValueOffset2);
 					if (value == 0)
 						value = (SInt32)(histogramSummaryPtr[m].minNonSatValue + 
-																						signedValueOffset);
+																						signedValueOffset2);
 						
-					minValue = MIN (minValue, value);
+					minIndexValue = MIN (minIndexValue, value);
 											
-					value = (SInt32)(histogramSummaryPtr[m].maxValue + signedValueOffset);
+					value = (SInt32)(histogramSummaryPtr[m].maxValue + signedValueOffset2);
 					if (value == gImageWindowInfoPtr->numberBins - 1)
 						value = (SInt32)(histogramSummaryPtr[m].maxNonSatValue + 
-																						signedValueOffset);
+																						signedValueOffset2);
 											
-					maxValue = MAX (maxValue, value);
+					maxIndexValue = MAX (maxIndexValue, value);
 							
 					}	// end "for (index=0; index<..." 
 					
@@ -7505,8 +7646,8 @@ Boolean ListHistogramValues (
 						
 				if (gImageWindowInfoPtr->numberBytes <= 2)
 					{
-					maxValue = MIN (maxValue, (SInt32)gImageWindowInfoPtr->numberBins-1);
-					minValue = MIN (minValue, (SInt32)gImageWindowInfoPtr->numberBins-1);
+					maxIndexValue = MIN (maxIndexValue, (SInt32)gImageWindowInfoPtr->numberBins-1);
+					minIndexValue = MIN (minIndexValue, (SInt32)gImageWindowInfoPtr->numberBins-1);
 						
 					}	// end "if (gImageWindowInfoPtr->numberBytes <= 2)"
 					
@@ -7521,8 +7662,10 @@ Boolean ListHistogramValues (
 				
 			else	// !oneTitleLinesForAllChannelsFlag
 				{
-				minValue = histogramSummaryPtr[summaryIndex].minValue + signedValueOffset;
-				maxValue = histogramSummaryPtr[summaryIndex].maxValue + signedValueOffset;
+				minIndexValue = GetBinIndexForDataValue (histogramSummaryPtr[summaryIndex].minValue,
+																		&histogramSummaryPtr[summaryIndex]);
+				maxIndexValue = GetBinIndexForDataValue (histogramSummaryPtr[summaryIndex].maxValue,
+																		&histogramSummaryPtr[summaryIndex]);
 				binFactor = histogramSummaryPtr[summaryIndex].binFactor;
 	
 						// Get the maximum length of the field expected for the data value.
@@ -7532,13 +7675,20 @@ Boolean ListHistogramValues (
 					
 				}	// end "else !oneTitleLinesForAllChannelsFlag"
 			
-			histogramSpecsPtr->overallMaxValue = maxValue;
-			histogramSpecsPtr->overallMinValue = minValue;
+			//histogramSpecsPtr->overallMinValue = minIndexValue;
+			//histogramSpecsPtr->overallMaxValue = maxIndexValue;
+			
+			histogramSpecsPtr->overallMinValue = GetDataValueForBinIndex (minIndexValue,
+																								&histogramSummaryPtr[summaryIndex]);
+																								
+			histogramSpecsPtr->overallMaxValue = GetDataValueForBinIndex (maxIndexValue,
+																								&histogramSummaryPtr[summaryIndex]);
 			
 			if (fileInfoPtr->numberBytes <= 2)
 				{
 				NumToString (
-							(UInt32)fileInfoPtr->numberBins-signedValueOffset, gTextString);
+						(UInt32)histogramSummaryPtr[summaryIndex].numberBins-signedValueOffset,
+						gTextString);
 				maxValueCountTextWidth = gTextString[0];
 				
 				NumToString ((SInt64)(-signedValueOffset), gTextString);
@@ -7699,13 +7849,14 @@ Boolean ListHistogramValues (
 				
 				if (oneTitleLinesForAllChannelsFlag)
 					{
-					startValue = (SInt32)minValue;
-					endValue = (SInt32)maxValue;
+					startValue = (SInt32)minIndexValue;
+					endValue = (SInt32)maxIndexValue;
 					
 					}	// end "if (oneTitleLinesForAllChannelsFlag)"
 					
 				else	//!oneTitleLinesForAllChannelsFlag
 					{
+					/*
 					if (gImageWindowInfoPtr->numberBytes > 2)
 						{
 						startValue = 1;
@@ -7714,7 +7865,7 @@ Boolean ListHistogramValues (
 						}	// end "if (gImageWindowInfoPtr->numberBytes > 2)"
 					
 					else	// gImageWindowInfoPtr->numberBytes <= 2
-						{
+						{ */
 						startValue = GetBinIndexForDataValue (
 										histogramSummaryPtr[summaryIndex].minNonSatValue,
 										&histogramSummaryPtr[summaryIndex]);
@@ -7723,7 +7874,12 @@ Boolean ListHistogramValues (
 										histogramSummaryPtr[summaryIndex].maxNonSatValue,
 										&histogramSummaryPtr[summaryIndex]);
 										
-						}	// end "else gImageWindowInfoPtr->numberBytes <= 2"
+								// Take into account any needed signed value adjust
+								
+						//startValue += signedValueOffset;
+						//endValue += signedValueOffset;
+										
+						//}	// end "else gImageWindowInfoPtr->numberBytes <= 2"
 					
 					}	// end "else !oneTitleLinesForAllChannelsFlag"
 				
@@ -7784,8 +7940,7 @@ Boolean ListHistogramValues (
 					{
 					dataValue = GetDataValueForBinIndex (
 																index,
-																&histogramSummaryPtr[summaryIndex],
-																signedValueOffset);
+																&histogramSummaryPtr[summaryIndex]);
 					
 					textLength = LoadRealValueString (charPtr,
 																	dataValue,
@@ -7818,7 +7973,8 @@ Boolean ListHistogramValues (
 						// List maximum saturated data value.
 				
 				if (oneTitleLinesForAllChannelsFlag)
-					dataValue = gImageWindowInfoPtr->numberBins - 1 - signedValueOffset;
+					dataValue = gImageWindowInfoPtr->numberBins - 1 -
+																			signedValueOffset;
 				
 				else	// !oneTitleLinesForAllChannelsFlag
 					dataValue = histogramSummaryPtr[summaryIndex].maxValue;
@@ -7864,20 +8020,9 @@ Boolean ListHistogramValues (
 			sprintf (gCharBufferPtr1, "    ");
 				
 			if (lineFormatHistFlag)
-				{				
-				if (gImageWindowInfoPtr->numberBytes <= 2)
-					{
-					forLineMinValue = histogramSpecsPtr->overallMinValue;
-					forLineMaxValue = histogramSpecsPtr->overallMaxValue;
-						
-					}	// end "if (gImageWindowInfoPtr->numberBytes <= 2)"
-					
-				else	// gImageWindowInfoPtr->numberBytes > 2
-					{
-					forLineMinValue = histogramSummaryPtr[summaryIndex].minNonSatValue;
-					forLineMaxValue = histogramSummaryPtr[summaryIndex].maxNonSatValue;
-					
-					}	// end "else gImageWindowInfoPtr->numberBytes > 2
+				{
+				forLineMinValue = histogramSummaryPtr[summaryIndex].minNonSatValue;
+				forLineMaxValue = histogramSummaryPtr[summaryIndex].maxNonSatValue;
 				
 				continueFlag = ListHistogramValuesInLines (histogramSpecsPtr,
 																			resultsFileStreamPtr,
@@ -7896,7 +8041,7 @@ Boolean ListHistogramValues (
 																			ePrecision,
 																			fPrecision);
 					
-				}	// end ""
+				}	// end "if (lineFormatHistFlag)"
 			
 			else	// !lineFormatHistFlag 
 				continueFlag = ListHistogramValuesInColumns (
@@ -7969,7 +8114,7 @@ Boolean ListHistogramValues (
 // Called By:			ListHistogramValues
 //
 //	Coded By:			Larry L. Biehl			Date: 10/26/1993
-//	Revised By:			Larry L. Biehl			Date: 08/04/2016	
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 Boolean ListHistogramValuesInColumns (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -8006,7 +8151,7 @@ Boolean ListHistogramValuesInColumns (
 	
 	SInt32								countFlag,
 											medianArrayIndex,
-											signedValueOffset,
+											//signedValueOffset,
 											textLength,
 											value,
 											valueAfter,
@@ -8018,12 +8163,6 @@ Boolean ListHistogramValuesInColumns (
 	continueFlag = TRUE;
 	maxBinIndex = fileInfoPtr->numberBins - 1;
 	
-			// Get the offset to use in case the data are signed values.  Note	
-			// that this code will not handle more than one image file with		
-			// mixed signed and unsigned data values correctly yet.					
-			
-	signedValueOffset = fileInfoPtr->signedValueOffset;
-	
 			// Get the summary index for the first channel to be listed.
 			
 	summaryIndex = featurePtr[startChannelIndex];
@@ -8033,7 +8172,7 @@ Boolean ListHistogramValuesInColumns (
 			
 	minValueIndex = GetBinIndexForDataValue (minValue,
 															&histogramSummaryPtr[summaryIndex]);
-			
+	
 	maxValueIndex = GetBinIndexForDataValue (maxValue,
 															&histogramSummaryPtr[summaryIndex]);
 															
@@ -8103,9 +8242,9 @@ Boolean ListHistogramValuesInColumns (
 			
 			summaryIndex = featurePtr[startChannelIndex];
 					
-			dataValue = GetDataValueForBinIndex (m,
-																&histogramSummaryPtr[summaryIndex],
-																signedValueOffset);
+			dataValue = GetDataValueForBinIndex (
+										m,
+										&histogramSummaryPtr[summaryIndex]);
 				
 			textLength = LoadRealValueString (gCharBufferPtr1,
 															dataValue,
@@ -8248,10 +8387,12 @@ Boolean ListHistogramValuesInLines (
 {
 			// Declare parameters	
 	
+	FileInfoPtr							localFileInfoPtr;
 	HPtr									charPtr;
 	HUInt32Ptr							medianArrayChanPtr;															
 	
 	SInt32								channelOffsetCount,
+											fileInfoIndex,
 											textLength;
 	
 	UInt32								binIndex,
@@ -8264,11 +8405,15 @@ Boolean ListHistogramValuesInLines (
 			
 	channelOffsetCount = histogramSpecsPtr->maxNumberBins;
 	continueFlag = TRUE;
+	fileInfoIndex = -1;
 	
 	for (channelIndex=startChannelIndex; 
 			channelIndex<=lastChannelIndex; 
 			channelIndex++)
 		{
+		fileInfoIndex = gImageLayerInfoPtr[featurePtr[channelIndex]+1].fileInfoIndex;
+		localFileInfoPtr = &gImageFileInfoPtr[fileInfoIndex];
+		
 				// Include the channel number.														
 
 		charPtr = &gCharBufferPtr1[4];											
@@ -8287,23 +8432,12 @@ Boolean ListHistogramValuesInLines (
 										(unsigned int)*medianArrayPtr,
 										gTextTab);
 		charPtr += textLength;
-					
-		if (gImageWindowInfoPtr->numberBytes > 2)
-			{
-			minValueIndex = 1;
-			maxValueIndex = histogramSpecsPtr->maxNumberBins - 2;
-			
-			}	// end "if (gImageWindowInfoPtr->numberBytes > 2)"
-			
-		else	// gImageWindowInfoPtr->numberBytes <= 2
-			{
-			minValueIndex = GetBinIndexForDataValue (minValue,
-									&histogramSummaryPtr[featurePtr[channelIndex]]);
-			
-			maxValueIndex = GetBinIndexForDataValue (maxValue,
-									&histogramSummaryPtr[featurePtr[channelIndex]]);
-			
-			}	// end "else gImageWindowInfoPtr->numberBytes <= 2"
+
+		minValueIndex = GetBinIndexForDataValue (minValue,
+								&histogramSummaryPtr[featurePtr[channelIndex]]);
+		
+		maxValueIndex = GetBinIndexForDataValue (maxValue,
+								&histogramSummaryPtr[featurePtr[channelIndex]]);
 		
 		medianArrayChanPtr = &medianArrayPtr [minValueIndex];
 		for (binIndex=minValueIndex; binIndex<=maxValueIndex; binIndex++)
@@ -8976,12 +9110,11 @@ void SetHistogramLineColumnSpecs (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2006
-//	Revised By:			Larry L. Biehl			Date: 03/25/2006
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void SetNumberOfMaximumDataValuesInArray (
 				HistogramSummaryPtr				histogramSummaryPtr,
-				HUInt32Ptr							histogramArrayPtr,
-				SInt32								signedValueOffset)
+				HUInt32Ptr							histogramArrayPtr)
 
 {
 	SInt32								maximumBinIndex;
@@ -8999,7 +9132,8 @@ void SetNumberOfMaximumDataValuesInArray (
 		numberMaximumDataValues = histogramArrayPtr[histogramSummaryPtr->numberBins-1];
 		histogramArrayPtr[histogramSummaryPtr->numberBins-1] = 0;
 		
-		maximumBinIndex = (SInt32)(histogramSummaryPtr->maxValue + signedValueOffset);
+		maximumBinIndex = (SInt32)(histogramSummaryPtr->maxValue +
+															histogramSummaryPtr->signedValueOffset);
 		maximumBinIndex = MAX (0, maximumBinIndex);
 		maximumBinIndex = MIN (maximumBinIndex, (SInt32)histogramSummaryPtr->numberBins-1);
 		
@@ -9028,12 +9162,11 @@ void SetNumberOfMaximumDataValuesInArray (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2006
-//	Revised By:			Larry L. Biehl			Date: 03/25/2006
+//	Revised By:			Larry L. Biehl			Date: 03/02/2022
 
 void SetNumberOfMinimumDataValuesInArray (
 				HistogramSummaryPtr				histogramSummaryPtr,
-				HUInt32Ptr							histogramArrayPtr,
-				SInt32								signedValueOffset)
+				HUInt32Ptr							histogramArrayPtr)
 
 {
 	SInt32								minimumBinIndex;
@@ -9051,7 +9184,8 @@ void SetNumberOfMinimumDataValuesInArray (
 		numberMinimumDataValues = histogramArrayPtr[0];
 		histogramArrayPtr[0] = 0;
 		
-		minimumBinIndex = (SInt32)(histogramSummaryPtr->minValue + signedValueOffset);
+		minimumBinIndex = (SInt32)(histogramSummaryPtr->minValue +
+														histogramSummaryPtr->signedValueOffset);
 		minimumBinIndex = MAX (0, minimumBinIndex);
 		minimumBinIndex = MIN (
 								minimumBinIndex, (SInt32)histogramSummaryPtr->numberBins-1);

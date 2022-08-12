@@ -1118,7 +1118,7 @@ void SetUpClearOverlaysSubMenu (
 					fileNamePPointer = (FileStringPtr)GetFileNamePPointerFromShapeInfo (
 																								shapeInfoPtr);
 					//CopyPToP (gTextString, fileNamePPointer);
-					CopyFileStringToString (fileNamePPointer, (char*)gTextString);
+					CopyFileStringToPString (fileNamePPointer, (char*)gTextString);
 			
 					if (shapeInfoPtr->conversionCode == 2)
 						{
@@ -1524,7 +1524,7 @@ void SetUpWindowOverlayPopUpMenu (
 				fileNamePPointer =
 								(FileStringPtr)GetFileNamePPointerFromShapeInfo (shapeInfoPtr);
 				//CopyPToP (gTextString, fileNamePPointer);
-				CopyFileStringToString (fileNamePPointer, (char*)gTextString);
+				CopyFileStringToPString (fileNamePPointer, (char*)gTextString);
 				
 				if (shapeInfoPtr->conversionCode == 2)
 					{

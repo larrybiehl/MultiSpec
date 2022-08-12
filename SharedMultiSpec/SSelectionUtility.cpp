@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			01/11/2020
+//	Revision date:			08/08/2022
 //
 //	Language:				C
 //
@@ -1522,10 +1522,13 @@ void DrawSelectionPolygon (
 	SInt32								savedChannelWindowOffset;
 
 	UInt32								pointCount,
-											pointCountLimit,
 											pointIndex;
 
 	SignedByte							selectionPointsStatus;
+   
+   #ifndef multispec_wx
+      UInt32                        pointCountLimit;
+   #endif   // ifndef multispec_wx
 	
 	 
 			// Save the channel window offset so that it can be reset at the end.
@@ -1536,10 +1539,12 @@ void DrawSelectionPolygon (
 	selectionPointsPtr = (HPFieldPointsPtr)GetHandleStatusAndPointer (
 														selectionInfoPtr->polygonCoordinatesHandle,
 														&selectionPointsStatus);
-
-	pointCountLimit = 0;
-	if (gProcessorCode == kPolygonSelectionProcessor)
-		pointCountLimit = 1;
+   
+   #ifndef multispec_wx
+      pointCountLimit = 0;
+      if (gProcessorCode == kPolygonSelectionProcessor)
+         pointCountLimit = 1;
+   #endif   // ifndef multispec_wx
 
 	if (selectionRectPtr->top <= viewRectPtr->bottom &&
 													selectionRectPtr->bottom >= viewRectPtr->top)
@@ -1672,7 +1677,7 @@ void DrawSelectionPolygon (
 						
 					int xScrollOffset;
 					ldiv_t lDivideStruct = ldiv (scrollOffset.x, gChannelWindowInterval);
-					xScrollOffset = lDivideStruct.rem;
+					xScrollOffset = (int)lDivideStruct.rem;
 						
 					for (SInt32 channel=gStartChannel; 
 								channel<gSideBySideChannels; 
@@ -3037,8 +3042,10 @@ void EditLineColumnDialogInitialize (
 											planarMapUnitsCode,
 											projectionCode,
 											startIndex;
-
-	Boolean								inverseLatLongAvailableFlag;
+   
+   #if !defined multispec_wx
+      Boolean								inverseLatLongAvailableFlag;
+   #endif
 
 	#if defined multispec_win  
 		CComboBox*							comboBoxPtr;
@@ -3050,11 +3057,6 @@ void EditLineColumnDialogInitialize (
    planarMapUnitsCode = GetFilePlanarMapUnitsCode (windowInfoPtr->windowInfoHandle);
    projectionCode = GetFileProjectionCode (windowInfoPtr->windowInfoHandle);
 
-			// Determine if inverse lat-long specification will be available.
-
-   inverseLatLongAvailableFlag =
-					DetermineIfInverseLatLongPossible (windowInfoPtr->windowInfoHandle);
-
 			// Get popup menu (list menu for windows) strings
 
    if (planarMapUnitsCode < kKilometersCode)
@@ -3064,16 +3066,16 @@ void EditLineColumnDialogInitialize (
 		{
 				// This allows for MultiSpec Geographic code which is -1
 
-       gridCodeMenuItem = projectionCode;
-       if (gridCodeMenuItem > 0)
+      gridCodeMenuItem = projectionCode;
+      if (gridCodeMenuItem > 0)
 			gridCodeMenuItem++;
-       else if (gridCodeMenuItem < 0)
+      else if (gridCodeMenuItem < 0)
 			gridCodeMenuItem = 1;
 
-       if (gridCodeMenuItem <= 0)
+      if (gridCodeMenuItem <= 0)
 			mapString[0] = sprintf ((char*) &mapString[1], "Map");
 
-       else	// gridCodeMenuItem > 0
+      else	// gridCodeMenuItem > 0
 			{
 			#if defined multispec_mac 
 				GetMenuItemText (gPopUpProjectionMenu,
@@ -3089,47 +3091,54 @@ void EditLineColumnDialogInitialize (
 
 			}	// end "else gridCode > 0"
 
-        endIndex = mapString[0];
-        startIndex = endIndex + 1;
+      endIndex = mapString[0];
+      startIndex = endIndex + 1;
 
-			#if defined multispec_mac 
-				GetMenuItemText (gPopUpMapUnitsMenu,
-										planarMapUnitsCode + 1,
-										&mapString[startIndex]);
-			#endif	// defined multispec_mac  
+      #if defined multispec_mac
+         GetMenuItemText (gPopUpMapUnitsMenu,
+                           planarMapUnitsCode + 1,
+                           &mapString[startIndex]);
+      #endif	// defined multispec_mac
 
-			#if defined multispec_win  
-				MGetString (&mapString[startIndex],
-								 0,
-								 IDS_MapUnits01 + planarMapUnitsCode);
-			#endif	// defined multispec_win 
+      #if defined multispec_win
+         MGetString (&mapString[startIndex],
+                      0,
+                      IDS_MapUnits01 + planarMapUnitsCode);
+      #endif	// defined multispec_win
 
-			endIndex += mapString[startIndex] + 1;
+      endIndex += mapString[startIndex] + 1;
 
-			mapString[0] = (UInt8)endIndex;
-			mapString[endIndex + 1] = 0;
+      mapString[0] = (UInt8)endIndex;
+      mapString[endIndex + 1] = 0;
 
-			mapString[startIndex] = '-';
+      mapString[startIndex] = '-';
 
-			}	// end "else planarMapUnitsCode >= kKilometersCode"
+      }	// end "else planarMapUnitsCode >= kKilometersCode"
+   
+   #if !defined multispec_wx
+         // Determine if inverse lat-long specification will be available.
 
-				//	Now set menu names
+      inverseLatLongAvailableFlag =
+            DetermineIfInverseLatLongPossible (windowInfoPtr->windowInfoHandle);
+   #endif
 
-		#if defined multispec_mac 
-			if (planarMapUnitsCode < kKilometersCode)
-				DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
+         //	Now set menu names
 
-			else	// planarMapUnitsCode >= kKilometersCode
-				EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
+   #if defined multispec_mac
+      if (planarMapUnitsCode < kKilometersCode)
+         DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
 
-			SetMenuItemText (gPopUpSelectionDisplayUnitsMenu,
-									kMapUnits,
-									mapString);
+      else	// planarMapUnitsCode >= kKilometersCode
+         EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kMapUnits);
 
-			DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
-			if (inverseLatLongAvailableFlag)
-				EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
-		#endif	// defined multispec_mac  
+      SetMenuItemText (gPopUpSelectionDisplayUnitsMenu,
+                        kMapUnits,
+                        mapString);
+
+      DisableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
+      if (inverseLatLongAvailableFlag)
+         EnableMenuItem (gPopUpSelectionDisplayUnitsMenu, kLatLongUnits);
+   #endif	// defined multispec_mac
 
 	#if defined multispec_win  
 		SInt16				index = 0,
@@ -3170,7 +3179,7 @@ void EditLineColumnDialogInitialize (
 
 			// Change the window title	
 
-    MGetString ((UCharPtr)&gTextString, kDialogStrID, stringID);
+   MGetString ((UCharPtr)&gTextString, kDialogStrID, stringID);
 	 
 	#if defined multispec_wx
 		SetWTitle (GetDialogWindow (dialogPtr), ((UCharPtr)gTextString)+1);
@@ -4607,7 +4616,7 @@ Boolean GetSelectionOffscreenRectangle (
 //							SaveImageWindowAs in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/08/1988
-//	Revised By:			Larry L. Biehl			Date: 02/23/2018
+//	Revised By:			Larry L. Biehl			Date: 08/08/2022
 
 Boolean GetSelectionRectangle (
 				WindowPtr							windowPtr,
@@ -4650,7 +4659,7 @@ Boolean GetSelectionRectangle (
 		selectionInfoH = GetSelectionInfoHandle (windowInfoH);
 		selectionInfoPtr = (SelectionInfoPtr)GetHandlePointer (selectionInfoH);
 
-		if (selectionInfoPtr->typeFlag == kRectangleType) 
+		if (selectionInfoPtr != NULL && selectionInfoPtr->typeFlag == kRectangleType)
 			{
 			*selectionRectanglePtr = selectionInfoPtr->lineColumnRectangle;
 
@@ -4750,7 +4759,7 @@ Boolean GetSelectionRectangle (
 			else	// !useThresholdFlag 
 				setUpFlag = TRUE;
 
-			}	// end "if (selectionInfoPtr->typeFlag == kRectangleType)" 
+			}	// end "if (selectionInfoPtr != NULL && ...
 
 		}	// end "if (windowInfoH)" 
 
@@ -5241,7 +5250,7 @@ void SetRectangleSelection (
 				SInt32								columnAdjust)
  
 {
-	DoubleRect*							selectionCoordinateRectPtr;
+	//DoubleRect*							selectionCoordinateRectPtr;
 	LongRect*							selectionLineColumnRectPtr;
 
 	SInt32								tempValue;
@@ -5250,7 +5259,7 @@ void SetRectangleSelection (
 
 
 	selectionLineColumnRectPtr = &selectionInfoPtr->lineColumnRectangle;
-	selectionCoordinateRectPtr = &selectionInfoPtr->coordinateRectangle;
+	//selectionCoordinateRectPtr = &selectionInfoPtr->coordinateRectangle;
 
 			// Get the factor that is being used to convert the original units to
 			// the requested display units.

@@ -143,7 +143,7 @@ void ActivateDialogItem (
 //							FalseColorPaletteDialog in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
-//	Revised By:			Larry L. Biehl			Date: 08/25/2020
+//	Revised By:			Larry L. Biehl			Date: 04/09/2022
 
 SInt32 AddChannelsToDialogList (
 			#ifdef multispec_wx
@@ -189,7 +189,7 @@ SInt32 AddChannelsToDialogList (
 	
 			// Get estimate of the length of the description in the list.			
 			// Use 30 for the description list - 4 for channel number and 26
-			// for the channel description.													
+			// for the channel description (including ': '.
 		
 	estimatedLengthListDescription = (SInt32)numberInputChannels * 30;
 									
@@ -862,7 +862,7 @@ SInt16 DisplayAlert (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/1990
-//	Revised By:			Larry L. Biehl			Date: 03/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/05/2022
 
 SInt16 DisplayAlert (
 				SInt16								alertResourceId, 
@@ -1209,6 +1209,9 @@ SInt16 DisplayAlert (
 
 		if (alertResourceId == 0)
 			alertResourceId = MB_OK;
+
+		else if (alertResourceId == kRedoDontCancelAlertID)
+			alertResourceId = MB_YESNO;
 		
 	   if (stringNumber1 > 0)                               
 			itemHit = AfxMessageBox (stringNumber1, alertResourceId, 0);
@@ -1218,15 +1221,15 @@ SInt16 DisplayAlert (
 			if (stringCharCode == kASCIICharString)
 				itemHit = AfxMessageBox ((LPCTSTR)A2T((LPCSTR)&stringPtr[1]), alertResourceId, 0);
 			
-			else
+			else   //stringCharCode != kASCIICharString
 				{
 				TBYTE* unicodeStringPtr;
 				unicodeStringPtr = ConvertMultibyteStringToUnicodeString (&stringPtr[1]);
 				itemHit = AfxMessageBox (&unicodeStringPtr[1], alertResourceId, 0);
 				
-				}
+				}	// end "else stringCharCode != kASCIICharString"
 			
-			}
+			}	// end "else if (stringPtr != NULL)"
 			              
 		switch (itemHit)
 			{
@@ -1296,8 +1299,25 @@ SInt16 DisplayAlert (
 		if (parentPtr == NULL)
 			parentWindowPtr = GetMainFrame ();
 		wxMessageDialog dialog (parentWindowPtr, message, wxT("MultiSpec"), style);
-	
+				
+				// If this is a display image process, turn off updating the image window
+				// until after the alert has been shown. There seems to be a conflict it
+				// the image window is updated as part of the process of displaying the
+				// the alert.
+		
+		Boolean 			savedDrawBitMapFlag;
+		if (gProcessorCode == kDisplayProcessor && gImageWindowInfoPtr != NULL)
+			{
+			savedDrawBitMapFlag = gImageWindowInfoPtr->drawBitMapFlag;
+			gImageWindowInfoPtr->drawBitMapFlag = FALSE;
+				
+			}	// end "if (gProcessorCode == kDisplayProcessor && ..."
+			
 		int answer = dialog.ShowModal ();
+		
+		if (gProcessorCode == kDisplayProcessor && gImageWindowInfoPtr != NULL)
+			gImageWindowInfoPtr->drawBitMapFlag = savedDrawBitMapFlag;
+			
 		switch (answer) 
 			{
 			case wxID_OK:
@@ -2062,7 +2082,7 @@ DialogPtr GetStatusDialog (
 			//statusDialogPtr->SetCursor (wxCursor (wxCURSOR_WAIT));
 			
 		 }	// end "if (statusDialogPtr != NULL)"
-	#endif
+	#endif	// defined multispec_wx
 
 	gOperationCanceledFlag = FALSE;
 		

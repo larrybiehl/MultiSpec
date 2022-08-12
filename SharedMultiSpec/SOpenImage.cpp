@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/29/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -106,6 +106,7 @@
 #if defined multispec_win
 	#include "SImageWindow_class.h"
 	#include "WImageDoc.h"
+	#include "WImageFrame.h" 
 	#include "WFileFormatDialog.h"
 
 	#define	kChanDescriptionStrID			0	 
@@ -1739,7 +1740,7 @@ SInt16 CheckImageHeader (
 		
 		#if include_gdal_capability
 					// At this point gdal is available. If gdal was not able to read the 
-					//	file see MultiSpec can read.
+					//	file see if MultiSpec can read it.
 					
 					// If it is an ArcView type file that MultiSpec can read.
 					
@@ -2589,7 +2590,7 @@ void FinishMapInformationSetUp (
 //							LoadClassNameDescriptions in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/31/1990
-//	Revised By:			Larry L. Biehl			Date: 04/13/2017
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean GetClassesFromHistogram (
 				FileInfoPtr							fileInfoPtr,
@@ -2666,7 +2667,7 @@ Boolean GetClassesFromHistogram (
 										1,
 										NULL,
 										kDoNotPackData,
-										kDoNotForceBISFormat,
+										kDoNotForceFormat,
 										kDoNotForceBytes,
 										gHasThreadManager,
 										&fileIOInstructionsPtr))
@@ -4210,7 +4211,7 @@ SInt32 GetFileHeaderValues (
 // Called By:			ReadChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1999
-//	Revised By:			Larry L. Biehl			Date: 08/29/2020
+//	Revised By:			Larry L. Biehl			Date: 03/08/2022
 
 void GetInstrumentChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -4229,7 +4230,8 @@ void GetInstrumentChannelDescriptionsAndValues (
 	
 	//UInt16								*channelWavelengthOrderPtr;
 	
-	int									channelNumber;
+	int									channelNumber,
+											fileStringLength;
 
 	UInt32								blankNumber,
 											channel,
@@ -4286,7 +4288,8 @@ void GetInstrumentChannelDescriptionsAndValues (
 			resourceStringID = 0;
 			channelNumber = 100;
 
-			if (fileInfoPtr->instrumentCode == kLandsatMSS)
+			if (fileInfoPtr->instrumentCode == kLandsatMSS ||
+						fileInfoPtr->instrumentCode == kLandsatMSS4_5)
 				{
 						// Handle channel descriptions for Landsat MSS
 
@@ -4315,10 +4318,11 @@ void GetInstrumentChannelDescriptionsAndValues (
 								// The channel numbers can be 40, 50, 60, 70 or
 								//   4, 5, 6 & 7
 
-						if (channelNumber >= 40)
+						if (channelNumber >= 10)
 							channelNumber /= 10;
 
-						channelNumber -= 3;
+						if (fileInfoPtr->instrumentCode == kLandsatMSS)
+							channelNumber -= 3;
 
 						}	// end "if (startBandIdentifer != NULL)"
 
@@ -4338,13 +4342,18 @@ void GetInstrumentChannelDescriptionsAndValues (
 				ListString (
 							(char*)gTextString, strlen ((char*)gTextString), gOutputTextH);
 				*/
-				if (channelNumber >= 1 && channelNumber <= 4)
-					resourceStringID = (SInt16)(IDS_ChanDescription48 + channelNumber - 1);
+				if (fileInfoPtr->instrumentCode == kLandsatMSS &&
+						channelNumber >= 1 && channelNumber <= 4)
+					resourceStringID = (SInt16)(IDS_ChanDescription48+ channelNumber - 1);
+				
+				else if (fileInfoPtr->instrumentCode == kLandsatMSS4_5 &&
+							channelNumber >= 1 && channelNumber <= 4)
+						resourceStringID = (SInt16)(IDS_ChanDescription84 + channelNumber - 1);
 
 				else	//
 					resourceStringID = IDS_ChanDescription36;
 
-				}	// end "if (fileInfoPtr->instrumentCode == kLandsatMSS)"
+				}	// end "if (fileInfoPtr->instrumentCode == kLandsatMSS || ..."
 
 			else if (fileInfoPtr->instrumentCode == kLandsatTM)
 				{
@@ -4352,18 +4361,34 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 				if (fileInfoPtr->numberChannels == 1)
 					{
-							// This implies USGS linked files. Get the band number from the
-							// file name.
+							// This implies a USGS single file or linked files.
 
 					fileNamePtr = (UInt8*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
-					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_BTB6");
 
 					if (startBandIdentiferPtr != NULL)
-						channelNumber = (UInt32)startBandIdentiferPtr[2] - 48;
-					
+						{
+								// This is a brightness channel file. Set channelNumber to
+								// represent the index from IDS_ChanDescription1.
+								
+						channelNumber = 90;
+						
+						}	// end "if (startBandIdentiferPtr != NULL)"
+						
+					if (startBandIdentiferPtr == NULL)
+						{
+								// Get the band number from the file name.
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[2] - 48;
+							
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
 							// if not "_B" try "_sr_band" for surface reflectance data set
 							
-					else	// startBandIdentiferPtr == NULL
+					if (startBandIdentiferPtr == NULL)
 						{
 						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, 
 																				"_sr_band");
@@ -4372,8 +4397,59 @@ void GetInstrumentChannelDescriptionsAndValues (
 							channelNumber = (UInt32)startBandIdentiferPtr[8] - 48;
 							
 						}	// end "else startBandIdentiferPtr == NULL"
+								
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band", try _TAB for analysis ready
+								// top of atomsphere reflectance set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_TAB");
 
-					}	// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[4] - 48;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band" or _TAB, try _SRB for analysis
+								// ready surface reflectance set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_SRB");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[4] - 48;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+								
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band" or _TAB, or _SRB, tr _ST for analysis
+								// ready surface temperature set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_ST");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = 91;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+									
+					if (startBandIdentiferPtr == NULL)
+						{
+								// Try .I for NDF format.
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				".I");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[2] - 48;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+
+					}	// end "if (fileInfoPtr->numberChannels == 1)"
 
 				else	// not linked file set
 					{
@@ -4393,9 +4469,10 @@ void GetInstrumentChannelDescriptionsAndValues (
 					else if (channelNumber == 7)
 						channelNumber = 6;
 
-					}	// end "else not kNdfType or kFastL7AType or other linked file set"
+					}	// end "else not linked file set"
 
-				if (channelNumber >= 1 && channelNumber <= 7)
+				if ((channelNumber >= 1 && channelNumber <= 7) ||
+												(channelNumber >= 90 && channelNumber <= 91))
 					resourceStringID = (SInt16)(IDS_ChanDescription1 + channelNumber - 1);
 
 				else	//
@@ -4408,13 +4485,14 @@ void GetInstrumentChannelDescriptionsAndValues (
 						// Handle channel descriptions for Landsat TM 7
 
 				filePathPPtr = (UInt8*)GetFilePathPPointerFromFileInfo (fileInfoPtr);
+				fileStringLength = GetFileStringLength (filePathPPtr);
 				channelNumber = 9;
 				if (fileInfoPtr->format == kFastL7AType)
 					{
 							// For FAST-L7A formatted data. The channel identifier is in 6th
 							// character from the end of the file name.
 
-					channelNumber = (UInt32)filePathPPtr[filePathPPtr[0] - 5];
+					channelNumber = (UInt32)filePathPPtr[fileStringLength + 1 - 5];
 
 							// Convert from ascii to binary.
 
@@ -4426,30 +4504,64 @@ void GetInstrumentChannelDescriptionsAndValues (
 					{
 							// For NLAPS formatted data, the channel identifier is the last
 							// number in the file name.
-
-					channelNumber = (UInt32)filePathPPtr[filePathPPtr[0]];
+					
+					channelNumber = (UInt32)filePathPPtr[fileStringLength+1];
 
 							// Convert from ascii to binary.
 
 					channelNumber -= 48;
 
-					if (channelNumber == 9)
-						channelNumber = 6;
+					if (channelNumber == 6)
+						channelNumber = 88;
+
+					else if (channelNumber == 9)
+						channelNumber = 89;
 
 					}	// end "else if (fileInfoPtr->format == kNdfType)"
 
 				else if (fileInfoPtr->numberChannels == 1)
 					{
-							// This implies USGS linked files. Get the band number from the
-							// file name.
+							// This implies a USGS single file or linked files.
 
 					fileNamePtr = (UInt8*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
-					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_BTB6");
 
 					if (startBandIdentiferPtr != NULL)
-						channelNumber = (UInt32)startBandIdentiferPtr[2] - 48;
+						{
+								// This is a brightness channel file. Set channelNumber to
+								// represent the index from IDS_ChanDescription1.
+								
+						channelNumber = 90;
 						
-					else	// startBandIdentifierPtr == NULL
+						}	// end "if (startBandIdentiferPtr != NULL)"
+					
+					if (startBandIdentiferPtr == NULL)
+						{
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+
+						if (startBandIdentiferPtr != NULL)
+							{
+									// Get the band number from the file name.
+									
+							channelNumber = (UInt32)startBandIdentiferPtr[2] - 48;
+							
+							if (channelNumber == 6)
+								{
+										// Handle whether low gain or high gain thermal
+										
+								if (strstr ((char*)fileNamePtr, "6_VCID_1") != NULL)
+									channelNumber = 88;
+									
+								else if (strstr ((char*)fileNamePtr, "6_VCID_2") != NULL)
+									channelNumber = 89;
+									
+								}	// end "if (channelNumber == 6)"
+							
+							}	// end "if (startBandIdentiferPtr != NULL)"
+							
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
+					if (startBandIdentiferPtr == NULL)
 						{
 								// if not "_B" try "_sr_band" for surface reflectance data 
 								// set
@@ -4460,9 +4572,48 @@ void GetInstrumentChannelDescriptionsAndValues (
 						if (startBandIdentiferPtr != NULL)
 							channelNumber = (UInt32)startBandIdentiferPtr[8] - 48;
 					
-						}	// end "else startBandIdentifierPtr == NULL"
+						}	// end "if (startBandIdentiferPtr == NULL)"
+							
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band", try _TAB for analysis ready
+								// top of atomsphere reflectance set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_TAB");
 
-					}	// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[4] - 48;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band" or _TAB, try _SRB for analysis
+								// ready surface reflectance set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_SRB");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = (UInt32)startBandIdentiferPtr[4] - 48;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+							
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band" or _TAB, or _SRB, tr _ST for analysis
+								// ready surface temperature set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_ST");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = 91;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
+					}	// end "else if (fileInfoPtr->numberChannels == 1)"
 
 				else	// not kNdfType or kFastL7AType or other linked file set
 					{
@@ -4479,12 +4630,16 @@ void GetInstrumentChannelDescriptionsAndValues (
 					if (channelNumber == 6)
 						channelNumber = 7;
 
-					else if (channelNumber == 7 || channelNumber == 8)
-						channelNumber = 6;
+					else if (channelNumber == 7)
+						channelNumber = 88;
+					
+					else if (channelNumber == 8)
+						channelNumber = 89;
 
 					}	// end "else not kNdfType or kFastL7AType or other linked file set"
 
-				if (channelNumber >= 1 && channelNumber <= 8)
+				if ((channelNumber >= 1 && channelNumber <= 8) ||
+									(channelNumber >= 88 &&	channelNumber <= 91))
 					resourceStringID = (SInt16)(IDS_ChanDescription1 + channelNumber - 1);
 
 				else	//
@@ -4494,25 +4649,59 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 			else if (fileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
 					  fileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
-					  fileInfoPtr->instrumentCode == kLandsatLC8_TIRS)
+					  fileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
+					  fileInfoPtr->instrumentCode == kLandsatLC9_OLI_TIRS ||
+					  fileInfoPtr->instrumentCode == kLandsatLC9_OLI ||
+					  fileInfoPtr->instrumentCode == kLandsatLC9_TIRS)
 				{
-						// Handle channel descriptions for Landsat 8
+						// Handle channel descriptions for Landsat 8 and Landsat 9
 
 				if (fileInfoPtr->numberChannels == 1)
 					{
-							// This implies USGS linked files. Get the band number from the
-							// file name.
-					
+							// This implies USGS linked files.
+
 					fileNamePtr = (UInt8*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
-					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+					startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_BTB10");
 
 					if (startBandIdentiferPtr != NULL)
 						{
-						if (sscanf ((char*)startBandIdentiferPtr, 
-										"_B%d", &channelNumber) != 1)
-							channelNumber = 12;
+								// This is a brightness channel file. Set channelNumber to
+								// represent the index from IDS_ChanDescription1.
+								
+						channelNumber = 56;
+						
+						}	// end "if (startBandIdentiferPtr != NULL)"
+							
+					if (startBandIdentiferPtr == NULL)
+						{
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_BTB11");
 
-						}	// end "if (startBandIdentifer != NULL)"
+						if (startBandIdentiferPtr != NULL)
+							{
+									// This is a brightness channel file. Set channelNumber to
+									// represent the index from IDS_ChanDescription1.
+									
+							channelNumber = 57;
+							
+							}	// end "if (startBandIdentiferPtr != NULL)"
+									
+						}	// end "if (startBandIdentiferPtr == NULL)"
+						
+					if (startBandIdentiferPtr == NULL)
+						{
+								// Get the band number from the file name.
+					
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr, "_B");
+
+						if (startBandIdentiferPtr != NULL)
+							{
+							if (sscanf ((char*)startBandIdentiferPtr,
+											"_B%d", &channelNumber) != 1)
+								channelNumber = 12;
+
+							}	// end "if (startBandIdentifer != NULL)"
+							
+						}	// end "if (startBandIdentiferPtr == NULL)"
 						
 					if (startBandIdentiferPtr == NULL)
 						{
@@ -4552,6 +4741,19 @@ void GetInstrumentChannelDescriptionsAndValues (
 							channelNumber = (UInt32)startBandIdentiferPtr[4] - 48;
 					
 						}	// end "if (startBandIdentiferPtr == NULL)"
+								
+					if (startBandIdentiferPtr == NULL)
+						{
+								// if not "_B" or "_sr_band" or _TAB, or _SRB, tr _ST for analysis
+								// ready surface temperature set
+							
+						startBandIdentiferPtr = (UInt8*)strstr ((char*)fileNamePtr,
+																				"_ST");
+
+						if (startBandIdentiferPtr != NULL)
+							channelNumber = 58;
+					
+						}	// end "if (startBandIdentiferPtr == NULL)"
 
 					}	// end "if (fileInfoPtr->numberChannels == 1)"
 
@@ -4559,9 +4761,10 @@ void GetInstrumentChannelDescriptionsAndValues (
 					{
 							// Check if a combined file set.
 							// If the number of channels is 7, then the assumption is made
-							// that this is a surface reflectance leve 2 data set.
+							// that this is a surface reflectance level 2 data set.
 
-					if (fileInfoPtr->instrumentCode == kLandsatLC8_TIRS &&
+					if ((fileInfoPtr->instrumentCode == kLandsatLC8_TIRS ||
+								fileInfoPtr->instrumentCode == kLandsatLC9_TIRS) &&
 										fileInfoPtr->numberChannels >= 1 &&
 													fileInfoPtr->numberChannels <= 2)
 						channelNumber = channel + 9;
@@ -4590,8 +4793,18 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 					}	// end "else not linked file set"
 
-				if (channelNumber >= 1 && channelNumber <= 11)
-					resourceStringID = (SInt16)(IDS_ChanDescription37 + channelNumber - 1);
+				if ((channelNumber >= 1 && channelNumber <= 11) ||
+								(channelNumber >= 56 && channelNumber <= 58))
+					{
+					if (fileInfoPtr->instrumentCode == kLandsatLC8_OLI_TIRS ||
+							fileInfoPtr->instrumentCode == kLandsatLC8_OLI ||
+								fileInfoPtr->instrumentCode == kLandsatLC8_TIRS)
+						resourceStringID = (SInt16)(IDS_ChanDescription37 + channelNumber - 1);
+					
+					else	// This is Landsat 9
+						resourceStringID = (SInt16)(IDS_ChanDescription95 + channelNumber - 1);
+						
+					}	// end "if ((channelNumber >= 1 && channelNumber <= 11) || ..."
 
 				else	// channelNumber > 11
 					resourceStringID = IDS_ChanDescription36;
@@ -4926,7 +5139,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/12/2013
-//	Revised By:			Larry L. Biehl			Date: 07/19/2018
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
 
 void GetInstrumentCode (
 				FileInfoPtr							fileInfoPtr)
@@ -5022,12 +5235,22 @@ void GetInstrumentCode (
 		else if (StrStrNoCase ((char*)fileNamePtr, "L4") || 
 												StrStrNoCase ((char*)fileNamePtr, "L5"))
 			{									
-					// This may be a Landsat 5 Thematic Mapper data set.
+					// This may be a Landsat 4 or 5 Thematic Mapper data set.
 					
 			if (fileInfoPtr->numberChannels == 7 && fileInfoPtr->numberBytes == 1)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM;
 			
 			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "L4") || ..."
+						
+		else if (StrStrNoCase ((char*)fileNamePtr, "LT04") ||
+												StrStrNoCase ((char*)fileNamePtr, "LT05"))
+			{
+					// This may be a Landsat 4 or 5 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels <= 7 && fileInfoPtr->numberBytes <= 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "LT04") || ..."
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"L7_", fileNamePtr, 3))
 			{
@@ -5037,19 +5260,42 @@ void GetInstrumentCode (
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM7;
 			
 			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"L7_", ..."
-				
-		else if (!CompareStringsNoCase ((UCharPtr)"LC8_", fileNamePtr, 4))
+					
+		else if (!CompareStringsNoCase ((UCharPtr)"LE07_", fileNamePtr, 5))
 			{
-					// This may be a Landsat 5 Thematic Mapper data set.
+					// This may be a Landsat 7 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels <= 8 && fileInfoPtr->numberBytes <= 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM7;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LE07_", ..."
+						
+		else if (!CompareStringsNoCase ((UCharPtr)"LE7", fileNamePtr, 3))
+			{
+					// This may be a Landsat 7 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels <= 8 && fileInfoPtr->numberBytes <= 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatTM7;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LE7", ..."
+				
+		else if (!CompareStringsNoCase ((UCharPtr)"LC8", fileNamePtr, 3) ||
+					!CompareStringsNoCase ((UCharPtr)"LC08", fileNamePtr, 4))
+			{
+					// This may be a Landsat 8 Thematic Mapper data set.
 					
 			if (fileInfoPtr->numberChannels == 10 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI_TIRS;
+						
+			else if (fileInfoPtr->numberChannels == 1 && fileInfoPtr->numberBytes == 2)
+						// This may be band 8
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI_TIRS;
 			
 			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LC8_", ..."
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"LO8_", fileNamePtr, 4))
 			{
-					// This may be a Landsat 5 Thematic Mapper data set.
+					// This may be a Landsat 8 Thematic Mapper data set.
 					
 			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 2)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI;
@@ -5058,21 +5304,86 @@ void GetInstrumentCode (
 				
 		else if (!CompareStringsNoCase ((UCharPtr)"LT8_", fileNamePtr, 4))
 			{
-					// This may be a Landsat 5 Thematic Mapper data set.
+					// This may be a Landsat 8 Thematic Mapper data set.
 					
 			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 2)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_TIRS;
 			
 			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LT8_", ..."
+					
+		else if (!CompareStringsNoCase ((UCharPtr)"LC08_", fileNamePtr, 5))
+			{
+					// This may be a Landsat 8 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels <= 2 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_TIRS;
+						
+			else if (fileInfoPtr->numberChannels == 7 && fileInfoPtr->numberBytes == 2)
+					fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LC8_", ..."
 				
 		else if (StrStrNoCase ((char*)fileNamePtr, "LC8"))
 			{
-					// This may be a Landsat 5 Thematic Mapper data set.
+					// This may be a Landsat 8 Thematic Mapper data set.
 					
 			if (fileInfoPtr->numberChannels == 10 && fileInfoPtr->numberBytes == 2)
 				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC8_OLI_TIRS;
 			
 			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "LC8"))"
+					
+		else if (!CompareStringsNoCase ((UCharPtr)"LC9", fileNamePtr, 3) ||
+						  !CompareStringsNoCase ((UCharPtr)"LC09", fileNamePtr, 4))
+			{
+					// This may be a Landsat 9 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels == 10 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_OLI_TIRS;
+						
+			else if (fileInfoPtr->numberChannels == 1 && fileInfoPtr->numberBytes == 2)
+						// This may be band 8
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_OLI_TIRS;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LC9", ..."
+				
+		else if (!CompareStringsNoCase ((UCharPtr)"LO9_", fileNamePtr, 4))
+			{
+					// This may be a Landsat 9 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_OLI;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LO9_", ..."
+				
+		else if (!CompareStringsNoCase ((UCharPtr)"LT9_", fileNamePtr, 4))
+			{
+					// This may be a Landsat 9 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels == 8 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_TIRS;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LT9_", ..."
+					
+		else if (!CompareStringsNoCase ((UCharPtr)"LC09_", fileNamePtr, 5))
+			{
+					// This may be a Landsat 9 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels <= 2 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_TIRS;
+						
+			else if (fileInfoPtr->numberChannels == 7 && fileInfoPtr->numberBytes == 2)
+					fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_OLI;
+			
+			}	// end "else if (!CompareStringsNoCase ((UCharPtr)"LC9_", ..."
+					
+		else if (StrStrNoCase ((char*)fileNamePtr, "LC9"))
+			{
+					// This may be a Landsat 9 Thematic Mapper data set.
+					
+			if (fileInfoPtr->numberChannels == 10 && fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kLandsatLC9_OLI_TIRS;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "LC9"))"
 				
 		else if (StrStrNoCase ((char*)fileNamePtr, "S2A_"))
 			{
@@ -8369,7 +8680,7 @@ Boolean ReadERDASClassNames (
 //							GetProbabilityFile in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/04/1989
-//	Revised By:			Larry L. Biehl			Date: 04/08/2013
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 SInt16 ReadERDASHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -8698,7 +9009,7 @@ SInt16 ReadERDASHeader (
 													1,
 													NULL,
 													kDoNotPackData,
-													kDoNotForceBISFormat,
+													kDoNotForceFormat,
 													kDoNotForceBytes,
 													gHasThreadManager,
 													&fileIOInstructionsPtr))
@@ -15070,7 +15381,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 //							AddToImageWindowFile in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/15/1991
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 03/05/2022
 
 Boolean UpdateLayerInfoStructure (
 				WindowInfoPtr						windowInfoPtr,
@@ -15087,7 +15398,8 @@ Boolean UpdateLayerInfoStructure (
 											newFileInfoHandle;
 											//oldFileInfoHandle;
 
-	SInt32								bytesNeeded;
+	SInt32								bytesNeeded,
+											bandInterleaveFormat;
 
 	UInt16								channel,
 											index,
@@ -15149,6 +15461,11 @@ Boolean UpdateLayerInfoStructure (
 
 		windowInfoPtr->totalNumberChannels = newTotalNumberChannels;
 
+		if (fileInfoPtr->gdalBandInterleave > 0)
+			bandInterleaveFormat = fileInfoPtr->gdalBandInterleave;
+		else	// fileInfoPtr->gdalBandInterleave <= 0
+			bandInterleaveFormat = MAX (0, fileInfoPtr->bandInterleave);
+
 		if (newTotalNumberChannels == fileInfoPtr->numberChannels) 
 			{
 					// This is first file for the window.		
@@ -15161,7 +15478,7 @@ Boolean UpdateLayerInfoStructure (
 			windowInfoPtr->numberBytes = fileInfoPtr->numberBytes;
 			windowInfoPtr->numberBits = fileInfoPtr->numberBits;
 			windowInfoPtr->numberBins = fileInfoPtr->numberBins;
-			windowInfoPtr->bandInterleave = fileInfoPtr->bandInterleave;
+			windowInfoPtr->bandInterleave = bandInterleaveFormat;
 			windowInfoPtr->localMaxNumberBytes = fileInfoPtr->numberBytes;
 			windowInfoPtr->dataTypeCode = fileInfoPtr->dataTypeCode;
 			windowInfoPtr->signedDataFlag = fileInfoPtr->signedDataFlag;
@@ -15184,12 +15501,13 @@ Boolean UpdateLayerInfoStructure (
 			{
 					// For now do not allow combining of a BIS image file to any	
 					// other type of image file.  To do so will require some major	
-					// changes in the way the file input-output is carried out.		
-
+					// changes in the way the file input-output is carried out.
+					//kBIS allow or not
+/*
 			if (windowInfoPtr->bandInterleave == kBIS ||
 											fileInfoPtr->bandInterleave == kBIS)
 				continueFlag = FALSE;
-
+*/
 					// Force the handle for the file information to be represent	
 					// enough memory for a structure for each of the image files	
 					// assigned to the image window.											
@@ -15197,33 +15515,34 @@ Boolean UpdateLayerInfoStructure (
 					// copied to the end of	the file information for the other		
 					// image files assigned to the image window.							
 
+			newFileInfoPtr = NULL;
 			bytesNeeded = sizeof (MFileInfo) * (windowInfoPtr->numberImageFiles + 1);
 			newFileInfoHandle = GetFileInfoHandle (windowInfoPtr);
+			Handle savedFileInfoHandle = newFileInfoHandle;
 			if (continueFlag)
 				newFileInfoPtr = (FileInfoPtr)CheckHandleSize (&newFileInfoHandle,
 																				&continueFlag,
 																				&changedFlag,
 																				bytesNeeded);
-			/*								
-			if (continueFlag)
+																				
+			if (savedFileInfoHandle != newFileInfoHandle)
 				{
-				newFileInfoHandle = MNewHandle (bytesNeeded);
-				newFileInfoPtr = (FileInfoPtr)GetHandlePointer (newFileInfoHandle, 
-																				kLock);
-				continueFlag =  (newFileInfoPtr != NULL);	
-																										
-				}	// end "if (continueFlag)"
+						// Need to update the file info handle in the Legend List Class
+						// before the old one (now not good) gets used.
 
-			if (continueFlag)
-				{
-				oldFileInfoHandle = GetFileInfoHandle (windowInfoPtr);
-				oldFileInfoPtr = (FileInfoPtr)GetHandlePointer (oldFileInfoHandle, 
-																				kLock);
-				continueFlag =  (oldFileInfoPtr != NULL);	
-																										
-				}	// end "if (continueFlag)"
-			*/
-			if (continueFlag) 
+				#if defined multispec_wx
+					CMImageFrame* frameptr = gActiveImageViewCPtr->m_frame;
+				#endif
+				#if defined multispec_win
+					CMImageFrame* frameptr = gActiveImageViewCPtr->GetImageFrameCPtr();
+				#endif
+
+				((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->
+														m_imageFileInfoHandle = newFileInfoHandle;
+				
+				}	// end "if (savedFileInfoHandle != newFileInfoHandle)"
+																				
+			if (continueFlag && newFileInfoPtr != NULL)
 				{
 				windowInfoPtr->maxUsableDataValue =
 														MAX (windowInfoPtr->maxUsableDataValue,
@@ -15236,10 +15555,9 @@ Boolean UpdateLayerInfoStructure (
 						MIN (windowInfoPtr->maxNumberLines, fileInfoPtr->numberLines);
 				windowInfoPtr->maxNumberColumns =
 						MIN (windowInfoPtr->maxNumberColumns, fileInfoPtr->numberColumns);
-
-				if (windowInfoPtr->bandInterleave != fileInfoPtr->bandInterleave)
+						
+				if (windowInfoPtr->bandInterleave != bandInterleaveFormat)
 					windowInfoPtr->bandInterleave = kMixed;
-
 				if (windowInfoPtr->numberBytes != fileInfoPtr->numberBytes ||
 									windowInfoPtr->dataTypeCode != fileInfoPtr->dataTypeCode)
 					windowInfoPtr->localBytesDifferFlag = TRUE;

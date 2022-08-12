@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -725,7 +725,7 @@ Boolean LoadRecodeThematicImageSpecs (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/15/1999
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void RecodeThematicImageControl (void)
 
@@ -852,7 +852,7 @@ void RecodeThematicImageControl (void)
 																1,
 																(UInt16*)NULL, 
 																kDoNotPackData, 
-																kDoNotForceBISFormat, 
+																kDoNotForceFormat,
 																kForce2Bytes,
 																kDoNotAllowForThreadedIO,
 																&fileIOInstructions1Ptr);
@@ -892,7 +892,7 @@ void RecodeThematicImageControl (void)
 															1,
 															NULL,
 															kDoNotPackData,
-															kDoNotForceBISFormat,
+															kDoNotForceFormat,
 															kForce2Bytes,
 															kDoNotAllowForThreadedIO,
 															&fileIOInstructions2Ptr);

@@ -314,7 +314,7 @@ bool CMTextView::DoEnumerateFamilies (
    
 	if (fontEnumerator.GotAny())
 		{
-		int nFacenames = fontEnumerator.GetFacenames().GetCount ();
+		int nFacenames = (int)fontEnumerator.GetFacenames().GetCount ();
 		
 		wxString facename;
    

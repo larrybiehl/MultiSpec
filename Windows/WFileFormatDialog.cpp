@@ -221,19 +221,34 @@ void CMFileFormatSpecsDlg::DoDataExchange (
 
 			}	// end "if (fileInfoPtr->format != kHDFType || ..."
 										
-		if (sizeDifference > 0)
-			{  			
-			SInt16 returnCode = DisplayAlert (kErrorAlertID,
+		if (sizeDifference > 0 && SizeOfImageFileCanBeCalculated (m_fileInfoPtr))
+			{
+			// Display an alert.
+
+			FileStringPtr							fileNamePtr;
+			SInt16									alertReturnCode;
+
+			fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileInfo (m_fileInfoPtr);
+
+			MGetString (gTextString2, kAlertStrID, IDS_FileSizeLimit);
+
+			sprintf ((char*)gTextString, (char*)gTextString2, fileNamePtr, sizeDifference);
+
+			alertReturnCode = DisplayAlert (kRedoDontCancelAlertID,		// kErrorAlertID,
 															kCautionAlert,
 															kAlertStrID, 
-															IDS_FileSizeLimit,
 															0,
-															NULL);
+															0,
+															gTextString);
 				
-			pDX->PrepareEditCtrl (IDC_NumberLines);
-			pDX->Fail ();
+			if (alertReturnCode == 1)
+				{
+				pDX->PrepareEditCtrl (IDC_NumberLines);
+				pDX->Fail ();
+				
+				}	// end "if (alertReturnCode == 1)"
 			
-			}	// end "if (sizeDifference > 0)"	
+			}	// end "if (sizeDifference > 0 && SizeOfImageFileCanBeCalculated (m_fileInfoPtr))"	
 
 		else	// sizeDifference <= 0
 			{

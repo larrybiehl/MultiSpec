@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -357,7 +357,7 @@ Boolean LoadPrincipalComponentSpecs (
 // Called By:			PrincipalComponentControl in SPrincipalComponents.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/1991
-//	Revised By:			Larry L. Biehl			Date: 12/29/2005
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean PrincipalComponentAnalysis (
 				FileInfoPtr							fileInfoPtr)
@@ -418,7 +418,7 @@ Boolean PrincipalComponentAnalysis (
 														gPrincipalCompSpecsPtr->numberChannels,
 														(HUInt16Ptr)channelsPtr,
 														kDoNotPackData,
-														kForceBISFormat,
+														kBIS,		// kForceBISFormat,
 														kForceReal8Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsPtr);

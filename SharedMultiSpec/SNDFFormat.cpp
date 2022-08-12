@@ -269,7 +269,7 @@ SInt16 LinkNDFFiles (
 // Called By:			CheckImageHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/05/2007
-//	Revised By:			Larry L. Biehl			Date: 01/17/2019
+//	Revised By:			Larry L. Biehl			Date: 09/07/2020
 
 SInt16 ReadNDFHeader (
 				FileInfoPtr 						fileInfoPtr,

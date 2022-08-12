@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -1449,7 +1449,7 @@ void InitializeMaskStructure (
 //							StatisticsDialogMaskCheck in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 SInt16 LoadMask (
 				SInt16								maskSetCode,
@@ -1611,7 +1611,7 @@ SInt16 LoadMask (
 														1,
 														&channel,
 														kDoNotPackData,
-														kDoNotForceBISFormat,
+														kDoNotForceFormat,
 														kForce2Bytes,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsPtr);

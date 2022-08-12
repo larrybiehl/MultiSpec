@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -1565,7 +1565,7 @@ Boolean MosaicTwoImagesTopBottom (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/05/1993
-//	Revised By:			Larry L. Biehl			Date: 03/15/2014
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 void MosaicTwoImagesControl (void)
 
@@ -1685,7 +1685,11 @@ void MosaicTwoImagesControl (void)
 													gImageFileInfoPtr->mapProjectionHandle);
 			
 					// Get pointer to memory to use to read left image file line		
-					// into. 																		
+					// into.
+					
+			UInt16 outputFormatCode = kDoNotForceFormat;
+			if (outFileInfoPtr->bandInterleave == kBIS)
+				outputFormatCode = kBIS;
 			
 			if (continueFlag)	 						
 				continueFlag = GetIOBufferPointers (
@@ -1701,7 +1705,7 @@ void MosaicTwoImagesControl (void)
 														reformatOptionsPtr->numberChannels,
 														(UInt16*)reformatOptionsPtr->channelPtr,
 														kPackData,
-														outFileInfoPtr->bandInterleave == kBIS,
+														outputFormatCode,		// outFileInfoPtr->bandInterleave == kBIS,
 														reformatOptionsPtr->forceByteCode,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsLeftPtr);
@@ -1733,7 +1737,7 @@ void MosaicTwoImagesControl (void)
 				 						reformatOptionsPtr->numberChannels,
 				 						(UInt16*)reformatOptionsPtr->channelPtr, 
 										kPackData, 
-										outFileInfoPtr->bandInterleave == kBIS, 
+										outputFormatCode,		// outFileInfoPtr->bandInterleave == kBIS,
 										reformatOptionsPtr->forceByteCode,
 										kDoNotAllowForThreadedIO,
 										&fileIOInstructionsRightPtr);

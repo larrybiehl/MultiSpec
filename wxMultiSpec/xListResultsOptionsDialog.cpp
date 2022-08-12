@@ -201,7 +201,6 @@ void CMListResultsOptionsDlg::DoDialog (
 
 {  
 	SInt16								returnCode;
-	Boolean								continueFlag = FALSE;
 	
 	                          
 			// Make sure intialization has been completed.
@@ -250,8 +249,6 @@ void CMListResultsOptionsDlg::DoDialog (
 						
 		if (m_testClassPerformanceFlag)
 			*listResultsTestCodePtr += kClassSummary;
-				
-		continueFlag = TRUE; 
 		
 		}	// end "if (returnCode == IDOK)"
 		

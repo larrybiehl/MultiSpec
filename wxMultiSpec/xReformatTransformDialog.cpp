@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        05/06/2020
+//   Revision date:        08/08/2022
 //
 //   Language:					C++
 //
@@ -85,6 +85,7 @@ CMReformatTransformDlg::CMReformatTransformDlg (
 	m_transformCode = -1;
 	m_functionFactor = 1;
 	m_kthSmallestElement = 1;
+	m_thresholdValue = 25;
 	m_functionCode = -1;
 	m_adjustSelectedChannelsFactor = -1.;
 	m_adjustSelectedChannel = 1;
@@ -623,6 +624,8 @@ void CMReformatTransformDlg::CreateControls ()
 	comboBox13->Append (wxT("Average"));
 	comboBox13->Append (wxT("Median"));
 	comboBox13->Append (wxT("Kth Smallest Value"));
+	comboBox13->Append (wxT("Latest Threshold Channel"));
+	comboBox13->Append (wxT("Earliest Threshold Channel"));
 	bSizer99->Add (comboBox13, 0, wxALL, 5);
 	
 	m_staticText132 = new wxStaticText (this,
@@ -650,7 +653,7 @@ void CMReformatTransformDlg::CreateControls ()
 	bSizer102->Add (60, 0, 0, wxEXPAND);
 	
 	m_staticText133 = new wxStaticText (this,
-													IDC_kthSmallestElementPrompt,
+													IDC_kth_SmallestValuePrompt,
 													wxT("kth smallest value:"),
 													wxDefaultPosition,
 													wxDefaultSize,
@@ -659,7 +662,7 @@ void CMReformatTransformDlg::CreateControls ()
 	bSizer102->Add (m_staticText133, 0, wxALIGN_CENTER | wxALL, 5);
 	
 	m_textCtrl54 = new wxTextCtrl (this,
-												IDC_kthSmallestElement,
+												IDC_kth_SmallestValue,
 												wxEmptyString,
 												wxDefaultPosition,
 												wxDefaultSize,
@@ -667,6 +670,30 @@ void CMReformatTransformDlg::CreateControls ()
 	bSizer102->Add (m_textCtrl54, 0, wxALL, 5);
 	
 	bSizer89->Add (bSizer102, 1, wxEXPAND);
+	
+	wxBoxSizer* bSizer103;
+	bSizer103 = new wxBoxSizer (wxHORIZONTAL);
+	
+	bSizer103->Add (60, 0, 0, wxEXPAND);
+	
+	m_staticText143 = new wxStaticText (this,
+													IDC_Threshold_Value_Prompt,
+													wxT("Threshold value:"),
+													wxDefaultPosition,
+													wxDefaultSize,
+													0);
+	m_staticText143->Wrap (-1);
+	bSizer103->Add (m_staticText143, 0, wxALIGN_CENTER | wxALL, 5);
+	
+	m_textCtrl44 = new wxTextCtrl (this,
+												IDC_Threshold_Value,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxDefaultSize,
+												0);
+	bSizer103->Add (m_textCtrl44, 0, wxALL, 5);
+	
+	bSizer89->Add (bSizer103, 1, wxEXPAND);
 	
 	bSizer84->Add (bSizer89,
 						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
@@ -815,6 +842,7 @@ Boolean CMReformatTransformDlg::DoDialog (
 			m_reformatOptionsPtr->functionCode = m_functionCode + 1;
 			m_reformatOptionsPtr->functionFactor = m_functionFactor;
 			m_reformatOptionsPtr->kthSmallestValue = m_kthSmallestElement;
+			m_reformatOptionsPtr->thresholdValue = m_thresholdValue;
 
 			}	// end "if (...->transformDataCode == kFunctionOfChannels)"
 
@@ -1023,6 +1051,7 @@ void CMReformatTransformDlg::OnInitDialog (
 	m_functionCode = m_reformatOptionsPtr->functionCode - 1;
 	m_functionFactor = m_reformatOptionsPtr->functionFactor;
 	m_kthSmallestElement = m_reformatOptionsPtr->kthSmallestValue;
+	m_thresholdValue = m_reformatOptionsPtr->thresholdValue;
 
 	ShowHideFunctionChannelsItems (dialogPtr,
 												m_transformCode == kFunctionOfChannels,
@@ -1032,7 +1061,11 @@ void CMReformatTransformDlg::OnInitDialog (
 		{
 		selectedItem = IDC_FunctionFactor;
 		if (m_functionCode == kFunctionKthSmallestElement - 1)
-			selectedItem = IDC_kthSmallestElement;
+			selectedItem = IDC_kth_SmallestValue;
+			
+		else if (m_functionCode == kFunctionLatestThreshold - 1 ||
+						m_functionCode == kFunctionEarliestThreshold - 1)
+			selectedItem = IDC_Threshold_Value;
 
     	}	// end "if (m_transformCode == kFunctionOfChannels)"
 
@@ -1202,17 +1235,34 @@ void CMReformatTransformDlg::OnSelendokReformatFunctions (
 				wxCommandEvent& 					event)
 
 {
-	Boolean 								showFlag = FALSE;
+	Boolean 								showFlag;
 
 
 	wxChoice* functionCode = (wxChoice*)FindWindow (IDC_ReformatFunctions);
 	m_functionCode = functionCode->GetSelection ();
 
+	showFlag = FALSE;
 	if (m_functionCode == kFunctionKthSmallestElement - 1)
 		showFlag = TRUE;
 
-	ShowHideDialogItem (this, IDC_kthSmallestElementPrompt, showFlag);
-	ShowHideDialogItem (this, IDC_kthSmallestElement, showFlag);
+	ShowHideDialogItem (this, IDC_kth_SmallestValuePrompt, showFlag);
+	ShowHideDialogItem (this, IDC_kth_SmallestValue, showFlag);
+
+	showFlag = FALSE;
+	if (m_functionCode == kFunctionLatestThreshold - 1 ||
+			m_functionCode == kFunctionEarliestThreshold - 1)
+		showFlag = TRUE;
+
+	ShowHideDialogItem (this, IDC_Threshold_Value_Prompt, showFlag);
+	ShowHideDialogItem (this, IDC_Threshold_Value, showFlag);
+	
+	if (m_functionCode == kFunctionKthSmallestElement - 1)
+		SelectDialogItemText (this, IDC_kth_SmallestValue, 0, SInt16_MAX);
+		
+	else if (m_functionCode == kFunctionLatestThreshold - 1 ||
+					m_functionCode == kFunctionEarliestThreshold - 1)
+		SelectDialogItemText (this, IDC_Threshold_Value, 0, SInt16_MAX);
+	
 	m_transformCode = kFunctionOfChannels;
 	
 }	// end "OnSelendokReformatFunctions"
@@ -1316,15 +1366,26 @@ void CMReformatTransformDlg::ShowHideFunctionChannelsItems (
 				UInt16 								functionChannelCode)
 
 {
+	Boolean								localShowFlag;
+	
 	ShowHideDialogItem (dialogPtr, IDC_ReformatFunctions, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_FunctionFactorPrompt, showFlag);
 	ShowHideDialogItem (dialogPtr, IDC_FunctionFactor, showFlag);
 	
+	localShowFlag = showFlag;
 	if (functionChannelCode != kFunctionKthSmallestElement)
-		showFlag = FALSE;
+		localShowFlag = FALSE;
 	
-	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElementPrompt, showFlag);
-	ShowHideDialogItem (dialogPtr, IDC_kthSmallestElement, showFlag);
+	ShowHideDialogItem (dialogPtr, IDC_kth_SmallestValuePrompt, localShowFlag);
+	ShowHideDialogItem (dialogPtr, IDC_kth_SmallestValue, localShowFlag);
+	
+	localShowFlag = showFlag;
+	if (functionChannelCode != kFunctionLatestThreshold &&
+			functionChannelCode != kFunctionEarliestThreshold)
+		localShowFlag = FALSE;
+	
+	ShowHideDialogItem (dialogPtr, IDC_Threshold_Value_Prompt, localShowFlag);
+	ShowHideDialogItem (dialogPtr, IDC_Threshold_Value, localShowFlag);
 	
 }	// end "ShowHideFunctionChannelsItems"
 
@@ -1391,8 +1452,11 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 	wxTextCtrl* functionFactor = (wxTextCtrl*)FindWindow (IDC_FunctionFactor);
 	m_functionFactor = wxAtof (functionFactor->GetValue());
 	
-	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kthSmallestElement);
+	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kth_SmallestValue);
 	m_kthSmallestElement = wxAtoi (kthSmallestElement->GetValue());
+											
+	wxTextCtrl* thresholdValue = (wxTextCtrl*)FindWindow (IDC_Threshold_Value);
+	m_thresholdValue = wxAtoi (thresholdValue->GetValue());
 	
 	wxTextCtrl* adjustSelectedChannelsFactor = (wxTextCtrl*)FindWindow (IDC_RT_ACbyC_Factor);
 	m_adjustSelectedChannelsFactor = wxAtof (adjustSelectedChannelsFactor->GetValue());
@@ -1557,9 +1621,13 @@ bool CMReformatTransformDlg::TransferDataToWindow ()
 	wxTextCtrl* functionFactor = (wxTextCtrl*)FindWindow (IDC_FunctionFactor);
 	functionFactor->ChangeValue (wxString::Format (wxT("%.1f"), m_functionFactor));
 	
-	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kthSmallestElement);
+	wxTextCtrl* kthSmallestElement = (wxTextCtrl*)FindWindow (IDC_kth_SmallestValue);
 	kthSmallestElement->ChangeValue (
 											wxString::Format (wxT("%i"), m_kthSmallestElement));
+											
+	wxTextCtrl* thresholdValue = (wxTextCtrl*)FindWindow (IDC_Threshold_Value);
+	thresholdValue->ChangeValue (
+											wxString::Format (wxT("%i"), m_thresholdValue));
 	
 	wxTextCtrl* adjustSelectedChannelsFactor =
 							(wxTextCtrl*)FindWindow (IDC_RT_ACbyC_Factor);

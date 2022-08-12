@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			04/03/2022
 //
 //	Language:				C
 //
@@ -1927,6 +1927,82 @@ SInt16 GetActiveLegendListType ()
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		Boolean GetFileFormatsInFile
+//
+//	Software purpose:	The purpose of this routine is to determine which file formats
+//							are in the single or linked image file.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+//	Value Returned:	None
+//
+// Called By:			SetUpFileIOInstructions in SFileIO.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+				
+void GetFileFormatsInFile (
+				WindowInfoPtr						windowInfoPtr,
+				FileInfoPtr							fileInfoPtr,
+				Boolean*								bilFormatFlagPtr,
+				Boolean*								bsqFormatFlagPtr,
+				Boolean*								bisFormatFlagPtr)
+	
+{
+	FileInfoPtr							localFileInfoPtr;
+	
+	UInt16              				index;
+	
+	
+	*bilFormatFlagPtr = FALSE;
+	*bsqFormatFlagPtr = FALSE;
+	*bisFormatFlagPtr = FALSE;
+	
+			// Check some input variables. If 'windowInfoPtr' or 'layerInfoPtr'
+			// pointers are NULL then assume that the number of image files
+			// is one and is represented by the input 'fileInfoPtr'.
+			
+	if (windowInfoPtr == NULL || fileInfoPtr	== NULL)
+																							return;
+			
+			// Intialize variables.
+			
+	for (index=0; index<windowInfoPtr->numberImageFiles; index++)
+		{
+		localFileInfoPtr = &fileInfoPtr[index];
+		
+		switch (localFileInfoPtr->bandInterleave)
+			{
+			case kBIL:
+				*bilFormatFlagPtr = TRUE;
+				break;
+				
+			case kBSQ:
+			case kBNonSQ:
+			case kBNonSQBlocked:
+			case kBIBlock:
+				*bsqFormatFlagPtr = TRUE;
+				break;
+					
+			case kBIS:
+				*bisFormatFlagPtr = TRUE;
+				break;
+				
+			}	// end "switch (localFileInfoPtr->bandInterleave)"
+			
+		}	// end "for (index=0; index<windowInfoPtr->numberImageFiles; index++)"
+		
+	return;
+		
+}	// end "GetFileInformationForChannelList"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		SInt16 GetLegendWidth
 //
 //	Software purpose:	This routine returns legend width for the input
@@ -3105,7 +3181,7 @@ Handle InitializeWindowInfoStructure (
 
 {
 	WindowInfoPtr						windowInfoPtr;
-	SignedByte							handleStatus;
+	SignedByte							handleStatus = 0;
 								
 	
 	if (windowInfoHandle == NULL)
@@ -3296,7 +3372,7 @@ Handle InitializeWindowInfoStructure (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/1999
-//	Revised By:			Larry L. Biehl			Date: 03/14/2015			
+//	Revised By:			Larry L. Biehl			Date: 04/03/2022
 
 Boolean OffscreenImageMapExists (
 				Handle								windowInfoHandle)

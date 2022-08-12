@@ -769,13 +769,13 @@ void CMFeatureExtractionDialog::OnPreprocessingSelendok (
 				wxCommandEvent& 					event)
 
 {   
-	Boolean					okFlag = FALSE;
+	//Boolean					okFlag = FALSE;
 
 
    m_preprocessSelection = m_preprocessingCtrl->GetSelection ();
 	
 	if (m_preprocessSelection == 1)
-		okFlag = ProjectionPursuitDialog ();
+		ProjectionPursuitDialog ();
 
 }	// end "OnPreprocessingSelendok"
 

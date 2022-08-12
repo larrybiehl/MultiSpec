@@ -264,7 +264,7 @@ SInt16 CMClassPairWeightDlg::DoDialog (
 {
    wxListBox*							listBoxPtr;
 	SInt16								returnCode;
-   Boolean								OKFlag = FALSE;
+   //Boolean								OKFlag = FALSE;
 
 			// Make sure intialization has been completed.
 
@@ -282,7 +282,7 @@ SInt16 CMClassPairWeightDlg::DoDialog (
    
    if (returnCode == wxID_OK)
 		{
-      OKFlag = TRUE;
+      //OKFlag = TRUE;
 
       interClassWeightsSelection = m_classPairWeightsSelection;
 

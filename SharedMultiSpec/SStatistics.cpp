@@ -3309,8 +3309,8 @@ void FieldListStatMode (
 											currentClassField,
 											field,
 											numberOfFields,
-											previousStatsMode,
-											row;
+                                 previousStatsMode;
+											//row;
 
 
 			// Execute routine if input class number is within proper range		
@@ -3374,7 +3374,7 @@ void FieldListStatMode (
 
       if (numberOfFields > 0)
 			{
-         row = LAddRow (numberOfFields, 0, gStatisticsListHandle);
+         LAddRow (numberOfFields, 0, gStatisticsListHandle);
          cell.h = 0;
          cell.v = 0;
 
@@ -4501,8 +4501,8 @@ void LoadClassNamesIntoList (
 
    UInt32								classIndex,
 											classStorage,
-											numberOfClasses,
-											row;
+                                 numberOfClasses;
+											//row;
 											
 	
 			//	Continue if list handle is not null.										
@@ -4516,7 +4516,7 @@ void LoadClassNamesIntoList (
 
       if (numberOfClasses > 0)
 			{
-         row = LAddRow ((SInt16)numberOfClasses, 0, listHandle);
+         LAddRow ((SInt16)numberOfClasses, 0, listHandle);
 
          cell.h = 0;
          for (classIndex=0; classIndex<numberOfClasses; classIndex++)
@@ -4966,7 +4966,7 @@ void LoadRectangleInStatList (
 	#endif	// defined multispec_win 
 
 	#if defined multispec_wx
-		SInt16								index;
+		//SInt16								index;
 
 				// Remove cells from previous list in case any existed
 
@@ -4976,14 +4976,14 @@ void LoadRectangleInStatList (
 
 				// Put the selection rectangle coordinates into the polygon list
 
-		index = 0;
+		//index = 0;
 		sprintf ((char*)gTextString,
 					"%d\t%d",
 					selectionRectanglePtr->top,
 					selectionRectanglePtr->left);
 					gStatisticsListHandle->AppendString ((wxString)gTextString);
 
-		index = 1;
+		//index = 1;
 		sprintf ((char*)gTextString,
 					"%d\t%d",
 					selectionRectanglePtr->bottom,
@@ -8485,7 +8485,7 @@ Boolean StatisticsWControlEvent (
 		Boolean								doubleClick;
 	#endif	// defined multispec_mac   				
 
-   SInt16								returnCode;
+   //SInt16								returnCode;
 
    Boolean								continueFlag,
 											returnFlag = TRUE;
@@ -8563,10 +8563,10 @@ Boolean StatisticsWControlEvent (
          case kUpdateStatsControl:
             gProcessorCode = kComputeStatsProcessor;
             gOutputForce1Code = 0x0001;
-            returnCode = UpdateStatsControl (gProjectInfoPtr->statsWindowMode,
-															FALSE,
-															FALSE);
-            break;
+            UpdateStatsControl (gProjectInfoPtr->statsWindowMode,
+                                 FALSE,
+                                 FALSE);
+         break;
 
          case kNewFieldControl:
             NewFieldStatMode ();

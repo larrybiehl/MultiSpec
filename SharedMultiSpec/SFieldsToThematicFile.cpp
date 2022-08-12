@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/17/2020
+//	Revision date:			05/05/2022
 //
 //	Language:				C
 //
@@ -361,7 +361,7 @@ void AreasToThematicFileControl (void)
 // Called By:			AreasToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
-//	Revised By:			Larry L. Biehl			Date: 03/16/2014
+//	Revised By:			Larry L. Biehl			Date: 05/05/2022
 
 Boolean ConvertImagePixelsToClassNumbers (
 				FileInfoPtr							outFileInfoPtr, 
@@ -470,7 +470,7 @@ Boolean ConvertImagePixelsToClassNumbers (
 												NULL,
 												0,
 												kDoNotPackData,
-												kDoNotForceBISFormat,	
+												kDoNotForceFormat,	
 												kDoNotForceBytes,
 												&fileIOInstructionsPtr);  
 	

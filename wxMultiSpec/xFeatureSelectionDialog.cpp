@@ -581,7 +581,7 @@ Boolean CMFeatureSelectionDialog::DoDialog (
 void CMFeatureSelectionDialog::HandleChannelCombinationsMenu ()
 
 {
-   Boolean 								returnFlag;
+   //Boolean 								returnFlag;
 
 
    m_channelCombinationSelection = m_channelsPossibleCtrl->GetSelection ();
@@ -597,7 +597,7 @@ void CMFeatureSelectionDialog::HandleChannelCombinationsMenu ()
 			{
          channelCombinationsDialogPtr = new CMChannelCombinationsDlg ();
 
-         returnFlag = channelCombinationsDialogPtr->DoDialog (
+         channelCombinationsDialogPtr->DoDialog (
 											m_channelCombinationSelection,
 											&m_localNumberChannelGroupCombinations,
 											m_localChannelCombinationsPtr,

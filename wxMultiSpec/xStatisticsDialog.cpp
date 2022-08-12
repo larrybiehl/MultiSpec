@@ -409,8 +409,7 @@ SInt16 CMStatisticsDialog::DoDialog (
 {
 	Boolean								continueFlag = FALSE;
 
-   SInt16								returnCode,
-											statisticsRequest;
+   SInt16								returnCode;
 
 
 			// Make sure intialization has been completed.
@@ -427,8 +426,6 @@ SInt16 CMStatisticsDialog::DoDialog (
 
    if (returnCode == wxID_OK) 
 		{
-      statisticsRequest = 1;
-
       StatisticsDialogOK (m_channelSelection,
 									m_totalNumberChannels,
 									m_localActiveFeaturesPtr,

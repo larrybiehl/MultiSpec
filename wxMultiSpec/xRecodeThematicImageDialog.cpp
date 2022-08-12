@@ -226,8 +226,7 @@ Boolean CMRecodeThematicDialog::DoDialog (
 {	   
 	SInt16								returnCode = -1;
 	
-	Boolean								continueFlag = FALSE,
-											changedFlag;
+	Boolean								continueFlag = FALSE;
 							
 	
 			// Make sure intialization has been completed.
@@ -242,7 +241,6 @@ Boolean CMRecodeThematicDialog::DoDialog (
 	
 	if (returnCode == wxID_OK)
 		{
-		changedFlag = FALSE;
 		continueFlag = TRUE; 
 				
 		RecodeThematicImageDialogOK (recodeThematicImagePtr,

@@ -382,8 +382,8 @@ void CMEditClassFieldDlg::OnInitDialog (
 bool CMEditClassFieldDlg::TransferDataFromWindow ()
 
 {
-	SInt16								returnCode,
-											selectedItem;
+   SInt16								returnCode;
+											//selectedItem;
 	
 	Boolean								OKFlag;
 	
@@ -419,7 +419,7 @@ bool CMEditClassFieldDlg::TransferDataFromWindow ()
 			else // returnCode > 0
 				DupClassFieldNameAlert (1, gTextString);
 
-			selectedItem = IDC_ClassName;
+			//selectedItem = IDC_ClassName;
 			OKFlag = FALSE;
 			
 			}	// end "if (returnCode > 0)"
@@ -443,7 +443,7 @@ bool CMEditClassFieldDlg::TransferDataFromWindow ()
 			else // returnCode == 2
 				DupClassFieldNameAlert (2, gTextString);
 
-			selectedItem = IDC_FieldName;
+			//selectedItem = IDC_FieldName;
 			OKFlag = FALSE;
 			
 			}	// end "if (returnCode > 0)"

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/28/2020
+//	Revision date:			08/08/2022
 //
 //	Language:				C
 //
@@ -105,7 +105,7 @@ Boolean 	ChangeFormatToBILorBISorBSQ (
 				FileIOInstructionsPtr			fileIOInstructions2Ptr,
 				FileInfoPtr							outFileInfoPtr, 
 				ReformatOptionsPtr				reformatOptionsPtr,
-				Boolean								forceBISFlag);
+				UInt16								forceOutputFormatCode);
 
 void 		ChangeImageFileFormat (void);
 
@@ -231,7 +231,7 @@ void		SaveAlgebraicTransformationFunction (
 				SInt16								instrumentCode,
 				ReformatOptionsPtr				reformatOptionsPtr);
 				
-void SetRadiantTemperatureConstants (
+void 		SetRadiantTemperatureConstants (
 				FileInfoPtr							imageFileInfoPtr,
 				ReformatOptionsPtr				reformatOptionsPtr);
 
@@ -403,14 +403,14 @@ void AdjustDataForChangeFormat (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/06/1988
-//	Revised By:			Larry L. Biehl			Date: 07/09/2018
+//	Revised By:			Larry L. Biehl			Date: 05/06/2022
 
 Boolean ChangeFormatToBILorBISorBSQ (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
 				FileIOInstructionsPtr			fileIOInstructions2Ptr,
 				FileInfoPtr							outFileInfoPtr, 
 				ReformatOptionsPtr				reformatOptionsPtr,
-				Boolean								forceBISFlag)
+				UInt16								forceOutputFormatCode)
 
 {
 			// Declare local variables & structures	
@@ -419,7 +419,8 @@ Boolean ChangeFormatToBILorBISorBSQ (
 	
 	DisplaySpecsPtr					displaySpecsPtr;
 	
-	FileInfoPtr							fileInfoPtr;
+	FileInfoPtr							fileInfoPtr,
+											localFileInfoPtr;
 	
 	HDoublePtr							tempBufferPtr;
 	
@@ -475,15 +476,18 @@ Boolean ChangeFormatToBILorBISorBSQ (
 	SInt32								channelCount,
 											columnInterval,
 											countOutBytes,
+											fileInfoIndex,
 											lastOutputWrittenLine,
 											lastPercentComplete,
+											layerFileInfoIndex,
 											limitIoOutBytes,
 											lineInterval,
 											outOffsetBytes,
 											percentComplete,
 											preLineBytes,
+											signedValueOffset,
 											totalIOOutBytes,
-											writePosOff;	
+											writePosOff;
 	
 	UInt32								column,
 											columnEnd,
@@ -516,7 +520,8 @@ Boolean ChangeFormatToBILorBISorBSQ (
 											numberReadChannels;
 												
 	UInt16								channelIdentifier,
-											forceByteCode;				
+											forceByteCode,
+											outputBufferFormat;
 	
 	Boolean								inputBISFlag,
 											compactFlag,
@@ -547,6 +552,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 	differentBuffersFlag = (gInputBufferPtr != gOutputBufferPtr);
 	preLineBytes = outFileInfoPtr->numberPreLineBytes;
 	fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
+	signedValueOffset = fileInfoPtr->signedValueOffset;
 	thematicListType = kClassDisplay;
 	fromNumberBytes = reformatOptionsPtr->convertFromNumberBytes;
 	
@@ -640,8 +646,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		}	// end "if (fileInfoPtr->thematicType)"
 	
 	//swapBytesFlag = fileInfoPtr->swapBytesFlag;
-	
-	inputBISFlag = (gImageWindowInfoPtr->bandInterleave == kBIS || forceBISFlag);
 					
 	ioOutBufferPtr = (UInt8*)reformatOptionsPtr->ioOutBufferPtr;
 	ioOutAdjustBufferPtr = (HDoublePtr)reformatOptionsPtr->ioOutAdjustBufferPtr;
@@ -678,24 +682,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 	reformatOptionsPtr->startColumn = 0;
 	if (reformatOptionsPtr->rightToLeft) 
 		reformatOptionsPtr->startColumn = numberColumns -1;
-	
-	if (inputBISFlag && numberOutChannels > 1)
-		{	
-		columnInterval = reformatOptionsPtr->numberChannels;
-		reformatOptionsPtr->startColumn *= reformatOptionsPtr->numberChannels;
-		
-		}	// end "if (inputBISFlag && ..." 
-	
-	else	// !inputBISFlag || ...
-		columnInterval = 1;
-		
-	if (reformatOptionsPtr->rightToLeft)  
-		columnInterval = -columnInterval;
-	
-	outSkip = 1;
-	if (forceBISFlag) 
-			//&&  reformatOptionsPtr->functionCode == kNoFunction)
-		outSkip *= numberOutChannels;
 		
 			// Get a temp buffer for the transformation if needed.	
 			// Also get the low saturated data value to use.																		
@@ -787,7 +773,9 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		
 		countOutBytes = reformatOptionsPtr->countOutBytes;
 		if (reformatOptionsPtr->transformDataCode == kNoTransform &&
-					fileInfoPtr->bandInterleave == kBSQ &&
+				fileInfoPtr->bandInterleave == kBSQ &&
+					//(fileInfoPtr->bandInterleave == kBSQ ||
+					//	fileInfoPtr->bandInterleave == kBIL) &&
 							outFileInfoPtr->bandInterleave == kBSQ &&
 									numberOutChannels > 1)
 			{
@@ -823,10 +811,10 @@ Boolean ChangeFormatToBILorBISorBSQ (
 			{
 					// Note that BSQ format is never convertType == 1
 					
-			if (forceBISFlag && numberOutChannels > 1)
+			if (forceOutputFormatCode == kBIS && numberOutChannels > 1)
 				outOffsetBytes = (outOffsetBytes-preLineBytes)/numberOutColumnsChannels;
 				
-			else	// !forceBISFlag || ...
+			else	// forceOutputFormatCode != kBIS || ...
 				outOffsetBytes = (outOffsetBytes-preLineBytes)/numberInsideLoops;
 				
 			}	// end "if (reformatOptionsPtr->convertType != 1)" 
@@ -842,6 +830,12 @@ Boolean ChangeFormatToBILorBISorBSQ (
 										
 		if (numberOutsideLoops > 1)
 			outBSQOffsetIncrement = outOffsetBytes;
+			
+				// Set flag in fileIOInstructionsPtr structure if the output band
+				// interleave format is to be BIL
+		
+		//if (outFileInfoPtr->bandInterleave == kBIL)
+		//	fileIOInstructionsPtr->forceBILFormatFlag = TRUE;
 		
 				// Initialize the buffer to load the data into.  Assume here that	
 				// the conversion type is not 1.  											
@@ -852,13 +846,42 @@ Boolean ChangeFormatToBILorBISorBSQ (
 				// Intialize the nextTime variable to indicate when the next 		
 				// check should occur for a command-.										
 				
-		gNextTime = TickCount ();					
+		gNextTime = TickCount ();
+		fileInfoIndex = 0;
 		for (outsideLoopChannel=0;
 				outsideLoopChannel<numberOutsideLoops;
 					outsideLoopChannel++)
 			{
 			if (numberOutsideLoops > 1)
+				{
 				channelIdentifier = fileWavelengthOrderPtr[outsideLoopChannel];
+			
+				if (fileIOInstructionsPtr->windowInfoPtr->localBytesDifferFlag)
+					{
+							// Need to update the Reformat Options convertType code for this case.
+							
+					layerFileInfoIndex = fileIOInstructionsPtr->layerInfoPtr[channelIdentifier+1].fileInfoIndex;
+					
+					if (fileInfoIndex != layerFileInfoIndex)
+						{
+						fileInfoIndex = layerFileInfoIndex;
+						localFileInfoPtr = &fileInfoPtr[fileInfoIndex];
+					
+						reformatOptionsPtr->convertType = GetDataConversionCode (
+															localFileInfoPtr->dataTypeCode,
+															localFileInfoPtr->numberBytes,
+															localFileInfoPtr->signedDataFlag,
+															reformatOptionsPtr->forceByteCode,
+															reformatOptionsPtr->signedOutputDataFlag,
+															&reformatOptionsPtr->checkForSaturationFlag);
+															
+						signedValueOffset = localFileInfoPtr->signedValueOffset;
+															
+						}	// end "if (fileInfoIndex != layerFileInfoIndex)"
+					
+					}	// end "if (fileIOInstructionsPtr->windowInfoPtr->localBytesDifferFlag)"
+					
+				}	// end "if (outsideLoopChannel > 1)"
 			
 					// Load some of the File IO Instructions structure that pertain
 					// to the specific area being used.
@@ -873,7 +896,35 @@ Boolean ChangeFormatToBILorBISorBSQ (
 												outputColumnInterval,
 												numberReadChannels,
 												channelPtr,
-												kDetermineSpecialBILFlag);		
+												kDetermineSpecialBILFlag);
+												
+			outSkip = 1;
+			if (forceOutputFormatCode == kBIS && !fileIOInstructionsPtr->callPackLineOfDataFlag)
+					//&&  reformatOptionsPtr->functionCode == kNoFunction)
+				outSkip *= numberOutChannels;
+				
+			//inputBISFlag = (gImageWindowInfoPtr->bandInterleave == kBIS || forceBISFlag);
+			inputBISFlag = ((fileInfoPtr->bandInterleave == kBIS &&
+									fileInfoPtr->gdalBandInterleave == 0) || forceOutputFormatCode == kBIS);
+				
+			if (inputBISFlag && !fileIOInstructionsPtr->callPackLineOfDataFlag &&
+												numberOutChannels > 1)
+				{
+				columnInterval = reformatOptionsPtr->numberChannels;
+				reformatOptionsPtr->startColumn *= reformatOptionsPtr->numberChannels;
+				
+				}	// end "if (inputBISFlag && ..."
+			
+			else	// !inputBISFlag || ...
+				columnInterval = 1;
+				
+			if (reformatOptionsPtr->rightToLeft)
+				columnInterval = -columnInterval;
+				
+			outputBufferFormat = fileInfoPtr->bandInterleave;
+			if (fileIOInstructionsPtr->callPackLineOfDataFlag &&
+									outFileInfoPtr->bandInterleave != kBIS)
+				outputBufferFormat = kBSQ;
 												
 			if (reformatOptionsPtr->transformDataCode == kAdjustChannelsByChannel &&
 															reformatOptionsPtr->locationInList < 0)
@@ -1056,7 +1107,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 				else if (callConvertDataValueToBinValueFlag)
 					ConvertDataValueToBinValue (
 									ioBufferPtr2,
-									fileInfoPtr->signedValueOffset,
+									signedValueOffset,
 									binFactor,
 									minValue,
 									maxBin, 
@@ -1076,11 +1127,13 @@ Boolean ChangeFormatToBILorBISorBSQ (
 					{
 							// Set input buffer pointer for the channel to be handled.
 					
-					if (inputBISFlag)
+					//if (inputBISFlag)
+					if (outputBufferFormat == kBIS)
 						ioIn1ByteBufferPtr =
 							(HUCharPtr)&ioBufferPtr2[channelCount*fromNumberBytes];
 						
-					else	// !inputBISFlag 
+					//else	// !inputBISFlag
+					else	// outputBufferFormat != kBIS
 						ioIn1ByteBufferPtr = 
 							(HUCharPtr)&ioBufferPtr2[channelCount*numberColumnBytes];
 						
@@ -1091,7 +1144,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 							// Update output buffer pointers to point to start of			
 							// next channel of data.												
 					
-					if (forceBISFlag)
+					if (forceOutputFormatCode == kBIS)
 						ioOut1ByteBufferPtr = &savedOutBufferPtr[
 											preLineBytes + channelCount * outOffsetBytes];
 				
@@ -1472,9 +1525,9 @@ Boolean ChangeFormatToBILorBISorBSQ (
 						ioOut1ByteBufferPtr = &savedOutBufferPtr[
 															channelCount * outBSQOffsetIncrement];										
 					
-					else if (outFileInfoPtr->bandInterleave == kBIL)
-						ioOut1ByteBufferPtr = &savedOutBufferPtr[
-															channelCount * outOffsetBytes];
+					//else if (outFileInfoPtr->bandInterleave == kBIL)
+					//	ioOut1ByteBufferPtr = &savedOutBufferPtr[
+					//										channelCount * outOffsetBytes];
 					
 					}	// end "while (channelCount<numberInsideLoops..." 
 					
@@ -1666,7 +1719,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 09/15/1988
-//	Revised By:			Larry L. Biehl			Date: 08/02/2013
+//	Revised By:			Larry L. Biehl			Date: 05/14/2022
 
 void ChangeImageFileFormat ()
 
@@ -1685,10 +1738,10 @@ void ChangeImageFileFormat ()
 	
 	time_t								startTime;
 	
-	UInt16								adjustChannel;
+	UInt16								adjustChannel,
+											forceOutputFormatCode;
 	
 	Boolean								continueFlag,
-											forceBISFlag,
 											returnFlag;
 											//savedSwapBytesFlag;
 
@@ -1729,6 +1782,16 @@ void ChangeImageFileFormat ()
 			
 	if (continueFlag)
 		{
+				// Get the file information for the selected channels.  The
+				// information will be loaded into the window information
+				// structure.
+			
+		GetFileInformationForChannelList (gImageWindowInfoPtr,
+														gImageLayerInfoPtr,
+														gImageFileInfoPtr,
+														NULL,
+														gImageWindowInfoPtr->totalNumberChannels);
+															
 				// Initialize the format information for the output file			
 				
 		InitializeOutputFileInformation (gImageWindowInfoPtr,
@@ -1781,11 +1844,19 @@ void ChangeImageFileFormat ()
 				
 					// Determine if BIS order is to be forced.
 					
-			forceBISFlag = (outFileInfoPtr->bandInterleave == kBIS);
+			forceOutputFormatCode = kDoNotForceFormat;
+			if (outFileInfoPtr->bandInterleave == kBIS)
+				forceOutputFormatCode = kBIS;
+			else if (outFileInfoPtr->bandInterleave == kBIL)
+				forceOutputFormatCode = kBIL;
+			else if (outFileInfoPtr->bandInterleave == kBSQ)
+				forceOutputFormatCode = kBSQ;
+				
 			if (reformatOptionsPtr->transformDataCode == kFunctionOfChannels &&
 					(reformatOptionsPtr->functionCode == kFunctionMedian ||
 							reformatOptionsPtr->functionCode == kFunctionKthSmallestElement))
-				forceBISFlag = TRUE;
+				//forceBISFlag = TRUE;
+				forceOutputFormatCode = kBIS;
 			
 					// Get pointer to memory to use to read an image file line into. 																		
 			
@@ -1803,7 +1874,7 @@ void ChangeImageFileFormat ()
 														reformatOptionsPtr->numberChannels,
 														(UInt16*)reformatOptionsPtr->channelPtr, 
 														kPackData, 
-														forceBISFlag, 
+														forceOutputFormatCode,		// forceBISFlag,
 														reformatOptionsPtr->forceByteCode,
 														kDoNotAllowForThreadedIO,
 														&fileIOInstructionsPtr);
@@ -1845,7 +1916,7 @@ void ChangeImageFileFormat ()
 																1,
 																&adjustChannel, 
 																kPackData, 
-																forceBISFlag, 
+																forceOutputFormatCode,		// forceBISFlag,
 																reformatOptionsPtr->forceByteCode,
 																kDoNotAllowForThreadedIO,
 																&fileIOInstructions2Ptr);
@@ -2018,7 +2089,7 @@ void ChangeImageFileFormat ()
 													fileIOInstructions2Ptr,
 													outFileInfoPtr, 
 													reformatOptionsPtr,
-													forceBISFlag);
+													forceOutputFormatCode);	// forceBISFlag);
 													
 							// Restore the input swap byte flag.							
 							
@@ -2767,7 +2838,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 05/12/2020
+//	Revised By:			Larry L. Biehl			Date: 03/06/2022
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2979,6 +3050,8 @@ void ChangeImageFormatDialogInitialize (
 																			fileInfoPtr->dataTypeCode,
 																			fileInfoPtr->numberBits,
 																			fileInfoPtr->signedDataFlag);
+	if (windowInfoPtr->localBytesDifferFlag)
+		*dataValueTypeSelectionPtr = kBytesDifferMenuItem;
 			
 	#if defined multispec_mac  
 		GetMenuItemText (gPopUpDataValueTypeMenu, 
@@ -3055,6 +3128,13 @@ void ChangeImageFormatDialogInitialize (
 	dataTypeCode = fileInfoPtr->dataTypeCode;
 	numberBits = fileInfoPtr->numberBits;
 	signedDataFlag = fileInfoPtr->signedDataFlag;
+	
+	if (windowInfoPtr->localBytesDifferFlag)
+		{
+		numberBits = windowInfoPtr->numberBits;
+		signedDataFlag = windowInfoPtr->signedDataFlag;
+		
+		}	// end "if (windowInfoPtr->localBytesDifferFlag)"
 	
 	if (*channelThematicDisplayFlagPtr)	
 		{
@@ -3271,7 +3351,7 @@ void ChangeImageFormatDialogInitialize (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 05/02/2022
 
 Boolean ChangeImageFormatDialogOK (
 				DialogPtr							dialogPtr,
@@ -3358,6 +3438,7 @@ Boolean ChangeImageFormatDialogOK (
 			// Image line-channel format.								
 
 	outFileInfoPtr->bandInterleave = bandInterleaveSelection;
+	reformatOptionsPtr->bandInterleaveSelection = bandInterleaveSelection;
 		
 			// Convert the channel pointer vector to point to actual		
 			// channel numbers, not indices to a channels vector.			
@@ -3484,9 +3565,14 @@ Boolean ChangeImageFormatDialogOK (
 		{
 		reformatOptionsPtr->forceByteCode = outByteCode[dataValueTypeSelection];
 	
+				// Get conversion code. Allow for linked files with differing number of bytes.
+				// imageWindowInfoPtr structure will contain the max number of input byes in
+				// the linked file set even if just one file.
+				
 		reformatOptionsPtr->convertType = GetDataConversionCode (
 												imageFileInfoPtr->dataTypeCode,
-												imageFileInfoPtr->numberBytes,
+												imageWindowInfoPtr->numberBytes,
+												//imageFileInfoPtr->numberBytes,
 												imageFileInfoPtr->signedDataFlag,
 												reformatOptionsPtr->forceByteCode,
 												outputSignedFlag[dataValueTypeSelection],
@@ -3509,9 +3595,9 @@ Boolean ChangeImageFormatDialogOK (
 	if (!reformatOptionsPtr->checkForSaturationFlag && 
 				!reformatOptionsPtr->rightToLeft &&
 						outFileInfoPtr->bandInterleave != kBSQ &&
-						 		!(imageFileInfoPtr->bandInterleave == kBIS && 
-						 							outFileInfoPtr->bandInterleave == kBIL) &&
-										!channelThematicDisplayFlag)
+								//!(imageFileInfoPtr->bandInterleave == kBIS &&
+								//		outFileInfoPtr->bandInterleave == kBIL) &&
+												!channelThematicDisplayFlag)
 		reformatOptionsPtr->convertType = 1;
 		
 	else	// ...->checkForSaturationFlag || ...->rightToLeft || ...== kBSQ
@@ -3648,7 +3734,7 @@ Boolean ChangeImageFormatDialogOK (
 //							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2005
-//	Revised By:			Larry L. Biehl			Date: 11/04/2017
+//	Revised By:			Larry L. Biehl			Date: 03/06/2022
 
 void ChangeImageFormatDialogUpdateHeaderMenu (
 				DialogPtr							dialogPtr,
@@ -3687,20 +3773,23 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 	else	// dataValueTypeSelection < k8ByteRealMenuItem
 		DisableMenuItem (popUpHeaderOptionsMenu, kMatlabMenuItem);
 	*/
+	/*
 	if (dataValueTypeSelection >= k8ByteRealMenuItem)
 		{
 				// 8-byte Reals not handled for ArcView type images
-				
+				// This is not true any more. MultiSpec can handle creation of
+				// 8-byte real images with ArcView type header files.
+		
 		#if defined multispec_mac
 			DisableMenuItem (popUpHeaderOptionsMenu, kArcViewMenuItem);
-		#endif	// defined multispec_mac	
+		#endif	// defined multispec_mac
 		
 		#if defined multispec_win | defined multispec_wx
 			menuItemList[kArcViewMenuItem] = FALSE;
 		#endif	// defined multispec_win | defined multispec_wx
 		
 		}	// end "if (dataValueTypeSelection >= k4ByteRealMenuItem)"
-		
+	*/
 	if (dataValueTypeSelection >= k4ByteSignedIntegerMenuItem)
 		{
 				// If 4-byte or 8-byte output is requested, turn off some options.
@@ -4289,7 +4378,7 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 //							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 01/19/2006
-//	Revised By:			Larry L. Biehl			Date: 11/12/2019
+//	Revised By:			Larry L. Biehl			Date: 03/06/2022
 
 void ChangeImageFormatDialogVerifyHeaderSetting (
 				DialogPtr							dialogPtr,
@@ -4320,7 +4409,7 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 				else if (dataValueTypeSelection <= k8ByteRealMenuItem)
 					*headerOptionsSelectionPtr = kArcViewMenuItem;
 					
-				else	// dataValueTypeSelection > k4ByteRealMenuItem
+				else	// dataValueTypeSelection > k8ByteRealMenuItem
 					*headerOptionsSelectionPtr = kNoneMenuItem;
 				
 				}	// end "if (*headerOptionsSelectionPtr == kNoneMenuItem || ..."
@@ -4348,13 +4437,14 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 						*headerOptionsSelectionPtr == kERDAS74MenuItem ||
 								*headerOptionsSelectionPtr == kMatlabMenuItem)
 				*headerOptionsSelectionPtr = kTIFFGeoTIFFMenuItem;
-				
+			/*
 			else if (*headerOptionsSelectionPtr == kArcViewMenuItem)
 				{
 				if (dataValueTypeSelection >= k8ByteRealMenuItem)
 					*headerOptionsSelectionPtr = kTIFFGeoTIFFMenuItem;
 				
 				}	// end "else if (*headerOptionsSelectionPtr == kArcViewMenuItem)"
+			*/
 			break;
 			
 		case kBISMenuItem:
@@ -4372,17 +4462,17 @@ void ChangeImageFormatDialogVerifyHeaderSetting (
 				
 			else if (*headerOptionsSelectionPtr == kArcViewMenuItem)
 				{
-				if (dataValueTypeSelection > k4ByteRealMenuItem)
+				if (dataValueTypeSelection > k8ByteRealMenuItem)
 					*headerOptionsSelectionPtr = kNoneMenuItem;
 				
 				}	// end "else if (*headerOptionsSelectionPtr == kArcViewMenuItem)"
 				
 			else if (*headerOptionsSelectionPtr == kMatlabMenuItem)
 				{
-				if (dataValueTypeSelection >= k4ByteRealMenuItem)
-					*headerOptionsSelectionPtr = kNoneMenuItem;
+				//if (dataValueTypeSelection >= k4ByteRealMenuItem)
+					//*headerOptionsSelectionPtr = kNoneMenuItem;
 				
-				else if (dataValueTypeSelection < k4ByteRealMenuItem)
+				//else if (dataValueTypeSelection < k4ByteRealMenuItem)
 					*headerOptionsSelectionPtr = kArcViewMenuItem;
 				
 				}	// end "else if (*headerOptionsSelectionPtr == kArcViewMenuItem)"
@@ -6886,7 +6976,7 @@ double Find_kth_SmallestElementInList (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/2012
-//	Revised By:			Larry L. Biehl			Date: 08/02/2013
+//	Revised By:			Larry L. Biehl			Date: 08/08/2022
 
 void FunctionOfChannels (
 				UInt32*								inputCountBufferPtr, 
@@ -6905,6 +6995,8 @@ void FunctionOfChannels (
 											medianValue,
 											medianValue2;
 											
+	SInt16*								channelPtr;
+											
 	UInt32*								countVectorPtr;
 	
 	UInt32								bufferInterval,
@@ -6915,13 +7007,16 @@ void FunctionOfChannels (
 											numberChannels;
 											
 	UInt32								minDataValue;
-											
-	SInt16								saveFunctionCode;
+
+	SInt16 								maximumChannelNumber,
+											minimumChannelNumber,
+											saveFunctionCode;
 	
 	
 			// Declare local variables.														
 	
 	numberChannels = reformatOptionsPtr->numberChannels;
+	channelPtr = reformatOptionsPtr->channelPtr;
 	functionFactor = reformatOptionsPtr->functionFactor;
 	
 	bufferInterval = 1;
@@ -6932,19 +7027,28 @@ void FunctionOfChannels (
 	ioOutDoubleBufferPtr = (HDoublePtr)ioBufferPtr;
 	
 	saveFunctionCode = reformatOptionsPtr->functionCode;
-	
-			// This is here for special U2U Growing Degree Day case.
-			
-	//noDataValueFlag = TRUE;
-	//noDataValue = 367;
-	
-	if (gMultiSpecWorkflowInfo.workFlowCode != 0)
-		{
-		minDataValue = gMultiSpecWorkflowInfo.thresholdValue;
-		saveFunctionCode = gMultiSpecWorkflowInfo.functionCode;
+	/*
+	#undef U2U_GDD_Case
+	#if defined U2U_GDD_Case
+				// This is here for special U2U Growing Degree Day case.
+				// Being tested now.
+				
+		//noDataValueFlag = TRUE;
+		//noDataValue = 367;
 		
-		}	// end "if (gMultiSpecWorkflowInfo.workFlowCode != 0)"
-	
+		gMultiSpecWorkflowInfo.workFlowCode = 1;
+		
+		if (gMultiSpecWorkflowInfo.workFlowCode != 0)
+			{
+			gMultiSpecWorkflowInfo.thresholdValue = reformatOptionsPtr->kthSmallestValue;
+			gMultiSpecWorkflowInfo.functionCode = kFunctionLatestThreshold;	//kFunctionEarliestThreshold
+			
+			minDataValue = gMultiSpecWorkflowInfo.thresholdValue;
+			saveFunctionCode = gMultiSpecWorkflowInfo.functionCode;
+			
+			}	// end "if (gMultiSpecWorkflowInfo.workFlowCode != 0)"
+	#endif	// defined U2U_GDD_Case
+	*/
 	switch (saveFunctionCode)
 		{
 		case kFunctionMin:
@@ -7177,22 +7281,25 @@ void FunctionOfChannels (
 				}	// end "for (j=0; j<numberSamples; j++)"
 			break;
 			
-		case 98:		// special case
+		case kFunctionLatestThreshold:		// special case
 				
 					// This case is to find the channels with the latest lowest value 
 					// within the first 183 channels. The channel number (or Day of Year) 
 					// is stored in the output file. This is for the Growing Degree Day 
 					// data.
 					
+			minDataValue = reformatOptionsPtr->thresholdValue;
+			
 					// Initialize output data using just the first channel (day of year).
 					
-			numberChannels = MIN (numberChannels, 183);
+			//numberChannels = MIN (numberChannels, 183);
+			minimumChannelNumber = channelPtr[0] + 1;
 			for (j=0; j<numberSamples; j++)
 				{
 				if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)
 					{
 					if (*ioDoubleBufferPtr <= minDataValue)
-						*ioOutDoubleBufferPtr = 1;
+						*ioOutDoubleBufferPtr = minimumChannelNumber;
 						
 					else	// *ioDoubleBufferPtr > minDataValue
 						*ioOutDoubleBufferPtr = 0;
@@ -7222,7 +7329,8 @@ void FunctionOfChannels (
 					if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)
 						{
 						if (*ioDoubleBufferPtr <= minDataValue)
-							*ioOutDoubleBufferPtr = channel + 1;
+							//*ioOutDoubleBufferPtr = channel + 1;
+							*ioOutDoubleBufferPtr = minimumChannelNumber + channel;
 							
 						}	// end "if (!noDataValueFlag || *ioDoubleBufferPtr != ..."
 						
@@ -7231,24 +7339,46 @@ void FunctionOfChannels (
 						
 					}	// end "for (j=0; j<numberSamples; j++)"
 						
-				}	// end "for (channel=0; channel<numberChannels; channel++)"	
+				}	// end "for (channel=0; channel<numberChannels; channel++)"
+					
+			//gMultiSpecWorkflowInfo.workFlowCode = 0;
 			break;
 			
-		case 99:		// special case
+		case kFunctionEarliestThreshold:		// special case
 				
 					// This case is to find the channels with the earliest lowest value 
 					// within the last 182 or 183 channels. The channel number 
 					// (or Day of Year) is stored in the output file. This is for the 
 					// Growing Degree Day data.
+					// The output data is stored in channel one which is not used in this
+					// special case.
+							
+			minDataValue = reformatOptionsPtr->thresholdValue;
+					
+			minimumChannelNumber = channelPtr[0] + 1;
+			maximumChannelNumber = channelPtr[numberChannels-1] + 2;
 					
 					// Initialize the output data.
 					
 			for (j=0; j<numberSamples; j++)
 				{
-				*ioOutDoubleBufferPtr = 367;
+				//*ioOutDoubleBufferPtr = 367;
+				//*ioOutDoubleBufferPtr = maximumChannelNumber;
+				if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)
+					{
+					if (*ioDoubleBufferPtr <= minDataValue)
+						*ioOutDoubleBufferPtr = minimumChannelNumber;
+						
+					else	// *ioDoubleBufferPtr > minDataValue
+						*ioOutDoubleBufferPtr = maximumChannelNumber;
+						
+					}	// end "if (!noDataValueFlag || ..."
+					
+				else	// noDataValueFlag && *ioDoubleBufferPtr == noDataValue
+					*ioOutDoubleBufferPtr = maximumChannelNumber;
 					
 				ioDoubleBufferPtr += bufferInterval;
-				ioOutDoubleBufferPtr++;	
+				ioOutDoubleBufferPtr += bufferInterval;
 				
 				}	// end "for (j=0; j<numberSamples; j++)"
 				
@@ -7264,12 +7394,13 @@ void FunctionOfChannels (
 					
 				for (j=0; j<numberSamples; j++)
 					{
-					if (*ioOutDoubleBufferPtr == 367 && channel >= 183)
+					//if (*ioOutDoubleBufferPtr == 367 && channel >= 183)
+					if (*ioOutDoubleBufferPtr == maximumChannelNumber)
 						{
 						if (!noDataValueFlag || *ioDoubleBufferPtr != noDataValue)
 							{
 							if (*ioDoubleBufferPtr <= minDataValue)
-								*ioOutDoubleBufferPtr = channel + 1;
+								*ioOutDoubleBufferPtr = minimumChannelNumber + channel;
 								
 							}	// end "if (!noDataValueFlag || ..."
 							
@@ -7280,7 +7411,9 @@ void FunctionOfChannels (
 						
 					}	// end "for (j=0; j<numberSamples; j++)"
 						
-				}	// end "for (channel=0; channel<numberChannels; channel++)"	
+				}	// end "for (channel=0; channel<numberChannels; channel++)"
+					
+			//gMultiSpecWorkflowInfo.workFlowCode = 0;
 			break;
 			
 		}	// end switch (saveFunctionCode)
@@ -7319,7 +7452,7 @@ void FunctionOfChannels (
 			
 			}	// end "for (j=0; j<numberSamples; j++)"
 		
-		}	// end "if (functionFactor != 1)"		
+		}	// end "if (functionFactor != 1)"
 	
 }	// end "FunctionOfChannels" 	
 		                                        
@@ -7437,7 +7570,7 @@ SInt16 GetAdjustBufferData (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 03/25/2006
-//	Revised By:			Larry L. Biehl			Date: 07/12/2018
+//	Revised By:			Larry L. Biehl			Date: 02/26/2022
 
 Boolean GetDefaultBandRatio (
 				WindowInfoPtr						windowInfoPtr,
@@ -7489,6 +7622,7 @@ Boolean GetDefaultBandRatio (
 			{
 			case kLandsatMSS:
 			case kLandsatMSS5:
+			case kLandsatMSS4_5:
 				if (windowInfoPtr->totalNumberChannels >= 4)
 					{ 
 					CopyPToP (reformatOptionsPtr->numeratorString, 
@@ -7515,6 +7649,8 @@ Boolean GetDefaultBandRatio (
 				
 			case kLandsatLC8_OLI_TIRS:
 			case kLandsatLC8_OLI:
+			case kLandsatLC9_OLI_TIRS:
+			case kLandsatLC9_OLI:
 				if (windowInfoPtr->totalNumberChannels >= 5)
 					{
 					CopyPToP (reformatOptionsPtr->numeratorString, 
@@ -8475,7 +8611,7 @@ void InitializeOutputFileInformation (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 05/28/2020
+//	Revised By:			Larry L. Biehl			Date: 08/08/2022
 
 void InitializeReformatStructure (
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -8543,6 +8679,7 @@ void InitializeReformatStructure (
 		reformatOptionsPtr->numberPCComponents = 0;		
 		reformatOptionsPtr->functionFactor = 1.;
 		reformatOptionsPtr->kthSmallestValue = 1;
+		reformatOptionsPtr->thresholdValue = 25;
 		reformatOptionsPtr->transformAdjustSelectedChannelsFactor = -1.;
 		reformatOptionsPtr->transformAdjustSelectedChannel = 1;
 		
@@ -8577,9 +8714,14 @@ void InitializeReformatStructure (
 			if (gImageFileInfoPtr->format == kArcViewType)
 				{
 				reformatOptionsPtr->headerFormat = kArcViewType;
-				reformatOptionsPtr->bandInterleaveSelection = 
-														gImageFileInfoPtr->bandInterleave;
-				
+
+				if (gImageFileInfoPtr->gdalBandInterleave > 0)
+					reformatOptionsPtr->bandInterleaveSelection =
+															gImageFileInfoPtr->gdalBandInterleave;
+				else	// fileInfoPtr->gdalBandInterleave <= 0
+					reformatOptionsPtr->bandInterleaveSelection =
+															MAX (0, gImageFileInfoPtr->bandInterleave);
+									
 				}	// end "else if (gImageFileInfoPtr->format == kArcViewType)"
 				
 			else if (reformatOptionsPtr->headerFormat == kErdas74Type &&
@@ -9091,7 +9233,12 @@ void ReformatControl (
 				gProcessorCode = kENVIROItoThematicProcessor;
 				ENVI_ROIToThematicFileControl ();
 				break;
-				
+			/*
+			case kReformatCompareImagesRequest:
+				gProcessorCode = kCompareImagesProcessor;
+				CompareImagesControl ();
+				break;
+			*/
 			}	// end "switch (reformatRequest)" 
 			
 				// Scroll output window to the selection and adjust the 			
@@ -9270,6 +9417,7 @@ void SetRadiantTemperatureConstants (
 			break;
 			
 		case kLandsatLC8_OLI_TIRS:
+		case kLandsatLC9_OLI_TIRS:
 			reformatOptionsPtr->defaultThermalChannel = 9;
 			reformatOptionsPtr->algebraicTransformK1Value = 774.89;
 			reformatOptionsPtr->algebraicTransformK2Value = 1321.08;
@@ -9278,6 +9426,7 @@ void SetRadiantTemperatureConstants (
 			break;
 		
 		case kLandsatLC8_TIRS:
+		case kLandsatLC9_TIRS:
 			reformatOptionsPtr->defaultThermalChannel = 1;
 			reformatOptionsPtr->algebraicTransformK1Value = 774.89;
 			reformatOptionsPtr->algebraicTransformK2Value = 1321.08;

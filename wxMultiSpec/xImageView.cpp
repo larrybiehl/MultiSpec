@@ -21,7 +21,7 @@
 //
 // Revision date:			03/12/2016 by Wei-Kang Hsu
 // Revision date:			12/19/2018 by Tsung Tai Yeh
-// Revision date:			01/20/2020  by Larry L Biehl
+// Revision date:			08/08/2022  by Larry L Biehl
 //
 //	Language:				C++
 //
@@ -674,10 +674,10 @@ void CMImageView::InitialUpdate (void)
 			//		Doing so will cause problems later when drawing selections and
 			//		fields.
 	
-   ShapeInfoPtr shapeInfoPtr = NULL;
+   //ShapeInfoPtr shapeInfoPtr = NULL;
 	if (gActiveImageWindow != NULL && gSelectionGraphViewCPtr != NULL)
 		{         
-      shapeInfoPtr = gSelectionGraphViewCPtr->GetShapeInfoFromHandle (gShapeFilesHandle, gActiveImageWindowInfoH);
+      //shapeInfoPtr = gSelectionGraphViewCPtr->GetShapeInfoFromHandle (gShapeFilesHandle, gActiveImageWindowInfoH);
       gSelectionGraphViewCPtr->UpdateDataListCtrl ();
       gSelectionGraphViewCPtr->UpdateShowOrHideFeatureList ();
 
@@ -782,6 +782,9 @@ bool CMImageView::OnClose (
  																							return false;
 		
 		}	// end "if (!((CMultiSpecApp*)wxTheApp)->IsActive ())"
+		
+	if (gProcessorCode != 0)
+																							return false;
 	
 	if (!GetDocument()->Close ())
  																							return false;
@@ -940,7 +943,7 @@ void CMImageView::OnKeyDown (
 				wxKeyEvent& 						event)
 
 {
-	SInt16								windowType;
+	//SInt16								windowType;
 	
 	Boolean								hasCaptureFlag;
 	
@@ -955,7 +958,7 @@ void CMImageView::OnKeyDown (
 				// Also only handle if cursor is over image portion of a thematic image
 				// window.
 		
-		windowType = GetWindowType ();
+		//windowType = GetWindowType ();
 		
 		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
 
