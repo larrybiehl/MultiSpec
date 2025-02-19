@@ -32,7 +32,7 @@ Xcode verson 9.2 was used to create the project file included in this repository
       - gdal-2.1.2
       - hdf5-1.8.8
       - netcdf-4.2
-      - openjpeg-2.1.2
+      - openjpeg-2.5.0
       - libecwj2-3.3
   
   The MultiSpec_basic.xcodeproj file is set up for just the core version of MultiSpec without the libraries (except that for  wxWidgets). The directories in the git archive needed for the MacOS version are ShareMultiSpec, wxMultiSpec, MacOS_build, and MacOS_wxWidgets. The MacOS_wxWidgets directory contains a zip file with the wxWidgets code needed to create the wxWidgets library for just MacOS. Unzip the wxWidgets archive and move the resulting wxWidgets-3.1.2_basic_MacOS folder to the same level as the MacOS_build folder. There will be four directories (folders) at the same level in your development environment: MacOS_build, SharedMultiSpec, wxMultiSpec, and WxWidgets-3.1.2_basic_MacOS. Unpack the MultiSpec_basic.xcodeproj.zip file inside of the MacOS_build.
@@ -48,7 +48,7 @@ Visual Studio 2015 was used to create the project file included in this reposito
       - gdal-2.1.2
       - hdf5-1.8.8
       - netcdf-4.2
-      - openjpeg-2.3.1
+      - openjpeg-2.5.0
       - libecwj2-3.3
        
   The multispec_basic.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the Windows version are SharedMultiSpec, wxMultiSpec, and Windows_build.
