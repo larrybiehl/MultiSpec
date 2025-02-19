@@ -50,7 +50,9 @@ Visual Studio 2015 was used to create the project file included in this reposito
       - openjpeg-2.3.1
       - libecwj2-3.3
        
-  The multispec_basic.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the Windows version are SharedMultiSpec, Windows, and Windows_build.
+  The multispec_basic.vcxproj file is set up for just the core version of MultiSpec without the libraries. You may need to set the flag to x64 to create the 64-bit version if your version of Visual Studio does not default to x64. The directories needed for the Windows version are SharedMultiSpec, wxMultiSpec, and Windows_build.
+
+The Windows directory is not needed for the 2025.02.19 version of MultiSpec.
   
 # License
 
