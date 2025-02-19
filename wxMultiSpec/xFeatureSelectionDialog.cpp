@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xFeatureSelectionDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -64,7 +65,7 @@ BEGIN_EVENT_TABLE (CMFeatureSelectionDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnClassPairWeightsComboSelendok)
 		EVT_COMBOBOX (IDC_NumberChannelsCombo, CMFeatureSelectionDialog::OnNumberChannelsComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMFeatureSelectionDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMFeatureSelectionDialog::OnClassComboSelendok)
 		EVT_CHOICE (IDC_ClassPairWeightsCombo, CMFeatureSelectionDialog::OnClassPairWeightsComboSelendok)
@@ -537,7 +538,14 @@ Boolean CMFeatureSelectionDialog::DoDialog (
 			index = IDS_FeatureSelection13;
 
 		SetDLogControlHilite (NULL, wxID_OK, 255);
-		DisplayAlert (kErrorAlertID, 1, kFeatureSelectionStrID, index, 0, NULL);
+		DisplayAlert (kErrorAlertID,
+							1,
+							kFeatureSelectionStrID,
+							index,
+							0,
+							NULL,
+							this,
+							kASCIICharString);
 		SetDLogControlHilite (NULL, wxID_OK, 0);
 		returnCode = ShowModal ();
 		
@@ -1159,7 +1167,14 @@ void CMFeatureSelectionDialog::OnHelpButton (
 				wxCommandEvent& 					event)
 
 {
-   DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_DialogMsg0, 0, NULL);
+   DisplayAlert (kErrorAlertID,
+						3,
+						kAlertStrID,
+						IDS_DialogMsg0,
+						0,
+						NULL,
+						this,
+						kASCIICharString);
 	
 }	// end "OnHelpButton"
 
@@ -1427,7 +1442,7 @@ void CMFeatureSelectionListDialog::CreateControls ()
    											IDC_MinDistanceRange,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(110, -1),
    											0);
    m_textCtrl125->SetValidator (
    								wxTextValidator (wxFILTER_NUMERIC, &m_mindistrangeString));
@@ -1447,7 +1462,7 @@ void CMFeatureSelectionListDialog::CreateControls ()
    											IDC_MaxDistanceRange,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(110, -1),
    											0);
    m_textCtrl126->SetValidator (
    								wxTextValidator (wxFILTER_NUMERIC, &m_maxdistrangeString));
@@ -1678,7 +1693,7 @@ void CMFeatureSelectionListDialog::OnHelpButton (
 				
 {
 	//wxMessageBox (wxT("Information... "), wxT("Help"), wxOK| wxSTAY_ON_TOP, this);
-	//DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_DialogMsg0, 0, NULL);
+	//DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_DialogMsg0, 0, NULL, this, kASCIICharString);
 	
 }	// end "OnHelpButton"
 

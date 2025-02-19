@@ -1484,7 +1484,7 @@ void Display3Channel24BitLine (
 			offScreen4BytePtr++;
 		#endif	// defined multispec_mac
 		
-		#if defined multispec_win
+		#if defined multispec_win || defined multispec_wxwin
 					// Blue byte.																
 					
 			dataValue = backgroundValue = (bytesEqualOneFlag1) ?
@@ -1546,7 +1546,7 @@ void Display3Channel24BitLine (
 				}	// end "if (backgroundValueCode && ...)"
 		#endif	// defined multispec_win
 
-		#if defined multispec_wx
+		#if defined multispec_wxlin || defined multispec_wxmac
 			#if defined multispec_wxmac_alpha
 						// Leave high order (alpha) byte blank.
 				offScreenPtr++;

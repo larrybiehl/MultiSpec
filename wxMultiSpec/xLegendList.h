@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMLegendList class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/20/2019
+//	Revised By:				Larry L. Biehl			Date: 01/13/2024
 //
 //------------------------------------------------------------------------------------
 
@@ -53,20 +53,30 @@ class CMLegendList : public wxListView
 				wxWindowID 							id = LEGEND_LIST);
 		
 		virtual ~CMLegendList ();
+	
+		void DrawItem (
+				int 									itemData,
+				int 									itemID);
 		
 		void DrawLegendList ();
 
 		Handle GetBitMapInfoHeaderHandle ();
+		
+		SInt16 GetLegendFullHeight (
+				Boolean								includeTitleFlag);
+		
+		void InsertLegendListIntoClipboard (
+				CDC*									pDC,
+				SInt16								copyType,
+				SInt16								legendWidth,
+				int									left,
+				int									top);
 	
 		void SetBitMapInfoHeaderHandle (
 				Handle								bitMapInfoHeaderHandle);
 	
 		void SetLegendListActiveFlag (
 				Boolean								settingFlag);
-	
-		void DrawItem (
-				int 									itemData,
-				int 									itemID);
 	
 	
 		wxImageList             		*m_ilist;

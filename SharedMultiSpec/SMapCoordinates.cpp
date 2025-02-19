@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			06/22/2020
+//	Revision date:			02/07/2024
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								settings.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+				256,
 				" SMapCoordinates::SetCoordinateViewLocationParameters (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -93,7 +94,9 @@
 	#include "xMultiSpec.h"
 	#include "xImageView.h"
 	#include "xImageFrame.h"
-	#define IDOK  wxID_OK
+	#ifndef multispec_wxwin
+		#define IDOK  wxID_OK
+	#endif
 	#include "xMapCoordinateDialog.h"
 #endif	// defined multispec_wx
 
@@ -1147,7 +1150,7 @@ void ConvertMapPointToLC (
 //							EditSelectionDialogSetCoordinates in SSelectionUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/23/2004
-//	Revised By:			Larry L. Biehl			Date: 04/17/2019
+//	Revised By:			Larry L. Biehl			Date: 03/03/2022
 
 void ConvertMapRectToLCRect (
 				Handle								windowInfoHandle,
@@ -1263,22 +1266,29 @@ void ConvertMapRectToLCRect (
 										(SInt32)((lMapRect.bottom - yMap11)/yPixelSize + 1.499);
 			/*
 						// For debugging.
-				int numberChars = sprintf ((char*)gTextString3,
+				int numberChars = snprintf ((char*)gTextString3,
+					256,
 					" SMapCoordinates:ConvertMapRectToLCRect (right, bottom): %f, %f%s",
 					(lMapRect.right - xMap11)/xPixelSize + 1.499,
 					(lMapRect.bottom - yMap11)/yPixelSize + 1.499,
 					gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
 			*/
-					// Make sure the left value is <= the right value
-				
-			if (lineColumnRectPtr->left > lineColumnRectPtr->right)
-				lineColumnRectPtr->right = lineColumnRectPtr->left;
+					// Make sure the left value is <= the right value.
+					// The conversion for left-right and top-bottom is
+					// done in the Shape to Thematic routine.
 			
-					// Make sure the top value is <= the bottom value
+			if (gProcessorCode != kRefShapeToThematicFileProcessor)
+				{
+				if (lineColumnRectPtr->left > lineColumnRectPtr->right)
+					lineColumnRectPtr->right = lineColumnRectPtr->left;
 				
-			if (lineColumnRectPtr->top > lineColumnRectPtr->bottom)
-				lineColumnRectPtr->bottom = lineColumnRectPtr->top;
+						// Make sure the top value is <= the bottom value
+					
+				if (lineColumnRectPtr->top > lineColumnRectPtr->bottom)
+					lineColumnRectPtr->bottom = lineColumnRectPtr->top;
+				
+				}	// end "if (gProcessorCode != kRefShapeToThematicFileProcessor)"
 						
 			}	// end "mapProjectionInfoPtr->planarCoordinate.polynomialOrder <= 0"
 			
@@ -2114,7 +2124,7 @@ double ConvertPackedDegreesToDecimalDegrees (
 // Called By:			OnEditImageMapParameters in xMainFrame.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/16/1992
-//	Revised By:			Larry L. Biehl			Date: 04/18/2019
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean CoordinateDialog (void)
 
@@ -2898,7 +2908,7 @@ Boolean CoordinateDialog (void)
 
 		try
 			{
-			dialogPtr = new CMMapCoordinateDlg (NULL);
+			dialogPtr = new CMMapCoordinateDlg (GetMainFrameForDialog());
 			returnFlag = dialogPtr->DoDialog (fileInfoPtr, mapProjectionInfoPtr);
 
 			if (dialogPtr != NULL)
@@ -5698,12 +5708,14 @@ void DrawCursorCoordinates (
 		switch (viewUnits)
 			{
 			case kLineColumnUnitsMenuItem:
-				numberYChars = sprintf ((char*)gTextString, 
+				numberYChars = snprintf ((char*)gTextString,
+												256,
 												"%*d",
 												numberCharacters,
 												(int)gCoordinateLineValue);
 												
-				numberXChars = sprintf ((char*)gTextString2, 
+				numberXChars = snprintf ((char*)gTextString2,
+												256,
 												"%*d",
 												numberCharacters,
 												(int)gCoordinateColumnValue);
@@ -5876,12 +5888,14 @@ void DrawCursorCoordinates (
 					
 					if (numberCharacters < 60)
 						{
-						numberYChars = sprintf ((char*)gTextString, 
+						numberYChars = snprintf ((char*)gTextString,
+														256,
 														"%.*f",
 														decimalPlaces,  
 														yCoordinateValue);
 														
-						numberXChars = sprintf ((char*)gTextString2, 
+						numberXChars = snprintf ((char*)gTextString2,
+														256,
 														"%.*f",
 														decimalPlaces,  
 														xCoordinateValue);
@@ -5890,12 +5904,14 @@ void DrawCursorCoordinates (
 						
 					else	// numberCharacters >= 60
 						{
-						numberYChars = sprintf ((char*)gTextString, 
+						numberYChars = snprintf ((char*)gTextString,
+														256,
 														"%.*e",
 														decimalPlaces,  
 														yCoordinateValue);
 														
-						numberXChars = sprintf ((char*)gTextString2, 
+						numberXChars = snprintf ((char*)gTextString2,
+														256,
 														"%.*e",
 														decimalPlaces,  
 														xCoordinateValue);
@@ -5925,8 +5941,8 @@ void DrawCursorCoordinates (
 					
 	else	// gPresentCursor != kCross && != kBlinkOpenCursor2
 		{
-		numberYChars = sprintf ((char*)gTextString, " ");
-		numberXChars = sprintf ((char*)gTextString2, " ");
+		numberYChars = snprintf ((char*)gTextString, 256, " ");
+		numberXChars = snprintf ((char*)gTextString2, 256, " ");
 		
 		}	// end "else gPresentCursor != kCross && ..."
 		        
@@ -6217,7 +6233,8 @@ void DrawScaleInformation (
 				
 			if (scale >= 1)
 				{						
-				numberValueChars = sprintf ((char*)gTextString2, 
+				numberValueChars = snprintf ((char*)gTextString2,
+														256,
 														"%.0f",
 														scale);
 
@@ -6230,7 +6247,8 @@ void DrawScaleInformation (
 				
 			else	// scale < 1
 				{						
-				numberValueChars = sprintf ((char*)gTextString2, 
+				numberValueChars = snprintf ((char*)gTextString2,
+														256,
 														"%f",
 														scale);
 					
@@ -6347,7 +6365,8 @@ void DrawSelectedAreaInformation (
 		#endif	// defined multispec_win
 	#endif	// defined multispec_win || lin
 	
-	numberTitleChars = sprintf ((char*)gTextString, 
+	numberTitleChars = snprintf ((char*)gTextString,
+									256,
 									"%s",
 									&gTextString2[1]);
 			
@@ -6358,7 +6377,8 @@ void DrawSelectedAreaInformation (
 			
 	if (GetCoordinateViewAreaUnits (windowInfoHandle) <= kNumberPixelsUnitsMenuItem)
 		{
-		numberChars = sprintf ((char*)gTextString2, 
+		numberChars = snprintf ((char*)gTextString2,
+										256,
 										"%lld",
 										numberPixels);
 
@@ -6374,7 +6394,8 @@ void DrawSelectedAreaInformation (
 		{
 		areaFactor = GetCoordinateViewAreaFactor (windowInfoHandle);
 		
-		numberChars = sprintf ((char*)gTextString2, 
+		numberChars = snprintf ((char*)gTextString2,
+										256,
 										"%.2f",
 										(double)numberPixels * areaFactor);
 
@@ -6511,12 +6532,14 @@ void DrawSelectionCoordinates (
 											-1,
 											-numberViewCharacters);
 													
-		numberYChars = sprintf ((char*)gTextString, 
+		numberYChars = snprintf ((char*)gTextString,
+											256,
 											"%s-%s",
 											beginYTextString, 
 											endYTextString);
 													
-		numberXChars = sprintf ((char*)gTextString2, 
+		numberXChars = snprintf ((char*)gTextString2,
+											256,
 											"%s-%s",
 											beginXTextString, 
 											endXTextString);
@@ -6662,12 +6685,14 @@ void DrawSelectionCoordinates (
 												
 			}	// end "else viewUnits != kDMSLatLongUnitsMenuItem"
 													
-		numberYChars = sprintf ((char*)gTextString, 
+		numberYChars = snprintf ((char*)gTextString,
+											256,
 											"%s - %s",
 											beginYTextString, 
 											endYTextString);
 												
-		numberXChars = sprintf ((char*)gTextString2, 
+		numberXChars = snprintf ((char*)gTextString2,
+											256,
 											"%s - %s",
 											beginXTextString, 
 											endXTextString);
@@ -6899,7 +6924,7 @@ void GetAreaNumberWidths (
 				// Get digits in front of decimal.											
 				
 		maxAreaValue = (double)maxNumberPoints * 10 * areaConversionFactor;
-		numberDigitsBefore = sprintf ((char*)gTextString, "%.0f", maxAreaValue) - 1;
+		numberDigitsBefore = snprintf ((char*)gTextString, 256, "%.0f", maxAreaValue) - 1;
 		
 				// Get digits needed for after decimal.	
 				// Make sure that minimum decimal value will represent at least .1%
@@ -6909,7 +6934,8 @@ void GetAreaNumberWidths (
 		if (minAreaValue >= 1)
 			{		
 			numberDigitsAfter = 3;
-			numberChars = sprintf ((char*)gTextString, 
+			numberChars = snprintf ((char*)gTextString,
+											256,
 											"%15.*f",
 											numberDigitsAfter, 
 											minAreaValue);
@@ -7209,7 +7235,7 @@ Boolean GetCursorCoordinates (
 // Called By:			DrawArcViewShapes in SArcView.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/15/2003
-//	Revised By:			Larry L. Biehl			Date: 06/22/2020
+//	Revised By:			Larry L. Biehl			Date: 02/07/2024
 
 void GetBoundingMapRectangle (
 				WindowPtr							windowPtr,
@@ -7226,8 +7252,11 @@ void GetBoundingMapRectangle (
 			// Get the rectangle in map units that is being updated in
 			// the current window.
 
-	if (windowRectPtr != NULL && windowCode == kToImageWindow)
-		{	   		
+	if (windowRectPtr != NULL &&
+				(windowCode == kToImageWindow ||
+					windowCode == kToClipboardWindow ||
+						windowCode == kToPrintWindow))
+		{
 		windowLongRect.top = windowRectPtr->top;
 		windowLongRect.left = windowRectPtr->left;
 		windowLongRect.bottom = windowRectPtr->bottom;
@@ -7242,7 +7271,7 @@ void GetBoundingMapRectangle (
 		
 		}	// end "if (windowRectPtr != NULL && ..."
 
-	else	// windowRectPtr = NULL || windowCode != kToImageWindow
+	else	// windowRectPtr = NULL || windowCode != kToImageWindow ...
 		GetWindowMapRect (windowPtr,
 									windowInfoHandle, 
 									&boundingMapRect, 
@@ -8612,7 +8641,7 @@ SInt16 GetSpheroidCodeFromMajorMinorAxes (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2001
-//	Revised By:			Larry L. Biehl			Date: 06/22/2020
+//	Revised By:			Larry L. Biehl			Date: 01/13/2024
 
 void GetWindowMapRect (
 				WindowPtr							windowPtr,
@@ -8634,7 +8663,7 @@ void GetWindowMapRect (
 		
 	else	// windowPtr != NULL
 		{
-		GetWindowClipRectangle (windowPtr, 
+		GetWindowClipRectangle (windowPtr,
 											kImageFrameArea, 
 											&windowRect); 
 
@@ -9822,7 +9851,8 @@ void SetCoordinateViewLocationParameters (
 		case kLineColumnUnitsMenuItem:
 			number = MAX (maxNumberColumns, maxNumberLines);
 			
-			maxNumberCharacters = sprintf ((char*)gTextString, 
+			maxNumberCharacters = snprintf ((char*)gTextString,
+														256,
 														"%u",
 														(unsigned int)number);
 			maxNumberCharacters = InsertCommasInNumberString (
@@ -9890,7 +9920,8 @@ void SetCoordinateViewLocationParameters (
 				
 				if (fabs (coordinateRectangle.top) < kMaxCoordinateValue)
 					{
-					maxNumberCharacters = sprintf ((char*)gTextString, 
+					maxNumberCharacters = snprintf ((char*)gTextString,
+															256,
 															"%.*f",
 															decimalDigits, 
 															coordinateRectangle.top);
@@ -9907,7 +9938,8 @@ void SetCoordinateViewLocationParameters (
 										
 				if (fabs (coordinateRectangle.bottom) < kMaxCoordinateValue)
 					{
-					numberChars = sprintf ((char*)gTextString, 
+					numberChars = snprintf ((char*)gTextString,
+															256,
 															"%.*f", 
 															decimalDigits, 
 															coordinateRectangle.bottom);
@@ -9925,7 +9957,8 @@ void SetCoordinateViewLocationParameters (
 										
 				if (fabs (coordinateRectangle.left) < kMaxCoordinateValue)
 					{
-					numberChars = sprintf ((char*)gTextString, 
+					numberChars = snprintf ((char*)gTextString,
+															256,
 															"%.*f", 
 															decimalDigits, 
 															coordinateRectangle.left);
@@ -9943,7 +9976,8 @@ void SetCoordinateViewLocationParameters (
 										
 				if (fabs (coordinateRectangle.right) < kMaxCoordinateValue)
 					{
-					numberChars = sprintf ((char*)gTextString, 
+					numberChars = snprintf ((char*)gTextString,
+															256,
 															"%.*f", 
 															decimalDigits, 
 															coordinateRectangle.right);
@@ -9982,7 +10016,8 @@ void SetCoordinateViewLocationParameters (
 	if (maxNumberCharacters >= 60)
 		maxNumberCharacters = 14;
 		
-	numberChars = sprintf ((char*)gTextString, 
+	numberChars = snprintf ((char*)gTextString,
+									256,
 									"%*s",
 									maxNumberCharacters, 
 									" ");
@@ -10030,7 +10065,8 @@ void SetCoordinateViewLocationParameters (
 	if (maxNumberSelectionCharacters >= 123)
 		maxNumberSelectionCharacters = 31;
 	
-	numberChars = sprintf ((char*)gTextString, 
+	numberChars = snprintf ((char*)gTextString,
+									256,
 									"%*s",
 									maxNumberSelectionCharacters, 
 									" ");
@@ -10098,7 +10134,8 @@ void SetCoordinateViewLocationParameters (
 			
 	if (GetCoordinateViewAreaUnits (windowInfoHandle) <= kNumberPixelsUnitsMenuItem)
 		{
-		maxNumberCharacters = sprintf ((char*)gTextString, 
+		maxNumberCharacters = snprintf ((char*)gTextString,
+												256,
 												"%u",
 												(unsigned int)maxNumberPixels);
 		
@@ -10112,7 +10149,8 @@ void SetCoordinateViewLocationParameters (
 										
 	else	// coordinateViewAreaUnitCode > kNumberPixelsUnitsMenuItem
 		{
-		maxNumberCharacters = sprintf ((char*)gTextString, 
+		maxNumberCharacters = snprintf ((char*)gTextString,
+												256, 
 												"%.2f",
 												(double)maxNumberPixels * factor);
 		

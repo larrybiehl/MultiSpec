@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/26/2023
 //
 //	Language:				C
 //
@@ -1213,7 +1213,7 @@ void PrincipalComponentControl (void)
 // Called By:			PrincipalComponentControl
 //
 //	Coded By:			Larry L. Biehl			Date: 12/28/1990
-//	Revised By:			Larry L. Biehl			Date: 10/19/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 	
 Boolean PrincipalComponentDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1635,7 +1635,7 @@ Boolean PrincipalComponentDialog (
 	#if defined multispec_wx
 		CMPrincipalCompDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMPrincipalCompDialog (NULL);
+		dialogPtr = new CMPrincipalCompDialog (GetMainFrameForDialog());
 
 		returnFlag = dialogPtr->DoDialog ();
 

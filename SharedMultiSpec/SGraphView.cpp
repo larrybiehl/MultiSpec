@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/28/2020
+//	Revision date:			01/15/2024
 //
 //	Language:				C
 //
@@ -80,13 +80,13 @@ UInt16			CMGraphView::s_numberOfGWindows = 0;
 // Called By:			DoGraphWUpdateEvent
 //
 //	Coded By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 04/12/2018
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 void CMGraphView::DrawGraphGrowIcon	(
 				GraphPtr								graphRecordPtr)
 
 {	
-	Str31									tempString;
+	Str31									tempString_32;
 	
 	SInt16								left,
 											textWidth,
@@ -137,14 +137,16 @@ void CMGraphView::DrawGraphGrowIcon	(
 					// Draw the graph set control prompt text.
 														
 			if (graphRecordPtr->setCode == 1)
-				sprintf ((CharPtr)tempString,
+				snprintf ((CharPtr)tempString_32,
+								32,
 								"Change Channel:");
 				
 			else	// graphRecordPtr->setCode == 2
-				sprintf ((CharPtr)tempString,
+				snprintf ((CharPtr)tempString_32,
+								32,
 								"Change Feature:");
 					
-			textWidth = TextWidth (tempString, 0, 15);
+			textWidth = TextWidth (tempString_32, 0, 15);
 				          
 			#if defined multispec_wx
 				left = 105 - textWidth - 1;
@@ -242,7 +244,7 @@ void CMGraphView::DrawGraphGrowIcon	(
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/????
-//	Revised By:			Larry L. Biehl			Date: 02/28/2020
+//	Revised By:			Larry L. Biehl			Date: 12/29/2023
   
 Boolean CMGraphView::FinishGraphRecordSetUp (
 				SInt16*								channelListPtr,
@@ -293,7 +295,16 @@ Boolean CMGraphView::FinishGraphRecordSetUp (
 		else	// Must be a response vs wavelength type of graph
 			{
 			if (vectorLength <= 1)
-				graphRecordPtr->flag = NU_SCATTER_PLOT;
+				{
+				if (graphRecordPtr->xAxisCode == kBandWidths ||
+						graphRecordPtr->xAxisCode == kReflectiveBandWidths ||
+								graphRecordPtr->xAxisCode == kThermalBandWidths)
+					graphRecordPtr->flag = NU_LINE_PLOT;
+				
+				else	// not band width plot
+					graphRecordPtr->flag = NU_SCATTER_PLOT;
+				
+				}	// end "if (vectorLength <= 1)"
 				
 			else	// vectorLength > 1
 				graphRecordPtr->flag = NU_LINE_PLOT;
@@ -536,6 +547,7 @@ void CMGraphView::IntializeGraphRecord (void)
 		
 		graphRecordPtr->channelsInWavelengthOrderFlag = TRUE;
 		graphRecordPtr->graphWindowFlag = FALSE;
+		graphRecordPtr->copyToClipboardFlag = FALSE;
 		
 		}	// end "if (graphRecordPtr != NULL)"
 	

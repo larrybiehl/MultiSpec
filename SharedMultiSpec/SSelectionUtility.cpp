@@ -24,9 +24,9 @@
 //
 //	System:					Linux, Macintosh, and Windows Operating Systems
 //								
-//	Brief description:	The purpose of the routines in this file are utilies
+//	Brief description:	The purpose of the routines in this file are utilities
 //								to support selection area. These routines are shared
-//								between the Mac and Windows versions.
+//								between the Mac, Windows, and MultiSpec Online versions.
 //
 /*
 	int numberChars = sprintf ((char*)gTextString3,

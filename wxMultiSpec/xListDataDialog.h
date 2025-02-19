@@ -56,7 +56,7 @@ class CMListDataDialog : public CMDialog
 
 				// Dialog Data
 
-		enum { IDD = IDD_ListData };
+		enum { IDD = IDD_ListDataDialog };
 		
 		wxString 							m_numdecString;
 	

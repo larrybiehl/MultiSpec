@@ -26,8 +26,8 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/09/2019
-//	
+//	Revised By:				Larry L. Biehl			Date: 02/17/2025
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -261,15 +261,15 @@ class CMClassifyDialog : public CMDialog
 			wxComboBox 							*m_paletteCtrl;
 			wxComboBox 							*m_procedureCtrl;
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice 							*m_paletteCtrl;
 			wxChoice 							*m_procedureCtrl;
 		#endif
 
-	
 		double								m_angleThreshold,
 												m_cemThreshold,
 												m_correlationThreshold,
+												m_ppStdDeviationFactor,
 												m_saveAngleThreshold,
 												m_saveCEMThreshold,
 												m_saveCorrelationThreshold,

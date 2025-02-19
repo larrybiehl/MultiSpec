@@ -2885,7 +2885,7 @@ Boolean ListStatHistogramValues (
 {
 			// Declare parameters
 	
-	char									string[500];
+	char									string_500[500];
 		
 	double								binValue,
 											maxAllowedValue,
@@ -2969,20 +2969,22 @@ Boolean ListStatHistogramValues (
 	fPrecision = gStatHistogramSpecsPtr->maxNumberFDecimalDigits;
 	if (fileInfoPtr->numberBytes <= 2 && !featureTransformationFlag)
 		{
-		NumToString ((UInt32)fileInfoPtr->numberBins, (UCharPtr)string);
-		valueFieldSize = string[0];
+		NumToString ((UInt32)fileInfoPtr->numberBins, (UCharPtr)string_500);
+		valueFieldSize = string_500[0];
 		
 		}	// end "if (fileInfoPtr->numberBytes <= 2)"
 		
 	else	// fileInfoPtr->numberBytes > 2 || ...->featureTransformationFlag
 		{	
-		valueFieldSize = FormatHistogramSummaryString (string,
+		valueFieldSize = FormatHistogramSummaryString (string_500,
+																		500,
 																		gStatHistogramSpecsPtr->maxValue,
 																		ePrecision,
 																		fPrecision,
 																		FALSE);
 			
-		valueFieldSize2 = FormatHistogramSummaryString (string,
+		valueFieldSize2 = FormatHistogramSummaryString (string_500,
+																		500,
 																		gStatHistogramSpecsPtr->minValue,
 																		ePrecision,
 																		fPrecision,
@@ -3143,7 +3145,7 @@ Boolean ListStatHistogramValues (
 				if (numberFieldSize == 0)
 					numberFieldSize = 3;
 					
-				sprintf ((char*)gTextString2, "Sum");
+				snprintf ((char*)gTextString2, 256, "Sum");
 				sprintf (&gCharBufferPtr1[charIndex],
 							"\t%*s",
 							numberFieldSize,
@@ -3574,13 +3576,15 @@ Boolean ListChannelInformation (
 										(int)gProjectInfoPtr->channelsPtr[featureNumber]+1);
 	
 	else	// featureTransformationFlag 
-		numberCharacters = sprintf ((char*)gTextString, 
+		numberCharacters = snprintf ((char*)gTextString,
+												256,
 												"%s    Feature  %d",
 												gEndOfLine, 
 												(int)featureNumber+1);
 	
 	if (channelDescriptionPtr == NULL)
-		sprintf ((char*)&gTextString[numberCharacters], 
+		snprintf ((char*)&gTextString[numberCharacters],
+					256-numberCharacters,
 					"%s",
 					gEndOfLine);
 	
@@ -3589,7 +3593,8 @@ Boolean ListChannelInformation (
 		BlockMoveData (&channelDescriptionPtr[featureNumber], gTextString3, 24);
 		gTextString3[16] = 0;
 		
-		sprintf ((char*)&gTextString[numberCharacters],
+		snprintf ((char*)&gTextString[numberCharacters],
+					256-numberCharacters,
 					": %s%s",
 					gTextString3,
 					gEndOfLine);

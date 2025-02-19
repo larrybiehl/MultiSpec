@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Rachman Maud
 //
-//	Revision date:			08/08/2022
+//	Revision date:			02/11/2025
 //
 //	Language:				C++
 //
@@ -29,12 +29,15 @@
 //								CMImageCanvas class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageCanvas:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h" 
 
 #include "xImageCanvas.h"
 #include "xImageDoc.h"
@@ -97,9 +100,9 @@ CMImageCanvas::CMImageCanvas (
 	
    wxSize initsize = parent->GetClientSize ();
    SetVirtualSize (initsize);
+	SetScrollRate (1, 1);	// 10, 10
    m_size_h = initsize.GetHeight ();
    m_size_w = initsize.GetWidth ();
-   SetScrollRate (1, 1);	// 10, 10
    m_displayImageFlag = true;
    m_featureListShowFlag = false;
    m_dataListShowFlag = false;
@@ -434,7 +437,8 @@ wxPoint CMImageCanvas::GetLastSelectionPoint ()
 wxPoint CMImageCanvas::GetScrollPosition ()
 
 {
-   return wxPoint (GetScrollPos (wxHORIZONTAL), GetScrollPos (wxVERTICAL));
+	int scrollSize = GetScrollThumb (wxVERTICAL);
+   return (wxPoint (GetScrollPos (wxHORIZONTAL), GetScrollPos (wxVERTICAL)));
 	
 }	// end "GetScrollPosition"
 
@@ -906,7 +910,7 @@ void CMImageCanvas::OnLeftDown (
       CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
       if (pTool != NULL && gPresentCursor != kBlinkOpenCursor2)
 			{
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin || defined multispec_wxwin
 				m_View->SetControlKeyFlag (wxGetKeyState (WXK_CONTROL));
 			#endif
 			#if defined multispec_wxmac
@@ -939,7 +943,7 @@ void CMImageCanvas::OnLeftDown (
 									//wxGetKeyState ((wxKeyCode)0x2f))
 									wxGetKeyState (WXK_DIVIDE))
 						#endif
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac || defined multispec_wxwin
 							wxGetKeyState ((wxKeyCode)0x5a))
 						#endif
 				code = 2;
@@ -949,7 +953,7 @@ void CMImageCanvas::OnLeftDown (
 								wxGetKeyState ((wxKeyCode)0x41) ||
 											wxGetKeyState ((wxKeyCode)0x27))
 						#endif
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac || defined multispec_wxwin
 								wxGetKeyState ((wxKeyCode)0x41))
 						#endif
 				code = 4;
@@ -1119,7 +1123,7 @@ void CMImageCanvas::OnMouseMove (
 		
 		wxPoint scrollPos = GetScrollPosition ();
       scrolledFlag = AutoScroll (currentPos, scrollPos);
-      scrolledFlag = scrolledFlag | m_scrolledFlag;
+      scrolledFlag = scrolledFlag || m_scrolledFlag;
 		
 		CMTool* pTool = CMTool::FindTool (CMTool::c_toolType);
 		
@@ -1286,7 +1290,7 @@ void CMImageCanvas::OnPaint (
 	
 			// Get the update rect list
 	
-	int count = 1;
+	//int count = 1;
 	wxRegionIterator upd (GetUpdateRegion ()); // get the update rect list
 	while (upd)
 		{
@@ -1294,10 +1298,24 @@ void CMImageCanvas::OnPaint (
 		m_View->s_updateRect.right = (int)(m_View->s_updateRect.left + upd.GetW ());
 		m_View->s_updateRect.top = (int)upd.GetY ();
 		m_View->s_updateRect.bottom = (int)(m_View->s_updateRect.top + upd.GetH ());
-
+		/*
+            // For debugging
+       
+      int numberChars = snprintf ((char*)gTextString3,
+            256,
+            " CMImageCanvas:OnPaint (updateRect left right top bottom): %d, %d, %d, %d%s",
+            m_View->s_updateRect.left,
+            m_View->s_updateRect.right,
+            m_View->s_updateRect.top,
+            m_View->s_updateRect.bottom,
+            gEndOfLine);
+      ListString ((char*)gTextString3, numberChars, gOutputTextH);
+		*/
+		m_View->m_calledFromPaintFlag = TRUE;
 		m_View->OnDraw (&dc);
+		m_View->m_calledFromPaintFlag = FALSE;
 		
-		count++;
+		//count++;
 		upd++;
 			
 		}	// end "while (upd)"
@@ -1393,11 +1411,15 @@ void CMImageCanvas::OnScrollChanged (
 				wxScrollWinEvent& 				event)
 				
 {
-	wxPoint scrollPos = GetScrollPosition ();
-	m_View->m_Canvas->DoScroll (scrollPos.x, scrollPos.y);
-	
-	m_View->ScrollChanged ();
-	
+	#if defined multispec_wxlin || defined multispec_wxmac
+		wxPoint scrollPos = GetScrollPosition ();
+		m_View->m_Canvas->DoScroll (scrollPos.x, scrollPos.y);
+		m_View->ScrollChanged ();
+	#endif
+	#if defined multispec_wxwin
+		event.Skip();
+	#endif
+
 }	// end "OnScrollChanged"
 
 

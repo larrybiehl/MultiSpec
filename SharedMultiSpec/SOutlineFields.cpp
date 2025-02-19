@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/07/2020
+//	Revision date:			01/13/2024
 //
 //	Language:				C
 //
@@ -727,7 +727,7 @@ void OutlineFieldsInProjectBaseWindows (
 //							ChangeProjectAssociatedImageItem in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
-//	Revised By:			Larry L. Biehl			Date: 03/07/2020
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 void OutlineFieldsControl (
 				SInt16								statsWindowMode,
@@ -957,8 +957,26 @@ void OutlineFieldsControl (
 			
 	      if (continueFlag)
 	      	{
+						// Set the global variables needed to convert from 					
+						// line-column units to window units.										
+									
+				SetChannelWindowVariables (windowCode, windowInfoHandle, kNotCoreGraphics);
+				
+				SetLCToWindowUnitVariables (windowInfoHandle,
+														windowCode, 
+														TRUE,
+														&lcToWindowUnitsVariables);
+														
 				#if defined multispec_wx
-					GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
+					if (windowCode == kToImageWindow)
+						GetWindowClipRectangle (windowPtr, kImageFrameArea, &gViewRect);
+						
+					else // windowCode == kToClipboardWindow || kToPrintWindow)
+						GetSelectedOffscreenRectangle (windowInfoPtr,
+														&gViewRect,
+														FALSE,
+														TRUE);
+						
 					if (gProjectInfoPtr->outlineColorCode == 1)
 						{
 						overlayPenPtr = new wxPen (*wxBLACK);
@@ -983,23 +1001,38 @@ void OutlineFieldsControl (
 					gCDCPointer->SetFont (font);
 				
 					gCDCPointer->GetUserScale (&xScale, &yScale);
-					gCDCPointer->SetUserScale (1, 1);
-				#endif	// defined multispec_wx
-
-						// Set the global variables needed to convert from 					
-						// line-column units to window units.										
-									
-				SetChannelWindowVariables (windowCode, windowInfoHandle, kNotCoreGraphics);
-				
-				SetLCToWindowUnitVariables (windowInfoHandle,
-														windowCode, 
-														TRUE,
-														&lcToWindowUnitsVariables);		
-														
-				#ifdef multispec_wx
-							// Magnification is not need for linux. It is already take into
-							// account.
-					//lcToWindowUnitsVariables.magnification = 1;
+					
+					if (windowCode != kToPrintWindow)
+						gCDCPointer->SetUserScale (1, 1);
+					
+					else	// windowCode == kToPrintWindow
+						gCDCPointer->SetUserScale (xScale/lcToWindowUnitsVariables.magnification,
+													yScale/lcToWindowUnitsVariables.magnification);
+													
+					if (windowCode == kToClipboardWindow || windowCode == kToPrintWindow)
+						{
+								// Adjust so that viewRect represents a new origin at 0,0
+								
+						gViewRect.left -= lcToWindowUnitsVariables.xOrigin;
+						gViewRect.top -= lcToWindowUnitsVariables.yOrigin;
+						gViewRect.right -= lcToWindowUnitsVariables.xOrigin;
+						gViewRect.bottom -= lcToWindowUnitsVariables.yOrigin;
+						
+								// Now adjust for the magnification
+								
+						gViewRect.left *= lcToWindowUnitsVariables.magnification;
+						gViewRect.top *= lcToWindowUnitsVariables.magnification;
+						gViewRect.right *= lcToWindowUnitsVariables.magnification;
+						gViewRect.bottom *= lcToWindowUnitsVariables.magnification;
+						
+								// Need to allow for any legend which will now be in the same
+								// view as the image.
+								
+						gViewRect.left += lcToWindowUnitsVariables.imageLeftOffset;
+						gViewRect.right += lcToWindowUnitsVariables.imageLeftOffset;
+						
+						}	// end "if (windowCode == kToClipboardWindow || ..."
+					
 				#endif	// defined multispec_wx
 
 						// Set parameters to properly copy offscreen to destination window.
@@ -1255,7 +1288,7 @@ void OutlineClassFields (
 //							OutlineClassFields.c		in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/10/1989
-//	Revised By:			Larry L. Biehl			Date: 04/07/2019
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 void OutlineField (
 				SInt16								classNumber, 
@@ -1369,13 +1402,22 @@ void OutlineField (
 		if (continueFlag)
 			{	
 			#if defined multispec_wx
-						// Need to reset it again before drawing rectangles in linux, 
+						// Need to reset it again before drawing rectangles using wxWidgets,
 						// since the setting will be changed after drawing polygons.
 						
 				SetLCToWindowUnitVariables (windowInfoHandle,
-													 kToImageWindow,
+													 windowCode,
 													 FALSE,
 													 lcToWindowUnitsVariablesPtr);
+		
+				// Need to allow for legend for clipboard and print windows.
+				
+				if (windowCode == kToClipboardWindow || windowCode == kToPrintWindow)
+					{
+					displayImageLeft += lcToWindowUnitsVariablesPtr->imageLeftOffset;
+					displayImageRight += lcToWindowUnitsVariablesPtr->imageLeftOffset;
+					
+					}	// end "if (windowCode == kToClipboardWindow || ..."
 			#endif	// defined multispec_wx
 			
 			ConvertLCRectToWinRect (LCRectPtr, 
@@ -1402,15 +1444,19 @@ void OutlineField (
 				clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
 			#endif	// defined multispec_win 
 			
-			#if defined multispec_wx	              
-				clipRect.left = (int)MAX (0, displayImageLeft);
-				clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
+			#if defined multispec_wx
+				if (windowCode == kToImageWindow)
+					{
+					clipRect.left = (int)MAX (0, displayImageLeft);
+					clipRect.right = (int)MIN (gViewRect.right, displayImageRight);
 
-				clipRect.top += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
-				clipRect.bottom += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
-				clipRect.left += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset; 
-				clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
-			#endif	// multispec_wx 
+					clipRect.top += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
+					clipRect.bottom += (int)lcToWindowUnitsVariablesPtr->lineScrollOffset;
+					clipRect.left += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
+					clipRect.right += (int)lcToWindowUnitsVariablesPtr->columnScrollOffset;
+					
+					}	// end "if (windowCode == kToImageWindow)"
+			#endif	// multispec_wx
 			
 					// If field is to the left of the displayed image, then move the
 					// field and clip window to the next channel to the right if a 

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/08/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -403,7 +403,7 @@ void AdjustDataForChangeFormat (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/06/1988
-//	Revised By:			Larry L. Biehl			Date: 05/06/2022
+//	Revised By:			Larry L. Biehl			Date: 12/31/2023
 
 Boolean ChangeFormatToBILorBISorBSQ (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -486,13 +486,11 @@ Boolean ChangeFormatToBILorBISorBSQ (
 											percentComplete,
 											preLineBytes,
 											signedValueOffset,
-											totalIOOutBytes,
-											writePosOff;
+											totalIOOutBytes;
 	
 	UInt32								column,
 											columnEnd,
 											columnStart,
-											count,
 											fromNumberBytes,
 											j,
 											line,
@@ -520,7 +518,6 @@ Boolean ChangeFormatToBILorBISorBSQ (
 											numberReadChannels;
 												
 	UInt16								channelIdentifier,
-											forceByteCode,
 											outputBufferFormat;
 	
 	Boolean								inputBISFlag,
@@ -541,14 +538,12 @@ Boolean ChangeFormatToBILorBISorBSQ (
 	newPaletteIndexPtr = NULL;
 	symbolToOutputBinPtr = NULL;
 	
-	errCode = noErr;  
-	writePosOff = 0;
+	errCode = noErr;
 	divisor = reformatOptionsPtr->adjustDivisor;
 	multiplier = reformatOptionsPtr->adjustFactor;
 	offsetValue = reformatOptionsPtr->adjustOffset;
 	transformAdjustSelectedChannelsFactor = 
 								reformatOptionsPtr->transformAdjustSelectedChannelsFactor;
-	forceByteCode = reformatOptionsPtr->forceByteCode;
 	differentBuffersFlag = (gInputBufferPtr != gOutputBufferPtr);
 	preLineBytes = outFileInfoPtr->numberPreLineBytes;
 	fileInfoPtr = fileIOInstructionsPtr->fileInfoPtr;
@@ -773,10 +768,11 @@ Boolean ChangeFormatToBILorBISorBSQ (
 		
 		countOutBytes = reformatOptionsPtr->countOutBytes;
 		if (reformatOptionsPtr->transformDataCode == kNoTransform &&
-				fileInfoPtr->bandInterleave == kBSQ &&
+				((fileInfoPtr->bandInterleave == kBSQ &&
 					//(fileInfoPtr->bandInterleave == kBSQ ||
 					//	fileInfoPtr->bandInterleave == kBIL) &&
-							outFileInfoPtr->bandInterleave == kBSQ &&
+							outFileInfoPtr->bandInterleave == kBSQ) ||
+									reformatOptionsPtr->outputInWavelengthOrderFlag) &&
 									numberOutChannels > 1)
 			{
 			numberOutsideLoops = numberOutChannels;
@@ -1637,8 +1633,7 @@ Boolean ChangeFormatToBILorBISorBSQ (
 				// Flush output buffer if needed.											
 		
 		if (errCode == noErr && totalIOOutBytes > 0)
-			{						
-			count = totalIOOutBytes;  
+			{
 			errCode = WriteOutputDataToFile (outFileInfoPtr,
 															outFileStreamPtr,
 															ioOutBufferPtr,
@@ -2838,7 +2833,7 @@ Boolean ChangeImageFormatDialog (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 03/06/2022
+//	Revised By:			Larry L. Biehl			Date: 05/17/2024
 
 void ChangeImageFormatDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -2997,38 +2992,48 @@ void ChangeImageFormatDialogInitialize (
 														fileInfoPtr->gdalBandInterleave > 0)
 		{
 		if (fileInfoPtr->gdalBandInterleave == kBIL)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIL");
+			//PtoCstring ((CharPtr)"\0BIL", (CharPtr)inputBandInterleaveStringPtr);
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BIL");
 			
 		else if (fileInfoPtr->gdalBandInterleave == kBSQ)  
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BSQ");
+			//PtoCstring ((CharPtr)"\0BSQ", (CharPtr)inputBandInterleaveStringPtr);
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BSQ");
 			
 		else if (fileInfoPtr->gdalBandInterleave == kBIS)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIS");
+			//PtoCstring ((CharPtr)"\0BIS", (CharPtr)inputBandInterleaveStringPtr);
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BIS");
 		
 		}	// end "if (... && fileInfoPtr->gdalBandInterleave > 0)"
 				
 	else	// fileInfoPtr->gdalBandInterleave <= 0 || ...->numberImageFiles > 1
 		{
 		if (gImageWindowInfoPtr->bandInterleave == kBIL)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIL");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIL");
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BIL");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kBSQ)  
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BSQ");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BSQ");
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BSQ");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kBIS)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIS");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIS");
+			snprintf ((char*)inputBandInterleaveStringPtr, 4, "BIS");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kBNonSQ)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BNonSQ");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BNonSQ");
+			snprintf ((char*)inputBandInterleaveStringPtr, 7, "BNonSQ");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kBNonSQBlocked)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BNonSQBlocked");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BNonSQBlocked");
+			snprintf ((char*)inputBandInterleaveStringPtr, 14, "BNonSQBlocked");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kBIS)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIBlock");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0BIBlock");
+			snprintf ((char*)inputBandInterleaveStringPtr, 8, "BIBlock");
 			
 		else if (gImageWindowInfoPtr->bandInterleave == kMixed)
-			CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0Mixed");
+			//CopyPToP (inputBandInterleaveStringPtr, (UCharPtr)"\0Mixed");
+			snprintf ((char*)inputBandInterleaveStringPtr, 6, "Mixed");
 			
 		}	// end "else fileInfoPtr->gdalBandInterleave <= 0 || ..."
 		
@@ -3060,10 +3065,14 @@ void ChangeImageFormatDialogInitialize (
 	#endif	// defined multispec_mac  
                        
 	#if defined multispec_win || defined multispec_wx
-		MGetString ((UCharPtr)inputDataValueTypeStringPtr,
+		MGetString ((UCharPtr)gTextString,
 							0,
 							IDS_DataType01+*dataValueTypeSelectionPtr-1,
 							63);
+							
+				// Convert Pascal string to C string
+				
+		snprintf ((char*)inputDataValueTypeStringPtr, gTextString[0]+1, "%s", (char*)&gTextString[1]);
 	#endif	// defined multispec_win || defined multispec_wx
 	
 			// "Output file" popup box.
@@ -3229,7 +3238,8 @@ void ChangeImageFormatDialogInitialize (
 											reformatOptionsPtr->outputInWavelengthOrderFlag;
 	
 	*outputInWavelengthOrderAllowedFlagPtr =
-		(gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder &&
+		((gImageWindowInfoPtr->channelsInWavelengthOrderCode == kNotInOrder) &&
+				//gImageWindowInfoPtr->channelsInWavelengthOrderCode == kInReverseOrder) &&
 															*channelSelectionPtr == kAllMenuItem);
 	
 	if (*outputInWavelengthOrderAllowedFlagPtr)
@@ -3351,7 +3361,7 @@ void ChangeImageFormatDialogInitialize (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/21/2006
-//	Revised By:			Larry L. Biehl			Date: 05/02/2022
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean ChangeImageFormatDialogOK (
 				DialogPtr							dialogPtr,
@@ -3678,27 +3688,43 @@ Boolean ChangeImageFormatDialogOK (
 			channelSelection == kAllMenuItem &&
 				outputInWavelengthOrderFlag)
 		{
-		channelValuePtr = (float*)GetHandlePointer (
-															imageFileInfoPtr->channelValuesHandle);
-		
-		if (channelValuePtr != NULL)
+				// Initialize the Reformat channel order vector
+	
+		channelWavelengthOrderPtr =
+			&reformatOptionsPtr->channelPtr[imageWindowInfoPtr->totalNumberChannels];
+		/*
+		if (imageWindowInfoPtr->channelsInWavelengthOrderCode == kInReverseOrder)
 			{
-			//fileWavelengthOrderPtr =
-			//					(UInt16*)&channelValuePtr[2*imageFileInfoPtr->numberChannels];
-		
-					// Initialize the Reformat channel order vector
-		
-			channelWavelengthOrderPtr =
-				&reformatOptionsPtr->channelPtr[imageWindowInfoPtr->totalNumberChannels];
-		
-					// Just make copy of the image channel wavelength order
+					// create channel wavelength order vector in just reverse of the
+					// input.
 			
-			for (index=0; index<imageWindowInfoPtr->totalNumberChannels; index++)
-				//channelWavelengthOrderPtr[index] = fileWavelengthOrderPtr[index];
-				channelWavelengthOrderPtr[index] =
-													imageLayerInfoPtr[index+1].wavelengthOrder;
+			int	outputChannel = imageWindowInfoPtr->totalNumberChannels - 1;
+			for (index=0; index<imageWindowInfoPtr->totalNumberChannels; index++, outputChannel--)
+					channelWavelengthOrderPtr[index] = outputChannel;
 			
-			}	// end "if (channelValuePtr != NULL)"
+			}	// end "if (imageWindowInfoPtr->channelsInWavelengthOrderCode == kInReverseOrder)"
+		
+		else	// file in a specified order
+			{
+		*/
+			channelValuePtr = (float*)GetHandlePointer (
+																imageFileInfoPtr->channelValuesHandle);
+			
+			if (channelValuePtr != NULL)
+				{
+				//fileWavelengthOrderPtr =
+				//					(UInt16*)&channelValuePtr[2*imageFileInfoPtr->numberChannels];
+			
+						// Just make copy of the image channel wavelength order
+				
+				for (index=0; index<imageWindowInfoPtr->totalNumberChannels; index++)
+					//channelWavelengthOrderPtr[index] = fileWavelengthOrderPtr[index];
+					channelWavelengthOrderPtr[index] =
+														imageLayerInfoPtr[index+1].wavelengthOrder;
+				
+				}	// end "if (channelValuePtr != NULL)"
+				
+		//	}	// end "else file in a specified order"
 
 		reformatOptionsPtr->outputInWavelengthOrderFlag = outputInWavelengthOrderFlag;
 		
@@ -3970,7 +3996,7 @@ void ChangeImageFormatDialogUpdateHeaderMenu (
 //							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 01/20/2006
-//	Revised By:			Larry L. Biehl			Date: 11/04/2019
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 void ChangeImageFormatDialogUpdateHeaderOptions (
 				DialogPtr							dialogPtr,
@@ -4005,13 +4031,29 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 						
 	switch (headerOptionsSelection)
 		{
-		case kNoneMenuItem:						
-			setFileFlag = TRUE;
+		case kNoneMenuItem:
+         #if defined multispec_wx
+            if (comboBoxPtr->GetCount () > 1) 
+					{
+					comboBoxPtr->Delete (kModifyPartMenuItem - 1);
+					comboBoxPtr->Delete (kAppendToMenuItem - 1);
+
+					}	// end "comboBoxPtr->GetCount () == 1"
+         #endif	// defined multispec_wx			
+			//setFileFlag = TRUE;
 			setSwapByteFlag = TRUE;
 			*setChannelDescriptionFlagPtr = channelDescriptionAllowedFlag;
 			break;
 			
 		case kArcViewMenuItem:
+         #if defined multispec_wx
+            if (comboBoxPtr->GetCount () > 1) 
+					{
+					comboBoxPtr->Delete (kModifyPartMenuItem - 1);
+					comboBoxPtr->Delete (kAppendToMenuItem - 1);
+
+					}	// end "comboBoxPtr->GetCount () == 1"
+         #endif	// defined multispec_wx
 			/*
 			if (*dataValueTypeSelectionPtr > k4ByteRealMenuItem)
 				{
@@ -4023,11 +4065,20 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 
 				}	// end "if (*dataValueTypeSelectionPtr > ...)"
 			*/
-			setFileFlag = TRUE;
+			//setFileFlag = TRUE;
 			*setChannelDescriptionFlagPtr = channelDescriptionAllowedFlag;
 			break;
 			
 		case kERDAS74MenuItem:
+         #if defined multispec_wx
+            if (comboBoxPtr->GetCount () > 1) 
+					{
+					comboBoxPtr->Delete (kModifyPartMenuItem - 1);
+					comboBoxPtr->Delete (kAppendToMenuItem - 1);
+
+					}	// end "comboBoxPtr->GetCount () == 1"
+         #endif	// defined multispec_wx
+         
 			if (*dataValueTypeSelectionPtr > k2ByteUnsignedIntegerMenuItem)
 				{
 				numberBits = MIN (fileInfoPtr->numberBits, 16);
@@ -4040,7 +4091,7 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 
 			*bandInterleaveSelectionPtr = kBILMenuItem;
 			
-			setFileFlag = TRUE;
+			//setFileFlag = TRUE;
 			*setChannelDescriptionFlagPtr = channelDescriptionAllowedFlag;
 			/*
 					// Force 2-byte data on Macintosh to be swapped. Do not
@@ -4072,6 +4123,14 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 			break;
 			
 		case kGAIAMenuItem:
+         #if defined multispec_wx
+            if (comboBoxPtr->GetCount () > 1) 
+					{
+					comboBoxPtr->Delete (kModifyPartMenuItem - 1);
+					comboBoxPtr->Delete (kAppendToMenuItem - 1);
+
+					}	// end "comboBoxPtr->GetCount () == 1"
+         #endif	// defined multispec_wx
 			*dataValueTypeSelectionPtr = k2ByteUnsignedIntegerMenuItem;
 			
 			SetDLogControl (dialogPtr, IDC_SwapBytes, 0);
@@ -4079,7 +4138,7 @@ void ChangeImageFormatDialogUpdateHeaderOptions (
 			SetDLogControl (dialogPtr, IDC_WriteChanDescriptions, 0);
 			SetDLogControlHilite (dialogPtr, IDC_WriteChanDescriptions, 255);
 			
-			setFileFlag = TRUE;
+			//setFileFlag = TRUE;
 			break;
 			
 		case kMatlabMenuItem:
@@ -4378,7 +4437,7 @@ void ChangeImageFormatDialogUpdateTIFFHeader (
 //							ChangeImageFormatDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 01/19/2006
-//	Revised By:			Larry L. Biehl			Date: 03/06/2022
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 void ChangeImageFormatDialogVerifyHeaderSetting (
 				DialogPtr							dialogPtr,
@@ -8104,7 +8163,7 @@ Boolean GetReformatAndFileInfoStructures (
 //							AreasToThematicFileControl in SFieldsToThematicFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
-//	Revised By:			Larry L. Biehl			Date: 03/22/2019
+//	Revised By:			Larry L. Biehl			Date: 08/31/2022
 
 Boolean GetReformatOutputBuffer (
 				FileInfoPtr							outFileInfoPtr, 
@@ -8149,9 +8208,10 @@ Boolean GetReformatOutputBuffer (
 		
 		totalNumberBytes = countOutBytes;
 		if (gProcessorCode == kRefChangeFileFormatProcessor ||
-					gProcessorCode == kRectifyImageProcessor ||
-							gProcessorCode == kRefMosaicImagesProcessor ||
-									gProcessorCode == kRefShapeToThematicFileProcessor)
+				gProcessorCode == kRectifyImageProcessor ||
+					gProcessorCode == kRefMosaicImagesProcessor ||
+						gProcessorCode == kRefShapeToThematicFileProcessor ||
+							gProcessorCode == kCompareImagesProcessor)
 			totalNumberBytes *= outFileInfoPtr->numberLines;
 	
 		}	// end "if (outFileInfoPtr->bandInterleave != kBSQ)" 
@@ -8167,9 +8227,10 @@ Boolean GetReformatOutputBuffer (
 																		outFileInfoPtr->numberLines;
 												
 		if (gProcessorCode == kRefChangeFileFormatProcessor ||
-					gProcessorCode == kRectifyImageProcessor ||
-							gProcessorCode == kRefMosaicImagesProcessor ||
-									gProcessorCode == kRefShapeToThematicFileProcessor)
+				gProcessorCode == kRectifyImageProcessor ||
+					gProcessorCode == kRefMosaicImagesProcessor ||
+						gProcessorCode == kRefShapeToThematicFileProcessor ||
+							gProcessorCode == kCompareImagesProcessor)
 			countOutBytes *= outFileInfoPtr->numberChannels;
 		
 		}	// end "else outFileInfoPtr->bandInterleave == BSQ" 
@@ -8611,7 +8672,7 @@ void InitializeOutputFileInformation (
 // Called By:			GetReformatAndFileInfoStructures
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 08/08/2022
+//	Revised By:			Larry L. Biehl			Date: 08/29/2022
 
 void InitializeReformatStructure (
 				ReformatOptionsPtr				reformatOptionsPtr)
@@ -8631,6 +8692,7 @@ void InitializeReformatStructure (
 		reformatOptionsPtr->outFileInfoHandle = NULL;
 		reformatOptionsPtr->pcChannelHandle = NULL;
 		reformatOptionsPtr->rightBottomMosaicWindowInfoHandle = NULL;
+		reformatOptionsPtr->compareImagesOptionsPtr = NULL;
 		reformatOptionsPtr->rectifyImageOptionsPtr = NULL;
 		reformatOptionsPtr->ioOutAdjustBufferPtr = NULL;
 		reformatOptionsPtr->ioOutBufferPtr = NULL;
@@ -8833,7 +8895,7 @@ void InitializeReformatStructure (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/2013
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 03/17/2023
 
 Boolean LoadReformatOptionsSpecs (
 				WindowInfoPtr						windowInfoPtr)
@@ -8875,7 +8937,8 @@ Boolean LoadReformatOptionsSpecs (
 		reformatOptionsPtr->firstTimeFlag = FALSE;
 		
 		if (reformatOptionsPtr->lastReformatProcessorCode != gProcessorCode ||
-						gProcessorCode != kRefChangeFileFormatProcessor)
+				(gProcessorCode != kRefChangeFileFormatProcessor &&
+												gProcessorCode != kCompareImagesProcessor))
 			releaseReformatMemoryFlag = TRUE; 
 		
 		if (!releaseReformatMemoryFlag &&
@@ -8942,12 +9005,22 @@ Boolean LoadReformatOptionsSpecs (
 				{
 						// No user selection made. Make sure that the default reformat
 						// default area includes the entire image.
-					
-				reformatOptionsPtr->lineStart = 1;
-				reformatOptionsPtr->lineEnd = windowInfoPtr->maxNumberLines;
-				reformatOptionsPtr->columnStart = 1;
-				reformatOptionsPtr->columnEnd = windowInfoPtr->maxNumberColumns;
+						// In 2022, decided that it might be nice to use the last
+						// user setting. If any part is outside of the range of the
+						// current active image window, then use the entire image.
 				
+				if (reformatOptionsPtr->lineStart > windowInfoPtr->maxNumberLines ||
+						reformatOptionsPtr->lineEnd > windowInfoPtr->maxNumberLines ||
+						reformatOptionsPtr->columnStart > windowInfoPtr->maxNumberColumns ||
+						reformatOptionsPtr->columnEnd > windowInfoPtr->maxNumberColumns)
+					{
+					reformatOptionsPtr->lineStart = 1;
+					reformatOptionsPtr->lineEnd = windowInfoPtr->maxNumberLines;
+					reformatOptionsPtr->columnStart = 1;
+					reformatOptionsPtr->columnEnd = windowInfoPtr->maxNumberColumns;
+					
+					}	// end "if (reformatOptionsPtr->lineStart > ...->maxNumberLines || ,,,"
+						
 				}	// end "if (!GetSelectedAreaInfo (..."
 				
 					// Make sure counts, etc are initialized for this run					
@@ -8987,7 +9060,8 @@ Boolean LoadReformatOptionsSpecs (
 		
 	if (returnFlag)
 		{
-		if (gProcessorCode == kRefChangeFileFormatProcessor)
+		if (gProcessorCode == kRefChangeFileFormatProcessor ||
+														gProcessorCode == kCompareImagesProcessor)
 			{
 					// Set up memory for reformatting channels vector.
 					// Space is also being allow for a wavelength order vector in
@@ -9127,7 +9201,7 @@ Boolean LoadReformatOptionsSpecs (
 // Called By:			Menus   in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 08/28/1988
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 08/20/2022
 
 void ReformatControl (
 				SInt16								reformatRequest)
@@ -9233,12 +9307,12 @@ void ReformatControl (
 				gProcessorCode = kENVIROItoThematicProcessor;
 				ENVI_ROIToThematicFileControl ();
 				break;
-			/*
+			
 			case kReformatCompareImagesRequest:
 				gProcessorCode = kCompareImagesProcessor;
 				CompareImagesControl ();
 				break;
-			*/
+			
 			}	// end "switch (reformatRequest)" 
 			
 				// Scroll output window to the selection and adjust the 			

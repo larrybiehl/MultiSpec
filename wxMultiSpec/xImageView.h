@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMImageView class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 01/11/2020
+//	Revised By:				Larry L. Biehl			Date: 02/04/2024
 //
 //------------------------------------------------------------------------------------
 
@@ -75,7 +75,20 @@ class CMImageView : public wxView
 
 		void 				DisposeImageWindowSupportMemory (void);
 
-		void 				DrawLegend ();
+		void				DoEditCopyImage (void);
+   
+      //void           DoFilePrint (
+      //                  wxCommandEvent&                event);
+   
+      //void           DoFilePrintPreview (
+      //                  wxCommandEvent&                event);
+
+		void 				DrawLegend (
+								CDC*									pDC,
+								SInt16								copyType,
+								SInt16								legendWidth,
+								int									left,
+								int									top);
 
 		Boolean			GetActiveWindowFlag (void);
 
@@ -99,7 +112,7 @@ class CMImageView : public wxView
 
 		CMLegendView* 	GetImageLegendViewCPtr (void);
 
-		SInt16 			GetLegendFullHeight (void);
+		//SInt16 			GetLegendFullHeight (void);
 
 		SInt16 			GetLegendWidth (void);
 
@@ -136,6 +149,8 @@ class CMImageView : public wxView
 		bool 				OnCreate (
 								wxDocument* 		doc,
 								long 					flags);
+								
+		void 				OnPrint (wxDC *dc, wxObject *WXUNUSED(info));
 
 		virtual void 	OnDraw (
 								wxDC* 				dc);
@@ -206,6 +221,9 @@ class CMImageView : public wxView
 		CMHistogram* 						m_histogramCPtr;
 
 		double 								m_printerTextScaling;
+
+				// This is scaling being used for Print Preview page.
+		double 								m_printerPaperScaling;
 	
 				// Zooming factor
 		double 								m_Scale;
@@ -219,6 +237,10 @@ class CMImageView : public wxView
 				// Flag indicating whether the current draw mode is for printing
 				// or copying.
 		Boolean 								m_printCopyModeFlag;
+
+				// Flag indicating whether the class members have been
+				// initialized successfully.
+		Boolean 								m_calledFromPaintFlag;
 
 				// Flag indicating whether the class members have been
 				// initialized successfully.

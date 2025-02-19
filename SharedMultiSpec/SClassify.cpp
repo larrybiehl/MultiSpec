@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -1709,14 +1709,16 @@ void ClassifyAreasControl (
 					statClassNumber = gClassifySpecsPtr->classPtr[index];
 					
 					if (echoClassifierVarPtr->thresholds_phase1[index] != -DBL_MAX)
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+										256,
 										"      \tClass %d\t%.2f%s",
 										(int)statClassNumber,
 										echoClassifierVarPtr->thresholds_phase1[index],
 										gEndOfLine);
 								
 					else	// echoClassifierVarPtr->thresholds_phase1[index] == -DBL_MAX
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+										256,
 										"      \tClass %d:\tno thresholding%s",
 										(int)statClassNumber,
 										gEndOfLine);
@@ -2040,7 +2042,7 @@ void ClassifyAreasControl (
 										
 					// Insert 6 space to line before the line column string.
 			
-			sprintf ((char*)gTextString, "    ");
+			snprintf ((char*)gTextString, 256, "    ");
 			continueFlag = OutputString (resultsFileStreamPtr, 
 													(char*)gTextString, 
 													0, 
@@ -2119,7 +2121,8 @@ void ClassifyAreasControl (
 				
 						// List homogeneous cell information
 						
-				strLength = sprintf ((char*)gTextString, 
+				strLength = snprintf ((char*)gTextString,
+											256,
 											"%s    ",
 											gEndOfLine);
 				
@@ -2130,7 +2133,8 @@ void ClassifyAreasControl (
 														-1,
 														kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], 
+				numberChars = snprintf ((char*)&gTextString[strLength],
+												256-strLength,
 												" homogeneous cells (%hd by %hd) ",
 												cell_width,
 												cell_width);
@@ -2143,7 +2147,7 @@ void ClassifyAreasControl (
 														-1,
 														kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], " / ");
+				numberChars = snprintf ((char*)&gTextString[strLength], 256-strLength, " / ");
 				strLength += numberChars;
 				
 				strLength = ListCountValue ((char*)gTextString,
@@ -2153,7 +2157,8 @@ void ClassifyAreasControl (
 														-1,
 														kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], 
+				numberChars = snprintf ((char*)&gTextString[strLength],
+												256-strLength,
 												" pixels (%.2f%%)%s",
 												percent,
 												gEndOfLine);
@@ -2173,7 +2178,7 @@ void ClassifyAreasControl (
 					percent = (double)number_of_homogeneous_cells * cell_width *
 										cell_width / echoClassifierVarPtr->number_of_fields;
 									
-				strLength = sprintf ((char*)gTextString, "    ");
+				strLength = snprintf ((char*)gTextString, 256, "    ");
 				
 				strLength = ListCountValue (
 										(char*)gTextString,
@@ -2183,7 +2188,8 @@ void ClassifyAreasControl (
 										-1,
 										kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], 
+				numberChars = snprintf ((char*)&gTextString[strLength],
+												256-strLength,
 												" homogeneous fields. ");
 				strLength += numberChars;
 				
@@ -2195,7 +2201,8 @@ void ClassifyAreasControl (
 												-1,
 												kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], 
+				numberChars = snprintf ((char*)&gTextString[strLength],
+												256-strLength,
 												" homogeneous fields after merging. Average ");
 				strLength += numberChars;
 				
@@ -2206,7 +2213,8 @@ void ClassifyAreasControl (
 														-1,
 														kDoNotIncludeTab);
 				
-				numberChars = sprintf ((char*)&gTextString[strLength], 
+				numberChars = snprintf ((char*)&gTextString[strLength],
+												256-strLength,
 												" pixels per merged field.%s",
 												gEndOfLine);
 				strLength += numberChars;
@@ -2255,8 +2263,9 @@ void ClassifyAreasControl (
 				
 				if (echoClassifierVarPtr->tempDiskFileWasUsedFlag)
 					{
-					strLength = sprintf (
+					strLength = snprintf (
 								(char*)gTextString,
+								256,
 								"    Temporary disk file was used for the classification.%s%s",
 								gEndOfLine,
 								gEndOfLine);
@@ -3264,7 +3273,7 @@ SInt16 ClassifyPerPointArea (
 				minutesLeft = ((double)linesLeft * (TickCount () - startTick))/
 																((double)lineCount*kTicksPerMinute);
 				
-				sprintf ((char*)gTextString, " %.1f", minutesLeft);
+				snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
 				stringPtr = (char*)CtoPstring (gTextString, gTextString);
 				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 				
@@ -3492,7 +3501,8 @@ SInt16 ClassifyTrainTestFields (
 				
 		pstr ((char*)gTextString2,
 							(char*)&classNamesPtr[classStorage].name,&strLength);
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"     Class number = %d '%s'%s",
 					(int)(statClassNumber+1),
 					(char*)gTextString2,
@@ -3532,14 +3542,16 @@ SInt16 ClassifyTrainTestFields (
 				
 				pstr ((char*)gTextString2, (char*)&fieldIdentPtr->name, &strLength);
 				if (fieldType == kTrainingType)
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"      Training field number = %d '%s'%s",
 								(int)(fieldNumber+1),
 								(char*)gTextString2,
 								gEndOfLine);
 								
 				else if (fieldType == kTestingType)
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"      Test field number = %d '%s'%s",
 								(int)(fieldNumber+1),
 								(char*)gTextString2,
@@ -3697,7 +3709,7 @@ SInt16 CorrelationClassifier (
 				Point									point)
 
 {
-	double								correlationCoefficientThreshold,
+	double								//correlationCoefficientThreshold,
 											discriminantMax,
 											dValue,
 											xTranspose_x,
@@ -3741,8 +3753,8 @@ SInt16 CorrelationClassifier (
 	savedBufferReal8Ptr = 	(HDoublePtr)outputBuffer1Ptr;
 	maxClass = 					0;
 	
-	correlationCoefficientThreshold = 
-										gClassifySpecsPtr->correlationCoefficientThreshold;
+	//correlationCoefficientThreshold =
+	//									gClassifySpecsPtr->correlationCoefficientThreshold;
 	correlationCovarianceFlag = 
 					(gClassifySpecsPtr->correlationCovarianceCode > kNoCovarianceUsed);
 	
@@ -4338,7 +4350,7 @@ void CorrelationClsfierControl (
 					// degrees.								
 
 			if (gClassifySpecsPtr->createThresholdTableFlag)
-				continueFlag = CreateThresholdTables (0 ,0);
+				continueFlag = CreateThresholdTables (0, 0);
 													
 			if (continueFlag)
 				ClassifyAreasControl (fileInfoPtr, &classifierVar);
@@ -4392,24 +4404,26 @@ void CorrelationClsfierControl (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/13/1998
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 UInt32 CorrelationThresholdClass (
 				double								dValue,
 				double*								thresholdTablePtr)
 	
 {							
-	UInt16								offsetCorrelation[7] = {45, 22, 11, 6, 3, 2, 1};
+	//UInt16								offsetCorrelation[7] = {45, 22, 11, 6, 3, 2, 1};
 	
-	UInt16*								offsetPtr;
+	//UInt16*								offsetPtr;
 	
-	UInt32								index,
-											step;
+	UInt32								index;
+											//step;
 		
    
    index = 0;
 	if (thresholdTablePtr != NULL) 
 		{
+		/*
+				// Approach for this without using inverse cosine
 				// Set up local variables.														
 
 		offsetPtr = offsetCorrelation;
@@ -4431,7 +4445,12 @@ UInt32 CorrelationThresholdClass (
 	   	}	// end "for (step=1; step<=6; step++)" 
 		
 		index++;
-			
+		*/
+				// Using inverse cosine
+				
+		index = (UInt32)(kRadiansToDegrees * acos(dValue));
+		index = 91 - index;
+		
 		}	// end "if (thresholdTablePtr != NULL)" 
    	
    return (index);
@@ -4555,7 +4574,8 @@ Boolean CreateChiSquareThresholdTable (
 			{		
 					// Print the chi-squared value to the output text window.		
 					
-			sprintf ((char*)gTextString3, 
+			snprintf ((char*)gTextString3,
+							256,
 							" %3d    %18.16f %15.7f%s", 
 							index, 
 							probability, 
@@ -7165,7 +7185,7 @@ Boolean ListAverageDiscriminantValue (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 02/10/2000
-//	Revised By:			Larry L. Biehl			Date: 09/20/2019
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 Boolean ListClassifyInputParameters (
 				FileInfoPtr							fileInfoPtr,
@@ -7225,7 +7245,8 @@ Boolean ListClassifyInputParameters (
 			// List the target image file.									
 	
 	char* fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+				256,
 				"    Target image file = '%s'%s", 
 				fileNamePtr,
 				gEndOfLine);
@@ -7386,7 +7407,7 @@ Boolean ListClassifyInputParameters (
 			{
 					// Insert 6 space to line before the line column string.
 			
-			sprintf ((char*)gTextString, "      ");
+			snprintf ((char*)gTextString, 256, "      ");
 			continueFlag = OutputString (resultsFileStreamPtr, 
 													(char*)gTextString, 
 													0, 
@@ -7410,17 +7431,23 @@ Boolean ListClassifyInputParameters (
 	if (continueFlag && gClassifySpecsPtr->mode == kParallelPipedMode) 
 		{	
 				// List method used for parallel piped.
-	
-		UInt16 stringIndex = IDS_Classify68;
+																
 		if (gClassifySpecsPtr->parallelPipedCode == kPPStandardDeviationCode)
-			stringIndex = IDS_Classify69;
-			
-		continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
-																stringIndex, 
-																(unsigned char*)gTextString, 
-																resultsFileStreamPtr, 
-																gOutputForce1Code,
-																continueFlag);
+			continueFlag = ListSpecifiedStringNumber (
+															kClassifyStrID,
+															IDS_Classify69,
+															resultsFileStreamPtr,
+															gOutputForce1Code,
+															(double)gClassifySpecsPtr->parallelPipedStanDevFactor,
+															continueFlag);
+		
+		else	// ClassifySpecsPtr->parallelPipedCode != kPPStandardDeviationCode
+			continueFlag = ListSpecifiedStringNumber (kClassifyStrID,
+																	IDS_Classify68,
+																	(unsigned char*)gTextString,
+																	resultsFileStreamPtr,
+																	gOutputForce1Code,
+																	continueFlag);
 			
 		}	// end "if (... && gClassifySpecsPtr->mode == kParallelPipedMode)"
 			
@@ -7473,7 +7500,8 @@ Boolean ListClassifyInputParameters (
 	if (gClassifySpecsPtr->thresholdFlag)
 		numberClasses++;
 	MGetString (gTextString2, kFileIOStrID, IDS_NumberClasses);
-	sprintf ((char*)gTextString, 
+	snprintf ((char*)gTextString,
+					256,
 					"    %s %d%s",
 					&gTextString2[1], 
 					(unsigned int)numberClasses,
@@ -7487,7 +7515,8 @@ Boolean ListClassifyInputParameters (
 			// List the number of classes used.								
 	
 	MGetString (gTextString2, kFileIOStrID, IDS_FileIO53);
-	sprintf ((char*)gTextString, 
+	snprintf ((char*)gTextString,
+					256,
 					"    %s %u%s",
 					&gTextString2[1], 
 					gClassifySpecsPtr->numberClasses,
@@ -7846,7 +7875,8 @@ SInt16 ListTrainTestSummary (
 		pstr ((char*)gTextString2,
 					(char*)&gProjectInfoPtr->fieldIdentPtr[fieldNumber].name, 
 					&strLength);
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"      Field %d '%s' Percent correct %5.1f%s",
 					(int)(fieldNumber+1),
 					(char*)gTextString2,
@@ -8639,10 +8669,11 @@ SInt16 MaximumLikelihoodClassifier (
 	          	
 	         		// Get the ratio of the likelihood value.
 		
-				sprintf ((char*)gTextString, 
-					"%10.8f%s", 
-					dValue1, 
-					gEndOfLine);
+				snprintf ((char*)gTextString,
+								256,
+								"%10.8f%s", 
+								dValue1, 
+								gEndOfLine);
 								
 				continueFlag = OutputString (NULL, 
 														(char*)gTextString, 
@@ -10060,7 +10091,7 @@ void WriteProbabilityGrouping (
 			StringHandle		stringHandle = NULL;
 			CharPtr				stringPtr = NULL;
 			UInt32				count;
-			SInt16				errCode;
+			//SInt16				errCode;
 			
 		
 					// Get the string with the probability grouping information.
@@ -10070,10 +10101,11 @@ void WriteProbabilityGrouping (
 			if (count > 0)
 				{
 				count--;	
-				errCode = MWriteData (clProbabilityFileStreamPtr, 
-												&count,
-												&stringPtr[1],
-												kErrorMessages);
+				//errCode = MWriteData (clProbabilityFileStreamPtr,
+				MWriteData (clProbabilityFileStreamPtr,
+									&count,
+									&stringPtr[1],
+									kErrorMessages);
 											
 				}	// end "if (count > 0)"
 		

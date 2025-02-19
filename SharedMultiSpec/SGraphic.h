@@ -176,7 +176,7 @@ typedef struct
 			// The width of the histogram bin
 	double			origHistogramBinWidth;
 	
-			// Pointer to the Windows and Linux DC class
+			// Pointer to the Windows and wxWidgets DC class
 	#ifndef multispec_wx
 		CDC*				pDC;
 	#endif
@@ -342,6 +342,7 @@ typedef struct
 	 
 	bool				channelsInWavelengthOrderFlag;
 	bool				graphWindowFlag;
+	bool				copyToClipboardFlag;
 	
 	} GraphRecord, *GraphPtr;
 

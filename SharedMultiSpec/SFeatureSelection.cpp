@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/14/2019
+//	Revision date:			01/03/2024
 //
 //	Language:				C
 //
@@ -33,6 +33,7 @@
 
 #if defined multispec_wx        
 	#include "xFeatureSelectionDialog.h"
+	#include "xMultiSpec.h"
 #endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -561,10 +562,11 @@ void CalculateSeparabilityControl (void)
 						channelCombinationsPtr[channelCombinationSet] * 
 										gSeparabilitySpecsPtr->numberContiguousPerGroup;
 				
-		sprintf ((char*)gTextString2, "channel feature"); 
+		snprintf ((char*)gTextString2, 256, "channel feature");
 		gTextString2[7] = kNullTerminator;
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+			256,
 			"    There are %u %s combination(s) for %hd group(s) of %hd"
 			" contiguous %s(s).%s",
 			(int)maxNumberOfListCombinations,
@@ -575,7 +577,7 @@ void CalculateSeparabilityControl (void)
 			gEndOfLine);
 							
 		if (numberChannelGroupCombinations == 1)											
-			sprintf ((char*)&gTextString[10], " is");
+			snprintf ((char*)&gTextString[10], 246, " is");
 		gTextString[13] = ' ';
 							
 		continueFlag = OutputString (resultsFileStreamPtr, 
@@ -4598,7 +4600,7 @@ void SeparabilityControl (void)
 // Called By:			SeparabilityControl   in SFeatureSelection.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1989
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean SeparabilityDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -5314,7 +5316,7 @@ Boolean SeparabilityDialog (
 
 		try 
 			{
-			dialogPtr = new CMFeatureSelectionDialog ();
+			dialogPtr = new CMFeatureSelectionDialog (GetMainFrameForDialog());
 			returnFlag = dialogPtr->DoDialog (gSeparabilitySpecsPtr, allChanCombinationsPtr);
 			delete dialogPtr;
 			
@@ -6387,7 +6389,8 @@ void SeparabilityListDialogInitialize (
 	
 	if (MGetString (gTextString2, kFeatureSelectionStrID, IDS_FeatureSelection34))
 		{
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						(char*)&gTextString2[1], 
 						(double)separabilitySpecsPtr->maxNumberFeatureCombinations);
 						

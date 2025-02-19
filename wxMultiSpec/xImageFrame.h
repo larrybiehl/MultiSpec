@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMImageFrame class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 10/24/2019
+//	Revised By:				Larry L. Biehl			Date: 02/18/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -51,6 +51,7 @@
 #include "wx/gdicmn.h"
 #include "wx/font.h"
 #include "wx/colour.h"
+#include "wx/mdi.h"
 #include "wx/settings.h"
 #include "wx/toolbar.h"
 #include "wx/statusbr.h"
@@ -63,7 +64,7 @@
 #include "wx/dialog.h"
 
 
-class CMImageFrame : public wxDocChildFrame
+class CMImageFrame : public MChildFrame
 {
 		 DECLARE_DYNAMIC_CLASS (CMImageFrame)
 
@@ -75,7 +76,7 @@ class CMImageFrame : public wxDocChildFrame
 		CMImageFrame (
 				wxDocument* 						doc,
 				wxView* 								view,
-				wxDocParentFrame*					parent);
+				MParentFrame*						parent);
 	
 		~CMImageFrame ();
 	
@@ -104,6 +105,8 @@ class CMImageFrame : public wxDocChildFrame
 
 		void InitialUpdate (
 				CSize 								imageViewSize);
+				
+		void MaximizeImageWindow ();
 
 		void SetActiveWindowFlag (
 				Boolean 								setting);
@@ -216,16 +219,20 @@ class CMImageFrame : public wxDocChildFrame
 				wxKeyEvent& 						event);
 	
 		void OnClose (
-				wxCommandEvent& 					event);
+            wxCloseEvent&                  event);
 
-	
 		void OnEditSelectAll (
 				wxCommandEvent& 					event);
 
 		void OnEditClearSelectionRectangle (
 				wxCommandEvent& 					event);
+   
+      //void OnPrint (
+      //      wxCommandEvent&               event);
+            
+		//void OnPrintPreview (
+		//		wxCommandEvent& 					event);
 
-	
 		void OnFileSave (
 				wxCommandEvent& 					event);
 
@@ -271,7 +278,7 @@ class CMImageFrame : public wxDocChildFrame
 
 		void OnUpdateFileSaveAs (
 				wxUpdateUIEvent& 					pCmdUI);
-
+		/*
 		void OnUpdateFilePrint (
 				wxUpdateUIEvent& 					pCmdUI);
 
@@ -280,7 +287,7 @@ class CMImageFrame : public wxDocChildFrame
 
 		void OnUpdateFilePrintSetup (
 				wxUpdateUIEvent& 					pCmdUI);
-
+		*/
 		void OnUpdateOverlay (
 				wxUpdateUIEvent& 					pCmdUI);
 

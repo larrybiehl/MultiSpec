@@ -27,7 +27,7 @@
 //								CMGraphViewButton classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/24/2020
+//	Revised By:				Larry L. Biehl			Date: 02/04/2024
 //
 //------------------------------------------------------------------------------------
 
@@ -104,8 +104,10 @@ class CMGraphView : public wxView
 		CMGraphView ();
 	
 		~CMGraphView ();
+		
+		void DoEditCopyGraph (void);
 	
-		void DoFilePrint ();
+		//void DoFilePrint ();
 		  
 		void DrawGraphGrowIcon (
 				GraphPtr 							graphRecordPtr);
@@ -214,7 +216,8 @@ class CMGraphView : public wxView
 			       							m_previousChannel,
 			       							m_selectVectors;
 
-		double								m_printerTextScaling;
+		double								m_printerPaperScaling,
+												m_printerTextScaling;
 	
 		Handle								m_graphRecordHandle;
 	
@@ -227,11 +230,20 @@ class CMGraphView : public wxView
 				// or copying.
 
 		Boolean								m_printCopyModeFlag;
+
+				// Flag to help determine with OnDraw is being called by
+				// a Paint event or directly from the wxWidgets printing
+				// architecture.
+				
+		Boolean								m_calledFromPaintFlag;
+		
+		
 	
 	private:
 		bool LoadChannelDescriptionIntoList (
 				FileInfoPtr 						fileInfoPtr,
 				LayerInfoPtr 						layerInfoPtr,
+				int									row,
 				SInt16 								channel);
 	
 		bool LoadChannelNumbersAndValues (

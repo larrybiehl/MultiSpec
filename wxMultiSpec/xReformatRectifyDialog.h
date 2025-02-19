@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMReformatRectifyDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/08/2019
+//	Revised By:				Larry L. Biehl			Date: 03/18/2023
 //
 //------------------------------------------------------------------------------------
 

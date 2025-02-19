@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/02/2022
+//	Revision date:			05/02/2023
 //
 //	Language:				C
 //
@@ -253,7 +253,7 @@ void AddCellsToLegendList (
 		#endif	// defined multispec_win 
 
 		#if defined multispec_wx
-			legendListHandle->Scroll (0, 0);
+			//legendListHandle->Scroll (0, 0);
 		#endif
 		
 		}	// end "if (listType != classGroupCode)"
@@ -1497,7 +1497,11 @@ Boolean DoBlinkCursor1 (
 	#if defined multispec_win || defined multispec_wx
 		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
-	#endif	// defined multispec_win
+	#endif	// defined multispec_win;
+
+	#if defined multispec_wxlin || defined multispec_wxwin
+		CheckSomeEvents (0);
+	#endif
 	
 	MSetCursor (kBlinkShutCursor1);
 	
@@ -1532,6 +1536,10 @@ Boolean DoBlinkCursor1 (
 		displaySpecsPtr->paletteObject->SetPaletteLoadedFlag (FALSE);
 		DoThematicWColorsUpdate ();
 	#endif	// defined multispec_win    
+
+	#if defined multispec_wxlin || defined multispec_wxwin
+		CheckSomeEvents (0);
+	#endif
 	
 	MSetCursor (kBlinkOpenCursor1);
 	
@@ -1628,7 +1636,7 @@ void DoThematicWColorsUpdate (void)
       ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->DrawLegendList ();
       ((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Refresh ();
 	
-      #if defined multispec_wxlin
+      #if defined multispec_wxlin || defined multispec_wxwin
       	//canvasptr->Update ();
       	//(frameptr->GetLegendViewCPtr ())->Update ();
       	((frameptr->GetLegendViewCPtr ())->GetLegendListCPtr ())->Update ();
@@ -3544,7 +3552,7 @@ void ThematicImageWBlink (
 	#endif	// defined multispec_win
 	
 	MSetCursor (kBlinkShutCursor2);
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 		CheckSomeEvents (0);
 	#endif
 	
@@ -3579,7 +3587,7 @@ void ThematicImageWBlink (
 
 	#ifdef multispec_wx
 		MSetCursor (kBlinkOpenCursor2);
-		#if defined multispec_wxlin
+		#if defined multispec_wxlin || defined multispec_wxwin
 			CheckSomeEvents (0);
 		#endif
 	#endif

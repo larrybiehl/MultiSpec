@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			08/26/2022
 //
 //	Include files:			"MultiSpecHeaders"
 //
@@ -940,7 +940,8 @@ Boolean ListRectifyResultsInformation (
 	
 	if (rectifyImageOptionsPtr->procedureCode == kTranslateScaleRotate)
 		{				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s"
 					"    Rectify option: Translate, scale, and/or rotate%s",
 					gEndOfLine,
@@ -951,7 +952,8 @@ Boolean ListRectifyResultsInformation (
 												(UInt32)strlen ((char*)gTextString), 
 												gOutputTextH);
 					
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s"
 					#ifndef multispec_wx
 						"    Column shift:        %ld%s"
@@ -985,7 +987,8 @@ Boolean ListRectifyResultsInformation (
 	
 	else if (rectifyImageOptionsPtr->procedureCode == kReprojectToReferenceImage)
 		{		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s"
 					"    Rectify option: Re-project to reference image%s",
 					gEndOfLine,
@@ -996,16 +999,19 @@ Boolean ListRectifyResultsInformation (
 												(UInt32)strlen ((char*)gTextString), 
 												gOutputTextH);
 		
-		stringLength = sprintf ((char*)gTextString,
+		stringLength = snprintf ((char*)gTextString,
+					256,
 					"      Resample option: ");
 					
 		if (rectifyImageOptionsPtr->resampleCode == kNearestNeighbor)
-			sprintf ((char*)&gTextString[stringLength],
+			snprintf ((char*)&gTextString[stringLength],
+									256-stringLength,
 									"Nearest Neighbor%s",
 									gEndOfLine);
 					
 		else if (rectifyImageOptionsPtr->resampleCode == kMajorityRule)
-			sprintf ((char*)&gTextString[stringLength],
+			snprintf ((char*)&gTextString[stringLength],
+									256-stringLength,
 									"Majority%s",
 									gEndOfLine);
 				
@@ -1018,9 +1024,10 @@ Boolean ListRectifyResultsInformation (
 								 								
 	sprintf (string, "No");
 	if (rectifyImageOptionsPtr->blankOutsideSelectedAreaFlag)							
-		sprintf (string, "Yes");						
+		snprintf (string, 256, "Yes");
 		
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+				256,
 				"    Background value:    %g%s"
 				"    Set non-selected pixels to background: %s%s%s",
 				rectifyImageOptionsPtr->backgroundValue,
@@ -1093,7 +1100,8 @@ Boolean ListRectifyResultsInformation (
 																continueFlag);
 	
 	fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (outFileInfoPtr);
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+						256,
 						"    New output image file name: '%s'%s",
 						fileNamePtr,
 						gEndOfLine);

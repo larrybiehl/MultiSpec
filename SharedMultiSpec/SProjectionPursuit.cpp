@@ -2780,7 +2780,7 @@ Boolean ListGroupOfBands (
 
 			// List line in Channel Decision Tree Table
 			
-	sprintf ((char*)gTextString, "    %5d       %9.4f      %3u-%3u   [",
+	snprintf ((char*)gTextString, 256, "    %5d       %9.4f      %3u-%3u   [",
 					(int)final_num_features,
 					mBvalue,
 					(unsigned int)class1,
@@ -2793,7 +2793,7 @@ Boolean ListGroupOfBands (
 											
 	for (k=1; k<=final_num_features; ++k)
 		{
-		sprintf ((char*)gTextString, "%5d", (int)group_of_bands[k]);
+		snprintf ((char*)gTextString, 256, "%5d", (int)group_of_bands[k]);
 		continueFlag = OutputString (resultsFileStreamPtr, 
 												(char*)gTextString, 
 												0, 
@@ -2802,7 +2802,7 @@ Boolean ListGroupOfBands (
 		
 		}	// end "for (k=1; k<= final_num_features; ++k)"
 			
-	sprintf ((char*)gTextString, "   ]%s", gEndOfLine);
+	snprintf ((char*)gTextString, 256, "   ]%s", gEndOfLine);
 	continueFlag = OutputString (resultsFileStreamPtr, 
 											(char*)gTextString, 
 											0, 

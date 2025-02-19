@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			09/03/2022
 //
 //	Language:				C
 //
@@ -4484,7 +4484,7 @@ SInt16 UpdateProjectAreaStats (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/28/1998
-//	Revised By:			Larry L. Biehl			Date: 05/30/2020
+//	Revised By:			Larry L. Biehl			Date: 09/03/2022
 
 SInt16 UpdateProjectMaskStats (
 				SInt16								statsUpdateCode,
@@ -4555,6 +4555,7 @@ SInt16 UpdateProjectMaskStats (
 	Boolean								checkForNoDataFlag,
 											continueFlag,
 											dataOkayFlag,
+											lastUsePixelFlag,
 											lCheckForBadDataFlag,
 											updateNumberLinesFlag,
 											updateProjectFlag,
@@ -4741,6 +4742,7 @@ SInt16 UpdateProjectMaskStats (
 		
 		updateNumberLinesFlag = TRUE;
 		lineCount = 0;
+		lastUsePixelFlag = FALSE;
 				
 		for (line=lineStart; line<=lineEnd; line+=lineInterval)
 			{
@@ -4827,8 +4829,13 @@ SInt16 UpdateProjectMaskStats (
 							if (fieldIdentPtr[fieldNumber].loadedIntoClassStats &&
 																			statCode != kPixelValuesOnly)
 								usePixelFlag = FALSE;
+								
+							lastUsePixelFlag = usePixelFlag;
 																
 							}	// end "if (lastMaskValue != maskBufferPtr[maskIndex])"
+							
+						else	// lastMaskValue == maskBufferPtr[maskIndex]
+							usePixelFlag = lastUsePixelFlag;
 							
 				   	dataOkayFlag = usePixelFlag;
 				   	

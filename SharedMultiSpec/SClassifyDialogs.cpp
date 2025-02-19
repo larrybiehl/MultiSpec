@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/12/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -40,8 +40,10 @@
 	#include "xClassifyDialog.h"
 	#include "xClassifyEchoDialog.h"
    #include "xClassifyKNNDialog.h"
+   #include "xClassifyParallelPipedDialog.h"
    #include "xClassifySVMDialog.h"
 	#include "xListResultsOptionsDialog.h"
+	#include "xMultiSpec.h"
 #endif	// defined multispec_wx 
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -162,6 +164,10 @@ Boolean KNNClassifyDialog (
 								
 Boolean LoadCEMParameterSpecs (
 				UInt16								classifyProcedureEnteredCode);
+								
+Boolean ParallelPipedClassifyDialog (
+				SInt16*								parallelPipedCodePtr,
+				double*								parallelPipedStanDevFactorPtr);
 
 Boolean SVMClassifyDialog ();
 								
@@ -680,7 +686,7 @@ Boolean CheckIfClassesToUseForClassificationChanged (
 // Called By:			ClassifyControl   in SClassify.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1988
-//	Revised By:			Larry L. Biehl			Date: 05/04/2019
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean ClassifyDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1717,7 +1723,7 @@ Boolean ClassifyDialog (
 
 	#if defined multispec_wx
 		CMClassifyDialog* dialogPtr = NULL;
-		dialogPtr = new CMClassifyDialog ();
+		dialogPtr = new CMClassifyDialog (GetMainFrameForDialog());
 		if (dialogPtr != NULL)
 			{
 			returnFlag = dialogPtr->DoDialog ();
@@ -1776,6 +1782,7 @@ void ClassifyDialogInitialize (
 				SInt16*								listResultsTestCodePtr,
 				SInt16*								listResultsTrainingCodePtr,
 				SInt16*								parallelPipedCodePtr,
+				double*								parallelPipedStanDevFactorPtr,
 				SInt16*								nearestNeighborKValuePtr)
 	
 {
@@ -1876,7 +1883,7 @@ void ClassifyDialogInitialize (
 			procedureCtrl =
 					(wxComboBox*)dialogPtr->FindWindowById (IDC_ClassificationProcedure);
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice*		procedureCtrl;
 			procedureCtrl =
 					(wxChoice*)dialogPtr->FindWindowById (IDC_ClassificationProcedure);
@@ -2302,6 +2309,7 @@ void ClassifyDialogInitialize (
 			// Palette dialog items.
 		
 	ClassifyDialogSetPaletteItems (dialogPtr,
+												*diskFileFlagPtr,
 												*outputFormatCodePtr,
 												*createImageOverlayFlagPtr);
 	
@@ -2354,7 +2362,9 @@ void ClassifyDialogInitialize (
 	*listResultsTestCodePtr = gProjectInfoPtr->listResultsTestCode;
 	*listResultsTrainingCodePtr = gProjectInfoPtr->listResultsTrainingCode;
 	
-	*parallelPipedCodePtr = kPPStandardDeviationCode;
+	*parallelPipedCodePtr = gClassifySpecsPtr->parallelPipedCode;
+	
+	*parallelPipedStanDevFactorPtr = gClassifySpecsPtr->parallelPipedStanDevFactor;
 																	
 }	// end "ClassifyDialogInitialize"
 
@@ -2439,6 +2449,7 @@ void ClassifyDialogOK (
 				SInt16								listResultsTestCode,
 				SInt16								listResultsTrainingCode,
 				SInt16								parallelPipedCode,
+				double								m_ppStdDeviationFactor,
 				SInt16								nearestNeighborKValue)
 
 {
@@ -2728,6 +2739,7 @@ void ClassifyDialogOK (
 	gProjectInfoPtr->listResultsTrainingCode = listResultsTrainingCode;
 	
 	gClassifySpecsPtr->parallelPipedCode = parallelPipedCode;
+	gClassifySpecsPtr->parallelPipedStanDevFactor = m_ppStdDeviationFactor;
 	
 	gClassifySpecsPtr->nearestNeighborKValue = nearestNeighborKValue;
 	
@@ -2742,6 +2754,7 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 				Boolean*								featureTransformAllowedFlagPtr,                     
 				SInt16*								weightsSelectionPtr,
 				SInt16*								parallelPipedCodePtr,
+				double*								parallelPipedStanDevFactorPtr,
 				SInt16								classificationSelection,
 				SInt16*								covarianceEstimatePtr,
 				SInt16								numberEigenvectors,
@@ -2818,12 +2831,15 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 		}	// end "else if (classificationSelection == kCEMMode)"
 														
 	else if (classificationSelection == kParallelPipedMode && optionKeyFlag)
+	//else if (classificationSelection == kParallelPipedMode)
 		{
-				// Paralllel Piped procedure to be used; get specifications.	
+				// Parallel Piped procedure to be used; get specifications.
 				// For now just changed method to min/max data values for desiginating
-				// the limits of the class box	
-					                                     
-		*parallelPipedCodePtr = kPPMinMaxCode;
+				// the limits of the class box
+					                            
+		SetDLogControlHilite (dialogPtr, okItem, 255);
+		returnFlag = ParallelPipedClassifyDialog (parallelPipedCodePtr, parallelPipedStanDevFactorPtr);
+		SetDLogControlHilite (dialogPtr, okItem, 0);
 								
 		}	// end "else if (classificationSelection == kParallelPipedMode && ..."
 	/*													
@@ -2923,13 +2939,14 @@ SInt16 ClassifyDialogOnClassificationProcedure (
 // Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/23/2006
-//	Revised By:			Larry L. Biehl			Date: 11/12/2019
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 	                
 void ClassifyDialogOnOverlay (
 				DialogPtr							dialogPtr,
 				SInt16								fileNamesSelection,
 				Handle								targetWindowInfoHandle,
-				Boolean*								createImageOverlayFlagPtr)
+				Boolean*								createImageOverlayFlagPtr,
+				Boolean								createDiskFileFlag)
 	
 {
 	Handle								overlayImageWindowInfoHandle;
@@ -2957,6 +2974,7 @@ void ClassifyDialogOnOverlay (
 		HideDialogItem (dialogPtr, IDC_ImageOverlayCombo);
 	
 	ClassifyDialogSetPaletteItems (dialogPtr,
+												createDiskFileFlag,
 												gOutputFormatCode,
 												*createImageOverlayFlagPtr);
 	
@@ -2981,7 +2999,7 @@ void ClassifyDialogOnOverlay (
 // Called By:			ClassifyDialog   in SClassifyDialogs.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/18/1999
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 	                
 SInt16 ClassifyDialogOnTargetFile (
 				DialogPtr							dialogPtr,
@@ -2989,7 +3007,8 @@ SInt16 ClassifyDialogOnTargetFile (
 				Handle*								targetWindowInfoHandlePtr,
 				Boolean*								checkOKFlagPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
-				Boolean*								createImageOverlayFlagPtr)
+				Boolean*								createImageOverlayFlagPtr,
+				Boolean								createDiskFileFlag)
 	
 {
 	#if defined multispec_win                                
@@ -3100,7 +3119,8 @@ SInt16 ClassifyDialogOnTargetFile (
 	ClassifyDialogOnOverlay (dialogPtr,
 										fileNamesSelection,
 										*targetWindowInfoHandlePtr,
-										createImageOverlayFlagPtr);
+										createImageOverlayFlagPtr,
+										createDiskFileFlag);
 	
 	return (fileNamesSelection);
 	
@@ -3281,6 +3301,8 @@ Boolean ClassifyDialogSetThresholdItems (
 									IDC_CreateProbabilityFile, 
 									(CharPtr)gTextString,
 									kASCIICharString);
+									
+	dialogPtr->Layout ();
 					
 	return (FALSE);
 	
@@ -3290,12 +3312,13 @@ Boolean ClassifyDialogSetThresholdItems (
                     
 void ClassifyDialogSetPaletteItems (
 				DialogPtr							dialogPtr,
+				Boolean								createDiskFileFlag,
 				SInt16								outputFormatCode,
 				Boolean								createImageOverlayFlag)
 				
 {				
-	if (abs (outputFormatCode) == kClassifyERDAS74OutputFormat || 
-					abs (outputFormatCode) == kClassifyTIFFGeoTIFFOutputFormat ||
+	if ((createDiskFileFlag && (abs (outputFormatCode) == kClassifyERDAS74OutputFormat ||
+					abs (outputFormatCode) == kClassifyTIFFGeoTIFFOutputFormat)) ||
 								createImageOverlayFlag)
 		{
 		ShowDialogItem (dialogPtr, IDC_PalettePrompt);
@@ -3309,6 +3332,8 @@ void ClassifyDialogSetPaletteItems (
 		HideDialogItem (dialogPtr, IDC_PaletteCombo);
 		
 		}	// end "else abs (outputFormatCode) != kClassifyERDAS74OutputFormat && ..."
+		
+	dialogPtr->Layout ();
 	
 }	// end "ClassifyDialogSetPaletteItems"
 
@@ -4958,6 +4983,51 @@ Boolean LoadCEMParameterSpecs (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		Boolean ParallelPipedClassifyDialog
+//
+//	Software purpose:	The purpose of this routine is to handle the 		
+//							modal dialog for selecting the Parallel Piped classification
+//							specifications.
+//
+//	Parameters in:		None
+//
+//	Parameters out:	None
+//
+// Value Returned: 	
+//
+// Called By:			ClassifyDialog   in SClassifyDialogs.cpp
+//
+//	Coded By:			Larry L. Biehl			Date: 02/10/2025
+//	Revised By:			Larry L. Biehl			Date: 02/10/2025
+
+Boolean ParallelPipedClassifyDialog (
+				SInt16*								parallelPipedCodePtr,
+				double*								stdDeviationValuePtr)
+
+{	
+	Boolean								returnFlag = FALSE;
+	
+
+	#if defined multispec_wx
+		CMClassifyParallelPipedDialog* dialogPtr = NULL;
+		dialogPtr = new CMClassifyParallelPipedDialog ();
+		if (dialogPtr != NULL)
+			{
+			returnFlag = dialogPtr->DoDialog (parallelPipedCodePtr, stdDeviationValuePtr);
+			delete dialogPtr;
+			
+			}
+	#endif	// defined multispec_wx
+	
+	return (returnFlag);
+	
+}	// end "ParallelPipedClassifyDialog"  
+
+
+                   
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		void SetUpPalettePopUpMenu
 //
 //	Software purpose:	The purpose of this routine is to set up the
@@ -5013,7 +5083,7 @@ void SetUpPalettePopUpMenu (
 			paletteCtrl =
 					wxDynamicCast (dialogPtr->FindWindow (IDC_PaletteCombo), wxComboBox);
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice*			paletteCtrl;
 			paletteCtrl =
 					wxDynamicCast (dialogPtr->FindWindow (IDC_PaletteCombo), wxChoice);

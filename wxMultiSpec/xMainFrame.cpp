@@ -20,7 +20,7 @@
 //	Authors:					Larry L. Biehl
 //
 //	Revision date:			10/05/2015 by Tsung Tai Yeh
-//								04/22/2020 by Larry L. Biehl
+//								02/14/2025 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -37,6 +37,8 @@
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h"
 
 #include "xMainFrame.h"
 #include "xAbout.h"
@@ -55,7 +57,20 @@
 #endif
 
 #if defined multispec_wxmac
-	//#include "mspec.xpm"
+	#include "mspec.xpm"
+#endif
+
+#if defined multispec_wxwin
+#include "copy.xpm"
+#include "cut.xpm"
+#include "help.xpm"
+//#include "mspec.ico"
+//#include "mspec.xpm"
+#include "open.xpm"
+#include "paste.xpm"
+#include "print.xpm"
+#include "save.xpm"
+#include "xToolBar_images.cpp"
 #endif
 
 
@@ -72,10 +87,9 @@
 #include "xTextView.h"
 
 
+IMPLEMENT_CLASS (CMainFrame, MParentFrame)
 
-IMPLEMENT_CLASS (CMainFrame, wxDocParentFrame)
-
-BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
+BEGIN_EVENT_TABLE (CMainFrame, MParentFrame)
 	EVT_CHAR (CMainFrame::OnChar)
 
 		// In order of location on the main menu
@@ -97,12 +111,17 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_MENU (ID_FILE_SAVE_PROJECT, CMainFrame::OnFileSaveProject)
 	EVT_MENU (ID_FILE_SAVE_PROJECT_AS, CMainFrame::OnFileSaveProjectAs)
 	EVT_MENU (ID_EXPORT_FILE_AS, CMainFrame::OnFileExportFile)
+	EVT_MENU (ID_FILE_PRINT, CMainFrame::OnPrint)	// wxID_PRINT
+	EVT_MENU (ID_FILE_PRINT_PREVIEW, CMainFrame::OnPrintPreview)	// wxID_PREVIEW
+	EVT_MENU (ID_FILE_PAGE_SETUP, CMainFrame::OnPageSetup)	// wxID_PAGE_SETUP
+	
 
 				// Edit Menu
 	EVT_MENU (ID_EDIT_UNDO, CMainFrame::OnEditUndo)
 	EVT_MENU (wxID_CUT, CMainFrame::OnEditCut)
 	EVT_MENU (wxID_COPY, CMainFrame::OnEditCopy)
 	EVT_MENU (wxID_PASTE, CMainFrame::OnEditPaste)
+	EVT_MENU (wxID_CLEAR, CMainFrame::OnEditClear)
 	EVT_MENU (ID_EDIT_SELECT_ALL, CMainFrame::OnEditSelectAll)
 	EVT_MENU (ID_EDIT_SELECTION_RECTANGLE, CMainFrame::OnEditSelectionRectangle)
 	EVT_MENU (ID_EDIT_CLEAR_SELECT_RECTANGLE, CMainFrame::OnEditClearSelectionRectangle)
@@ -113,6 +132,8 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_MENU (ID_EDIT_CLEAR_ALL_VECTOR_OVERLAYS, CMainFrame::OnEditClearAllVectorOverlays)
 
 				// View Menu Items
+	EVT_MENU (ID_VIEW_TOOLBAR, CMainFrame::OnViewToolBar)
+	//EVT_MENU (ID_VIEW_STATUS_BAR, CMainFrame::OnViewStatusBar)
 	EVT_MENU (ID_VIEW_COORDINATES_BAR, CMainFrame::OnViewCoordinatesBar)
 
 				// Project Menu Items
@@ -189,9 +210,9 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_UPDATE_UI (ID_FILE_SAVE_AS, CMainFrame::OnUpdateFileSaveAs)
 	EVT_UPDATE_UI (ID_FILE_SAVE_PROJECT, CMainFrame::OnUpdateFileSaveProject)
 	EVT_UPDATE_UI (ID_FILE_SAVE_PROJECT_AS, CMainFrame::OnUpdateFileSaveProjectAs)
-	EVT_UPDATE_UI (ID_FILE_PRINT, CMainFrame::OnUpdateFilePrint)
-	EVT_UPDATE_UI (ID_PRINT_PREVIEW, CMainFrame::OnUpdateFilePrintPreview)
-	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMainFrame::OnUpdateFilePrintSetup)
+	EVT_UPDATE_UI (ID_FILE_PRINT, CMainFrame::OnUpdateFilePrint)	// wxID_PRINT
+	EVT_UPDATE_UI (ID_FILE_PRINT_PREVIEW, CMainFrame::OnUpdateFilePrintPreview)	// wxID_PREVIEW
+	EVT_UPDATE_UI (ID_FILE_PAGE_SETUP, CMainFrame::OnUpdateFilePrintSetup)
 
 				// Edit Menu Items
 	EVT_UPDATE_UI (ID_EDIT_UNDO, CMainFrame::OnUpdateEditUndo)
@@ -210,7 +231,7 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 
 				// View Menu Items
 	EVT_UPDATE_UI (ID_VIEW_TOOLBAR, CMainFrame::OnUpdateViewToolBar)
-	EVT_UPDATE_UI (ID_VIEW_STATUS_BAR, CMainFrame::OnUpdateViewStatusBar)
+	//EVT_UPDATE_UI (ID_VIEW_STATUS_BAR, CMainFrame::OnUpdateViewStatusBar)
 	EVT_UPDATE_UI (ID_VIEW_COORDINATES_BAR, CMainFrame::OnUpdateViewCoordinatesBar)
 
 				// Project Menu Items
@@ -282,7 +303,7 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 	EVT_UPDATE_UI (ID_ZOOMINFO, CMainFrame::OnUpdateToolBarZoomInfo)
 	EVT_UPDATE_UI (ID_OVERLAY, CMainFrame::OnUpdateToolBarOverlay)
 
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 		EVT_TOOL (ID_OVERLAY, CMainFrame::OnToolBarShowOverlay)
 	#endif
 
@@ -293,23 +314,46 @@ BEGIN_EVENT_TABLE (CMainFrame, wxDocParentFrame)
 END_EVENT_TABLE ()
 
 
-
+//#if defined multispec_wxlin || defined multispec_wxmac
 CMainFrame::CMainFrame (
 				wxDocManager*						manager,
-				wxDocParentFrame*					frame,
+				wxFrame*								frame,
+				wxWindowID							id,
 				const wxString& 					title,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
-				long 									type)
-		: wxDocParentFrame (manager,
+				long 									style,
+				const wxString&					name)
+		: MParentFrame (manager,
 									frame,
 									wxID_ANY,
 									title,
 									pos,
 									size,
-									type,
-									_T("MainFrame"))
-
+									style,
+									wxT("MainFrame"))
+//#endif
+/*
+#if defined multispec_wxwin
+		CMainFrame::CMainFrame (
+			wxDocManager*							manager,
+			wxFrame*									parent,
+			wxWindowID								id,
+			const wxString&						title,
+			const wxPoint&							pos,
+			const wxSize&							size,
+			long 										style,
+			const wxString&						wxFrameNameStr)
+		: wxDocMDIParentFrame (manager,
+										parent,
+										wxID_ANY,
+										title,
+										pos,
+										size,
+										style,
+										_T("MainFrame"))
+#endif
+*/
 {
 	m_imageZoomCode = 0;
 	m_controlDelayFlag = TRUE;
@@ -338,6 +382,32 @@ CMainFrame::CMainFrame (
 		wxBitmap zoom1 = wxBITMAP_PNG (zoomx1);
 		wxBitmap zoomout = wxBITMAP_PNG (zoom_out);
 		wxBitmap zoomin = wxBITMAP_PNG (zoom_in);
+	#endif
+
+	#if defined multispec_wxwin
+		SetIcon (wxICON (wxT("mspec.ico")));
+		Boolean		bitmapOKFlag = TRUE;
+		wxBitmap openbmp = wxBitmap (open_xpm);
+		if (!openbmp.IsOk ())
+			bitmapOKFlag = FALSE;
+		wxBitmap savebmp = wxBitmap (save_xpm);
+		wxBitmap cutbmp = wxBitmap (cut_xpm);
+		wxBitmap copybmp = wxBitmap (copy_xpm);
+		wxBitmap pastebmp = wxBitmap (paste_xpm);
+		wxBitmap printbmp = wxBitmap (print_xpm);
+		wxBitmap helpbmp = wxBitmap (help_xpm);
+		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA (overlay);
+		if (!overlayi.IsOk ())
+			bitmapOKFlag = FALSE;
+		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA (zoomx1);
+		if (!zoom1.IsOk ())
+			bitmapOKFlag = FALSE;
+		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA (zoom_out);
+		if (!zoomout.IsOk ())
+			bitmapOKFlag = FALSE;
+		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA (zoom_in);
+		if (!zoomin.IsOk ())
+			bitmapOKFlag = FALSE;
 	#endif
 	
 	m_menubar1 = new wxMenuBar (0);
@@ -460,11 +530,21 @@ CMainFrame::CMainFrame (
 
 	filemenu->AppendSeparator ();
 
+	wxMenuItem* m_menuItem16;
+	m_menuItem16 = new wxMenuItem (filemenu,
+												ID_FILE_PAGE_SETUP,
+												wxString (wxT("P&age Setup...")),
+												wxEmptyString,
+												wxITEM_NORMAL);	// wxID_PAGE_SETUP
+	filemenu->Append (m_menuItem16);
+	m_menuItem16->Enable (false);
+
 	wxMenuItem* m_menuItem14;
 	m_menuItem14 = new wxMenuItem (
 								filemenu,
 								ID_FILE_PRINT,
-								wxString (wxT("&Print Text...")) + wxT('\t') + wxT("Ctrl+P"),
+                        //wxID_PRINT,
+								wxString (wxT("&Print...")) + wxT('\t') + wxT("Ctrl+P"),
 								wxEmptyString,
 								wxITEM_NORMAL); // wxID_PRINT
 	filemenu->Append (m_menuItem14);
@@ -472,21 +552,12 @@ CMainFrame::CMainFrame (
 
 	wxMenuItem* m_menuItem15;
 	m_menuItem15 = new wxMenuItem (filemenu,
-												ID_PRINT_PREVIEW,
+                                    ID_FILE_PRINT_PREVIEW,
 												wxString (wxT("Print Preview")),
 												wxEmptyString,
 												wxITEM_NORMAL); // wxID_PREVIEW
 	filemenu->Append (m_menuItem15);
 	m_menuItem15->Enable (false);
-
-	wxMenuItem* m_menuItem16;
-	m_menuItem16 = new wxMenuItem (filemenu,
-												wxID_PAGE_SETUP,
-												wxString (wxT("P&rint Setup")),
-												wxEmptyString,
-												wxITEM_NORMAL);
-	filemenu->Append (m_menuItem16);
-	m_menuItem16->Enable (false);
 
 	filemenu->AppendSeparator ();
 
@@ -631,25 +702,27 @@ CMainFrame::CMainFrame (
 
 	m_menubar1->Append (editmenu, wxT("&Edit"));
 
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 		viewmenu = new wxMenu ();
 	
-		wxMenuItem* m_menuItem31;
-		m_menuItem31 = new wxMenuItem (viewmenu,
-													ID_VIEW_TOOLBAR,
-													wxString (wxT("Toolbar")),
-													wxEmptyString,
-													wxITEM_CHECK);
-		viewmenu->Append (m_menuItem31);
-
-		wxMenuItem* m_menuItem32;
-		m_menuItem32 = new wxMenuItem (viewmenu,
+		wxMenuItem* viewToolBarMenuItem;
+		viewToolBarMenuItem = new wxMenuItem (viewmenu,
+															ID_VIEW_TOOLBAR,
+															wxString (wxT("Toolbar")),
+															wxEmptyString,
+															wxITEM_CHECK);
+		viewmenu->Append (viewToolBarMenuItem);
+		viewToolBarMenuItem->Enable (false);
+		/*
+		wxMenuItem* menuItem32;
+		menuItem32 = new wxMenuItem (viewmenu,
 													ID_VIEW_STATUS_BAR,
 													wxString (wxT("Status Bar")),
 													wxEmptyString,
 													wxITEM_CHECK);
-		viewmenu->Append (m_menuItem32);
-
+		viewmenu->Append (menuItem32);
+		menuItem32->Enable (false);
+		*/
 		wxMenuItem* m_menuItem33;
 		m_menuItem33 = new wxMenuItem (
 								viewmenu,
@@ -1098,73 +1171,75 @@ CMainFrame::CMainFrame (
 	optionsmenu->Append (m_menuItem71);
    
 	m_menubar1->Append (optionsmenu, wxT("&Options"));
-
-	windowmenu = new wxMenu ();
-	/*
-	wxMenuItem* m_menuItem86;
-	m_menuItem86 = new wxMenuItem (windowmenu,
-												wxID_ANY,
-												wxString (wxT("&New Window")),
-												wxEmptyString,
-												wxITEM_NORMAL);
-	windowmenu->Append (m_menuItem86);
 	
-	wxMenuItem* m_menuItem87;
-	m_menuItem87 = new wxMenuItem (windowmenu,
-												wxID_ANY,
-												wxString (wxT("&Cascade")),
-												wxEmptyString,
-												wxITEM_NORMAL);
-	windowmenu->Append (m_menuItem87);
-
-	wxMenuItem* m_menuItem88;
-	m_menuItem88 = new wxMenuItem (windowmenu,
-												wxID_ANY,
-												wxString (wxT("&Tile")),
-												wxEmptyString,
-												wxITEM_NORMAL);
-	windowmenu->Append (m_menuItem88);
+	#if defined multispec_wxlin || defined multispec_wxmac
+		windowmenu = new wxMenu ();
+		/*
+		wxMenuItem* m_menuItem86;
+		m_menuItem86 = new wxMenuItem (windowmenu,
+													wxID_ANY,
+													wxString (wxT("&New Window")),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowmenu->Append (m_menuItem86);
 	
-	wxMenuItem* m_menuItem89;
-	m_menuItem89 = new wxMenuItem (windowmenu,
-												wxID_ANY,
-												wxString (wxT("Arrange Icons")),
-												wxEmptyString,
-												wxITEM_NORMAL);
-	windowmenu->Append (m_menuItem89);
+		wxMenuItem* m_menuItem87;
+		m_menuItem87 = new wxMenuItem (windowmenu,
+													wxID_ANY,
+													wxString (wxT("&Cascade")),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowmenu->Append (m_menuItem87);
 
-	windowmenu->AppendSeparator ();
-	*/
-	#if defined multispec_wxlin
-		wxMenuItem* m_menuItem91;
-		m_menuItem91 = new wxMenuItem (
-							windowmenu,
-							ID_WINDOW_NEW_SELECTION_GRAPH,
-							wxString (wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
-							wxEmptyString,
-							wxITEM_NORMAL);
-		windowmenu->Append (m_menuItem91);
-	 
+		wxMenuItem* m_menuItem88;
+		m_menuItem88 = new wxMenuItem (windowmenu,
+													wxID_ANY,
+													wxString (wxT("&Tile")),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowmenu->Append (m_menuItem88);
+	
+		wxMenuItem* m_menuItem89;
+		m_menuItem89 = new wxMenuItem (windowmenu,
+													wxID_ANY,
+													wxString (wxT("Arrange Icons")),
+													wxEmptyString,
+													wxITEM_NORMAL);
+		windowmenu->Append (m_menuItem89);
+
 		windowmenu->AppendSeparator ();
+		*/
+		#if defined multispec_wxlin
+			wxMenuItem* m_menuItem91;
+			m_menuItem91 = new wxMenuItem (
+								windowmenu,
+								ID_WINDOW_NEW_SELECTION_GRAPH,
+								wxString (wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
+								wxEmptyString,
+								wxITEM_NORMAL);
+			windowmenu->Append (m_menuItem91);
+	 
+			windowmenu->AppendSeparator ();
 
-		wxMenuItem* m_menuItem92;
-		m_menuItem92 = new wxMenuItem (windowmenu,
-													ID_WINDOW_TEXT_OUTPUT,
-													wxString (wxT("Text Output")),
-													wxEmptyString,
-													wxITEM_CHECK);
-		windowmenu->Append (m_menuItem92);
+			wxMenuItem* m_menuItem92;
+			m_menuItem92 = new wxMenuItem (windowmenu,
+														ID_WINDOW_TEXT_OUTPUT,
+														wxString (wxT("Text Output")),
+														wxEmptyString,
+														wxITEM_CHECK);
+			windowmenu->Append (m_menuItem92);
 
-		wxMenuItem* m_menuItem93;
-		m_menuItem93 = new wxMenuItem (windowmenu,
-													ID_WINDOW_PROJECT,
-													wxString (wxT("Project")),
-													wxEmptyString,
-													wxITEM_CHECK);
-		windowmenu->Append (m_menuItem93);
-	#endif
+			wxMenuItem* m_menuItem93;
+			m_menuItem93 = new wxMenuItem (windowmenu,
+														ID_WINDOW_PROJECT,
+														wxString (wxT("Project")),
+														wxEmptyString,
+														wxITEM_CHECK);
+			windowmenu->Append (m_menuItem93);
+		#endif	// defined 
 
-	m_menubar1->Append (windowmenu, wxT("&Window"));
+		m_menubar1->Append (windowmenu, wxT("&Window"));
+	#endif	// #if defined multispec_wxlin || defined multispec_wxmac
 
 	helpmenu = new wxMenu ();
 	wxMenuItem* m_menuItem2;
@@ -1179,11 +1254,13 @@ CMainFrame::CMainFrame (
 	
 	SetMenuBar (m_menubar1);
 	
+			// Now modifiy the default Window menu items for mac and win
+
 	#if defined multispec_wxmac
 		int menu = m_menubar1->FindMenu (wxT("Window"));
-		wxMenu* windowsMenu = m_menubar1->GetMenu (menu);
+		wxMenu* windowMenu = m_menubar1->GetMenu (menu);
 		
-		windowsMenu->AppendSeparator ();
+		windowMenu->AppendSeparator ();
 
 		wxMenuItem* m_menuItem91;
 		m_menuItem91 = new wxMenuItem (
@@ -1192,10 +1269,39 @@ CMainFrame::CMainFrame (
 							wxString (wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
 							wxEmptyString,
 							wxITEM_NORMAL);
-		windowsMenu->Append (m_menuItem91);
+		windowMenu->Append (m_menuItem91);
 	#endif
+
+	#if defined multispec_wxwin
+		wxMenu* windowMenu = GetWindowMenu ();
+			
+				// Remove the 4-6 menu items
+				// Modified wxWidgets mdi.cpp to do this.
+		
+		int						menuID;
+		//wxMenuItem* menuItem = windowMenu->FindItemByPosition (5);
+		//wxString menuItemLabel = menuItem->GetItemLabelText ();
+
+		menuID = windowMenu->FindItem (wxT("Arrange Icons"));
+		windowMenu->Delete (menuID);
+		menuID = windowMenu->FindItem (wxT("Next"));
+		windowMenu->Delete (menuID);
+		menuID = windowMenu->FindItem (wxT("Previous"));
+		windowMenu->Delete (menuID);
+		
+		//windowMenu->AppendSeparator ();
+
+		wxMenuItem* m_menuItem91;
+		m_menuItem91 = new wxMenuItem (
+								windowMenu,
+								ID_WINDOW_NEW_SELECTION_GRAPH,
+								wxString (wxT("New Selection Window")) + wxT('\t') + wxT("Ctrl+2"),
+								wxEmptyString,
+								wxITEM_NORMAL);
+		windowMenu->Append (m_menuItem91);
+	#endif	// defined multispec_wxwin
 	
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 		m_toolBar1 = CreateToolBar (wxTB_HORIZONTAL, wxID_ANY);
 		m_toolBar1->SetToolBitmapSize (wxSize (16, 16));
 		m_toolBar1->AddTool (ID_IMAGE_OPEN,
@@ -1220,7 +1326,7 @@ CMainFrame::CMainFrame (
 									cutbmp,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxEmptyString,
+									wxT("Cut"),
 									wxEmptyString);
 	
 		m_toolBar1->AddTool (wxID_COPY,
@@ -1228,7 +1334,7 @@ CMainFrame::CMainFrame (
 									copybmp,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxEmptyString,
+									wxT("Copy"),
 									wxEmptyString);
 	
 		m_toolBar1->AddTool (wxID_PASTE,
@@ -1236,11 +1342,11 @@ CMainFrame::CMainFrame (
 									pastebmp,
 									wxNullBitmap,
 									wxITEM_NORMAL,
-									wxEmptyString,
+									wxT("Paste"),
 									wxEmptyString);
 		m_toolBar1->AddSeparator ();
 	
-		m_toolBar1->AddTool (ID_FILE_PRINT,
+		m_toolBar1->AddTool (wxID_PRINT,
 									wxT("tool"),
 									printbmp,
 									wxNullBitmap,
@@ -1263,7 +1369,7 @@ CMainFrame::CMainFrame (
 																			ID_MAGNIFICATION,
 																			zoom1,
 																			wxDefaultPosition,
-																			wxSize (32, 32),
+																			wxSize (16, 16),
 																			wxBORDER_NONE+wxBU_EXACTFIT);
    	bpButtonX1->SetToolTip (wxT("Zoom image to X1.0 magnification"));
 		bpButtonX1->Bind (wxEVT_LEFT_DOWN, &CMainFrame::DoZoomToOne, this);
@@ -1274,7 +1380,7 @@ CMainFrame::CMainFrame (
 																		ID_ZOOM_IN,
 																		zoomin,
 																		wxDefaultPosition,
-																		wxSize (32, 32),
+																		wxSize (16, 16),
 																		wxBORDER_NONE+wxBU_EXACTFIT);
    	bpButtonZoomIn->SetToolTip (
    				wxT("Zoom into image. Use shift key to zoom as fast as system can."));
@@ -1286,7 +1392,7 @@ CMainFrame::CMainFrame (
 																		ID_ZOOM_OUT,
 																		zoomout,
 																		wxDefaultPosition,
-																		wxSize (32, 32),
+																		wxSize (16, 16),
 																		wxBORDER_NONE+wxBU_EXACTFIT);
 		bpButtonZoomOut->SetToolTip (
    				wxT("Zoom out of image. Use shift key to zoom as fast as system can."));
@@ -1306,6 +1412,19 @@ CMainFrame::CMainFrame (
    	m_zoomText->SetToolTip (wxT("Displays current active image window magnification"));
 
 		m_toolBar1->AddSeparator ();
+		wxBitmapButton* bpButtonOverlay = new wxBitmapButton (
+																		m_toolBar1,
+																		ID_OVERLAY,
+																		overlayi,
+																		wxDefaultPosition,
+																		wxSize (16, 16),
+																		wxBORDER_NONE + wxBU_EXACTFIT);
+		bpButtonOverlay->SetToolTip (wxT("Control image and vector overlays on image"));
+		bpButtonOverlay->Bind (wxEVT_BUTTON, &CMainFrame::OnToolBarShowOverlay, this);
+		m_toolBar1->AddControl (bpButtonOverlay);
+		m_toolBar1->EnableTool (ID_OVERLAY, false);
+		/*
+		m_toolBar1->AddSeparator ();
 		m_toolBar1->AddTool (ID_OVERLAY,
 									wxT("tool"),
 									overlayi,
@@ -1314,10 +1433,18 @@ CMainFrame::CMainFrame (
 									wxT("Control image and vector overlays on active image window"),
 									wxEmptyString);
 		m_toolBar1->EnableTool (ID_OVERLAY, false);
-
+		*/
+		SetToolBar (m_toolBar1);
 		m_toolBar1->Realize ();
-		Maximize (true);
-	#endif	// defined multispec_wxlin
+		viewToolBarMenuItem->Enable (true);
+		viewToolBarMenuItem->Check (true);
+		#if defined multispec_wxlin
+			Maximize (true);
+		#endif
+		#if defined multispec_wxwin
+			Maximize (false);
+		#endif
+	#endif	// defined multispec_wxlin || defined multispec_wxwin
 	
 	SetFont (*wxSMALL_FONT);
 
@@ -1453,7 +1580,7 @@ void CMainFrame::OnAbout (
 				wxCommandEvent& 					event)
 
 {
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 		CMAbout aboutDialog (this);
 	#endif
 	#if defined multispec_wxmac
@@ -1517,6 +1644,17 @@ void CMainFrame::OnProcDisplayImage (wxCommandEvent& event)
 		DisplayImage ();
 
 }	// end "OnProcDisplayImage"
+
+
+
+void CMainFrame::OnEditClear (
+				wxCommandEvent& 					event)
+
+{
+	if (gActiveWindowType == kOutputWindowType)
+		gOutputViewCPtr->m_textsw->Clear ();
+	
+}	// end "OnEditClear"
 
 
 
@@ -1630,7 +1768,22 @@ void CMainFrame::OnEditCopy (
 {
 	if (gActiveWindowType == kOutputWindowType)
 		gOutputViewCPtr->m_textsw->Copy ();
-	
+		
+	else if (gActiveWindowType == kImageWindowType)
+		gActiveImageViewCPtr->DoEditCopyImage ();
+		
+	else if (gActiveWindowType == kGraphicsWindowType)
+		{
+		if (gTheActiveWindow != NULL)
+			{
+			CMGraphFrame* graphFrameCPtr = ((CMGraphView*)gTheActiveWindow)->m_frame;
+			if (graphFrameCPtr != NULL)
+				graphFrameCPtr->m_graphViewCPtr->DoEditCopyGraph ();
+				
+			}	// end "if (gTheActiveWindow != NULL)"
+			
+		}	// end "else if (gActiveWindowType == kGraphicsWindowType)"
+		
 }	// end "OnEditCopy"
 
 
@@ -1875,6 +2028,43 @@ void CMainFrame::OnFileOpenThematic (
 
 
 
+void CMainFrame::OnPageSetup (
+				wxCommandEvent& 					event)
+
+{
+   gProcessorCode = kPrintProcessor;
+   m_docManager->OnPageSetup(event);
+   event.Skip(true);
+	
+}	// end "OnPageSetup"
+
+
+
+void CMainFrame::OnPrint (
+				wxCommandEvent& 					event)
+
+{
+   gProcessorCode = kPrintProcessor;
+   m_docManager->OnPrint(event);
+   gProcessorCode = 0;
+   event.Skip(true);
+	
+}	// end "OnPrint"
+
+
+
+void CMainFrame::OnPrintPreview (
+				wxCommandEvent& 					event)
+
+{
+   gProcessorCode = kPrintProcessor;
+   m_docManager->OnPreview(event);
+   event.Skip(true);
+	
+}	// end "OnPrintPreview"
+
+
+
 void CMainFrame::OnFileSave (
 				wxCommandEvent& 					event)
 
@@ -2002,7 +2192,7 @@ void CMainFrame::OnIdle (
 			
 		}	// end "if (m_imageZoomCode > 0 && ...)"
 	
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin  || defined multispec_wxwin
 		if (m_TOOL_PARAMETER_file_flag)
 			{
 			m_TOOL_PARAMETER_file_flag = false;
@@ -2580,7 +2770,7 @@ void CMainFrame::OnProjClearStats (
 				wxCommandEvent& 					event)
 
 {
-    ProjectMenuClearStatistics ();
+    ProjectMenuClearStatistics (NULL);
 
 }	// end "OnProjClearStats"
 
@@ -2656,10 +2846,30 @@ void CMainFrame::OnToolBarShowOverlay (
 
 
 void CMainFrame::OnUpdateEditClear (
-				wxUpdateUIEvent& 					pCmdUI)
+				wxUpdateUIEvent& 					event)
 
 {
-    pCmdUI.Enable (FALSE);
+	if (gActiveWindowType == kOutputWindowType)
+		{
+		long 		from,
+					to;
+		
+		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
+		if (from != to)
+			{
+			event.SetText (wxT("Clear Text Selection"));
+			event.Enable (true);
+			
+			}	// end "if (from != to)"
+
+		else	// no text selected
+			{
+			event.SetText (wxT("Clear"));
+			event.Enable (false);
+			
+			}	// end "else no text selected"
+		
+		}	// end "else if (gActiveWindowType == kOutputWindowType)"
 
 }	// end "OnUpdateEditClear"
 
@@ -2733,22 +2943,20 @@ void CMainFrame::OnUpdateEditCopy (
 				wxUpdateUIEvent& 					pCmdUI)
 
 {
-	bool									enableFlag = false,
-											defaultTextFlag = true;
+	bool									enableFlag = false;
 	
 	
 	if (gActiveWindowType == kImageWindowType)
 		{
-		/* Do not change text until implemented
 		Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
 
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
 																								kLock);
-
-		Boolean enableFlag = UpdateEditImageCopy (&pCmdUI, windowInfoPtr);
+		if (windowInfoPtr != NULL)
+			enableFlag = UpdateEditImageCopy (&pCmdUI, windowInfoPtr);
 
 		CheckAndUnlockHandle (windowInfoHandle);
-		*/
+		
 		}	// end "if (gActiveWindowType == kImageWindowType)"
 	
 	else if (gActiveWindowType == kOutputWindowType)
@@ -2756,19 +2964,36 @@ void CMainFrame::OnUpdateEditCopy (
 		long 		from,
 					to;
 		
-		
-		pCmdUI.SetText (wxT("Copy Text\tCtrl+C"));
-		defaultTextFlag = false;
-		
 		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
 		if (from != to)
-			enableFlag = true;
+			pCmdUI.SetText (wxT("Copy Text Selection\tCtrl+C"));
+
+		else	// no text selected
+			pCmdUI.SetText (wxT("Copy Text\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			if (from != to)
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Selected Text"));
+
+			else	// no text selected
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Text"));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
+			
+		enableFlag = true;
+
+		}	// else if (gActiveWindowType == kOutputWindowType)
 	
-		}	// end "else if (gActiveWindowType == kOutputWindowType)"
+	else if (gActiveWindowType == kGraphicsWindowType)
+		{
+		enableFlag = UpdateEditGraphicsCopy (&pCmdUI);
+		//pCmdUI.SetText (wxT("Copy Graph\tCtrl+C"));
+		//enableFlag = true;
+
+		}	// else if (gActiveWindowType == kGraphicsWindowType)
 	
-	if (defaultTextFlag)
+	else // this window can not be copied
 		pCmdUI.SetText (wxT("Copy\tCtrl+C"));
-	
+
 	pCmdUI.Enable (enableFlag);
 	
 }	// end "OnUpdateEditCopy"
@@ -2987,7 +3212,6 @@ void CMainFrame::OnUpdateEditSelectAll (
 				wxUpdateUIEvent& 					event)
 
 {
-	
 	if (gActiveWindowType == kImageWindowType ||
 													gActiveWindowType == kThematicWindowType)
 		{
@@ -3009,8 +3233,8 @@ void CMainFrame::OnUpdateEditSelectAll (
 		{
 		UpdateEditTextSelectAll (&event);
 		event.Enable (false);
-      if (gOutputViewCPtr->m_textsw->GetNumberOfLines () > 0 &&
-      									gOutputViewCPtr->m_textsw->GetLineLength (0) > 0)
+      if (gOutputViewCPtr->m_textsw->GetNumberOfLines () > 1 &&
+      									gOutputViewCPtr->m_textsw->GetLineLength (1) > 0)
          event.Enable (true);
 		
 		}	// end "else if (gActiveWindowType == kOutputWindowType)"
@@ -3205,9 +3429,59 @@ void CMainFrame::OnUpdateFilePrint (
 				CCmdUI& 								pCmdUI)
 
 {
+	Boolean								enableFlag = FALSE;
+	
+	
     		// Disable until implemented.
 	
-    pCmdUI.Enable (false);
+	if (gActiveWindowType == kImageWindowType ||
+					gActiveWindowType == kThematicWindowType)
+		{
+		Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
+
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
+																								kLock);
+		if (windowInfoPtr != NULL)
+			enableFlag = UpdateFileImagePrint (&pCmdUI, windowInfoPtr);
+
+		CheckAndUnlockHandle (windowInfoHandle);
+		
+		}	// end "if (gActiveWindowType == kImageWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		long 		from,
+					to;
+		
+		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
+		if (from != to)
+			pCmdUI.SetText (wxT("Print Text Selection...\tCtrl+C"));
+
+		else	// no text selected
+			pCmdUI.SetText (wxT("Print Text...\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			if (from != to)
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Print Selected Text..."));
+
+			else	// no text selected
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Print Text..."));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
+			
+		enableFlag = true;
+		
+		}	// else if (gActiveWindowType == kOutputWindowType)
+	
+	else if (gActiveWindowType == kGraphicsWindowType)
+		{
+		enableFlag = UpdateFileGraphPrint (&pCmdUI);
+
+		}	// else if (gActiveWindowType == kGraphicsWindowType)
+	
+	else // this window can not be printed
+		pCmdUI.SetText (wxT("Print\tCtrl+C"));
+
+	pCmdUI.Enable (enableFlag);
 
 }	// end "OnUpdateFilePrint"
 
@@ -3218,8 +3492,79 @@ void CMainFrame::OnUpdateFilePrintPreview (
 
 {
 			// Disable until implemented
+			
+	Boolean								enableFlag = FALSE;
 	
-	pCmdUI.Enable (false);
+	
+    		// Disable until implemented.
+	
+	if (gActiveWindowType == kImageWindowType ||
+					gActiveWindowType == kThematicWindowType)
+		{
+		Handle windowInfoHandle = GetActiveImageWindowInfoHandle ();
+
+		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle,
+																								kLock);
+		if (windowInfoPtr != NULL)
+			{
+			//enableFlag = UpdateFileImagePrint (&pCmdUI, windowInfoPtr);
+			pCmdUI.SetText (wxT("Preview Print Image...\tCtrl+C"));
+			enableFlag = true;
+			
+			}	// end "if (windowInfoPtr != NULL)"
+
+		CheckAndUnlockHandle (windowInfoHandle);
+		
+		}	// end "if (gActiveWindowType == kImageWindowType)"
+	
+	else if (gActiveWindowType == kOutputWindowType)
+		{
+		long 		from,
+					to;
+		
+		gOutputViewCPtr->m_textsw->GetSelection (&from, &to);
+		if (from != to)
+			pCmdUI.SetText (wxT("Preview Print Text Selection...\tCtrl+C"));
+
+		else	// no text selected
+			pCmdUI.SetText (wxT("Preview Print Text...\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			if (from != to)
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Preview Print Selected Text..."));
+
+			else	// no text selected
+				m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Preview Print Text..."));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
+			
+		enableFlag = true;
+		
+		}	// else if (gActiveWindowType == kOutputWindowType)
+	
+	else if (gActiveWindowType == kGraphicsWindowType)
+		{
+	#if defined multispec_mac 
+			SetMenuItemText (gMultiSpecMenus[kFileM],
+									kPrintOutput,
+									"\pPreview Print Graph...");
+		#endif	// defined multispec_mac
+		
+		#if defined multispec_win
+			pCmdUI.SetText ((LPCTSTR)_T ("&Preview Print Graph...\tCtrl+P"));
+		#endif	// defined multispec_win
+		
+		#if defined multispec_wx
+			pCmdUI.SetText (wxT ("Preview Print Graph...\tCtrl+P"));
+		#endif	// defined multispec_wx
+	
+		enableFlag = true;
+
+		}	// else if (gActiveWindowType == kGraphicsWindowType)
+	
+	else // this window can not be printed
+		pCmdUI.SetText (wxT("Preview Print\tCtrl+C"));
+	
+	pCmdUI.Enable (enableFlag);
 
 }	// end "OnUpdateFilePrintPreview"
 
@@ -3231,7 +3576,7 @@ void CMainFrame::OnUpdateFilePrintSetup (
 {
 			// Set to false until set up.
 	
-	pCmdUI.Enable (false);
+	pCmdUI.Enable (true);
 
 }	// end "OnUpdateFilePrintSetup"
 
@@ -3591,10 +3936,22 @@ void CMainFrame::OnUpdateProcReformatCompareImages (
 				wxUpdateUIEvent& 					pCmdUI)
 
 {
-	Boolean enableFlag = FALSE;
+	SInt16								listLength;
+	
+	Boolean 								enableFlag = FALSE;
+	
 
-	if (gActiveImageWindowInfoH != NULL)
+
+	GetCompareToImageList (NULL,
+									gActiveImageWindowInfoH,
+									FALSE,
+									NULL,
+									&listLength);
+	if (listLength > 0)
 		enableFlag = TRUE;
+
+	//if (gActiveImageWindowInfoH != NULL && gNumberOfIWindows >= 2)
+	//	enableFlag = TRUE;
 
 	pCmdUI.Enable (enableFlag);
 
@@ -4139,21 +4496,31 @@ void CMainFrame::OnUpdateToolBarZoomOut (
 void CMainFrame::OnUpdateViewToolBar (
 				wxUpdateUIEvent& 					pCmdUI)
 
-{
-    pCmdUI.Enable (FALSE);
+{	
+	#if defined multispec_wxlin || defined multispec_wxmac
+		pCmdUI.Enable (FALSE);
+	#endif
+	#if defined multispec_wxwin
+		pCmdUI.Enable (TRUE);
+	#endif
 
 }	// end "OnUpdateViewToolBar"
 
 
-
+/*
 void CMainFrame::OnUpdateViewStatusBar (
 				wxUpdateUIEvent& 					pCmdUI)
 
 {
-    pCmdUI.Enable (FALSE);
+	#if defined multispec_wxlin || defined multispec_wxmac
+		pCmdUI.Enable (FALSE);
+	#endif
+	#if defined multispec_wxwin
+		pCmdUI.Enable (FALSE);
+	#endif
 
 }	// end "OnUpdateViewStatusBar"
-
+*/
 
 
 void CMainFrame::OnUpdateViewCoordinatesBar (
@@ -4227,6 +4594,36 @@ void CMainFrame::OnUpdateWindowTextOutput (
 		
 }	// end "OnUpdateWindowTextOutput"
 
+
+
+void CMainFrame::OnViewToolBar (
+	wxCommandEvent& event)
+
+{
+			// Toggle the tool bar
+
+	if (m_toolBar1->IsShownOnScreen())
+		{
+		m_toolBar1->Show (false);
+		}
+	else	// not shown on screen
+		m_toolBar1->Show (true);
+
+}	// end "OnViewToolBar"
+
+
+/*
+void CMainFrame::OnViewStatusBar (
+	wxCommandEvent& event)
+
+{
+			// Toggle the status bar
+
+	//if (gActiveImageViewCPtr != NULL)
+	//	gActiveImageViewCPtr->m_frame->ShowCoordinateView (2);
+
+}	// end "OnViewStatusBar"
+*/
 
 
 void CMainFrame::OnViewCoordinatesBar (
@@ -4400,12 +4797,12 @@ void CMainFrame::UpdateStatusBar (
 		if (magnification < 1)
 			fieldPrecision = 3;
 
-		sprintf (tempString, "x%4.*f", fieldPrecision, magnification);
+		snprintf (tempString, 32, "x%4.*f", fieldPrecision, magnification);
 		
 		}	// end "if (magnification > 0)"
 
 	else	// magnification <= 0
-		sprintf (tempString, "");
+		snprintf (tempString, 32, "");
 
 			// Modify the zoom information at status bar to the toolbar
 
@@ -4438,7 +4835,7 @@ void CMainFrame::UpdateWindowMenuList ()
 
 			// First make sure the image and graph window references are removed.
 	
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || multispec_wxwin
 		ClearMenuItems (windowmenu, 4);
 	#endif
 	#if defined multispec_wxmac

@@ -20,7 +20,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 // Created:					??/??/2009
-//	Revision date:			11/21/2019
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -29,8 +29,9 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMListDataDialog class.
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
 			(char*)&gTextString3,
+									256,
 			" xListDataDialog: (): %s",
 			gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -65,7 +66,7 @@ BEGIN_EVENT_TABLE (CMListDataDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ClassCombo, CMListDataDialog::OnClassComboSelendok)
 		EVT_COMBOBOX (IDC_ChannelCombo, CMListDataDialog::OnChannelComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMListDataDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMListDataDialog::OnClassComboSelendok)
 	#endif

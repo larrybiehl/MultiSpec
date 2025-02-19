@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			08/25/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -143,7 +143,7 @@ void ActivateDialogItem (
 //							FalseColorPaletteDialog in SPalette.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/10/1996
-//	Revised By:			Larry L. Biehl			Date: 04/09/2022
+//	Revised By:			Larry L. Biehl			Date: 04/01/2023
 
 SInt32 AddChannelsToDialogList (
 			#ifdef multispec_wx
@@ -170,13 +170,14 @@ SInt32 AddChannelsToDialogList (
 	FileInfoPtr							localFileInfoPtr;
 	
 	SInt32								estimatedLengthListDescription;
+	
+	UInt32								channelNum;
 
 	SInt16								channel,
-											channelNum,
+											channelStringLength,
 											fileChanNum,
 											fileInfoIndex,
 											index,
-											row,
 											startString;
 									
 									
@@ -208,7 +209,18 @@ SInt32 AddChannelsToDialogList (
 		
 		if (numberInputChannels > 0)
 			{
-			row = LAddRow ((SInt16)numberInputChannels, 0, listHandle);
+			LAddRow ((SInt16)numberInputChannels, 0, listHandle);
+			
+					// Get number digits for max channel
+						
+			if (availableFeaturePtr != NULL)
+				channelNum = availableFeaturePtr[numberInputChannels-1];
+				
+			else	// availableFeaturePtr == NULL
+				channelNum = numberInputChannels;
+					
+			NumToString (channelNum, gTextString);
+			channelStringLength = gTextString[0];
 			 
 			index = 0;
 			cell.h = 0;
@@ -228,7 +240,7 @@ SInt32 AddChannelsToDialogList (
 					channelNum = channel;
 				
 				channelNum++;		
-				NumToString ((UInt32)channelNum, gTextString);
+				NumToString ((UInt32)channelNum, gTextString, channelStringLength);
 				
 						// If description for channel exists, add the description	
 						// the cell.																
@@ -344,7 +356,7 @@ SInt32 AddChannelsToDialogList (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/????
-//	Revised By:			Larry L. Biehl			Date: 02/27/2013
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 SInt16 CheckMaxValue (
 				DialogPtr							dialogPtr,
@@ -376,7 +388,14 @@ SInt16 CheckMaxValue (
 															(SInt32)minValue,
 															(SInt32)maxValue))
 				{
-				DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+				DisplayAlert (kErrorAlertID,
+									kStopAlert,
+									0,
+									0,
+									0,
+									gTextString,
+									dialogPtr,
+									kASCIICharString);
 					
 				#if defined multispec_mac
 							// Force the main dialog box to be redrawn.
@@ -423,7 +442,7 @@ SInt16 CheckMaxValue (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/22/2015
-//	Revised By:			Larry L. Biehl			Date: 01/20/2016
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 SInt16 CheckDialogRealValue (
 				DialogPtr							dialogPtr,
@@ -491,7 +510,8 @@ SInt16 CheckDialogRealValue (
 			SetDLogControlHilite (dialogPtr, 1, 255);
 			
 			if (minValueAllowedFlag && maxValueAllowedFlag)
-				numberChars = sprintf ((char*)&gTextString[1],
+				numberChars = snprintf ((char*)&gTextString[1],
+													255,
 													"Enter value >= %.*f and <= %.*f.",
 													numberDecimalPlaces, 
 													minValue,
@@ -499,7 +519,8 @@ SInt16 CheckDialogRealValue (
 													maxValue);	
 			
 			else if (minValueAllowedFlag && !maxValueAllowedFlag)
-				numberChars = sprintf ((char*)&gTextString[1],
+				numberChars = snprintf ((char*)&gTextString[1],
+													255,
 													"Enter value >= %.*f and < %.*f.",
 													numberDecimalPlaces, 
 													minValue,
@@ -507,7 +528,8 @@ SInt16 CheckDialogRealValue (
 													maxValue);
 			
 			else if (!minValueAllowedFlag && maxValueAllowedFlag)
-				numberChars = sprintf ((char*)&gTextString[1],
+				numberChars = snprintf ((char*)&gTextString[1],
+													255,
 													"Enter value > %.*f and <= %.*f.",
 													numberDecimalPlaces, 
 													minValue,
@@ -515,7 +537,8 @@ SInt16 CheckDialogRealValue (
 													maxValue);
 			
 			else 
-				numberChars = sprintf ((char*)&gTextString[1],
+				numberChars = snprintf ((char*)&gTextString[1],
+													255,
 													"Enter value > %.*f and < %.*f.",
 													numberDecimalPlaces, 
 													minValue,
@@ -524,7 +547,14 @@ SInt16 CheckDialogRealValue (
 													
 			gTextString[0] = (UInt8)numberChars;
 													
-			DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+			DisplayAlert (kErrorAlertID,
+									kStopAlert,
+									0,
+									0,
+									0,
+									gTextString,
+									dialogPtr,
+									kASCIICharString);
 				
 			#if defined multispec_mac
 						// Force the main dialog box to be redrawn.
@@ -1365,15 +1395,15 @@ SInt16 DisplayAlert (
 //							NewClassFieldDialog in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/20/1989
-//	Revised By:			Larry L. Biehl			Date: 03/16/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 void DupClassFieldNameAlert (
-				SInt16								classFieldFlag, 
+				DialogPtr							dialogPtr,
+				SInt16								classFieldFlag,
 				UCharPtr								duplicateNamePtr)
 
 {
-	SInt16								returnCode,
-											stringID;
+	SInt16								stringID;
 	
 	
 	if (classFieldFlag == 1)
@@ -1396,7 +1426,7 @@ void DupClassFieldNameAlert (
 										(char*)gTextString3,
 										TRUE,
 										(char*)&duplicateNamePtr[1]))
-		returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString2);
+		DisplayAlert (kErrorAlertID, 3, 0, 0, 0, gTextString2, dialogPtr, kASCIICharString);
 	
 }	// end "DupClassFieldNameAlert" 
 

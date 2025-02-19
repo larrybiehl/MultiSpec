@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/12/2020
+//	Revision date:			03/30/2023
 //
 //	Language:				C
 //
@@ -29,7 +29,8 @@
 //								selected image files.
 //
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+												256,
 												" GDAL: (filePathPtr hDS): %s %ld%s", 
 												filePathPtr,
 												hDS,
@@ -176,6 +177,8 @@ extern SInt16 ReadGDALHeaderInformation (
 
 extern SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								hdfDataSetSelection,
 				GDALDatasetH						hDS,
 				Boolean								vectorFlag);
 
@@ -2205,7 +2208,8 @@ void HandleGDALErrorMessage (
 		{
 		gdalLastErrorMessagePtr = (char*)CPLGetLastErrorMsg ();
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"%s  GDAL routines data access error:%s  ", 
 					gEndOfLine,
 					gEndOfLine);
@@ -2222,7 +2226,8 @@ void HandleGDALErrorMessage (
 							(gOutputCode | gOutputForce1Code), 
 							TRUE);
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"%s", 
 					gEndOfLine);
 		
@@ -2309,7 +2314,8 @@ Boolean ListGDALDataSetAttributes (
 	
 	if (metadataStringPtrPtr != NULL)
 		{						
-		stringLength = sprintf ((char*)&gTextString[0],
+		stringLength = snprintf ((char*)&gTextString[0],
+										256,
 										"    Global file attribute information:%s",
 										gEndOfLine);
 										
@@ -2323,7 +2329,8 @@ Boolean ListGDALDataSetAttributes (
 			{
 			if (continueFlag) 
 				{
-				stringLength = sprintf ((char*)&gTextString[0],
+				stringLength = snprintf ((char*)&gTextString[0],
+												256,
 												"      ");
 				continueFlag = ListString ((char*)gTextString,  
 													stringLength,  
@@ -2345,7 +2352,8 @@ Boolean ListGDALDataSetAttributes (
 					
 			if (continueFlag) 
 				{
-				stringLength = sprintf ((char*)&gTextString[0],
+				stringLength = snprintf ((char*)&gTextString[0],
+												256,
 												"%s",
 												gEndOfLine);
 				continueFlag = ListString ((char*)gTextString,  
@@ -2361,7 +2369,8 @@ Boolean ListGDALDataSetAttributes (
 													
 			}	// end "while (metadataStringPtrPtr[index] != NULL)"
 						
-		stringLength = sprintf ((char*)&gTextString[0],
+		stringLength = snprintf ((char*)&gTextString[0],
+										256,
 										"    End global file attribute information%s%s",
 										gEndOfLine,
 										gEndOfLine);
@@ -2378,7 +2387,8 @@ Boolean ListGDALDataSetAttributes (
 			continueFlag = ListHDF5FileInformation (fileInfoPtr);
 	#endif		// include_hdf5_capability
 						
-	stringLength = sprintf ((char*)&gTextString[0],
+	stringLength = snprintf ((char*)&gTextString[0],
+									256,
 									"    Selected data set attribute information:%s",
 									gEndOfLine);
 									
@@ -2439,7 +2449,8 @@ Boolean ListGDALDataSetAttributes (
 				
 				if (descriptionStringPtr != NULL && descriptionStringPtr[0] != 0)
 					{
-					stringLength = sprintf ((char*)gTextString,
+					stringLength = snprintf ((char*)gTextString,
+													256,
 													"    Band %u: description = %s%s",
 													(unsigned int)bandIndex,
 													descriptionStringPtr,
@@ -2462,7 +2473,8 @@ Boolean ListGDALDataSetAttributes (
 					index = 0;
 					while (metadataStringPtrPtr[index] != NULL)
 						{
-						stringLength = sprintf ((char*)&gTextString[0],
+						stringLength = snprintf ((char*)&gTextString[0],
+														256,
 														"      %s%s", 
 														metadataStringPtrPtr[index],
 														gEndOfLine);
@@ -2499,7 +2511,8 @@ Boolean ListGDALDataSetAttributes (
 			
 		}	// end "for (dataSet=dataSetStart; dataSet<=dataSetEnd; dataSet++)"
 						
-	stringLength = sprintf ((char*)&gTextString[0],
+	stringLength = snprintf ((char*)&gTextString[0],
+									256,
 									"    End selected data set attribute information%s%s",
 									gEndOfLine,
 									gEndOfLine);
@@ -2701,7 +2714,7 @@ SInt16 LoadGDALHeaderInformation (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/22/2012
-//	Revised By:			Larry L. Biehl			Date: 03/28/2020
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 LoadGDALInformation (
 				FileInfoPtr 						fileInfoPtr, 
@@ -2780,7 +2793,11 @@ SInt16 LoadGDALInformation (
 										
 			fileInfoPtr->format = format;	
 			fileInfoPtr->ancillaryInfoformat = kArcViewType;
-			gdalReturnCode = ReadGDALProjectionInformation (fileInfoPtr, hDS, false);
+			gdalReturnCode = ReadGDALProjectionInformation (fileInfoPtr,
+																			hdfDataSetsPtr,
+																			dataSetIndex,
+																			hDS,
+																			false);
 		
 			//		// For testing:
 			//
@@ -2841,6 +2858,7 @@ SInt16 LoadGDALInformation (
 			if (gGetFileImageType == kThematicImageType)
 				{
 				fileInfoPtr->thematicType = TRUE;
+				fileInfoPtr->origNumberClasses = numberClasses;
 				fileInfoPtr->numberClasses = numberClasses;
 
 				fileInfoPtr->bandInterleave = kBIL;
@@ -3300,6 +3318,8 @@ SInt16 ReadGDALHeaderInformation (
 					*bandInterleaveFormatPtr = kBIL;
 					
 				}	// end "if (metaDataStringPtr != NULL)"
+				
+			//*bandInterleaveFormatPtr = kBIL;
 			
 					// Get the block size.
 			
@@ -3369,10 +3389,12 @@ SInt16 ReadGDALHeaderInformation (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/2011
-//	Revised By:			Larry L. Biehl			Date: 04/05/2020
+//	Revised By:			Larry L. Biehl			Date: 12/24/2023
 
 SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr 						fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								hdfDataSetSelection,
 				GDALDatasetH						hDS,
 				Boolean								vectorFlag)
 
@@ -3897,7 +3919,9 @@ SInt16 ReadGDALProjectionInformation (
 		
 		#if include_hdf5_capability
 			if (fileInfoPtr->format == kHDF5Type || fileInfoPtr->format == kHDF4Type2)
-				GetHDF5ProjectionInformation (fileInfoPtr);
+				GetHDF5ProjectionInformation (fileInfoPtr,
+														hdfDataSetsPtr,
+														hdfDataSetSelection);
 		#endif	// include_hdf5_capability
 			
 		}	// end "if (hDS != NULL)"
@@ -4889,6 +4913,8 @@ SInt16 ReadVectorWithGDALLibrary (
 				stringPtr = layerSpatialRef->GetAttrValue ("SPHEROID");
 				*/
 				returnCode = ReadGDALProjectionInformation (fileInfoPtr,
+																			NULL,
+																			0,
 																			hDS,
 																			true);
 				WindowInfoPtr	windowInfoPtr =

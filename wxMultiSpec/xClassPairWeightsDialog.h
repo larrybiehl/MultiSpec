@@ -91,8 +91,6 @@ class CMClassPairWeightDlg : public CMDialog
 		bool TransferDataToWindow ();
 	
 	
-		wxFont								m_weightsListFont;
-
 		SInt16**								m_weightsListPtrPtr;
 
 		SInt16*								m_defaultClassPairWeightPtr;

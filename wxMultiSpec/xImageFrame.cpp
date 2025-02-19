@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl, Wei-Kang Hsu, Tsung Tai Yeh
 //
-//	Revision date:			04/08/2022
+//	Revision date:			05/03/2023
 //
 //	Language:				C++
 //
@@ -29,12 +29,15 @@
 //								CMImageFrame class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageFrame:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h" 
 
 #include "xMultiSpec.h"
 #include "xImageFrame.h"
@@ -42,29 +45,45 @@
 
 #include "wx/display.h"
 
-#ifdef multispec_wxlin
+#if defined multispec_wxwin
+	#include "wx/mdi.h"
+#endif
+
+#if defined multispec_wxlin || defined multispec_wxwin
 	#include "xToolBar_images.cpp"
 	#include "xCursor_images.cpp"
 #endif
-
+/*
+#ifdef multispec_wxwin
+	#include "blink_open.png"
+	#include "blink_shut.png"
+	#include "overlay.png"
+	#include "zoom_in.png"
+	#include "zoom_out.png"
+	#include "zoomx1.png"
+#endif
+*/
 #define kDefaultMaxLegendWidth 170
 
 Boolean CMImageFrame::s_forcePaletteBackgroundFlag = FALSE;
 
 
-IMPLEMENT_DYNAMIC_CLASS(CMImageFrame, wxDocChildFrame)
+IMPLEMENT_DYNAMIC_CLASS(CMImageFrame, MChildFrame)
 
 
-BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
+BEGIN_EVENT_TABLE (CMImageFrame, MChildFrame)
 	EVT_CHAR_HOOK (CMImageFrame::OnCharHook)
    EVT_KEY_DOWN (CMImageFrame::OnKeyDown)
 	EVT_MAXIMIZE (CMImageFrame::OnMaximizeWindow)
+   EVT_CLOSE (CMImageFrame::OnClose)
 
 	EVT_MENU (ID_DOWN_ARROW, CMImageFrame::DoKeyDownDownArrow)
 	EVT_MENU (ID_LEFT_ARROW, CMImageFrame::DoKeyDownLeftArrow)
 	EVT_MENU (ID_RIGHT_ARROW, CMImageFrame::DoKeyDownRightArrow)
 	EVT_MENU (ID_UP_ARROW, CMImageFrame::DoKeyDownUpArrow)
 	EVT_MENU (ID_FILE_SAVE_AS, CMImageFrame::OnFileSaveAs)
+	//EVT_MENU (ID_FILE_PRINT, CMImageFrame::OnPrint)	// wxID_PRINT
+	//EVT_MENU (ID_FILE_PRINT_PREVIEW, CMImageFrame::OnPrintPreview)	// wxID_PREVIEW
 	EVT_MENU (ID_VIEW_COORDINATES_BAR, CMImageFrame::OnViewCoordinatesBar)
 	EVT_MENU (ID_WINDOW_NEW_SELECTION_GRAPH, CMImageFrame::OnWindowNewSelectionGraph)
 	EVT_MENU (ID_CANCEL_DRAW, CMImageFrame::OnCancelDraw)
@@ -76,9 +95,9 @@ BEGIN_EVENT_TABLE (CMImageFrame, wxDocChildFrame)
 	EVT_UPDATE_UI (ID_FILE_SAVE_AS, CMImageFrame::OnUpdateFileSaveAs)
 	EVT_UPDATE_UI (ID_VIEW_COORDINATES_BAR, CMImageFrame::OnUpdateViewCoordinatesBar)
 	EVT_UPDATE_UI (ID_WINDOW_NEW_SELECTION_GRAPH, CMImageFrame::OnUpdateWindowNewSelectionGraph)
-	EVT_UPDATE_UI (wxID_PRINT, CMImageFrame::OnUpdateFilePrint)
-	EVT_UPDATE_UI (wxID_PREVIEW, CMImageFrame::OnUpdateFilePrintPreview)
-	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMImageFrame::OnUpdateFilePrintSetup)
+	//EVT_UPDATE_UI (ID_FILE_PRINT, CMImageFrame::OnUpdateFilePrint)		// ID_FILE_PRINT,  wxID_PRINT
+	//EVT_UPDATE_UI (ID_FILE_PRINT_PREVIEW, CMImageFrame::OnUpdateFilePrintPreview)		// ID_FILE_PRINT_PREVIEW wxID_PREVIEW
+	//EVT_UPDATE_UI (ID_FILE_PAGE_SETUP, CMImageFrame::OnUpdateFilePrintSetup)	// wxID_PAGE_SETUP
 	EVT_UPDATE_UI (ID_OVERLAY, CMImageFrame::OnUpdateOverlay)
 END_EVENT_TABLE ()
 
@@ -99,53 +118,92 @@ CMImageFrame::CMImageFrame ()
 CMImageFrame::CMImageFrame (
 				wxDocument*							doc,
 				wxView*								view,
-				wxDocParentFrame*					parent)
-		: wxDocChildFrame (doc,
-									view,
-									parent,
-									wxID_ANY,
-									wxT("Image Frame"),
-									wxDefaultPosition,
-									wxDefaultSize,
-									#if defined multispec_wxmac
-										wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT)
-									#else
-										wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP)
-									#endif
+				MParentFrame*						parent)
+		: MChildFrame (doc,
+							view,
+							parent,
+							wxID_ANY,
+							wxT("Image Frame"),
+							wxDefaultPosition,
+							wxDefaultSize,
+							#if defined multispec_wxmac
+								wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT)
+							#endif
+							#if defined multispec_wxlin
+								wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP)
+							#endif
+							#if defined multispec_wxwin
+								wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP,
+								wxT("Image Frame"))
+							#endif
 {
 			// Initialize variables
-	
+
+	Boolean toolbarOKflag = true;
+	#if defined multispec_wxlin
+		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA (overlay);
+		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA (zoomx1);
+		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA (zoom_out);
+		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA (zoom_in);
+	#endif // defined multispec_wxlin
+
 	#if defined multispec_wxmac
 		wxBitmap overlayi = wxBITMAP_PNG (overlay);
 		wxBitmap zoom1 = wxBITMAP_PNG (zoomx1);
 		wxBitmap zoomout = wxBITMAP_PNG (zoom_out);
 		wxBitmap zoomin = wxBITMAP_PNG (zoom_in);
-	#else
-		wxBitmap overlayi = wxBITMAP_PNG_FROM_DATA (overlay);
-		wxBitmap zoom1 = wxBITMAP_PNG_FROM_DATA (zoomx1);
-		wxBitmap zoomout = wxBITMAP_PNG_FROM_DATA (zoom_out);
-		wxBitmap zoomin = wxBITMAP_PNG_FROM_DATA (zoom_in);
 	#endif
-	
+	/*
+	#if defined multispec_wxwin
+		wxBitmap overlayi = wxBITMAP_PNG (overlay.png);
+		if (!overlayi.IsOk ())
+			toolbarOKflag = false;
+		wxBitmap zoom1 = wxBITMAP_PNG (zoomx1.png);
+		if (!zoom1.IsOk ())
+			toolbarOKflag = false;
+		wxBitmap zoomout = wxBITMAP_PNG (zoom_out.png);
+		if (!zoomout.IsOk ())
+			toolbarOKflag = false;
+		wxBitmap zoomin = wxBITMAP_PNG (zoom_in.png);
+		if (!zoomin.IsOk ())
+			toolbarOKflag = false;
+	#endif
+	*/	
 			// Get blink open and shut cursors for thematic images
-	
+
+	Boolean blinkCursorOKFlag = true;
 	#if defined multispec_wxmac
 		wxBitmap blinkOpen = wxBITMAP_PNG (blink_open);
 		wxBitmap blinkShut = wxBITMAP_PNG (blink_shut);
-	#else
+	#endif
+	/*
+	#if defined multispec_wxwin
+		wxBitmap blinkOpen = wxBITMAP_PNG (blink_open.pmg);
+		if (!blinkOpen.IsOk ())
+			blinkCursorOKFlag = false;
+		wxBitmap blinkShut = wxBITMAP_PNG (blink_shut.png);
+		if (!blinkShut.IsOk ())
+			blinkCursorOKFlag = false;
+	#endif
+	*/
+	#if defined multispec_wxlin || defined multispec_wxwin
 		wxBitmap blinkOpen = wxBITMAP_PNG_FROM_DATA (blink_open);
 		wxBitmap blinkShut = wxBITMAP_PNG_FROM_DATA (blink_shut);
-	#endif
+	#endif // defined multispec_wxlin || defined multispec_wxwin
 	
-	wxImage blink_open_image = blinkOpen.ConvertToImage ();
-	blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
-	blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 16);
-	m_blinkOpenCursor = wxCursor (blink_open_image);
+	if (blinkCursorOKFlag)
+		{
+		wxImage blink_open_image = blinkOpen.ConvertToImage ();
+		blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+		blink_open_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 16);
+		m_blinkOpenCursor = wxCursor (blink_open_image);
 	
-	wxImage blink_shut_image = blinkShut.ConvertToImage ();
-	blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
-	blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 16);
-	m_blinkShutCursor = wxCursor (blink_shut_image);
+		wxImage blink_shut_image = blinkShut.ConvertToImage ();
+		blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_X, 16);
+		blink_shut_image.SetOption (wxIMAGE_OPTION_CUR_HOTSPOT_Y, 16);
+		m_blinkShutCursor = wxCursor (blink_shut_image);
+
+		}	// end "if (blinkCursorOKFlag)"
 	
 	m_imageViewCPtr = (CMImageView*)view;
 	m_imageFrameActiveFlag = FALSE;
@@ -312,9 +370,14 @@ CMImageFrame::CMImageFrame (
 	
 		GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
 	
-				// Allow 2 pixel space below toolbar
-	
-		yLocation = 20 + menuHeight + toolBarHeight + 2;
+				// Allow 3 pixel space below toolbar
+				// The 0 Y location starts just below the menu bar for Windows OS)
+
+		yLocation = 3;
+
+		#if defined multispec_wxlin
+			yLocation += toolBarHeight + menuHeight;
+		#endif
 	#endif
 	yLocation += offsetCount * 10;
 	Move (xLocation, yLocation);
@@ -716,6 +779,13 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
 			amountToAllowForHStuff = 7;
 			amountToAllowForVStuff = 33;
       #else	// mygeohub
+			#if defined multispec_wxlin
+				titleToolBarHeight += coordinateBarHeight + titleBarHeight;
+
+				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width -
+																				wxFrameClientRect.width;
+				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
+			#endif
 			#if defined multispec_wxmac
 						// Allow 2 pixels left/top and 4 pixels right/bottom around
 						// edge for border
@@ -725,12 +795,12 @@ void CMImageFrame::GetMinimumDisplaySizeForImage (
 				amountToAllowForHStuff = 2 + 4 + wxFrameRect.width -
 																				wxFrameClientRect.width;
 				amountToAllowForVStuff = 2 + 4 + titleToolBarHeight;
-			#else
-				titleToolBarHeight += coordinateBarHeight + titleBarHeight;
-		
-				amountToAllowForHStuff = 2 * 2 + wxFrameRect.width -
-																				wxFrameClientRect.width;
-				amountToAllowForVStuff = 2 * 2 + titleToolBarHeight;
+			#endif
+			#if defined multispec_wxwin
+				//titleToolBarHeight += coordinateBarHeight + titleBarHeight;
+
+				amountToAllowForHStuff = 2 * 9;
+				amountToAllowForVStuff = 2 * 9 + coordinateBarHeight + 9;
 			#endif
 		#endif
 
@@ -844,7 +914,8 @@ void CMImageFrame::OnChar (
 
 {
 	/*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageFrame:OnChar (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -865,14 +936,15 @@ void CMImageFrame::OnCharHook (
 
 {
 	/*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageFrame:OnCharHook (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 	*/
 	int keyCode = event.GetKeyCode ();
-	int keyUP = WXK_UP;
-	int keyDOWN = WXK_DOWN;
+	//int keyUP = WXK_UP;
+	//int keyDOWN = WXK_DOWN;
 	if ((keyCode == WXK_UP || keyCode == WXK_DOWN) && event.ShiftDown())
 		{
 		char	theChar;
@@ -890,6 +962,16 @@ void CMImageFrame::OnCharHook (
 	event.Skip ();
 	
 }	// end "OnCharHook"
+
+
+
+void CMImageFrame::OnClose (
+            wxCloseEvent&                   event)
+
+{
+   event.Skip ();
+   
+}   // end "OnClose"
 
 
 
@@ -921,7 +1003,7 @@ void CMImageFrame::OnKeyDown (
 				wxKeyEvent& 						event)
 
 {
-	SInt16								windowType;
+	//SInt16								windowType;
 	
 	Boolean								hasCaptureFlag;
 	
@@ -936,7 +1018,7 @@ void CMImageFrame::OnKeyDown (
 				// Also only handle if cursor is over image portion of a thematic image
 				// window.
 		
-		windowType = m_imageViewCPtr->GetWindowType ();
+		//windowType = m_imageViewCPtr->GetWindowType ();
 		
 		}	// end "if (!hasCaptureFlag && gProcessorCode == 0)"
 
@@ -948,9 +1030,17 @@ void CMImageFrame::OnMaximizeWindow (
 				wxMaximizeEvent& 					event)
 
 {
+	MaximizeImageWindow ();
+	
+}	// end "OnMaximizeWindow"
+
+
+
+void CMImageFrame::MaximizeImageWindow ()
+	{
    wxRect 								tempArea;
 	
-	wxPoint 								imgNewOrig = GetPosition (),
+	wxPoint 								imgNewOrig,
    	 									mainOrig;
 	
    WindowInfoPtr 						windowInfoPtr = NULL;
@@ -962,10 +1052,20 @@ void CMImageFrame::OnMaximizeWindow (
          								coordinateBarHeight = 0;
 	
 	
-	#if defined multispec_wxlin
+	wxPoint						screenPosition;
+	wxRect						frameRect;
+	wxRect						frameScreenRect;
+
+	frameRect = GetRect ();
+
+	screenPosition = GetScreenPosition ();
+	frameScreenRect = GetScreenRect ();
+
+	#if defined multispec_wxlin || multispec_wxwin
    	Maximize (false);
 	#endif
-	
+
+	imgNewOrig = GetPosition ();
 	if (m_frameMaximized)
 		{
 				// currently maximized, set to the saved values
@@ -986,7 +1086,7 @@ void CMImageFrame::OnMaximizeWindow (
 		{
 		UInt16 					mainFrameBarHeight = 0,
 									otherLegendStuffHeight = 0;
-		
+
 		m_frameSizeSaved = GetSize ();
 		m_scrollPos = m_imageViewCPtr->m_Canvas->GetScrollPosition ();
 		
@@ -1004,16 +1104,15 @@ void CMImageFrame::OnMaximizeWindow (
 		
 			mainFrameBarHeight = 150;
 			otherLegendStuffHeight = 130;
-		#else	// mygeohub or multispec_wxmac
-			#if defined multispec_wxlin
-   			int		menuHeight,
-   						menuWidth,
-   						toolBarHeight,
+		#else	// multispec_wxlin or multispec_wxmac or multispec_wxwin
+			#if defined multispec_wxlin || defined multispec_wxwin
+   			int		toolBarHeight,
    						toolBarWidth;
+
+			
 	
-				GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
 				GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
-		
+
 				GetMainFrame()->GetClientSize (&clientWidth, &clientHeight);
 				GetMainFrame()->GetPosition (&mainOrig.x, &mainOrig.y);
 		
@@ -1022,8 +1121,17 @@ void CMImageFrame::OnMaximizeWindow (
 				mainOrig.x = 2;
 
 						// Need toallow for MultiSpec Title line in MyGeoHub Workspace
-		
-				mainFrameBarHeight = 27 + menuHeight + toolBarHeight;
+				
+				#if defined multispec_wxlin
+					int		menuWidth, menuHeight;
+					GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+					mainFrameBarHeight = 27 + menuHeight + toolBarHeight;
+				#endif
+				#if defined multispec_wxwin
+					int		height,  width;
+					GetMainFrame()->GetSize (&width, &height);
+					mainFrameBarHeight = height - clientHeight;
+				#endif
 				otherLegendStuffHeight = titleToolBarHeight;
 				clientHeight -= 33;
 		
@@ -1031,7 +1139,7 @@ void CMImageFrame::OnMaximizeWindow (
 						// the display area
 		
 				clientWidth -= 10;
-			#endif
+			#endif	// defined multispec_wxlin || defined multispec_wxwin
 			#if defined multispec_wxmac
 				wxRect	clientRect;
 		
@@ -1054,12 +1162,11 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				clientHeight -= 6;
 				clientWidth -= 6;
-			#endif
-		#endif
+			#endif	// defined multispec_wxmac
+		#endif	// else multispec_wxlin or multispec_wxmac or multispec_wxwin
 		
 				// Set the window height to max (legend height, image size)
 		
-		//if (legendWidth > 0)
 		if (windowInfoPtr->windowType == kThematicWindowType)
 			{
 			legendWidth = windowInfoPtr->legendWidth;
@@ -1087,26 +1194,27 @@ void CMImageFrame::OnMaximizeWindow (
 				
 				m_imageLegendViewCPtr->FindWindow (IDC_PaletteCombo)->GetSize (&hx, &hy);
 				otherLegendStuffHeight += hy;
-				
+				/*
 						// Get the height of one row
 				
 				#if defined multispec_wxlin
 					int legendItemHeight = 23;
 				#endif
-				#if defined multispec_wxmac
-					int legendItemHeight = 21;
+				#if defined multispec_wxmac || defined multispec_wxwin
+					int legendItemHeight = 22;
 				#endif
-				
-				legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->
-								m_legendListBox->m_ilist->GetImageCount () * legendItemHeight;
+				*/
+				legendHeight = m_imageViewCPtr->GetImageLegendListCPtr()->GetLegendFullHeight (0);
+				//legendHeight = m_imageViewCPtr->m_frame->m_imageLegendViewCPtr->
+				//				m_legendListBox->m_ilist->GetImageCount () * legendItemHeight;
 				
 						// Allow for extra space around the combo boxes
 				
 				#if defined multispec_wxlin
 					int extraSpace = 32;
 				#endif
-				#if defined multispec_wxmac
-					int extraSpace = 10;
+				#if defined multispec_wxmac || defined multispec_wxwin
+					int extraSpace = 18;
 				#endif
 
 				legendHeight += otherLegendStuffHeight + coordinateBarHeight + extraSpace;
@@ -1137,7 +1245,7 @@ void CMImageFrame::OnMaximizeWindow (
 		
 				// Realize the modification, adjust scrollbar later
 		
-		#if defined multispec_wxlin
+		#if defined multispec_wxlin || defined multispec_wxwin
 			Restore ();
 		#endif
 		
@@ -1154,7 +1262,7 @@ void CMImageFrame::OnMaximizeWindow (
 			#if defined multispec_wxlin
 				int extraSpace = 15;
 			#endif
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac || defined multispec_wxwin
 				int extraSpace = 11;
 			#endif
 			m_TempLongPoint.h +=
@@ -1196,8 +1304,32 @@ void CMImageFrame::OnMaximizeWindow (
 	
 	m_imageViewCPtr->UpdateOffscreenMapOrigin ();
 	
-}	// end "OnMaximizeWindow"
+}	// end "MaximizeImageWindow"
 
+
+/*
+void CMImageFrame::OnPrint (
+            wxCommandEvent&                event)
+
+{
+   gProcessorCode = kPrintProcessor;
+   //gProcessorCode = 0;
+   event.Skip (true);
+
+}   // end "OnPrint"
+*/
+
+/*
+void CMImageFrame::OnPrintPreview (
+            wxCommandEvent&                event)
+
+{
+   gProcessorCode = kPrintProcessor;
+   //gProcessorCode = 0;
+   event.Skip (true);
+
+}   // end "OnPrintPreview"
+*/
 
 
 void CMImageFrame::OnRefresh (
@@ -1228,6 +1360,11 @@ void CMImageFrame::OnSashDrag (
 		case ID_WINDOW_LEFT:
 			{
 			m_leftWindow->SetDefaultSize (wxSize (event.GetDragRect().width, 1000));
+			Handle activeImageWindowInfoHandle = GetActiveImageWindowInfoHandle ();
+			WindowInfoPtr windowInfoPtr =
+							(WindowInfoPtr)GetHandlePointer (activeImageWindowInfoHandle);
+			if (windowInfoPtr != NULL)
+				windowInfoPtr->legendWidth = event.GetDragRect().width;
 			break;
 			}
 
@@ -1278,7 +1415,7 @@ void CMImageFrame::OnSize (
 }	// end "OnSize"
 
 
-
+/*
 void CMImageFrame::OnUpdateFilePrint (
 				CCmdUI& 								pCmdUI)
 
@@ -1306,8 +1443,8 @@ void CMImageFrame::OnUpdateFilePrintPreview (
 {
     		// Disable until implemented
 	
-    //pCmdUI->Enable (gActiveImageViewCPtr->CheckIfOffscreenImageExists ());
-    pCmdUI.Enable (false);
+    pCmdUI.Enable (gActiveImageViewCPtr->CheckIfOffscreenImageExists ());
+    //pCmdUI.Enable (false);
 
 }	// end "OnUpdateFilePrintPreview"
 
@@ -1322,7 +1459,7 @@ void CMImageFrame::OnUpdateFilePrintSetup (
     pCmdUI.Enable (false);
 
 }	// end "OnUpdateFilePrintSetup"
-
+*/
 
  
 void CMImageFrame::OnUpdateFileSaveAs (
@@ -1651,7 +1788,7 @@ void CMImageFrame::ShowCoordinateView (
 			wxComboBox*		areaUnitsCtrl;
 			areaUnitsCtrl = (wxComboBox*)m_coordinatesBar->FindWindow (IDC_AreaUnitsCombo);
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice*		areaUnitsCtrl;
 			areaUnitsCtrl = (wxChoice*)m_coordinatesBar->FindWindow (IDC_AreaUnitsCombo);
 		#endif

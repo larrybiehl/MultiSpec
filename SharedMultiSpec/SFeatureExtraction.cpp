@@ -19,7 +19,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/26/2023
 //
 //	Language:				C
 //
@@ -125,6 +125,7 @@
 #if defined multispec_wx
 	#include "xFeatureExtractionDialog.h"
 	#include "xProjectionPursuitDialog.h"
+	#include "xMultiSpec.h"
 #endif	// defined multispec_wx 
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -1209,7 +1210,7 @@ void FeatureExtractionControl (void)
 // Called By:			FeatureExtractionControl
 //
 //	Coded By:			Larry L. Biehl			Date: 11/02/1992
-//	Revised By:			Larry L. Biehl			Date: 12/28/1999
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 	
 Boolean FeatureExtractionDialog (void)
 
@@ -1799,7 +1800,7 @@ Boolean FeatureExtractionDialog (void)
 		
 		try
 			{
-			dialogPtr = new CMFeatureExtractionDialog ();
+			dialogPtr = new CMFeatureExtractionDialog (GetMainFrameForDialog());
 			
 			returnFlag = dialogPtr->DoDialog (gFeatureExtractionSpecsPtr); 
 		                       
@@ -3064,9 +3065,10 @@ Boolean ListPPOptions (
 // Called By:			FeatureExtractionControl
 //
 //	Coded By:			Larry L. Biehl			Date: 05/13/1996
-//	Revised By:			Larry L. Biehl			Date: 03/29/2007
+//	Revised By:			Larry L. Biehl			Date: 04/29/2023
 	
-Boolean ProjectionPursuitDialog (void)
+Boolean ProjectionPursuitDialog (
+				DialogPtr							parentDialogPtr)
 
 {
 	Boolean								returnFlag;
@@ -3344,7 +3346,7 @@ Boolean ProjectionPursuitDialog (void)
 		projectionPursuitSpecsPtr = &gFeatureExtractionSpecsPtr->projectionPursuitParams;
 		
 		try{ 
-			dialogPtr = new CMProjectionPursuitDialog ();
+			dialogPtr = new CMProjectionPursuitDialog (parentDialogPtr);
 			returnFlag = dialogPtr->DoDialog (projectionPursuitSpecsPtr); 		                       
 			delete dialogPtr;
 			}

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/10/2020
+//	Revision date:			04/18/2023
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								various disk files.
 //
 /*	Template for debugging for MultiSpec Online on mygeohub.
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+												256,
 												" SHDF4: (filePathPtr hDS): %s %ld%s", 
 												filePathPtr,
 												hDS,
@@ -388,7 +389,8 @@ SInt16 DisplayHDFAlerts (
 				DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
 			
 			stringLength = gTextString[0];
-			sprintf ((char*)&gTextString[stringLength+1],
+			snprintf ((char*)&gTextString[stringLength+1],
+							256-(stringLength+1),
 							"%s%s",
 							gEndOfLine,
 							gEndOfLine);
@@ -1081,6 +1083,9 @@ SInt16 SetUpHDF_FileInformation (
 						// No reason to continue checking;
 						// last data set for group was found.
 				break;
+
+			//if (!AfxCheckMemory())
+			//	break;
 			
 			}	// end "for (dataSetIndex=1; dataSetIndex<=...->numberHdfDataSets; ..."
 		

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/18/2020
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -117,7 +117,9 @@
 #include "SMultiSpec.h" 
 
 #if defined multispec_wx
-	#define	IDOK	1
+	#ifndef multispec_wxwin
+		#define	IDOK	1
+	#endif
 	#include "xImageView.h"
    #include "xLeaveOneOutMixingDialog.h"   
 	#include	"xMultiSpec.h"
@@ -1469,7 +1471,8 @@ void AddPolyPointStatNewFieldW (
 
 				// Put the selection points coordinates into the polygon list	
 
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"%ld\t%ld",
 						selectedLineCol.v,
 						selectedLineCol.h);
@@ -1493,7 +1496,8 @@ void AddPolyPointStatNewFieldW (
 
 				// Put the selection points coordinates into the polygon list	
 
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%d\t%d",
 					selectedLineCol.v,
 					selectedLineCol.h);
@@ -4457,7 +4461,7 @@ void InvalPopUpCovarianceToUse (void)
 				wxComboBox* statsTypeCntrlPtr =
 					(wxComboBox*)gProjectWindow->GetFrame()->FindWindow (IDC_StatsCombo);
 			#endif
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac || defined multispec_wxwin
 				wxChoice* statsTypeCntrlPtr =
 					(wxChoice*)gProjectWindow->GetFrame()->FindWindow (IDC_StatsCombo);
 			#endif
@@ -4708,7 +4712,8 @@ void LoadPolyStatNewFieldW (void)
 				#endif	// defined multispec_mac 
 
 				#if defined multispec_win
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"%ld\t%ld",
 								line,
 								column);
@@ -4717,7 +4722,8 @@ void LoadPolyStatNewFieldW (void)
 				#endif	// defined multispec_win 
 
 				#if defined multispec_wx
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+									256,
 									"%d\t%d",
 									line,
 									column);
@@ -4951,14 +4957,16 @@ void LoadRectangleInStatList (
 				// Put the selection rectangle coordinates into the polygon list	
 
 		index = 0;
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%ld\t%ld",
 					selectionRectanglePtr->top,
 					selectionRectanglePtr->left);
 		gStatisticsListHandle->InsertString (index, (LPCTSTR)A2T((char*)gTextString));
 
 		index = 1;
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%ld\t%ld",
 					selectionRectanglePtr->bottom,
 					selectionRectanglePtr->right);
@@ -4977,14 +4985,16 @@ void LoadRectangleInStatList (
 				// Put the selection rectangle coordinates into the polygon list
 
 		//index = 0;
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%d\t%d",
 					selectionRectanglePtr->top,
 					selectionRectanglePtr->left);
 					gStatisticsListHandle->AppendString ((wxString)gTextString);
 
 		//index = 1;
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%d\t%d",
 					selectionRectanglePtr->bottom,
 					selectionRectanglePtr->right);
@@ -6228,7 +6238,8 @@ void PolygonListStatMode (
 				#endif	// defined multispec_mac 
 
 				#if defined multispec_win
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"%ld\t%ld",
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].line,
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].col);
@@ -6237,7 +6248,8 @@ void PolygonListStatMode (
 				#endif	// defined multispec_win 
 
 				#if defined multispec_wx
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"%d\t%d",
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].line,
 								gProjectInfoPtr->fieldPointsPtr[pointIndex].col);
@@ -6874,7 +6886,7 @@ void StatisticsControl (void)
 // Called By:			StatisticsControl   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/26/1988
-//	Revised By:			Larry L. Biehl			Date: 04/08/2019
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 SInt16 StatisticsDialog (
 				SInt16*								featurePtr,
@@ -7353,7 +7365,7 @@ SInt16 StatisticsDialog (
 	#if defined multispec_wx
 		CMStatisticsDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMStatisticsDialog (NULL);
+		dialogPtr = new CMStatisticsDialog (GetMainFrameForDialog());
 		statisticsRequest = dialogPtr->DoDialog (featurePtr,
 																totalNumberChannels,
 																&trainMaskFileInfoHandle,
@@ -7864,6 +7876,7 @@ SInt16 StatisticsDialogSelectMaskItem (
       SetDLogControlHilite (dialogPtr, IDOK, 255);
 
       *maskFileInfoHandlePtr = GetMaskFile (*maskFileInfoHandlePtr,
+															dialogPtr,
 															selectStringNumber);
 
       SetDLogControlHilite (dialogPtr, IDOK, 0);
@@ -8123,10 +8136,11 @@ void StatisticsDialogOK (
 // Called By:			StatisticsControl   in SStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1993
-//	Revised By:			Larry L. Biehl			Date: 07/07/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean StatisticsOptionsDialog (
 				SInt16*								statCodePtr,
+				DialogPtr							parentDialogPtr,
 				Boolean*								keepClassStatsFlagPtr,
 				double*								variancePtr,
 				double*								minLogDeterminantPtr,
@@ -8242,7 +8256,7 @@ Boolean StatisticsOptionsDialog (
             case 5: // Compute mean and standard deviation only
                if (localStatCode == 2) 
 						{
-                  if (ProjectMenuClearStatistics ()) 
+                  if (ProjectMenuClearStatistics (NULL))
 							{
                      SetControlValue ((ControlHandle)theHandle, 1);
                      SetDLogControl (dialogPtr, 6, 0);
@@ -8252,7 +8266,7 @@ Boolean StatisticsOptionsDialog (
                      HideDialogItems (dialogPtr, 9, 11);
                      localStatCode = 1;
 
-							}	// end "if (ProjectMenuClearStatistics ())" 
+							}	// end "if (ProjectMenuClearStatistics (NULL))"
 
 						}	// end "if (localStatCode == 2)" 
                break;
@@ -8260,7 +8274,7 @@ Boolean StatisticsOptionsDialog (
             case 6: // Compute mean, standard deviation and covariance
                if (localStatCode == 1)
 						{
-                  if (ProjectMenuClearStatistics ())
+                  if (ProjectMenuClearStatistics (NULL))
 							{
                      SetControlValue ((ControlHandle)theHandle, 1);
                      SetDLogControl (dialogPtr, 5, 0);
@@ -8282,7 +8296,7 @@ Boolean StatisticsOptionsDialog (
 
                      localStatCode = 2;
 
-							}	// end "if (ProjectMenuClearStatistics ())" 
+							}	// end "if (ProjectMenuClearStatistics (NULL))"
 
 						}	// end "if (localStatCode == 1)" 
                break;
@@ -8389,7 +8403,7 @@ Boolean StatisticsOptionsDialog (
 
 		try
 			{
-			dialogPtr = new CMStatOptionsDlg ();
+			dialogPtr = new CMStatOptionsDlg (parentDialogPtr);
 
 			returnFlag = dialogPtr->DoDialog (statCodePtr,
 															keepClassStatsFlagPtr,

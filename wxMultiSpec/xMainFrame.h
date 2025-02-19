@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 05/14/2022
+//	Revised By:				Larry L. Biehl			Date: 02/10/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@
 #include "wx/settings.h"
 #include "wx/statusbr.h"
 #include "wx/frame.h"
-#include "wx/mdi.h"
+#include "wx/docmdi.h"
 #include "wx/docview.h"
 #include "wx/toolbar.h"
 #include "wx/bitmap.h"
@@ -52,19 +52,53 @@ class FileUploadProcess;
 
 #define CMMainFrameTitle _("MultiSpec")
 
-
-class CMainFrame : public wxDocParentFrame
+//#if defined multispec_wxlin || defined multispec_wxmac
+class CMainFrame : public MParentFrame
 {
 	DECLARE_CLASS (CMainFrame)
 	public:
 		CMainFrame (
+		/*
+			#if defined multispec_wxlin || defined multispec_wxmac
 				wxDocManager*						manager,
-				wxDocParentFrame*					frame,
+				wxFrame*								frame,
+				wxWindowID							id,
 				const wxString& 					title = wxT("MultiSpec"),
 				const wxPoint& 					pos = wxDefaultPosition,
 				const wxSize& 						size = wxSize (800, 600),
-				long 									type=wxDEFAULT_FRAME_STYLE);
+				long 									style = wxDEFAULT_FRAME_STYLE,
+				const wxString&					name = wxT("MainFrame"));
+			#endif
+				
+			#if defined multispec_wxwin
+			*/
+				wxDocManager*						manager,
+				wxFrame*								frame,
+				wxWindowID							id,
+				const wxString& 					title = wxT("MultiSpec"),
+				const wxPoint& 					pos = wxDefaultPosition,
+				const wxSize& 						size = wxSize (800, 600),
+				long 									style = wxDEFAULT_FRAME_STYLE,
+				const wxString&					name = wxT("MainFrame"));
+			//#endif
 
+/*
+#if defined multispec_wxwin
+		class CMainFrame : public wxDocMDIParentFrame
+		{
+			DECLARE_CLASS (CMainFrame)
+		public:
+			CMainFrame (
+				wxDocManager*						manager,
+				wxFrame*								parent,
+				wxWindowID							id,
+				const wxString&					title = wxT("MultiSpec"),
+				const wxPoint&						pos = wxDefaultPosition,
+				const wxSize&						size = wxSize (800, 600),
+				long									style = wxDEFAULT_FRAME_STYLE,
+				const wxString&					name = wxT("MainFrame"));
+#endif
+*/
 		~CMainFrame ();
 	
 		Boolean GetCancelOperationEventFlag (void);
@@ -122,12 +156,16 @@ class CMainFrame : public wxDocParentFrame
 		void OnFileSaveProject (wxCommandEvent& event);
 		void OnFileSaveProjectAs (wxCommandEvent& event);
 		void OnFileExportFile (wxCommandEvent& event);
+		void OnPrint (wxCommandEvent& event);
+		void OnPrintPreview (wxCommandEvent& event);
+		void OnPageSetup (wxCommandEvent& event);
 
 				// Edit Menu
 		void OnEditUndo (wxCommandEvent& event);
 		void OnEditCut (wxCommandEvent& event);
 		void OnEditCopy (wxCommandEvent& event);
 		void OnEditPaste (wxCommandEvent& event);
+		void OnEditClear (wxCommandEvent& event);
 		void OnEditSelectAll (wxCommandEvent& event);
 		void OnEditSelectionRectangle (wxCommandEvent& event);
 		void OnEditClearSelectionRectangle (wxCommandEvent& event);
@@ -139,6 +177,8 @@ class CMainFrame : public wxDocParentFrame
 		void OnEditClearSelectedOverlay (wxCommandEvent& event);
 
 				// View Menu
+		void OnViewToolBar (wxCommandEvent& event);
+		void OnViewStatusBar (wxCommandEvent& event);
 		void OnViewCoordinatesBar (wxCommandEvent& event);
 	
 				// Project Menu

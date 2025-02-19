@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/26/2023
 //
 //	Language:				C
 //
@@ -32,7 +32,8 @@
 //								y axis.
 /*
 	Template for debugging
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+													256,
 													" SBiPlotData: (): %s", 
 													gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
@@ -751,7 +752,7 @@ void BiPlotDataControl (void)
 // Called By:			BiPlotDataControl ()
 //
 //	Coded By:			Larry L. Biehl			Date: 03/08/1994
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 	
 Boolean BiPlotDataDialog (void)
 	
@@ -1433,7 +1434,7 @@ Boolean BiPlotDataDialog (void)
 		
 		try
 			{
-			dialogPtr = new CMBiPlotDialog (NULL);
+			dialogPtr = new CMBiPlotDialog (GetMainFrameForDialog());
 			
 			returnFlag = dialogPtr->DoDialog ();
 		                       
@@ -2596,12 +2597,13 @@ void GetBiPlotGraphTitle (
 				// Create title line 1.															
 				
 		if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-			sprintf ((char*)gTextString, "Features");
+			snprintf ((char*)gTextString, 256, "Features");
 						
 		else	// !gBiPlotDataSpecsPtr->featureTransformationFlag 
-			sprintf ((char*)gTextString, "Channels");
+			snprintf ((char*)gTextString, 256, "Channels");
 		
-		sprintf ((char*)&graphRecordPtr->title[1],
+		snprintf ((char*)&graphRecordPtr->title[1],
+								63,
 								"BiPlot of %s %d vs %d",
 								gTextString,
 								gBiPlotDataSpecsPtr->axisFeaturePtr[1] + 1,

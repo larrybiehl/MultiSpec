@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/22/2020
+//	Revision date:			02/13/2025
 //
 //	Language:				C
 //
@@ -41,6 +41,7 @@ ListString ((char*)gTextString3, numberChars, gOutputTextH);
                              
 #if defined multispec_wx
 	#include "wx/menu.h"
+	#include "xMultiSpec.h"
    #include "xDialog.h"
 #endif	// defined multispec_wx 
 	
@@ -159,7 +160,7 @@ void ClearMenuItems (
 { 
 	#if defined multispec_wx 
 		wxMenu*								wxMenuPtr;
-	#endif	// defined multispec_win
+	#endif	// defined multispec_wx
 	
 	#if defined multispec_win 
 		CMenu*								cMenuPtr;
@@ -1622,9 +1623,9 @@ void SetUpWindowOverlayPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/13/1996
-//	Revised By:			Larry L. Biehl			Date: 05/13/1998
+//	Revised By:			Larry L. Biehl			Date: 01/15/2024
 
-void UpdateEditGraphicsCopy (
+Boolean UpdateEditGraphicsCopy (
 				CCmdUI*								pCmdUI)
 
 {	
@@ -1635,6 +1636,16 @@ void UpdateEditGraphicsCopy (
 	#if defined multispec_win 
 		pCmdUI->SetText ((LPCTSTR)_T ("Copy Graph\tCtrl+C"));
 	#endif	// defined multispec_mac 
+		
+	#if defined multispec_wx
+		pCmdUI->SetText (wxT ("Copy Graph\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			GetMainFrame()->m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Graph"));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
+	#endif	// defined multispec_wx
+	
+	return (TRUE);
 				
 }	// end "UpdateEditGraphicsCopy"		
 
@@ -1663,7 +1674,7 @@ Boolean UpdateEditImageCopy (
 	
 	#if defined multispec_mac 
 		if (selectionRectangleExistsFlag)
-			SetMenuItemText (gMultiSpecMenus[kEditM], 
+			SetMenuItemText (gMultiSpecMenus[kEditM],
 		 							kCopy, 
 		 							"\pCopy Image Selection");
 	
@@ -1694,11 +1705,20 @@ Boolean UpdateEditImageCopy (
 	#endif	// defined multispec_win
 		
 	#if defined multispec_wx
+				// Currently can only copy what is in the image window
 		if (selectionRectangleExistsFlag)
 			pCmdUI->SetText (wxT ("Copy Image Selection\tCtrl+C"));
 		
 		else	// !selectionRectangleExistsFlag
 			pCmdUI->SetText (wxT ("Copy Image\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			if (selectionRectangleExistsFlag)
+				GetMainFrame()->m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Image Selection"));
+
+			else	// !selectionRectangleExistsFlag
+				GetMainFrame()->m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Image"));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
 		
 				// If there is no image in the image window, then disable the
 				// the copy menu item.
@@ -1816,6 +1836,10 @@ void UpdateEditTextCopy (
 	
 	#if defined multispec_wx 
 		pCmdUI->SetText (wxT ("Copy Selected Text\tCtrl+C"));
+
+		#if defined multispec_wxlin || defined multispec_wxwin
+			GetMainFrame()->m_toolBar1->SetToolShortHelp	(wxID_COPY, wxT ("Copy Selected Text"));
+		#endif	// defined multispec_wxlin || defined multispec_wxwin
 	#endif	// defined multispec_wx 
 				
 }	// end "UpdateEditTextCopy"
@@ -2686,7 +2710,7 @@ Boolean UpdateReformatChangeHeader (
 		
 	return (returnFlag);
 				
-}	// end "UpdateReformatChangeHeader"	
+}	// end "UpdateReformatChangeHeader"
 
 
 
@@ -2790,6 +2814,8 @@ Boolean UpdateReformatModifyChannel (
 											fileInfoPtr->format == kErdas74Type ||
 											fileInfoPtr->format == kFastL7AType ||
 											fileInfoPtr->format == kENVIType ||
+                                 fileInfoPtr->format == kTIFFType ||
+                                 fileInfoPtr->format == kGeoTIFFType ||
 											fileInfoPtr->format == kArcViewType))
 		versionOKFlag = TRUE;
 									

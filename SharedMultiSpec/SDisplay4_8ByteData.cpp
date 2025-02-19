@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/19/2019
+//	Revision date:			04/23/2023
 //
 //	Language:				C
 //
@@ -1372,7 +1372,7 @@ void Display3Channel4Byte16BitLine (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2003
-//	Revised By:			Larry L. Biehl			Date: 03/11/2019
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023
 
 void Display3Channel4Byte24BitLine (
 				UInt32								numberSamples,
@@ -1409,7 +1409,7 @@ void Display3Channel4Byte24BitLine (
 		
 	for (j=0; j<numberSamples; j+=interval)
 		{
-		#if defined multispec_mac || defined multispec_wx
+		#if defined multispec_mac || defined multispec_wxlin || defined multispec_wxmac
 			#if defined multispec_mac || defined multispec_wxmac_alpha
 						// Leave high order byte blank.
 		
@@ -1501,9 +1501,9 @@ void Display3Channel4Byte24BitLine (
 				}	// end "if (backgroundValueCode && !backgroundValue)"
 
 			offScreen4BytePtr++;			
-		#endif	// defined multispec_mac
+		#endif	// defined multispec_mac || defined multispec_wxlin || defined multispec_wxmac
 		
-		#if defined multispec_win
+		#if defined multispec_win || defined multispec_wxwin
 					// Blue byte.							
 						
 			doubleBinIndex = (ioBuffer1Ptr[j] - minValue1)*binFactor1 + 1;
@@ -1597,7 +1597,7 @@ void Display3Channel4Byte24BitLine (
 					}	//  end "else backgroundValueCode == 2"
 				
 				}	// end "if (backgroundValueCode && ...)"
-		#endif	// defined multispec_win
+		#endif	// defined multispec_win || defined multispec_wxwin
 		
 		}	// end "for (j=0; ..."
 	

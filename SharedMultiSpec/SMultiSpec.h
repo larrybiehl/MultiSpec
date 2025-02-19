@@ -28,7 +28,7 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 02/21/2020
+//	Revised By:				Larry L. Biehl			Date: 04/23/2023
 //
 //------------------------------------------------------------------------------------
 
@@ -91,6 +91,12 @@
 		#define include_gdal_capability 0
 		#define include_hdf5_capability 0
 	#else	// ifndef NetBeansProject
+		#ifdef multispec_wxlin
+			#define include_hdf_capability 1
+			#define include_gdal_capability 1
+			#define include_hdf5_capability 1
+		#endif
+
 		#ifdef multispec_wxmac
 			#ifdef multispec_basic_wxmac
 				#define include_hdf_capability 0
@@ -101,12 +107,20 @@
 				#define include_gdal_capability 1
 				#define include_hdf5_capability 1
 			#endif
-		#else	// multispec_wxlin
-			#define include_hdf_capability 1
-			#define include_gdal_capability 1
-			#define include_hdf5_capability 1
-		#endif
-	#endif
+		#endif	// def multispec_wxmac
+
+		#ifdef multispec_wxwin
+			#ifdef multispec_basic_wxwin
+				#define include_hdf_capability 0
+				#define include_gdal_capability 0
+				#define include_hdf5_capability 0
+			#else
+				#define include_hdf_capability 1
+				#define include_gdal_capability 1
+				#define include_hdf5_capability 1
+			#endif
+		#endif	// multispec_wxwin
+	#endif	// else multispec_wxmac
 #endif	// end "defined multispec_wx"
 
 #define use_mlte_for_text_window  0

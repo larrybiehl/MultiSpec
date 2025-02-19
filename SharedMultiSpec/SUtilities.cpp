@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			05/04/2022
+//	Revision date:			02/15/2025
 //
 //	Language:				C
 //
@@ -1141,7 +1141,7 @@ Boolean CreateBackgroundImageFile (
 // Called By:			CreateResultsDiskFiles in SUtility.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/18/1989
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 02/15/2025
 
 Boolean CreateResultsDiskFile (
 				SInt32								numberLines, 
@@ -1455,8 +1455,50 @@ Boolean CreateResultsDiskFile (
 			}	// end "if (lOutputStorageType & kClassifyFileCode)"
 		
 		else if (lOutputStorageType & kProbFormatCode)
-			{                                                                
-			ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0Prob.tif\0");
+			{
+			if (fileZeroInfoPtr == NULL)
+				{
+						// No classfication output file to base name on.
+						
+				switch (gClassifySpecsPtr->mode)
+					{
+					case kMaxLikeMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_mxclProb.tif\0");
+						break;
+						
+					case kMahalanobisMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_maclProb.tif\0");
+						break;
+
+					case kFisherMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_ficlProb.tif\0");
+						break;
+
+					case kEchoMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_echoclProb.tif\0");
+						break;
+						
+					case kKNearestNeighborMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_knnclProb.tif\0");
+						break;
+						
+					case kCorrelationMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_coclProb.tif\0");
+						break;
+						
+					case kCEMMode:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_cemclProb.tif\0");
+						break;
+						
+					default:
+						ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0_clProb.tif\0");
+						
+					}	// end "switch (gClassifySpecsPtr->mode)"
+					
+				}	// end "if (fileZeroInfoPtr == NULL)"
+				
+			else	// fileZeroInfoPtr != NULL
+				ConcatFilenameSuffix (resultsFilePathPtr, (StringPtr)"\0Prob.tif\0");
 			
 			promptStringIndex = IDS_SaveProbabilityAs;	// kFileIOStr34;
 			
@@ -2239,7 +2281,7 @@ Boolean DetermineIfContinuousChannels (
 //							CopyPrintOffscreenImage in MPrint.c
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1991
-//	Revised By:			Larry L. Biehl			Date: 03/07/2020
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 void	DrawSideBySideTitles (
 				wxDC*									titleBarDCPtr,
@@ -2467,7 +2509,7 @@ void	DrawSideBySideTitles (
 			updateRectPtr->right = (int)(drawInterval *
 															(gSideBySideChannels-gStartChannel));
 
-			}	// end "if (windowPtr->m_pDC->IsPrinting ())" 
+			}	// end "if (windowPtr->m_printCopyModeFlag)" 
 	#endif	// defined multispec_wx
 	
 			// Estimate width of longest string.											
@@ -2565,7 +2607,7 @@ void	DrawSideBySideTitles (
 			channelNum = channels[index] + 1;
 			
 			if (descriptionStart > 1)
-				sprintf ((char*)&gTextString[1], "%*hd", channelNumberWidth, channelNum);
+				snprintf ((char*)&gTextString[1], 255, "%*hd", channelNumberWidth, channelNum);
 				
 			if (channelDescriptionPtr != NULL)
 				{
@@ -2665,10 +2707,11 @@ void	DrawSideBySideTitles (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 01/03/2006
-//	Revised By:			Larry L. Biehl			Date: 03/21/2006
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 SInt16 FormatHistogramSummaryString (
 				char*									stringPtr,
+				int									stringLength,
 				double								value,
 				UInt16								numberEDecimalDigits,
 				UInt16								numberFDecimalDigits,
@@ -2685,7 +2728,8 @@ SInt16 FormatHistogramSummaryString (
 				absValue >= kMinValueToListWith_f && 
 							absValue <= kMaxValueToListWith_f)
 		{
-		length = sprintf (stringPtr, 
+		length = snprintf (stringPtr,
+								stringLength,
 								"%.*f",
 								numberFDecimalDigits,
 								value);
@@ -2694,7 +2738,8 @@ SInt16 FormatHistogramSummaryString (
 		
 	else	// forceEFormatFlag || absValue < kMinValueToListWith_f || ...
 		{
-		length = sprintf (stringPtr, 
+		length = snprintf (stringPtr,
+								stringLength,
 								"%.*E",
 								numberEDecimalDigits,
 								value);
@@ -3545,7 +3590,7 @@ SInt16 GetImageList (
 				// Put project base image as the first menu item in the list.		
 			
 		imageListLength++;
-		sprintf ((char*)gTextString, " Base-");
+		snprintf ((char*)gTextString, 256, " Base-");
 		gTextString[0] = 5;		
 		ConcatPStrings (gTextString, 
 								gProjectInfoPtr->imageFileName, 
@@ -3878,7 +3923,7 @@ Boolean GetInformationPointers (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/22/1999
-//	Revised By:			Larry L. Biehl			Date: 09/06/2017
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 SInt16 GetLegendWidthForWindow (
 				Handle								windowInfoHandle)
@@ -3934,9 +3979,8 @@ SInt16 GetLegendWidthForWindow (
 //
 //	Function name:		SInt16 GetListBottom
 //
-//	Software purpose:	The purpose of this routine is to obtain the long int
-//							value from the input string.  The bytes will be swapped
-//							if needed depending upon the global setting.
+//	Software purpose:	The purpose of this routine is to return the bottom of the
+//							legend list.
 //
 //	Parameters in:		None
 //
@@ -3947,10 +3991,10 @@ SInt16 GetLegendWidthForWindow (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/02/1998
-//	Revised By:			Larry L. Biehl			Date: 11/06/2019
+//	Revised By:			Larry L. Biehl			Date: 01/09/2024
 
 SInt16 GetListBottom (
-				ListHandle							listHandle)
+				LegendListHandle					legendListHandle)
 
 {
 	#if defined multispec_mac
@@ -3990,6 +4034,25 @@ SInt16 GetListBottom (
 		else	// listHandle == NULL  
 			return (0);
 	#endif	// defined multispec_win
+	
+	#if defined multispec_wx
+		//Rect									cellRect;
+		
+		//Cell									cell;
+		
+		int									height,
+												width;
+		
+		
+		(legendListHandle)->GetClientSize (&width, &height);
+		//cell.h = 0;
+		//cell.v = MIN ((listHandle)->visible.bottom,
+		//								(listHandle)->dataBounds.bottom);
+		//cell.v--;
+		//Rect (&cellRect, cell, listHandle);
+		
+		return (height);
+	#endif	// defined multispec_wx
 	
 	return (0);
 	
@@ -5480,7 +5543,7 @@ SInt64 GetTotalNumberOfPixels (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/24/1996
-//	Revised By:			Larry L. Biehl			Date: 01/10/2020
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 void GetWindowClipRectangle (
 				WindowPtr							windowPtr, 
@@ -5684,7 +5747,6 @@ void GetWindowClipRectangle (
 		#endif	// defined multispec_win
 					
 		#if defined multispec_wx
-			//CMImageFrame*						imageFramePtr;
 			wxRect								frameArea;
 			wxRect								tempArea;
 
@@ -5692,15 +5754,6 @@ void GetWindowClipRectangle (
 			windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
 			if (windowInfoPtr == NULL)
 				areaCode = kImageFrameArea;
-			/*
-					// Get input view rectangle.
-					
-			wxRect imagearea = (windowPtr->m_Canvas)->GetClientRect ();
-			wxRect imagearea2 = (windowPtr->m_frame)->GetClientRect ();
-			windowPtr->GetClientRect ((RECT*) & inRect);
-			wxRect imagearea = ((windowPtr->m_frame)->m_mainWindow)->GetClientRect ();
-			*/
-			//imageFramePtr = windowPtr->GetImageFrameCPtr ();
 
 			switch (areaCode)
 				{
@@ -6499,7 +6552,7 @@ void MInitCursor (void)
 		AfxGetApp()->DoWaitCursor (0);
 	#endif	// defined multispec_win 
 		
-	#if defined multispec_wx
+	#if defined multispec_wxlin || defined multispec_wxmac
 		//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_ARROW));
 		CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
 		CMImageView* currentview = wxDynamicCast (
@@ -6512,6 +6565,20 @@ void MInitCursor (void)
 			}
 	
 		wxSetCursor (wxNullCursor);
+	#endif
+
+	#if defined multispec_wxwin
+			//(wxTheApp->GetTopWindow ())->SetCursor (wxCursor (wxCURSOR_ARROW));
+			//CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
+			CMImageView* currentview = gActiveImageViewCPtr;
+			if (currentview != NULL)
+			{
+				CMImageCanvas* canvasptr = currentview->m_Canvas;
+				//canvasptr->SetCursor (wxCursor (wxCURSOR_ARROW));
+				canvasptr->SetCursor (wxCURSOR_ARROW);
+			}
+
+			wxSetCursor (wxNullCursor);
 	#endif
 	
 	gPresentCursor = kArrow;
@@ -6610,10 +6677,15 @@ void MSetCursor (
 				//			overall cursor to the 'default' such that the window cursor
 				//			setting takes over.
 	
-		CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
-		CMImageView* currentView = wxDynamicCast (
+		#if defined multispec_wxlin || defined multispec_wxmac
+			CMainFrame* mframeptr = (CMainFrame*)(wxTheApp->GetTopWindow ());
+			CMImageView* currentView = wxDynamicCast (
 							mframeptr->GetDocumentManager()->GetCurrentView (), CMImageView);
-	
+		#endif
+		#if defined multispec_wxwin
+			CMImageView* currentView = gActiveImageViewCPtr;
+		#endif
+
 		if (currentView == NULL && gImageWindowInfoPtr != NULL)
 					// This may be in middle of an activation event for a window. Use
 					// the view from the active image window if it is available.
@@ -6635,15 +6707,21 @@ void MSetCursor (
 					switch (cursorIndex)
 						{
 						case kBlinkOpenCursor1:
-							legendListCPtr->SetCursor (
+							if (gPresentCursor != kBlinkOpenCursor1)
+								{
+								legendListCPtr->SetCursor (
 															currentView->m_frame->m_blinkOpenCursor);
-							wxSetCursor (currentView->m_frame->m_blinkOpenCursor);
+								wxSetCursor (currentView->m_frame->m_blinkOpenCursor);
+								}
 							break;
 
 						case kBlinkShutCursor1:
-							legendListCPtr->SetCursor (
+							if (gPresentCursor != kBlinkShutCursor1)
+								{
+								legendListCPtr->SetCursor (
 															currentView->m_frame->m_blinkShutCursor);
-							wxSetCursor (currentView->m_frame->m_blinkShutCursor);
+								wxSetCursor (currentView->m_frame->m_blinkShutCursor);
+								}
 							break;
 							
 						default:
@@ -7337,7 +7415,7 @@ void SetDestinationWindowParameters (
 // Called By:			OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/19/2002
-//	Revised By:			Larry L. Biehl			Date: 11/19/2019
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 void SetLCToWindowUnitVariables (
 				Handle								windowInfoHandle,
@@ -7401,13 +7479,12 @@ void SetLCToWindowUnitVariables (
 
 		if (windowCode == kToClipboardWindow)
 			{
-		
 					// Get handle to structure which contains the selection			
 					// rectangle										
 	
 			selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
 			selectionInfoPtr = (SelectionInfoPtr)
-								GetHandlePointer (selectionInfoHandle);
+                                    GetHandlePointer (selectionInfoHandle);
 							
 			if (selectionInfoPtr != NULL)
 				{			
@@ -7485,29 +7562,30 @@ void SetLCToWindowUnitVariables (
 			}	// end "else	// ...displayedColumnInterval == 0 || ..."
 						
 				// Get the image left offset.  
-				// Note that the legend in the Windows version is in its own
+				// Note that the legend in the wxWidgets and Windows version is in its own
 				// view. It is not the same as that used for the image. Therefore
 				// the legend width is always 0 within the image view. However
 				// if the legend width is being called for use in a edit copy
 				// or print window, then the actual legend width needs to be
 				// returned.
-				
-		lcToWindowUnitsVariablesPtr->imageLeftOffset = 
-														GetLegendWidthForWindow (windowInfoHandle);
+		
+		if (windowCode == kToImageWindow)
+			lcToWindowUnitsVariablesPtr->imageLeftOffset = 0;
+			
+		else	// windowCode == kToClipboardWindow || windowCode == kToPrintWindow
+			lcToWindowUnitsVariablesPtr->imageLeftOffset = GetLegendWidth (windowInfoHandle);
 
 				// Get the image top offset.
 						
 		lcToWindowUnitsVariablesPtr->imageTopOffset = 0;
-
 		if (windowCode == kToImageWindow)
 			lcToWindowUnitsVariablesPtr->imageTopOffset = 
 																GetImageTopOffset (windowInfoHandle);
 
-      if (windowCode == kToClipboardWindow)
-			lcToWindowUnitsVariablesPtr->imageTopOffset = 
+      else	// windowCode == kToClipboardWindow || windowCode == kToPrintWindow
+			lcToWindowUnitsVariablesPtr->imageTopOffset =
 																GetTitleHeight (windowInfoHandle);
 
-      
 		#if defined multispec_win 		
 			if (windowCode == kToPrintWindow)
 				{
@@ -7595,7 +7673,7 @@ void SetLCToWindowUnitVariables (
 //							OutlineFieldsControl in SOutlineFields.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/17/2002
-//	Revised By:			Larry L. Biehl			Date: 11/02/2019	
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 void SetMapToWindowUnitsVariables (
 				Handle								windowInfoHandle,
@@ -7769,8 +7847,12 @@ void SetMapToWindowUnitsVariables (
 				// being called for use in a edit copy or print window, then the actual 
 				// legend width needs to be returned.
 				
-		mapToWindowUnitsVariablesPtr->imageLeftOffset = 
+		if (windowCode == kToImageWindow)
+			mapToWindowUnitsVariablesPtr->imageLeftOffset =
 														GetLegendWidthForWindow (windowInfoHandle);
+		else	// windowCode == kToClipboardWindow || kToPrintWindow
+			mapToWindowUnitsVariablesPtr->imageLeftOffset =
+																GetLegendWidth (windowInfoHandle);
 
 				// Get the image top offset.
 						
@@ -7780,8 +7862,8 @@ void SetMapToWindowUnitsVariables (
 			if (windowCode == kToImageWindow)
 				mapToWindowUnitsVariablesPtr->imageTopOffset = 
 																GetImageTopOffset (windowInfoHandle);
-			if (windowCode == kToClipboardWindow)
-				mapToWindowUnitsVariablesPtr->imageTopOffset = 
+			else	// windowCode == kToClipboardWindow || kToPrintWindow
+				mapToWindowUnitsVariablesPtr->imageTopOffset =
 																GetTitleHeight (windowInfoHandle);
 																
 			}	// end "if (!coreGraphicsFlag)"
@@ -7914,7 +7996,7 @@ Boolean SetUpActiveImageInformationGlobals (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/22/2000
-//	Revised By:			Larry L. Biehl			Date: 07/28/2017
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023
 void SetUpAreaUnitsPopUpMenu (
 				MenuHandle							menuHandle,
 				Handle								windowInfoHandle,
@@ -8060,7 +8142,7 @@ void SetUpAreaUnitsPopUpMenu (
 			wxComboBox* areaUnitsCtrl =
 							(wxComboBox*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice* areaUnitsCtrl =
 							(wxChoice*)dialogPtr->FindWindow (IDC_AreaUnitsCombo);
 		#endif

@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			03/25/2023
 //
 //	Language:				C++
 //
@@ -151,8 +151,8 @@ void CMEchoClassifyDialog::CreateControls ()
 	m_textCtrl73 = new wxTextCtrl (this, 
 												IDC_HomogeneityThreshold, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
    m_textCtrl73->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_homoThresString));
    SetUpToolTip (m_textCtrl73, IDS_ToolTip309);
@@ -199,8 +199,8 @@ void CMEchoClassifyDialog::CreateControls ()
 	m_textCtrl74 = new wxTextCtrl (this, 
 												IDC_AnnexationThreshold, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
    m_textCtrl74->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_annexThresString));
    SetUpToolTip (m_textCtrl74, IDS_ToolTip312);

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/03/2022
+//	Revision date:			01/14/2024
 //
 //	Language:				C
 //
@@ -2017,7 +2017,7 @@ void GetFileFormatsInFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/23/1996
-//	Revised By:			Larry L. Biehl			Date: 06/10/2015			
+//	Revised By:			Larry L. Biehl			Date: 01/14/2024
 
 SInt16 GetLegendWidth (
 				Handle								windowInfoHandle)
@@ -2047,6 +2047,7 @@ SInt16 GetLegendWidth (
 		#endif // defined multispec_win 
 		
 		#if defined multispec_wx
+			/*
 			wxRect				legendArea;
 			CMImageFrame*		imageFrameCPtr;
 			CMImageView*		imageViewCPtr;
@@ -2065,9 +2066,10 @@ SInt16 GetLegendWidth (
 					}	// end "if (imageFrameCPtr != NULL)"
 							
 				}	// end "if (windowInfoPtr->cImageWindowPtr != NULL)"
-				
-			return (legendWidth);
-		#endif // defined multispec_wx  
+			*/
+			//return (0);
+	  		return (windowInfoPtr->legendWidth);
+		#endif // defined multispec_wx
 				
 		}	// end "if (windowInfoPtr != NULL)"    
 	     

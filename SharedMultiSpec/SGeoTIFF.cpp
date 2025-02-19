@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/01/2019
+//	Revision date:			01/03/2024
 //
 //	Language:				C
 //
@@ -163,7 +163,7 @@ SInt16	SetPixelScaleParametersFromGeoTIFF (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/15/2002
-//	Revised By:			Larry L. Biehl			Date: 05/21/2012
+//	Revised By:			Larry L. Biehl			Date: 12/22/2023
 
 SInt16 CheckRowsPerStrip (
 				FileInfoPtr							fileInfoPtr,
@@ -188,11 +188,9 @@ SInt16 CheckRowsPerStrip (
 											
 	UInt32								bytesPerStrip,
 											bytesPerStripForAllChannels,
-											channelIndex,
 											count,
 											index,
 											lastBytesPerStrip,
-											lastStripOffset,
 											stripsPerChannel,
 											tempOffset;
 	
@@ -205,7 +203,6 @@ SInt16 CheckRowsPerStrip (
 	numberPostLineBytes = 0;
 	returnCode = 0;
 	nonContiguousStripsFlag = FALSE;
-	channelIndex = 0;
 	errCode = noErr;
 	
 	blockByteCountsPtr = NULL;
@@ -221,6 +218,12 @@ SInt16 CheckRowsPerStrip (
 	switch (fileInfoPtr->bandInterleave)
 		{								
 		case kBIL:
+			bytesPerStrip = rowsPerStrip *
+									fileInfoPtr->numberColumns *
+												fileInfoPtr->numberBytes;
+			bytesPerStripForAllChannels = fileInfoPtr->numberChannels * bytesPerStrip;
+			break;
+			
 		case kBIS:	
 			bytesPerStrip = rowsPerStrip * 
 									fileInfoPtr->numberColumns * 
@@ -357,8 +360,6 @@ SInt16 CheckRowsPerStrip (
 				}	// end "if (stripOffsetVector != ..." 
 			
 			}	// end "else index > 1"
-			
-		lastStripOffset = tempOffset; 
 			
 		}	// end "for (index=1, ..." 
 										
@@ -2289,7 +2290,8 @@ Boolean ListGeoTiffTextDescriptionParameters (
 					{
 					case 1026:	// GTCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)gTextString,
+						stringLength = snprintf ((char*)gTextString,
+														256,
 														"    GeoTIFF GTCitationGeoKey: ");						
 						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
@@ -2312,7 +2314,8 @@ Boolean ListGeoTiffTextDescriptionParameters (
 													
 					case 2049:	// GeogCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)gTextString,
+						stringLength = snprintf ((char*)gTextString,
+														256,
 														"    GeoTIFF GeogCitationGeoKey: ");						
 						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
@@ -2335,7 +2338,8 @@ Boolean ListGeoTiffTextDescriptionParameters (
 													
 					case 3073:	// PCSCitationGeoKey
 						textStringLength = MIN (geoKeyRecordPtr[2], 1023);
-						stringLength = sprintf ((char*)gTextString,
+						stringLength = snprintf ((char*)gTextString,
+															256,
 															"    GeoTIFF PCSCitationGeoKey: ");						
 						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
@@ -2497,7 +2501,8 @@ Boolean ListTiffTextDescriptionParameters (
 														textString,
 														textStringLength);
 														
-						stringLength = sprintf ((char*)gTextString,
+						stringLength = snprintf ((char*)gTextString,
+														256,
 														"    Image Description: ");						
 						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
@@ -2517,7 +2522,8 @@ Boolean ListTiffTextDescriptionParameters (
 														textString,
 														textStringLength);
 														
-						stringLength = sprintf ((char*)gTextString,
+						stringLength = snprintf ((char*)gTextString,
+														256,
 														"    Copyright: ");						
 						continueFlag = ListString ((char*)gTextString,  
 															stringLength,
@@ -2621,7 +2627,6 @@ SInt16 LoadHierarchalFileStructure (
 	
 	UInt32								blocksPerChannel,
 											index,
-											lastChannelBlock,
 											minimumBlockStart;
 											
 	SInt16								returnCode;
@@ -2651,8 +2656,6 @@ SInt16 LoadHierarchalFileStructure (
 		blocksPerChannel = (fileInfoPtr->numberLines + numberLinesPerStrip - 1)/
 																					numberLinesPerStrip;
 																					
-		lastChannelBlock = blocksPerChannel;
-															
 		for (index=0; index<fileInfoPtr->numberChannels; index++)
 			{				
 			if (fileInfoPtr->bandInterleave != kBSQ)
@@ -2761,7 +2764,7 @@ SInt16 LoadHierarchalFileStructure (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/1994
-//	Revised By:			Larry L. Biehl			Date: 04/29/2016
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 ReadTIFFHeader (
 				FileInfoPtr 						fileInfoPtr, 
@@ -3060,7 +3063,8 @@ SInt16 ReadTIFFHeader (
 							break;
 								
 						case 259:	// Compression 
-							if (imageFileDirectory.value != 1)
+							if (imageFileDirectory.value > 1)
+										// MultiSpec's TIFF code cannot handle compression. Use gdal library instead.
 								returnCode = -2;
 							break;
 							
@@ -3075,6 +3079,7 @@ SInt16 ReadTIFFHeader (
 							else if (imageFileDirectory.value == 3)
 								{
 								fileInfoPtr->thematicType = TRUE;
+								fileInfoPtr->origNumberClasses = 256;
 								fileInfoPtr->numberClasses = 256;
 								
 								}	// end "imageFileDirectory.value == 3" 
@@ -3135,7 +3140,14 @@ SInt16 ReadTIFFHeader (
 								fileInfoPtr->bandInterleave = kBIS;
 								
 							else if (imageFileDirectory.value == 2)
-								fileInfoPtr->bandInterleave = kBSQ;
+								{
+								if (rowsPerStrip == 1)
+									fileInfoPtr->bandInterleave = kBIL;
+								
+								else	// rowsPerStrip > 1
+									fileInfoPtr->bandInterleave = kBSQ;
+								
+								}	// end "else if (imageFileDirectory.value == 2)"
 								
 							else	// imageFileDirectory.value != 1 or 2 
 								returnCode = -3;
@@ -3445,6 +3457,7 @@ SInt16 ReadTIFFHeader (
 					if (fileInfoPtr->thematicType && fileInfoPtr->numberBytes == 2)
 						{
 						fileInfoPtr->numberClasses = 0;
+						fileInfoPtr->origNumberClasses = 0;
 						fileInfoPtr->numberBins = (UInt32)ldexp ((double)1, 16);
 						
 						}	// end "if (fileInfoPtr->thematicType && ..."
@@ -3770,13 +3783,13 @@ void SetProjectionInformationFromString (
 									// Find whether it is North or South Zone if not identified
 									// already.
 													
-							sprintf ((char*)gTextString, "%dN", gridZone);
+							snprintf ((char*)gTextString, 256, "%dN", gridZone);
 							if (strstr ((char*)zone, (char*)gTextString) != NULL)
 								direction = 'N';
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d N", gridZone);
+								snprintf ((char*)gTextString, 256, "%d N", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'N';
 									
@@ -3784,7 +3797,7 @@ void SetProjectionInformationFromString (
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%dS", gridZone);
+								snprintf ((char*)gTextString, 256, "%dS", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									
@@ -3792,7 +3805,7 @@ void SetProjectionInformationFromString (
 							
 							if (direction == ' ')
 								{
-								sprintf ((char*)gTextString, "%d S", gridZone);
+								snprintf ((char*)gTextString, 256, "%d S", gridZone);
 								if (strstr ((char*)zone, (char*)gTextString) != NULL)
 									direction = 'S';
 									

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/31/2023
 //
 //	Language:				C
 //
@@ -306,13 +306,13 @@ void UpdateThematicTypeMinMaxes (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1990
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023
 
 void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -351,7 +351,6 @@ void DisplayImagesSideBySide (
 											columnIntervalUsed,
 											columnStart,
 											dataValue,
-											firstColumnIndex,
 											interval,
 											line,
 											lineCount,
@@ -387,7 +386,6 @@ void DisplayImagesSideBySide (
 
 			// Initialize local variables.
 
-	firstColumnIndex = displaySpecsPtr->columnStart - 1;
 	columnStart = displaySpecsPtr->columnStart;
 	columnEnd = displaySpecsPtr->columnEnd;
 	lineStart = displaySpecsPtr->lineStart;
@@ -988,14 +986,14 @@ void DisplayImagesSideBySide (
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/04/2006
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 0045/23/2023
 
 void Display4_8ByteImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -1037,7 +1035,6 @@ void Display4_8ByteImagesSideBySide (
 											columnEnd,
 											columnIntervalUsed,
 											columnStart,
-											firstColumnIndex,
 											interval,
 											line,
 											lineCount,
@@ -1071,7 +1068,6 @@ void Display4_8ByteImagesSideBySide (
 
 			// Initialize local variables.
 
-	firstColumnIndex = displaySpecsPtr->columnStart - 1;
 	columnStart = displaySpecsPtr->columnStart;
 	columnEnd = displaySpecsPtr->columnEnd;
 	lineStart = displaySpecsPtr->lineStart;
@@ -1572,8 +1568,7 @@ Boolean DisplayMultispectralImage (void)
 	HistogramSpecsPtr					histogramSpecsPtr = NULL;
 
 	Boolean								continueFlag = TRUE,
-											imageDisplayedFlag = FALSE,
-											savePaletteChangedFlag;
+											imageDisplayedFlag = FALSE;
 
 	SInt16								windowType;
 
@@ -1702,8 +1697,6 @@ Boolean DisplayMultispectralImage (void)
 				{
 				GetPort (&savedPort);
 				SetPortWindowPort (gActiveImageWindow);
-
-				savePaletteChangedFlag = !displaySpecsPtr->paletteUpToDateFlag;
 
 						// Create the palette
 
@@ -1856,14 +1849,14 @@ Boolean DisplayMultispectralImage (void)
 // Called By:			DisplayColorImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1988
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023
 
 void DisplayCImage (
 				DisplaySpecsPtr					displaySpecsPtr,
 				HistogramSpecsPtr					histogramSpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -2756,8 +2749,15 @@ void DisplayCImage (
 									// Only do this for multispectral images.
 
 							offScreenLinePtr = (unsigned char*)gImageWindowInfoPtr->imageBaseAddressH;
-							offScreenLinePtr += (SInt64)(lineCount-1) * pixRowBytes;
-							
+
+							#if defined multispec_wx   // multispec_wxlin || defined multispec_wxmac
+								offScreenLinePtr += (SInt64)(lineCount-1) * pixRowBytes;
+							#endif
+							/*
+							#if defined multispec_wxwin
+								offScreenLinePtr -= (SInt64)(lineCount - 1) * pixRowBytes;
+							#endif
+							*/
 							}	// end "if (gImageWindowInfoPtr->offscreenMapSize == 0)"
 					#endif
 					
@@ -2766,14 +2766,14 @@ void DisplayCImage (
 
 					}	// end "if (TickCount() >= gNextTime && lineCount >= nextStatusAtLeastLine)"
 
-				#if defined multispec_mac || defined multispec_wx
+				#if defined multispec_mac || defined multispec_wx  // multispec_wxmac || defined multispec_wxlin
 					offScreenLinePtr += pixRowBytes;
 				#endif	// defined multispec_mac
-
-				#if defined multispec_win
+				/*
+				#if defined multispec_win || defined multispec_wxwin
 					offScreenLinePtr -= pixRowBytes;
 				#endif	// defined multispec_win
-
+				*/
 				}	// end "else errCode == noErr"
 
 			if (gUseThreadedIOFlag)
@@ -2842,7 +2842,7 @@ void DisplayCImage (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/19/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean DisplayMultispectralDialog (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -3023,7 +3023,8 @@ Boolean DisplayMultispectralDialog (
 	
 	FileStringPtr fileNamePtr = 
 							(FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-	sprintf ((char*)gTextString, 
+	snprintf ((char*)gTextString,
+				256,
 				"Set Display Specifications for '%s'", 
 				(char*)&fileNamePtr[1]);
 	
@@ -3853,7 +3854,7 @@ Boolean DisplayMultispectralDialog (
 		CMDisplaySpecsDlg* dialogPtr = NULL;
 		try
 			{
-         dialogPtr = new CMDisplaySpecsDlg (NULL);
+			dialogPtr = new CMDisplaySpecsDlg (GetMainFrameForDialog());
 			gActiveImageViewCPtr->m_displayMultiCPtr->SetDisplaySpecsPtr (
 																						displaySpecsPtr);
 
@@ -4014,7 +4015,7 @@ void DisplayMultispectralDialogCheckMinMaxSettings (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/05/1991
-//	Revised By:			Larry L. Biehl			Date: 05/01/2007	
+//	Revised By:			Larry L. Biehl			Date: 04/09/2023	
 
 Boolean DisplayMultispectralDialogUpdateComputeHistogram (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -4341,7 +4342,7 @@ void DisplayMultispectralDialogInitialize (
 	#if defined multispec_mac 
 		pixelSizeVectorPtr[2] = 32;
 	#endif	// defined multispec_mac 
-	#if defined multispec_win || defined multispec_wxlin
+	#if defined multispec_win || defined multispec_wxlin || defined multispec_wxwin
 		pixelSizeVectorPtr[2] = 24;
 	#endif	// defined multispec_win || defined multispec_wxlin
 	#if defined multispec_wxmac
@@ -6655,7 +6656,7 @@ Boolean EqualAreaDataToDisplayLevels (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date:	04/21/1988
-//	Revised By:			Larry L. Biehl			Date: 03/03/2022
+//	Revised By:			Larry L. Biehl			Date: 08/31/2022
 
 Boolean FillDataToDisplayLevels (
 				HistogramSpecsPtr					histogramSpecsPtr,
@@ -6884,8 +6885,11 @@ Boolean FillDataToDisplayLevels (
 							maxBinIndex = numberLevels - 2;
 
 						}	// end "else if (numberLevels-2 == thematicRange)"
-
+						
 					}	// end "if (...[channelNumberIndex].binType == kBinWidthOfOne)"
+					
+				if (thematicInterval == 0)
+					thematicInterval = 1;
 
 				displaySpecsPtr->thematicBinWidth = 1 / thematicInterval;
 
@@ -6983,7 +6987,8 @@ Boolean FillDataToDisplayLevels (
 					dataDisplayPtr[dataLevel] =
 										(UInt8)((UInt16)(floatDisplayLevel) * floatMultiplier);
 
-					//sprintf ((char*)gTextString,
+					//snprintf ((char*)gTextString,
+					//					256,
 					//					"  %d = %d%s",
 					//					dataLevel,
 					//					dataDisplayPtr[dataLevel],
@@ -6996,7 +7001,8 @@ Boolean FillDataToDisplayLevels (
 
 				displayLevel = (UInt16)((UInt16)floatDisplayLevel * floatMultiplier);
 
-				//sprintf ((char*)gTextString,
+				//snprintf ((char*)gTextString,
+				//					256,
 				//					"  %d = %d%s%s",
 				//					dataLevel,
 				//					displayLevel,
@@ -7589,12 +7595,13 @@ Boolean GaussianToDisplayLevels (
 
 				if (listFlag && dataLevel == 0) 
 					{
-					numberChars = sprintf ((char*)gTextString3,
-													 " %3d   %3d   %3d%s",
-													 (int)dataLevel,
-													 (int)dataDisplayPtr[dataLevel],
-													 (int)numberValuesInDisplayLevel,
-													 gEndOfLine);
+					numberChars = snprintf ((char*)gTextString3,
+														256,
+														" %3d   %3d   %3d%s",
+														(int)dataLevel,
+														(int)dataDisplayPtr[dataLevel],
+														(int)numberValuesInDisplayLevel,
+														gEndOfLine);
 					if (!ListString ((char*)gTextString3, numberChars, gOutputTextH))
 																							return (FALSE);
 
@@ -7645,7 +7652,8 @@ Boolean GaussianToDisplayLevels (
 						{
 						if (listFlag) 
 							{
-							numberChars = sprintf ((char*)gTextString3,
+							numberChars = snprintf ((char*)gTextString3,
+															256,
 															" %3d   %3d   %3d%s",
 															(int)dataLevel,
 															(int)dataDisplayPtr[dataLevel],
@@ -7676,7 +7684,8 @@ Boolean GaussianToDisplayLevels (
 
 				if (listFlag) 
 					{
-					numberChars = sprintf ((char*)gTextString3,
+					numberChars = snprintf ((char*)gTextString3,
+													256,
 													 " %3d   %3d   %3d%s",
 													 (int)dataLevel,
 													 (int)dataDisplayPtr[dataLevel - 1],
@@ -7726,7 +7735,8 @@ Boolean GaussianToDisplayLevels (
 						{
 						if (listFlag) 
 							{
-							numberChars = sprintf ((char*)gTextString3,
+							numberChars = snprintf ((char*)gTextString3,
+															256,
 															" %3d   %3d   %3d%s",
 															(int)dataLevel,
 															(int)dataDisplayPtr[dataLevel],
@@ -7758,7 +7768,8 @@ Boolean GaussianToDisplayLevels (
 
 				if (listFlag && dataLevel == lastDataLevel) 
 					{
-					numberChars = sprintf ((char*)gTextString3,
+					numberChars = snprintf ((char*)gTextString3,
+													256,
 													" %3d   %3d   %3d%s",
 													(int)dataLevel,
 													(int)dataDisplayPtr[dataLevel],
@@ -8842,7 +8853,7 @@ Boolean HistogramVector (
 //
 //	Coded By:			Larry L. Biehl			Date: 04/20/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/09/1988	
-//	Revised By:			Larry L. Biehl			Date: 04/06/2022
+//	Revised By:			Larry L. Biehl			Date: 12/31/2023
 
 DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
@@ -9358,6 +9369,19 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
             }	// end "if (windowInfoPtr->totalNumberChannels == 15)"
 
+         else if (gImageWindowInfoPtr->totalNumberChannels == 66)
+            {
+                  // Assume PRISMA VNIR data.
+                  // Note that channels are in reverse order of wavelength.
+
+            displaySpecsPtr->blueChannelNumber = 35;
+            displaySpecsPtr->greenChannelNumber = 35;
+            displaySpecsPtr->redChannelNumber = 15;
+            if (displaySpecsPtr->pixelSize >= 16)
+               displaySpecsPtr->blueChannelNumber = 50;
+
+            }	// end "else if (gImageWindowInfoPtr->totalNumberChannels == 66)"
+
          else if (gImageWindowInfoPtr->totalNumberChannels == 120)
             {
                   // Assume ITD Imaging Spectrometer data.
@@ -9381,6 +9405,19 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
                displaySpecsPtr->blueChannelNumber = 8;
 
             }	// end "else if (gImageWindowInfoPtr->totalNumberChannels == 126)"
+
+         else if (gImageWindowInfoPtr->totalNumberChannels == 173)
+            {
+                  // Assume PRISMA SWIR data.
+                  // Note that channels are in reverse order of wavelength.
+
+            displaySpecsPtr->blueChannelNumber = 27;
+            displaySpecsPtr->greenChannelNumber = 27;
+            displaySpecsPtr->redChannelNumber = 17;
+            if (displaySpecsPtr->pixelSize >= 16)
+               displaySpecsPtr->blueChannelNumber = 50;
+
+            }	// end "else if (gImageWindowInfoPtr->totalNumberChannels == 173)"
 
          else if (gImageWindowInfoPtr->totalNumberChannels == 210 ||
                  gImageWindowInfoPtr->totalNumberChannels == 191)
@@ -9489,7 +9526,7 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 
             displaySpecsPtr->blueChannelNumber = 27;
             displaySpecsPtr->greenChannelNumber = 27;
-            displaySpecsPtr->redChannelNumber = 50;
+            displaySpecsPtr->redChannelNumber = 49;
             if (displaySpecsPtr->pixelSize >= 16)
                displaySpecsPtr->blueChannelNumber = 17;
 
@@ -9740,9 +9777,10 @@ DisplaySpecsPtr LoadMultispectralDisplaySpecs (void)
 // Called By:			EnhancementPopUpMenu in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/29/1993
-//	Revised By:			Larry L. Biehl			Date: 12/16/2016	
+//	Revised By:			Larry L. Biehl			Date: 04/30/2023	
 
 Boolean MinMaxEnhancementDialog (
+				DialogPtr							parentDialogPtr,
 				SInt16*								channelsPtr,
 				SInt16								rgbColors,
 				SInt16								displayType,
@@ -10180,7 +10218,7 @@ Boolean MinMaxEnhancementDialog (
 	#if defined multispec_wx
 		CMDisplayMinMaxDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMDisplayMinMaxDialog (NULL);
+		dialogPtr = new CMDisplayMinMaxDialog (parentDialogPtr);
       
 		returnFlag = dialogPtr->DoDialog (channelsPtr,
 														rgbColors,
@@ -10867,7 +10905,7 @@ void SaveDisplayStructureSettings (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 10/05/2006
-//	Revised By:			Larry L. Biehl			Date: 01/03/2020
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023
 
 void SetUpMinMaxPopUpMenu (
 				DialogPtr							dialogPtr,
@@ -10906,7 +10944,7 @@ void SetUpMinMaxPopUpMenu (
 			wxComboBox* comboBoxPtr =
 								(wxComboBox*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice* comboBoxPtr =
 								(wxChoice*)(dialogPtr->FindWindow (ID3C_MinMaxValues));
 		#endif
@@ -11679,7 +11717,7 @@ SInt16 Update8_16_24BitsOfColorIndex (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 10/02/2006
-//	Revised By:			Larry L. Biehl			Date: 02/27/2018
+//	Revised By:			Larry L. Biehl			Date: 08/31/2022
 
 void UpdateThematicTypeMinMaxes (
 				SInt16								numberClassBins,
@@ -11753,6 +11791,7 @@ void UpdateThematicTypeMinMaxes (
 						// of the maximum value.
 
 				maxValue = histogramSummaryPtr->maxNonSatValue;
+				maxValue = MAX (.15, maxValue);
 				logMaxValue = (SInt32)(log10 (maxValue) + 1);
 				newMaxValue = pow ((double)10, logMaxValue);
 				difference = fabs (maxValue - newMaxValue);

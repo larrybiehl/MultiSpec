@@ -1557,7 +1557,8 @@ SInt16 ISODATACluster (
 	CreateNumberWithCommasInString ((char*)totalNumberClusterPixelsString, 
 												gClusterSpecsPtr->totalNumberClusterPixels);				
 			 
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+		256,
 		"    Clustering completed after %d passes and %s of %s pixels changed.%s",
 			passNumber, 
 			numberChangesString, 
@@ -3333,7 +3334,7 @@ SInt16 ISODATAClusterPass (
 				minutesLeft = (linesLeft * (TickCount () - startTick))/
 																(double)(lineCount*kTicksPerMinute);
 				
-				sprintf ((char*)gTextString, " %.1f", minutesLeft);
+				snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
 				stringPtr = (char*)CtoPstring (gTextString, gTextString);
 				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					

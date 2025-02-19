@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			05/05/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -59,7 +59,7 @@ BEGIN_EVENT_TABLE (CMDisplaySpecsDlg, CMDialog)
 
 	EVT_CHOICE (ID3C_DisplayType, CMDisplaySpecsDlg::OnSelendokDisplayType)
 	
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (ID3C_Channels, CMDisplaySpecsDlg::OnChannelsSelendok)
 		EVT_CHOICE (ID3C_Enhancement, CMDisplaySpecsDlg::OnEnhancementComboSelendok)
 		EVT_CHOICE (ID3C_MinMaxValues, CMDisplaySpecsDlg::OnSelendokMinMaxValues)
@@ -113,6 +113,7 @@ CMDisplaySpecsDlg::CMDisplaySpecsDlg (
 {
 	FileStringPtr fileNamePtr;
 
+	m_parent = pParent;
 
 	m_BlueChannel = 1;
 	m_ColumnEnd = 1;
@@ -145,7 +146,7 @@ CMDisplaySpecsDlg::CMDisplaySpecsDlg (
 
 	m_initializedFlag = CMDialog::m_initializedFlag;
 
-	wxHelpProvider::Set (new wxSimpleHelpProvider);
+	//wxHelpProvider::Set (new wxSimpleHelpProvider);
 
 	if (m_initializedFlag) 
 		{
@@ -199,6 +200,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 
 {
 	wxWindow* parentWindow = this;
+	//wxWindow* parentWindow = m_parent;
 
 	SetSizeHints (wxDefaultSize, wxDefaultSize);
 
@@ -330,7 +332,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 													ID3C_RedChannel,
 													wxEmptyString,
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(100, -1),
 													0);
    SetUpToolTip (m_redchannelctrl, IDS_ToolTip27);
 	m_redchannelctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS,
@@ -341,7 +343,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 											ID3C_GrayChannel,
 											wxEmptyString,
 											wxDefaultPosition,
-											wxDefaultSize,
+											wxSize(100, -1),
 											0);
 	m_grayctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_GrayChannelString));
 	m_grayctrl->Hide ();
@@ -386,7 +388,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 														ID3C_GreenChannel,
 														wxEmptyString,
 														wxDefaultPosition,
-														wxDefaultSize,
+														wxSize(100, -1),
 														0);
    SetUpToolTip (m_greenchannelctrl, IDS_ToolTip29);
 	m_greenchannelctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS,
@@ -418,7 +420,7 @@ void CMDisplaySpecsDlg::CreateControls ()
 													ID3C_BlueChannel,
 													wxEmptyString,
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(100, -1),
 													0);
    SetUpToolTip (m_bluechannelctrl, IDS_ToolTip30);
 	m_bluechannelctrl->SetValidator (wxTextValidator (wxFILTER_DIGITS,
@@ -459,9 +461,9 @@ void CMDisplaySpecsDlg::CreateControls ()
 
 	m_legendfactorctrl = new wxTextCtrl (sbSizerStaticBox9,
 														IDC_LegendFactor,
-														wxT("1"),
+														wxEmptyString,
 														wxDefaultPosition,
-														wxDefaultSize,
+														wxSize(100, -1),
 														0);
 	wxFloatingPointValidator<double> doubleValue8Digits (8, &m_double8DigitValueCheck);
    m_legendfactorctrl->SetValidator (doubleValue8Digits);
@@ -499,8 +501,10 @@ void CMDisplaySpecsDlg::CreateControls ()
 	m_magnificationctrl = new wxTextCtrl (sbSizerStaticBox9,
 														ID3C_Magnification,
 														wxEmptyString,
+														//wxT("99999"),
 														wxDefaultPosition,
-														wxDefaultSize,
+														//wxDefaultSize,
+														wxSize(100, -1),
 														0);
    SetUpToolTip (m_magnificationctrl, IDS_ToolTip33);
 	m_magnificationctrl->SetValidator (_val);
@@ -590,12 +594,12 @@ void CMDisplaySpecsDlg::CreateControls ()
 														NULL,
 														wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || multispec_wxwin
 		m_enhancementCtrl = new wxChoice (sbSizer10->GetStaticBox (),
 														ID3C_Enhancement,
 														wxDefaultPosition,
 														wxDefaultSize);
-	#endif	// multispec_wxmac
+	#endif	// multispec_wxmac || multispec_wxwin
 	
    m_enhancementCtrl->Append (wxT("Linear"));
    m_enhancementCtrl->Append (wxT("Equal Area"));
@@ -626,12 +630,12 @@ void CMDisplaySpecsDlg::CreateControls ()
 													NULL,
 													wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || multispec_wxwin
   		m_minMaxCtrl = new wxChoice (sbSizer10->GetStaticBox (),
    											ID3C_MinMaxValues,
    											wxDefaultPosition,
    											wxDefaultSize);
-	#endif	// multispec_wxmac
+	#endif	// multispec_wxmac || multispec_wxwin
 	m_minMaxCtrl->Append (wxT("Clip 0% of tails"));
 	m_minMaxCtrl->Append (wxT("Clip 2% of tails"));
 	m_minMaxCtrl->Append (wxT("Entire Range"));
@@ -1404,13 +1408,14 @@ void CMDisplaySpecsDlg::OnSelendokMinMaxValues (
 		if (mLocalDisplayType <= 2)
 			channels[0] = (SInt16)m_GrayChannel;
 
-		MinMaxEnhancementDialog (channels,
-										 mRGBColors,
-										 mLocalDisplayType,
-										 m_NumberLevels,
-										 &m_PercentClip,
-										 &m_MinMaxCode,
-										 mMinMaxValues);
+		MinMaxEnhancementDialog (this,
+											channels,
+											 mRGBColors,
+											 mLocalDisplayType,
+											 m_NumberLevels,
+											 &m_PercentClip,
+											 &m_MinMaxCode,
+											 mMinMaxValues);
 
 		m_MinMaxPopupCode = GetMinMaxPopupCode (m_MinMaxCode, m_PercentClip);
 		m_minMaxCtrl->SetSelection (m_MinMaxPopupCode);
@@ -1603,7 +1608,14 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow ()
 												TRUE,
 												1,
 												gImageWindowInfoPtr->totalNumberChannels))
-				DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+				DisplayAlert (kErrorAlertID,
+									kStopAlert,
+									0,
+									0,
+									0,
+									gTextString,
+									this,
+									kASCIICharString);
 				
 			SelectDialogItemText (this, returnCode, 0, SHRT_MAX);
 				
@@ -1632,7 +1644,9 @@ bool CMDisplaySpecsDlg::TransferDataFromWindow ()
 								kAlertStrID,
 								IDS_Alert152,
 								0,
-								NULL);
+								NULL,
+								this,
+								kASCIICharString);
 			
 			returnCode = ID3C_Magnification;
 			

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/05/2022
+//	Revision date:			01/03/2024
 //
 //	Language:				C++
 //
@@ -52,7 +52,7 @@ BEGIN_EVENT_TABLE (CMChangeFormatDlg, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMChangeFormatDlg::OnSelendokOutChannels)
 	#endif
 
@@ -933,7 +933,8 @@ void CMChangeFormatDlg::OnTransformData (
 			
 			if (recommendNumberOfBits > 16)
 				{
-				numChars = sprintf ((char*)&gTextString2[1],
+				numChars = snprintf ((char*)&gTextString2[1],
+											255,
 											"Recommended minimum data bits: %d-Real",
 											recommendNumberOfBits);
 				suggestedDataValueTypeSelection = k4ByteRealMenuItem;
@@ -942,7 +943,8 @@ void CMChangeFormatDlg::OnTransformData (
 			
 			else	// recommendNumberOfBits <= 16
 				{
-				numChars = sprintf ((char*)&gTextString2[1],
+				numChars = snprintf ((char*)&gTextString2[1],
+											256,
 											"Recommended minimum data bits: %d",
 											recommendNumberOfBits);
 				suggestedDataValueTypeSelection = k2ByteSignedIntegerMenuItem;

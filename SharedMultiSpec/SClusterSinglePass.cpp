@@ -1321,7 +1321,7 @@ Boolean OnePassClusterAreas (
             minutesLeft = (linesLeft * (TickCount () - startTick)) /
 														(double)(lineCount * kTicksPerMinute);
 
-            sprintf ((char*)gTextString, " %.1f", minutesLeft);
+            snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
             stringPtr = (char*)CtoPstring (gTextString, gTextString);
             LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 

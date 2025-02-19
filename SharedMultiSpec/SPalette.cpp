@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -2270,7 +2270,9 @@ SInt16 FalseColorCheckColorChannel (
 							kAlertStrID, 
 							IDS_Alert53,
 							0, 
-							NULL);	
+							NULL,
+							dialogPtr,
+							kASCIICharString);
 			
 		HiliteControl ((ControlHandle)okHandle, 0);
 
@@ -4312,14 +4314,14 @@ Boolean ReadPaletteFromResource (
 			// This is to list the palette for use for uses such as copying to the 
 			// Windows version.
 			
-	sprintf ((char*)gTextString, "paletteId = %d%s", paletteId, gEndOfLine);
+	snprintf ((char*)gTextString, 256, "paletteId = %d%s", paletteId, gEndOfLine);
 	ListString ((char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 
 	UInt32 i;
 	for (i=0; i<numberResourcePaletteEntries+2; i++)
 		{
 		GetEntryColor (resourcePHandle, i, &theColor);
-		sprintf ((char*)gTextString, "%3ld %5ld, %5ld, %5ld%s", i, theColor.red, theColor.green, theColor.blue, gEndOfLine);
+		snprintf ((char*)gTextString, 256, "%3ld %5ld, %5ld, %5ld%s", i, theColor.red, theColor.green, theColor.blue, gEndOfLine);
 		ListString ((char*)gTextString,  strlen ((char*)gTextString), gOutputTextH);
 	
 		}	// end "for (i=0; i<=255; i++)"

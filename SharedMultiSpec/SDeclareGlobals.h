@@ -26,7 +26,7 @@
 //								MultiSpec.
 //
 //	Revised By:				Abdur Maud				Date: 01/24/2013
-//	Revised By:				Larry L. Biehl			Date: 03/08/2022
+//	Revised By:				Larry L. Biehl			Date: 02/12/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -736,6 +736,9 @@ MenuHandle						gPopUpProjectChangesMenu = NULL;
 		// Handle to projection ellipsoid popup menu.														
 MenuHandle						gPopUpEllipsoidMenu = NULL;
 
+		// Handle for compare images option popup menu.
+MenuHandle						gPopUpCompareImagesMenu = NULL;
+
 		// Handle to enhancement min-max popup menu.														
 MenuHandle						gPopUpMinMaxMenu = NULL;
 
@@ -1059,10 +1062,10 @@ UInt16*							gDialogItemDescriptorPtr = NULL;
 	wchar_t							gWideEndOfLine[3] = {'\015', '\000', '\000'};
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
-#if defined multispec_win     
+#if defined multispec_win || defined multispec_wxwin
 	char								gEndOfLine[3] = {'\015', '\012', '\000'};
 	wchar_t							gWideEndOfLine[3] = {'\015', '\012', '\000'};
-#endif	// defined multispec_win  
+#endif	// defined multispec_win || defined multispec_wxwin
 
 #if defined multispec_wxlin
 	char								gEndOfLine[3] = {'\012', '\000', '\000'};
@@ -1171,7 +1174,7 @@ SInt32							gMaxCharsInLine = 1;
 		// The maximum number of files that can be linked.
 		// This may be adjusted lower at start up if the system does not allow
 		//	this many files to be open at a given time.
-SInt32							gMaximumNumberOfLinkedFiles = 500;
+SInt32							gMaximumNumberOfLinkedFiles = 1000;
 
 		// Maximum size of block of memory that can be moved.  The Mac OS 		
 		// as a bug such that if a block of memory more than 9.5 meg or so		
@@ -1195,9 +1198,9 @@ SInt32							gNumberOfOpenFilesLimit = 32000;
 	UInt32							gControlOffset = 8;
 #endif	// defined multispec_mac || defined multispec_mac_swift
 
-#if defined multispec_win                                       												
-	UInt32							gControlOffset = 150;
-#endif	// defined multispec_win	
+#if defined multispec_win || defined multispec_wxwin                               												
+	UInt32							gControlOffset = 250;
+#endif	// defined multispec_win || defined multispec_wxwin
 
 #if defined multispec_wxlin
 	//UInt32							gControlOffset = CLOCKS_PER_SEC/4;

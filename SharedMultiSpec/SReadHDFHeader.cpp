@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/31/2020
+//	Revision date:			04/06/2023
 //
 //	Language:				C
 //
@@ -38,9 +38,10 @@
 //------------------------------------------------------------------------------------
 
 #include	"SMultiSpec.h"
-#include "SFileStream_class.h"
 
 #if include_hdf_capability
+
+#include "SFileStream_class.h"
 	
 #if defined multispec_mac
 #endif	// defined multispec_mac    
@@ -52,35 +53,47 @@
 	#ifndef HDF
 		#define HDF 
 	#endif
+
+	#include 	"dfsd.h"
+	#include 	"hfile.h"
+	#include 	"mfhdf.h"
+	#include 	"dfrig.h"
+	/*
 	#include "hdfi.h"
 	#include "hfile.h"
-	#include "local_nc.h"
+	//#include "local_nc.h"
 	#include "mfhdf.h"
+	*/
+	#ifdef multispec_wxlin
+		extern intn SDgetoffset (
+						int32  sdsid, int32 *dataSetOffset);
+	
+		extern intn SDgetspecialinfo (
+						int32 sdsid, sp_info_block_t* info_blockPtr);
 
-	extern intn SDgetoffset (
-					int32  sdsid, int32 *dataSetOffset);
+		extern int32 hdf_get_vp_aid (
+						NC *handle, NC_var *vp);
 	
-	extern intn SDgetspecialinfo (
-					int32 sdsid, sp_info_block_t* info_blockPtr);
-
-	extern int32 hdf_get_vp_aid (
-					NC *handle, NC_var *vp);
+		extern NC* SDIhandle_from_id (
+						int32 id, intn typ);
 	
-	extern NC* SDIhandle_from_id (
-					int32 id, intn typ);
+		extern NC_var* SDIget_var (
+						NC *handle, int32 sdsid);
 	
-	extern NC_var* SDIget_var (
-					NC *handle, int32 sdsid);
-	
-	extern int32 SDIfreevarAID (
-					NC * handle, int32 index);
+		extern int32 SDIfreevarAID (
+						NC * handle, int32 index);
+	#endif	//  multispec_wxlin
 #endif	// defined multispec_wx
- 
-#include 	"dfsd.h"
-#include 	"hfile.h"
-#include 	"mfhdf.h"
-#include 	"dfrig.h"
-//#include 	"local_nc.h"
+
+#if defined multispec_win
+	#include 	"dfsd.h"
+	#include 	"hfile.h"
+	#include 	"mfhdf.h"
+	#include 	"dfrig.h"
+	//#include		"hdfi.h"
+	//#include    "hproto.h"
+	//#include 	"local_nc.h"
+#endif	// defined multispec_win
 
 
     
@@ -553,7 +566,7 @@ UCharPtr GetAttributeBuffer (
 												attributeType;
 	
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								attributeSize,
+		int32									attributeSize,
 												attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 											
@@ -658,7 +671,7 @@ Boolean GetBottomToTopFlag (
 												nglobals,
    											rank;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								dims[10],
+		int32									dims[10],
    											numberAttributes = 0,
    											numberType,
 												numDataSets,
@@ -809,7 +822,7 @@ Boolean GetFillDataValue (
    											numberType,
    											rank;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								dims[10],
+		int32									dims[10],
    											numberAttributes = 0,
    											numberType,
    											rank;
@@ -939,7 +952,7 @@ intn GetHDFDataSetInformation (
 												numberType,
 												rank;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								attributeSize,
+		int32									attributeSize,
    											attributeType,
    											dataSetOffset,
    											dims[10],
@@ -1554,7 +1567,7 @@ SInt16 GetHDFInstrumentCode (
 		int									numberAttributes,
  	 											numDataSets;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								numberAttributes,
+		int32									numberAttributes,
  	 											numDataSets;
 	#endif	// TARGET_RT_MAC_MACHO, else...
  	
@@ -1666,7 +1679,7 @@ SInt16 GetHDF4Line (
 		int									edge[3],
 												start[3];
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								edge[3],
+		int32									edge[3],
 												start[3];
 	#endif	// TARGET_RT_MAC_MACHO, else...
 			
@@ -1826,7 +1839,7 @@ intn GetHDFProjectionInformation (
 		int									numberAttributes,
  	 											numDataSets;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								numberAttributes,
+		int32									numberAttributes,
  	 											numDataSets;
 	#endif	// TARGET_RT_MAC_MACHO, else...
  	 										
@@ -4540,7 +4553,7 @@ SInt16 GetSpecificTextAttributeInformation (
 		int									attributeSize,
    											attributeType;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								attributeSize,
+		int32									attributeSize,
    											attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
@@ -4839,7 +4852,7 @@ SInt16 GetSpecificNumericAttributeInformation (
 		int									attributeSize,
    											attributeType;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								attributeSize,
+		int32									attributeSize,
    											attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
@@ -5262,7 +5275,7 @@ Boolean ListAttributeInformation (
 		int									attributeSize,
    											attributeType;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								attributeSize,
+		int32									attributeSize,
    											attributeType;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
@@ -5680,7 +5693,7 @@ Boolean ListHDF4DataSetAttributes (
    											nglobals,
    											rank;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								dims[10],
+		int32									dims[10],
    											nattrs = 0,
    											numberType,
    											numDataSets,
@@ -5956,7 +5969,7 @@ SInt32 LoadHdfDataSetNames (
    											numberType,
    											rank;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								dims[10],
+		int32									dims[10],
    											nattrs = 0,
    											numberType,
    											rank;
@@ -7379,7 +7392,7 @@ SInt16 LoadHDF4Information (
 		int									nglobals,
    											numDataSets;
 	#else	// !TARGET_RT_MAC_MACHO
-		SInt32								nglobals,
+		int32									nglobals,
    											numDataSets;
 	#endif	// TARGET_RT_MAC_MACHO, else...
 	
@@ -7495,8 +7508,8 @@ SInt16 LoadHDF4Information (
 	*/
 			// Determine the total number of data sets in the file.
 		
-	number8BitImages = DFR8nimages ((char*)filePathPtr);
-	number24BitImages = DF24nimages ((char*)filePathPtr);
+	number8BitImages = DFR8nimages ((const char*)filePathPtr);
+	number24BitImages = DF24nimages ((const char*)filePathPtr);
 	
 	//validDataSetCount = GetNumberOfValidDataSets (file_id, numDataSets);
 
@@ -7549,12 +7562,19 @@ SInt16 LoadHDF4Information (
 														numberLines = 0,
 														imageOffset = 0;
 			#else	// !TARGET_RT_MAC_MACHO
-				SInt32								numberColumns = 0,
+				#ifndef multispec_win
+					SInt32							numberColumns = 0,
 														numberLines = 0,
 														imageOffset = 0;
+				#else
+					int32								numberColumns = 0,
+														numberLines = 0,
+														imageOffset = 0;
+				#endif
 			#endif	// TARGET_RT_MAC_MACHO, else...
 							
-			intn			paletteExists;
+			//intn			paletteExists;
+			int				paletteExists;
 			
 			//UInt8			palette[768];
 			
@@ -7566,7 +7586,7 @@ SInt16 LoadHDF4Information (
 			imageOffset = 0;
 			if (hdfReturn != FAIL)
 				#if defined multispec_mac || defined multispec_wxmac || defined multispec_win
-					hdfReturn = DFR8getdims ((char*)filePathPtr, 
+					hdfReturn = DFR8getdims ((const char*)filePathPtr, 
 														&numberColumns, 
 														&numberLines, 
 														&paletteExists,
@@ -7574,14 +7594,14 @@ SInt16 LoadHDF4Information (
 				#endif
 			
 				#if defined multispec_wxlin
-					hdfReturn = DFR8getdims ((char*)filePathPtr, 
+					hdfReturn = DFR8getdims ((const char*)filePathPtr, 
 														&numberColumns, 
 														&numberLines, 
 														&paletteExists);
 				#endif
 			/*
 			if (hdfReturn != FAIL && paletteExists)									
-				hdfReturn = DFR8getimage ((char*)&filePathPtr[1], 
+				hdfReturn = DFR8getimage ((const char*)&filePathPtr[1], 
 												NULL, 
 												numberColumns, 
 												numberLines, 
@@ -7644,13 +7664,13 @@ SInt16 LoadHDF4Information (
 														numberLines,
 														imageOffset = 0;
 			#else	// !TARGET_RT_MAC_MACHO
-				SInt32								numberColumns,
-														numberLines,
+				int32									numberColumns = 0,
+														numberLines = 0,
 														imageOffset = 0;
 			#endif	// TARGET_RT_MAC_MACHO, else...
 							
-			intn									interlaceCode;
-   		uint16		    					compressionType;
+			intn									interlaceCode = 0;
+   		uint16		    					compressionType = 0;
 			
 			
 			hdfReturn = DF24restart ();
@@ -7658,7 +7678,7 @@ SInt16 LoadHDF4Information (
 			imageOffset = 0;
 			compressionType = 0;
 			if (hdfReturn != FAIL)
-				#if defined multispec_mac || defined multispec_wxmac || defined multispec_win
+				#if defined multispec_mac || defined multispec_wxmac || defined multispec_win || defined multispec_wxwin
 					hdfReturn = DF24getdims ((char*)filePathPtr, 
 													&numberColumns, 
 													&numberLines, 

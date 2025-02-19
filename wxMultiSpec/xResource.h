@@ -26,8 +26,8 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 07/28/2015
-//	Revised By:				Larry L. Biehl			Date: 08/09/2022
-//	
+//	Revised By:				Larry L. Biehl			Date: 02/18/2025
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -98,7 +98,6 @@
 #define IDD_EvalTransform               182
 #define IDD_ListResults                 183
 #define IDD_ListDataDialog              185
-#define IDD_ListData                    185
 #define IDD_AppendFile                  187
 #define IDD_CEMParameters               189
 #define IDD_SVMParameters               190
@@ -107,6 +106,7 @@
 #define IDD_ListStats                   193
 #define IDD_FeatureSelection            194
 #define IDD_FeatureSelectionListOptions 196
+#define IDD_ParallelPipedParameters     197
 #define IDD_DisplayEnhancement          200
 #define IDS_NotEnoughRoom               201
 #define IDD_AreasToThematicImage        201
@@ -128,6 +128,7 @@
 #define IDS_SelectImageStatistics       214
 #define IDS_EndOfFileError			       215
 #define IDD_ThematicRecode              215
+#define IDS_SaveImageStatisticsAs		 216
 #define IDD_EnhanceStatistics           217
 #define IDD_ClassWeights                219
 #define IDD_ClassPairWeights            220
@@ -272,6 +273,7 @@
 #define IDS_Processor26                 526
 #define IDS_ProcessorCreateImageStat    527
 #define IDS_OpenImage					    528
+#define IDS_Processor29                 529
 
 #define IDS_DialogThematicSpecs         601
 #define IDS_DialogNumberClasses         602
@@ -871,6 +873,7 @@
 #define IDS_Alert151                    1261
 #define IDS_Alert152                    1262
 #define IDC_Class                       1263
+#define IDS_Alert153							 1263
 #define IDC_Select                      1264
 #define IDC_Field                       1265
 #define IDC_STATIC_Class                1266
@@ -896,7 +899,7 @@
 #define IDC_TestFields                  1294
 #define IDC_ShowFieldNames              1295
 #define IDC_MeanStd                     1297
-#define IDC_meanStdCov                  1298
+#define IDC_MeanStdCov                  1298
 #define IDC_ClassStatsOnly              1299
 #define IDC_SetZeroVariance             1300
 #define IDS_Utility1                    1301
@@ -1646,6 +1649,9 @@
 #define IDC_FunctionFactorPrompt        1855
 #define IDC_Threshold_Value_Prompt	    1856
 #define IDC_Threshold_Value			    1857
+#define IDC_Limit2StdDeviation			 1859
+#define IDC_LimitMinMax  					 1860
+#define IDC_StdDeviationValue				 1861
 #define IDC_StartPrompt                 1901
 #define IDC_EndPrompt                   1902
 #define IDC_IntervalPrompt              1903
@@ -1673,8 +1679,11 @@
 #define IDC_ChannelsSubset					1921
         
 #define IDS_ListData1                   2001
+#define IDC_CompareAlgorithm				 2001
 #define IDS_ListData2                   2002
+#define IDC_CompareAlgorithmPrompt		 2002
 #define IDS_ListData3                   2003
+#define IDC_CreateOutputImageFile		 2003
 #define IDS_ListData4                   2004
 #define IDS_ListData5                   2005
 #define IDS_ListData6                   2006
@@ -2755,6 +2764,11 @@
 #define IDS_ToolTip358                  8358
 #define IDS_ToolTip359                  8359
 #define IDS_ToolTip360                  8360
+#define IDS_ToolTip366                  8366
+#define IDS_ToolTip367                  8367
+#define IDS_ToolTip368                  8368
+#define IDS_ToolTip369                  8369
+#define IDS_ToolTip370                  8370
 #define IDS_ToolTip401                  8401
 #define IDS_ToolTip8402              	 8402
 #define IDS_ToolTip8403              	 8403
@@ -2769,6 +2783,8 @@
 #define IDS_ToolTip8412              	 8412
 #define IDS_ToolTip8413              	 8413
 #define IDS_ToolTip8414              	 8414
+#define IDS_ToolTip8415              	 8415
+#define IDS_ToolTip8416              	 8416
 #define IDS_ToolTip8601						 8601
 #define IDS_ToolTip8701						 8701
 #define IDS_ToolTip8702						 8702
@@ -2808,6 +2824,8 @@
 // which requires ids less than 32k
 
 #define ID_FILE_OPEN_PROJECT_IMAGE      12771
+#define ID_FILE_PRINT_PREVIEW           12825
+#define ID_FILE_PAGE_SETUP	             12826
 #define ID_FILE_CLOSE_WINDOW				 12915
 #define ID_PROJ_CLOSE_WINDOW				 12916
 #define ID_FILE_CHANGE_IMAGE_DESC       12772
@@ -2921,7 +2939,7 @@
 #define ID_APP_ABOUT                    29144
 #define ID_IMAGE_OPEN                   29145
 #define ID_VIEW_TOOLBAR                 29146
-#define ID_VIEW_STATUS_BAR              29147
+//#define ID_VIEW_STATUS_BAR              29147
 //#define ID_FILE_OPEN                    29148
 #define ID_TBOPEN                       29149
 #define ID_TEXT_SAVE                    29150

@@ -29,7 +29,8 @@
 //								CMImageDoc class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageDoc:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);

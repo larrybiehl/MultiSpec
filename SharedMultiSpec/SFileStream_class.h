@@ -39,6 +39,8 @@
 	#define	kWrite								CFile::modeWrite|CFile::typeBinary
 	 
 	class	CMFileStream : public CFile  
+		{
+		public:
 #endif	// defined multispec_win 
 	
 #if defined multispec_wx
@@ -53,9 +55,9 @@
 	#define	kReadWrite     wxFile::read_write
 
 	class CMFileStream : public wxFile
-#endif	// defined multispec_wx
 		{
 		public:
+#endif	// defined multispec_wx
 			CMFileStream ();
 		
 			CMFileStream (

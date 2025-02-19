@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/15/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xListResultsDialog:: (): %s",
 									 gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -62,7 +63,7 @@ BEGIN_EVENT_TABLE (CMListResultsDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ClassCombo, CMListResultsDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMListResultsDialog::OnClassComboSelendok)
 	#endif
 
@@ -216,7 +217,9 @@ void CMListResultsDialog::CreateControls ()
 										IDC_ClassCombo,
 										100,
 										IDS_ToolTip103);
-	bSizer193->Add (m_classesCtrl, 0, wxLEFT|wxRIGHT|wxTOP, 15);
+	//bSizer193->Add (m_classesCtrl, 0, wxLEFT|wxRIGHT|wxTOP, 15);
+	bSizer193->Add (m_classesCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT|wxRIGHT|wxTOP, 15));
 	
 	sbSizer18->Add (bSizer193, 0, wxEXPAND);
 	
@@ -251,7 +254,9 @@ void CMListResultsDialog::CreateControls ()
 	
 	CreateLineColumnControls (sbSizer8);
 
-	bSizer117->Add (sbSizer8, 0, wxEXPAND|wxTOP, 10);
+	//bSizer117->Add (sbSizer8, 0, wxEXPAND|wxTOP, 10);
+	bSizer117->Add (sbSizer8,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxTOP, 10));
 	
 	sbSizer18->Add (bSizer117, 1, wxEXPAND, 5);
 	
@@ -372,16 +377,20 @@ void CMListResultsDialog::CreateControls ()
 													0);
 	m_staticText203->Wrap (-1);
    SetUpToolTip (m_staticText203, IDS_ToolTip271);
-	bSizer198->Add (m_staticText203, 0, wxALIGN_CENTER|wxALL, 5);
+	//bSizer198->Add (m_staticText203, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer198->Add (m_staticText203,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl106 = new wxTextCtrl (sbSizer11->GetStaticBox (),
 												IDC_ConversionFactor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(120, -1),
 												0);
    SetUpToolTip (m_textCtrl106, IDS_ToolTip271);
-	bSizer198->Add (m_textCtrl106, 0, wxALIGN_CENTER|wxBOTTOM|wxLEFT|wxRIGHT, 5);
+	//bSizer198->Add (m_textCtrl106, 0, wxALIGN_CENTER|wxBOTTOM|wxLEFT|wxRIGHT, 5);
+	bSizer198->Add (m_textCtrl106,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxBOTTOM|wxLEFT|wxRIGHT, 5));
 	
 	
 	sbSizer11->Add (bSizer198, 0, wxEXPAND, 5);
@@ -411,7 +420,9 @@ void CMListResultsDialog::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText204->Wrap (-1);
-	bSizer200->Add (m_staticText204, 0, wxALIGN_CENTER|wxLEFT, 45);
+	//bSizer200->Add (m_staticText204, 0, wxALIGN_CENTER|wxLEFT, 45);
+	bSizer200->Add (m_staticText204,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 45));
 	
 	m_textCtrl107 = new wxTextCtrl (this,
 												IDC_Probability,
@@ -419,7 +430,9 @@ void CMListResultsDialog::CreateControls ()
 												wxDefaultPosition,
 												wxSize (80, -1),
 												0);
-	bSizer200->Add (m_textCtrl107, 0, wxALIGN_CENTER|wxLEFT, 5);
+	//bSizer200->Add (m_textCtrl107, 0, wxALIGN_CENTER|wxLEFT, 5);
+	bSizer200->Add (m_textCtrl107,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 	
 	m_staticText205 = new wxStaticText (this,
 													IDC_LRdegrees,
@@ -954,14 +967,21 @@ void CMListResultsDialog::OnInitDialog (
 
    m_thresholdResultsFlag = gListResultsSpecsPtr->thresholdFlag;
    if (gListResultsSpecsPtr->probabilityWindowInfoHandle == NULL)
-      SetDLogControlHilite (this, IDC_ThresholdResults, 255);
+		{
+		//SetDLogControl (this, IDC_ThresholdResults, 0);
+      //SetDLogControlHilite (this, IDC_ThresholdResults, 255);
+      
+      m_thresholdResultsFlag = FALSE;
+      
+      }	// end "if (gListResultsSpecsPtr->probabilityWindowInfoHandle == NULL)"
 
    m_saveThresholdPercent = gListResultsSpecsPtr->probabilityThreshold;
    m_thresholdPercent = m_saveThresholdPercent;
 
    ListResultsDialogSetThresholdItems (this,
-      m_thresholdResultsFlag,
-      gListResultsSpecsPtr->thresholdTypeCode);
+													m_thresholdResultsFlag,
+													(gListResultsSpecsPtr->probabilityWindowInfoHandle != NULL),
+													gListResultsSpecsPtr->thresholdTypeCode);
 
    		// List results to output text window.
    		// List results to disk file.
@@ -1036,8 +1056,11 @@ void CMListResultsDialog::OnThresholdResults (
    m_thresholdResultsFlag = thres->GetValue ();
 
    ListResultsDialogSetThresholdItems (this,
-      m_thresholdResultsFlag,
-      gListResultsSpecsPtr->thresholdTypeCode);
+													m_thresholdResultsFlag,
+													(gListResultsSpecsPtr->probabilityWindowInfoHandle != NULL),
+													gListResultsSpecsPtr->thresholdTypeCode);
+													
+	Layout ();
 
    //	HideShowProbabilityItems (m_thresholdResultsFlag);
 
@@ -1266,9 +1289,14 @@ bool CMListResultsDialog::TransferDataToWindow ()
 
    wxTextCtrl* conversion = (wxTextCtrl*)FindWindow (IDC_ConversionFactor);
    conversion->ChangeValue (wxString::Format (wxT("%.9f"), m_conversionFactor));
-	
    wxTextCtrl* prob = (wxTextCtrl*)FindWindow (IDC_Probability);
-	prob->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
+   
+	if (gListResultsSpecsPtr->thresholdTypeCode == kCorrelationMode ||
+			gListResultsSpecsPtr->thresholdTypeCode == kKNearestNeighborMode)
+		prob->ChangeValue (wxString::Format (wxT("%.0f"), m_thresholdPercent));
+	
+	else	// thresholdTypeCode != kCorrelationMode && != kKNearestNeighborMode
+		prob->ChangeValue (wxString::Format (wxT("%.1f"), m_thresholdPercent));
 	
 	TransferLinesColumnsToWindow ();
 

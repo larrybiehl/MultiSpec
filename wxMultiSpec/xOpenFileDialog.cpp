@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			04/25/2022
+//	Revision date:			02/13/2025
 //
 //	Language:				C++
 //
@@ -29,6 +29,8 @@
 //								CMOpenFileDialog and MyExtraPanel classes.
 //
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h" 
 
 #include "xMultiSpec.h"
 #include "xOpenFileDialog.h"
@@ -43,18 +45,27 @@ IMPLEMENT_CLASS (MyExtraPanel, wxPanel)
 MyExtraPanel::MyExtraPanel (wxWindow *parent) : wxPanel(parent)
 
 {
+	//if (parent->GetExtraControl () != NULL)
+	//	exit;
+
    m_link = NULL;
    m_list = NULL;
 	m_imageType = 0;
    m_linkOption = 0;
+	m_linkOptionSelectionDataCode = m_linkOption + 1;
    m_userSetImageType = 0;
    m_linkToActiveImageFlag = false;
    m_showLinkPopupMenuFlag = TRUE;
    m_initialLinkSelectedFilesFlag = false;
    m_selectedFileCount = 0;
    
-   CreateControls();
-   OnInitDialog();
+	//#if defined multispec_wxlin || multispec_wxmac
+				// Note that Windows calls the extra control on its on.
+		CreateControls();
+	//#endif
+
+	if (wxDynamicCast (parent, wxFileDialog) != NULL)
+		OnInitDialog();
 
 }	// end "MyExtraPanel"
 
@@ -65,6 +76,26 @@ MyExtraPanel::~MyExtraPanel ()
 {
 
 }	// end "~MyExtraPanel"
+
+
+
+void MyExtraPanel::HandleLinkOption (
+	Boolean									beforeOKFlag,
+	int										linkSelectionCode)
+
+{
+	m_linkOptionSelectionDataCode = linkSelectionCode;
+
+	if (m_linkOptionSelectionDataCode == 1)
+		SetImageLinkToFalse (beforeOKFlag);
+
+	else if (m_linkOptionSelectionDataCode == 2)
+		SetImageLinkToTrue (beforeOKFlag);
+
+	else if (m_linkOptionSelectionDataCode == 3)
+		SetImageLinkToTrue (beforeOKFlag);
+
+}	// end "OnSelendokLinkOption"
 
 
 
@@ -108,20 +139,40 @@ void MyExtraPanel::OnInitDialog (void)
 		{
 		//m_link->Append (wxT("Do not link")); // Already loaded
 		m_link->Append (wxT("Link selected file(s) to new image window"));
-		m_link->Append (wxT("Link selected file(s) to active image window"));
+		if (GetActiveImageWindowInfoHandle() != NULL)
+			m_link->Append (wxT("Link selected file(s) to active image window"));
+
+		m_link->SetSelection (1);
+		int link_test = m_link->GetSelection ();
+		int link_test2 = m_link->GetCurrentSelection ();
+
+		m_link->SetSelection (0);
+		link_test = m_link->GetSelection ();
+		link_test2 = m_link->GetCurrentSelection ();
 		
 		}	// end "	if (m_showLinkPopupMenuFlag)"
 	
 	else	// !m_showLinkPopupMenuFlag
+		{
 		//m_link->Append (wxT("Do not link")); // Already loaded
 		m_link->Append (wxT("Link selected file(s) to new image window"));
+
+		m_link->SetSelection (1);
+		int link_test3 = m_link->GetSelection ();
+		int link_test4 = m_link->GetCurrentSelection ();
+
+		m_link->SetSelection (0);
+		link_test3 = m_link->GetSelection ();
+		link_test4 = m_link->GetCurrentSelection ();
+
+		}
     
 	if (gMultipleImageFileCode == 2)
 		{
 		m_linkOption = 2;
 		m_linkOptionSelectionDataCode = 3;
 
-		SetImageLinkToTrue();
+		SetImageLinkToTrue (true);
 		                                        
 		if (gGetFileStatus == 2)
 			m_list->Hide ();
@@ -206,6 +257,8 @@ bool MyExtraPanel::CreateControls (void)
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
+			// Hide this to start with
+	m_staticText3->Hide ();
 	
 			// The layout of extra panel
 	
@@ -234,9 +287,11 @@ bool MyExtraPanel::CreateControls (void)
 	vbox->Add (-1, 10);
 
 	wxBoxSizer *hbox2 = new wxBoxSizer (wxHORIZONTAL);
-	hbox2->Add (m_link, 0, wxLEFT, 8);
-	vbox->Add (hbox2, 0, wxLEFT, 5);
-	vbox->Add (-1, 2);
+	//hbox2->Add (m_link, 0, wxLEFT, 8);
+	hbox2->Add (m_link, wxSizerFlags(0).Border(wxLEFT | wxBOTTOM, 8));
+	//vbox->Add (hbox2, 0, wxLEFT, 5);
+	vbox->Add (hbox2, wxSizerFlags(0).Border(wxLEFT | wxBOTTOM, 8));
+	//vbox->Add (-1, 2);
 
 			// To show the layout of extra panel
 	
@@ -283,6 +338,10 @@ void MyExtraPanel::OnSelendokLinkOption (
 				wxCommandEvent& 					event)
 
 {
+	//m_linkOptionSelectionDataCode = m_link->GetSelection () + 1;
+
+	HandleLinkOption (true, m_link->GetSelection () + 1);
+	/*
 	m_linkOptionSelectionDataCode = m_link->GetSelection () + 1;
     
 	if (m_linkOptionSelectionDataCode == 1)
@@ -293,7 +352,7 @@ void MyExtraPanel::OnSelendokLinkOption (
 	
 	else if (m_linkOptionSelectionDataCode == 3)
 		SetImageLinkToTrue ();
-    
+   */
 }	// end "OnSelendokLinkOption"
 
 
@@ -307,9 +366,14 @@ void MyExtraPanel::OnSelendokImageType (
 }	// end "OnSelendokImageType"
 
 
-void MyExtraPanel::SetImageLinkToTrue (void)
+void MyExtraPanel::SetImageLinkToTrue (
+				Boolean									beforeOKFlag)
 
 {
+	Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
+	if (m_linkOptionSelectionDataCode == 3 && windowInfoHandle == NULL)
+		m_linkOptionSelectionDataCode = 2;
+
 	if (m_linkOptionSelectionDataCode == 2)
 		{
 				// Link to new image window
@@ -324,44 +388,54 @@ void MyExtraPanel::SetImageLinkToTrue (void)
 		
 		gMultipleImageFileCode = 2;
         
-		Handle windowInfoHandle = GetActiveImageWindowInfoHandle();
 		WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (
 																				windowInfoHandle);
 		m_numberImageFiles = windowInfoPtr->numberImageFiles+1;
         
-		if (m_numberImageFiles > 2 && gGetFileStatus == 2)
+		if (beforeOKFlag)
 			{
-			m_link->SetSelection (m_linkOptionSelectionDataCode-1);
-			m_link->Disable ();
+			if (m_numberImageFiles > 2 && gGetFileStatus == 2)
+				{
+				m_link->SetSelection (m_linkOptionSelectionDataCode-1);
+				m_link->Disable ();
 			
-         }	// end "if (m_numberImageFiles > 2 && gGetFileStatus == 2)"
+				}	// end "if (m_numberImageFiles > 2 && gGetFileStatus == 2)"
+
+			}	// end "if (beforeOKFlag)"
 
 		}	// end "else if (m_linkOptionSelectionDataCode == 3)"
 		
-			// Only allow multispectral type
+
+	if (beforeOKFlag)
+		{
+				// Only allow multispectral type
 			
-	m_staticText2->Show ();
-	m_staticText3->Show ();
-	m_list->Hide ();
+		m_staticText2->Show ();
+		m_staticText3->Show ();
+		m_list->Hide ();
   
-	m_initialLinkSelectedFilesFlag = TRUE;
-	m_linkToActiveImageFlag = TRUE;
+		m_initialLinkSelectedFilesFlag = TRUE;
+		m_linkToActiveImageFlag = TRUE;
+	
+		Layout();
+		Fit ();
+
+		}	// end "if (beforeOKFlag)"
 
 	m_imageType = 1;
-	
-	Layout();
-	Fit ();
 
 }	// end "SetImageLinkToTrue"
 
 
 
-void MyExtraPanel::SetImageLinkToFalse (void)
+void MyExtraPanel::SetImageLinkToFalse (
+				Boolean									beforeOKFlag)
 
 {
    gMultipleImageFileCode = 0;
 	
-	m_imageType = m_list->GetSelection ();
+	if (beforeOKFlag)
+		m_imageType = m_list->GetSelection ();
 	
 	if (m_imageType == 0)
 		{
@@ -385,15 +459,19 @@ void MyExtraPanel::SetImageLinkToFalse (void)
 		
 		}	// end "if (m_imageType == 0)"
    
-   m_staticText2->Show ();
-   m_staticText3->Hide ();
+	if (beforeOKFlag)
+		{
+		m_staticText2->Show ();
+		m_staticText3->Hide ();
   
-	m_list->Show ();
-   m_list->Enable (true);
-   m_list->SetSelection (m_imageType);
+		m_list->Show ();
+		m_list->Enable (true);
+		m_list->SetSelection (m_imageType);
 	
-	Layout ();
-	Fit ();
+		Layout ();
+		Fit ();
+
+		}	// end "if (beforeOKFlag)"
 
 }	// end "SetImageLinkToFalse"
 
@@ -406,7 +484,7 @@ static wxWindow* createMyExtraPanel (
 {
 	return new MyExtraPanel (parent);
 	
-}
+}	// end "createMyExtraPanel"
 
 
 
@@ -421,6 +499,7 @@ CMOpenFileDialog::CMOpenFileDialog (
 
 
 bool CMOpenFileDialog::DoDialog (
+				int*									returnKeyCodePtr,
 				int 									stringIndex,
 				long 									style)
 
@@ -436,6 +515,9 @@ bool CMOpenFileDialog::DoDialog (
 	
 
 	//style |= wxSTAY_ON_TOP;	// Does not help keep dialog on top in Linux (gtk)
+	
+	if (returnKeyCodePtr != NULL)
+		*returnKeyCodePtr = 0;
 	
 			// wxDIALOG_NO_PARENT 0x0020 in wx/dialog.h conflicts with wxFD_MULTIPLE.
 			// Problem routine is GetParentForModalDialog in dlgcmn.cpp
@@ -493,20 +575,11 @@ bool CMOpenFileDialog::DoDialog (
    
 			// Create additional panel in the file dialog window
 	
-   if (gProcessorCode == kOpenImageFileProcessor)
-		dialog.SetExtraControlCreator (&createMyExtraPanel);
-	
-			// Set font size for open file dialog
-			// Found that this does not work for title
-	
-	//wxFont currentFont = dialog.GetFont ();
-	//currentFont.SetPointSize (gFontSize+10);
-	//dialog.SetFont (currentFont);
-	//dialog.m_caption
-	
-   //dialog.CenterOnParent();
-	//dialog.Raise();
-	//gdk_window_raise ((GdkWindow*)dialog);
+	//#if defined multispec_wxlin || defined multispec_wxmac || defined multispec_wxwin
+				// Windows seems to call the extra panel on its own.
+		if (gProcessorCode == kOpenImageFileProcessor)
+			dialog.SetExtraControlCreator (&createMyExtraPanel);
+	//#endif
 	
    dialog.SetDirectory (gDefaultDataDirectory);
 	/*
@@ -533,7 +606,8 @@ bool CMOpenFileDialog::DoDialog (
 	
 		dialog.SetPosition (newOrig);
 	
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									" xImageFrame:OnInitDialog (): %d, %d, %d, %d, %d, %d%s",
 									mainFrameWidth,
 									mainFrameHeight,
@@ -554,6 +628,22 @@ bool CMOpenFileDialog::DoDialog (
       if (wxDynamicCast (extra, MyExtraPanel) != NULL)
 			{
          MyExtraPanel* extra_panel = (MyExtraPanel*)extra;
+				
+					// Check if control key is down. Indicate this in the return code.
+			
+			if (returnKeyCodePtr != NULL)
+				{
+				#if defined multispec_wxmac
+							// Note that WXK_CONTROL is the command key for Mac OS
+							// WXK_RAW_CONTROL is the control key
+					if (wxGetKeyState (WXK_RAW_CONTROL))
+				#endif
+				#if defined multispec_wxlin || defined multispec_wxwin
+					if (wxGetKeyState (WXK_CONTROL))
+				#endif
+						*returnKeyCodePtr = 1;
+						
+				}	// end "if (returnKeyCodePtr != NULL)"
 			
             	// Save the filter index that was used.
 			
@@ -574,8 +664,13 @@ bool CMOpenFileDialog::DoDialog (
 			
          if (filenames.size() > 1)
          	{
-         	link_option = extra_panel->m_link->GetSelection ();
-          	if (link_option <= 0)
+						// Determined that for the Windows (MSW) version of wxWidgets that one must
+						// not be able to use GetSelections for link and image type wxChoice controls
+						// in the extra panel after the user selects OK in the dialog box. It appears
+						// that the Windows SendMessage does not work after that is done.
+						// Larry Biehl 04/30/2023
+
+         	if (extra_panel->m_linkOptionSelectionDataCode <= 1)
 					{
 							// More than 1 files selected, ask if want to link them
 					
@@ -584,9 +679,7 @@ bool CMOpenFileDialog::DoDialog (
 											wxT("Link Images"),
 											wxYES_NO | wxCENTRE | wxSTAY_ON_TOP))
 						{
-						extra_panel->m_link->SetSelection (1);
-						//extra_panel->m_linkOptionSelectionDataCode = 2;
-						//extra_panel->SetImageLinkToTrue ();
+						extra_panel->HandleLinkOption (false, 2);
 						
 						}	// end "if (wxYES == wxMessageBox (..."
 					
@@ -596,12 +689,13 @@ bool CMOpenFileDialog::DoDialog (
 			
 					// Note that event is not used in OnSelectokLinkOption
 			
-			wxCommandEvent event;
-         extra_panel->OnSelendokLinkOption (event);
+         //extra_panel->OnSelendokLinkOption (event);
+			extra_panel->HandleLinkOption (false, extra_panel->m_linkOptionSelectionDataCode);
 
 					// Get the image type.
 			
-			m_imageType = extra_panel->m_list->GetSelection ();
+			//m_imageType = extra_panel->m_list->GetSelection ();
+			m_imageType = extra_panel->m_imageType;
 			
 			//int listOption = extra_panel->m_list->GetSelection();
 			gGetFileImageType = 0;

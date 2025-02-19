@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -28,7 +28,8 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMCoordinateBar class.
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
+			256,
 			(char*)&gTextString3,
 			" xCoordinateBar: (): %s",
 			gEndOfLine);
@@ -49,7 +50,7 @@ BEGIN_EVENT_TABLE (CMCoordinateBar, wxPanel)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_AreaUnitsCombo, CMCoordinateBar::OnSelendokAreaUnits)
 	#endif
- 	#if defined multispec_wxmac
+ 	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_AreaUnitsCombo, CMCoordinateBar::OnSelendokAreaUnits)
 	#endif
 
@@ -83,7 +84,7 @@ CMCoordinateBar::CMCoordinateBar (
 	m_displayUnitsCode = kLineColumnUnitsMenuItem;
 	m_displayUnitsListSelection = 0;
 	m_areaUnitsListSelection = 0;
-	
+	/*
 	#if defined multispec_wxmac
 		int fontSize = 12;
 	#else
@@ -95,7 +96,7 @@ CMCoordinateBar::CMCoordinateBar (
 							wxFONTWEIGHT_NORMAL,
 							false,
 							wxEmptyString));
-	
+	*/
 	SetupControls ();
 	
 }	// end "CMCoordinateBar"
@@ -200,8 +201,13 @@ void CMCoordinateBar::OnSelendokDisplayUnits (
 void CMCoordinateBar::SetupControls ()
 
 {
-	wxBoxSizer* bSizer94;
-	bSizer94 = new wxBoxSizer (wxHORIZONTAL);
+   wxFont  font = GetFont();
+   font.SetFamily (wxFONTFAMILY_TELETYPE);
+   //font.SetFaceName ("Andale Mono");
+   //font.MakeSmaller ();
+   
+	wxBoxSizer* bHSizer94;
+	bHSizer94 = new wxBoxSizer (wxHORIZONTAL);
 	
 	m_displayUnitsCtrl = new wxChoice (this,
 													IDC_DisplayUnitsCombo,
@@ -219,16 +225,13 @@ void CMCoordinateBar::SetupControls ()
 	m_displayUnitsCtrl->Append (wxT("Inches"));
 	
    m_displayUnitsCtrl->SetToolTip (wxT("Units of display"));
-	bSizer94->Add (m_displayUnitsCtrl,
-						0,
-						wxALIGN_CENTER_HORIZONTAL | wxALIGN_CENTER_VERTICAL | wxALL,
-						5);
+	bHSizer94->Add (m_displayUnitsCtrl,
+						wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxALL, 5));
 
-	wxBoxSizer* bSizer93;
-	bSizer93 = new wxBoxSizer (wxVERTICAL);
+	wxBoxSizer* bVSizer93;
+	bVSizer93 = new wxBoxSizer (wxVERTICAL);
 
-	wxGridSizer* gSizer5;
-	gSizer5 = new wxGridSizer (2, 1, 0, 0);
+	wxGridSizer* gGridSizer5 = new wxGridSizer (2, 1, 0, 0);
 
 	m_staticText96 = new wxStaticText (this,
 													IDC_LineSymbol,
@@ -238,7 +241,8 @@ void CMCoordinateBar::SetupControls ()
 													//wxSize (9,-1),
 													0);
 	m_staticText96->Wrap (-1);
-	gSizer5->Add (m_staticText96, 0, wxALIGN_LEFT | wxTOP|wxBOTTOM, 2);
+   m_staticText96->SetFont (font);
+	gGridSizer5->Add (m_staticText96, 0, wxALIGN_LEFT | wxTOP|wxBOTTOM, 2);
 
 	m_staticText97 = new wxStaticText (this,
 													IDC_ColumnSymbol,
@@ -248,13 +252,14 @@ void CMCoordinateBar::SetupControls ()
 													//wxSize (9,-1),
 													0);
 	m_staticText97->Wrap (-1);
-	gSizer5->Add (m_staticText97, 0, wxALIGN_LEFT | wxTOP, 4);
+   m_staticText97->SetFont (font);
+	gGridSizer5->Add (m_staticText97,
+							wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 2));
 
-	bSizer93->Add (gSizer5, 0, wxEXPAND);
-	bSizer94->Add (bSizer93, 0, wxEXPAND);
+	bVSizer93->Add (gGridSizer5, wxSizerFlags(0).Expand());
+	bHSizer94->Add (bVSizer93, wxSizerFlags(0).Expand());
 
-	wxGridSizer* gSizer6;
-	gSizer6 = new wxGridSizer (2, 1, 0, 0);
+	wxGridSizer* gGridSizer6 = new wxGridSizer (2, 1, 0, 0);
 
 	m_staticText98 = new wxStaticText (this,
 													IDC_CursorLine,
@@ -262,11 +267,11 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
+													//wxST_NO_AUTORESIZE);
 	m_staticText98->Wrap (-1);
-	gSizer6->Add (m_staticText98,
-						0,
-						wxST_NO_AUTORESIZE|wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL,
-						2);
+   m_staticText98->SetFont (font);
+	gGridSizer6->Add (m_staticText98,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 2));
 
 	m_staticText99 = new wxStaticText (this,
 													IDC_CursorColumn,
@@ -274,23 +279,23 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
+													//wxST_NO_AUTORESIZE);
 	m_staticText99->Wrap (-1);
-	gSizer6->Add (m_staticText99,
-						0,
-						wxST_NO_AUTORESIZE|wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL,
-						2);
+   m_staticText99->SetFont (font);
+	gGridSizer6->Add (m_staticText99,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 2));
 
-	bSizer94->Add (gSizer6, 0, wxEXPAND, 2);
+	bHSizer94->Add (gGridSizer6, wxSizerFlags(0).Expand());
 
 	m_staticline2 = new wxStaticLine (this,
 												wxID_ANY,
 												wxDefaultPosition,
 												wxDefaultSize,
 												wxLI_VERTICAL);
-	bSizer94->Add (m_staticline2, 0, wxEXPAND | wxALL, 2);
+	
+	bHSizer94->Add (m_staticline2, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT|wxBOTTOM, 3));
 
-	wxGridSizer* gSizer7;
-	gSizer7 = new wxGridSizer (2, 1, 0, 0);
+	wxGridSizer* gGridSizer7 = new wxGridSizer (2, 1, 0, 0);
 
 	m_staticText100 = new wxStaticText (this,
 													IDC_SelectionLine,
@@ -299,7 +304,9 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText100->Wrap (-1);
-	gSizer7->Add (m_staticText100, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 2);
+   m_staticText100->SetFont (font);
+	gGridSizer7->Add (m_staticText100,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 2));
 
 	m_staticText101 = new wxStaticText (this,
 													IDC_SelectionColumn,
@@ -308,9 +315,10 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText101->Wrap (-1);
-	gSizer7->Add (m_staticText101, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 2);
+   m_staticText101->SetFont (font);
+	gGridSizer7->Add (m_staticText101, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALL, 2);
 
-	bSizer94->Add (gSizer7, 0, wxEXPAND, 2);
+	bHSizer94->Add (gGridSizer7, wxSizerFlags(0).Expand());
 
 	m_staticText102 = new wxStaticText (this,
 													wxID_ANY,
@@ -319,7 +327,8 @@ void CMCoordinateBar::SetupControls ()
 													wxSize (10,-1),
 													0);
 	m_staticText102->Wrap (-1);
-	bSizer94->Add (m_staticText102, 0, wxALL, 2);
+   m_staticText102->SetFont (font);
+	bHSizer94->Add (m_staticText102, 0, wxALL, 2);
 
 	wxGridSizer* gSizer8;
 	gSizer8 = new wxGridSizer (2, 1, 0, 0);
@@ -333,7 +342,7 @@ void CMCoordinateBar::SetupControls ()
 														NULL,
 														wxCB_READONLY);
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_areaUnitsCtrl = new wxChoice (this,
 													IDC_AreaUnitsCombo,
 													wxDefaultPosition,
@@ -348,7 +357,7 @@ void CMCoordinateBar::SetupControls ()
 		#if defined multispec_wxlin
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP|wxBOTTOM, 1));
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP|wxBOTTOM, 2));
 		#endif
 	
@@ -359,17 +368,18 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText104->Wrap (-1);
+   m_staticText104->SetFont (font);
 	gSizer8->Add (m_staticText104,
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP, 2));
 
-	bSizer94->Add (gSizer8, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL));
+	bHSizer94->Add (gSizer8, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL));
 	
 	m_staticline3 = new wxStaticLine (this,
 													wxID_ANY,
 													wxDefaultPosition,
 													wxDefaultSize,
 													wxLI_VERTICAL);
-	bSizer94->Add (m_staticline3, 0, wxEXPAND | wxALL, 2);
+	bHSizer94->Add (m_staticline3, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT|wxBOTTOM, 3));
 
 	wxBoxSizer* bSizer941;
 	bSizer941 = new wxBoxSizer (wxVERTICAL);
@@ -381,7 +391,8 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText104->Wrap (-1);
-	bSizer941->Add (m_staticText104, 0, wxALL, 2);
+   m_staticText104->SetFont (font);
+	bSizer941->Add (m_staticText104, wxSizerFlags(0).Border(wxALL,2));
 
 	m_staticText105 = new wxStaticText (this,
 													IDC_Scale,
@@ -390,11 +401,12 @@ void CMCoordinateBar::SetupControls ()
 													wxDefaultSize,
 													0);
 	m_staticText105->Wrap (-1);
+   m_staticText105->SetFont (font);
 	bSizer941->Add (m_staticText105, 0, wxALL, 2);
 
-	bSizer94->Add (bSizer941, 1, wxEXPAND, 2);
+	bHSizer94->Add (bSizer941, wxSizerFlags(1).Expand());
 
-	SetSizer (bSizer94);
+	SetSizer (bHSizer94);
 	Layout ();
 	
 }	// end "SetupControls"

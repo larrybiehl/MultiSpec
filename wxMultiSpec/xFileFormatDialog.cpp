@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xFileFormatDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -57,6 +58,8 @@ BEGIN_EVENT_TABLE (CMFileFormatSpecsDlg, CMDialog)
 	EVT_CHOICE (IDC_HDFDataSet, CMFileFormatSpecsDlg::OnSelendokHDFDataSet)
 
 	EVT_INIT_DIALOG (CMFileFormatSpecsDlg::OnInitDialog)
+
+	EVT_ACTIVATE (CMFileFormatSpecsDlg::OnActivate)
 
 	EVT_SHOW (CMFileFormatSpecsDlg::OnShow)
 END_EVENT_TABLE ()
@@ -102,6 +105,7 @@ CMFileFormatSpecsDlg::CMFileFormatSpecsDlg (
 	m_menuClientData = NULL;
 
 	m_dataCompressionCode = 0;
+	m_instrumentCode = 0;
 
 	m_maxNumberChannelsClasses = 0;
 
@@ -118,6 +122,9 @@ CMFileFormatSpecsDlg::CMFileFormatSpecsDlg (
 		// in where the code is run.
 
 	m_onShowCalledFlag = FALSE;
+	m_initDialogCalledFlag = FALSE;
+	m_multipleDataSetMessageCalledFlag = FALSE;
+	m_onActivateCalledFlag = FALSE;
 
 	CreateControls ();
 	
@@ -193,7 +200,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_NumberLines,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	SetUpToolTip (m_textCtrl41, IDS_ToolTip274);
 	m_textCtrl41->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
@@ -215,7 +222,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_NumberColumns,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl42, IDS_ToolTip275);
 	m_textCtrl42->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
@@ -237,7 +244,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_NumberChannels,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl43, IDS_ToolTip276);
 	m_textCtrl43->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
@@ -258,7 +265,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_StartLineNumber,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl44->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl44, IDS_ToolTip278);
@@ -280,7 +287,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_StartColumnNumber,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl45->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl45, IDS_ToolTip279);
@@ -308,7 +315,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_HeaderBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl46->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl46, IDS_ToolTip280);
@@ -330,7 +337,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_TrailerBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl47->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl47, IDS_ToolTip281);
@@ -354,7 +361,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText101->Wrap (-1);
-	fgSizer2->Add (m_staticText101, 0, wxALL, 5);
+	fgSizer2->Add (m_staticText101, wxSizerFlags(0).Border(wxALL,5));
 
 	m_staticText102 = new wxStaticText (sbSizer3->GetStaticBox (),
 													IDC_BlockWidthPrompt,
@@ -374,7 +381,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText103->Wrap (-1);
-	fgSizer2->Add (m_staticText103, 0, wxALL, 5);
+	fgSizer2->Add (m_staticText103, wxSizerFlags(0).Border(wxALL,5));
 
 	m_staticText96 = new wxStaticText (sbSizer3->GetStaticBox (),
 													IDC_PreLinePrompt,
@@ -392,7 +399,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_PreLineBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl48->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl48, IDS_ToolTip282);
@@ -414,7 +421,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_PostLineBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl49->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl49, IDS_ToolTip283);
@@ -436,7 +443,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_PreChannelBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl50->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl50, IDS_ToolTip284);
@@ -458,7 +465,7 @@ void CMFileFormatSpecsDlg::CreateControls ()
 												IDC_PostChannelBytes,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl51->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl51, IDS_ToolTip285);
@@ -683,7 +690,6 @@ Boolean CMFileFormatSpecsDlg::DoDialog (
 	SInt16 								returnCode;
 
 	Boolean 								continueFlag = FALSE,
-											changedFlag,
 											parameterChangedFlag = FALSE;
 
 
@@ -703,7 +709,6 @@ Boolean CMFileFormatSpecsDlg::DoDialog (
 
 	if (returnCode == wxID_OK)
     	{
-		changedFlag = FALSE;
 		continueFlag = TRUE;
 
 		parameterChangedFlag = FileSpecificationDialogOK (
@@ -741,6 +746,7 @@ Boolean CMFileFormatSpecsDlg::DoDialog (
 																	 m_dataSetIndex,
 																	 m_collapseClassSelection + 1,
 																	 m_dataCompressionCode,
+																	 m_instrumentCode,
 																	 m_gdalDataTypeCode,
 																	 m_callGetHDFLineFlag);
 
@@ -900,9 +906,12 @@ void CMFileFormatSpecsDlg::OnInitDialog (
 	Fit ();
 		
 	SelectDialogItemText (this, IDC_NumberLines, 0, (SInt16)INT_MAX);
+
+			// If needed the info for any previous data set selections will be set.
 	
-	if (m_onShowCalledFlag)
-		ShowMultipleDataSetMessage ();
+	UpdateMultipleDataSetSettings ();
+
+	m_initDialogCalledFlag = true;
 
 }	// end "OnInitDialog" 
 
@@ -912,14 +921,22 @@ void CMFileFormatSpecsDlg::OnSelendokBandInterleave (
 				wxCommandEvent& 					event)
 
 {
-			// prevent control notifications from being dispatched during 
-			// UpdateData
+	SInt16									localBandInterleave;
+	
+	
+	m_bandInterleave = m_interleaveCtrl->GetSelection ();
+	
+	localBandInterleave = m_bandInterleave + 1;
 
-    m_bandInterleave = m_interleaveCtrl->GetSelection ();
-
-    FileSpecificationDialogSetInterleaveItems (this,
-																m_bandInterleave + 1,
+	FileSpecificationDialogSetInterleaveItems (this,
+																localBandInterleave,
 																m_fileInfoPtr->blockedFlag);
+	
+	//if (localBandInterleave == kBNonSQBlocked ||
+	//										localBandInterleave == kBIBlock)
+	SetSizerAndFit (bSizer47);
+		//Layout ();
+		//Fit ();
 
 }	// end "OnSelendokBandInterleave"
 
@@ -970,6 +987,7 @@ void CMFileFormatSpecsDlg::OnSelendokHDFDataSet (
 																 &bandInterleaveSelection,
 																 &dataValueTypeSelection,
 																 &m_dataCompressionCode,
+																 &m_instrumentCode,
 																 &m_gdalDataTypeCode,
 																 &m_callGetHDFLineFlag) == noErr) 
 			{
@@ -992,37 +1010,70 @@ void CMFileFormatSpecsDlg::OnSelendokHDFDataSet (
 
 
 
+void CMFileFormatSpecsDlg::OnActivate (
+				wxActivateEvent&						event)
+
+{
+			// Hopefully this gets the first time the dialog is show so that a message
+			// can be displayed if needed.
+
+	if (event.GetActive ())
+		{
+		if (m_onShowCalledFlag && m_initDialogCalledFlag && !m_multipleDataSetMessageCalledFlag)
+			{
+			m_multipleDataSetMessageCalledFlag = true;
+			ShowMessages ();
+
+			}	// end "if (m_onShowCalledFlag && m_initDialogCalledFlag)"
+
+		}	// end "if (event.GetActive ()"
+
+}	// end "OnOnActivate"
+
+
+
 void CMFileFormatSpecsDlg::OnShow (
 				wxShowEvent& 						event)
 
 {
+			// May not need this routine.
+
 	if (event.IsShown ())
 		{
 		m_onShowCalledFlag = TRUE;
-	
-		if (m_windowInfoPtr != NULL)
-			ShowMultipleDataSetMessage ();
-		
+		/*
+		if (m_initDialogCalledFlag)
+			{
+			CheckSomeEvents (updateMask);
+			ShowMessages ();
+
+			}
+
+		event.Skip();
+		*/
 		}	// end "if (event.IsShown ())"
 		
 }	// end "OnShow"
 
 
 
-void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
+void CMFileFormatSpecsDlg::ShowMessages (void)
 
 {
-	SInt16								bandInterleaveSelection,
-											dataValueTypeSelection;
-
-
 		  // Do not allow specifications to be changed if the active				
 		  // window represents the base image for an open project.					
 
 	if (gProcessorCode == kChangeImageDescriptionProcessor &&
 																m_windowInfoPtr->projectWindowFlag) 
 		{
-		DisplayAlert (kErrorAlertID, kCautionAlert, kAlertStrID, IDS_Alert25, 0, NULL);
+		DisplayAlert (kErrorAlertID,
+							kCautionAlert,
+							kAlertStrID,
+							IDS_Alert25,
+							0,
+							NULL,
+							this,
+							kASCIICharString);
 
 		}	// end "if (gProcessorCode == kChangeImageDescriptionProcessor && ..."
 	  
@@ -1042,8 +1093,8 @@ void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
 		{
 				// Need to be sure dialog box is shown
 		
-		CheckSomeEvents (updateMask+activMask);
-		
+		CheckSomeEvents (0);
+		/*
 		DisplayAlert (kErrorAlertID,
 							kNoteAlert,
 							kAlertStrID,
@@ -1052,44 +1103,11 @@ void CMFileFormatSpecsDlg::ShowMultipleDataSetMessage (void)
 							NULL,
 							this,
 							kASCIICharString);
-		
+		*/
 		gHDFDataSetSelectionAlertDisplayedFlag = TRUE;
 
 		}	// end "if (gProcessorCode == kOpenImageFileProcessor && fileInfoPtr->...)"
-	
-			// Force any alert messages concerning the default hdf data set to
-			// be shown.
-	
-	if (gProcessorCode == kOpenImageFileProcessor &&
-				(m_fileInfoPtr->format == kHDF4Type ||
-					m_fileInfoPtr->format == kNETCDFType ||
-						m_fileInfoPtr->format == kHDF5Type ||
-							m_fileInfoPtr->format == kNETCDF2Type ||
-								m_fileInfoPtr->format == kHDF4Type2 ||
-									m_fileInfoPtr->format == kNITFType))
-		{
-		FileSpecificationDialogSetHDFValues (this,
-														  m_fileInfoPtr,
-														  m_hdfDataSetSelection,
-														  NULL,
-														  FALSE,
-														  &m_mapInformationHandle,
-														  &m_hfaHandle,
-														  &m_newChannelToHdfDataSetHandle,
-														  &bandInterleaveSelection,
-														  &dataValueTypeSelection,
-														  &m_dataCompressionCode,
-														  &m_gdalDataTypeCode,
-														  &m_callGetHDFLineFlag);
-		
-		m_bandInterleave = bandInterleaveSelection - 1;
-		m_interleaveCtrl->SetSelection (m_bandInterleave);
-
-		m_dataValueType = dataValueTypeSelection;
-		m_valueTypeCtrl->SetSelection (m_dataValueType);
-		
-		}	// end "if (gProcessorCode == kOpenImageFileProcessor && ..."
-	 
+		 
 }	// end "ShowMultipleDataSetMessage"
 
 
@@ -1219,11 +1237,13 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow ()
 						m_dataValueType > k2ByteUnsignedIntegerMenuItem))
 		{
 		DisplayAlert (kErrorAlertID,
-							 kStopAlert,
-							 kAlertStrID,
-							 IDS_Alert135,
-							 0,
-							 NULL);
+							kStopAlert,
+							kAlertStrID,
+							IDS_Alert135,
+							0,
+							NULL,
+							this,
+							kASCIICharString);
 				 
 		returnCode = 1;
 
@@ -1271,14 +1291,20 @@ bool CMFileFormatSpecsDlg::TransferDataFromWindow ()
 		
 		MGetString (gTextString2, kAlertStrID, IDS_FileSizeLimit);
 		
-		sprintf ((char*)gTextString, (char*)gTextString2, fileNamePtr, sizeDifference);
+		snprintf ((char*)gTextString,
+						256,
+						(char*)gTextString2,
+						fileNamePtr,
+						sizeDifference);
 		
 		alertReturnCode = DisplayAlert (kRedoDontCancelAlertID,
-													 kCautionAlert,
-													 kAlertStrID,
-													 0,
-													 0,
-													 gTextString);
+													kCautionAlert,
+													kAlertStrID,
+													0,
+													0,
+													gTextString,
+													this,
+													kASCIICharString);
 
 		if (alertReturnCode == 1)
 			{
@@ -1380,3 +1406,45 @@ bool CMFileFormatSpecsDlg::TransferDataToWindow ()
 	return true;
 	 
 }	// end "TransferDataToWindow"
+
+
+
+void CMFileFormatSpecsDlg::UpdateMultipleDataSetSettings (void)
+
+{
+	SInt16								bandInterleaveSelection,
+											dataValueTypeSelection;
+
+
+	if (gProcessorCode == kOpenImageFileProcessor &&
+		(m_fileInfoPtr->format == kHDF4Type ||
+			m_fileInfoPtr->format == kNETCDFType ||
+			m_fileInfoPtr->format == kHDF5Type ||
+			m_fileInfoPtr->format == kNETCDF2Type ||
+			m_fileInfoPtr->format == kHDF4Type2 ||
+			m_fileInfoPtr->format == kNITFType))
+	{
+		FileSpecificationDialogSetHDFValues (this,
+															m_fileInfoPtr,
+															m_hdfDataSetSelection,
+															NULL,
+															FALSE,
+															&m_mapInformationHandle,
+															&m_hfaHandle,
+															&m_newChannelToHdfDataSetHandle,
+															&bandInterleaveSelection,
+															&dataValueTypeSelection,
+															&m_dataCompressionCode,
+															&m_instrumentCode,
+															&m_gdalDataTypeCode,
+															&m_callGetHDFLineFlag);
+
+		m_bandInterleave = bandInterleaveSelection - 1;
+		m_interleaveCtrl->SetSelection (m_bandInterleave);
+
+		m_dataValueType = dataValueTypeSelection;
+		m_valueTypeCtrl->SetSelection (m_dataValueType);
+
+	}	// end "if (gProcessorCode == kOpenImageFileProcessor && ..."
+
+}	// end "UpdateMultipleDataSetSettings"

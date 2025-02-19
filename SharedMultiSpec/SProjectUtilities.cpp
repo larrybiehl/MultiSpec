@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/25/2019
+//	Revision date:			02/16/2025
 //
 //	Language:				C
 //
@@ -1097,7 +1097,8 @@ Boolean CheckNumberOfPixelsInClass (
 
             if (returnFlag)
 					{
-               sprintf ((char*)gTextString,
+               snprintf ((char*)gTextString,
+									256,
 									"%s    The number of pixels in the following classes needs "
 									"to be at least%s     one more than the %hd features being "
 									"used.%s      %s with %lld pixels%s",
@@ -1114,7 +1115,8 @@ Boolean CheckNumberOfPixelsInClass (
 					}	// end "if (returnFlag)"
 
             else	// !returnFlag 
-               sprintf ((char*)gTextString,
+               snprintf ((char*)gTextString,
+								256,
 								"      %s with %lld pixels%s",
 								gTextString2,
 								classNamesPtr[classStorage].numberStatisticsPixels,
@@ -1524,7 +1526,7 @@ void ClassPairWeightsDialogChangeWeight (
    SInt16								stringLength;
 
 
-   sprintf ((char*)gTextString, "%3d-", newWeight);
+   snprintf ((char*)gTextString, 256, "%3d-", newWeight);
    stringLength = 4;
 
    cell.h = 0;
@@ -2456,7 +2458,7 @@ SInt16 ClassWeightsDialogClassSelectionChange (
 // Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
-//	Revised By:			Larry L. Biehl			Date: 12/17/1999
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 double ClassWeightsDialogChangeWeights (
 				DialogPtr							dialogPtr,
@@ -2760,7 +2762,7 @@ Boolean ClassWeightsDialogModal (
 // Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1999
-//	Revised By:			Larry L. Biehl			Date: 12/20/1999
+//	Revised By:			Larry L. Biehl			Date: 02/16/2025
 
 SInt16 ClassWeightsDialogOK (
 				DialogPtr							dialogPtr,
@@ -2779,7 +2781,6 @@ SInt16 ClassWeightsDialogOK (
    UInt32								index;
 
    SInt16								classIndex,
-											classStorage,
 											fixedCellWidth = 40,
 											stringLength,
 											weightsSelection;
@@ -2795,7 +2796,6 @@ SInt16 ClassWeightsDialogOK (
    for (index=0; index<numberOfClassesToUse; index++)
 		{
       classIndex = classPtr[index] - 1;
-      classStorage = gProjectInfoPtr->storageClass[classIndex];
 
       stringLength = fixedCellWidth;
       LGetCell ((char*)gTextString2, &stringLength, cell, listHandle);
@@ -2844,7 +2844,7 @@ SInt16 ClassWeightsDialogOK (
 // Called By:			ClassWeightsDialog in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/17/1999
-//	Revised By:			Larry L. Biehl			Date: 12/17/1999
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 void ClassWeightsDialogSetEqualWeights (
 				DialogPtr							dialogPtr,
@@ -6166,7 +6166,8 @@ Boolean ListClassesUsed (
 
    if (thresholdFlag) 
 		{
-      sprintf ((char*)gTextString,
+      snprintf ((char*)gTextString,
+					256,
 					"       0: Threshold (background)         %s",
 					gEndOfLine);
 
@@ -6420,12 +6421,13 @@ Boolean ListClassFieldsUsed (
 
 						// Get field name in 31 character field.							
 
-            sprintf ((char*)gTextString3, "                               ");
+            snprintf ((char*)gTextString3, 256, "                               ");
             pstr ((char*)gTextString3, (char*)&fieldIdentPtr->name, &strLength);
             gTextString3[strLength] = ' ';
             gTextString3[kMaxClassFieldNameLength] = kNullTerminator;
 
-            sprintf ((char*)gTextString, 
+            snprintf ((char*)gTextString,
+								256,
 								"    %4d:\t%s\t%5d",
 								*fieldLabelNumberPtr,
 								gTextString3,
@@ -6470,7 +6472,8 @@ Boolean ListClassFieldsUsed (
 								point++) 
 						{
                   if (point == 1)
-                     sprintf ((char*)gTextString,
+                     snprintf ((char*)gTextString,
+										256,
 										"                                               ");
 
                   sprintf (stringPtr,
@@ -6585,7 +6588,7 @@ Boolean ListClassificationHeaderInfo (
 			// List the header identifier line.												
 	/*
    MGetString (gTextString2, kFileIOStrID, IDS_MultiSpecType);  // 42
-   sprintf ((char*)gTextString, "%s%s%s", gEndOfLine, &gTextString2[1], gEndOfLine);
+   snprintf ((char*)gTextString, 256, "%s%s%s", gEndOfLine, &gTextString2[1], gEndOfLine);
    continueFlag = OutputString (resultsFileStreamPtr,
 											(char*)gTextString,
 											0,
@@ -6604,7 +6607,8 @@ Boolean ListClassificationHeaderInfo (
 			// List the project image start line and column.		
 
    MGetString (gTextString2, kFileIOStrID, IDS_ImageStartLine); // 36 
-   sprintf ((char*)gTextString,
+   snprintf ((char*)gTextString,
+					256,
 					"    %s %u, %u%s",
 					&gTextString2[1],
 					(unsigned int)gProjectInfoPtr->startLine,
@@ -6889,30 +6893,34 @@ Boolean ListClassInformationMessage (
          stringPtr2 = (char*)&gTextString2;
 
          if (stringIndex == IDS_Project31 || stringIndex == IDS_Project32)
-            sprintf ((char*)gTextString, (char*)&stringPtr2[1], (char*)gTextString3);
+            snprintf ((char*)gTextString, 256, (char*)&stringPtr2[1], (char*)gTextString3);
 
          else if (stringIndex == IDS_Project67)
-            sprintf ((char*)gTextString, 
+            snprintf ((char*)gTextString,
+								256,
 								(char*)&stringPtr2[1], 
 								(char*)gTextString3,
 								gProjectInfoPtr->zeroVarianceFactor);
 
          else if (stringIndex == IDS_Project68)
-            sprintf ((char*)gTextString, 
+            snprintf ((char*)gTextString,
+								256,
 								(char*)&stringPtr2[1], 
 								gProjectInfoPtr->zeroVarianceFactor);
 
          else if (stringIndex == IDS_Project69)
-            sprintf ((char*)gTextString,
+            snprintf ((char*)gTextString,
+								256,
 								"%s", (char*)&stringPtr2[1]);
 
          else if (stringIndex == IDS_Project78)
-            sprintf ((char*)gTextString,
+            snprintf ((char*)gTextString,
+							256,
 							(char*)&stringPtr2[1],
 							(char*)gTextString3);
 
          else	// stringIndex == IDS_Project79
-            sprintf ((char*)gTextString, "%s", (char*)&stringPtr2[1]);
+            snprintf ((char*)gTextString, 256, "%s", (char*)&stringPtr2[1]);
 
          continueFlag = OutputString (resultsFileStreamPtr,
 													(char*)gTextString,
@@ -7025,10 +7033,10 @@ void LoadClassList (
 				// Place class symbol in the list.											
 
       if (symbolPtr != NULL)
-         sprintf ((char*)gTextString, "%c-", symbolPtr[classIndex + 1]);
+         snprintf ((char*)gTextString, 256, "%c-", symbolPtr[classIndex + 1]);
 
       else	// symbolPtr == NULL 	
-         sprintf ((char*)gTextString, "%3d-", classIndex + 1);
+         snprintf ((char*)gTextString, 256, "%3d-", classIndex + 1);
 
       if (!clusterFlag) 
 			{
@@ -7349,7 +7357,7 @@ void LoadClassWeightGroups (
 		{
       weightsListIndex++;
       weight = weightsListPtr[weightsListIndex];
-      sprintf ((char*)gTextString, "%3d-", weight);
+      snprintf ((char*)gTextString, 256, "%3d-", weight);
       stringLength = 4;
 
       weightsListIndex++;
@@ -7414,7 +7422,7 @@ void LoadClassWeightGroups (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 12/16/1999
-//	Revised By:			Larry L. Biehl			Date: 12/16/1999	
+//	Revised By:			Larry L. Biehl			Date: 04/01/2023
 
 double LoadClassWeightsIntoList (
 				#if defined multispec_wx
@@ -7436,7 +7444,6 @@ double LoadClassWeightsIntoList (
 											classStorage,
 											fixedCellWidth = 40,
 											index,
-											row,
 											stringLength;
 
 
@@ -7444,7 +7451,7 @@ double LoadClassWeightsIntoList (
 
    if (listHandle != NULL) 
 		{
-      row = LAddRow (numberOfClassesToUse, 0, listHandle);
+      LAddRow (numberOfClassesToUse, 0, listHandle);
       cell.h = 0;
       weightsPtr = GetClassWeightsPtr (weightsPtr, useEnhancedStatFlag, FALSE);
 
@@ -8152,7 +8159,7 @@ SInt16 ProjectChangesPopUpMenu (
 
    returnCode = currentListType;
    if (selection == 1)
-      if (ProjectMenuClearStatistics ())
+      if (ProjectMenuClearStatistics (NULL))
          returnCode = 1;
 	/*
    if (selection == 2) 
@@ -8193,9 +8200,10 @@ SInt16 ProjectChangesPopUpMenu (
 //							ProjectChangesPopUpMenu in SProjectUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/28/1989
-//	Revised By:			Larry L. Biehl			Date: 04/27/2019
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
-Boolean ProjectMenuClearStatistics (void)
+Boolean ProjectMenuClearStatistics (
+				DialogPtr							dialogPtr)
 
 {
 	WindowInfoPtr						projectWindowInfoPtr;
@@ -8238,7 +8246,7 @@ Boolean ProjectMenuClearStatistics (void)
 															(char*) gTextString2,
 															TRUE,
 															projectFileNameCPtr))
-			itemHit = DisplayAlert (kSaveAlertID, 3, 0, 0, 0, gTextString);
+			itemHit = DisplayAlert (kSaveAlertID, 3, 0, 0, 0, gTextString, dialogPtr, kASCIICharString);
 
       if (itemHit == 1)
          SaveProjectFile (1);

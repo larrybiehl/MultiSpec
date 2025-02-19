@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/29/2020
+//	Revision date:			02/10/2025
 //
 //	Language:				C++
 //
@@ -237,8 +237,8 @@ void CMChangeChannelDescriptionDlg::CreateControls ()
 	m_textCtrl144 = new wxTextCtrl (this, 
 												IDC_Value, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
 	m_textCtrl144->SetMaxLength (10); 
 	bSizer335->Add (m_textCtrl144, 0, wxALL, 5);
@@ -477,15 +477,31 @@ bool CMChangeChannelDescriptionDlg::TransferDataFromWindow ()
 bool CMChangeChannelDescriptionDlg::TransferDataToWindow () 
 
 {
+	wxRadioButton* 			modifyRadioButton;
+	
+   modifyRadioButton = (wxRadioButton*)FindWindow (IDC_AddModifyChannelDescriptionRadio);
+   modifyRadioButton->SetValue (m_addModifiyDeleteCode==1);
+   
    //wxTextCtrl* newDesText = (wxTextCtrl*)FindWindow (IDC_Description);
    wxTextCtrl* newValueText = (wxTextCtrl*)FindWindow (IDC_Value);
 	
    LoadDescriptionIntoDItem (this, IDC_Description, m_channelDescriptionPtr);	
 	
    newValueText->SetValue (wxString::Format (wxT("%.3f"), m_value));
+   
+	modifyRadioButton = (wxRadioButton*)FindWindow (IDC_DeleteChannelDescriptionRadio);
+	if (m_fileInfoPtr->descriptionsFlag)
+		{
+		modifyRadioButton->SetValue (m_addModifiyDeleteCode==0);
+		
+		}	// end "if (m_fileInfoPtr->descriptionsFlag)"
 	
-	if (!m_fileInfoPtr->descriptionsFlag)
+	else	// !m_fileInfoPtr->descriptionsFlag)
+		{
+		modifyRadioButton->SetValue (0);
 		SetDLogControlHilite (this, IDC_DeleteChannelDescriptionRadio, 255);
+		
+		}	// end "else !m_fileInfoPtr->descriptionsFlag)"
    
    return TRUE;
 	
@@ -508,19 +524,23 @@ void CMChangeChannelDescriptionDlg::Update ()
    
 	MGetString (descriptionString, kFileIOStrID, IDS_BlankString16);
 	stringLength = m_description.length ();
-   
-	BlockMoveData (m_description, &descriptionString[1], stringLength);
+
+			// Convert the wxString m_description to an ascii string
+
+	wxScopedCharBuffer asciiDescriptionBuffer = m_description.ToAscii();
+	BlockMoveData (asciiDescriptionBuffer, &descriptionString[1], stringLength);
+	descriptionString[0] = stringLength;
 	
 			// Get the new value
 
    wxTextCtrl* value = (wxTextCtrl*)FindWindow (IDC_Value);
-   m_value = atof (value->GetValue ());
+   m_value = atof (value->GetValue().mb_str(wxConvUTF8));
    
 	m_changeFlag = ModifyChannelDescriptionsUpdate (this, 
 																	m_channelDescriptionPtr, 
 																	m_channelValuesPtr,
 																	m_channelIndex,
-																	(char*)&descriptionString,
+																	(char*)&descriptionString[0],
 																	m_value,
 																	m_changeFlag);
 

@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			02/14/2025
 //
 //	Language:				C++
 //
@@ -147,7 +147,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 													0);
 	m_staticText257->Wrap (-1);
 	SetUpToolTip (m_staticText257, IDS_ToolTip352);
-   bSizer270->Add (m_staticText257, 0, wxALIGN_CENTER, 5);
+   //bSizer270->Add (m_staticText257, 0, wxALIGN_CENTER, 5);
+	bSizer270->Add (m_staticText257,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl109 = new wxTextCtrl (sbSizer12->GetStaticBox (),
 												IDC_OptimizationThreshold,
@@ -157,7 +159,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 												0,
 												wxTextValidator (wxFILTER_NUMERIC));
    SetUpToolTip (m_textCtrl109, IDS_ToolTip352);
-   bSizer270->Add (m_textCtrl109, 0, 0, 5);
+   //bSizer270->Add (m_textCtrl109, 0, 0, 5);
+	bSizer270->Add (m_textCtrl109,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	sbSizer12->Add (bSizer270, 0, wxEXPAND|wxLEFT, 30);
 	
@@ -296,7 +300,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 													0);
 	m_staticText261->Wrap (-1);
    SetUpToolTip (m_staticText261, IDS_ToolTip348);
-	bSizer273->Add (m_staticText261, 0, wxALIGN_CENTER, 5);
+	//bSizer273->Add (m_staticText261, 0, wxALIGN_CENTER, 5);
+	bSizer273->Add (m_staticText261,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl112 = new wxTextCtrl (sbSizer14->GetStaticBox (),
 												IDC_TopDownThreshold,
@@ -306,7 +312,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 												0,
 												wxTextValidator (wxFILTER_NUMERIC));
 	SetUpToolTip (m_textCtrl112, IDS_ToolTip348);
-   bSizer273->Add (m_textCtrl112, 0, wxALIGN_CENTER, 5);
+   //bSizer273->Add (m_textCtrl112, 0, wxALIGN_CENTER, 5);
+	bSizer273->Add (m_textCtrl112,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	sbSizer14->Add (bSizer273, 0, wxLEFT, 15);
 	
@@ -315,13 +323,15 @@ void CMProjectionPursuitDialog::CreateControls ()
 	
 	m_staticText262 = new wxStaticText (sbSizer14->GetStaticBox (),
 													IDC_BottomUpThresholdPrompt,
-													wxT("Bottom-up threshold (%):"),
+													wxT("Bottom-up threshold (%): "),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
 	m_staticText262->Wrap (-1);
    SetUpToolTip (m_staticText262, IDS_ToolTip349);
-	bSizer274->Add (m_staticText262, 0, wxALIGN_CENTER, 5);
+	//bSizer274->Add (m_staticText262, 0, wxALIGN_CENTER, 5);
+	bSizer274->Add (m_staticText262,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl113 = new wxTextCtrl (sbSizer14->GetStaticBox (),
 												IDC_BottomUpThreshold,
@@ -331,7 +341,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 												0,
 												wxTextValidator (wxFILTER_NUMERIC));
    SetUpToolTip (m_textCtrl113, IDS_ToolTip349);
-	bSizer274->Add (m_textCtrl113, 0, wxALIGN_CENTER|wxBOTTOM, 5);
+	//bSizer274->Add (m_textCtrl113, 0, wxALIGN_CENTER|wxBOTTOM, 5);
+	bSizer274->Add (m_textCtrl113,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	sbSizer14->Add (bSizer274, 1, wxEXPAND|wxLEFT, 15);
 	
@@ -346,7 +358,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 													0);
 	m_staticText263->Wrap (-1);
    SetUpToolTip (m_staticText263, IDS_ToolTip357);
-	bSizer275->Add (m_staticText263, 0, wxLEFT, 15);
+	//bSizer275->Add (m_staticText263, 0, wxLEFT, 15);
+	bSizer275->Add (m_staticText263,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT, 15));
 	
 	wxBoxSizer* bSizer276;
 	bSizer276 = new wxBoxSizer (wxHORIZONTAL);
@@ -359,7 +373,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 												0,
 												wxTextValidator (wxFILTER_NUMERIC));
 	SetUpToolTip (m_textCtrl114, IDS_ToolTip358);
-   bSizer276->Add (m_textCtrl114, 0, wxALL, 5);
+   //bSizer276->Add (m_textCtrl114, 0, wxALL, 5);
+	bSizer276->Add (m_textCtrl114,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_staticText264 = new wxStaticText (sbSizer14->GetStaticBox (),
 													IDC_BothChoicesLabel2,
@@ -368,7 +384,9 @@ void CMProjectionPursuitDialog::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText264->Wrap (-1);
-	bSizer276->Add (m_staticText264, 0, wxALIGN_CENTER|wxALL, 5);
+	//bSizer276->Add (m_staticText264, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer276->Add (m_staticText264,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	bSizer275->Add (bSizer276, 0, wxEXPAND|wxLEFT, 30);
 	

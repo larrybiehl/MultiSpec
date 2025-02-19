@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMStatOptionsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 07/07/2017
+//	Revised By:				Larry L. Biehl			Date: 02/14/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -41,8 +41,8 @@ class CMStatOptionsDlg : public CMDialog
 	public:
 				// standard constructor
 		CMStatOptionsDlg (
-				wxWindow* 			pParent = NULL,
-				wxWindowID 			id = IDD_ClassifyDialog,
+				wxWindow* 			pParent,
+				wxWindowID 			id = IDD_StatisticsOptionsDialog,
 				const wxString& 	title = wxT("Set Project Statistics Options"));
 
 		SInt16 DoDialog (
@@ -78,8 +78,10 @@ class CMStatOptionsDlg : public CMDialog
 		bool TransferDataFromWindow ();
 	
 		bool TransferDataToWindow ();
+		
 
-
+		Boolean										m_controlsLoadedFlag;
+		
 		wxBoxSizer									*bSizer181;
 	
 		wxCheckBox									*m_checkBox33,

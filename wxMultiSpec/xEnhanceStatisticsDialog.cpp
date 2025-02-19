@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xEnhanceStatisticsDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -64,7 +65,7 @@ BEGIN_EVENT_TABLE (CMEnhanceStatisticsDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnSelendokStatClassCombo)
 		EVT_COMBOBOX (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnClassWeightsComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMEnhanceStatisticsDialog::OnSelendokStatClassCombo)
 		EVT_CHOICE (IDC_WeightCombo, CMEnhanceStatisticsDialog::OnClassWeightsComboSelendok)
 	#endif
@@ -367,7 +368,7 @@ void CMEnhanceStatisticsDialog::CreateControls ()
 												IDC_SoftChiChiThreshold,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl184->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_softChiThresString));
@@ -394,7 +395,7 @@ void CMEnhanceStatisticsDialog::CreateControls ()
 												IDC_SoftPercentThreshold,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl185->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_softpercentThresString));
@@ -434,7 +435,7 @@ void CMEnhanceStatisticsDialog::CreateControls ()
 												IDC_HardChiChiThreshold,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl1851->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_hardchiThresString));
@@ -460,7 +461,7 @@ void CMEnhanceStatisticsDialog::CreateControls ()
 													IDC_HardPercentThreshold,
 													wxEmptyString,
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(100, -1),
 													0);
    SetUpToolTip (m_textCtrl18511, IDS_ToolTip128);
    m_textCtrl18511->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
@@ -577,7 +578,7 @@ void CMEnhanceStatisticsDialog::CreateControls ()
 												IDC_Weighting,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl204->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_weightString));
    SetUpToolTip (m_textCtrl204, IDS_ToolTip132);

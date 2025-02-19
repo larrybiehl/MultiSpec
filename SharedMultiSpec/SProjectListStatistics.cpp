@@ -388,7 +388,7 @@ Boolean ListClassInformation (
 				else	// !(gProjectInfoPtr->listMatrixType & kListTransformedStats)
 							// Statistics to be transformed.
 					{
-					sprintf ((char*)gTextString, "    ");
+					snprintf ((char*)gTextString, 256, "    ");
 					continueFlag = OutputString (NULL, 
 															(char*)gTextString,
 															0, 
@@ -786,7 +786,8 @@ Boolean ListFieldInformation (
 			(char*)&fieldIdentPtr->name, 
 			&strLength);
 							
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+					256,
 					"    Class '%s', Field '%s' ",
 					(char*)gTextString2,
 					(char*)gTextString3);
@@ -816,7 +817,8 @@ Boolean ListFieldInformation (
 	
 	if (fieldIdentPtr->pointType == kMaskType && listCode >= 3)
 		{
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"     Lines %d to %d by %d.  Columns %d to %d by %d.",
 					(int)gAreaDescription.lineStart,
 					(int)gAreaDescription.lineEnd,
@@ -845,7 +847,8 @@ Boolean ListFieldInformation (
 	
 	else if (fieldIdentPtr->pointType == kRectangleType || listCode >= 3)
 		{
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"     Lines %d to %d by %d.  Columns %d to %d by %d.",
 					(int)fieldPointsPtr[pointIndex].line,
 					(int)fieldPointsPtr[pointIndex+1].line,
@@ -886,7 +889,8 @@ Boolean ListFieldInformation (
 				point<fieldIdentPtr->numberOfPolygonPoints;
 					point++)
 			{
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"     Line %d, Column %d%s",
 						(int)fieldPointsPtr[pointIndex].line,
 						(int)fieldPointsPtr[pointIndex].col,
@@ -904,7 +908,7 @@ Boolean ListFieldInformation (
 			
 			}	// end "for (i=0; i<fieldIdentPtr"
 			
-		sprintf ((char*)gTextString, "      ");
+		snprintf ((char*)gTextString, 256, "      ");
 			
 		continueFlag = OutputString ((CMFileStream*)NULL,
 												(char*)gTextString,
@@ -918,7 +922,7 @@ Boolean ListFieldInformation (
 		{
 				// Field is cluster type && listCode is for statistics histogram list.
 				
-		sprintf ((char*)gTextString, "     Cluster defined.");
+		snprintf ((char*)gTextString, 256, "     Cluster defined.");
 				
 		continueFlag = OutputString ((CMFileStream*)NULL, 
 												(char*)gTextString,
@@ -933,7 +937,7 @@ Boolean ListFieldInformation (
 				// Field is cluster type && listCode is for statistics 				
 				// histogram list. 																
 				
-		sprintf ((char*)gTextString, "     Mask defined.");
+		snprintf ((char*)gTextString, 256, "     Mask defined.");
 				
 		continueFlag = OutputString ((CMFileStream*)NULL, 
 												(char*)gTextString,
@@ -948,7 +952,7 @@ Boolean ListFieldInformation (
 				// Field is cluster type && listCode is for statistics 				
 				// histogram list. 																
 				
-		sprintf ((char*)gTextString, "     Cluster field; cannot histogram.");
+		snprintf ((char*)gTextString, 256, "     Cluster field; cannot histogram.");
 				
 		continueFlag = OutputString ((CMFileStream*)NULL, 
 												(char*)gTextString,
@@ -964,11 +968,13 @@ Boolean ListFieldInformation (
 	strLength = 0;
 	if (numberPixels > 0)
 		{
-		strLength = sprintf ((char*)gTextString,
+		strLength = snprintf ((char*)gTextString,
+									256,
 									" Number of samples = %lld",
 									numberPixels);
 		
-		sprintf ((char*)&gTextString[strLength],
+		snprintf ((char*)&gTextString[strLength],
+					256,
 					" Number of samples used for statistics = %lld",
 					numberPixelsUsedForStats);
 		
@@ -1010,7 +1016,7 @@ Boolean ListFieldInformation (
 		else	// !(gProjectInfoPtr->listMatrixType & kListTransformedStats)
 					// Statistics to be transformed.
 			{
-			sprintf ((char*)gTextString, "    ");
+			snprintf ((char*)gTextString, 256, "    ");
 			continueFlag = OutputString (NULL, 
 													(char*)gTextString,
 													0, 

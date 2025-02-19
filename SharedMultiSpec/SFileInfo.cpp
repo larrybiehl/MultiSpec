@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/04/2022
+//	Revision date:			03/30/2023
 //
 //	Language:				C
 //
@@ -699,7 +699,47 @@ ControlPointsPtr GetControlPointVectorPointers (
 						
 	return (controlPointsPtr);
 	
-}	// end "GetControlPointVectorPointers"  
+}	// end "GetControlPointVectorPointers"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void GetFileInstrumentCode
+//
+//	Software purpose:	The purpose of this routine is to set the instrument code
+//							in the input file information structure.
+//
+//	Parameters in:		File information structure handle
+//							instrumentCode
+//
+//	Parameters out:	None
+//
+// Value Returned:  	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date:	01/02/2024
+//	Revised By:			Larry L. Biehl			Date: 01/02/2024
+
+UInt16 GetFileInstrumentCode (
+				Handle								fileInfoHandle)
+
+{
+	UInt16								instrumentCode = 0;
+	
+	
+			// Get pointer to the support file information.
+	
+	FileInfoPtr fileInfoPtr = (FileInfoPtr)GetHandlePointer (fileInfoHandle);
+	
+	if (fileInfoPtr != NULL)
+		instrumentCode = fileInfoPtr->instrumentCode;
+		
+	return (instrumentCode);
+	
+}	// end "GetFileInstrumentCode"
 
 
 
@@ -1230,7 +1270,7 @@ Boolean GetThematicType (
 //							... and many others
 //
 //	Coded By:			Larry L. Biehl			Date: 03/05/1991
-//	Revised By:			Larry L. Biehl			Date: 05/04/2022
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 Handle InitializeFileInfoStructure (
 				Handle								fileInfoHandle,
@@ -1342,6 +1382,7 @@ Handle InitializeFileInfoStructure (
 		fileInfoPtr->numberPostChannelBytes = 0;
 		fileInfoPtr->numberPostLineBytes = 0;
 		fileInfoPtr->numberTrailerBytes = 0;
+		fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 		fileInfoPtr->startColumn = 1;
 		fileInfoPtr->startLine = 1;
 		
@@ -1541,14 +1582,15 @@ void SetFileInfoHandle (
 //
 //	Function name:		void SetFileInstrumentCode
 //
-//	Software purpose:	The purpose of this routine is to set the map projection
-//							handle in the input file information structure.
+//	Software purpose:	The purpose of this routine is to set the instrument code
+//							in the input file information structure.
 //
 //	Parameters in:		File information structure handle
+//							instrumentCode
 //
 //	Parameters out:	None
 //
-// Value Returned:  	map projection handle
+// Value Returned:  	None
 //
 // Called By:			
 //

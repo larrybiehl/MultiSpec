@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Ravi Budruk
 //
-//	Revision date:			08/11/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -1514,7 +1514,7 @@ UInt32 CountTotalNumberHistogramPixels (
 // Called By:			DoHistogramRequests in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/25/1988
-//	Revised By:			Larry L. Biehl			Date: 08/11/2022
+//	Revised By:			Larry L. Biehl			Date: 04/03/2023
 
 Boolean CreateSTASupportFile (
 				FileInfoPtr							fileInfoPtr, 
@@ -1567,7 +1567,7 @@ Boolean CreateSTASupportFile (
 	
 	Boolean								continueFlag;
 	
-	char									theChar;
+	UInt8									the8BitValue;
 	
 	
 	if (gImageWindowInfoPtr == NULL)
@@ -1751,8 +1751,8 @@ Boolean CreateSTASupportFile (
 	
 					// Write channel number. 													
 			
-			theChar = (char)channel+1;
-			BlockMoveData (&theChar, &ioChanBufferPtr[7], 1);
+			the8BitValue = (UInt8)channel+1;
+			BlockMoveData (&the8BitValue, &ioChanBufferPtr[7], 1);
 	
 					// Write maximum value for band.
 					// This value is not used in .sta when data values are
@@ -1760,10 +1760,10 @@ Boolean CreateSTASupportFile (
 	
 			if (localFileInfoPtr->numberBytes > 1)
 			// histogramSummaryPtr[channel].maxValue + signedValueOffset > 255)
-				theChar = 255;
+				the8BitValue = 255;
 			else	// histogramSummaryPtr[channel].maxValue + signedValueOffset <= 255)
-				theChar = (char)(histogramSummaryPtr[channel].maxValue + signedValueOffset);
-			BlockMoveData (&theChar, &ioChanBufferPtr[8], 1);
+				the8BitValue = (UInt8)(histogramSummaryPtr[channel].maxValue + signedValueOffset);
+			BlockMoveData (&the8BitValue, &ioChanBufferPtr[8], 1);
 	
 					// Write minimum value for band.
 					// This value is not used in .sta is not used when data values are
@@ -1771,10 +1771,10 @@ Boolean CreateSTASupportFile (
 	
 			if (localFileInfoPtr->numberBytes > 1)
 			// histogramSummaryPtr[channel].minValue + signedValueOffset > 255)
-				theChar = 255;
+				the8BitValue = 255;
 			else	// histogramSummaryPtr[channel].minValue + signedValueOffset <= 255)
-				theChar = (char)(histogramSummaryPtr[channel].minValue + signedValueOffset);
-			BlockMoveData (&theChar, &ioChanBufferPtr[9], 1);
+				the8BitValue = (char)(histogramSummaryPtr[channel].minValue + signedValueOffset);
+			BlockMoveData (&the8BitValue, &ioChanBufferPtr[9], 1);
 	
 					// Write zeros for unused bytes.											
 	
@@ -2298,7 +2298,7 @@ UInt32 GetNumberOfMinimumDataValues (
 //							ReadERDAS_staFile in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
-//	Revised By:			Larry L. Biehl			Date: 03/03/2022
+//	Revised By:			Larry L. Biehl			Date: 04/03/2023
 
 Boolean DecodeSTASupportFile (
 				HistogramSpecsPtr					histogramSpecsPtr, 
@@ -2349,7 +2349,7 @@ Boolean DecodeSTASupportFile (
 	
 	Boolean								okToReadFlag;
 	
-	char									theChar;
+	UInt8									the8BitValue;
 
 	
 			
@@ -2435,7 +2435,7 @@ Boolean DecodeSTASupportFile (
 			{
 					// Get channel number. 														
 	
-			BlockMoveData (&statBufferPtr[7], &theChar, 1);
+			BlockMoveData (&statBufferPtr[7], &the8BitValue, 1);
 	
 					// Get channel mean.															
 	
@@ -4347,7 +4347,7 @@ Handle* GetHistogramSummaryHandlePtr (
 //							HistogramControl in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/19/1990
-//	Revised By:			Larry L. Biehl			Date: 10/23/1999
+//	Revised By:			Larry L. Biehl			Date: 05/14/2024
 
 HUInt32Ptr GetHistogramValuesMemory (
 				UInt32								numberBins, 
@@ -4357,7 +4357,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 {
 	HUInt32Ptr          				histogramArrayPtr;
 								
-	UInt32								numberBytes;
+	SInt64								numberBytes;
 	
 	Boolean								changedFlag,
 											continueFlag;
@@ -4369,7 +4369,7 @@ HUInt32Ptr GetHistogramValuesMemory (
 	
 			// Get the number of bytes needed.
 	
-	numberBytes = (UInt32)numberChannels * numberBins * sizeof (UInt32);
+	numberBytes = (SInt64)numberChannels * numberBins * sizeof (UInt32);
 	
 			// Get the memory for the handle.
 		
@@ -4491,10 +4491,11 @@ Boolean GetHistogramVectorForChannel (
 // Called By:			HistogramDialogHandleMethod in SHistogram.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean GetSTASupportFile (
-				FileInfoPtr							fileInfoPtr)
+				FileInfoPtr							fileInfoPtr,
+				DialogPtr							dialogPtr)
 
 {
 	CMFileStream						savedSupportFileStream;
@@ -4556,12 +4557,14 @@ Boolean GetSTASupportFile (
 		
 		do
 			{
-			errCode = GetFile (supportFileStreamPtr, 
-										numberFileTypes, 
+			errCode = GetFile (supportFileStreamPtr,
+										dialogPtr,
+										numberFileTypes,
 										fileType, 
 										NULL, 
 										NULL,
-										NULL, 
+										NULL,
+										NULL,
 										IDS_SelectImageStatistics);
 										
 			continueFlag = (errCode == noErr) & FileExists (supportFileStreamPtr);
@@ -5165,7 +5168,7 @@ Boolean HistogramControl (
 //
 //	Coded By:			Ravi S. Budruk			Date: 06/01/1988
 //	Revised By:			Ravi S. Budruk			Date: 07/19/1988	
-//	Revised By:			Larry L. Biehl			Date: 10/22/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 	
 Boolean HistogramDialog (
 				FileInfoPtr							fileInfoPtr, 
@@ -5606,7 +5609,7 @@ Boolean HistogramDialog (
 	#if defined multispec_wx
 		CMHistogramSpecsDlg* dialogPtr = NULL;
 
-		dialogPtr = new CMHistogramSpecsDlg (NULL);
+		dialogPtr = new CMHistogramSpecsDlg (GetMainFrameForDialog());
 
 		returnFlag = dialogPtr->DoDialog (histogramSpecsPtr,
 														gImageWindowInfoPtr,
@@ -5638,7 +5641,7 @@ Boolean HistogramDialog (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/24/1999	
-//	Revised By:			Larry L. Biehl			Date: 01/02/2020
+//	Revised By:			Larry L. Biehl			Date: 02/13/2025
 
 SInt16 HistogramDialogHandleMethod (
 				DialogPtr							dialogPtr,
@@ -5661,7 +5664,7 @@ SInt16 HistogramDialogHandleMethod (
      
 		SetDLogControlHilite (dialogPtr, okItemNumber, 255); 
 		
-		if (GetSTASupportFile (fileInfoPtr))
+		if (GetSTASupportFile (fileInfoPtr, dialogPtr))
 			{
 					// Make sure that the statistics file format is correct.
 			
@@ -5712,7 +5715,7 @@ SInt16 HistogramDialogHandleMethod (
                 	}	// end "if (methodCode != kStoredInMemory)"
             #endif	// defined multispec_wxlin
 				
-            #if defined multispec_wxmac
+            #if defined multispec_wxmac || defined multispec_wxwin
 					wxChoice* 			choicePtr;
 					SInt16 				methodCode;
 
@@ -5724,7 +5727,7 @@ SInt16 HistogramDialogHandleMethod (
 						choicePtr->Insert (wxT("From default statistics file"), 0);
 
                 	}	// end "if (methodCode != kStoredInMemory)"
-            #endif	// defined multispec_wxmac
+            #endif	// defined multispec_wxmac || defined multispec_wxwin
 
 				*updateListHistogramItemsFlagPtr = TRUE;
 				*defaultStatFileChangedFlagPtr = TRUE;
@@ -5881,7 +5884,7 @@ void HistogramDialogInitialize (
 	Str255							dialogString,
 										hdfDataSetName;
 
-	UCharPtr							imageFileNamePtr;
+   FileStringPtr					imageFileNamePtr;
 
 	UInt16							numChars;
 	SInt16							entireIconItem;
@@ -5912,8 +5915,11 @@ void HistogramDialogInitialize (
 
 	if (dialogString[0] == 0)
 		{
+         
+      //imageFileNamePtr = (FileStringPtr)(gActiveImageViewCPtr->GetImageWindowCPtr())->
+      //                                                         GetImageFileNamePointer ();
 		imageFileNamePtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (fileInfoPtr);
-		CopyPToP (dialogString, imageFileNamePtr);
+      CopyFileStringToPString (imageFileNamePtr, (char*)dialogString);
 
 		}	// end "if (dialogString[0] == 0)"
 
@@ -5933,6 +5939,7 @@ void HistogramDialogInitialize (
 	
 	#if defined multispec_wx
 		*fileNamePtr = wxString (&dialogString[1], wxConvUTF8);
+      //*fileNamePtr = wxString (imageFileNamePtr, wxConvUTF8);
 	#endif
 
 	#if defined multispec_mac
@@ -6923,7 +6930,7 @@ Boolean ListHistogramSummary (
 			// Declare local parameters	
 
 	char									formatString[256];
-	char									string[1000];
+	char									string_1000[1000];
 	char									*blankPtr = (char*)"                        ";
 	
 	ChannelDescriptionPtr			channelDescriptionPtr;
@@ -7005,7 +7012,8 @@ Boolean ListHistogramSummary (
 		
 					// List the input histogram block data into the output window		
 			
-			sprintf (string,
+			snprintf (string_1000,
+							1000,
 							"    %5u\t%8u\t%8u\t%10u\t%9u\t%7u%s%s",
 							(unsigned int)histogramSpecsPtr->lineStart,
 							(unsigned int)histogramSpecsPtr->lineEnd,
@@ -7017,8 +7025,8 @@ Boolean ListHistogramSummary (
 							gEndOfLine);
 			
 			continueFlag = OutputString (resultsFileStreamPtr,
-													string,
-													(UInt32)strlen (string),
+													string_1000,
+													(UInt32)strlen (string_1000),
 													gOutputCode, 
 													continueFlag);
 			
@@ -7057,7 +7065,8 @@ Boolean ListHistogramSummary (
 			if (histogramSummaryPtr[channelNum].availableFlag)
 				{
 				length = FormatHistogramSummaryString (
-													string,
+													string_1000,
+													1000,
 													histogramSummaryPtr[channelNum].minValue,
 													ePrecision,
 													fPrecision,
@@ -7065,7 +7074,8 @@ Boolean ListHistogramSummary (
 				minLength = MAX (minLength, length);
 				
 				length = FormatHistogramSummaryString (
-													string,
+													string_1000,
+													1000,
 													histogramSummaryPtr[channelNum].maxValue,
 													ePrecision,
 													fPrecision,
@@ -7073,7 +7083,8 @@ Boolean ListHistogramSummary (
 				maxLength = MAX (maxLength, length);
 				
 				length = FormatHistogramSummaryString (
-													string,
+													string_1000,
+													1000,
 													histogramSummaryPtr[channelNum].averageValue,
 													statEPrecision,
 													statFPrecision,
@@ -7081,7 +7092,8 @@ Boolean ListHistogramSummary (
 				aveLength = MAX (aveLength, length);
 				
 				length = FormatHistogramSummaryString (
-													string,
+													string_1000,
+													1000,
 													histogramSummaryPtr[channelNum].medianValue,
 													ePrecision,
 													fPrecision,
@@ -7089,7 +7101,8 @@ Boolean ListHistogramSummary (
 				medianLength = MAX (medianLength, length);
 				
 				length = FormatHistogramSummaryString (
-													string,
+													string_1000,
+													1000,
 													histogramSummaryPtr[channelNum].stdDeviation,
 													statEPrecision,
 													statFPrecision,
@@ -7118,7 +7131,8 @@ Boolean ListHistogramSummary (
 			SInt32 beforeDeviationSpaces = beforeRangeSpaces +
 							beforeAverageSpaces + beforeMedianSpaces + beforeStdDevSpaces;
 															
-			sprintf (string, 
+			snprintf (string_1000,
+							1000,
 							(char*)&gTextString[1], 
 							beforeRangeSpaces, " ", 
 							beforeAverageSpaces, " ", 
@@ -7127,8 +7141,8 @@ Boolean ListHistogramSummary (
 							beforeDeviationSpaces, " ");
 				
 			continueFlag = OutputString (resultsFileStreamPtr,
-													string, 
-													(UInt32)strlen (string),
+													string_1000,
+													(UInt32)strlen (string_1000),
 													gOutputCode, 
 													continueFlag);
 				
@@ -7242,7 +7256,8 @@ Boolean ListHistogramSummary (
 												
 				strcat (formatString, "%s");
 			
-				sprintf (string, 
+				snprintf (string_1000,
+								1000,
 								formatString,
 								channelNum+1,
 								gTextString2,
@@ -7254,8 +7269,8 @@ Boolean ListHistogramSummary (
 								gEndOfLine);
 								
 				continueFlag = OutputString (resultsFileStreamPtr,
-														string,
-														(UInt32)strlen (string),
+														string_1000,
+														(UInt32)strlen (string_1000),
 														gOutputCode, 
 														continueFlag);
 				
@@ -7704,6 +7719,7 @@ Boolean ListHistogramValues (
 				{
 				minValueCountTextWidth = FormatHistogramSummaryString (
 															(char*)gTextString,
+															256,
 															histogramSpecsPtr->overallMinValue,
 															ePrecision,
 															fPrecision,
@@ -7711,6 +7727,7 @@ Boolean ListHistogramValues (
 				
 				maxValueCountTextWidth = FormatHistogramSummaryString (
 															(char*)gTextString,
+															256,
 															histogramSpecsPtr->overallMaxValue,
 															ePrecision,
 															fPrecision,
@@ -7728,6 +7745,7 @@ Boolean ListHistogramValues (
 				
 				valueMinNonSatFieldSize = FormatHistogramSummaryString (
 												(char*)gTextString,
+												256,
 												histogramSummaryPtr[summaryIndex].minNonSatValue,
 												ePrecision,
 												fPrecision,
@@ -7735,6 +7753,7 @@ Boolean ListHistogramValues (
 				
 				valueMaxNonSatFieldSize = FormatHistogramSummaryString (
 												(char*)gTextString,
+												256,
 												histogramSummaryPtr[summaryIndex].maxNonSatValue,
 												ePrecision,
 												fPrecision,

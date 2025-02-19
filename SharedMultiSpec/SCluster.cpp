@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/13/2025
 //
 //	Language:				C
 //
@@ -78,7 +78,8 @@
 //
 /*
 			// Template for debugging.
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									" SCluster:xxxx (): %s",
 									gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -90,6 +91,7 @@
 #if defined multispec_wx   
 	#include "xClusterDialog.h" 
 	#include "wx/wx.h"
+	#include "xMultiSpec.h"
 #endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -375,7 +377,7 @@ SInt16 CheckIfTextForTextWindowIsWithinLimits (
 //							ISODATAClusterControl in SClusterIsodata.cpp
 //
 //	Coded By:			Eric E. Demaree		Date: Spring 1989
-//	Revised By:			Larry L. Biehl			Date: 12/21/2016	
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 Boolean ClusterClassification (
 				FileIOInstructionsPtr			fileIOInstructionsPtr, 
@@ -550,7 +552,8 @@ Boolean ClusterClassification (
 				
 		continueFlag = MGetString (gTextString2, kFileIOStrID, IDS_NumberClasses);
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"%s%s %d%s",
 					gEndOfLine, 
 					&gTextString2[1], 
@@ -568,7 +571,8 @@ Boolean ClusterClassification (
 			{	
 			continueFlag = MGetString (gTextString2, kProjectStrID, IDS_Project2);
 			
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"%s %s%s", 
 						gEndOfLine, 
 						&gTextString2[1],
@@ -586,8 +590,9 @@ Boolean ClusterClassification (
 			
 				// Include the "thresholded" class.											
 																						
-		sprintf ((char*)gTextString2, "Thresholded                     ");
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString2, 256, "Thresholded                     ");
+		snprintf ((char*)gTextString,
+					256,
 					"    %3d: %s %c%s", 
 					0, 
 					gTextString2,
@@ -600,7 +605,7 @@ Boolean ClusterClassification (
 									TRUE))
 																							return (FALSE);
 		
-		sprintf ((char*)gTextString2, "Cluster                        ");	
+		snprintf ((char*)gTextString2, 256, "Cluster                        ");
 		for (currentClusterNumber=1; 
 				currentClusterNumber<=numberClusters; 
 					currentClusterNumber++)
@@ -609,7 +614,8 @@ Boolean ClusterClassification (
 			BlockMoveData ((Ptr)&gTextString3[1], 
 									(Ptr)&gTextString2[8],
 									(SInt32)gTextString3[0]);
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"    %3d: %s  %c%s", 
 						currentClusterNumber, 
 						gTextString2,
@@ -978,7 +984,7 @@ Boolean ClusterClassification (
 					minutesLeft = (linesLeft * (TickCount () - startTick))/
 																	(double)(lineCount*kTicksPerMinute);
 				
-					sprintf ((char*)gTextString, " %.1f", minutesLeft);
+					snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
 					stringPtr = (char*)CtoPstring (gTextString, gTextString);
 					LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					
@@ -1495,7 +1501,7 @@ void ClusterControl (void)
 // Called By:			ClusterControl   in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 09/14/1989
-//	Revised By:			Larry L. Biehl			Date: 10/22/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean ClusterDialog (
 				FileInfoPtr							fileInfoPtr, 
@@ -2147,7 +2153,7 @@ Boolean ClusterDialog (
 
 
 		//dialogPtr = new CMClusterDialog (wxTheApp->GetTopWindow ());
-		dialogPtr = new CMClusterDialog (NULL);
+		dialogPtr = new CMClusterDialog (GetMainFrameForDialog());
 
 		returnFlag = dialogPtr->DoDialog (newProjectFlag);
 
@@ -4128,7 +4134,7 @@ Boolean GetClusterAreaStatistics (
 				minutesLeft = (linesLeft * (TickCount () - startTick))/
 																(double)(lineCount*kTicksPerMinute);
 				
-				sprintf ((char*)gTextString, " %.1f", minutesLeft);
+				snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
 				stringPtr = (char*)CtoPstring (gTextString, gTextString);
 				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					
@@ -4604,7 +4610,7 @@ void GetMinimumAndMaximumValueForListing (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/1994
-//	Revised By:			Larry L. Biehl			Date: 03/02/1994
+//	Revised By:			Larry L. Biehl			Date: 02/13/2025
 
 Boolean GetProbabilityFile (
 				FileInfoPtr							fileInfoPtr,
@@ -4674,8 +4680,9 @@ Boolean GetProbabilityFile (
 				
 			gGetFileImageType = 0;
 			
-			errCode = GetFile (probabilityFileStreamPtr, 
-										1, 
+			errCode = GetFile (probabilityFileStreamPtr,
+										NULL,
+										1,
 										&fileType, 
 										NULL, 
 										NULL,
@@ -5151,7 +5158,7 @@ Boolean ListClusterInputParameters (
 																gOutputForce1Code, 
 																continueFlag);
 												
-				//	sprintf ((char*)gTextString, " Lines:   %4ld to %4ld by %ld%s"
+				//	snprintf ((char*)gTextString, 256, " Lines:   %4ld to %4ld by %ld%s"
 		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																IDS_Shared1,
 																resultsFileStreamPtr, 
@@ -5161,7 +5168,7 @@ Boolean ListClusterInputParameters (
 																gClusterSpecsPtr->clusterLineInterval, 
 																continueFlag);
 												
-				//	sprintf ((char*)gTextString, " Columns: %4ld to %4ld by %ld%s"
+				//	snprintf ((char*)gTextString, 256, " Columns: %4ld to %4ld by %ld%s"
 		continueFlag = ListSpecifiedStringNumber (
 															kSharedStrID, 
 															IDS_Shared2,
@@ -5245,7 +5252,7 @@ Boolean ListClusterInputParameters (
 																gOutputForce1Code, 
 																continueFlag);
 												
-				//	sprintf ((char*)gTextString, "  Lines:   %4ld to %4ld by %ld%s"
+				//	snprintf ((char*)gTextString, 256, "  Lines:   %4ld to %4ld by %ld%s"
 		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																IDS_Shared1,
 																resultsFileStreamPtr, 
@@ -5255,7 +5262,7 @@ Boolean ListClusterInputParameters (
 																gClusterSpecsPtr->imageLineInterval, 
 																continueFlag);
 												
-				//	sprintf ((char*)gTextString, "  Columns: %4ld to %4ld by %ld%s"
+				//	snprintf ((char*)gTextString, 256, "  Columns: %4ld to %4ld by %ld%s"
 		continueFlag = ListSpecifiedStringNumber (kSharedStrID, 
 																IDS_Shared2,
 																resultsFileStreamPtr, 
@@ -5589,7 +5596,7 @@ Boolean ListClusterStatistics (
 				}	// end "if (...->projectStatClassNumber >= 0)"
 				
 			else	// currentCluster->projectStatClassNumber < 0
-				sprintf ((char*)gTextString, " ");
+				snprintf ((char*)gTextString, 256, " ");
 					
 					// Load the class name into a string.					
 		
@@ -5746,7 +5753,7 @@ Boolean ListClusterStatistics (
 					}	// end "if (...->projectStatClassNumber >= 0)"
 					
 				else	// currentCluster->projectStatClassNumber < 0
-					sprintf ((char*)gTextString, " ");
+					snprintf ((char*)gTextString, 256, " ");
 						
 						// Load the class name into a string.					
 			
@@ -6468,10 +6475,10 @@ Boolean SaveClusterStatistics (
 		savedClassStorage = gProjectInfoPtr->numberStorageClasses;
 		savedFieldStatStorage = gProjectInfoPtr->numberStorageStatFields;
 		
-		sprintf ((char*)&gTextString[1], "Cluster");
+		snprintf ((char*)&gTextString[1], 255, "Cluster");
 		gTextString[0] = 7; 
 		
-		sprintf ((char*)&gTextString3[1], "pClusterF");
+		snprintf ((char*)&gTextString3[1], 255, "pClusterF");
 		gTextString3[0] = 8; 
 		
 		fieldNumber = 1;

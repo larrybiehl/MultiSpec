@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMDisplaySpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/23/2020
+//	Revised By:				Larry L. Biehl			Date: 02/09/2025
 //	
 //------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ class CMDisplaySpecsDlg : public CMDialog
 				wxWindow*							parent,
 				wxWindowID							id = wxID_ANY,
 				const wxString&					title =
-															wxT("Set Display Specifications for:"),
+															wxT("Set Display Specifications"),
 				const wxPoint&						pos = wxDefaultPosition,
 				const wxSize&						size = /*wxDefaultSize*/wxSize (200, 200),
 				long									style =
@@ -207,7 +207,7 @@ class CMDisplaySpecsDlg : public CMDialog
 												*m_magnificationctrl,
 												*m_redchannelctrl;
 	
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice 							*m_enhancementCtrl,
 						 							*m_minMaxCtrl;
 		#endif
@@ -216,6 +216,7 @@ class CMDisplaySpecsDlg : public CMDialog
 													*m_minMaxCtrl;
 		#endif
 	
+		wxWindow*							m_parent;
 
 		double 								m_gaussianStretch,
 			 									m_Magnification,

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/04/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -54,7 +54,7 @@ BEGIN_EVENT_TABLE (CMBiPlotDialog, CMDialog)
       EVT_COMBOBOX (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
       //EVT_COMBOBOX (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
    #endif
-   #if defined multispec_wxmac
+   #if defined multispec_wxmac || defined multispec_wxwin
       EVT_CHOICE (IDC_ClassCombo, CMBiPlotDialog::OnClassComboSelendok)
       //EVT_CHOICE (IDC_ClassWeightsCombo, CMBiPlotDialog::OnClassWeightsCombo)
    #endif
@@ -219,8 +219,8 @@ void CMBiPlotDialog::CreateControls ()
    m_textCtrl115 = new wxTextCtrl (this, 
 												IDC_HorizontalAxis, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
 	SetUpToolTip (m_textCtrl115, IDS_ToolTip233);
    
@@ -238,8 +238,8 @@ void CMBiPlotDialog::CreateControls ()
 	m_textCtrl116 = new wxTextCtrl (this, 
 												IDC_VerticalAxis, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl116, IDS_ToolTip234);
 	fgSizer13->Add (m_textCtrl116, 0, wxALIGN_CENTER|wxBOTTOM|wxTOP, 5);
@@ -840,7 +840,14 @@ bool CMBiPlotDialog::TransferDataFromWindow ()
    wxString thresholdString  = thresholdLevel->GetValue ();
    thresholdString.ToDouble (&m_thresholdPercent);
    if (m_thresholdPercent > kMaxThreshold)
-      DisplayAlert (kErrorAlertID, kStopAlert, kAlertStrID, IDS_Alert115, 0, NULL);
+      DisplayAlert (kErrorAlertID,
+							kStopAlert,
+							kAlertStrID,
+							IDS_Alert115,
+							0,
+							NULL,
+							this,
+							kASCIICharString);
 		
 	if (m_thresholdPercent >= 0 && m_thresholdPercent <= kMaxThreshold)
 		m_saveThresholdPercent = m_thresholdPercent;
@@ -882,7 +889,9 @@ bool CMBiPlotDialog::TransferDataFromWindow ()
 							kAlertStrID, 
 							IDS_Alert117,
 							0, 
-							NULL);
+							NULL,
+							this,
+							kASCIICharString);
 		SetDLogControlHilite (this, wxID_OK, 0);
 							
 		returnCode = 1;
@@ -899,7 +908,9 @@ bool CMBiPlotDialog::TransferDataFromWindow ()
 							kAlertStrID, 
 							IDS_Alert151,
 							0, 
-							NULL);
+							NULL,
+							this,
+							kASCIICharString);
 		SetDLogControlHilite (this, wxID_OK, 0);
 		
 		returnCode = 1;

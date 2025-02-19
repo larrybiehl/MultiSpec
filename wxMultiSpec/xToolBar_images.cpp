@@ -18,7 +18,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			10/25/2019 by Larry L. Biehl
+//	Revision date:			04/09/2023 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -28,7 +28,9 @@
 //
 //------------------------------------------------------------------------------------
 
-#if defined multispec_wxlin
+#include "SMultiSpec.h" 
+
+#if defined multispec_wxlin || defined multispec_wxwin
 static const unsigned char zoomx1_png[] = {
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
   0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,

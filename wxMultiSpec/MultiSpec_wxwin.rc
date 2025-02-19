@@ -1,0 +1,146 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""res\\multspec.rc2""  // non-App Studio edited resources\r\n"
+    "\r\n"
+    "#include ""afxres.rc""  \t// Standard components\r\n"
+    "#include ""afxprint.rc""\t// printing/print preview resources\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "Resources\\mspec.ico"
+
+IDR_MSPECTYPE           ICON                    "Resources\\mspecdoc.ico"
+
+IDR_OutType             ICON                    "Resources\\IDR_OUTT.ICO"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+TOENTIREIMAGEU          BITMAP                  "Resources\\entireim.bmp"
+
+TOENTIREIMAGED          BITMAP                  "Resources\\bmp00001.bmp"
+
+TOSELECTEDIMAGEU        BITMAP                  "Resources\\selected.bmp"
+
+TOSELECTEDIMAGED        BITMAP                  "Resources\\bmp00003.bmp"
+
+TOENTIREIMAGEX          BITMAP                  "Resources\\toentire.bmp"
+
+TOSELECTEDIMAGEX        BITMAP                  "Resources\\bmp00004.bmp"
+
+IDR_TOOLBAR             BITMAP                  "Resources\\toolbar2.bmp"
+
+IDB_OVERLAY             BITMAP                  "Resources\\overlay.bmp"
+
+IDB_CLASSES             BITMAP                  "Resources\\classes.bmp"
+
+IDB_BINWIDTH            BITMAP                  "Resources\\binwidth.bmp"
+
+IDR_TOOLBAR1            BITMAP                  "Resources\\toolbar1.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CROSS_CURSOR        CURSOR                  "Resources\\cross_cursor1.cur"
+
+IDC_BLINK_OPEN          CURSOR                  "Resources\\blink_open.cur"
+
+IDC_BLINK_SHUT          CURSOR                  "Resources\\blink_shut.cur"
+
+IDC_CROSS_CURSOR2       CURSOR                  "Resources\\cross_cursor2.cur"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_MAGNIFICATION
+    BUTTON      ID_ZOOM_IN
+    BUTTON      ID_ZOOM_OUT
+    SEPARATOR
+    BUTTON      ID_OVERLAY
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "afxres.rc"  	// Standard components
+#include "afxprint.rc"	// printing/print preview resources
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

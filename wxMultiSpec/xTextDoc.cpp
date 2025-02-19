@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			09/01/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -77,7 +77,14 @@ bool CMTextDoc::Close (void)
 																(char*)gTextString2,
 																TRUE,
 																(char*)&gTextString3[1]))
-				itemHit = DisplayAlert (kSaveAlertID, kStopAlert, 0, 0, 0, gTextSTring);
+				itemHit = DisplayAlert (kSaveAlertID,
+													kStopAlert,
+													0,
+													0,
+													0,
+													gTextSTring,
+													this,
+													kASCIICharString);
 				
 			if (itemHit == 1)
 				return Save();

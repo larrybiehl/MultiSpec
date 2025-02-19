@@ -28,7 +28,7 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/25/2015
-//	Revised By:				Larry L. Biehl			Date: 08/08/2022
+//	Revised By:				Larry L. Biehl			Date: 12/25/2023
 //	
 //------------------------------------------------------------------------------------
 
@@ -41,7 +41,11 @@
 
 	#if defined multispec_wxmac
 		#include "shapefil.h"
-	#endif	// multispec_mac
+	#endif	// multispec_wxmac
+
+	#if defined multispec_wxwin
+		#include "shapefil.h"
+	#endif	// multispec_wxwin
 	
 	#ifdef multispec_mac
 		#include "shapefil.h"
@@ -61,6 +65,13 @@
 	#include "wx/listctrl.h"
 	//#include "SGraphView.h"
 	#include "SConstants.h"
+	#if defined multispec_wxlin || defined multispec_wxmac
+		#include "wx/docview.h"
+	#endif
+	#if defined multispec_wxwin
+		#include "wx/docmdi.h"
+	#endif
+
 
 	class CMDialog;
 	class CMPalette;
@@ -753,7 +764,9 @@ typedef double				CMeanType2;
 	#define  huge
 	#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 	#define kPMPortrait	1
-	#define _MAX_PATH 1024
+	#ifndef multispec_wxwin
+		#define _MAX_PATH 1024
+	#endif
 	#define _MAX_FILE 256
       
 			// The forward definitions for linux specific classes.
@@ -761,6 +774,21 @@ typedef double				CMeanType2;
 	class CMFileStream;
 
 			// Other definitions.
+
+	#if defined multispec_wxlin
+		typedef wxDocChildFrame			MChildFrame;
+		typedef wxDocParentFrame		MParentFrame;
+	#endif
+
+	#if defined multispec_wxmac
+		typedef wxDocChildFrame			MChildFrame;
+		typedef wxDocParentFrame		MParentFrame;
+	#endif
+	
+	#if defined multispec_wxwin
+		typedef wxDocMDIChildFrame		MChildFrame;
+		typedef wxDocMDIParentFrame	MParentFrame;
+	#endif
 
 	typedef CMPalette*			CMPaletteInfo;
 
@@ -783,8 +811,10 @@ typedef double				CMeanType2;
 	typedef char*					Ptr;
 	typedef double					SDouble;
 	typedef void					PascalVoid;
-	typedef unsigned int			DWORD;
-	typedef unsigned short		WORD;
+	#ifndef multispec_wxwin
+		typedef unsigned int			DWORD;
+		typedef unsigned short		WORD;
+	#endif
 
 			// Define some variables that are defined in the Macintosh Toolbox and not
 			// in the Linux compiler
@@ -873,8 +903,11 @@ typedef double				CMeanType2;
 		int right;
 		int bottom;
 		};
-	typedef Rect tagRECT;
-	typedef Rect RECT;
+
+	#ifndef multispec_wxwin
+		typedef Rect tagRECT;
+		typedef Rect RECT;
+	#endif
 
 	typedef struct LongRect 
 		{
@@ -2789,6 +2822,7 @@ typedef struct MFileInfo
 	UInt32							numberPostChannelBytes;
 	UInt32							numberPostLineBytes;
 	UInt32							numberTrailerBytes;
+	UInt32							origNumberClasses;		// Before any collapsing of number
 	UInt32							startColumn;
 	UInt32							startLine;
 	
@@ -3455,7 +3489,7 @@ typedef struct ImageOverlayInfo
 	Handle								offscreenStorageHandle;
 	
 	UInt32								offscreenMapSize;
-	UInt32								rowBytes;
+	SInt32								rowBytes;
 	
 			// Code indicating whether to draw the base image when a image overalay
 			// is to be drawn over the base image. One does not need to draw the base
@@ -3924,7 +3958,7 @@ typedef struct PrincipalCompSpecs
 	
 typedef struct ProjectClassNames
 	{
-	UInt8								name[32];
+	UInt8								name[32];		// Max length is 30 allow Pascal number characters plus terminator character
 	double							looCovarianceValue;
 	double							userMixingParameter;
 
@@ -3967,7 +4001,7 @@ typedef struct ProjectClassNames
 	
 typedef struct ProjectFieldIdentifiers
 	{
-	Str31					name;
+	UInt8					name[32];				// Max length is 30 allow Pascal number characters plus terminator character
 	LongPoint			labelPoint;
 	SInt64				numberPixels;
 	SInt64				numberPixelsUsedForStats;
@@ -4320,15 +4354,19 @@ typedef struct ProjectInfo
 	
 typedef struct RefCompareImagesOptions
 	{
-	SInt16	 				*compareImagesChannelPtr;
-	Handle					referenceWindowInfoHandle;
+	//SInt16	 				*channelsPtr;
 	
+	Handle					compareImageWindowInfoHandle;
+	
+	SInt16					channelSet;
 			// Compare images procedure
-			//		=1 (difference)
-			//		=2 (sum)
-	SInt16					procedureCode;
+			//		=1 (active image minus compare image)
+			//		=2 (compare image minus active image)
+	SInt16					compareMethod;
 	
-	UInt16					numberChannelsToCompare;
+	//UInt16					numberChannels;
+	
+	Boolean					createOutputImageFileFlag;
 	
 	} RefCompareImagesOptions, *RefCompareImagesOptionsPtr;
 	
@@ -4947,7 +4985,7 @@ typedef struct TIFFImageFileDirectory
 	
 typedef struct TransformationSpecs
 	{
-	UInt8								imageFileName[256];
+	UInt8								imageFileName[_MAX_PATH];
 	Handle							eigenValueHandle;
 	Handle							eigenVectorHandle;
 	Handle	 						eigenFeatureHandle;
@@ -5164,7 +5202,7 @@ typedef struct WindowInfo
 	UInt32					offscreenMapSize;
 	
 			// Number of bytes in each row in the offscreen bitmap
-	UInt32					rowBytes;
+	SInt32					rowBytes;
 	
 			// Code for print page orientation for the window.
 	PMOrientation			printPageOrientation;
@@ -5343,6 +5381,7 @@ typedef struct WorkFlowInfo
 
    
 #if defined multispec_wx
+	#ifndef multispec_wxwin
 			// The following is a list of structures defined in MFC
 			// which may be useful in Linux version
 
@@ -5400,4 +5439,5 @@ typedef struct WorkFlowInfo
 	#define GetRValue(rgb)   ((BYTE) (rgb))
 	#define GetGValue(rgb)   ((BYTE) (((WORD) (rgb)) >> 8))
 	#define GetBValue(rgb)   ((BYTE) ((rgb) >> 16))
+	#endif	// not defined multispec_wxwin
 #endif	// defined multispec_wx

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/09/2022
+//	Revision date:			02/18/2025
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								provide utility type functions in MultiSpec.
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+												256,
 												" SFileIO::GetFile (entered routine. %s", 
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
@@ -473,7 +474,8 @@ void CheckIfDirectoryIsWriteable (
 	else	// fileName.IsDirWritable
 		{
 		/*
-		SInt16 numberChars9 = sprintf ((char*)gTextString3,
+		SInt16 numberChars9 = snprintf ((char*)gTextString3,
+												256,
 												" Directory is writable: %s",
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars9, gOutputTextH);
@@ -2128,10 +2130,10 @@ Boolean CreateThematicSupportFile (
 															kLock);
 					
 				if (echoClassifierVarPtr->fixed_homogeneityThreshold_option)
-					sprintf (&tempClassNameTablePtr[10], "L");
+					snprintf (&tempClassNameTablePtr[10], 256, "L");
 					
 				else	// !...fixed_homogeneityThreshold_option 
-					sprintf (&tempClassNameTablePtr[10], "P");
+					snprintf (&tempClassNameTablePtr[10], 256, "P");
 				
 				if (classNameCode & kEchoFieldsCode)
 					{
@@ -2270,13 +2272,14 @@ Boolean CreateThematicSupportFile (
 						for (index=1; index<=numberClasses; index++)
 							{
 							if (index == 1)
-								nameLength = sprintf (tempClassNameTablePtr, 
-										">90");
+								nameLength = snprintf (tempClassNameTablePtr,
+																5,
+																">=90");
 										
 							else	// index > 1 
 								{
-								nameLength = sprintf (tempClassNameTablePtr, 
-																(char*)"%d-%d",
+								nameLength = sprintf (tempClassNameTablePtr,
+																(char*)"%2d - <%2d",
 																(int)(correlationValue-correlationStep),
 																(int)correlationValue);
 								correlationValue -= correlationStep;
@@ -3176,12 +3179,14 @@ void DiskFullAlert (
 										
 	MGetString (gTextString, kFileIOStrID, IDS_FileIO01);
 	/*									
-	SInt16 length = sprintf ((char*)&gTextString2[1],
+	SInt16 length = snprintf ((char*)&gTextString2[1],
+										255,
 										(char*)&gTextString[1],
 										&charFileNamePtr[1],
 										bytesNeeded);
 	*/									
-	length = sprintf ((char*)&gTextString2[1],
+	length = snprintf ((char*)&gTextString2[1],
+								255,
 								(char*)&gTextString[1],
 								&charFileNamePtr[1],
 								(char*)&bytesNeededString[0]);
@@ -3602,7 +3607,7 @@ void GetCopyOfPFileNameFromFileStream (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 12/11/1995
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 void GetCopyOfPFileNameFromFileStream (
 				CMFileStream*						fileStreamPtr,
@@ -3618,15 +3623,28 @@ void GetCopyOfPFileNameFromFileStream (
 		{
 		if (fileStreamPtr != NULL)
 			{
-			fileNamePtr = 
-						GetFileNameCPointerFromFileStream (fileStreamPtr, charWidthCode);
-			StringCopy ((void*)outputPtr, (void*)fileNamePtr, 1, charWidthCode);
+			if (charWidthCode == kReturnUTF8)
+				{
+				UInt8* utf8FileNamePtr = fileStreamPtr->mUTF8FileName;
+				StringCopy ((void*)outputPtr, (void*)&utf8FileNamePtr[2], 2, kReturnUTF8);
+				
+				nameLength = (int)strlen ((char*)&outputPtr[2]);
+				
+				}	// end "if (charWidthCode == kReturnUTF8)"
+				
+			else	// charWidthCode != kReturnUTF8
+				{
+				fileNamePtr =
+							GetFileNameCPointerFromFileStream (fileStreamPtr, charWidthCode);
+				StringCopy ((void*)outputPtr, (void*)fileNamePtr, 1, charWidthCode);
 
-			nameLength = StringLength (fileNamePtr, (charWidthCode==kReturnASCII));
+				nameLength = StringLength (fileNamePtr, (charWidthCode==kReturnASCII));
+				
+				}	// end "else charWidthCode != kReturnUTF8"
+			
+			SetPascalStringLengthCharacter ((void*)outputPtr, nameLength, charWidthCode);
 
 			}	// end "if (fileInfoPtr != NULL)"
-			
-		SetPascalStringLengthCharacter ((void*)outputPtr, nameLength, charWidthCode);
 			
 		}	// end "if (outputPtr != NULL)" 
 	
@@ -3917,15 +3935,17 @@ UInt32 GetDataConversionCode (
 //							LoadTransformationFile in SSaveWrite.c
 //
 //	Coded By:			Larry L. Biehl			Date: 05/28/1988
-//	Revised By:			Larry L. Biehl			Date: 09/09/2020
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 SInt16 GetFile (
-				CMFileStream* 						fileStreamPtr, 
-				SInt16								numberTypes, 
+				CMFileStream* 						fileStreamPtr,
+				DialogPtr							dialogPtr,
+				SInt16								numberTypes,
 				OSType*								fileTypesPtr, 
 				LocalAppFile*						localAppFilePtr,
 				FSRef*								fileAsFSRefPtr,
-				UInt32*								itemCountPtr, 
+				UInt32*								itemCountPtr,
+				int*									returnKeyCodePtr,
 				SInt16								stringIndex)
 
 {
@@ -4202,8 +4222,18 @@ SInt16 GetFile (
 		 			// the text window frame then the dialog box will be on top but
 		 			// positioned over the text window. Not optimum but better that
 		 			// the other options.
-	
-			wxFrame* frame = gOutputViewCPtr->m_frame;
+			
+			#if defined multispec_wxlin || defined multispec_wxmac
+				wxFrame* frame = gOutputViewCPtr->m_frame;
+			#endif
+			#if defined multispec_wxwin
+				wxFrame* frame = GetMainFrame ();
+				
+						// The following is to force the get file dialog box to be on top
+						// of the calling dialog box. Need for Windows OS only.
+				if (dialogPtr != NULL)
+					frame = (wxFrame*)dialogPtr;
+			#endif
 
 			CMOpenFileDialog *filedlgobj = new CMOpenFileDialog (frame);
 	
@@ -4246,7 +4276,7 @@ SInt16 GetFile (
 					
 					}	// end "else !gMultipleImageFileCode"
 					
-				if (!filedlgobj->DoDialog (stringIndex, style))
+				if (!filedlgobj->DoDialog (returnKeyCodePtr, stringIndex, style))
 					{
 					SetFileDoesNotExist (fileStreamPtr, kDoNotKeepUTF8CharName);
 																								return (0);
@@ -4277,7 +4307,7 @@ SInt16 GetFile (
 
 						CtoPstring ((wchar_t*)localAppFilePtr,
 										(wchar_t*)&fileAsFSRefPtr[iCtr],
-										stringLength);
+										(int)stringLength);
 						//filePathName.ReleaseBuffer ();
 						iCtr++;
 						
@@ -4324,10 +4354,18 @@ SInt16 GetFile (
 						// Remember to allow for 0 based index.
 						
 				filePathIndex = filePathName.length () - 1;		
-				while (filePathIndex > 0 && filePathName[filePathIndex] != '/')
-					filePathIndex--;
-					
-				if (filePathIndex > 0 && filePathName[filePathIndex] == '/')
+				//#if defined multispec_wxlin || defined multispec_wxmac
+					while (filePathIndex > 0 && filePathName[filePathIndex] != '/' &&
+																		filePathName[filePathIndex] != '\\')
+						filePathIndex--;
+				//#endif
+				//#if defined multispec_wxwin
+				//	while (filePathIndex > 0 && filePathName[filePathIndex] != '\\')
+				//		filePathIndex--;
+				//#endif
+
+				if (filePathIndex > 0 && (filePathName[filePathIndex] == '/' ||
+																		filePathName[filePathIndex] == '\\'))
 					filePathIndex--;
 					
 				filePathName.Truncate (filePathIndex+1);
@@ -4482,7 +4520,7 @@ Boolean GetFileDlgDetermineLinkVisibility ()
 //	Value Returned:	None
 // 
 //	Coded By:			Larry L. Biehl			Date: 02/04/2013
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 05/03/2023
 
 SInt16 GetFileNameFromFSRef (
 				FSRef*								fileAsFSRefPtr,
@@ -4559,7 +4597,8 @@ SInt16 GetFileNameFromFSRef (
 			#endif	// defined multispec_win
 
 			#if defined multispec_wx
-				while ((nameLength < pathLength) &&	(*localFileNamePtr != '/'))
+				while ((nameLength < pathLength) &&	(*localFileNamePtr != '/') && 
+																	(*localFileNamePtr != '\\'))
 			#endif	// defined multispec_wx
 				{
 				localFileNamePtr--;
@@ -6270,7 +6309,6 @@ SInt16 GetLineOfData (
 											differentBuffersFlag,
 											oneReadFlag,
 											packDataFlag,
-											signedDataFlag,
 											toBISFormatFlag,
 											useMultipleChannelGDALFlag;
 
@@ -6295,7 +6333,9 @@ SInt16 GetLineOfData (
 	callPackLineOfDataFlag = fileIOInstructionsPtr->callPackLineOfDataFlag;
 	differentBuffersFlag = fileIOInstructionsPtr->differentBuffersFlag;
 	
-	if (numberChannels == windowInfoPtr->totalNumberChannels)
+	if (gProcessorCode != kDisplayProcessor &&
+											numberChannels == windowInfoPtr->totalNumberChannels)
+			// Note: cannot do this if Display Processer; channels may be repeated
 		channelListPtr = NULL;
 	
 	if (oneReadFlag)
@@ -6367,13 +6407,6 @@ SInt16 GetLineOfData (
 		
 	else if (forceOutByteCode == kForceReal8Bytes)
 		numberBytes = 8;
-		
-			// Get the flag for signed data. Allow for the case when signed data is
-			// converted to unsigned data.
-			
-	signedDataFlag = fileInfoPtr->signedDataFlag;
-	if (gConvertSignedDataFlag)
-		signedDataFlag = FALSE;
 		
 	fileNumberChannels = 0;
 	fileInfoIndex = -1;
@@ -7576,7 +7609,8 @@ SInt16 GetVolumeFreeSpace (
 		UInt8 savedCharacter = filePathPtr[pathLength+1];
 		filePathPtr[pathLength+1] = 0;
 		/*
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+											256,
 											" SFileIO::GetVolumeFreeSpace (filePathPtr): %s%s",
 											&filePathPtr[1],
 											gEndOfLine);
@@ -7599,7 +7633,8 @@ SInt16 GetVolumeFreeSpace (
 			
 			}	// end "else !wxGetDiskSpace (pathString, ..."
 		/*
-		int numberChars2 = sprintf ((char*)gTextString3,
+		int numberChars2 = snprintf ((char*)gTextString3,
+												256,
 												" SFileIO::GetVolumeFreeSpace (freeBytes): %lld%s",
 												*freeBytesPtr,
 												gEndOfLine);
@@ -8337,7 +8372,8 @@ void IOCheck (
 			MInitCursor ();
 			returnCode = DisplayAlert (kErrorAlertID, 3, 0, 0, 0, textString);
 			/*
-			int numberChars = sprintf ((char*)gTextString3,
+			int numberChars = snprintf ((char*)gTextString3,
+													256,
 													" File error: %d for '%s'. %s", 
 													errCode,
 													fileNamePtr,
@@ -8370,7 +8406,7 @@ void IOCheck (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 04/25/1988
-//	Revised By:			Larry L. Biehl			Date: 12/10/2019
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 void IOCheck (
 				SInt16								errCode,
@@ -8386,9 +8422,9 @@ void IOCheck (
 			#endif	// defined multispec_mac
 
 			#if defined multispec_wx || defined multispec_win
-				CharPtr filePathPtr = (CharPtr)fileStreamPtr->GetFilePathPPtr ();
+				FileStringPtr filePathPtr = (FileStringPtr)fileStreamPtr->GetFilePathPPtr ();
 				if (filePathPtr != NULL)
-					IOCheck (errCode, filePathPtr);
+					IOCheck (errCode, (CharPtr)filePathPtr);
 				else	// filePathPtr == NULL
 					IOCheck (errCode, (CharPtr)NULL);
 			#endif	// defined multispec_wx
@@ -8682,7 +8718,7 @@ void LoadErdasTRLClassNameBufferFromDescriptions (
 				
 				else	// classSymbolPtr[classSymbolIndex] != classNumber
 					{
-					count = sprintf ((char*)ioTempBufferPtr, "Class %d", (unsigned int)classNumber);
+					count = snprintf ((char*)ioTempBufferPtr, 256, "Class %d", (unsigned int)classNumber);
 					count = MIN (count, 31);
 					
 					}	// end "if (classSymbolPtr[classSymbolIndex] == classNumber)"
@@ -9031,7 +9067,8 @@ SInt16 LoadGroupInformationBuffers (
 }	// end "LoadGroupInformationBuffers"  
 
 
-
+/*
+This routine is not used any more.
 //------------------------------------------------------------------------------------
 //
 //                   Copyright 1988-2020 Purdue Research Foundation
@@ -9082,7 +9119,7 @@ Boolean	LoadNewErdasHeader (
 	return (continueFlag);
 		
 }	// end "LoadNewErdasHeader"	
-
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -9877,7 +9914,8 @@ pascal void NavServicesGetEventProc (
 																kFileIOStrID, 
 																IDS_SelectFileToLink))
 											{
-											sprintf ((char*)&gTextString[13], 
+											snprintf ((char*)&gTextString[13],
+														256-13,
 														"%3d", 
 														((WindowInfoPtr)*gActiveImageWindowInfoH)->
 																						numberImageFiles+1);
@@ -9926,8 +9964,9 @@ pascal void NavServicesGetEventProc (
 																					kFileIOStrID,
 																					IDS_SelectFileToLink))
 													{
-													sprintf (
+													snprintf (
 														(char*)&gTextString[13],
+														256-13,
 														"%3d",
 														((WindowInfoPtr)*gActiveImageWindowInfoH)->
 																						numberImageFiles+1);
@@ -10072,7 +10111,8 @@ pascal void NavServicesGetEventProc (
 										
 						if (MGetString (gTextString, kFileIOStrID, IDS_SelectFileToLink))
 							{
-							sprintf ((char*)&gTextString[13], 
+							snprintf ((char*)&gTextString[13],
+										256-13,
 										"%3d", 
 										((WindowInfoPtr)*gActiveImageWindowInfoH)->
 																					numberImageFiles+1);
@@ -10391,7 +10431,8 @@ SInt16 NavServicesGetFile (
 		
 		if (gMultipleImageFileCode == 2)
 			{
-			sprintf ((char*)&gTextString[13], 
+			snprintf ((char*)&gTextString[13],
+						256-13, 
 						"%3d",
 						((WindowInfoPtr)*gActiveImageWindowInfoH)->numberImageFiles+1);
 			gTextString[16] = ' ';
@@ -14737,7 +14778,7 @@ SInt16 PrepareToReadTextFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: ??/??/1988
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
 
 SInt16 PutFile (
 				CMFileStream*		 				fileStreamPtr, 
@@ -15001,7 +15042,15 @@ SInt16 PutFile (
 				temp.SetTitle (title);
 				
 				}	// end "if (stringIndex == IDS_SaveProbabilityAs)"
-
+				
+			else if (stringIndex == IDS_SaveImageStatisticsAs) 
+				{
+				GetSpecifiedString (IDS_SaveImageStatisticsAs, &stringHandle, &stringPtr);
+				wxString title (&stringPtr[1], wxConvUTF8);
+				temp.SetTitle (title);
+				
+				}	// end "if (stringIndex == IDS_SaveImageStatisticsAs)"
+				
 			int returnError = temp.ShowModal ();
 			if (returnError == wxID_OK)
 				{
@@ -15761,7 +15810,7 @@ SInt16 SetUpFileIOInstructions (
 // Called By:			DisplayCImage in SDisplayMultispectral.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/13/1999
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 05/15/2024
 
 SInt16 SetUpFileIOInstructions (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -15984,7 +16033,9 @@ SInt16 SetUpFileIOInstructions (
 				(fileIOInstructionsPtr->numberChannels<fileInfoPtr->numberChannels || 
 							fileIOInstructionsPtr->columnInterval > 1 ||
 								fileIOInstructionsPtr->windowInfoPtr->numberImageFiles > 1 ||
-									fileIOInstructionsPtr->forceOutputFormatCode == kBIL))
+									fileIOInstructionsPtr->forceOutputFormatCode == kBIL ||
+										(fileInfoPtr->gdalDataSetH == 0 &&
+											fileIOInstructionsPtr->forceOutputFormatCode != kBIS)))
 			{
 			callPackLineOfDataFlag = TRUE;
 			

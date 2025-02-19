@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2018
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -28,8 +28,9 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMDisplayMinMaxDialog class.
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
 			(char*)&gTextString3,
+			256,
 			" xDisplayMinMaxDialog.cpp: (): %s",
 			gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -1063,7 +1064,9 @@ int CMDisplayMinMaxDialog::VerifyDataRangeStartEndValues (
 							kAlertStrID, 
 							IDS_Alert68,
 							0,
-							NULL);
+							NULL,
+							this,
+							kASCIICharString);
 		*/	
 		returnCode = minID;
 

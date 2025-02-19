@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/13/2025
 //
 //	Language:				C++
 //
@@ -30,12 +30,15 @@
 //
 // Following is template for debugging
 /*
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xStatisticsImageDialog: (): %s",
 									 gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h" 
 
 #include "xStatisticsImageDialog.h"
 
@@ -49,7 +52,7 @@ BEGIN_EVENT_TABLE (CMStatImageDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ChannelCombo, CMStatImageDialog::OnChannelComboSelendok)
 		EVT_COMBOBOX (IDC_ClassCombo, CMStatImageDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMStatImageDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMStatImageDialog::OnClassComboSelendok)
 	#endif
@@ -277,7 +280,7 @@ void CMStatImageDialog::CreateControls ()
 													wxDefaultSize,
 													wxRB_GROUP);
    SetUpToolTip (m_radioBtn37, IDS_ToolTip226);
-   bSizer335->Add (m_radioBtn37, wxSizerFlags(0).Align(wxALIGN_CENTER));
+   bSizer335->Add (m_radioBtn37, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 	
 	m_radioBtn38 = new wxRadioButton (this,
 													IDC_SelectedFieldRadio,
@@ -286,7 +289,7 @@ void CMStatImageDialog::CreateControls ()
 													wxDefaultSize,
 													0);
    SetUpToolTip (m_radioBtn38, IDS_ToolTip227);
-   bSizer335->Add (m_radioBtn38, wxSizerFlags(0).Align(wxALIGN_CENTER));
+   bSizer335->Add (m_radioBtn38, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 	
 	bSizer333->Add (bSizer335, 0, wxEXPAND|wxLEFT|wxRIGHT|wxTOP, 5);
 	
@@ -314,7 +317,9 @@ void CMStatImageDialog::CreateControls ()
 	
 	CreateLineColumnControls (m_sbSizer8);
 
-	bSizer339->Add (m_sbSizer8, 0, wxALL|wxEXPAND, 12);
+	//bSizer339->Add (m_sbSizer8, 0, wxALL|wxEXPAND, 12);
+   bSizer339->Add (m_sbSizer8,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxALL, 12));
 	
 	wxBoxSizer* bSizer340;
 	bSizer340 = new wxBoxSizer (wxVERTICAL);
@@ -403,17 +408,23 @@ void CMStatImageDialog::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText317->Wrap (-1);
-	bSizer337->Add (m_staticText317, 0, wxALIGN_CENTER, 5);
+	//bSizer337->Add (m_staticText317, 0, wxALIGN_CENTER, 5);
+   bSizer337->Add (m_staticText317,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl154 = new wxTextCtrl (this,
 												IDC_StatisticMin,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(110, -1),
 												0);
-	bSizer337->Add (m_textCtrl154, 0, wxALIGN_CENTER, 5);
+	//bSizer337->Add (m_textCtrl154, 0, wxALIGN_CENTER, 5);
+   bSizer337->Add (m_textCtrl154,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	bSizer337->Add (10, 0, 0, wxEXPAND, 5);
+	//bSizer337->Add (10, 0, 0, wxEXPAND, 5);
+   bSizer337->Add (10, 0,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxALL, 5));
 	
 	m_staticText318 = new wxStaticText (this,
 													IDC_MaxPrompt,
@@ -422,15 +433,19 @@ void CMStatImageDialog::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText318->Wrap (-1);
-	bSizer337->Add (m_staticText318, 0, wxALIGN_CENTER, 5);
+	//bSizer337->Add (m_staticText318, 0, wxALIGN_CENTER, 5);
+   bSizer337->Add (m_staticText318,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl155 = new wxTextCtrl (this,
 												IDC_StatisticMax,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(110, -1),
 												0);
-	bSizer337->Add (m_textCtrl155, 0, wxALIGN_CENTER, 5);
+	//bSizer337->Add (m_textCtrl155, 0, wxALIGN_CENTER, 5);
+   bSizer337->Add (m_textCtrl155,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	bSizer307->Add (bSizer337, 0, 0, 1);
 

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -835,10 +835,11 @@ Boolean GetMaskArea (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/08/1998
-//	Revised By:			Larry L. Biehl			Date: 04/28/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Handle GetMaskFile (
 				Handle								inputFileInfoHandle,
+				DialogPtr							dialogPtr,
 				SInt16								promptString)
 
 {
@@ -851,8 +852,7 @@ Handle GetMaskFile (
 											numberFileTypes;
 	
 	Boolean								continueFlag,
-											doneFlag,
-											fileInfoLoaded;
+											doneFlag;
 	
 	
 			// Initialize local variables.
@@ -885,7 +885,6 @@ Handle GetMaskFile (
 			{
 					// Initialize local variables.
 		
-			fileInfoLoaded = FALSE;
 			continueFlag = FALSE;
 		
 					// Initialize the variables and handles in the structure.		
@@ -901,12 +900,14 @@ Handle GetMaskFile (
 				
 			gGetFileImageType = 0;
 			
-			errCode = GetFile (fileStreamPtr, 
-										numberFileTypes, 
+			errCode = GetFile (fileStreamPtr,
+										dialogPtr,
+										numberFileTypes,
 										gListTypes, 
 										NULL,
 										NULL,
-										NULL, 
+										NULL,
+										NULL,
 										promptString);
 										
 			continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
@@ -1251,12 +1252,12 @@ SInt64 GetNumberPixelsInMaskArea (
 // Called By:			ReadProjectFile in SProjectFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1999
-//	Revised By:			Larry L. Biehl			Date: 04/16/2020
+//	Revised By:			Larry L. Biehl			Date: 02/13/2025
 
 Boolean GetSpecifiedMaskFile (
 				SInt16								maskSetCode,
 				UCharPtr 							maskFileNamePtr,
-				MaskInfoPtr							maskInfoPtr, 
+				MaskInfoPtr							maskInfoPtr,
 				Boolean								userPrompt)
 
 {
@@ -1307,7 +1308,7 @@ Boolean GetSpecifiedMaskFile (
 		memcpy (fileNamePtr, (CharPtr)&maskFileNamePtr[1], maskFileNamePtr[0]+1);
 		
 		filePathPtr = (FileStringPtr)GetFilePathPPointerFromFileStream (fileStreamPtr);
-		int length = strlen ((char*)&filePathPtr[2]);
+		int length = (int)strlen ((char*)&filePathPtr[2]);
 		SetFileStringLength (filePathPtr, length);
 		
 				// Check if image file is in the same volume as the project			
@@ -1339,7 +1340,7 @@ Boolean GetSpecifiedMaskFile (
 			if (maskSetCode == kTestMaskSet)
 				promptStringNumber = IDS_FileIO104;
 			
-			fileFoundFlag = UserLocateProjectMaskImage (maskFileInfoHandle, 
+			fileFoundFlag = UserLocateProjectMaskImage (maskFileInfoHandle,
 																		promptStringNumber);
 			
 			}	// end "if (!fileFoundFlag && userPrompt)"
@@ -2085,10 +2086,10 @@ Boolean LoadNewMaskFields (
 			// Also while doing this create the mask fields and assign them
 			// to the classes. Create classes if one needs to.
 
-	sprintf ((char*)&gTextString[1], "MaskClass");
+	snprintf ((char*)&gTextString[1], 255, "MaskClass");
 	gTextString[0] = 9; 
 	
-	sprintf ((char*)&gTextString3[1], "MaskArea");
+	snprintf ((char*)&gTextString3[1], 255, "MaskArea");
 	gTextString3[0] = 8; 
 			
 	matchingClassFoundFlag = FALSE;
@@ -2167,7 +2168,8 @@ Boolean LoadNewMaskFields (
 											(Ptr)gTextString3, 
 											classNamePtr[0]+1);
 											
-					sprintf ((char*)&gTextString3[classNamePtr[0]+1], 
+					snprintf ((char*)&gTextString3[classNamePtr[0]+1],
+											256-(classNamePtr[0]+1),
 											"_M");
 											
 					gTextString3[0] += 2;
@@ -2362,10 +2364,10 @@ void SetUpMaskAreaDescriptionParameters (
 // Called By:			GetSpecifiedMaskFile in SMask.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/23/1999
-//	Revised By:			Larry L. Biehl			Date: 04/23/1999
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean UserLocateProjectMaskImage (
-				Handle								fileInfoHandle, 
+				Handle								fileInfoHandle,
 				SInt16								promptStringNumber)
 
 {
@@ -2411,11 +2413,13 @@ Boolean UserLocateProjectMaskImage (
 		{	
 		SetType (fileStreamPtr, kTEXTFileType);
 		errCode = GetFile (fileStreamPtr,
-									numberFileTypes, 
+									NULL,
+									numberFileTypes,
 									gListTypes, 
 									NULL,
 									NULL,
-									NULL, 
+									NULL,
+									NULL,
 									promptStringNumber);
 	   continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 	   				

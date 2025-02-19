@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        01/03/2020
+//   Revision date:        05/01/2023
 //
 //   Language:					C++
 //
@@ -30,7 +30,8 @@
 //
 /*
   Template for debug code.
- 	int numberChars = sprintf ((char*)&gTextString3,
+ 	int numberChars = snprintf ((char*)&gTextString3,
+									256,
  			" LReformatRectifyDlg: (): %s",
  			gEndOfLine);
  ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -56,7 +57,7 @@ BEGIN_EVENT_TABLE (CMReformatRectifyDlg, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_Channels, CMReformatRectifyDlg::OnSelendokOutChannels)
 	#endif
 
@@ -343,7 +344,7 @@ void CMReformatRectifyDlg::CreateControls ()
 												IDC_BackgroundValue,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl154, IDS_ToolTip205);
    m_textCtrl154->SetValidator (
@@ -462,7 +463,7 @@ void CMReformatRectifyDlg::CreateControls ()
    											IDC_LineOffset,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    SetUpToolTip (m_textCtrl147, IDS_ToolTip208);
    m_textCtrl147->SetValidator (negativeIntegerValidator);
@@ -473,7 +474,7 @@ void CMReformatRectifyDlg::CreateControls ()
    											IDC_LineScale,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    SetUpToolTip (m_textCtrl144, IDS_ToolTip210);
    m_textCtrl144->SetValidator (
@@ -502,7 +503,7 @@ void CMReformatRectifyDlg::CreateControls ()
    											IDC_ColumnOffset,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    SetUpToolTip (m_textCtrl145, IDS_ToolTip209);
    m_textCtrl145->SetValidator (negativeIntegerValidator);
@@ -512,7 +513,7 @@ void CMReformatRectifyDlg::CreateControls ()
    											IDC_ColumnScale,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    SetUpToolTip (m_textCtrl146, IDS_ToolTip211);
    m_textCtrl146->SetValidator (
@@ -558,7 +559,7 @@ void CMReformatRectifyDlg::CreateControls ()
 												IDC_RotationClockwise,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl149, IDS_ToolTip207);
    m_textCtrl149->SetValidator (

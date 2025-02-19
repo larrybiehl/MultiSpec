@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Abdur Maud
 //
-//	Revision date:			04/09/2022
+//	Revision date:			04/01/2023
 //
 //	Language:				C
 //
@@ -1173,9 +1173,11 @@ SInt16 LAddRow (
 	#ifdef multispec_wx
 			// Need to add at least at the number of blanks for the largest string
 			// there will be for the label; starting with wxWidget 3.1.5
-		wxString								label ("                              ");
+		wxString								label;
 		unsigned int						i,
 												lastRow;
+												
+		label = wxString::FromAscii ("                                           ");
 												
 		lastRow = startRow + numberRows;
 		for (i = startRow; i<lastRow; i++) 
@@ -1602,16 +1604,22 @@ void LSetCell (
 {
 	#if defined multispec_wx
 		char									tempPtr[64];
+		wxString 							stringptr;
 		SInt16								numberListItems;
 		
 
 		strncpy (tempPtr, dataPtr, dataLength);
 		tempPtr[dataLength] = 0;
-		wxString stringptr = wxString::FromUTF8 (tempPtr);
+		//wxString stringptr = wxString::FromUTF8 (tempPtr);
+		stringptr = wxString::FromAscii (tempPtr);
 		numberListItems = listBoxCPtr->GetCount ();
 				  
 		if (numberListItems > cell.v)
+			{
+			//listBoxCPtr->SetString (cell.v, wxString(""));
 			listBoxCPtr->SetString (cell.v, stringptr);
+			
+			}	// end "if (numberListItems > cell.v)"
 
 		else	// numberListItems < cell.v
 			listBoxCPtr->Append (stringptr);

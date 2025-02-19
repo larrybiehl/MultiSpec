@@ -28,8 +28,9 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMCoordinateBar class.
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
 			(char*)&gTextString3,
+									256,
 			" xTitleBar: (): %s",
 			gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);

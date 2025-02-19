@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			02/14/2025
 //
 //	Language:				C++
 //
@@ -30,8 +30,9 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
 									 " xFieldsToThematicDialog:: (): %s",
+									256,
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
@@ -50,7 +51,7 @@ BEGIN_EVENT_TABLE (CMFieldsToThematicDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ClassCombo, CMFieldsToThematicDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMFieldsToThematicDialog::OnClassComboSelendok)
 	#endif
 
@@ -101,7 +102,12 @@ void CMFieldsToThematicDialog::CreateControls ()
 	m_staticText282 = new wxStaticText (
 			this,
 			wxID_ANY,
-			wxT("Set Specifications for Creating Thematic Image from Project \rTrain/Test Areas"),
+			#if defined multispec_wxlin || defined multispec_wxmac
+				wxT("Set Specifications for Creating Thematic Image from Project \rTrain/Test Areas"),
+			#endif
+			#if defined multispec_wxwin 
+				wxT("Set Specifications for Creating Thematic Image from Project \r\nTrain/Test Areas"),
+			#endif
 			wxDefaultPosition,
 			wxSize (400, -1),
 			0);

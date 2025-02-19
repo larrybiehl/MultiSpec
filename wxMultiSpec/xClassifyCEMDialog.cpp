@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/15/2025
 //
 //	Language:				C++
 //
@@ -45,7 +45,7 @@ BEGIN_EVENT_TABLE (CMCEMClassifyDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ClassCombo, CMCEMClassifyDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMCEMClassifyDialog::OnClassComboSelendok)
 	#endif
 
@@ -164,7 +164,9 @@ void CMCEMClassifyDialog::CreateControls ()
 										IDC_ClassCombo,
 										100,
 										IDS_ToolTip103);
-   bSizer158->Add (m_classesCtrl, 0, wxALL, 5);
+   //bSizer158->Add (m_classesCtrl, 0, wxALL, 5);
+	bSizer158->Add (m_classesCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
    bSizer157->Add (bSizer158, 0, wxEXPAND|wxLEFT|wxRIGHT, 30);
 
@@ -190,7 +192,9 @@ void CMCEMClassifyDialog::CreateControls ()
 
 	CreateLineColumnControls (sbSizer8);
 
-   bSizer161->Add (sbSizer8, 0, wxEXPAND, 5);
+   //bSizer161->Add (sbSizer8, 0, wxEXPAND, 5);
+	bSizer161->Add (sbSizer8,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxALL, 5));
 
    bSizer157->Add (bSizer161, 0, wxEXPAND|wxLEFT|wxRIGHT, 30);
 

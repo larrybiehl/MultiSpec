@@ -28,7 +28,7 @@
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
 // Revised By:				Tsung Tai Yeh			Date: 08/03/2015
-//	Revised By:				Larry L. Biehl			Date: 03/17/2020
+//	Revised By:				Larry L. Biehl			Date: 12/26/2023
 //
 //------------------------------------------------------------------------------------
 
@@ -66,6 +66,7 @@
 
 
 CMainFrame*	GetMainFrame (void);
+CMainFrame* GetMainFrameForDialog (void);
 wxFrame*	GetActiveFrame (void);
 
 class CMultiSpecApp: public wxApp
@@ -104,7 +105,7 @@ class CMultiSpecApp: public wxApp
 				wxDocument*							doc,
 				wxView*								view);
 	
-		#if defined multispec_wxlin
+		#if defined multispec_wxlin || defined multispec_wxwin
 			void GetUserInputFilePath (
 					wxString 							toolParameterFilePath);
 		#endif
@@ -124,6 +125,9 @@ class CMultiSpecApp: public wxApp
 	private:
 		void OnCharHook (
 				wxKeyEvent& 						event);
+   
+      void OnClose (
+            wxCloseEvent&                 event);
 	
 		void OnQueryEndSession (
 				wxCloseEvent& 						event);

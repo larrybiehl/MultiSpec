@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMStatisticsFrame class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 01/03/2020
+//	Revised By:				Larry L. Biehl			Date: 04/26/2023
 //
 //------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@
 #include "xMultiSpec.h"
 
 
-class CMStatisticsFrame : public wxDocChildFrame
+class CMStatisticsFrame : public MChildFrame
 {
 		 DECLARE_DYNAMIC_CLASS (CMStatisticsFrame)
 
@@ -47,12 +47,18 @@ class CMStatisticsFrame : public wxDocChildFrame
 		 CMStatisticsFrame (
 		 		wxDocument* 						doc,
 		 		wxView* 								view,
-		 		wxDocParentFrame* 				parent,
+		 		MParentFrame* 						parent,
 		 		wxWindowID 							id,
 				const wxString& 					title = wxT("Project"),
 				const wxPoint& 					pos = wxDefaultPosition,
 				const wxSize& 						size = wxDefaultSize,
-				long 									style = wxDEFAULT_FRAME_STYLE);
+				//#if defined multispec_wxlin || defined multispec_wxmac
+					//long 									style = wxDEFAULT_FRAME_STYLE);
+				//#endif
+				//#if defined multispec_wxwin
+					long 									style = wxDEFAULT_FRAME_STYLE,
+					const wxString&					name = wxT("Project"));
+				//#endif
 
 		 ~CMStatisticsFrame ();
 	
@@ -203,7 +209,7 @@ class CMStatisticsFrame : public wxDocChildFrame
 		wxCheckBox							*m_checkBox53;
 	
 		wxChoice								*m_classListCtrl;
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice								*m_histogramCtrl,
 													*m_listCtrl,
 													*m_statsCtrl;

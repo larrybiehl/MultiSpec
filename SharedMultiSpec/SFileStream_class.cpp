@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/11/2020
+//	Revision date:			05/03/2023
 //
 //	Language:				C++
 //
@@ -29,7 +29,8 @@
 //								various disk files.
 //
 /* Template for debugging for MultiSpec Online on mygeohub.org.
-	int numberChars = sprintf (
+	int numberChars = snprintf (
+							256,
 							(char*)&gTextString3,
 							" CMFileStream::MSetSizeOfFile (countBytes, errCode) %d, %d%s", 
 							countBytes,
@@ -43,6 +44,8 @@
 
 #include "SFileStream_class.h"
 #include "SImageWindow_class.h"
+
+//#include "unistd.h"
 							  
 #if defined multispec_wx
 	#define dupFNErr				-48
@@ -365,7 +368,7 @@ SInt16 CMFileStream::ConvertFileErrorNumber (
 		   		break;
 		   		
 				case CFileException::badSeek:
-					outErrorCode = posErr;
+					outErrorCode = filePosErr;
 		   		break;   
 		   		
 				case CFileException::hardIO:
@@ -551,7 +554,7 @@ FileStringPtr CMFileStream::GetCopyOfFilePath (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/1995
-//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 05/03/2023
 
 void* CMFileStream::GetFileNameCPtr (
 				SInt16								returnCode)
@@ -595,7 +598,8 @@ void* CMFileStream::GetFileNameCPtr (
 				
 				nameLength = 0;
 				#if defined multispec_wx
-					while ((nameLength < pathLength) && (*wFileNameCPtr != '/'))
+					while ((nameLength < pathLength) && (*wFileNameCPtr != '/') && 
+																			(*wFileNameCPtr != '\\'))
 				#endif
 
 				#if defined multispec_win
@@ -934,7 +938,7 @@ OSErr	CMFileStream::GetFileType (
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 03/20/2017
-//	Revised By:			Larry L. Biehl			Date: 04/10/2020
+//	Revised By:			Larry L. Biehl			Date: 05/03/2023
 
 UInt16 CMFileStream::GetFileUTF8PathLength ()       
 {
@@ -953,7 +957,8 @@ UInt16 CMFileStream::GetFileUTF8PathLength ()
 
 		nameLength = 0;
 		#if defined multispec_wx
-			while ((nameLength < fullFilePathLength) && (*utf8FileNamePtr != '/'))
+			while ((nameLength < fullFilePathLength) && (*utf8FileNamePtr != '/') && 
+																			(*utf8FileNamePtr != '\\'))
 		#endif
 		#if defined multispec_win
 			while ((nameLength < fullFilePathLength) && (*utf8FileNamePtr != '\\'))
@@ -1883,7 +1888,7 @@ SInt16 CMFileStream::MSetMarker (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 09/11/1995
-//	Revised By:			Larry L. Biehl			Date: 01/10/2017
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023
 
 SInt16 CMFileStream::MSetSizeOfFile (
 				SInt64								countBytes)
@@ -1892,11 +1897,27 @@ SInt16 CMFileStream::MSetSizeOfFile (
 	SInt16								errCode = noErr;
 	
 	
-	#if defined multispec_wx
+	#if defined multispec_wxmac || defined multispec_wxlin
 		errCode = ftruncate (fd (), countBytes); 
 	#endif	// defined multispec_wx
+	
+	#if defined multispec_wxwin
+		LARGE_INTEGER	offset;
+		offset.QuadPart = countBytes;
 
-	#if defined multispec_win
+		BOOL returnFlag = SetFilePointerEx ((HANDLE)fd (),						// file handle
+														offset,
+														NULL,
+														FILE_BEGIN);
+
+		if (returnFlag)
+			returnFlag = SetEndOfFile ((HANDLE)fd ());
+
+		if (!returnFlag)
+			errCode = GetLastError();
+	#endif	// defined multispec_wx
+
+	#if defined multispec_win 
 	   TRY
 	   	{
 			SetLength ((UInt32)countBytes);

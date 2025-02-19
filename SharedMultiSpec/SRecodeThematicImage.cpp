@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -32,7 +32,9 @@
 #include "SMultiSpec.h"   
 
 #if defined multispec_wx
-	#define	IDOK									1
+	#ifndef multispec_wxwin
+		#define	IDOK									1
+	#endif
 	#include "xRecodeThematicImageDialog.h"
 #endif	// defined multispec_wx
 
@@ -483,7 +485,7 @@ Boolean DoRecodeThematicImage (
 			minutesLeft = (linesLeft * (TickCount () - startTick))/
 														(double)(lineCount*kTicksPerMinute);
 													
-			sprintf ((char*)gTextString, " %.1f", minutesLeft);
+			snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
 			stringPtr = (char*)CtoPstring ((char*)gTextString, (char*)gTextString);
 			LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 			*/				
@@ -725,7 +727,7 @@ Boolean LoadRecodeThematicImageSpecs (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/15/1999
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 void RecodeThematicImageControl (void)
 
@@ -793,6 +795,7 @@ void RecodeThematicImageControl (void)
 		
 			// List input parameters to output text window.
 			// List the file name that was changed.
+			// Take into account the first two bytes are the character count
 			
 	fileNamePtr = (char*)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
 	continueFlag = ListSpecifiedStringNumber (
@@ -800,7 +803,7 @@ void RecodeThematicImageControl (void)
 												IDS_Reform16,
 												NULL, 
 												gOutputForce1Code, 
-												&fileNamePtr[1],
+												&fileNamePtr[2],
 												continueFlag,
 												kUTF8CharString);	
 		
@@ -1415,7 +1418,7 @@ void RecodeThematicImageDialogInitialize (
 													(char*)gTextString,
 													(char*)gTextString2,
 													TRUE,
-													&fileNamePtr[1]);
+													&fileNamePtr[2]);
 	LoadDItemString (dialogPtr, 
 							IDC_InputFileNameText, 
 							(Str255*)gTextString);
@@ -1493,6 +1496,7 @@ SInt16 RecodeThematicImageDialogSelectThresholdItem (
 		SetDLogControlHilite (dialogPtr, IDOK, 255);
 				
 		*thresholdFileInfoHandlePtr = GetMaskFile (*thresholdFileInfoHandlePtr,
+																	dialogPtr,
 																	selectStringNumber);
 
 		SetDLogControlHilite (dialogPtr, IDOK, 0);

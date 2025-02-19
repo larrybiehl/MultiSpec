@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			05/15/2024
 //
 //	Language:				C
 //
@@ -68,8 +68,8 @@
 			// Prototypes for linux routines
 	void freememory (void* ptr);
 	void* memorycopy (void* output, void* input);
-	void* memallocate (UInt32 bytesneeded);
-	void* memreallocate (UInt32 bytesneeded, void* handle);
+	void* memallocate (SInt64 bytesneeded);
+	void* memreallocate (SInt64 bytesneeded, void* handle);
 #endif
 
 
@@ -554,7 +554,7 @@ Ptr CheckHandleSize (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 08/25/2010
-//	Revised By:			Larry L. Biehl			Date: 04/27/2022
+//	Revised By:			Larry L. Biehl			Date: 05/15/2022
 
 Boolean CheckIfBytesRequestedAreWithinLimit (
 				SInt64								bytesRequested)
@@ -563,7 +563,8 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 	Boolean								memoryRequestFlag = TRUE;
 	
 	#if defined multispec_mac || defined multispec_wx
-		if (bytesRequested > UInt32_MAX)
+		//if (bytesRequested > UInt32_MAX)
+		if (bytesRequested > kMaxMemoryRequest)
 	#endif
 	#if defined multispec_win
 		if (bytesRequested > SInt32_MAX)
@@ -607,10 +608,10 @@ Boolean CheckIfBytesRequestedAreWithinLimit (
 //	Global Data:
 //
 //	Coded By:			Larry L. Biehl			Date: 02/12/1993
-//	Revised By:			Larry L. Biehl			Date: 08/15/2013			
+//	Revised By:			Larry L. Biehl			Date: 05/14/2024
 
 Boolean CheckIfMemoryAvailable (
-				UInt32								memoryRequest)
+				SInt64								memoryRequest)
 
 {
 	Handle								testHandle;
@@ -1510,7 +1511,7 @@ Ptr GetHandleStatusAndPointer (
 //							HistogramStatsControl in SProjectHistogramStatistics.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/07/1989
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 05/15/2024
 
 Boolean GetIOBufferPointers (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -1781,9 +1782,11 @@ Boolean GetIOBufferPointers (
 					columnInterval > 1 && packDataFlag)
 		overlapInputAndOutputBufferFlag = FALSE;
 													
-	else if (bandInterleave == kBIS && forceOutputFormatCode != kBIS &&
-					numberChannels < imageWindowInfoPtr->totalNumberChannels &&
-							 packDataFlag)
+	else if (bandInterleave == kBIS &&
+					forceOutputFormatCode != kBIS &&
+						packDataFlag &&
+							(numberChannels < imageWindowInfoPtr->totalNumberChannels ||
+								imageFileInfoPtr->gdalDataSetH == 0))
 		overlapInputAndOutputBufferFlag = FALSE;
 		
 			// Do not allow the buffers to overlap if more than one disk file 	
@@ -3344,12 +3347,12 @@ Handle UnlockAndDispose (
  * changed to *ptr before use
  */
 #if defined multispec_wx
-int getsize (
+SInt64 getsize (
 				void*									ptr)
 				
 {
 	if (ptr != NULL)
-		return *(UInt32*)((onebyte*)(ptr) - memsize);
+		return *(SInt64*)((onebyte*)(ptr) - memsize);
 		
 	else
 		return -1;
@@ -3373,13 +3376,13 @@ void freememory (
 
 
 void* memallocate (
-				UInt32								bytesneeded)
+				SInt64								bytesneeded)
 				
 {
 	void									*ptr;
 	void									*ptr4;
-	UInt32								*ptr2;
-	UInt32								*ptr3;
+	SInt64								*ptr2;
+	SInt64								*ptr3;
 	
 	
 			// Make total size with bytes needed and size count to be no less than
@@ -3392,9 +3395,9 @@ void* memallocate (
 	if (ptr != NULL)
 		{
 		memset (ptr, 0, bytesneeded+memsize);
-		ptr2 = (UInt32*)ptr;
+		ptr2 = (SInt64*)ptr;
 		*ptr2 = bytesneeded;
-		ptr3 = (UInt32*)((onebyte*)ptr2 + memsize);
+		ptr3 = (SInt64*)((onebyte*)ptr2 + memsize);
 		ptr4 = (void*)ptr3;
 		
 		}	// end "if (ptr != NULL)"
@@ -3409,14 +3412,14 @@ void* memallocate (
 
 
 void* memreallocate (
-				UInt32								bytesneeded, 
+				SInt64								bytesneeded, 
 				void*									handle)
 				
 {
 	void									*ptr,
 											*ptr4;
 											
-	UInt32								*ptr2,
+	SInt64								*ptr2,
 											*ptr3;
 											
 	
@@ -3429,9 +3432,9 @@ void* memreallocate (
 	
 	if (ptr != NULL)
 		{
-		ptr2 = (UInt32*)ptr;
+		ptr2 = (SInt64*)ptr;
 		*ptr2 = bytesneeded;
-		ptr3 = (UInt32*)((onebyte*)ptr2 + memsize);
+		ptr3 = (SInt64*)((onebyte*)ptr2 + memsize);
 		ptr4 = (void*)ptr3;
 		
 		}	// end "if (ptr != NULL)"
@@ -3450,7 +3453,7 @@ void* memorycopy (
 				void*									input)
 				
 {
-	int input_memsize = getsize (input); 
+	SInt64 input_memsize = getsize (input); 
 	memcpy ((void*)((onebyte*)output-memsize), 
 				(void*)((onebyte*)input-memsize), 
 				(size_t)(input_memsize+memsize));

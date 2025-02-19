@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/12/2020
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -4536,7 +4536,7 @@ void UpdateProjectMapProjectionHandle (
 //							ChangeProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/21/1990
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean UserLocateProjectBaseImage (
 				Handle								fileInfoHandle, 
@@ -4602,11 +4602,13 @@ Boolean UserLocateProjectBaseImage (
 		{	
 		SetType (fileStreamPtr, kTEXTFileType);
 		errCode = GetFile (fileStreamPtr,
-									numberFileTypes, 
+									NULL,
+									numberFileTypes,
 									gListTypes, 
 									NULL, 
 									NULL,
-									NULL, 
+									NULL,
+									NULL,
 									promptStringNumber);
 	   continueFlag = ((errCode == noErr) & FileExists (fileStreamPtr));
 	   				

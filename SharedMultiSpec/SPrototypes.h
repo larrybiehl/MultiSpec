@@ -28,8 +28,8 @@
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/24/2013
 //	Revised By:				Tsung Tai Yeh			Date: 09/23/2015
-//	Revised By:				Larry L. Biehl			Date: 05/22/2022
-//	
+//	Revised By:				Larry L. Biehl			Date: 02/17/2025
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -797,7 +797,7 @@
 					UInt32								numberBytes,
 					UInt16								messageCode);
 
-	extern int getsize (
+	extern SInt64 getsize (
 					void*									ptr);
 
 			//	end SMemoryUtilities.cpp
@@ -2454,6 +2454,7 @@ extern void ClassifyDialogInitialize (
 				SInt16*								listResultsTestCodePtr,
 				SInt16*								listResultsTrainingCodePtr,
 				SInt16*								parallelPipedCodePtr,
+				double*								parallelPipedStanDevFactorPtr,
 				SInt16*								nearestNeighborKValuePtr);
 	
 extern void ClassifyDialogOK (
@@ -2496,7 +2497,8 @@ extern void ClassifyDialogOK (
 				SInt16								listResultsTestCode,
 				SInt16								listResultsTrainingCode,
 				SInt16								parallelPipedCode,
-				SInt16								nearestNeighborKValue); 
+				double								m_ppStdDeviationFactor,
+				SInt16								nearestNeighborKValue);
 	                
 extern SInt16 ClassifyDialogOnClassificationProcedure (
 				DialogPtr							dialogPtr, 
@@ -2505,6 +2507,7 @@ extern SInt16 ClassifyDialogOnClassificationProcedure (
 				Boolean*								featureTransformAllowedFlagPtr,                    
 				SInt16*								weightsSelectionPtr,
 				SInt16*								parallelPipedCodePtr,
+				double*								m_ppStdDeviationFactor,
 				SInt16								classificationSelection,
 				SInt16*								covarianceEstimatePtr,
 				SInt16								numberEigenvectors,
@@ -2525,7 +2528,8 @@ extern SInt16 ClassifyDialogOnTargetFile (
 				Handle*								targetWindowInfoHandlePtr,
 				Boolean*								checkOKFlagPtr,
 				DialogSelectArea*					dialogSelectAreaPtr,
-				Boolean*								createImageOverlayFlagPtr);
+				Boolean*								createImageOverlayFlagPtr,
+				Boolean								createDiskFileFlag);
 								
 extern Boolean ClassifyDialogSetLeaveOneOutItems (
 				DialogPtr							dialogPtr,
@@ -2537,6 +2541,7 @@ extern Boolean ClassifyDialogSetLeaveOneOutItems (
                     
 extern void ClassifyDialogSetPaletteItems (
 				DialogPtr							dialogPtr,
+				Boolean								createDiskFileFlag,
 				SInt16								outputFormatCode,
 				Boolean								createImageOverlayFlag);
 								
@@ -3207,7 +3212,7 @@ extern Handle GetDisplaySpecsStructure (
 				Handle								displaySpecsHandle,
 				Boolean								initializeFlag);
 
-extern UInt32 GetNumberPixRowBytes (
+extern SInt32 GetNumberPixRowBytes (
 				UInt32								numberColumns,
 				SInt16								pixelSize);
 
@@ -3215,7 +3220,7 @@ extern SInt16 GetOffscreenGWorld (
 				WindowInfoPtr						windowInfoPtr,
 				DisplaySpecsPtr					displaySpecsPtr,
 				LongRect*							rectPtr,
-				UInt32*								pixRowBytesPtr);
+				SInt32*								pixRowBytesPtr);
 
 extern SInt16 InitializeClassGroupsVector (
 				FileInfoPtr							fileInfoPtr,
@@ -3236,7 +3241,7 @@ extern void SetVectorOverlays (
 extern Boolean SetUpColorImageMemory (
 				DisplaySpecsPtr					displaySpecsPtr,
 				LongRect*							sourceRectPtr,
-				UInt32*								pixRowBytesPtr);
+				SInt32*								pixRowBytesPtr);
 
 		// end SDisplay.cpp
 
@@ -3261,7 +3266,7 @@ extern void DisplayImagesSideBySide (
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -3406,7 +3411,7 @@ extern void DisplayCImage (
 				HistogramSpecsPtr					histogramSpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -3419,7 +3424,7 @@ extern void Display4_8ByteImagesSideBySide (
 				FileInfoPtr							fileInfoPtr,
 				HistogramSummaryPtr				histogramSummaryPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -3447,6 +3452,7 @@ extern SInt16 GetMinMaxPopupCode (
 				SInt16								percentClip);
 
 extern Boolean MinMaxEnhancementDialog (
+				DialogPtr							parentDialogPtr,
 				SInt16*	 							channelsPtr,
 				SInt16 								rgbColors,
 				SInt16 								displayType,
@@ -3535,7 +3541,7 @@ extern void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr,
 				FileInfoPtr							fileInfoPtr,
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes,
+				SInt32								pixRowBytes,
 				PixMapHandle						savedPortPixMapH,
 				PixMapHandle						offScreenPixMapH,
 				LongRect*							rectPtr,
@@ -3842,6 +3848,7 @@ extern void DoStatisticsWPaste (void);
 extern void DoStatisticsWUndo (void);
 
 extern void DupClassFieldNameAlert (
+				DialogPtr							dialogPtr,
 				SInt16								classFieldFlag,
 				UCharPtr								duplicateNamePtr);
 
@@ -3946,7 +3953,8 @@ extern void GetTranformationFeatureMeans (
 				HDoublePtr							eigenVectorPtr,
 				HDoublePtr							eigenFeatureMeanPtr);
 
-extern Boolean ProjectionPursuitDialog (void);
+extern Boolean ProjectionPursuitDialog (
+				DialogPtr							parentDialogPtr);
 	
 extern void ProjectionPursuitDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -4278,6 +4286,9 @@ extern SInt16 GetFileFormat (
 extern SInt16 GetFileFormatFromWindowHandle (
 				Handle								windowInfoHandle);
 
+UInt16 GetFileInstrumentCode (
+				Handle								fileInfoHandle);
+
 extern Handle GetFileMapProjectionHandle (
 				Handle								fileInfoHandle);
 
@@ -4484,11 +4495,13 @@ extern UInt32 GetDataConversionCode (
 
 extern SInt16 GetFile (
 				CMFileStream*						fileStreamPtr,
+				DialogPtr							dialogPtr,
 				SInt16								numberTypes,
 				OSType*								fileTypes,
 				LocalAppFile*						localAppFilePtr,
 				FSRef*								fileAsFSRefPtr,
 				UInt32*								itemCountPtr,
+				int*									getFileReturnKeyCodePtr,
 				SInt16								stringIndex);
 
 extern SInt32 GetFileCreator (
@@ -5254,7 +5267,9 @@ extern void CloseHDF5DataSetInfo (
 				FileInfoPtr							fileInfoPtr);
 
 extern SInt16 GetHDF5ProjectionInformation (
-				FileInfoPtr							fileInfoPtr);
+				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								dataSetIndex);
 
 extern Boolean ListHDF5FileInformation (
 				FileInfoPtr							fileInfoPtr);
@@ -5329,7 +5344,8 @@ extern Boolean GetHistogramVectorForChannel (
 				SInt16								numberChannels);
 
 extern Boolean GetSTASupportFile (
-				FileInfoPtr							fileInfoPtr);
+				FileInfoPtr							fileInfoPtr,
+				DialogPtr							dialogPtr);
 
 extern char* GetSTASupportFileBuffer (
 				UInt16*								channelListPtr,
@@ -5702,6 +5718,7 @@ extern void ListResultsControl (void);
 extern void ListResultsDialogSetThresholdItems (
 				DialogPtr							dialogPtr,
 				Boolean								thresholdResultsFlag,
+				Boolean								probabilityFileAvailableFlag,
 				SInt16								thresholdTypeCode);
 
 extern Boolean ListPerformanceTables (
@@ -6490,6 +6507,7 @@ extern Boolean GetMaskArea (
 
 extern Handle GetMaskFile (
 				Handle								inputFileInfoHandle,
+				DialogPtr							dialogPtr,
 				SInt16								promptString);
 
 extern FileStringPtr GetMaskFileNamePPointer (
@@ -6840,7 +6858,7 @@ extern Ptr CheckHandleSize (
 				SInt64								bytesNeeded);
 
 extern Boolean CheckIfMemoryAvailable (
-				UInt32								memoryRequest);
+				SInt64								memoryRequest);
 
 extern Boolean CheckMemoryForColorPicker (
 				Str255*								stringPtr,
@@ -7059,7 +7077,7 @@ extern void UpdateEditClearSelection (
 				CCmdUI*								pCmdUI,
 				SInt16								selectionTypeCode);
 
-extern void UpdateEditGraphicsCopy (
+extern Boolean UpdateEditGraphicsCopy (
 				CCmdUI*								pCmdUI);
 
 extern Boolean UpdateEditImageCopy (
@@ -7305,6 +7323,7 @@ extern SInt16 FileSpecificationDialogSetHDFValues (
 				SInt16*								bandInterleaveSelectionPtr,
 				SInt16*								dataValueTypeSelectionPtr,
 				UInt16*								dataCompressionCodePtr,
+				SInt16*								instrumentCode,
 				SInt16*								gdalDataTypeCodePtr,
 				Boolean*								callGetHDFLineFlagPtr);
 
@@ -7346,6 +7365,7 @@ extern Boolean FileSpecificationDialogOK (
 				UInt32								hdfDataSetIndex,
 				SInt16								collapseClassesSelection,
 				UInt16								dataCompressionCode,
+				SInt16								instrumentCode,
 				SInt16								gdalDataTypeCode,
 				Boolean								callGetHDFLineFlag);
 
@@ -8822,7 +8842,8 @@ extern SInt16 ProjectChangesPopUpMenu (
 				Boolean*								newProjectFlag,
 				SInt16								currentListType);
 
-extern Boolean ProjectMenuClearStatistics (void);
+extern Boolean ProjectMenuClearStatistics (
+				DialogPtr							dialogPtr);
 
 extern void ReleaseClassifySpecsMemory (
 				Handle*								classifySpecsHandlePtr);
@@ -9240,8 +9261,8 @@ extern void	CompareImagesDialogInitialize (
 				ReformatOptionsPtr				reformatOptionsPtr,
 				SInt16*								headerOptionsSelectionPtr,
 				SInt16*								channelSelectionPtr,
+				Boolean*								createOutputImageFileFlagPtr,
 				SInt16*								procedureCodePtr,
-				SInt16*								resampleCodePtr,
 				SInt16*								fileNamesSelectionPtr,
 				Handle*								referenceWindowInfoHandlePtr);
 
@@ -9255,19 +9276,27 @@ extern void CompareImagesDialogOK (
 				ReformatOptionsPtr				reformatOptionsPtr,
 				SInt16								headerOptionsSelection,
 				SInt16								channelSelection,
+				Boolean								createOutputImageFileFlag,
 				SInt16								procedureCode,
 				Handle								referenceWindowInfoHandle);
 
-extern void CompareImagesDialogOnRectifyCode (
+extern void CompareImagesDialogOnCreateImageFile (
 				DialogPtr							dialogPtr,
-				SInt16								rectifyCode);
-				
+				Boolean								createImageFileFlag);
+
 extern SInt16 	CompareImagesDialogOnReferenceFile (
 				DialogPtr							dialogPtr,
 				SInt16								procedureCode,
 				SInt16								fileNamesSelection,
 				Handle*								targetWindowInfoHandlePtr,
 				DialogSelectArea*					dialogSelectAreaPtr);
+
+extern SInt16 GetCompareToImageList (
+				DialogPtr							dialogPtr,
+				Handle								windowInfoHandle,
+				Boolean								loadListFlag,
+				Handle*								referenceWindowInfoHandlePtr,
+				SInt16*								listCountPtr);
 
 		// end SReformtCompareImages.cpp
 
@@ -10020,6 +10049,7 @@ extern SInt16 StatisticsDialogMaskCheck (
 
 extern Boolean StatisticsOptionsDialog (
 				SInt16*								statCodePtr,
+				DialogPtr							parentDialogPtr,
 				Boolean*								keepClassStatsFlagPtr,
 				double*								variancePtr,
 				double*								minLogDeterminantPtr,
@@ -10141,6 +10171,10 @@ extern void CheckStringLength (
 
 extern Boolean CheckTextWindowSpaceNeeded (
 				UInt32								numberBytesNeeded);
+
+Boolean CompareFileNamesNoCase (
+				FileStringPtr						fileName1Ptr,
+				FileStringPtr						fileName2Ptr);
 
 extern SInt16 CompareStringsNoCase (
 				const UCharPtr						str1,
@@ -10265,6 +10299,9 @@ extern Boolean GetSpecifiedStringNumber (
 				SInt16								index,
 				UCharPtr								textStringPtr,
 				Boolean								continueFlag);
+
+extern SInt16	GetStringLengthForNumber (
+				UInt32								maximumNumber);
 
 extern char* GetStringToComma (
 				char*									inputStringPtr,
@@ -10540,7 +10577,8 @@ extern Boolean MGetString (
 				UCharPtr								outTextPtr,
 				UInt16								stringListID,
 				UInt16								stringID,
-				UInt16								maxStringLength=254);
+				UInt16								maxStringLength=254,
+				UInt32*								stringLengthPtr=NULL);
 							
 #if defined multispec_win
 	extern void MSetWindowTitle (
@@ -10561,6 +10599,11 @@ extern void MSetWindowTitle (
 extern void NumToString (
 				UInt32								numberValue,
 				UCharPtr								stringPtr);
+					
+extern void	NumToString (
+				UInt32								numberValue,
+				UCharPtr								stringPtr,
+				UInt16								numberDigits);
 
 extern void NumToString (
 				SInt64								numberValue,
@@ -10929,6 +10972,7 @@ extern void DrawSideBySideTitles (
 
 extern SInt16 FormatHistogramSummaryString (
 				char*									stringPtr,
+				int									stringLength,
 				double								value,
 				UInt16								numberEDecimalDigits,
 				UInt16								numberFDecimalDigits,
@@ -11016,7 +11060,7 @@ extern SInt16 GetLegendWidth (
 				Handle								windowInfoHandle);
 
 extern SInt16 GetListBottom (
-				ListHandle							listHandle);
+				LegendListHandle					listHandle);
 
 extern SInt32 GetLongIntValue (
 				CharPtr								longIntPtr);

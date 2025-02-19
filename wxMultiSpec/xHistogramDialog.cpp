@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/26/2022
+//	Revision date:			02/13/2025
 //
 //	Language:				C++
 //
@@ -60,7 +60,7 @@ BEGIN_EVENT_TABLE (CMHistogramSpecsDlg, CMDialog)
 		EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMHistogramSpecsDlg::OnChannelComboCloseUp)
 		EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMHistogramSpecsDlg::OnChannelComboDropDown)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMHistogramSpecsDlg::OnSelendokChannels)
 		EVT_CHOICE (IDC_Method, CMHistogramSpecsDlg::OnSelendokMethod)
 	#endif
@@ -225,12 +225,12 @@ void CMHistogramSpecsDlg::CreateControls ()
 													NULL,
 													wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_methodCtrl = new wxChoice (this,
 												IDC_Method,
 												wxDefaultPosition,
 												wxSize (200, -1));
-	#endif	// multispec_wxmac
+	#endif	// multispec_wxmac || defined multispec_wxwin
 
 	m_methodCtrl->Append (wxT("From default statistics file"));
    m_methodCtrl->Append (wxT("Compute new histogram"));
@@ -253,7 +253,8 @@ void CMHistogramSpecsDlg::CreateControls ()
 
 	CreateLineColumnControls (sbSizer8);
 	
-	bSizer80->Add (sbSizer8, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT, 12));
+	bSizer80->Add (sbSizer8,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().Border(wxLEFT|wxRIGHT, 12));
 	
 	bSizer80->Add (6,6);
 
@@ -342,7 +343,7 @@ void CMHistogramSpecsDlg::CreateControls ()
 													0);
    m_staticText96->Wrap (-1);
    bSizer88->Add (m_staticText96,
-						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
 	wxChoice*		comboBox19;
    comboBox19 = new wxChoice (sbSizer14->GetStaticBox (),

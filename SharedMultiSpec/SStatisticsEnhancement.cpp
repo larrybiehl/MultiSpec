@@ -670,7 +670,8 @@ SInt16 behzad_ModifyStatistics (
 			
 			}	// end "else iount > 0" 
       	
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"    %6d          %.1f        %.2f%s",
 					(int)iount,
 					xloglPtr[iount],
@@ -2638,7 +2639,8 @@ Boolean ListStatEnhanceSpecifications (
 			statClassNumber = classPtr[index];
 			classTypicalityPtr = statEnhanceSpecsPtr->classTypicalityPtr;
 				
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"      Chi*Chi threshold value for class %d = %g%s",
 							(int)statClassNumber,
 							classTypicalityPtr[index].distance,
@@ -2731,7 +2733,8 @@ Boolean ListStatEnhanceSpecifications (
 															gTextString2, 
 															continueFlag);
 	
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+				256,
 				(char*)&gTextString2[1],
 				statEnhanceSpecsPtr->iterationStopLength,
 				statEnhanceSpecsPtr->logLikeStopPercentChange);

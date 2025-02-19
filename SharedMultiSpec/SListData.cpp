@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/26/2023
 //
 //	Language:				C
 //
@@ -84,9 +84,6 @@ SInt16	GetMaximumDataValueStringLength (
 				Boolean								includeMaxColumnValueFlag,
 				SInt16								numberFFormatDecimalDigits,
 				SInt16*								numberEFormatDecimalDigitsPtr);
-
-SInt16	GetStringLengthForNumber (
-				UInt32								maximumNumber);
 											
 SInt16	ListClassData (
 				FileIOInstructionsPtr			fileIOInstructionsPtr,
@@ -1342,7 +1339,7 @@ void ListDataControl (void)
 // Called By:			ListDataControl
 //
 //	Coded By:			Larry L. Biehl			Date: 05/24/1990
-//	Revised By:			Larry L. Biehl			Date: 07/05/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 	
 Boolean ListDataDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -1998,7 +1995,7 @@ Boolean ListDataDialog (
 	#if defined multispec_wx
 		CMListDataDialog* dialogPtr = NULL;
 
-		dialogPtr = new CMListDataDialog (NULL);
+		dialogPtr = new CMListDataDialog (GetMainFrameForDialog());
 
 		returnFlag = dialogPtr->DoDialog ();
 
@@ -2942,7 +2939,7 @@ SInt16 ListFieldData (
 													
 	maskRequestValue = (UInt16)fileIOInstructionsPtr->maskValueRequest;
 
-	#if defined multispec_wx
+	#if defined multispec_wxlin || defined multispec_wxmac
 				// Disable all active windows except list data window in the wxwidgets
 				// linux version.
 		if (gListDataSpecsPtr->graphDataFlag)
@@ -3323,6 +3320,7 @@ SInt16 ListFieldData (
 							MInitCursor ();
                     
 							continueFlag = CheckSomeGraphWindowEvents (gGraphRecordPtr);
+							//continueFlag = CheckSomeEvents (0);
    
 							MSetCursor (kWait);
 						
@@ -3362,7 +3360,7 @@ SInt16 ListFieldData (
 		
 	LoadDItemValue (gStatusDialogPtr, IDC_Status18, lineCount);
 	
-	#if defined multispec_wx
+	#if defined multispec_wxlin || defined multispec_wxmac
 				// Re-enable all active windows and main menu in the wxwidgets
 				// versions.
 		if (m_windowDisabler != NULL)

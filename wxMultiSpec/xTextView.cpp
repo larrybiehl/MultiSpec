@@ -20,7 +20,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			07/25/2016 by Wei-Kang Hsu
-//								04/22/2020 by Larry L. Biehl
+//								04/27/2023 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -54,8 +54,14 @@ CMTextView::CMTextView ()
 		: wxView ()
 
 {
-	m_frame = (wxDocChildFrame*)NULL;
-	m_textsw = (TextWindow2*)NULL;
+	#if defined multispec_wxlin || defined multispec_wxmac
+		m_frame = (wxDocChildFrame*)NULL;
+	#endif
+	#if defined multispec_wxwin
+		m_frame = (wxDocMDIChildFrame*)NULL;
+	#endif
+
+	m_textsw = (TextWindow*)NULL;
 	
 }	// end "CMTextView"
 
@@ -168,25 +174,36 @@ bool CMTextView::OnCreate (
 
 	m_frame = new CMTextFrame (doc,
 										this,
-										GetMainFrame (),
+										//#if defined multispec_wxlin || multispec_wxmac
+										//	(wxDocParentFrame*)GetMainFrame (),
+										//#endif
+										//#if defined multispec_wxwin
+										//	(wxDocMDIParentFrame*)GetMainFrame (),
+										//#endif
+										(MParentFrame*)GetMainFrame (),
 										wxID_ANY,
 										wxT("Text Output"),
 										wxPoint (textWindowXPosition, textWindowYPosition),
 										wxSize (width, height),
 										#if defined multispec_wxmac
 											wxDEFAULT_FRAME_STYLE | wxFRAME_FLOAT_ON_PARENT);
-										#else
+										#endif
+										#if defined multispec_wxlin
 											wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP);
+										#endif
+										#if defined multispec_wxwin
+											wxDEFAULT_FRAME_STYLE | wxSTAY_ON_TOP,
+											wxT("MultiSpec_Text_Output"));
 										#endif
 
 	doc->SetFilename (wxT("MultiSpec_Text_Output"), false);
-	wxFont font (
-				gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-   m_frame->SetFont (font);
+	//wxFont font (
+	//			gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+   //m_frame->SetFont (font);
 	m_frame->GetClientSize (&width, &height);
    m_frame->SetTitle (_T("Text Output"));
    
-	m_textsw = new TextWindow2 (this,
+	m_textsw = new TextWindow (this,
 											m_frame,
 											wxPoint (0, 0),
 											wxSize (width, height),
@@ -205,11 +222,18 @@ bool CMTextView::OnCreate (
 							wxT("Courier"));
 		//gFontSize, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 	#endif
+	#if defined multispec_wxwin
+		wxFont textwf (gFontSize,
+							wxFONTFAMILY_TELETYPE,
+							wxFONTSTYLE_NORMAL,
+							wxFONTWEIGHT_NORMAL);
+	#endif
 	//wxFont textwf (wxFontInfo(gFontSize).FaceName("Courier New"));
 	m_textsw->StyleSetFont (wxSTC_STYLE_DEFAULT, textwf);
    m_textsw->StyleClearAll ();
    
 	gOutputViewCPtr = this;
+	gActiveWindowType = kOutputWindowType;
 	gTheActiveWindow = (WindowPtr)this;
 	#ifdef __X__
 				// X seems to require a forced resize
@@ -300,7 +324,7 @@ class MyFontEnumerator : public wxFontEnumerator
 
 }	fontEnumerator;
 	
-	
+/*
 bool CMTextView::DoEnumerateFamilies (
 				wxFont 								textwf,
 				bool 									fixedWidthOnly,
@@ -333,7 +357,7 @@ bool CMTextView::DoEnumerateFamilies (
 	return false;
 	
 }	// end "DoEnumerateFamilies"
-
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -401,6 +425,9 @@ void CMTextView::OnActivateView (
 		  
 				// If the window is being activated, outside of a processing operating,
 				// make sure the global active image information is up to date.
+         
+      if (gProcessorCode == kPrintProcessor && bActivate)
+         gProcessorCode = 0;
 				
 		if (gProcessorCode == 0 && bActivate)
 			{
@@ -414,26 +441,6 @@ void CMTextView::OnActivateView (
 		}	// end "if (m_frame != NULL)"
 
 }	// end "OnActivateView"
-
-
-
-// Handled by wxTextWindow
-void CMTextView::OnDraw (
-				wxDC*									WXUNUSED (dc))
-
-{
-
-}	// end "OnDraw"
-
-
-
-void CMTextView::OnUpdate (
-				wxView*								WXUNUSED (sender),
-				wxObject*							WXUNUSED (hint))
-
-{
-
-}	// end "OnUpdate"
 
 
 
@@ -472,6 +479,60 @@ bool CMTextView::OnClose (
 
 
 
+// Handled by wxTextWindow
+void CMTextView::OnDraw (
+				wxDC*									pDC)
+
+{
+			// This is test for wxWidget print architecture.
+			
+	wxRect 								paperSize,
+											renderRect;
+											
+	int									height,
+											positionEnd,
+											positionStart,
+											width;
+											
+
+	m_textsw->GetClientSize (&width, &height);
+	renderRect.x = 0;
+	renderRect.y = 0;
+	renderRect.height = height;
+	renderRect.width = width;
+	
+	m_textsw->GetSelection (&positionStart, &positionEnd);
+	
+	if (positionStart == positionEnd)
+		{
+		positionStart = 0;
+		positionEnd = m_textsw->GetTextLength ();
+		
+		}	// end "if (positionStart == positionEnd)"
+									
+	paperSize = pDC->GetSize();
+	m_textsw->FormatRange (true,
+									positionStart,		// startPos
+									positionEnd,	// endPos,
+									pDC,	// wxDC * 	draw,
+									pDC,	// wxDC * 	target,
+									renderRect,	// wxRect 	renderRect,
+									paperSize);	// wxRect 	pageRect
+
+}	// end "OnDraw"
+
+
+
+void CMTextView::OnUpdate (
+				wxView*								WXUNUSED (sender),
+				wxObject*							WXUNUSED (hint))
+
+{
+
+}	// end "OnUpdate"
+
+
+
 // Currently not used
 void CMTextView::OnTextChange (
 				wxCommandEvent& 					event)
@@ -484,10 +545,10 @@ void CMTextView::OnTextChange (
 }	// end "OnTextChange"
 
 
-
+/*
 TextWindow::TextWindow (
 				wxView*								v,
-				wxDocChildFrame*					frame,
+				MChildFrame*						frame,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
 				long 									style)
@@ -497,12 +558,12 @@ TextWindow::TextWindow (
   m_view = v;
 	
 }	// end "TextWindow"
+*/
 
 
-
-TextWindow2::TextWindow2 (
+TextWindow::TextWindow (
 				wxView*								v,
-				wxDocChildFrame*					frame,
+				MChildFrame*						frame,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
 				long 									style)
@@ -511,4 +572,4 @@ TextWindow2::TextWindow2 (
 {
   m_view = v;
 	
-}	// end "TextWindow2"
+}	// end "TextWindow"

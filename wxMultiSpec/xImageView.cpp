@@ -21,7 +21,7 @@
 //
 // Revision date:			03/12/2016 by Wei-Kang Hsu
 // Revision date:			12/19/2018 by Tsung Tai Yeh
-// Revision date:			08/08/2022  by Larry L Biehl
+// Revision date:			02/11/2025  by Larry L Biehl
 //
 //	Language:				C++
 //
@@ -31,7 +31,8 @@
 //								CMImageView class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xImageView:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -50,9 +51,12 @@
 #include "xMainFrame.h"
 #include "xMultiSpec.h"
 #include "xTools.h"
+#include "wx/clipbrd.h"
+//#include "wx/dcbuffer.h"
 
 
 BEGIN_EVENT_TABLE (CMImageView, wxView)
+   //EVT_MENU (wxID_PRINT, CMImageView::OnCreatePrintout)
    EVT_KEY_DOWN (CMImageView::OnKeyDown)
 	EVT_SET_FOCUS (CMImageView::OnFocus)
 END_EVENT_TABLE ()
@@ -80,7 +84,10 @@ CMImageView::CMImageView ()
 	m_cursorColumnValue = -1;
 	m_cursorLineValue = -1;
 	
-	m_printerTextScaling = 1.; 
+	m_printerTextScaling = 1.;
+	m_printerPaperScaling = 1.;
+	
+	m_calledFromPaintFlag = FALSE;
 	
 	wxScreenDC dc;
 	m_xPixelsPerInch = (SInt16)(dc.GetPPI()).GetWidth ();
@@ -254,7 +261,7 @@ void CMImageView::ClientToDoc (
 void CMImageView::CreateScaledBitmap ()
 
 {
-		 // For now, GetOffScreenImage routine in LUtility.cpp
+		 // For now, GetOffScreenImage routine in SUtility.cpp
 		 // is directly setting up m_ScaledBitmap
 	
 	m_ScaledBitmap = wxNullBitmap;
@@ -277,32 +284,189 @@ void CMImageView::DisposeImageWindowSupportMemory (void)
 }	// end "DisposeImageWindowSupportMemory"
 
 
+
+// This needs to be implemented.
+void CMImageView::DoEditCopyImage ()
+
+{
+	wxMemoryDC							temp_dc;
+	wxBitmap 							copyBitmap;
+
+	wxRect								rect,
+													// For storing the size of the image to be copied.
+											destinationRect;
+											
+	double 								zoom = m_Scale;
+
+	LongPoint							topleftLongPoint,
+											rightbottomLongPoint;
+
+	LongPoint							tempPoint;
+
+	Rect									sourceRect;
+
+	SInt16								legendWidth,
+											titleHeight;
+
+	
+			// Get the size of the window
+
+	rect = m_frame->GetClientRect ();
+
+	Handle windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
+	Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
+
+	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle, kLock);
+
+	GetSelectedOffscreenRectangle (windowInfoPtr,
+												&sourceRect,
+												TRUE,
+												TRUE);
+
+	tempPoint.h = sourceRect.left;
+	tempPoint.v = sourceRect.top;
+
+	ConvertOffScreenPointToWinPoint (windowInfoHandle,
+												&tempPoint,
+												&topleftLongPoint);
+
+	tempPoint.h = sourceRect.right;
+	tempPoint.v = sourceRect.bottom;
+
+	ConvertOffScreenPointToWinPoint (windowInfoHandle,
+												&tempPoint,
+												&rightbottomLongPoint);
+
+	destinationRect.SetTop ((int)0);
+	destinationRect.SetBottom ((int)(rightbottomLongPoint.v - topleftLongPoint.v));
+	destinationRect.SetLeft ((int)0);
+	destinationRect.SetRight ((int)(rightbottomLongPoint.h - topleftLongPoint.h));
+	
+			// Handle any title such as for side by side images.
+	
+	titleHeight = ::GetTitleHeight (windowInfoHandle);
+	destinationRect.SetBottom (destinationRect.GetBottom () + titleHeight);
+
+			// Get legend with for thematic type images.
+			
+	legendWidth = GetLegendWidth ();
+
+			// Compare the height of image and the height of the legend; use the tallest
+			// Allow 20 for the height of the legend list title
+
+	if (legendWidth > 0)
+		{
+		SInt16 legendBottom = GetImageLegendListCPtr()->GetLegendFullHeight (1);
+		destinationRect.SetBottom (MAX (destinationRect.GetBottom(), destinationRect.GetTop() + legendBottom));
+		destinationRect.SetRight (destinationRect.GetRight () + legendWidth);
+
+		}	// end "if (legendWidth > 0)"
+	
+	copyBitmap.Create (destinationRect.GetRight (),
+                      destinationRect.GetBottom (),
+                      gActiveImageViewCPtr->m_ScaledBitmap.GetDepth ());
+	
+	if (copyBitmap.IsOk ())
+		{
+		temp_dc.SelectObject (copyBitmap);
+		temp_dc.SetBackground (*wxWHITE);
+		temp_dc.Clear ();
+		temp_dc.SetUserScale (zoom, zoom);
+		
+		gCDCPointer = &temp_dc;
+		CopyOffScreenImage (this,
+									(CDC*)&temp_dc,
+									m_imageWindowCPtr,
+									NULL,
+									&sourceRect,
+									kClipboardCopy);
+									
+		if (titleHeight > 0)
+			{
+			Rect							titleRect;
+			
+			titleRect.left = destinationRect.GetLeft();
+			titleRect.right = destinationRect.GetRight();
+			titleRect.top = destinationRect.GetTop();
+			titleRect.bottom = titleHeight;
+				
+			temp_dc.SetUserScale (1, 1);
+		
+			DrawSideBySideTitles ((CDC*)&temp_dc,
+											windowInfoHandle,
+											(WindowPtr)this,
+											&titleRect,
+											kClipboardCopy);
+											
+			temp_dc.SetUserScale (zoom, zoom);
+				
+			}	// end "if (titleHeight > 0)"
+			
+		gCDCPointer = NULL;
+		
+		if (wxTheClipboard->Open())
+			{
+					// Here are the actual clipboard functions.
+					
+			if (!wxTheClipboard->AddData(new wxBitmapDataObject (copyBitmap)))
+				{
+				wxLogError("Can't copy image to the clipboard.");
+				}
+
+			 wxTheClipboard->Close();
+			 
+			 }
+			 
+		else	// !wxTheClipboard->Open()
+			wxLogError("Can't open clipboard.");
+			
+		}	// end "if (copyBitmap.IsOk ())"
+
+			// next we select the old bitmap back into the memory DC
+			// so that our bitmap is not deleted when cMemDC is destroyed.
+			// Then we detach the bitmap handle from the cBmp object so that
+			// the bitmap is not deleted when cBmp is destroyed.
+
+	CheckAndUnlockHandle (windowInfoHandle);
+	CheckAndUnlockHandle (selectionInfoHandle);
+
+}	// end "DoEditCopyImage"
+
+
 /*
 		// Use when printing is implemented in wxWidgets versions.
-void CMImageView::DoFilePrint ()
+void CMImageView::DoFilePrint (
+      wxCommandEvent&                event)
 
 {
     gProcessorCode = kPrintProcessor;
-    CScrollView::OnFilePrint ();
+    //OnFilePrint ();
     gProcessorCode = 0;
+   event.Skip (false);
 
 }	// end "DoFilePrint"
+*/
 
-
-
-void CMImageView::DoFilePrintPreview ()
+/*
+void CMImageView::DoFilePrintPreview (
+            wxCommandEvent&                event)
 
 {
     gProcessorCode = kPrintProcessor;
-    CScrollView::OnFilePrintPreview ();
+    //OnFilePrintPreview ();
     gProcessorCode = 0;
+   event.Skip (false);
 
 }	// end "DoFilePrintPreview"
 */
 
 
-
-void CMImageView::DrawLegend ()
+void CMImageView::DrawLegend (
+				CDC*									pDC,
+				SInt16								copyType,
+				SInt16								legendWidth,
+				int									left,
+				int									top)
 
 {
 	CMLegendView* legendViewCPtr =
@@ -311,7 +475,9 @@ void CMImageView::DrawLegend ()
 	CMLegendList* legendListPtr = (CMLegendList*)GetActiveLegendListHandle ();
 	if (legendListPtr != NULL)
 		{
-		legendListPtr->DrawLegendList ();
+		//legendListPtr->DrawLegendList ();
+		
+		legendListPtr->InsertLegendListIntoClipboard (pDC, copyType, legendWidth, left, top);
 
 		}	// end "if (legendListPtr != NULL)"
 
@@ -455,39 +621,6 @@ SInt16 CMImageView::GetImageType (void)
 	
 }	// end "GetImageType"
 
-
-/*
-// Used if copying images to clipboard is implemented
-SInt16 CMImageView::GetLegendFullHeight (void)
-
-{
-	CRect				legendRect,
-						listRect;
-	
-	Handle 			windowInfoHandle;
-	
-	SInt16			legendFullHeight;
-	
-
-	windowInfoHandle = GetWindowInfoHandle (this);
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-	legendFullHeight = GetListBottom (windowInfoPtr->legendListHandle);
-	CheckAndUnlockHandle (windowInfoHandle);
-	
-	if (windowInfoPtr->legendListHandle != NULL)
-		{                                
-		GetWindowRect (legendRect); 
-		(GetImageLegendListCPtr())->GetWindowRect (listRect);
-		
-		legendFullHeight += (SInt16)(listRect.top - legendRect.top);
-		
-		}	// end "if (windowInfoPtr->legendListHandle != NULL)"
-	
-	return (legendFullHeight); 
-
-
-}	// end "GetLegendFullHeight"
-*/
 
 
 SInt16 CMImageView::GetLegendWidth (void)
@@ -756,10 +889,13 @@ void CMImageView::OnActivateView (
 		  
 				// If the window is being activated, outside of a processing operating,
 				// make sure the global active image information is up to date.
+         
+      if (gProcessorCode == kPrintProcessor && bActivate)
+         gProcessorCode = 0;
 		
 		if (gProcessorCode == 0 && bActivate)
 			m_frame->UpdateActiveImageWindowInfo ();
-			
+         
 		Boolean changeWindowFlag = TRUE;
 			
 		m_frame->ActivateImageWindowItems (bActivate, changeWindowFlag);
@@ -858,11 +994,23 @@ bool CMImageView::OnCreate (
 
 
 
+void CMImageView::OnPrint(wxDC *dc, wxObject *WXUNUSED(info))
+
+{
+   gProcessorCode = kPrintProcessor;
+	OnDraw(dc);
+    
+}  // end "OnPrint"
+
+
+
 void CMImageView::OnDraw (
 				CDC* 									pDC)
 
 {
 	Rect 									sourceRect;
+	wxPoint 								paperOrigin;
+	
 	SInt16 								copyType;
 	
 
@@ -874,36 +1022,117 @@ void CMImageView::OnDraw (
 			graphicsContext->SetInterpolationQuality (wxINTERPOLATION_NONE);
 		#endif
 		
-		sourceRect.top = s_updateRect.top;
-		sourceRect.bottom = s_updateRect.bottom;
-		sourceRect.left = s_updateRect.left;
-		sourceRect.right = s_updateRect.right;
-		
 		m_xPixelsPerInch = (SInt16)(pDC->GetPPI()).GetWidth ();
 		m_yPixelsPerInch = (SInt16)(pDC->GetPPI()).GetHeight ();
 
-		//copyType = kDestinationCopy;
 		copyType = kSourceCopy;
+		if (!m_calledFromPaintFlag)
+			{
+					// If not called from "OnPaint" then this must be a call from the wxWidgets
+					// routine for Print Preview or Print.
+					
+			double						xScale,
+											yScale;
+											
+         double                  ratio,
+                                 xRatio,
+                                 yRatio;
+                                 
+			int							legendHeight,
+											legendWidth,
+											sourceRectHeight,
+											sourceRectWidth,
+											titleHeight;
+            
+            // Use the bitmap size
+            
+         sourceRect.top = 0;
+         sourceRect.bottom = m_ScaledBitmap.GetHeight ();
+         sourceRect.left = 0;
+         sourceRect.right = m_ScaledBitmap.GetWidth ();
+         
+         sourceRectWidth = sourceRect.right;
+         sourceRectHeight = sourceRect.bottom;
+            
+					// This is the scaling for printing
+					
+			pDC->GetUserScale (&xScale, &yScale);
+			
+					// So far x and y scaling have been the same so don't know if this is
+					// really needed.
+					
+			m_printerPaperScaling = MIN(xScale, yScale);
+			
+			copyType = kPrinterCopy;
+			
+			//wxRect paperRect = ((wxPrinterDC*)pDC)->GetPaperRect();
+			wxRect paperSize = pDC->GetSize();
+			
+			legendWidth = GetLegendWidth ();
+			legendHeight = GetImageLegendListCPtr()->GetLegendFullHeight (0);
+			titleHeight = GetTitleHeight ();
+			
+			//sourceRectHeight = MAX (legendHeight, sourceRectHeight);
+            
+         xRatio = xScale;
+         yRatio = yScale;
+			
+			if (paperSize.width < m_printerPaperScaling*(m_Scale*sourceRectWidth + legendWidth))
+            xRatio = ((double)paperSize.width - legendWidth)/(m_Scale*sourceRectWidth);
+				
+			if (legendHeight > m_Scale*sourceRectHeight)
+				{
+				if (paperSize.height < m_printerPaperScaling*(legendHeight + titleHeight))
+					yRatio = ((double)paperSize.height - m_printerPaperScaling*titleHeight)/legendHeight;
+					
+				}	// end "if (legendHeight > sourceRectHeight)"
+					
+			else	// legendHeight <= sourRectHeight)
+				{
+				if (paperSize.height < m_printerPaperScaling*(m_Scale*sourceRectHeight + titleHeight))
+					yRatio = ((double)paperSize.height - m_printerPaperScaling*titleHeight)/(m_Scale*sourceRectHeight);
+					
+				}	// end "if (legendHeight > sourceRectHeight)"
+            
+         ratio = MIN (xRatio, yRatio);
+         
+			//paperOrigin.x = (paperSize.width - (ratio*m_Scale*sourceRectWidth + m_printerPaperScaling*legendWidth))/2;
+			paperOrigin.x = (int)(((double)paperSize.width - (ratio*m_Scale*sourceRectWidth + legendWidth))/2 + .5);
+			paperOrigin.x = MAX (0, paperOrigin.x);
+			
+			if (legendHeight > m_Scale*sourceRectHeight)
+				paperOrigin.y = (int)(((double)paperSize.height - ratio*(legendHeight + m_printerPaperScaling*titleHeight))/2 + .5);
+			else  // legendHeight <= m_Scale*sourceRectHeight
+				paperOrigin.y = (int)(((double)paperSize.height - ratio*(m_Scale*sourceRectHeight + m_printerPaperScaling*titleHeight))/2 + .5);
+			paperOrigin.y = MAX (0, paperOrigin.y);
+			
+			m_printerTextScaling = ratio/m_printerPaperScaling;
+			
+			pDC->SetUserScale (ratio*m_Scale, ratio*m_Scale);
+			
+			}	// end "if (gProcessorCode == kPrintProcessor && !m_calledFromPaintFlag)"
+         
+      else  // gProcessorCode != kPrintProcessor || m_calledFromPaintFlag
+         {
+         sourceRect.top = s_updateRect.top;
+         sourceRect.bottom = s_updateRect.bottom;
+         sourceRect.left = s_updateRect.left;
+         sourceRect.right = s_updateRect.right;
+         
+         }  // end "else gProcessorCode != kPrintProcessor || m_calledFromPaintFlag"
 
       wxPoint scrollOffset;
 		m_Canvas->CalcUnscrolledPosition (0, 0, &scrollOffset.x, &scrollOffset.y);
-            
-		sourceRect.top += scrollOffset.y;
-		sourceRect.bottom += scrollOffset.y;
-		sourceRect.left += scrollOffset.x;
-		sourceRect.right += scrollOffset.x;
-		/*
-				// For debugging
-		 
-		int numberChars = sprintf ((char*)gTextString3,
-				" xImageView:OnDraw (updateRect left right top bottom): %d, %d, %d, %d%s",
-				sourceRect.left,
-				sourceRect.right,
-				sourceRect.top,
-				sourceRect.bottom,
-				gEndOfLine);
-		ListString ((char*)gTextString3, numberChars, gOutputTextH);
-		*/
+		
+		if (m_calledFromPaintFlag)
+			{
+			sourceRect.top += scrollOffset.y;
+			sourceRect.bottom += scrollOffset.y;
+			sourceRect.left += scrollOffset.x;
+			sourceRect.right += scrollOffset.x;
+			
+			}	// end "if (m_calledFromPaintFlag)"
+			
 		gCDCPointer = pDC;
 		
 		wxPoint deviceOriginSaved  = gCDCPointer->GetDeviceOrigin ();
@@ -914,7 +1143,15 @@ void CMImageView::OnDraw (
 		
 		if (scrollOffset.y < 0)
 			deviceOrigin.y += scrollOffset.y;
-
+		
+		//if (gProcessorCode == kPrintProcessor)
+		if (!m_calledFromPaintFlag)
+			{
+			deviceOrigin.x += paperOrigin.x;
+			deviceOrigin.y += paperOrigin.y;
+			
+			}	// end "if (gProcessorCode == kPrintProcessor)"
+			
 		gCDCPointer->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);
 		
 		CopyOffScreenImage (this, pDC, m_imageWindowCPtr, NULL, &sourceRect, copyType);
@@ -922,6 +1159,8 @@ void CMImageView::OnDraw (
 		gCDCPointer->SetDeviceOrigin (deviceOriginSaved.x, deviceOriginSaved.y);
 		
 		gCDCPointer = NULL;
+		
+		m_printerTextScaling = 1;
 
 		}	// end "if (ImageWindowIsAvailable ())"
 
@@ -1071,137 +1310,6 @@ void CMImageView::SetShiftKeyFlag (
 
 }	// end "SetShiftKeyFlag"
 
-
-/*
-		// Will need when copying window to clipboard is implemented.
-		// Need to adapt the Windows code below to wxWidgets
-void CMImageView::DoEditCopy ()
-
-{
-	CBitmap 								cBmp;
-
-	CRect 								rect,
-												// For storing the size of the image to be copied.
-											destinationRect;
-
-	CDC 									hDC;
-
-	Rect 									sourceRect;
-
-	LongPoint 							topleftLPoint,
-											rightbottomLPoint,
-											tempPoint;
-
-	SInt16 								legendWidth;
-
-
-    		// Get the size of the window
-
-	GetClientRect (rect);
-
-	Handle windowInfoHandle = GetWindowInfoHandle (gActiveImageWindow);
-	Handle selectionInfoHandle = GetSelectionInfoHandle (windowInfoHandle);
-
-	WindowInfoPtr windowInfoPtr = (WindowInfoPtr)GetHandlePointer (windowInfoHandle);
-
-	GetSelectedOffscreenRectangle (windowInfoPtr,
-											&sourceRect,
-											TRUE,
-											TRUE);
-
-	tempPoint.h = sourceRect.top;
-	tempPoint.v = sourceRect.left;
-
-	ConvertOffScreenPointToWinPoint (windowInfoHandle,
-												&tempPoint,
-												&topleftLPoint);
-
-	tempPoint.h = sourceRect.bottom;
-	tempPoint.v = sourceRect.right;
-
-	ConvertOffScreenPointToWinPoint (windowInfoHandle,
-												&tempPoint,
-												&rightbottomLPoint);
-
-	destinationRect.bottom = (int) rightbottomLPoint.h;
-	destinationRect.top = (int) topleftLPoint.h;
-	destinationRect.right = (int) rightbottomLPoint.v;
-	destinationRect.left = (int) topleftLPoint.v;
-
-	CClientDC cWndDC (this);
-	hDC.CreateCompatibleDC (&cWndDC);
-
-	destinationRect.bottom += ::GetTitleHeight (windowInfoHandle);
-
-	legendWidth = ::GetLegendWidth (windowInfoHandle);
-
-			// Compare the height of image and the height of the legend
-
-	if (legendWidth > 0)
-		{
-		SInt16 legendBottom = GetLegendFullHeight ();
-		destinationRect.bottom = MAX (destinationRect.bottom,
-				 destinationRect.top + legendBottom);
-		destinationRect.right += legendWidth;
-
-		}	// end "if (legendWidth > 0)"
-
-	cBmp.CreateCompatibleBitmap (&cWndDC,
-											destinationRect.Width (),
-											destinationRect.Height ());
-
-			// Keep the old bitmap
-
-	CBitmap* pOldBitmap = hDC.SelectObject (&cBmp);
-
-			// Prepare the DC
-
-	hDC.BitBlt (0,
-					0,
-					destinationRect.Width (),
-					destinationRect.Height (),
-					&cWndDC,
-					0,
-					0,
-					WHITENESS);
-
-    	// Copy the image to the DC
-
-    m_pDC = &hDC;
-    gCDCPointer = m_pDC;
-    m_printCopyModeFlag = TRUE;
-
-    CopyOffScreenImage (this,
-								&hDC,
-								m_imageWindowCPtr,
-								NULL,
-								&sourceRect,
-								1);
-
-    m_pDC = NULL;
-    gCDCPointer = NULL;
-    m_printCopyModeFlag = FALSE;
-
-    		// Here are the actual clipboard functions.
-
-    AfxGetApp()->m_pMainWnd->OpenClipboard ();
-    EmptyClipboard ();
-    SetClipboardData (CF_BITMAP, cBmp.GetSafeHandle ());
-    CloseClipboard ();
-
-			 // next we select the old bitmap back into the memory DC
-			 // so that our bitmap is not deleted when cMemDC is destroyed.
-			 // Then we detach the bitmap handle from the cBmp object so that
-			 // the bitmap is not deleted when cBmp is destroyed.
-
-    CheckAndUnlockHandle (windowInfoHandle);
-    CheckAndUnlockHandle (selectionInfoHandle);
-
-    hDC.SelectObject (pOldBitmap);
-    cBmp.Detach ();
-
-}	// end "DoEditCopy"
-*/
 
 
 //------------------------------------------------------------------------------------
@@ -1526,6 +1634,9 @@ void CMImageView::ZoomIn (void)
 		#if defined multispec_wxmac
 			if (!wxGetKeyState (WXK_ALT))
 		#endif
+		#if defined multispec_wxwin
+			if (!wxGetKeyState (WXK_ALT))
+		#endif
 			{
 			step = 1.0;
 
@@ -1585,7 +1696,10 @@ void CMImageView::ZoomOut (void)
 		#if defined multispec_wxmac
 			if (wxGetKeyState (WXK_ALT))
 		#endif
-			step = 0.1;
+		#if defined multispec_wxwin
+			if (wxGetKeyState (WXK_ALT))
+		#endif
+				step = 0.1;
 
 		if (step > 0.5)
 			{

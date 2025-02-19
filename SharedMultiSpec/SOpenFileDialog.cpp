@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/09/2022
+//	Revision date:			02/13/2025
 //
 //	Language:				C
 //
@@ -41,7 +41,9 @@
 	#include "xMultiSpec.h"
 	#include "xFileFormatDialog.h"
 	
-	#define	IDOK									1
+	#ifndef multispec_wxwin
+		#define	IDOK									1
+	#endif
 	#define	IDC_FillDataValueExists			29
 	#define	IDC_FillDataValue					30
 #endif	
@@ -278,7 +280,7 @@ SInt16 gCollapseClassSelection = 1;
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/12/1999
-//	Revised By:			Larry L. Biehl			Date: 08/09/2022
+//	Revised By:			Larry L. Biehl			Date: 01/02/2024
 
 Boolean AddSelectedFilesToWindow (
 				Handle								windowInfoHandle,
@@ -289,8 +291,8 @@ Boolean AddSelectedFilesToWindow (
 				Boolean								firstFileStreamLoadedFlag)
 
 {
-	Str255								localTextString1,
-											localTextString2;
+	Str255								localTextString1_256,
+											localTextString2_256;
 											
 	WindowInfoPtr						windowInfoPtr;
 
@@ -338,12 +340,16 @@ Boolean AddSelectedFilesToWindow (
 									gStatusDialogPtr, IDC_ShortStatusText, TRUE);
 				ShowHideDialogItem (
 									gStatusDialogPtr, IDC_ShortStatusValue, FALSE);
-				MGetString (localTextString2, kAlertStrID, IDS_Alert63);
-				sprintf ((char*)localTextString1, (char*)localTextString2, fileNumber, itemCount);
+				MGetString (localTextString2_256, kAlertStrID, IDS_Alert63);
+				snprintf ((char*)localTextString1_256,
+							256,
+							(char*)localTextString2_256,
+							fileNumber,
+							itemCount);
 				
 				LoadDItemString (gStatusDialogPtr,
 										IDC_ShortStatusText,
-										(Str255*)localTextString1);
+										(Str255*)localTextString1_256);
 				//LoadDItemValue (gStatusDialogPtr,
 				//						IDC_ShortStatusValue,
 				//						(SInt32)1);
@@ -463,10 +469,14 @@ Boolean AddSelectedFilesToWindow (
 				
 			if (TickCount () >= gNextStatusTime)
 				{
-				sprintf ((char*)localTextString1, (char*)localTextString2, fileNumber, itemCount);
+				snprintf ((char*)localTextString1_256,
+								256,
+								(char*)localTextString2_256,
+								fileNumber,
+								itemCount);
 				LoadDItemString (gStatusDialogPtr,
 										IDC_ShortStatusText,
-										(Str255*)localTextString1);
+										(Str255*)localTextString1_256);
 				gNextStatusTime = TickCount () + gNextStatusTimeOffset;
 				
 				}	// end "if (TickCount () >= gNextStatusTime)"
@@ -483,7 +493,27 @@ Boolean AddSelectedFilesToWindow (
 			}	// end "while (!doneFlag)"
 
 		CloseStatusDialog (TRUE);
-
+		/*
+				// If multiple files are being linked make one more attempt to
+				// set the instrument code and channel descriptions are set. They
+				// may not have been since the last check was done before the some window
+				// structure paramters were updated.
+				This did not work well for EO1 hyperion data and 242 linked files.
+				Code is complex in get the hyperion wavelength descriptions. Better to
+				create a new file that is the combination of the linked files and work from
+				there.
+				
+		if (gGetFileImageType == kMultispectralImageType && itemCount> 1)
+			{
+					// Update the file info handle
+					
+			fileInfoHandle = GetFileInfoHandle (windowInfoHandle);
+			
+			if (GetFileInstrumentCode (fileInfoHandle) == 0 )
+				ReadChannelDescriptionsAndValues (windowInfoHandle, fileInfoHandle);
+			
+			}	// end "if (gGetFileImageType == kMultispectralImageType && itemCount> 1)"
+		*/
 				// Update the title for the window to indicate that the		
 				// window represents more than 1 file layer.		
 
@@ -504,10 +534,11 @@ Boolean AddSelectedFilesToWindow (
 
 			}	// end "if (numberImageFiles > 1)"
 
-		length = sprintf ((char*)&gTextString2[1],
-								 "L%hd-%s",
-								 windowInfoPtr->numberImageFiles,
-								 &gTextString[index]);
+		length = snprintf ((char*)&gTextString2[1],
+									255,
+									"L%hd-%s",
+									windowInfoPtr->numberImageFiles,
+									&gTextString[index]);
 
 		//NumToString ((SInt32)(windowInfoPtr->numberImageFiles-1), gTextString);
 		//length += 2 + gTextString[0];
@@ -526,14 +557,15 @@ Boolean AddSelectedFilesToWindow (
 		
 				// List information file linking information.
 				
-		MGetString (localTextString2, kAlertStrID, IDS_FileIO316);
-		SInt16 stringLength = sprintf ((char*)localTextString1,
-													(char*)&localTextString2[1],
+		MGetString (localTextString2_256, kAlertStrID, IDS_FileIO316);
+		SInt16 stringLength = snprintf ((char*)localTextString1_256,
+													256,
+													(char*)&localTextString2_256[1],
 													fileNumber,
 													itemCount);
 
 		OutputString (NULL,
-							(char*)localTextString1,
+							(char*)localTextString1_256,
 							stringLength,
 							gOutputForce1Code,
 							TRUE);
@@ -2726,7 +2758,7 @@ Boolean FileSpecificationDialog (
 			// Set the image file name.														
 
 	if (CreateUnicodeStaticTextControl (dialogPtr, 
-													&fileNamePtr[1], 
+													&fileNamePtr[2], 
 													fileNamePtr[0], 
 													37, 
 													NULL) != noErr)
@@ -2824,6 +2856,7 @@ Boolean FileSpecificationDialog (
 																		 &gBandInterleaveSelection,
 																		 &gDataValueTypeSelection,
 																		 &dataCompressionCode,
+																		 &instrumentCode,
 																		 &gdalDataTypeCode,
 																		 &callGetHDFLineFlag);
 
@@ -3069,6 +3102,7 @@ Boolean FileSpecificationDialog (
 																		  &gBandInterleaveSelection,
 																		  &gDataValueTypeSelection,
 																		  &dataCompressionCode,
+																		  &instrumentCode,
 																		  &gdalDataTypeCode,
 																		  &callGetHDFLineFlag);
 
@@ -3382,6 +3416,7 @@ Boolean FileSpecificationDialog (
 															0,
 															gCollapseClassSelection,
 															dataCompressionCode,
+															instrumentCode,
 															gdalDataTypeCode,
 															callGetHDFLineFlag);
 
@@ -3492,7 +3527,7 @@ Boolean FileSpecificationDialog (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/01/1999
-//	Revised By:			Larry L. Biehl			Date: 12/20/2019
+//	Revised By:			Larry L. Biehl			Date: 02/13/2025
 
 void FileSpecificationDialogInitialize (
             DialogPtr                     dialogPtr,
@@ -3547,6 +3582,13 @@ void FileSpecificationDialogInitialize (
 
    fileInfoPtr = *fileInfoPtrPtr;
    windowInfoPtr = *windowInfoPtrPtr;
+   
+			// Set Dialog Title
+	
+	if (fileInfoPtr->thematicType)
+		dialogPtr->SetTitle ("Set Thematic File Format Specifications");
+	else	//	!fileInfoPtr->thematicType
+		dialogPtr->SetTitle ("Set Multispectral File Format Specifications");
 
          // Do not allow specifications to be changed if the active
          // window represents linked images.
@@ -3797,7 +3839,7 @@ void FileSpecificationDialogInitialize (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/27/1999
-//	Revised By:			Larry L. Biehl			Date: 01/10/2020
+//	Revised By:			Larry L. Biehl			Date: 12/24/2023
 
 Boolean FileSpecificationDialogOK (
 				DialogPtr							dialogPtr,
@@ -3834,6 +3876,7 @@ Boolean FileSpecificationDialogOK (
 				UInt32 								hdfDataSetIndex,
 				SInt16 								collapseClassesSelection,
 				UInt16 								dataCompressionCode,
+				SInt16								instrumentCode,
 				SInt16 								gdalDataTypeCode,
 				Boolean 								callGetHDFLineFlag)
 
@@ -4344,6 +4387,7 @@ Boolean FileSpecificationDialogOK (
 			fileInfoPtr->descriptionCode = 0;
 
 			fileInfoPtr->dataCompressionCode = dataCompressionCode;
+			fileInfoPtr->instrumentCode = instrumentCode;
 			fileInfoPtr->gdalDataTypeCode = gdalDataTypeCode;
 			
 			}	// end "if (fileInfoPtr->hdfDataSetSelection != ..."
@@ -4513,7 +4557,7 @@ Boolean FileSpecificationDialogOK (
 // Called By:			FileSpecificationDialog in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/2001
-//	Revised By:			Larry L. Biehl			Date: 05/31/2020
+//	Revised By:			Larry L. Biehl			Date: 12/24/2023
 
 SInt16 FileSpecificationDialogSetHDFValues (
 				DialogPtr							dialogPtr,
@@ -4527,11 +4571,12 @@ SInt16 FileSpecificationDialogSetHDFValues (
 				SInt16*								bandInterleaveSelectionPtr,
 				SInt16*								dataValueTypeSelectionPtr,
 				UInt16*								dataCompressionCodePtr,
+				SInt16*								instrumentCodePtr,
 				SInt16*								gdalDataTypeCodePtr,
 				Boolean*								callGetHDFLineFlagPtr)
 
 {
-	MFileInfo hdfFileInfo;
+	MFileInfo 							hdfFileInfo;
 
 	CMFileStream*						hdfFileStreamPtr;
 	FileInfoPtr							hdfFileInfoPtr;
@@ -4565,6 +4610,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 		 // instrument code. 
 
 	hdfFileInfoPtr->mapProjectionHandle = *mapInformationHandlePtr;
+	hdfFileInfoPtr->dataCompressionCode = fileInfoPtr->dataCompressionCode;
 	hdfFileInfoPtr->instrumentCode = fileInfoPtr->instrumentCode;
 	hdfFileInfoPtr->channelToHdfDataSetHandle = *channelToHdfDataSetHandlePtr;
 	hdfFileInfoPtr->format = fileInfoPtr->format;
@@ -4737,6 +4783,7 @@ SInt16 FileSpecificationDialogSetHDFValues (
 
 	*dataCompressionCodePtr = hdfFileInfo.dataCompressionCode;
 	*gdalDataTypeCodePtr = hdfFileInfo.gdalDataTypeCode;
+	*instrumentCodePtr = hdfFileInfo.instrumentCode;
 
 			// Save some structures in case the information needs to
 			// be used for the new data set selection.
@@ -5315,13 +5362,15 @@ void ListFileIgnoredMessage (
 	if (fileNamePtr != NULL)
 		{
 		if (messageCode == 1)
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						 "    The file '%s' could not be read; it will be ignored.%s",
 						 fileNamePtr,
 						 gEndOfLine);
 
 		else if (messageCode == 2)
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						 "    The file '%s' has a different number of lines or columns than"
 						 " first image in the list; it will be ignored.%s",
 						 fileNamePtr,
@@ -5428,7 +5477,7 @@ SInt16 LoadSelectedDataSetInformation (
 //							OpenMultiSpecDocument in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1989
-//	Revised By:			Larry L. Biehl			Date: 08/10/2022
+//	Revised By:			Larry L. Biehl			Date: 02/13/2025
 
 SInt32 OpenImageFile (
 				LocalAppFile*						localAppFilePtr,
@@ -5440,10 +5489,12 @@ SInt32 OpenImageFile (
 
 	FileInfoPtr							fileInfoPtr;
 
-	FSRef									fileAsFSRef[500];
+	FSRef									fileAsFSRef[1000]; // this should be same as gMaximumNumberOfLinkedFiles
 
 	Handle								fileInfoHandle,
 											windowInfoHandle;
+											
+	int									getFileReturnKeyCode = 0;
 
 	SInt32								projectFileCode = 0;
 
@@ -5541,11 +5592,13 @@ SInt32 OpenImageFile (
 			gGetFileImageType = 0;
 
 			errCode = GetFile (fileStreamPtr,
+									  NULL,
 									  numberFileTypes,
 									  gListTypes,
 									  localAppFilePtr,
 									  fileAsFSRef,
 									  &itemCount,
+									  &getFileReturnKeyCode,
 									  promptString);
 
 			gOpenImageSelectionListCount = itemCount;
@@ -5595,6 +5648,21 @@ SInt32 OpenImageFile (
 			
 			if (fromOpenProjectImageWindowFlag)
 				fileInfoPtr->hdfDataSetSelection	= hdfDataSetSelection;
+				
+					// Check if control key is down. If so user does not want the Display Dialog
+					// box to be displayed. Just use the defaults for the display.
+			/*
+			#if defined multispec_wxmac
+						// Note that WXK_CONTROL is the command key for Mac OS
+						// WXK_RAW_CONTROL is the control key
+				if (wxGetKeyState (WXK_RAW_CONTROL))
+			#endif
+			#if defined multispec_wxlin || defined multispec_wxwin
+				if (wxGetKeyState (WXK_CONTROL))
+			#endif
+			*/
+			if (getFileReturnKeyCode == 1)
+				gCallProcessorDialogFlag = FALSE;
 			
 			CheckAndUnlockHandle (fileInfoHandle);
 				

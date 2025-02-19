@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			02/24/2020
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -41,7 +41,7 @@ BEGIN_EVENT_TABLE (CMStatHistogramSpecsDlg, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnChannelComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMStatHistogramSpecsDlg::OnChannelComboSelendok)
 	#endif
 

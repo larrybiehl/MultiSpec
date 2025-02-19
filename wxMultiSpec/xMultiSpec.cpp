@@ -20,7 +20,7 @@
 // Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 // Revision date:			09/10/2015 by Tsung Tai Yeh
-//								05/29/2020 by Larry Biehl
+//								01/15/2024 by Larry Biehl
 //
 // Language:				C++
 //
@@ -30,7 +30,8 @@
 //                  		CMultiSpecApp class.
 //
 /* Template for debugging for MultiSpec Online on mygeohub.org.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = snprintf ((char*)&gTextString3,
+									256,
 					" xMultiSpec::GetUserInputFilePath (countBytes, errCode) %d, %d%s",
 					countBytes,
 					errCode,
@@ -39,12 +40,15 @@
 */
 //------------------------------------------------------------------------------------
 
+#include "SMultiSpec.h"
+
 #include "wx/cshelp.h"
 
 #include "SFileStream_class.h"
 
 #include "xMultiSpec.h"
 #include "xStatusDialog.h"
+#include "wx/display.h"
 #include "wx/splash.h"
 #include "SDeclareGlobals.h"
 
@@ -124,14 +128,14 @@ wxFrame *CMultiSpecApp::CreateChildFrame (
 	wxFrame *subframe;
 
 	subframe = new CMImageFrame (
-								doc, view, wxStaticCast (GetTopWindow(), wxDocParentFrame));
+								doc, view, wxStaticCast (GetTopWindow(), MParentFrame));
 
 	return subframe;
 	
 }	// end "CreateChildFrame"
 
 
-#if defined multispec_wxlin
+#if defined multispec_wxlin || defined multispec_wxwin
 void CMultiSpecApp::GetUserInputFilePath (
 				wxString								toolParameterFilePath)
 
@@ -169,8 +173,9 @@ void CMultiSpecApp::GetUserInputFilePath (
 		SetFileStringLength (toolParametersFilePathPtr,
 										toolParameterFilePath.Length ());
 		
-		int numberChars = sprintf (
+		int numberChars = snprintf (
 						(char*)&gTextString3,
+						256,
 						" xMultiSpec::GetUserInputFilePath: (TOOL_PARAMETERS file): %s%s",
 						&toolParametersFilePathPtr[2],
 						gEndOfLine);
@@ -221,8 +226,9 @@ void CMultiSpecApp::GetUserInputFilePath (
 					imageFilePathPtr += 4;
 					imageFilePathPtr[0] = strlen ((char*)&imageFilePathPtr[1]);
 					
-					int numberChars2 = sprintf (
+					int numberChars2 = snprintf (
 									(char*)&gTextString3,
+									256,
 									" xMultiSpec::GetUserInputFilePath: (selected file): %s%s",
 									&imageFilePathPtr[1],
 									gEndOfLine);
@@ -356,11 +362,26 @@ void CMultiSpecApp::OnCharHook (
 }	// end "OnCharHook"
 
 
+
+void CMultiSpecApp::OnClose (
+            wxCloseEvent&                   event)
+
+{
+   if (gProcessorCode == kPrintProcessor)
+      {
+      gProcessorCode = 0;
+      event.Skip ();
+         
+      }  // end "if (gProcessorCode == kPrintProcessor)"
+   
+}   // end "OnClose"
+
+
 #if !defined NetBeansProject
 int CMultiSpecApp::OnExit (void)
 
 {
-	#ifndef multispec_wxmac
+	#ifdef multispec_wxlin
 		#ifdef production_multiSpec_tool
 			wxMessageBox (wxString::Format (_("Select Terminate button in upper right to finish exiting this MultiSpec session.")),
 								wxTheApp->GetAppDisplayName (),
@@ -386,6 +407,8 @@ void CMultiSpecApp::OnFileOpen (
 
 {
 	gProcessorCode = kOpenImageFileProcessor;
+	gCallProcessorDialogFlag = TRUE;		// This may get changed later.
+	
 	OpenImageFileLin (NULL, FALSE, 0);
 	gProcessorCode = 0;
 
@@ -555,7 +578,7 @@ bool CMultiSpecApp::OnInit ()
 		gMaximumNumberOfLinkedFiles = MIN (gMaximumNumberOfLinkedFiles,
 														gNumberOfOpenFilesLimit/2);
 	#endif
-	#if defined mulitispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 				// It appears that he limiting factor is really the numer of lines by
 				// columns by 4; This needs to be less than 2,147,483,648. (SInt32_Max).
 		gMaxRowBytes = 65535;
@@ -647,27 +670,59 @@ bool CMultiSpecApp::OnInit ()
 	
 			// Create main doc Frame window
 	
-	#if defined multispec_wxmac
+	#if defined multispec_wxlin
 		pMainFrame = new CMainFrame (m_docManager,
-												(wxDocParentFrame*)NULL,
-												wxT(""),
-												wxDefaultPosition,
-												//wxSize (0, 0),
-												wxSize (1100, 700),
-												wxSYSTEM_MENU);
-	#else
-		pMainFrame = new CMainFrame (m_docManager,
-												(wxDocParentFrame*)NULL,
+												(MParentFrame*)NULL,
 												wxT("MultiSpec"),
 												wxDefaultPosition,
 												wxSize (1100, 700),
 												wxDEFAULT_FRAME_STYLE);
-	#endif
+	#endif	// defined multispec_wxlin
+
+	#if defined multispec_wxmac
+		pMainFrame = new CMainFrame (m_docManager,
+												(MParentFrame*)NULL,
+												wxID_ANY,
+												wxT(""),
+												wxDefaultPosition,
+												//wxSize (0, 0),
+												wxSize (1100, 700),
+												wxSYSTEM_MENU,
+												//wxDEFAULT_FRAME_STYLE,
+												wxT("MultiSpec"));
+	#endif	// defined multispec_wxmac
+	
+	#if defined multispec_wxwin 
+		int			windowHeight = 0,
+						windowWidth = 0;
+
+		windowWidth = wxDisplay().GetGeometry().GetWidth();
+		windowHeight = wxDisplay().GetGeometry().GetHeight();
+		pMainFrame = new CMainFrame (m_docManager,
+												(MParentFrame*)NULL,
+												wxID_ANY,
+												wxT("MultiSpec"),
+												wxDefaultPosition,
+												//wxPoint (100, 100);
+												//wxDefaultSize,
+												wxSize (windowWidth-200, windowHeight-100),
+												wxDEFAULT_FRAME_STYLE | wxFRAME_SHAPED,
+												wxT("MultiSpec"));
+	#endif	// defined multispec_wxwin
+
 	
 	#if !defined multispec_wxmac
-		pMainFrame->Centre (wxBOTH);
+		pMainFrame->Centre (wxCENTER_ON_SCREEN);
 		pMainFrame->Show (TRUE);
 		//pMainFrame->ShowWithoutActivating ();
+	#endif
+	#if defined multispec_wxtestwin
+		int		width, height;
+
+		pMainFrame->GetClientSize (&width, &height);
+		width = MAX (width - 200, 200);
+		height = MAX (height - 200, 200);
+		pMainFrame->SetClientSize (width, height);
 	#endif
 	/*
 			// Was able to get the splash screen to work, but the image being displayed
@@ -711,6 +766,22 @@ bool CMultiSpecApp::OnInit ()
 	
 	pOutputDocTemplate->CreateDocument (wxEmptyString, wxDOC_NEW | wxDOC_SILENT);
 	
+	#if defined multispec_wxlin || defined multispec_wxwin
+				// Verify the Resource string table file is available.
+
+		if (!MGetString (gTextString, kSharedStrID, IDS_Shared3))
+			{
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								0,
+								0,
+								0,
+								(unsigned char*)"0 The 'xStringTable.def' file in the Resource folder was not found; MultiSpec will quit.\n\rMake sure Resource folder is at the same level as the MultiSpec application.");
+																																		return false;
+
+			}	// end "if (!MGetString (gTextString, kSharedStrID, IDS_Shared3))"
+	#endif	// defined multispec_wxlin || defined multispec_wxwin
+		
 	bool returnFlag = FALSE;
 	#if defined multispec_wxlin
 				// Determine if a file has already been selected for opening and set the
@@ -1047,7 +1118,8 @@ Boolean CheckSomeEvents (
 				
 			}	// end "while (count<5 && returnFlag)"
 		/*
-		int numberChars = sprintf ((char*)&gTextString3,
+		int numberChars = snprintf ((char*)&gTextString3,
+											256,
 											" xMultiSpec:CheckSomeEvents (count): %d%s",
 											count,
 											gEndOfLine);
@@ -1066,11 +1138,11 @@ Boolean CheckSomeEvents (
 				{
 				//eventLoopBasePtr->Yield (false);
 				gAlertReturnCode = DisplayAlert (gAlertId,
-															 kCautionAlert,
-															 gAlertStrID,
-															 gAlertStringNumber,
-															 0,
-															 NULL);
+																kCautionAlert,
+																gAlertStrID,
+																gAlertStringNumber,
+																0,
+																NULL);
 				
 				}	// end "if (gAlertId != 0 && !gOperationCanceledFlag"
 
@@ -1114,10 +1186,19 @@ wxFrame* GetActiveFrame (void)
 	wxFrame* 							frame = NULL;
 	int									height,
 											width;
-	
-	
-	if (gOutputViewCPtr != NULL && (WindowPtr)gOutputViewCPtr == gTheActiveWindow)
-		{
+
+
+	if (gStatusDialogPtr != NULL)
+	{
+		gStatusDialogPtr->GetClientSize (&width, &height);
+		if (width > 0 && height > 0)
+			frame = (wxFrame*)gStatusDialogPtr;
+
+	}	// end "if (gStatusDialogPtr != NULL"
+
+	if (frame == NULL && gOutputViewCPtr != NULL &&
+		(WindowPtr)gOutputViewCPtr == gTheActiveWindow)
+	{
 		gOutputViewCPtr->m_frame->GetClientSize (&width, &height);
 		if (width > 0 && height > 0)
 			frame = gOutputViewCPtr->m_frame;
@@ -1150,6 +1231,21 @@ CMainFrame* GetMainFrame (void)
 
 
 
+CMainFrame* GetMainFrameForDialog (void)
+
+{
+	#if defined multispec_wxlin || defined multispec_wxwin
+		return pMainFrame;
+	#endif
+	#if defined multispec_wxmac
+		return (NULL);
+	#endif
+	
+}	// end "GetMainFrameForDialog"
+
+
+
+#ifndef multispec_wxwin
 time_t LinGetTime (void)
 
 {
@@ -1165,6 +1261,7 @@ time_t LinGetTime (void)
 	return (returnValue);
 	
 }	// end "LinGetTime"
+#endif
 
 
 
@@ -1183,13 +1280,15 @@ void FileUploadProcess::OnTerminate (
 						status);
 	*/
 	if (status == 0)
-		numberChars = sprintf ((char*)&gTextString3,
+		numberChars = snprintf ((char*)&gTextString3,
+										256,
 										"%sSelected file was uploaded successfully%s",
 										gEndOfLine,
 										gEndOfLine);
 	
 	else	// status != 0
-		numberChars = sprintf ((char*)&gTextString3,
+		numberChars = snprintf ((char*)&gTextString3,
+										256,
 										"%sSelected file was not uploaded successfully%s",
 										gEndOfLine,
 										gEndOfLine);

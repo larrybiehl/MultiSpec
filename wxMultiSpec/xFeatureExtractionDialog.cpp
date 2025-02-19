@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/28/2019
+//	Revision date:			02/14/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xFeatureExtractionDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -58,7 +59,7 @@ BEGIN_EVENT_TABLE (CMFeatureExtractionDialog, CMDialog)
 		EVT_COMBOBOX (IDC_PreprocessingCombo, CMFeatureExtractionDialog::OnPreprocessingSelendok)
 		EVT_COMBOBOX (IDC_WeightCombo, CMFeatureExtractionDialog::OnClassWeightsComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMFeatureExtractionDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMFeatureExtractionDialog::OnClassComboSelendok)
 		EVT_CHOICE (IDC_ClassPairWeightsCombo, CMFeatureExtractionDialog::OnClassPairWeightsComboSelendok)
@@ -172,7 +173,7 @@ void CMFeatureExtractionDialog::CreateControls ()
 															NULL,
 															wxCB_READONLY);
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_preprocessingCtrl = new wxChoice (this,
 														IDC_PreprocessingCombo,
 														wxDefaultPosition,
@@ -355,7 +356,8 @@ void CMFeatureExtractionDialog::CreateControls ()
 													0);
 	m_staticText252->Wrap (-1);
    SetUpToolTip (m_staticText252, IDS_ToolTip142);
-	bSizer260->Add (m_staticText252, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer260->Add (m_staticText252,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl104 = new wxTextCtrl (this,
 												IDC_WithinClassThreshold,
@@ -366,9 +368,11 @@ void CMFeatureExtractionDialog::CreateControls ()
    m_textCtrl104->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_wclassThresString));
    SetUpToolTip (m_textCtrl104, IDS_ToolTip142);
-	bSizer260->Add (m_textCtrl104, 0, wxALIGN_CENTER, 5);
+	bSizer260->Add (m_textCtrl104,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	bSizer259->Add (bSizer260, 0, wxALIGN_RIGHT|wxALL, 5);
+	bSizer259->Add (bSizer260,
+						wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxLEFT, 5));
 	
 	wxBoxSizer* bSizer261;
 	bSizer261 = new wxBoxSizer (wxHORIZONTAL);
@@ -381,7 +385,8 @@ void CMFeatureExtractionDialog::CreateControls ()
 													0);
 	m_staticText253->Wrap (-1);
    SetUpToolTip (m_staticText253, IDS_ToolTip143);
-	bSizer261->Add (m_staticText253, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer261->Add (m_staticText253,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl105 = new wxTextCtrl (this,
 												IDC_InterclassThreshold,
@@ -392,9 +397,11 @@ void CMFeatureExtractionDialog::CreateControls ()
    m_textCtrl105->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_iclassThresString));
    SetUpToolTip (m_textCtrl105, IDS_ToolTip143);
-   bSizer261->Add (m_textCtrl105, 0, wxALIGN_CENTER, 5);
+	bSizer261->Add (m_textCtrl105,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	bSizer259->Add (bSizer261, 0, wxALIGN_RIGHT|wxALL, 5);
+	bSizer259->Add (bSizer261,
+						wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxLEFT, 5));
 	
 	wxBoxSizer* bSizer262;
 	bSizer262 = new wxBoxSizer (wxHORIZONTAL);
@@ -407,7 +414,8 @@ void CMFeatureExtractionDialog::CreateControls ()
 													0);
 	m_staticText254->Wrap (-1);
    SetUpToolTip (m_staticText254, IDS_ToolTip144);
-	bSizer262->Add (m_staticText254, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer262->Add (m_staticText254,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl106 = new wxTextCtrl (this,
 												IDC_MinThresholdNumber,
@@ -418,14 +426,11 @@ void CMFeatureExtractionDialog::CreateControls ()
    m_textCtrl106->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    																&m_minThrestString));
    SetUpToolTip (m_textCtrl106, IDS_ToolTip144);
-	bSizer262->Add (m_textCtrl106, 0, wxALIGN_CENTER, 5);
+	bSizer262->Add (m_textCtrl106,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	bSizer259->Add (bSizer262, 0, wxALIGN_RIGHT|wxALL, 5);
-	
-	bSizer252->Add (bSizer259, 0, wxEXPAND|wxLEFT, 10);
-	
-	wxBoxSizer* bSizer263;
-	bSizer263 = new wxBoxSizer (wxVERTICAL);
+	bSizer259->Add (bSizer262,
+						wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxLEFT, 5));
 	
 	m_checkBox56 = new wxCheckBox (this,
 												IDC_OptimizeClasses,
@@ -434,47 +439,60 @@ void CMFeatureExtractionDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox56, IDS_ToolTip145);
-	bSizer263->Add (m_checkBox56, 0, wxLEFT|wxTOP, 10);
+	bSizer259->Add (m_checkBox56,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT|wxTOP, 10));
 	
 	wxBoxSizer* bSizer264;
 	bSizer264 = new wxBoxSizer (wxHORIZONTAL);
 	
 	m_staticText255 = new wxStaticText (this,
 													IDC_PercentAccuracyPrompt,
-													wxT("Percent of all\rfeature accuracy:"),
+													#if defined multispec_wxlin || defined multispec_wxmac
+														wxT("Percent of all\rfeature accuracy:"),
+													#endif
+													#if defined multispec_wxwin
+														wxT("Percent of all\r\nfeature accuracy:"),
+													#endif
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
 	m_staticText255->Wrap (-1);
    SetUpToolTip (m_staticText255, IDS_ToolTip146);
-	bSizer264->Add (m_staticText255, 0, wxALIGN_CENTER|wxLEFT, 25);
+	bSizer264->Add (m_staticText255,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 25));
 	
 	m_textCtrl107 = new wxTextCtrl (this,
 												IDC_PercentAccuracy,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxSize (60, -1),
+												wxSize (70, -1),
 												0);
    m_textCtrl107->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_percentString));
    SetUpToolTip (m_textCtrl107, IDS_ToolTip146);
-	bSizer264->Add (m_textCtrl107, 0, wxALIGN_CENTER, 5);
+	bSizer264->Add (m_textCtrl107,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 10));
 	
-	bSizer263->Add (bSizer264, 0, wxALIGN_RIGHT, 5);
-	
-	bSizer252->Add (bSizer263, 0, wxBOTTOM|wxEXPAND|wxLEFT, 10);
+	bSizer259->Add (bSizer264,
+						wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxLEFT, 5));
 	
 	wxBoxSizer* bSizer265;
 	bSizer265 = new wxBoxSizer (wxHORIZONTAL);
 	
 	m_staticText256 = new wxStaticText (this,
 													IDC_MaxPixelsPrompt,
-													wxT("Maximum training\npixels per class:    "),
+													#if defined multispec_wxlin || defined multispec_wxmac
+														wxT("Maximum training\npixels per class:    "),
+													#endif
+													#if defined multispec_wxwin
+														wxT("Maximum training\r\npixels per class:    "),
+													#endif
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
 	m_staticText256->Wrap (-1);
    SetUpToolTip (m_staticText256, IDS_ToolTip147);
-	bSizer265->Add (m_staticText256, 0, wxALIGN_CENTER, 5);
+	bSizer265->Add (m_staticText256,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl108 = new wxTextCtrl (this,
 												IDC_MaxPixels,
@@ -484,11 +502,16 @@ void CMFeatureExtractionDialog::CreateControls ()
 												0);
    m_textCtrl108->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_maxpixeltString));
    SetUpToolTip (m_textCtrl108, IDS_ToolTip147);
-	bSizer265->Add (m_textCtrl108, 0, wxALIGN_CENTER|wxALL, 5);
+	bSizer265->Add (m_textCtrl108,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
-	bSizer252->Add (bSizer265, 0, wxALIGN_RIGHT|wxLEFT, 15);
+	bSizer259->Add (bSizer265,
+						wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 5));
+						
+	bSizer252->Add (bSizer259,
+						wxSizerFlags(0).Expand().Border(wxLEFT, 15));
 
-	bSizer250->Add (bSizer252, wxSizerFlags(1).Expand().Border(wxRIGHT|wxTOP, 12));
+	bSizer250->Add (bSizer252, wxSizerFlags(1).Expand().Border(wxLEFT|wxTOP, 8));
 	
 	bVSizerMain->Add (bSizer250, wxSizerFlags(0));
 	
@@ -775,7 +798,7 @@ void CMFeatureExtractionDialog::OnPreprocessingSelendok (
    m_preprocessSelection = m_preprocessingCtrl->GetSelection ();
 	
 	if (m_preprocessSelection == 1)
-		ProjectionPursuitDialog ();
+		ProjectionPursuitDialog (this);
 
 }	// end "OnPreprocessingSelendok"
 

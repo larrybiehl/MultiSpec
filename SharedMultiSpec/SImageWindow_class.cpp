@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/06/2024
 //
 //	Language:				C++
 //
@@ -183,7 +183,7 @@ void CMImageWindow::CloseSupportFile (void)
 //
 //	Coded By:			Larry L. Biehl			Date: 06/27/1988
 //	Revised By:			Ravi S. Budruk			Date: 08/02/1988	
-//	Revised By:			Larry L. Biehl			Date: 01/26/2018	
+//	Revised By:			Larry L. Biehl			Date: 02/06/2024
 
 Boolean CMImageWindow::CreateImageWindow (
 				Boolean								thematicWindowFlag)
@@ -216,8 +216,12 @@ Boolean CMImageWindow::CreateImageWindow (
 		
 		windowInfoPtr->grafPortType = kCGrafType;
 		
-		if (thematicWindowFlag) 
-			windowInfoPtr->showLegend = TRUE;	// TRUE; 
+		if (thematicWindowFlag)
+			{
+			windowInfoPtr->showLegend = TRUE;
+			windowInfoPtr->legendWidth = gDefaultLegendWidth;
+			
+			}	// end "if (thematicWindowFlag)"
 		
 				// Set the window title and then show the window on the screen
 		

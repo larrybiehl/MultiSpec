@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/12/2018
+//	Revision date:			05/02/2023
 //
 //	Language:				C++
 //
@@ -149,16 +149,8 @@ void CMChannelsDlg::OnInitDialog (
 				wxInitDialogEvent&				event)
 
 {
-	//ChannelDescriptionPtr			channelDescriptionPtr;
 	DialogPtr							dialogPtr = this;
-	//FileInfoPtr							localFileInfoPtr;
 	wxListBox*							listBoxPtr = NULL;
-
-	//SInt32								estimatedLengthListDescription;
-
-	//SInt16								fileInfoIndex;
-	
-	Boolean								showChannelListFlag = true;
 
 
 	CMOneColDlg::OnInitDialog ();
@@ -192,8 +184,29 @@ void CMChannelsDlg::OnInitDialog (
 
 	//estimatedLengthListDescription = (SInt32) m_numberInputVecItems * 22;
 
+			// Hide the channel list if the number of channels is more than 2000.
+			// It makes handling the list very slow.
+		
+	if (m_numberInputVecItems > 2000)
+		{
+		m_showListFlag = false;
+			
+		MHideDialogItem (dialogPtr, IDC_List1);
+		MHideDialogItem (dialogPtr, IDC_NoneSelected);
+		MHideDialogItem (dialogPtr, IDC_EnterNewRange);
+		
+		Layout ();
+		Fit ();
+
+		}	// end "if (m_numberInputVecItems > 2000)"
+
 	SetLabel (wxT("Select Channels"));
-	LoadDItemString (IDC_ListTitle, (Str255*)"\0Channel List:");
+	
+	if (m_showListFlag)
+		LoadDItemString (IDC_ListTitle, (Str255*)"\0Channel List:");
+		
+	else	// !m_showListFlag
+		LoadDItemString (IDC_ListTitle, (Str255*)"\0Channel List too long to show; use Range-Interval Choice:");
 
 			// If this is just a display list, hide all but OK button and list.
 			// Put "Channel Descriptions" or "Selected Channels" as title of
@@ -238,16 +251,6 @@ void CMChannelsDlg::OnInitDialog (
 
 		}	// end "if (m_useTransformFlag)"
 
-			// Hide the channel list if the number of channels is more than 2000.
-			// It makes handling the list very slow.
-		
-	if (m_numberInputVecItems > 2000) 
-		{
-		MHideDialogItem (dialogPtr, IDC_List1);
-		showChannelListFlag = false;
-
-		}	// end "if (m_numberInputVecItems > 2000)"
-
 	if (TransferDataToWindow ()) 
 		{
 		PositionDialogWindow ();
@@ -256,7 +259,7 @@ void CMChannelsDlg::OnInitDialog (
 
 		}	// end "if (TransferDataToWindow ())"
 
-	if (showChannelListFlag && listBoxPtr != NULL) 
+	if (m_showListFlag && listBoxPtr != NULL)
 		{
 		SInt32 numberSelectedItems = AddChannelsToDialogList (
 																	 listBoxPtr,
@@ -266,16 +269,28 @@ void CMChannelsDlg::OnInitDialog (
 																	 m_fileInfoPtr,
 																	 m_listType,
 																	 m_availableFeaturePtr,
-																	 (SInt32) m_numberInputVecItems,
+																	 (SInt32)m_numberInputVecItems,
 																	 m_currentSelection);
-			 
-		listBoxPtr->SetFirstItem (0);
+																		
+		int selectedItem = 0;
+		if (m_selectedItemsPtr != NULL)
+			{
+					// This allows for the first item to be a non-selected item in the list
+					// to allow the user to know there are no selected items above the first
+					// one being shown.
+					
+			if (m_selectedItemsPtr[0] > 1)
+				selectedItem = m_selectedItemsPtr[0] - 1;
+
+			}	// if (m_selectedItemsPtr != NULL)
+			
+		listBoxPtr->SetFirstItem (selectedItem);
 
 				// Set the number of selected items.
 
 		::LoadDItemValue (dialogPtr, IDC_SelectionCount, numberSelectedItems);
 
-		}	// end "if (listBoxPtr != NULL)"
+		}	// end "if (m_showListFlag && listBoxPtr != NULL)"
 
 			// Set default text selection to first edit text item
 

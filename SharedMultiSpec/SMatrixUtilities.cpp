@@ -1103,7 +1103,7 @@ Boolean ComputeEigenvectors (
 						// is in computing the eigenvectors. The value xmax continually 
 						// gets smaller.
 						
-				sprintf ((char*)&gTextString[1], "%8.1e", xmax); 
+				snprintf ((char*)&gTextString[1], 255, "%8.1e", xmax);
 				//LoadDItemString (gStatusDialogPtr,
 				//							IDC_Status14,
 				//							gTextString);
@@ -3227,7 +3227,8 @@ Boolean GetTotalSumSquares (
 		
 		if (gProcessorCode != kClassifyProcessor && numberCovariancePixels <= 0)	
 			{
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"\rNo pixels were included in the covariance matrix.");
 						
 			continueFlag = ListString ((HPtr)gTextString,
@@ -4787,9 +4788,11 @@ Boolean SaveTransformationMatrix (
 			CheckAndUnlockHandle (eigenVectorHandle);
 			CheckAndUnlockHandle (gTransformationMatrix.eigenFeatureHandle);
 			
-			FileStringPtr fileNamePtr = 
-						(FileStringPtr)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
-			CtoPstring (fileNamePtr, gTransformationMatrix.imageFileName);
+			//FileStringPtr fileNamePtr =
+			//			(FileStringPtr)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
+			//CtoPstring (fileNamePtr, gTransformationMatrix.imageFileName);
+			GetCopyOfPFileNameFromFileInfo (gImageFileInfoPtr,
+														gTransformationMatrix.imageFileName);
 		
 			gUpdateFileMenuItemsFlag = TRUE;
 			gUpdateEditMenuItemsFlag = TRUE;

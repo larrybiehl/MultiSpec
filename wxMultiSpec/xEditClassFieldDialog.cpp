@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/06/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xEditClassFieldDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -97,7 +98,9 @@ void CMEditClassFieldDlg::CheckLength (
 						kAlertStrID,
 						IDS_Alert116,
 						0,
-						NULL);
+						NULL,
+						this,
+						kASCIICharString);
 			
 }	// end "CheckLength"
 
@@ -155,7 +158,7 @@ void CMEditClassFieldDlg::CreateControls ()
 												wxDefaultPosition,
 												wxSize (250,	-1),
 												0);
-   m_textCtrl102->SetMaxLength (31);
+   m_textCtrl102->SetMaxLength (30);
    SetUpToolTip (m_textCtrl102, IDS_ToolTip302);
 	bSizer287->Add (m_textCtrl102, 0, wxALL, 5);
 	
@@ -190,7 +193,7 @@ void CMEditClassFieldDlg::CreateControls ()
 												wxDefaultPosition,
 												wxSize (250, -1),
 												0);
-   m_textCtrl103->SetMaxLength (31);
+   m_textCtrl103->SetMaxLength (30);
    SetUpToolTip (m_textCtrl103, IDS_ToolTip304);
 	bSizer288->Add (m_textCtrl103, 0, wxALL, 5);
 	
@@ -273,7 +276,7 @@ void CMEditClassFieldDlg::CreateControls ()
 //	Called By:			EditClassFieldDialog in SEditStatistics.cpp
 //
 //	Coded By:			Abdur Rahman Maud		Date: ??/??/2015
-//	Revised By:			Larry L. Biehl			Date: 05/02/2019
+//	Revised By:			Larry L. Biehl			Date: 04/01/2023
 
 Boolean CMEditClassFieldDlg::DoDialog (
 				SInt16								classFieldCode,
@@ -414,10 +417,17 @@ bool CMEditClassFieldDlg::TransferDataFromWindow ()
 		if (returnCode != 0)
 			{
 			if (returnCode < 0)
-				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+				DisplayAlert (kErrorAlertID,
+									3,
+									kAlertStrID,
+									IDS_Alert46,
+									0,
+									NULL,
+									this,
+									kASCIICharString);
 
 			else // returnCode > 0
-				DupClassFieldNameAlert (1, gTextString);
+				DupClassFieldNameAlert (this, 1, gTextString);
 
 			//selectedItem = IDC_ClassName;
 			OKFlag = FALSE;
@@ -438,10 +448,17 @@ bool CMEditClassFieldDlg::TransferDataFromWindow ()
 		if (returnCode > 0)
 			{
 			if (returnCode == 1)
-				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+				DisplayAlert (kErrorAlertID,
+									3,
+									kAlertStrID,
+									IDS_Alert46,
+									0,
+									NULL,
+									this,
+									kASCIICharString);
 
 			else // returnCode == 2
-				DupClassFieldNameAlert (2, gTextString);
+				DupClassFieldNameAlert (this, 2, gTextString);
 
 			//selectedItem = IDC_FieldName;
 			OKFlag = FALSE;

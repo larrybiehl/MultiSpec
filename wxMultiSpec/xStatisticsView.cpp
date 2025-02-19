@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/11/2020
+//	Revision date:			04/27/2023
 //
 //	Language:				C++
 //
@@ -166,14 +166,19 @@ bool CMStatisticsView::OnCreate (
 	
 	#ifdef NetBeansProject
 		textWindowYPosition = 80;
-	#else	// mygeohub
-		textWindowYPosition = 80;
+	#else	// not NetBeansProject
+		#if defined multispec_wxlin || defined multispec_wxmac
+			textWindowYPosition = 80;
+		#endif
+		#if defined multispec_wxwin
+			textWindowYPosition = 12;
+		#endif
 	#endif
    
    m_frame = new CMStatisticsFrame (
 			doc,
 			this,
-			GetMainFrame (),
+			(MParentFrame*)GetMainFrame (),
 			wxID_ANY,
 			wxT("Project"),
 			wxPoint (textWindowXPosition, textWindowYPosition),
@@ -278,7 +283,7 @@ void CMStatisticsView::OnInitialUpdate (void)
 		wxComboBox*	statsCtrl;
    	statsCtrl = (wxComboBox*)m_frame->FindWindow (IDC_StatsCombo);
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
    	wxChoice* statsCtrl;
    	statsCtrl = (wxChoice*)m_frame->FindWindow (IDC_StatsCombo);
 	#endif

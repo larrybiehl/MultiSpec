@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/29/2020
+//	Revision date:			04/04/2023
 //
 //	Language:				C
 //
@@ -204,7 +204,7 @@ Boolean CheckSomeDisplayEvents (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 05/18/1990
-//	Revised By:			Larry L. Biehl			Date: 03/16/1999	
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023	
 
 SInt16 CheckNumberDisplayColumns (
 				UInt32								columnStart,
@@ -314,7 +314,7 @@ SInt16 CheckNumberDisplayColumns (
 			#if defined multispec_wxlin
 				alertStringNumber = IDS_32BitDisplayColumnLimit_lin;
 			#endif
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac || defined multispec_wxwin
 				alertStringNumber = IDS_32BitDisplayColumnLimit_mac;
 			#endif
 
@@ -438,7 +438,7 @@ SInt16 CheckNumberDisplayLines (
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
 //	Revised By:			Wei-Kang Hsu			Date: 10/14/2015
-//	Revised By:			Larry L. Biehl			Date: 11/12/2019
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023
 
 void DisplayColorImage (
 				DisplaySpecsPtr					displaySpecsPtr,
@@ -465,9 +465,8 @@ void DisplayColorImage (
 
 	HPtr									offScreenBufferPtr = NULL;
 
-	SInt32								displayBottomMax;
-
-	UInt32								pixRowBytes;
+	SInt32								displayBottomMax,
+											pixRowBytes;
 
 	SInt16								displayCode = 0,
 											numberChannels = 0;
@@ -524,7 +523,7 @@ void DisplayColorImage (
 				// loaded into the bitmap
 				
 		if (gCallProcessorDialogFlag || gFromToolParameterFileFlag)
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin || defined multispec_wxwin
 				gActiveImageViewCPtr->m_frame->Update ();
 			#endif
 			#if defined multispec_wxmac
@@ -1186,9 +1185,9 @@ Boolean GetIncludeVectorOverlaysFlag (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 06/09/1995
-//	Revised By:			Larry L. Biehl			Date: 11/02/2001	
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023	
 
-UInt32 GetNumberPixRowBytes (
+SInt32 GetNumberPixRowBytes (
 				UInt32								numberColumns,
 				SInt16								pixelSize)
 
@@ -1199,7 +1198,7 @@ UInt32 GetNumberPixRowBytes (
 				// added such that for example 13 columns of 8 bits is bumped up to 
 				// row bytes of 32 not 16 as one would expect. This was found on a PPC
 				// running OS8.6 and OS9.1.		
-		UInt32 numberRowBytes =
+		SInt32 numberRowBytes =
 						((((UInt32)pixelSize * numberColumns + 127 + 32) >> 7) << 4);
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 
@@ -1212,7 +1211,7 @@ UInt32 GetNumberPixRowBytes (
 		/*UInt32 numberRowBytes =
 		((((UInt32)pixelSize * numberColumns + 31) >> 5) << 2);*/
 		int pixelbytes = (int)MAX (3, pixelSize / 8);
-		UInt32 numberRowBytes = (UInt32)pixelbytes * numberColumns;
+		SInt32 numberRowBytes = (UInt32)pixelbytes * numberColumns;
 	#endif
 					
 	return (numberRowBytes);
@@ -1356,7 +1355,7 @@ SInt16 GetOffscreenGWorld (
 				WindowInfoPtr						windowInfoPtr,
 				DisplaySpecsPtr					displaySpecsPtr,
 				LongRect*							longRectPtr,
-				UInt32*								pixRowBytesPtr)
+				SInt32*								pixRowBytesPtr)
 
 {
 	SInt16								resultCode = 0;
@@ -1697,7 +1696,7 @@ SInt16 GetOffscreenGWorld (
 				// Change on 2/16/2000 so that the old BITMAP was always cleared out.
 
 		bytesNeeded =
-				*pixRowBytesPtr * ((UInt32)longRectPtr->bottom - longRectPtr->top + 1);
+				*pixRowBytesPtr * ((SInt32)longRectPtr->bottom - longRectPtr->top + 1);
 		UnlockAndDispose (windowInfoPtr->imageBaseAddressH);
 		windowInfoPtr->imageBaseAddressH = MNewHandle (bytesNeeded);
 		windowInfoPtr->offscreenMapSize = bytesNeeded;
@@ -2341,6 +2340,36 @@ void SetDisplayImageWindowSizeVariables (
 				//rect.right += kSBarWidth+2;
 				}	// end "if (imageDocCPtr->GetDisplayCoordinatesFlag ())"
 		#endif	// defined multispec_win
+		#if defined multispec_wxwin
+				// This is a kludge, but it is the only way that I have found
+				// to get around a problem when the coordinate bar is to be
+				// displayed by default. When it is, Windows insists on displaying
+				// the scroll bars in the window when it is not needed.  This causes
+				// the the maginification to be 1 step smaller than it needs to be.
+				// Was not able to find another way around it by setting scroll
+				// bar setting to get them to go away.
+				// This code expands the rect so that it ignores the scroll bars for
+				// calculating the magnification to be used.
+				// This seems to even be needed in wxWidgets
+			
+			int coordinateBarHeight = GetCoordinateHeight (GetWindowInfoHandle(gActiveImageViewCPtr));
+			CMImageDoc* imageDocCPtr = (CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
+			if (imageDocCPtr->GetDisplayCoordinatesFlag ())
+				{
+				int scrollBarWidth;
+				scrollBarWidth = wxSystemSettings::GetMetric (wxSYS_VSCROLL_X);
+				rect.bottom += scrollBarWidth;
+
+						// Also add the coordinate height back in. It is being subtracted off of the
+						// image part of the frame.
+
+				rect.bottom += coordinateBarHeight;
+
+				scrollBarWidth = wxSystemSettings::GetMetric (wxSYS_HSCROLL_Y);
+				rect.right += scrollBarWidth;
+
+				}	// end "if (imageDocCPtr->GetDisplayCoordinatesFlag ())"
+		#endif	// defined multispec_win
 
 				// Select magnification so that entire image will be shown in the
 				// window. Magnification is = min (cMagnification, lMagnification)
@@ -2417,7 +2446,7 @@ void SetDisplayImageWindowSizeVariables (
 Boolean SetUpColorImageMemory (
 				DisplaySpecsPtr					displaySpecsPtr,
 				LongRect*							sourceRectPtr,
-				UInt32*								pixRowBytesPtr)
+				SInt32*								pixRowBytesPtr)
 
 {
 	LongRect								longRect;
@@ -2605,7 +2634,7 @@ void SetUpImageWindowTypeParameters (
 																&mainWindowWidth, &mainWindowHeight);
 							mainWindowWidth -= 2;
 						#endif
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac || defined multispec_wxwin
 							wxRect	displayRect;
 							displayRect = wxDisplay().GetClientArea ();
 					

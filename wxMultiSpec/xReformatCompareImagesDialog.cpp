@@ -19,7 +19,7 @@
 //
 //   Authors:              Larry L. Biehl
 //
-//   Revision date:        05/14/2022
+//   Revision date:        02/14/2025
 //
 //   Language:					C++
 //
@@ -30,7 +30,8 @@
 //
 /*
   Template for debug code.
- 	int numberChars = sprintf ((char*)&gTextString3,
+ 	int numberChars = snprintf ((char*)&gTextString3,
+									256,
  			" LReformatRectifyDlg: (): %s",
  			gEndOfLine);
  ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -51,8 +52,17 @@ BEGIN_EVENT_TABLE (CMReformatCompareImagesDlg, CMDialog)
 	EVT_BUTTON (IDEntireImage, CMReformatCompareImagesDlg::ToEntireImage)
 	EVT_BUTTON (IDSelectedImage, CMReformatCompareImagesDlg::ToSelectedImage)
 
+	EVT_CHECKBOX (IDC_CreateOutputImageFile, CMReformatCompareImagesDlg::OnBnClickedCreateOutputImageFile)
+
+	#if defined multispec_wxlin
+		EVT_COMBOBOX (IDC_Channels, CMReformatCompareImagesDlg::OnSelendokOutChannels)
+	#endif
+	#if defined multispec_wxmac || defined multispec_wxwin
+		EVT_CHOICE (IDC_Channels, CMReformatCompareImagesDlg::OnSelendokOutChannels)
+	#endif
+
 	EVT_CHOICE (IDC_ReferenceFileList, CMReformatCompareImagesDlg::OnCbnSelendokTargetCombo)
-	EVT_CHOICE (IDC_ResampleMethod, CMReformatCompareImagesDlg::OnCbnSelendokResampleMethod)
+	EVT_CHOICE (IDC_CompareAlgorithm, CMReformatCompareImagesDlg::OnCbnSelendokCompareAlgorithmMethod)
 
 	EVT_COMBOBOX_DROPDOWN (IDC_Channels, CMReformatCompareImagesDlg::OnChannelComboDropDown)
 
@@ -73,24 +83,43 @@ CMReformatCompareImagesDlg::CMReformatCompareImagesDlg (
 		: CMDialog (CMReformatCompareImagesDlg::IDD, pParent, title)
 
 {
+	wxString 								fileName;
+	FileStringPtr 							fileNamePtr;
+	
    m_kNoneMenuItem = kNoneMenuItem;
    m_kArcViewMenuItem = kArcViewMenuItem;
-   m_kERDAS74MenuItem = kERDAS74MenuItem;
-   m_kGAIAMenuItem = kGAIAMenuItem;
    m_kTIFFGeoTIFFMenuItem = kTIFFGeoTIFFMenuItem;
-   m_kMatlabMenuItem = kMatlabMenuItem;
    
    m_channelSelection = -1;
    m_fileNamesSelection = -1;
    m_headerListSelection = -1;
    m_headerOptionsSelection = -1;
-   m_procedureCode = 0;
-   m_resampleSelection = 0;
+   m_compareAlgorithmCode = 0;
+   m_createOutputImageFileFlag = FALSE;
    
-   m_referenceWindowInfoHandle = NULL;
+   m_compareImageWindowInfoHandle = NULL;
    m_initializedFlag = CMDialog::m_initializedFlag;
    
    CreateControls ();
+	if (m_initializedFlag)
+		{
+				//	Set the image file name.
+
+		fileNamePtr = (FileStringPtr)(gActiveImageViewCPtr->GetImageWindowCPtr())->
+																				GetImageFileNamePointer ();
+		if (fileNamePtr != NULL)
+			{
+			fileName = wxString (fileNamePtr, wxConvUTF8);
+			wxStaticText * fname = (wxStaticText*)FindWindow (IDC_FileName);
+			fname->SetLabel (fileName);
+			
+			}	// end "if (fileNamePtr != NULL)"
+		
+		else	// fileNamePtr == NULL
+			m_initializedFlag = FALSE;
+
+		}	// end "if (m_initializedFlag)"
+		
    SetSizerAndFit (bSizer119);
 	
 }	// end "CMReformatCompareImagesDlg"
@@ -116,6 +145,28 @@ void CMReformatCompareImagesDlg::CreateControls ()
    wxBitmap bmp4i = wxBITMAP_PNG_FROM_DATA (bmp4);
    
    bSizer119 = new wxBoxSizer (wxVERTICAL);
+
+	wxBoxSizer* bSizer67 = new wxBoxSizer (wxHORIZONTAL);
+   
+   wxStaticText* staticText1167 = new wxStaticText (this,
+																		IDC_Prompt,
+																		wxT("Active:"),
+																		wxDefaultPosition,
+																		wxDefaultSize,
+																		0);
+	bSizer67->Add (staticText1167, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxRIGHT, 5));
+
+	wxStaticText* m_staticimagename = new wxStaticText (this,
+																		IDC_FileName,
+																		wxT("image name"),
+																		wxDefaultPosition,
+																		wxDefaultSize,
+																		0);
+	m_staticimagename->Wrap (-1);
+	bSizer67->Add (m_staticimagename, wxSizerFlags(0).Border(wxTOP|wxRIGHT, 5));
+	
+	bSizer119->Add (bSizer67, wxSizerFlags(0).Border(wxLEFT|wxTOP, 10));
+	//bSizer119->Add (20,6);
    
    wxFlexGridSizer* gSizer16;
    gSizer16 = new wxFlexGridSizer (0, 2, 0, 0);
@@ -131,8 +182,38 @@ void CMReformatCompareImagesDlg::CreateControls ()
    																		IDC_LineColFrame,
    																		wxT("Input Image Settings"));
    inputImageSettingsSizer = new wxStaticBoxSizer (
-																inputImageSettingsBox, wxHORIZONTAL);
+																inputImageSettingsBox, wxVERTICAL);
+   
+   wxBoxSizer* bSizer271;
+   bSizer271 = new wxBoxSizer (wxHORIZONTAL);
+   
+   
+   bSizer271->Add (20, 0, 0, wxEXPAND);
+   
+   m_staticText381 = new wxStaticText (inputImageSettingsBox,
+   												IDC_ReferenceFileListPrompt,
+   												wxT("Compare with:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText381->Wrap (-1);
+   SetUpToolTip (m_staticText381, IDS_ToolTip367);
+   bSizer271->Add (m_staticText381, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 	
+   m_referenceListCtrl = new wxChoice (inputImageSettingsBox,
+													IDC_ReferenceFileList,
+													wxDefaultPosition,
+													wxSize (300, -1));
+   SetUpToolTip (m_referenceListCtrl, IDS_ToolTip367);
+   m_referenceListCtrl->SetClientSize (wxSize (260, -1));
+   
+   bSizer271->Add (m_referenceListCtrl, 0, wxALL, 5);
+   
+   inputImageSettingsSizer->Add (bSizer271, 0, wxEXPAND);
+																
+	wxBoxSizer* bSizer199;
+	bSizer199 = new wxBoxSizer (wxHORIZONTAL);
+		
    wxBoxSizer* bSizer791;
    bSizer791 = new wxBoxSizer (wxHORIZONTAL);
    
@@ -156,7 +237,7 @@ void CMReformatCompareImagesDlg::CreateControls ()
    bSizer791->Add (m_bpButton5,
                    wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
    
-   inputImageSettingsSizer->Add (bSizer791, 0, wxALL|wxEXPAND, 5);
+   bSizer199->Add (bSizer791, 0, wxALL|wxEXPAND, 5);
    m_bpButton4->Hide ();
    
    wxGridSizer* gSizer1;
@@ -251,14 +332,43 @@ void CMReformatCompareImagesDlg::CreateControls ()
    
    gSizer1->Add (colendctrl, 0, wxALIGN_CENTER | wxALL, 5);
    
-   inputImageSettingsSizer->Add (gSizer1, 1, wxEXPAND|wxALL, 5);
+   bSizer199->Add (gSizer1, 1, wxEXPAND|wxALL, 5);
+   
+   inputImageSettingsSizer->Add (bSizer199, 1, wxEXPAND|wxALL, 5);
+   
+   wxBoxSizer* bSizer281;
+   bSizer281 = new wxBoxSizer (wxHORIZONTAL);
+   
+   m_staticText404 = new wxStaticText (inputImageSettingsBox,
+   												IDC_ChannelsPrompt,
+   												wxT("Channels:"),
+   												wxDefaultPosition,
+   												wxDefaultSize,
+   												0);
+   m_staticText404->Wrap (-1);
+   SetUpToolTip (m_staticText404, IDS_ToolTip366);
+   bSizer281->Add (m_staticText404, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+	GetAllSubsetMenuControl (kChannelsMenu,
+										inputImageSettingsBox,
+										IDC_Channels,
+										120,
+										IDS_ToolTip366);
+	bSizer281->Add (m_channelsCtrl, 0, wxALL, 5);
+   
+   inputImageSettingsSizer->Add (bSizer281, 0, wxEXPAND);
    
    bSizer198->Add (inputImageSettingsSizer, 1, wxEXPAND | wxBOTTOM|wxRIGHT, 6);
    
    bSizer195->Add (bSizer198, 1, wxEXPAND);
+	
+   gSizer16->Add (bSizer195, 1, wxEXPAND);
    
-   wxBoxSizer* bSizer200;
-   bSizer200 = new wxBoxSizer (wxVERTICAL);
+   wxBoxSizer* bSizer197;
+   bSizer197 = new wxBoxSizer (wxVERTICAL);
+   
+   //wxBoxSizer* bSizer200;
+   //bSizer200 = new wxBoxSizer (wxVERTICAL);
    
    wxStaticBoxSizer* outputOptionsSizer;
    wxStaticBox* outputOptionsBox = new wxStaticBox (this,
@@ -266,18 +376,31 @@ void CMReformatCompareImagesDlg::CreateControls ()
    																	wxT("Output Image Options"));
    outputOptionsSizer = new wxStaticBoxSizer (outputOptionsBox, wxVERTICAL);
    
+   m_checkBox18 = new wxCheckBox (outputOptionsBox,
+   											IDC_CreateOutputImageFile,
+   											wxT("Create output image file"),
+   											wxDefaultPosition,
+   											wxDefaultSize,
+   											0);
+   SetUpToolTip (m_checkBox18, IDS_ToolTip370);
+   //outputOptionsSizer->Add (m_checkBox18, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
+	outputOptionsSizer->Add (m_checkBox18,
+									wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
+   
    wxBoxSizer* bSizer278;
    bSizer278 = new wxBoxSizer (wxHORIZONTAL);
    
    m_staticText402 = new wxStaticText (outputOptionsBox,
-													wxID_ANY,
+													IDC_HeaderPrompt,
 													wxT("Header:"),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
    m_staticText402->Wrap (-1);
    SetUpToolTip (m_staticText402, IDS_ToolTip203);
-   bSizer278->Add (m_staticText402, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+   //bSizer278->Add (m_staticText402, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+	bSizer278->Add (m_staticText402,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
    
    m_fileFormatCtrl = new wxChoice (outputOptionsBox,
    											IDC_Header,
@@ -285,351 +408,47 @@ void CMReformatCompareImagesDlg::CreateControls ()
    											wxDefaultSize);
    m_fileFormatCtrl->Append ("'None'");
    m_fileFormatCtrl->Append ("ArcView format");
-   m_fileFormatCtrl->Append ("Erdas 74 format");
    SetUpToolTip (m_fileFormatCtrl, IDS_ToolTip203);
-   bSizer278->Add (m_fileFormatCtrl, 0, wxALL, 5);
+   //bSizer278->Add (m_fileFormatCtrl, 0, wxALL, 5);
+	bSizer278->Add (m_fileFormatCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
    
-   outputOptionsSizer->Add (bSizer278, 0, wxALL|wxEXPAND, 5);
-   /*
-   wxBoxSizer* bSizer279;
-   bSizer279 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_checkBox20 = new wxCheckBox (outputOptionsBox,
-   											IDC_NonSelectedPixels,
-   											wxT("Set Nonselected Pixels to Background Value"),
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   SetUpToolTip (m_checkBox20, IDS_ToolTip204);
-   bSizer279->Add (m_checkBox20, 0, wxALL, 5);
-   
-   outputOptionsSizer->Add (bSizer279, 0, wxEXPAND);
-   
-   wxBoxSizer* bSizer280;
-   bSizer280 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText403 = new wxStaticText (outputOptionsBox,
-   												wxID_ANY,
-   												wxT("Background value:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText403->Wrap (-1);
-   SetUpToolTip (m_staticText403, IDS_ToolTip205);
-   bSizer280->Add (m_staticText403, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-   
-   m_textCtrl154 = new wxTextCtrl (outputOptionsBox,
-												IDC_BackgroundValue,
-												wxEmptyString,
-												wxDefaultPosition,
-												wxDefaultSize,
-												0);
-   SetUpToolTip (m_textCtrl154, IDS_ToolTip205);
-   m_textCtrl154->SetValidator (
-   							wxTextValidator (wxFILTER_NUMERIC, &m_backgroundValueString));
-   bSizer280->Add (m_textCtrl154, 0, wxALL, 5);
-   
-   outputOptionsSizer->Add (bSizer280, 0, wxEXPAND);
-   */
-   wxBoxSizer* bSizer281;
-   bSizer281 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText404 = new wxStaticText (outputOptionsBox,
-   												IDC_ChannelsPrompt,
-   												wxT("Channels:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText404->Wrap (-1);
-   SetUpToolTip (m_staticText404, IDS_ToolTip206);
-   bSizer281->Add (m_staticText404, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-
-	GetAllSubsetMenuControl (kChannelsMenu,
-										outputOptionsBox,
-										IDC_Channels,
-										120,
-										IDS_ToolTip206);
-	bSizer281->Add (m_channelsCtrl, 0, wxALL, 5);
-   
-   outputOptionsSizer->Add (bSizer281, 0, wxEXPAND);
-   
-   bSizer200->Add (outputOptionsSizer, 1, wxEXPAND | wxTOP|wxRIGHT, 6);
-   
-   bSizer195->Add (bSizer200, 1, wxEXPAND);
-	
-   gSizer16->Add (bSizer195, 1, wxEXPAND);
-   
-   wxBoxSizer* bSizer197;
-   bSizer197 = new wxBoxSizer (wxVERTICAL);
-   
-   wxStaticBoxSizer* rectifySettingsSizer;
-   wxStaticBox* rectifySettingsBox = new wxStaticBox (this,
-   																	wxID_ANY,
-   																	wxT("Rectification Settings"));
-   rectifySettingsSizer = new wxStaticBoxSizer (rectifySettingsBox, wxVERTICAL);
-   
-   wxTextValidator negativeIntegerValidator = wxTextValidator (
-   													wxFILTER_ASCII|wxFILTER_INCLUDE_CHAR_LIST);
-   wxString valid_str = "'-','0','1','2','3','4','5','6','7','8','9'";
-   negativeIntegerValidator.SetCharIncludes (valid_str);
-   /*
-   m_radioBtn18 = new wxRadioButton (rectifySettingsBox,
-   												IDC_TranslateScaleRotateRadio,
-   												wxT("Translate, Scale and/or Rotate"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   rectifySettingsSizer->Add (m_radioBtn18, 0, wxALL, 5);
-   
-   wxBoxSizer* bSizer247;
-   bSizer247 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText361 = new wxStaticText (rectifySettingsBox,
-   												IDC_TranslateScaleTitle,
-   												wxT("Linear"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText361->Wrap (-1);
-   bSizer247->Add (m_staticText361, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-   
-   
-   bSizer247->Add (40, 0, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   m_staticText362 = new wxStaticText (rectifySettingsBox,
-   												IDC_TranslateScaleTitle2,
-   												wxT("Offset"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText362->Wrap (-1);
-   bSizer247->Add (m_staticText362, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-	
-   bSizer247->Add (60, 0, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   m_staticText363 = new wxStaticText (rectifySettingsBox,
-													IDC_TranslateScaleTitle3,
-													wxT("Scale"),
-													wxDefaultPosition,
-													wxDefaultSize,
-													0);
-   m_staticText363->Wrap (-1);
-   bSizer247->Add (m_staticText363, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-   
-   
-   rectifySettingsSizer->Add (
-								bSizer247, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   wxBoxSizer* bSizer262;
-   bSizer262 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText364 = new wxStaticText (rectifySettingsBox,
-   												IDC_LineTranslateScalePrompt,
-   												wxT("Lines:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText364->Wrap (-1);
-   bSizer262->Add (
-   				m_staticText364,
-					0,
-					wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER_VERTICAL|wxALL, 5);
-   
-   bSizer262->Add (20, 0, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   m_textCtrl147 = new wxTextCtrl (rectifySettingsBox,
-   											IDC_LineOffset,
-   											wxEmptyString,
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   SetUpToolTip (m_textCtrl147, IDS_ToolTip208);
-   m_textCtrl147->SetValidator (negativeIntegerValidator);
-   
-   bSizer262->Add (m_textCtrl147, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-   
-   m_textCtrl144 = new wxTextCtrl (rectifySettingsBox,
-   											IDC_LineScale,
-   											wxEmptyString,
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   SetUpToolTip (m_textCtrl144, IDS_ToolTip210);
-   m_textCtrl144->SetValidator (
-   								wxTextValidator (wxFILTER_NUMERIC, &m_lineScaleString));
-   bSizer262->Add (m_textCtrl144, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-	
-   rectifySettingsSizer->Add (
-   							bSizer262, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   wxBoxSizer* bSizer263;
-   bSizer263 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText366 = new wxStaticText (rectifySettingsBox,
-   												IDC_ColumnTranslateScalePrompt,
-   												wxT("Columns:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText366->Wrap (-1);
-   bSizer263->Add (
-   				m_staticText366,
-					0,
-					wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER_VERTICAL|wxALL, 5);
-   
-   m_textCtrl145 = new wxTextCtrl (rectifySettingsBox,
-   											IDC_ColumnOffset,
-   											wxEmptyString,
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   SetUpToolTip (m_textCtrl145, IDS_ToolTip209);
-   m_textCtrl145->SetValidator (negativeIntegerValidator);
-   bSizer263->Add (m_textCtrl145, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-   
-   m_textCtrl146 = new wxTextCtrl (rectifySettingsBox,
-   											IDC_ColumnScale,
-   											wxEmptyString,
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   SetUpToolTip (m_textCtrl146, IDS_ToolTip211);
-   m_textCtrl146->SetValidator (
-   						wxTextValidator (wxFILTER_NUMERIC, &m_columnScaleString));
-   bSizer263->Add (m_textCtrl146, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-	
-   rectifySettingsSizer->Add (bSizer263,
-   									0,
-   									wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   wxBoxSizer* bSizer266;
-   bSizer266 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText378 = new wxStaticText (rectifySettingsBox,
-													IDC_RotationTitle,
-													wxT("Rotation  (clockwise)"),
-													wxDefaultPosition,
-													wxDefaultSize,
-													0);
-   m_staticText378->Wrap (-1);
-   bSizer266->Add (m_staticText378, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-	
-   rectifySettingsSizer->Add (
-   							bSizer266, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   wxBoxSizer* bSizer268;
-   bSizer268 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_staticText380 = new wxStaticText (rectifySettingsBox,
-   												IDC_RotationClockwisePrompt,
-   												wxT("Degrees:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText380->Wrap (-1);
-   SetUpToolTip (m_staticText380, IDS_ToolTip207);
-   bSizer268->Add (
-   				m_staticText380,
-					0,
-					wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALIGN_CENTER_VERTICAL|wxALL, 5);
-   
-   m_textCtrl149 = new wxTextCtrl (rectifySettingsBox,
-												IDC_RotationClockwise,
-												wxEmptyString,
-												wxDefaultPosition,
-												wxDefaultSize,
-												0);
-   SetUpToolTip (m_textCtrl149, IDS_ToolTip207);
-   m_textCtrl149->SetValidator (
-   							wxTextValidator (wxFILTER_NUMERIC, &m_rotationAngleString));
-   bSizer268->Add (m_textCtrl149, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-   
-   rectifySettingsSizer->Add (
-   							bSizer268, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   
-   wxBoxSizer* bSizer269;
-   bSizer269 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_checkBox18 = new wxCheckBox (rectifySettingsBox,
-   											IDC_UseMapOrientationAngle,
-   											wxT("Use image orientation angle"),
-   											wxDefaultPosition,
-   											wxDefaultSize,
-   											0);
-   bSizer269->Add (m_checkBox18, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
-	
-   rectifySettingsSizer->Add (
-								bSizer269, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxEXPAND);
-   */
-   wxBoxSizer* bSizer270;
-   bSizer270 = new wxBoxSizer (wxHORIZONTAL);
-   
-   m_radioBtn19 = new wxRadioButton (rectifySettingsBox,
-   												IDC_ReprojectToRadio,
-   												wxT("Reproject"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   SetUpToolTip (m_radioBtn19, IDS_ToolTip214);
-   bSizer270->Add (m_radioBtn19, 0, wxALL, 5);
-   
-   rectifySettingsSizer->Add (bSizer270, 0, wxEXPAND);
-   
-   wxBoxSizer* bSizer271;
-   bSizer271 = new wxBoxSizer (wxHORIZONTAL);
-   
-   
-   bSizer271->Add (20, 0, 0, wxEXPAND);
-   
-   m_staticText381 = new wxStaticText (rectifySettingsBox,
-   												IDC_ReferenceFileListPrompt,
-   												wxT("Reference:"),
-   												wxDefaultPosition,
-   												wxDefaultSize,
-   												0);
-   m_staticText381->Wrap (-1);
-   SetUpToolTip (m_staticText381, IDS_ToolTip212);
-   bSizer271->Add (m_staticText381, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-	
-   m_referenceListCtrl = new wxChoice (rectifySettingsBox,
-													IDC_ReferenceFileList,
-													wxDefaultPosition,
-													wxSize (300, -1));
-   SetUpToolTip (m_referenceListCtrl, IDS_ToolTip212);
-   m_referenceListCtrl->SetClientSize (wxSize (260, -1));
-   
-   bSizer271->Add (m_referenceListCtrl, 0, wxALL, 5);
-   
-   rectifySettingsSizer->Add (bSizer271, 0, wxEXPAND);
+   //outputOptionsSizer->Add (bSizer278, 0, wxALL|wxEXPAND, 5);
+	outputOptionsSizer->Add (bSizer278,
+										wxSizerFlags(0).Expand().Border(wxALL, 5));
    
    wxBoxSizer* bSizer272;
    bSizer272 = new wxBoxSizer (wxHORIZONTAL);
    
-   bSizer272->Add (20, 0, 0, wxEXPAND);
+   //bSizer272->Add (20, 0, 0, wxEXPAND);
    
-   m_staticText382 = new wxStaticText (rectifySettingsBox,
-   												IDC_ResampleMethodPrompt,
+   m_staticText382 = new wxStaticText (outputOptionsBox,
+   												IDC_CompareAlgorithmPrompt,
    												wxT("Algorithm:"),
    												wxDefaultPosition,
    												wxDefaultSize,
    												0);
    m_staticText382->Wrap (-1);
-   SetUpToolTip (m_staticText382, IDS_ToolTip213);
-   bSizer272->Add (m_staticText382, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+   SetUpToolTip (m_staticText382, IDS_ToolTip368);
+   //bSizer272->Add (m_staticText382, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+	bSizer272->Add (m_staticText382,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 	
-   m_algorithmCtrl = new wxChoice (rectifySettingsBox,
-   											IDC_ResampleMethod,
+   m_algorithmCtrl = new wxChoice (outputOptionsBox,
+   											IDC_CompareAlgorithm,
    											wxDefaultPosition,
    											wxDefaultSize);
-   SetUpToolTip (m_algorithmCtrl, IDS_ToolTip213);
+   SetUpToolTip (m_algorithmCtrl, IDS_ToolTip368);
    m_algorithmCtrl->SetMinSize (wxSize (150, -1));
-   bSizer272->Add (m_algorithmCtrl, 0, wxALL, 5);
+   //bSizer272->Add (m_algorithmCtrl, 0, wxALL, 5);
+	bSizer272->Add (m_algorithmCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
    
-   rectifySettingsSizer->Add (bSizer272, 0, wxEXPAND);
-	
-   bSizer197->Add (rectifySettingsSizer, 1, wxEXPAND | wxLEFT, 6);
+   outputOptionsSizer->Add (bSizer272, 0, wxALL|wxEXPAND, 5);
    
-   gSizer16->Add (bSizer197, 1, wxEXPAND, 5);
+   bSizer197->Add (outputOptionsSizer, 1, wxEXPAND | wxBOTTOM|wxRIGHT, 6);
+   
+   gSizer16->Add (bSizer197, 1, wxEXPAND);
 	
    bSizer119->Add (gSizer16, 1, wxEXPAND|wxLEFT|wxTOP|wxRIGHT, 12);
 
@@ -670,7 +489,7 @@ Boolean CMReformatCompareImagesDlg::DoDialog (
    m_imageWindowInfoPtr = imageWindowInfoPtr;
    m_imageLayerInfoPtr = imageLayerInfoPtr;
    m_reformatOptionsPtr = reformatOptionsPtr;
-   m_rectifyImageOptionsPtr = reformatOptionsPtr->rectifyImageOptionsPtr;
+   m_compareImagesOptionsPtr = reformatOptionsPtr->compareImagesOptionsPtr;
    
    		// Selected area for output file.
 	
@@ -704,8 +523,9 @@ Boolean CMReformatCompareImagesDlg::DoDialog (
                             m_reformatOptionsPtr,
                             (SInt16)m_headerOptionsSelection,
                             (SInt16)m_channelSelection,
-                            (SInt16)(m_procedureCode+1),
-                            m_referenceWindowInfoHandle);
+                            (Boolean)m_createOutputImageFileFlag,
+                            (SInt16)m_compareAlgorithmCode,
+                            m_compareImageWindowInfoHandle);
       
    	} 	// end "if (returnCode == IDOK)"
    
@@ -715,14 +535,17 @@ Boolean CMReformatCompareImagesDlg::DoDialog (
 
 
 
-void CMReformatCompareImagesDlg::OnBnClickedReprojectToRadio (
+void CMReformatCompareImagesDlg::OnBnClickedCreateOutputImageFile (
 				wxCommandEvent& 					event)
 
 {
-   m_procedureCode = kReprojectToReferenceImage - 1;
-   UpdateProcedureItems (IDC_LineStart, TRUE);
+   wxCheckBox* createOutputImageFile =
+   									(wxCheckBox*)FindWindow (IDC_CreateOutputImageFile);
+   m_createOutputImageFileFlag = createOutputImageFile->GetValue ();
    
-}	// end "OnBnClickedReprojectToRadio"
+   CompareImagesDialogOnCreateImageFile (this, m_createOutputImageFileFlag);
+         
+} 	// end "OnBnClickedCreateOutputImageFile"
 
 
 
@@ -742,35 +565,35 @@ void CMReformatCompareImagesDlg::OnCbnSelendokTargetCombo (
       m_fileNamesSelection = m_referenceListCtrl->GetSelection ();
       
       if (savedFileNamesSelection != m_fileNamesSelection)
-         RectifyImageDialogOnReferenceFile (this,
-                                            m_procedureCode+1,
-                                            m_fileNamesSelection+1,
-                                            &m_referenceWindowInfoHandle,
-                                            &m_dialogSelectArea);
-      
+         CompareImagesDialogOnReferenceFile (this,
+															  m_compareAlgorithmCode,
+															  m_fileNamesSelection+1,
+															  &m_compareImageWindowInfoHandle,
+															  &m_dialogSelectArea);
+			
    	}	// end "if (m_fileNamesSelection >= 0)"
    
 } 	// end "OnCbnSelendokTargetCombo"
 
 
 
-void CMReformatCompareImagesDlg::OnCbnSelendokResampleMethod (
+void CMReformatCompareImagesDlg::OnCbnSelendokCompareAlgorithmMethod (
 				wxCommandEvent& 					event)
 
 {
    		// Select resampling method popup box
    
-   if (m_resampleSelection >= 0)
+   if (m_compareAlgorithmSelection >= 0)
    	{
-      m_resampleSelection = m_algorithmCtrl->GetSelection ();
+      m_compareAlgorithmSelection = m_algorithmCtrl->GetSelection ();
       
       SInt64 windowIndex64 =
-					(SInt64)((int*)m_algorithmCtrl->GetClientData (m_resampleSelection));
-      m_resampleMethodCode = (UInt32)windowIndex64;
+					(SInt64)((int*)m_algorithmCtrl->GetClientData (m_compareAlgorithmSelection));
+      m_compareAlgorithmCode = (UInt32)windowIndex64;
       
-   	}	// end "if (m_resampleSelection >= 0)"
+   	}	// end "if (m_compareAlgorithmSelection >= 0)"
    
-}	// end "OnCbnSelendokResamplemethod"
+}	// end "OnCbnSelendokCompareAlgorithmMethod"
 
 
 
@@ -778,14 +601,13 @@ void CMReformatCompareImagesDlg::OnInitDialog (
 				wxInitDialogEvent& 				event)
 
 {
-   SInt16         					channelSelection,
+	SInt16         					channelSelection,
 											fileNamesSelection,
-											procedureCode,
-											resampleMethodCode,
+											compareAlgorithmCode,
 											headerOptionsSelection;
    
-   Boolean         					blankOutsideSelectedAreaFlag,
-   										mapInfoExistsFlag;
+   Boolean         					createOutputImageFileFlag,
+											mapInfoExistsFlag;
    
 	
    CompareImagesDialogInitialize (this,
@@ -794,31 +616,32 @@ void CMReformatCompareImagesDlg::OnInitDialog (
                                  m_reformatOptionsPtr,
                                  &headerOptionsSelection,
                                  &channelSelection,
-                                 &procedureCode,
-                                 &resampleMethodCode,
+                                 &createOutputImageFileFlag,
+                                 &compareAlgorithmCode,
                                  &fileNamesSelection,
-                                 &m_referenceWindowInfoHandle);
+                                 &m_compareImageWindowInfoHandle);
    
    m_LineStart = m_reformatOptionsPtr->lineStart;
    m_LineEnd = m_reformatOptionsPtr->lineEnd;
    m_ColumnStart = m_reformatOptionsPtr->columnStart;
    m_ColumnEnd = m_reformatOptionsPtr->columnEnd;
    
-   m_blankOutsideSelectedAreaFlag = blankOutsideSelectedAreaFlag;
-   m_procedureCode = procedureCode - 1;
-   m_resampleMethodCode = resampleMethodCode;
+   m_compareAlgorithmCode = compareAlgorithmCode;
    
-   		// Get the resample method list selection that matches the input
-   		// resample method code.
+   		// Get the compare algorithm to be used.
+   		
+	//m_compareAlgorithmSelection = m_compareAlgorithmCode;
    
-   m_resampleSelection = GetComboListSelection (IDC_ResampleMethod,
-																m_resampleMethodCode);
+   m_compareAlgorithmSelection = GetComboListSelection (IDC_CompareAlgorithm,
+																		m_compareAlgorithmCode);
    
-   if (m_resampleSelection == -1)
-      m_resampleSelection = 0;
+   if (m_compareAlgorithmSelection == -1)
+      m_compareAlgorithmSelection = 0;
 	
    if (fileNamesSelection > 0)
    	m_fileNamesSelection = fileNamesSelection - 1;
+   	
+	m_createOutputImageFileFlag = createOutputImageFileFlag;
    
    		// Set text indicating whether the output file format could be
    		// GeoTIFF or TIFF.
@@ -832,22 +655,23 @@ void CMReformatCompareImagesDlg::OnInitDialog (
    
    m_fileFormatCtrl->SetClientData (0, (void*)(SInt64)m_kNoneMenuItem);
    m_fileFormatCtrl->SetClientData (1, (void*)(SInt64)m_kArcViewMenuItem);
-   m_fileFormatCtrl->SetClientData (2, (void*)(SInt64)m_kERDAS74MenuItem);
-   m_fileFormatCtrl->SetClientData (3, (void*)(SInt64)m_kTIFFGeoTIFFMenuItem);
+   m_fileFormatCtrl->SetClientData (2, (void*)(SInt64)m_kTIFFGeoTIFFMenuItem);
    
    m_headerOptionsSelection = headerOptionsSelection;
    m_headerListSelection = GetComboListSelection (IDC_Header,
                                                   m_headerOptionsSelection);
    
-   m_localActiveFeaturesPtr = (UInt16*)m_rectifyImageOptionsPtr->rectifyChannelPtr;
+   m_localActiveFeaturesPtr = (UInt16*)m_reformatOptionsPtr->channelPtr;
    m_channelSelection = channelSelection;
+   
+   CompareImagesDialogOnCreateImageFile (this, m_createOutputImageFileFlag);
    
   	if (TransferDataToWindow ())
       PositionDialogWindow ();
    
    		// Set default text selection to first edit text item
 	
-   SelectDialogItemText (this, IDC_LineOffset, 0, SInt16_MAX);
+   SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
    
 }	// end "OnInitDialog"
 
@@ -857,7 +681,7 @@ void CMReformatCompareImagesDlg::OnSelendokOutChannels (
 				wxCommandEvent& 					event)
 
 {
-   m_localActiveNumberFeatures = m_rectifyImageOptionsPtr->numberChannelsToRectify;
+   m_localActiveNumberFeatures = m_reformatOptionsPtr->numberChannels;
    
    HandleChannelsMenu (IDC_Channels,
                        kNoTransformation,
@@ -865,7 +689,7 @@ void CMReformatCompareImagesDlg::OnSelendokOutChannels (
                        kImageChannelType,
                        TRUE);
    
-   m_rectifyImageOptionsPtr->numberChannelsToRectify = m_localActiveNumberFeatures;
+   m_reformatOptionsPtr->numberChannels = m_localActiveNumberFeatures;
    
 }	// end "OnSelendokOutChannels"
 
@@ -877,9 +701,9 @@ void CMReformatCompareImagesDlg::UpdateProcedureItems (
 
 {   
    CompareImagesDialogOnReferenceFile (this,
-                                      m_procedureCode+1,
+                                      m_compareAlgorithmCode,
                                       m_fileNamesSelection+1,
-                                      &m_referenceWindowInfoHandle,
+                                      &m_compareImageWindowInfoHandle,
                                       &m_dialogSelectArea);
    
    		// Set default text selection to first edit text item
@@ -893,8 +717,7 @@ void CMReformatCompareImagesDlg::UpdateProcedureItems (
 bool CMReformatCompareImagesDlg::TransferDataFromWindow ()
 
 {
-   SInt16      						continueCode = 1,
-   										returnCode = 0;
+   SInt16      						returnCode = 0;
 	
 	
    wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
@@ -913,71 +736,14 @@ bool CMReformatCompareImagesDlg::TransferDataFromWindow ()
    m_ColumnEndString = c_end->GetValue ();
    m_ColumnEnd = wxAtoi (m_ColumnEndString);
    
+   m_channelSelection = m_channelsCtrl->GetSelection ();
+   
    m_headerListSelection = m_fileFormatCtrl->GetSelection ();
    SInt64 headerList =
 				(SInt64)((int*)m_fileFormatCtrl->GetClientData (m_headerListSelection));
    m_headerOptionsSelection = (SInt16)headerList;
-   
-   m_channelSelection = m_channelsCtrl->GetSelection ();
-   
-   if (m_procedureCode == kTranslateScaleRotate - 1)
-   	{
-      if (returnCode == 0)
-      	{
-         continueCode = CheckMaxValue (this,
-                                       IDC_LineOffset,
-                                       -kMaxNumberLines,
-                                       kMaxNumberLines,
-                                       kDisplayRangeAlert);
-         if (continueCode != 1)
-            returnCode = IDC_LineOffset;
-			
-      	}	// end "if (returnCode == 0)"
-      
-      if (returnCode == 0)
-      	{
-         continueCode = CheckMaxValue (this,
-                                       IDC_ColumnOffset,
-                                       -kMaxNumberLines,
-                                       kMaxNumberLines,
-                                       kDisplayRangeAlert);
-         if (continueCode != 1)
-            returnCode = IDC_ColumnOffset;
-			
-      	}	// end "if (returnCode == 0)"
-      
-      
-      if (returnCode == 0)
-         returnCode = CheckDialogRealValue (this,
-                                            IDC_LineScale,
-                                            0,
-                                            1000,
-                                            0,
-                                            false,   // minValue not allowed.
-                                            true,      // maxValue is allowed,
-                                            kDisplayRangeAlert);
-      
-      if (returnCode == 0)
-         returnCode = CheckDialogRealValue (this,
-                                            IDC_ColumnScale,
-                                            0,
-                                            1000,
-                                            0,
-                                            false,   // minValue not allowed.
-                                            true,      // maxValue is allowed,
-                                            kDisplayRangeAlert);
-      
-      if (returnCode == 0)
-         returnCode = CheckDialogRealValue (this,
-                                            IDC_RotationClockwise,
-                                            -180,
-                                            180,
-                                            0,
-                                            true,   // minValue is allowed.
-                                            true,      // maxValue is allowed,
-                                            kDisplayRangeAlert);
-      
-   	}	// end "if (m_procedureCode == kTranslateScaleRotate - 1)"
+	
+   m_compareAlgorithmSelection = m_algorithmCtrl->GetSelection ();
    
    if (returnCode == 0)
       returnCode = VerifyLineColumnValues (IDC_LineStart,
@@ -993,10 +759,6 @@ bool CMReformatCompareImagesDlg::TransferDataFromWindow ()
 bool CMReformatCompareImagesDlg::TransferDataToWindow ()
 
 {
-	
-	
-   m_radioBtn19->SetValue (m_procedureCode == kReprojectToReferenceImage-1);
-   
    wxTextCtrl* l_start = (wxTextCtrl*)FindWindow (IDC_LineStart);
    l_start->ChangeValue (wxString::Format (wxT("%d"), m_LineStart));
 	
@@ -1011,11 +773,15 @@ bool CMReformatCompareImagesDlg::TransferDataToWindow ()
 	
    m_channelsCtrl->SetSelection (m_channelSelection);
 	
+   wxCheckBox* createOutputImageFile =
+   										(wxCheckBox*)FindWindow (IDC_CreateOutputImageFile);
+	createOutputImageFile->SetValue (m_createOutputImageFileFlag);
+	
    m_fileFormatCtrl->SetSelection (m_headerListSelection);
 	
    m_referenceListCtrl->SetSelection (m_fileNamesSelection);
 	
-   m_algorithmCtrl->SetSelection (m_resampleSelection);
+   m_algorithmCtrl->SetSelection (m_compareAlgorithmSelection);
    
    return true;
    

@@ -26,8 +26,8 @@
 //
 //	Written By:				Larry L. Biehl			Date: 03/29/1988
 //	Revised By:				Abdur Maud				Date: 06/18/2013
-//	Revised By:				Larry L. Biehl			Date: 08/08/2022
-//	
+//	Revised By:				Larry L. Biehl			Date: 05/15/2024
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -44,7 +44,9 @@
 	#define	mUpMask							0x0004
 	#define	updateMask						0x0040
 	#define	osMask							0x0000
-	#define	GetTickCount()           LinGetTime()
+	#ifndef multispec_wxwin
+		#define	GetTickCount()           LinGetTime()
+	#endif
 	#define	TickCount()					(time_t)GetTickCount()
 	#define	noErr				0
 	#define	fsFromStart		1
@@ -55,7 +57,7 @@
 	#define	ioErr		       -36
 	#define	bdNamErr	       -37
 	#define	eofErr		    -39
-	#define	posErr		    -40
+	#define	filePosErr	    -40
 	#define	tmfoErr		    -42
 	#define	fnfErr		    -43
 	#define	wPrErr		    -44
@@ -469,7 +471,7 @@
 	#define	ioErr								-36
 	#define	bdNamErr							-37
 	#define	eofErr							-39
-	#define	posErr							-40
+	#define	filePosErr						-40
 	#define	tmfoErr							-42
 	#define	fnfErr							-43
 	#define	wPrErr							-44
@@ -684,8 +686,12 @@
 #define	kLandsatLC9_OLI_TIRS				20
 #define	kLandsatLC9_OLI					21
 #define	kLandsatLC9_TIRS					22
+#define	kPRISMA_VNIR						23
+#define	kPRISMA_SWIR						24
+#define	kPRISMA_PAN							25
+#define	kEO1_HYPERION						26
 
-#define	kNumberInstrumentCodes			22
+#define	kNumberInstrumentCodes			26
 
 		// Image type codes
 #define	kNoImageType						0
@@ -1502,6 +1508,8 @@
 #define	SInt16_MIN							-32768
 #define	UInt16_MAX                 	65535
 
+#define	kMaxMemoryRequest					1000000000000LL
+
 		// Class table constants.															
 #define	kListNoWeights							-1
 #define	kListNoSymbols							0L
@@ -1814,7 +1822,7 @@
 #define	kMaxClassFieldNameLength			31
 #define	kMaxNumberClasses						65536
 #define	kMaxNumberDisplayClasses			65536
-#define	kMaxNumberChannels					16384
+#define	kMaxNumberChannels					32768	// 16384
 #define	kMaxNumberColumns						300000
 #define	kMaxNumberOSXDisplayColumns		32767
 

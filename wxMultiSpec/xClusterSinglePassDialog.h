@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 10/08/2019
+//	Revised By:				Larry L. Biehl			Date: 03/25/2023
 //	
 //------------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ class CMSinglePassClusterDialog : public CMDialog
 		CMSinglePassClusterDialog (
 				wxWindow*							parent,
 				wxWindowID							id = IDD_Cluster,
-				const wxString&					title = wxT("Set Cluster Specifications"));
+				const wxString&					title = wxT("Set Single Pass Cluster Specifications"));
 	
 				// standard desctructor
 		~CMSinglePassClusterDialog ();

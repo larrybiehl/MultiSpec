@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xLegendView:: (): %s",
 									 gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -109,6 +110,151 @@ CMLegendView::~CMLegendView ()
 
 }	// end "~CMLegendView"
 
+
+/*
+//------------------------------------------------------------------------------------
+//								 Copyright (1988-2018)
+//								(c) Purdue Research Foundation
+//									All rights reserved.
+//
+//	Function name:		void AdjustLegendListLength
+//
+//	Software purpose:	This routine adjust the length of the legend
+//							list in response to a change in the size of the
+//							image window.
+//
+//	Parameters in:				
+//
+//	Parameters out:				
+//
+// Value Returned:	None
+// 
+// Called By:			ShowHideCoordinateView in menu.c
+//							DoWindowZoomInOutEvent in multiSpec.c
+//							DoNonGraphicsWindowGrow in multiSpec.c
+// 						AdjustImageWSize in SOpnImag.cpp
+//							ChangeLegendWidth in window.c
+//
+//	Coded By:			Larry L. Biehl			Date: 01/29/1990
+//	Revised By:			Larry L. Biehl			Date: 09/08/2006			
+
+void AdjustLegendListLength (
+				WindowPtr							theWindow, 
+				Boolean								invalFlag)
+
+{
+			//	Local Declarations
+			
+	Rect									rectangle; 	
+	
+	ListHandle							legendListHandle;	
+	WindowInfoHandle					windowInfoHandle;	
+	
+	SInt16								cellHeight,
+											listTop,
+											newListBottom,
+											newListHeight,
+											oldListBottom,
+											windowType;													
+	
+	Boolean								legendListMovedFlag;
+	
+   
+   		// Check input parameters.															
+   		
+   if (theWindow == NULL)
+																									return;
+   																						
+	windowInfoHandle = (WindowInfoHandle)GetWRefCon (theWindow);
+   if (windowInfoHandle == NULL)
+																									return;
+   																								
+	windowType = ((WindowInfoPtr)*windowInfoHandle)->windowType;
+
+   if (windowType == kThematicWindowType && 
+   							((WindowInfoPtr)*windowInfoHandle)->legendWidth > 6)
+   	{
+   			// Get height of legend list.  Make it an integral multiple of		
+   			// the cell size.																	
+   	
+   	legendListHandle = ((WindowInfoPtr)*windowInfoHandle)->legendListHandle;
+   	if (legendListHandle == NULL)
+																									return;
+   																						
+		GetWindowClipRectangle (theWindow, kImageScrollArea, &rectangle);
+   	cellHeight = ((ListPtr)*legendListHandle)->cellSize.v;
+   	newListHeight = ((rectangle.bottom - rectangle.top -
+												15 - 2 - kSBarWidth)/cellHeight) * cellHeight;
+   										
+   			// Save the current bottom of the list area.								
+   			
+   	oldListBottom = ((ListPtr)*legendListHandle)->rView.bottom;
+   	
+   			// Change the position of the list top if needed.
+   	
+   	listTop = 16 + rectangle.top;
+   	legendListMovedFlag = FALSE;
+   	if (listTop != ((ListPtr)*legendListHandle)->rView.top)
+   		{
+   		((ListPtr)*legendListHandle)->rView.top = listTop;
+   		legendListMovedFlag = TRUE;
+   		
+   		}	// end "if (listTop != ((ListPtr)*legendListHandle)->rView.top)"
+   	
+   			// Resize the list if needed.													
+   	
+   	if (newListHeight != oldListBottom-15 || legendListMovedFlag)
+   		LSize (gActiveLegendWidth-2-4, newListHeight, legendListHandle);
+   	
+   			// Get the new list bottom.													
+   			
+   	newListBottom = ((ListPtr)*legendListHandle)->rView.bottom;
+   			
+   			// Invalidate a strip along the left edge of the image if the		
+   			// new window is taller than the previous window.  For some			
+   			// reason 'LSize' validates a strip about 15 pixels wide to the	
+   			// right of the edge of the list area.										
+   			// Also invalidate the new area that was added to the list at the	
+   			// bottom.																			
+   			
+   	if (invalFlag)
+   		{
+  			rectangle.top = rectangle.top + 15 - 1;
+  			rectangle.bottom = newListBottom + 1;
+  			rectangle.left   = gActiveLegendWidth;
+  			rectangle.right  = gActiveLegendWidth + 15;
+  			InvalWindowRect (theWindow, &rectangle);
+  			
+  			}	// end "if (invalFlag)" 
+  			
+  		if (newListBottom > oldListBottom)
+  			{
+  			rectangle.top = oldListBottom;
+  			rectangle.bottom = newListBottom;
+  			rectangle.left   = 0;
+  			rectangle.right  = gActiveLegendWidth;
+  			InvalWindowRect (theWindow, &rectangle);
+  			
+  			}	// end "if (newListBottom != oldListBottom)" 
+   			
+   			// Erase a strip along the bottom that is the height of one			
+   			//	cell to be sure that a half a cell is not left on the screen.	
+   	
+   	else if (newListBottom < oldListBottom)
+   		{
+			GetWindowPortBounds (theWindow, &gTempRect);
+  			rectangle.top = newListBottom;
+  			rectangle.bottom = gTempRect.bottom - kSBarWidth;
+  			rectangle.left   = 0;
+  			rectangle.right  = gActiveLegendWidth;
+  			EraseRect (&rectangle);
+  			
+  			}	// end "else if (newListBottom < oldListBottom)" 
+   	
+   	}	// end "if (windowType == kThematicWindowType && ..." 
+
+}	// end "AdjustLegendListLength" 
+*/
 
 
 CMImageFrame* CMLegendView::GetImageFrameCPtr (void)
@@ -334,16 +480,16 @@ void CMLegendView::SetupView ()
    wxBoxSizer* bSizer133;
    bSizer133 = new wxBoxSizer (wxVERTICAL);
 
-   wxString m_choice16Choices[] = {wxT("Classes"),
+   wxString choice16Choices[] = {wxT("Classes"),
 												//wxT("Groups"),
 												wxT("Groups / Classes")};
-   int m_choice16NChoices = sizeof (m_choice16Choices) / sizeof (wxString);
+   int choice16NChoices = sizeof (choice16Choices) / sizeof (wxString);
    m_legendTitleCtrl = new wxChoice (this,
 													IDC_COMBO1,
 													wxDefaultPosition,
 													wxDefaultSize,
-													m_choice16NChoices,
-													m_choice16Choices,
+													choice16NChoices,
+													choice16Choices,
 													0);
    m_legendTitleCtrl->SetSelection (0);
    bSizer133->Add (m_legendTitleCtrl,

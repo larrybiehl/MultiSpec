@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			05/14/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -50,17 +50,24 @@ BEGIN_EVENT_TABLE (CMClusterDialog, CMDialog)
 
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ChannelCombo, CMClusterDialog::OnChannelComboSelendok)
+		EVT_COMBOBOX (IDC_Algorithm, CMClusterDialog::OnAlgorithmSelection)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMClusterDialog::OnChannelComboSelendok)
+		EVT_CHOICE (IDC_Algorithm, CMClusterDialog::OnAlgorithmSelection)
 	#endif
 
 	EVT_COMBOBOX_CLOSEUP (IDC_ChannelCombo, CMClusterDialog::OnChannelComboCloseUp)
 	EVT_COMBOBOX_DROPDOWN (IDC_ChannelCombo, CMClusterDialog::OnChannelComboDropDown)
 
-	EVT_INIT_DIALOG (CMClusterDialog::OnInitDialog)
+	EVT_COMBOBOX_CLOSEUP (IDC_Algorithm, CMClusterDialog::OnAlgorithmComboCloseUp)
+	EVT_COMBOBOX_DROPDOWN (IDC_Algorithm, CMClusterDialog::OnAlgorithmComboDropDown)
 
-	EVT_RADIOBOX (IDC_Algorithm, CMClusterDialog::OnAlgorithmSelection)
+	EVT_INIT_DIALOG (CMClusterDialog::OnInitDialog)
+	
+	//EVT_LEFT_DOWN(CMClusterDialog::DoAlgorithmClick)
+	
+	//EVT_RADIOBOX (IDC_Algorithm, CMClusterDialog::OnAlgorithmSelection)
 	EVT_RADIOBOX (IDC_ClassificationMap, CMClusterDialog::OnClassifySelectedArea)
 
 	EVT_TEXT (IDC_ColumnEnd, CMClusterDialog::CheckColumnEnd)
@@ -177,7 +184,45 @@ void CMClusterDialog::CreateControls ()
 
    wxBoxSizer* bSizer139;
    bSizer139 = new wxBoxSizer (wxVERTICAL);
+   
+   wxBoxSizer* bSizer1391;
+   bSizer1391 = new wxBoxSizer (wxHORIZONTAL);
+
+	m_staticText145 = new wxStaticText (this, 
+													wxID_ANY, 
+													wxT("Algorithm:"),
+													wxDefaultPosition,
+													wxDefaultSize, 
+													0);
+	m_staticText145->Wrap (-1);
+	SetUpToolTip (m_staticText145, IDS_ToolTip80);
+	bSizer1391->Add (m_staticText145, 0, wxALL, 5);
+	#if defined multispec_wxlin
+		m_algorithmCtrl = new wxComboBox (this,
+														IDC_Algorithm,
+														wxT("Single Pass...    "),
+														wxDefaultPosition,
+														//wxPoint (40, -1),
+														wxSize (160, -1),
+														0,
+														NULL,
+														wxCB_READONLY);
+	#endif
+	#if defined multispec_wxmac || defined multispec_wxwin
+		m_algorithmCtrl = new wxChoice (this,
+													IDC_Algorithm,
+													wxDefaultPosition,
+													//wxPoint (40, -1),
+													wxSize (160, -1));
+	#endif	// defined multispec_wxmac || defined multispec_wxwin
+	m_algorithmCtrl->Append (wxT("Single Pass...    "));
+	m_algorithmCtrl->Append (wxT("ISODATA...      "));
+	//SetUpToolTip (m_algorithmCtrl, IDS_ToolTip80);
+	m_algorithmCtrl->SetSelection (1);
+	bSizer1391->Add (m_algorithmCtrl, 0, wxALL, 5);
 	
+	bSizer139->Add (bSizer1391, 0, wxALL, 5);
+	/*
    wxString radioBox3Choices[] = {wxT("Single Pass...    "),
 												wxT("ISODATA...      "),
 												wxT("None...      ")};
@@ -196,7 +241,7 @@ void CMClusterDialog::CreateControls ()
    m_algorithmSelectionRadioBox->Show (2, false);
    SetUpToolTip (m_algorithmSelectionRadioBox, IDS_ToolTip80);
    bSizer139->Add (m_algorithmSelectionRadioBox, wxSizerFlags(0).Border(wxBOTTOM, 5));
-
+	*/
 	wxStaticBoxSizer* sbSizer11;
    sbSizer11 = new wxStaticBoxSizer (new wxStaticBox (
    													this,
@@ -238,7 +283,7 @@ void CMClusterDialog::CreateControls ()
 
 	CreateLineColumnControls (sbSizer8);
 	
-   sbSizer11->Add (sbSizer8, wxSizerFlags(1).Expand().Border(wxALL, 3));
+   sbSizer11->Add (sbSizer8, wxSizerFlags(1).ReserveSpaceEvenIfHidden().Expand().Border(wxALL, 3));
 
    wxBoxSizer* bSizer142 = new wxBoxSizer (wxHORIZONTAL);
 
@@ -251,20 +296,20 @@ void CMClusterDialog::CreateControls ()
    m_staticText174->Wrap (-1);
    SetUpToolTip (m_staticText174, IDS_ToolTip82);
    bSizer142->Add (m_staticText174,
-   						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+   						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl84 = new wxTextCtrl (sbSizerStaticBox11,
 												IDC_ClassifyThreshold,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl84->SetValidator (wxTextValidator (wxFILTER_NUMERIC,
    															&m_classifyThresholdString));
    SetUpToolTip (m_textCtrl84, IDS_ToolTip82);
-   bSizer142->Add (m_textCtrl84, wxSizerFlags(0).Border(wxALL, 5));
+   bSizer142->Add (m_textCtrl84, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
-   sbSizer11->Add (bSizer142, wxSizerFlags(0).Expand ());
+   sbSizer11->Add (bSizer142, wxSizerFlags(0).Expand());
 
    bSizer139->Add (sbSizer11, wxSizerFlags(1).Expand().Border(wxTOP|wxRIGHT, 5));
 	
@@ -277,7 +322,7 @@ void CMClusterDialog::CreateControls ()
 
    m_staticText160 = new wxStaticText (this,
 													IDC_ChannelPrompt,
-													wxT("Channel:"),
+													wxT("Channels:"),
 													wxDefaultPosition,
 													wxDefaultSize,
 													0);
@@ -444,9 +489,30 @@ void CMClusterDialog::CreateControls ()
 	CreateStandardButtons (bVSizer1);
 
    SetSizerAndFit (bVSizer1);
+	Layout ();
+	bVSizer1->Fit (this);
+	Centre (wxBOTH);
 	
 }	// end "CreateControls"
 
+
+/*
+void CMClusterDialog::DoAlgorithmClick (
+				wxMouseEvent&						event)
+{
+	int returnCode = event.GetButton ();
+	if (m_clusterProcedure == m_algorithmSelectionRadioBox->GetSelection ())
+		{
+		if (m_clusterProcedure == 0)
+			OnSinglePassAlgorithm ();
+		
+		else if (m_clusterProcedure == 1)
+			OnISODATAAlgorithm ();
+		
+		}	// end "DoAlgorithmClick"
+	
+}	// end "DoAlgorithmClick"
+*/
 
 
 //------------------------------------------------------------------------------------
@@ -542,21 +608,21 @@ void CMClusterDialog::OnAlgorithm (
 {
    if (returnFlag)
 		{
-      if (!m_clusterProcedureSetFlag)
-         FindWindow (wxID_OK)->Enable (true);
+      //if (!m_clusterProcedureSetFlag)
+      //   FindWindow (wxID_OK)->Enable (true);
 
-      m_clusterProcedureSetFlag = TRUE;
+      //m_clusterProcedureSetFlag = TRUE;
 
-      m_clusterProcedure = m_algorithmSelectionRadioBox->GetSelection ();
+      m_clusterProcedure = m_algorithmCtrl->GetSelection ();
 
 		}	// end "if (returnFlag)"
 
    else	// !returnFlag
 		{
-      if (!m_clusterProcedureSetFlag)
-         m_clusterProcedure = 2;
+      //if (!m_clusterProcedureSetFlag)
+      //   m_clusterProcedure = 2;
 
-      m_algorithmSelectionRadioBox->SetSelection (m_clusterProcedure);
+      m_algorithmCtrl->SetSelection (m_clusterProcedure);
 
 		}	// end "else !returnFlag"
 
@@ -564,11 +630,40 @@ void CMClusterDialog::OnAlgorithm (
 
 
 
+void CMClusterDialog::OnAlgorithmComboCloseUp (
+				wxCommandEvent& 					event)
+
+{
+	int clusterProcedure = m_algorithmCtrl->GetSelection ();
+	
+	if (clusterProcedure == -1)
+		m_algorithmCtrl->SetSelection (m_clusterProcedure);
+	
+	event.Skip ();
+	
+}	// end "OnAlgorithmComboCloseUp"
+
+
+
+void CMClusterDialog::OnAlgorithmComboDropDown (
+				wxCommandEvent&					event)
+
+{
+	m_algorithmCtrl->SetSelection (-1);
+	
+}	// end "OnAlgorithmComboDropDown"
+
+
+
 void CMClusterDialog::OnAlgorithmSelection (
 				wxCommandEvent&					event)
 
 {
-   int algorithm = event.GetInt ();
+	//savedAlgorithmSelection = m_classifyListSelection;
+
+	int algorithm = m_algorithmCtrl->GetSelection ();
+	
+   //int algorithm = event.GetInt ();
    if (algorithm == 0)
       OnSinglePassAlgorithm ();
 	
@@ -690,16 +785,17 @@ void CMClusterDialog::OnInitDialog (
    m_channelListType = 1;
 
 			//	Cluster Procedure
-			// Make the "Single Pass" the default cluster algorithm.
-			// Single Pass Cluster.
+			// Make the "ISODATA" the default cluster algorithm if not set yet
 
-   m_clusterProcedureSetFlag = TRUE;
    if (m_clusterProcedure == -1)
 		{
-      FindWindow (wxID_OK)->Enable (FALSE);
-      m_clusterProcedureSetFlag = FALSE;
+		m_clusterProcedure = kISODATA - 1;
+      //FindWindow (wxID_OK)->Enable (FALSE);
+      //m_clusterProcedureSetFlag = FALSE;
 
 		}	// end "if (m_clusterProcedure == -1)"
+		
+   m_clusterProcedureSetFlag = TRUE;
 	
 			// Cluster Mask File output to disk file.
 			//		Adjust for 0 base index.
@@ -774,10 +870,13 @@ void CMClusterDialog::OnOK (
             SInt16 itemHit;
 
             itemHit = DisplayAlert (kOKCancelAlertID,
-												  2, kAlertStrID,
-												  IDS_Alert11,
-												  0,
-												  NULL);
+													2,
+													kAlertStrID,
+													IDS_Alert11,
+													0,
+													NULL,
+													this,
+													kASCIICharString);
             if (itemHit != 1)
                okFlag = FALSE;
 
@@ -941,10 +1040,10 @@ bool CMClusterDialog::TransferDataToWindow ()
    
    if (m_clusterProcedureSetFlag)
 		{
-      m_algorithmSelectionRadioBox->SetSelection (m_clusterProcedure);
+      m_algorithmCtrl->SetSelection (m_clusterProcedure);
 		
 		}	// end "if (m_clusterProcedureSetFlag)"
-
+	
    wxCommandEvent event;
    OnCreateMaskFile (event);
    ClassifyAreaSetting (false, IDC_NoClassificationMap, m_classificationArea);

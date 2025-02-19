@@ -25,8 +25,8 @@
 //
 //	Brief description:	Header file for the CMReformatRectifyDlg class
 //
-//	Written By:				Abdur Rahman Maud		Date: 05/14/2022
-//	Revised By:				Larry L. Biehl			Date: 05/14/2022
+//	Written By:				Larry L. Biehl			Date: 05/14/2022
+//	Revised By:				Larry L. Biehl			Date: 08/26/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -63,10 +63,10 @@ class CMReformatCompareImagesDlg : public CMDialog
 	
 			// Implementation
 	protected:
-		void OnBnClickedReprojectToRadio (
+		void OnBnClickedCreateOutputImageFile (
 				wxCommandEvent& 					event);
-	
-		void OnCbnSelendokResampleMethod (
+				
+		void OnCbnSelendokCompareAlgorithmMethod (
 				wxCommandEvent& 					event);
 	
 		void OnCbnSelendokTargetCombo (
@@ -96,11 +96,12 @@ class CMReformatCompareImagesDlg : public CMDialog
 												m_outputFileInfoPtr;
 	
 		LayerInfoPtr						m_imageLayerInfoPtr;
-		RectifyImageOptionsPtr			m_rectifyImageOptionsPtr;
+		RefCompareImagesOptionsPtr    m_compareImagesOptionsPtr;
 		ReformatOptionsPtr				m_reformatOptionsPtr;
 		WindowInfoPtr						m_imageWindowInfoPtr;
 
-		wxBoxSizer							*bSizer119;
+		wxBoxSizer							*bSizer119,
+												*bSizer120;
 	
 		wxCheckBox							*m_checkBox18,
 												*m_checkBox20;
@@ -108,8 +109,6 @@ class CMReformatCompareImagesDlg : public CMDialog
 		wxChoice								*m_algorithmCtrl,
 												*m_fileFormatCtrl,
 												*m_referenceListCtrl;
-	
-		wxRadioButton						*m_radioBtn19;
 	
 		wxStaticText						*m_staticText361,
 												*m_staticText362,
@@ -141,9 +140,10 @@ class CMReformatCompareImagesDlg : public CMDialog
 												*m_textCtrl160,
 												*m_textCtrl161;
 												
-		Handle								m_referenceWindowInfoHandle;
+		Handle								m_compareImageWindowInfoHandle;
 	
 		int     								m_channelSelection,
+												m_compareAlgorithmSelection,
 			     								m_fileNamesSelection,
 			    								m_headerListSelection,
 												m_kArcViewMenuItem,
@@ -151,19 +151,16 @@ class CMReformatCompareImagesDlg : public CMDialog
 												m_kGAIAMenuItem,
 												m_kMatlabMenuItem,
 												m_kNoneMenuItem,
-												m_kTIFFGeoTIFFMenuItem,
-												m_procedureCode,
-												m_resampleSelection;
+												m_kTIFFGeoTIFFMenuItem;
 	
 		long    								m_columnShift,
 			    								m_lineShift;
 
 		SInt16								m_headerOptionsSelection,
-												m_resampleMethodCode;
-	
-		bool    								m_blankOutsideSelectedAreaFlag,
-			    								m_useMapOrientationAngleFlag;
-	
+												m_compareAlgorithmCode;
+												
+		bool    								m_createOutputImageFileFlag;
+
 		Boolean								m_initializedFlag;
 	
 };	// end "class CMReformatCompareImagesDlg"

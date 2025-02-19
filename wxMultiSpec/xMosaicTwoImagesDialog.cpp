@@ -19,7 +19,7 @@
 //
 // Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-// Revision date:			11/12/2019
+// Revision date:			02/17/2025
 //
 // Language:				C++
 //
@@ -221,7 +221,8 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    bSizer247->Add (m_rightListCtrl, 0, wxALL, 5);
    m_rightListCtrl->SetMinSize (wxSize (250, -1));
 	
-   bSizer119->Add (bSizer247, 0, wxEXPAND | wxLEFT|wxRIGHT, 12);
+   //bSizer119->Add (bSizer247, 0, wxEXPAND | wxLEFT|wxRIGHT, 12);
+   bSizer119->Add (bSizer247, 0, wxEXPAND | wxRIGHT, 12);
    
    wxGridSizer* gSizer13;
    gSizer13 = new wxGridSizer (0, 2, 0, 0);
@@ -305,7 +306,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_LineStart,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    m_textCtrl141->SetValidator (
    									wxTextValidator (wxFILTER_DIGITS, &m_LineStartString));
@@ -315,7 +316,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_LineEnd,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    m_textCtrl142->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_LineEndString));
    bSizer301->Add (m_textCtrl142, 0, wxALL, 5);
@@ -324,7 +325,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											wxID_ANY,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(50, -1),
    											0);
    m_textCtrl143->Hide ();
    bSizer301->Add (m_textCtrl143, 0, wxALL, 5);
@@ -348,7 +349,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_ColumnStart,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    m_textCtrl144->SetValidator (
    								wxTextValidator (wxFILTER_DIGITS, &m_ColumnStartString));
@@ -358,7 +359,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
 												IDC_ColumnEnd,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl145->SetValidator (
 									wxTextValidator (wxFILTER_DIGITS, &m_ColumnEndString));
@@ -368,7 +369,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											wxID_ANY,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(50, -1),
    											0);
    m_textCtrl146->Hide ();
    bSizer303->Add (m_textCtrl146, 0, wxALL, 5);
@@ -395,9 +396,8 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    rightImageSettingsSizer = new wxStaticBoxSizer (rightImageSettingsBox, wxVERTICAL);
    
    wxBoxSizer* bSizer304;
-   
    bSizer304 = new wxBoxSizer (wxHORIZONTAL);
-   
+   /*
    m_bpButton52 = new wxBitmapButton (rightImageSettingsBox,
    												IDEntireImage,
    												entireimi,
@@ -407,15 +407,23 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    
    m_bpButton52->SetBitmapDisabled (entireimi);
    m_bpButton52->Hide ();
-   bSizer304->Add (m_bpButton52, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
-   
+   bSizer304->Add (m_bpButton52,
+							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+   */
    wxBoxSizer* bSizer305;
    bSizer305 = new wxBoxSizer (wxVERTICAL);
+   #if defined multispec_wxmac
+				// This appears to be needed for only the MacOS version.
+		bSizer305->Add (0, 12,
+								wxSizerFlags(0).Expand().Border(wxALL, 5));
+	#endif
    
    wxBoxSizer* bSizer306;
    bSizer306 = new wxBoxSizer (wxHORIZONTAL);
 	
-   bSizer306->Add (100, 0, 0, wxEXPAND, 5);
+   //bSizer306->Add (100, 0, 0, wxEXPAND, 5);
+   bSizer306->Add (100, 0,
+							wxSizerFlags(0).Expand().Border(wxALL, 5));
    
    m_staticText311 = new wxStaticText (rightImageSettingsBox,
    												IDC_StartTitleMosaic2,
@@ -424,9 +432,11 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    												wxDefaultSize,
    												0);
    m_staticText311->Wrap (-1);
-   bSizer306->Add (m_staticText311, 0, wxALL, 5);
+   //bSizer306->Add (m_staticText311, 0, wxALL, 5);
+   bSizer306->Add (m_staticText311,
+							wxSizerFlags(0).Border(wxALL, 5));
    
-   
+
    bSizer306->Add (50, 0, 0, wxEXPAND, 5);
    
    m_staticText312 = new wxStaticText (rightImageSettingsBox,
@@ -459,7 +469,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_LineStart2,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    bSizer307->Add (m_textCtrl147, 0, wxALL, 5);
    
@@ -467,7 +477,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    												IDC_LineEnd2,
    												wxEmptyString,
    												wxDefaultPosition,
-   												wxDefaultSize,
+													wxSize(100, -1),
    												0);
    bSizer307->Add (m_staticText148, 0, wxALL, 5);
    
@@ -491,7 +501,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_ColumnStart2,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    bSizer308->Add (m_textCtrl149, 0, wxALL, 5);
    
@@ -499,7 +509,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_ColumnEnd2,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(100, -1),
    											0);
    bSizer308->Add (m_textCtrl150, 0, wxALL, 5);
 	
@@ -507,14 +517,14 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    
    bSizer304->Add (bSizer305, 1, wxEXPAND, 5);
    
-   SetUpToolTip (m_bpButton52, IDS_ToolTip40);
+   //SetUpToolTip (m_bpButton52, IDS_ToolTip40);
    SetUpToolTip (m_textCtrl147, IDS_ToolTip19);
    SetUpToolTip (m_staticText148, IDS_ToolTip20);
    
    SetUpToolTip (m_textCtrl149, IDS_ToolTip22);
    SetUpToolTip (m_textCtrl150, IDS_ToolTip23);
    
-   rightImageSettingsSizer->Add (bSizer304, 0, wxEXPAND);
+   rightImageSettingsSizer->Add (bSizer304, 1, wxEXPAND);
    
    gSizer13->Add (rightImageSettingsSizer, 1, wxEXPAND | wxLEFT|wxBOTTOM, 6);
    
@@ -614,7 +624,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_LineStart3,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(75, -1),
    											0);
    bSizer297->Add (m_textCtrl137, 0, wxALL, 5);
    
@@ -622,7 +632,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
 												IDC_LineEnd3,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(75, -1),
 												0);
    bSizer297->Add (m_textCtrl138, 0, wxALL, 5);
    
@@ -646,7 +656,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_ColumnStart3,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(75, -1),
    											0);
    bSizer298->Add (m_textCtrl139, 0, wxALL, 5);
    
@@ -654,7 +664,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    												IDC_ColumnEnd3,
    												wxEmptyString,
    												wxDefaultPosition,
-   												wxDefaultSize,
+													wxSize(75, -1),
    												0);
    bSizer298->Add (m_staticText140, 0, wxALL, 5);
    
@@ -693,7 +703,7 @@ void CMMosaicTwoImagesDialog::CreateControls ()
    											IDC_BackgroundValue,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(110, -1),
    											0);
    SetUpToolTip (m_textCtrl136, IDS_ToolTip195);
    bSizer283->Add (m_textCtrl136, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN | wxALL, 5);
@@ -746,7 +756,10 @@ void CMMosaicTwoImagesDialog::CreateControls ()
  
 	CreateStandardButtons (bSizer119);
 	
+   SetSizerAndFit (bSizer119);
    Layout ();
+	bSizer119->Fit (this);
+	Centre (wxBOTH);
 	
 }	// end "CreateControls"
 
@@ -1102,6 +1115,11 @@ void CMMosaicTwoImagesDialog::OnInitDialog (
       PositionDialogWindow ();
    
    SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
+		
+			// This is included because some dialog items may have been hidden/shown.
+			// Need to allow for having to redo the lay out of the dialog.
+   
+   Layout ();
    
 }	// end "OnInitDialog"
 

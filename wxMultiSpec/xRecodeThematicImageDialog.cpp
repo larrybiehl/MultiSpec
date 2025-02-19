@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/08/2019
+//	Revision date:			04/03/2023
 //
 //	Language:				C++
 //
@@ -29,8 +29,9 @@
 //								CMRecodeThematicDialog class.
 //
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
 				(char*)&gTextString3,
+									256,
 				" xRecodeThematicImageDialog::xxx (entered routine. %s",
 				gEndOfLine);
 		ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -101,7 +102,7 @@ void CMRecodeThematicDialog::CreateControls ()
 												IDC_OldValue,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	bSizer374->Add (m_textCtrl173, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 	
@@ -135,14 +136,15 @@ void CMRecodeThematicDialog::CreateControls ()
 	m_operationCtrl->Append (wxT("<="));
 	m_operationCtrl->Append (wxT(">="));
 	m_operationCtrl->Append (wxT("="));
-	m_operationCtrl->Append (wxT("~="));
+	m_operationCtrl->Append (wxT("!="));
    bSizer376->Add (m_operationCtrl, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+   m_operationCtrl->SetToolTip (wxT("<=: less than or equal to; >=: greater than or equal to; =: equalto; !=: not equal to"));
 	
 	m_textCtrl175 = new wxTextCtrl (this,
 												IDC_NewValue,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	bSizer376->Add (m_textCtrl175, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 	
@@ -209,12 +211,12 @@ void CMRecodeThematicDialog::OnInitDialog (
 	m_compareParameterCode = compareParameterCode - 1;
 	m_thresholdImageSelection = thresholdImageSelection - 1;
    
-   		// Set default text selection to first edit text item
-		                                                     
-	SelectDialogItemText (this, IDC_NewValue, 0, SInt16_MAX);
-   
    if (TransferDataToWindow ())
 		PositionDialogWindow ();
+		
+			// Set default text selection to first edit text item
+																			  
+	SelectDialogItemText (this, IDC_NewValue, 0, SInt16_MAX);
 	
 }	// end "OnInitDialog"
 

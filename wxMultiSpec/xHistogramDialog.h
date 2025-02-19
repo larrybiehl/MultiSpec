@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMHistogramSpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 04/26/2022
+//	Revised By:				Larry L. Biehl			Date: 02/10/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ class CMHistogramSpecsDlg : public CMDialog
 		 		wxWindow* 							parent,
 		 		wxWindowID 							id = wxID_ANY,
 		 		const wxString& 					title =
-													wxT("Set Histogram Specifications for:"));
+                                          wxT("Set Histogram Specifications"));
 
 		 ~CMHistogramSpecsDlg (void); // standard desctructor
 
@@ -139,7 +139,7 @@ class CMHistogramSpecsDlg : public CMDialog
 	
 		wxComboBox							*m_comboBox19;
 	
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice								*m_methodCtrl;
 		#endif
 	

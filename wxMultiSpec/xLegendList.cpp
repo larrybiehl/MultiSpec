@@ -20,7 +20,7 @@
 //	Authors:					Wei-Kang Hsu, Larry L. Biehl
 //
 //	Revision date:			01/24/2019 by Tsung Tai
-//								03/30/2022 by Larry L. Biehl
+//								02/05/2024 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -30,12 +30,17 @@
 //								CMLegendList class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xLegendList:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
 */
 //------------------------------------------------------------------------------------
+
+#pragma once
+
+#include "SMultiSpec.h"
 
 #include "SPalette_class.h"
 
@@ -150,7 +155,6 @@ CMLegendList::~CMLegendList ()
 }	// end "~CMLegendList"
 
  
-
 
 void CMLegendList::DrawItem (
 				int 									itemData,
@@ -270,7 +274,15 @@ void CMLegendList::DrawItem (
       imdc.SelectObject (wxNullBitmap);
 		m_ilist->Add (legrect);
 	#endif
-	
+	#if defined multispec_wxwin
+		wxBrush cbrush (*wxicolor);
+		imdc.SetBrush (cbrush);
+		imdc.SetBackground (cbrush);
+		imdc.Clear ();
+		imdc.SelectObject (wxNullBitmap);
+		m_ilist->Add (legrect);
+	#endif
+
 			// Now draw the text.
 			
 	namePtr = (char*)GetHandlePointer (nameHandle, kLock);
@@ -282,7 +294,8 @@ void CMLegendList::DrawItem (
 				
 				// Add class number of class name in group-class display
 				
-		sprintf ((char*)&gTextString[1],
+		snprintf ((char*)&gTextString[1],
+						255,
 						"%3d-",
 						index+1);
 		pstr ((char*)&gTextString[5],
@@ -311,6 +324,11 @@ void CMLegendList::DrawItem (
 		}	// end "else m_listType == kGroupClassDisplay && ..."
 		
 	SetItem (itemID, 1, namestring);
+	wxListItem 		listItem;
+	listItem.SetId (itemID);
+	listItem.SetColumn (1);
+	listItem.SetMask (wxLIST_MASK_TEXT + wxLIST_MASK_IMAGE + wxLIST_MASK_DATA);
+	GetItem (listItem);
 	
 			// Commenting out following line
 			// Seems to scroll list while refreshing causing flickering
@@ -366,7 +384,10 @@ void CMLegendList::DrawListItems ()
 	#if defined multispec_wxmac
    	this->SetColumnWidth (0, 30);
 	#endif
-	
+	#if defined multispec_wxwin
+		this->SetColumnWidth (0, 35);
+	#endif
+
    SetColumnWidth (1, wxLIST_AUTOSIZE);
    Show ();
    
@@ -395,6 +416,141 @@ Handle CMLegendList::GetBitMapInfoHeaderHandle (void)
 	return m_bitMapInfoHeaderHandle;
 	
 }	// end "GetBitMapInfoHeaderHandle"
+
+
+
+SInt16 CMLegendList::GetLegendFullHeight (
+				Boolean									includeTitleFlag)
+
+{
+			// This function is used to get the full height of the legend list
+			// and the legend title for use with copying to the clipboard.
+			
+	wxRect								legendItemRect,
+											listRect;
+	
+	int									listCount,
+											rowHeight;
+	
+	SInt16								legendFullHeight = 0;
+	
+	
+   listCount = GetItemCount ();
+   if (listCount > 0)
+		{
+		if (includeTitleFlag)
+			listCount++;
+		GetItemRect (0, legendItemRect);
+		rowHeight = legendItemRect.GetHeight ();
+   
+		legendFullHeight = listCount * rowHeight;
+		
+		}	// end "if (listCount > 0)"
+	
+	return (legendFullHeight);
+
+}	// end "GetLegendFullHeight"
+
+
+
+void CMLegendList::InsertLegendListIntoClipboard (
+				CDC*									pDC,
+				SInt16								copyType,
+				SInt16								legendWidth,
+				int									left,
+				int									top)
+
+{
+	wxBitmap								legendItemBitmap;
+	wxListItem							legendItem;
+	wxString 							legendItemString;
+	
+	wxRect								legendItemRect;
+	
+	double								legendScale,
+											xScale,
+											yScale;
+	
+   int 									colorChipWidth,
+											leftTitle;
+	
+	long									rowHeight;
+	
+	
+   int listcount = GetItemCount ();
+   if (!m_listReadyFlag)
+      																					return;
+      									
+	
+			// Make sure the scale for the legend is 1.
+			
+	pDC->GetUserScale (&xScale, &yScale);
+	
+	legendScale = 1.;
+	if (copyType == kClipboardCopy)
+		pDC->SetUserScale (1, 1);
+		
+	else if (copyType == kPrinterCopy)
+		{
+		legendScale = gActiveImageViewCPtr->m_printerPaperScaling;
+		pDC->SetUserScale (legendScale, legendScale);
+		
+		}	// end "else if (copyType == kPrinterCopy)"
+
+			// Get the height of each row in the list
+	
+	GetItemRect (0, legendItemRect);
+	rowHeight = legendItemRect.GetHeight ();
+	
+			// Write the legend title
+			
+	SInt16 currentClassGroupCode = (m_LegendView->GetImageView())->GetClassGroupCode ();
+
+	if (currentClassGroupCode  == kClassDisplay)
+   	legendItemString = wxT("Classes");
+   	
+	else if (currentClassGroupCode  == kGroupDisplay)
+   	legendItemString = wxT("Groups");
+   	
+	else	// (currentClassGroupCode  == kGroupClassDisplay)
+   	legendItemString = wxT("Groups / Classes");
+   	
+   wxSize stringWidth = pDC->GetTextExtent (legendItemString);
+   leftTitle = (legendWidth - stringWidth.GetWidth ())/2;
+   leftTitle = MAX (0, leftTitle);
+	pDC->DrawText (legendItemString,
+							leftTitle,
+							top);
+							
+	top += rowHeight;
+	
+			// Get the width of the color chip column
+			
+	//colorChipWidth = GetColumnWidth (0) * legendScale;
+	colorChipWidth = GetColumnWidth (0);
+
+	for (int count=0; count<listcount; count++)
+		{
+		legendItemBitmap = m_ilist->GetBitmap (count);
+		pDC->DrawBitmap (legendItemBitmap, left, top);
+		legendItem.SetId (count);
+		//legendItem.SetMask (wxLIST_MASK_TEXT + wxLIST_MASK_IMAGE + wxLIST_MASK_DATA);
+		legendItem.SetColumn (1);
+		GetItem (legendItem);
+		legendItemString = legendItem.GetText ();
+		pDC->DrawText (legendItemString,
+							left + colorChipWidth,
+							top);
+							
+		top += rowHeight;
+
+		//DrawItem (itemData, itemID);
+
+		}	// end "for (int count=0; count<GetCount (); count++)"
+		
+	pDC->SetUserScale (xScale, yScale);
+	
+}	// end "InsertLegendListIntoClipboard"
 
 
 
@@ -593,7 +749,7 @@ void CMLegendList::OnLButtonDblClk (
 			
 			else		// !(cellLine & 0x8000)
 				{
-				#if defined multispec_wxlin
+				#if defined multispec_wxlin || defined multispec_wxwin
 					if ((m_listType == kGroupClassDisplay) && wxGetKeyState (WXK_CONTROL))
 				#endif
 				#if defined multispec_wxmac
@@ -652,18 +808,18 @@ void CMLegendList::OnLButtonDblClk (
 								wxGetKeyState ((wxKeyCode)0x5a) ||
 										wxGetKeyState ((wxKeyCode)0x2f))
 						#endif
-						#if defined multispec_wxmac
+						#if defined multispec_wxmac || defined multispec_wxwin
 							wxGetKeyState ((wxKeyCode)0x5a))
 						#endif
 					code = 2;
 
 				else if (wxGetKeyState (WXK_ALT) ||
 						#if defined multispec_wxlin
-								wxGetKeyState ((wxKeyCode)0x41) ||
+									wxGetKeyState ((wxKeyCode)0x41) ||
 										wxGetKeyState ((wxKeyCode)0x27))
 						#endif
-						#if defined multispec_wxmac
-								wxGetKeyState ((wxKeyCode)0x41))
+						#if defined multispec_wxmac || defined multispec_wxwin
+							wxGetKeyState ((wxKeyCode)0x41))
 						#endif
 					code = 4;
 			
@@ -713,7 +869,7 @@ void CMLegendList::OnLButtonDown (
 						wxGetKeyState ((wxKeyCode)0x5a) ||
 								wxGetKeyState ((wxKeyCode)0x2f))
 					#endif
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac || defined multispec_wxwin
 						wxGetKeyState ((wxKeyCode)0x5a))
 					#endif
 			code = 2;
@@ -723,13 +879,27 @@ void CMLegendList::OnLButtonDown (
 						wxGetKeyState ((wxKeyCode)0x41) ||
 								wxGetKeyState ((wxKeyCode)0x27))
 					#endif
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac || defined multispec_wxwin
 						wxGetKeyState ((wxKeyCode)0x41))
 					#endif
 			code = 4;
 	
 		lCell.h = 0;
-		lCell.v = FindItem (-1, cursorPosInList, 0);
+		#if defined multispec_wxlin || defined multispec_wxmac
+			lCell.v = FindItem (-1, cursorPosInList, 0);
+		#endif
+		#if defined multispec_wxwin
+		lCell.v = GetFirstSelected ();
+		/*
+		lCell.v = FindItem (-1, cursorPosInList, wxLIST_FIND_UP);
+		if (lCell.v == wxNOT_FOUND)
+			lCell.v = FindItem (-1, cursorPosInList, wxLIST_FIND_DOWN);
+		if (lCell.v == wxNOT_FOUND)
+			lCell.v = FindItem (-1, cursorPosInList, wxLIST_FIND_LEFT);
+		if (lCell.v == wxNOT_FOUND)
+			lCell.v = FindItem (-1, cursorPosInList, wxLIST_FIND_RIGHT);
+		*/
+		#endif
 		Select (lCell.v);
 		Focus (lCell.v);
 		

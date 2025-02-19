@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        08/08/2022
+//   Revision date:        02/17/2025
 //
 //   Language:					C++
 //
@@ -42,7 +42,7 @@ BEGIN_EVENT_TABLE (CMReformatTransformDlg, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_EV_Eigenvectors, CMReformatTransformDlg::OnSelendokEVEigenvectors)
 	#endif
 
@@ -151,16 +151,20 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText127->Wrap (-1);
-	bSizer92->Add (m_staticText127, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer92->Add (m_staticText127, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer92->Add (m_staticText127,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl48 = new wxTextCtrl (this,
 												IDC_RT_AC_Offset,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl48, IDS_ToolTip250);
-	bSizer92->Add (m_textCtrl48, 0, wxALL, 5);
+	//bSizer92->Add (m_textCtrl48, 0, wxALL, 5);
+	bSizer92->Add (m_textCtrl48,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_staticText128 = new wxStaticText (this,
 													IDC_RT_AC_Plus1,
@@ -169,16 +173,20 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText128->Wrap (-1);
-	bSizer92->Add (m_staticText128, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer92->Add (m_staticText128, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer92->Add (m_staticText128,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl49 = new wxTextCtrl (this,
 												IDC_RT_AC_Factor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl49, IDS_ToolTip251);
-	bSizer92->Add (m_textCtrl49, 0, wxALL, 5);
+	//bSizer92->Add (m_textCtrl49, 0, wxALL, 5);
+	bSizer92->Add (m_textCtrl49,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_staticText129 = new wxStaticText (this,
 													IDC_RT_AC_OldValue,
@@ -187,19 +195,24 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText129->Wrap (-1);
-	bSizer92->Add (m_staticText129, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer92->Add (m_staticText129, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer92->Add (m_staticText129,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl50 = new wxTextCtrl (this,
 												IDC_RT_AC_Divisor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl50, IDS_ToolTip251);
-	bSizer92->Add (m_textCtrl50, 0, wxALL, 5);
+	//bSizer92->Add (m_textCtrl50, 0, wxALL, 5);
+	bSizer92->Add (m_textCtrl50,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
-	//bSizer85->Add (bSizer92, 0, wxEXPAND);
-	bSizer85->Add (bSizer92, wxSizerFlags(0).Expand());
+	//bSizer85->Add (bSizer92, wxSizerFlags(0).Expand());
+	bSizer85->Add (bSizer92,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand());
 	
 	bSizer84->Add (bSizer85,
 						wxSizerFlags(0).Expand().ReserveSpaceEvenIfHidden().
@@ -237,15 +250,19 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText130->Wrap (-1);
-	bSizer94->Add (m_staticText130, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer94->Add (m_staticText130, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer94->Add (m_staticText130,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl51 = new wxTextCtrl (this,
 												IDC_RT_ACbyC_Factor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
-	bSizer94->Add (m_textCtrl51, 0, wxALL, 5);
+	//bSizer94->Add (m_textCtrl51, 0, wxALL, 5);
+	bSizer94->Add (m_textCtrl51,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_staticText131 = new wxStaticText (this,
 													IDC_RT_ACbyC_ChannelPrompt,
@@ -254,15 +271,19 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText131->Wrap (-1);
-	bSizer94->Add (m_staticText131, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer94->Add (m_staticText131, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer94->Add (m_staticText131,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl52 = new wxTextCtrl (this,
 												IDC_RT_ACbyC_ChannelNumber,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
-	bSizer94->Add (m_textCtrl52, 0, wxALL, 5);
+	//bSizer94->Add (m_textCtrl52, 0, wxALL, 5);
+	bSizer94->Add (m_textCtrl52,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer86->Add (bSizer94, 0, wxEXPAND);
 	
@@ -282,9 +303,8 @@ void CMReformatTransformDlg::CreateControls ()
 												wxDefaultSize,
 												0);
 	SetUpToolTip (m_radioBtn7, IDS_ToolTip253);
-	bSizer103->Add (
-				m_radioBtn7,
-				wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxBOTTOM, 5));
+	bSizer103->Add (m_radioBtn7,
+						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxTOP|wxBOTTOM, 5));
 	
 	m_staticText145 = new wxStaticText (this,
 													IDC_RT_EV_PCEigenvectors,
@@ -294,7 +314,9 @@ void CMReformatTransformDlg::CreateControls ()
 													0);
 	m_staticText145->Wrap (-1);
    SetUpToolTip (m_staticText145, IDS_ToolTip254);
-	bSizer103->Add (m_staticText145, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer103->Add (m_staticText145, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer103->Add (m_staticText145,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 	
 	m_staticText134 = new wxStaticText (this,
 													IDC_RT_EV_FEEigenvectors,
@@ -304,7 +326,9 @@ void CMReformatTransformDlg::CreateControls ()
 													0);
 	m_staticText134->Wrap (-1);
    SetUpToolTip (m_staticText134, IDS_ToolTip255);
-	bSizer103->Add (m_staticText134, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer103->Add (m_staticText134, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer103->Add (m_staticText134,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
 	GetAllSubsetMenuControl (kChannelsMenu,
 										this,
@@ -328,12 +352,19 @@ void CMReformatTransformDlg::CreateControls ()
 	m_staticText135 = new wxStaticText (
 					this,
 					IDC_RT_EV_NumberBits,
-					wxT("Recommended minimum number of bits - All PC Components:\r                                                                 Selected Components:"),
+					#if defined multispec_wxlin || defined multispec_wxmac
+						wxT("Recommended minimum number of bits - All PC Components:\r                                                                  Selected Components:"),
+					#endif
+					#if defined multispec_wxwin
+						wxT("Recommended minimum number of bits - All PC Components:\r\n                                                                  Selected Components:"),
+					#endif
 					wxDefaultPosition,
 					wxDefaultSize,
 					0);
 	m_staticText135->Wrap (-1);
-	bSizer106->Add (m_staticText135, 0, wxALIGN_RIGHT | wxALL, 5);
+	//bSizer106->Add (m_staticText135, 0, wxALIGN_RIGHT | wxALL, 5);
+	bSizer106->Add (m_staticText135,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_RIGHT).Border(wxALL, 5));
 	
 	bSizer104->Add (bSizer106, 0, 0, 5);
 	
@@ -347,7 +378,9 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText136->Wrap (-1);
-	bSizer105->Add (m_staticText136, 0, wxTOP, 5);
+	//bSizer105->Add (m_staticText136, 0, wxTOP, 5);
+	bSizer105->Add (m_staticText136,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxTOP, 5));
 	
 	m_staticText137 = new wxStaticText (this,
 													IDC_RT_EV_SelComponents,
@@ -356,7 +389,9 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText137->Wrap (-1);
-	bSizer105->Add (m_staticText137, 0, 0, 5);
+	//bSizer105->Add (m_staticText137, 0, 0, 5);
+	bSizer105->Add (m_staticText137,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxBOTTOM, 5));
 	
 	bSizer104->Add (bSizer105, 0, wxEXPAND);
 	
@@ -374,15 +409,19 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText140->Wrap (-1);
-	bSizer111->Add (m_staticText140, 0, wxALIGN_CENTER | wxLEFT, 5);
+	//bSizer111->Add (m_staticText140, 0, wxALIGN_CENTER | wxLEFT, 5);
+	bSizer111->Add (m_staticText140,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 	
 	m_textCtrl56 = new wxTextCtrl (this,
 												IDC_EV_ScaleFactor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
-	bSizer111->Add (m_textCtrl56, 0, wxALIGN_CENTER | wxLEFT, 5);
+	//bSizer111->Add (m_textCtrl56, 0, wxALIGN_CENTER | wxLEFT, 5);
+	bSizer111->Add (m_textCtrl56,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 	
 	bSizer87->Add (bSizer111, 1, wxEXPAND);
 	
@@ -415,7 +454,9 @@ void CMReformatTransformDlg::CreateControls ()
 	comboBox14->Append (wxT("to Radiant Temperature (K)"));
 	comboBox14->Append (wxT("to Radiant Temperature (C)"));
 	comboBox14->Append (wxT("to Radiant Temperature (F)"));
-	bSizer96->Add (comboBox14, wxSizerFlags(0).Border(wxALL, 5));
+	//bSizer96->Add (comboBox14, wxSizerFlags(0).Border(wxALL, 5));
+	bSizer96->Add (comboBox14,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer88->Add (bSizer96, 0, wxALL | wxEXPAND, 5);
 	
@@ -434,13 +475,13 @@ void CMReformatTransformDlg::CreateControls ()
 	m_AlgebraicEqualSign1->Wrap (-1);
 	//bSizer97->Add (m_AlgebraicEqualSign1, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	bSizer97->Add (m_AlgebraicEqualSign1,
-						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 	
 	m_AT_offsetTextCtrl = new wxTextCtrl (this,
 														IDC_RT_AT_Offset,
 														wxEmptyString,
 														wxDefaultPosition,
-														wxDefaultSize,
+														wxSize(100, -1),
 														0);
 	m_AT_offsetTextCtrl->SetValidator (doubleValue8Digits);
    SetUpToolTip (m_AT_offsetTextCtrl, IDS_ToolTip250);
@@ -466,7 +507,8 @@ void CMReformatTransformDlg::CreateControls ()
 																0);
    SetUpToolTip (m_AT_numereratorTextCtrl, IDS_ToolTip259);
 	//bSizer112->Add (m_AT_numereratorTextCtrl, 0, wxALIGN_CENTER, 5);
-	bSizer112->Add (m_AT_numereratorTextCtrl, wxSizerFlags(0).Align(wxALIGN_CENTER));
+	bSizer112->Add (m_AT_numereratorTextCtrl,
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER));
 	
 	m_staticText144 = new wxStaticText (this,
 													IDC_RT_AT_Line,
@@ -478,7 +520,7 @@ void CMReformatTransformDlg::CreateControls ()
 	m_staticText144->Wrap (-1);
 	//bSizer112->Add (m_staticText144, 0, wxALIGN_CENTER | wxBOTTOM, 10);
 	bSizer112->Add (m_staticText144,
-							wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM, 10));
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxBOTTOM, 10));
 	
 	m_AT_denominatorTextCtrl = new wxTextCtrl (this,
 																IDC_RT_AT_Denominator,
@@ -488,7 +530,8 @@ void CMReformatTransformDlg::CreateControls ()
 																0);
    SetUpToolTip (m_AT_denominatorTextCtrl, IDS_ToolTip260);
 	//bSizer112->Add (m_AT_denominatorTextCtrl, 0, wxALIGN_CENTER);
-	bSizer112->Add (m_AT_denominatorTextCtrl, wxSizerFlags(0).Align(wxALIGN_CENTER));
+	bSizer112->Add (m_AT_denominatorTextCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER));
 	
 	//bSizer97->Add (bSizer112, 0, wxEXPAND);
 	bSizer97->Add (bSizer112, wxSizerFlags(0).Expand());
@@ -506,7 +549,7 @@ void CMReformatTransformDlg::CreateControls ()
 														IDC_RT_AT_Factor,
 														wxEmptyString,
 														wxDefaultPosition,
-														wxDefaultSize,
+														wxSize(100, -1),
 														0);
 	m_AT_factorTextCtrl->SetValidator (doubleValue8Digits);
    SetUpToolTip (m_AT_factorTextCtrl, IDS_ToolTip258);
@@ -534,13 +577,13 @@ void CMReformatTransformDlg::CreateControls ()
 												IDC_RT_AT_Therm_K2,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	textCtrl97B_2->SetValidator (doubleValue8Digits);
    SetUpToolTip (textCtrl97B_2, IDS_ToolTip8702);
 	//bHSizer97B->Add (textCtrl97B_2, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	bHSizer97B->Add (textCtrl97B_2,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).
 														Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 	
 	wxStaticText*	staticText97B_3;
@@ -553,7 +596,7 @@ void CMReformatTransformDlg::CreateControls ()
 	staticText97B_3->Wrap (-1);
 	//bHSizer97B->Add (staticText97B_3, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	bHSizer97B->Add (staticText97B_3,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).
 														Border(wxTOP|wxBOTTOM, 5));
 	
 	wxTextCtrl*	textCtrl97B_4;
@@ -561,13 +604,13 @@ void CMReformatTransformDlg::CreateControls ()
 												IDC_RT_AT_Therm_K1,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	textCtrl97B_4->SetValidator (doubleValue8Digits);
    SetUpToolTip (textCtrl97B_4, IDS_ToolTip8701);
 	//bHSizer97B->Add (textCtrl97B_4, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	bHSizer97B->Add (textCtrl97B_4,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).
 														Border(wxTOP|wxBOTTOM, 5));
 	
 	wxStaticText*	staticText97B_5;
@@ -580,7 +623,7 @@ void CMReformatTransformDlg::CreateControls ()
 	staticText97B_5->Wrap (-1);
 	//bHSizer97B->Add (staticText97B_5, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
 	bHSizer97B->Add (staticText97B_5,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).
 														Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 	
 	//bSizer88->Add (bHSizer97B, 0, wxEXPAND);
@@ -604,7 +647,8 @@ void CMReformatTransformDlg::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_radioBtn9, IDS_ToolTip261);
-	bSizer98->Add (m_radioBtn9, wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 5));
+	bSizer98->Add (m_radioBtn9,
+						wxSizerFlags(0).Border(wxTOP|wxBOTTOM, 5));
 	
 	bSizer89->Add (bSizer98, 0, wxALL | wxEXPAND, 5);
 	
@@ -626,7 +670,9 @@ void CMReformatTransformDlg::CreateControls ()
 	comboBox13->Append (wxT("Kth Smallest Value"));
 	comboBox13->Append (wxT("Latest Threshold Channel"));
 	comboBox13->Append (wxT("Earliest Threshold Channel"));
-	bSizer99->Add (comboBox13, 0, wxALL, 5);
+	//bSizer99->Add (comboBox13, 0, wxALL, 5);
+	bSizer99->Add (comboBox13,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_staticText132 = new wxStaticText (this,
 													IDC_FunctionFactorPrompt,
@@ -635,15 +681,19 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText132->Wrap (-1);
-	bSizer99->Add (m_staticText132, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer99->Add (m_staticText132, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer99->Add (m_staticText132,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl53 = new wxTextCtrl (this,
 												IDC_FunctionFactor,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
-	bSizer99->Add (m_textCtrl53, 0, wxALL, 5);
+	//bSizer99->Add (m_textCtrl53, 0, wxALL, 5);
+	bSizer99->Add (m_textCtrl53,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer89->Add (bSizer99, 0, wxEXPAND);
 	
@@ -659,7 +709,9 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText133->Wrap (-1);
-	bSizer102->Add (m_staticText133, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer102->Add (m_staticText133, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer102->Add (m_staticText133,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl54 = new wxTextCtrl (this,
 												IDC_kth_SmallestValue,
@@ -667,7 +719,9 @@ void CMReformatTransformDlg::CreateControls ()
 												wxDefaultPosition,
 												wxDefaultSize,
 												0);
-	bSizer102->Add (m_textCtrl54, 0, wxALL, 5);
+	//bSizer102->Add (m_textCtrl54, 0, wxALL, 5);
+	bSizer102->Add (m_textCtrl54,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer89->Add (bSizer102, 1, wxEXPAND);
 	
@@ -683,15 +737,19 @@ void CMReformatTransformDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText143->Wrap (-1);
-	bSizer103->Add (m_staticText143, 0, wxALIGN_CENTER | wxALL, 5);
+	//bSizer103->Add (m_staticText143, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer103->Add (m_staticText143,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 	
 	m_textCtrl44 = new wxTextCtrl (this,
 												IDC_Threshold_Value,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
-	bSizer103->Add (m_textCtrl44, 0, wxALL, 5);
+	//bSizer103->Add (m_textCtrl44, 0, wxALL, 5);
+	bSizer103->Add (m_textCtrl44,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer89->Add (bSizer103, 1, wxEXPAND);
 	
@@ -1525,11 +1583,13 @@ bool CMReformatTransformDlg::TransferDataFromWindow ()
 			stringID = IDS_Alert118 + abs (numberTerms) - 1;
 			
 			DisplayAlert (kErrorAlert2ID,
-							  kStopAlert,
-							  kAlertStrID,
-							  stringID,
-							  0,
-							  NIL);
+								kStopAlert,
+								kAlertStrID,
+								stringID,
+								0,
+								NULL,
+								this,
+								kASCIICharString);
 			
 			}	// end "if (item > 0)"
 		

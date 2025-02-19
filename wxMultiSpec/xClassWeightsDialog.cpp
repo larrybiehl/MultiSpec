@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/15/2018
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -86,12 +86,11 @@ void CMClassWeightsDlg::CreateControls ()
 
 {
    SetSizeHints (wxDefaultSize, wxDefaultSize);
-	
-	wxFont  font (gFontSize,
-						wxFONTFAMILY_MODERN,
-						wxFONTSTYLE_NORMAL,
-						wxFONTWEIGHT_NORMAL);
 
+   wxFont  font = GetFont();
+   font.SetFamily (wxFONTFAMILY_TELETYPE);
+   font.SetWeight (wxFONTWEIGHT_NORMAL);
+	
    bSizer136 = new wxBoxSizer (wxVERTICAL);
 
    wxBoxSizer* bSizer137;
@@ -103,25 +102,25 @@ void CMClassWeightsDlg::CreateControls ()
    m_staticText188 = new wxStaticText (
 							this,
 							wxID_ANY,
-							wxT("Class                                            - Weight"),
+							wxT("Class                                                             - Weight"),
 							wxDefaultPosition,
 							wxDefaultSize,
 							0);
    m_staticText188->Wrap (-1);
    SetUpToolTip (m_staticText188, IDS_ToolTip329);
-   bSizer139->Add (m_staticText188, 0, wxLEFT, 25);
+	bSizer139->Add (m_staticText188, wxSizerFlags(0).Border(wxLEFT, 25));
 
    m_listBox1 = new wxListBox (this,
 											IDC_List,
 											wxDefaultPosition,
-											wxSize (320, 250),
+											wxSize (350, 260),
 											0,
 											NULL,
 											wxLB_MULTIPLE|wxLB_NEEDED_SB);
 	m_listBox1->SetFont (font);
-	bSizer139->Add (m_listBox1, 0, wxALL, 5);
+	bSizer139->Add (m_listBox1, wxSizerFlags(0).Border(wxALL, 5));
 
-   bSizer137->Add (bSizer139, 0, wxALL, 12);
+	bSizer137->Add (bSizer139, wxSizerFlags(0).Border(wxLEFT|wxTOP|wxRIGHT, 12));
 
    wxBoxSizer* bSizer140;
    bSizer140 = new wxBoxSizer (wxVERTICAL);
@@ -133,7 +132,7 @@ void CMClassWeightsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
    m_staticText189->Wrap (-1);
-   bSizer140->Add (m_staticText189, 0, wxALL, 5);
+	bSizer140->Add (m_staticText189, wxSizerFlags(0).Border(wxALL, 5));
 
    m_radioBtn11 = new wxRadioButton (this,
 													IDC_UnitsRelative,
@@ -142,7 +141,7 @@ void CMClassWeightsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
    SetUpToolTip (m_radioBtn11, IDS_ToolTip333);
-   bSizer140->Add (m_radioBtn11, 0, wxLEFT, 15);
+	bSizer140->Add (m_radioBtn11, wxSizerFlags(0).Border(wxLEFT, 15));
 
    m_radioBtn12 = new wxRadioButton (this,
 													IDC_UnitsPercent,
@@ -151,7 +150,7 @@ void CMClassWeightsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
    SetUpToolTip (m_radioBtn12, IDS_ToolTip334);
-   bSizer140->Add (m_radioBtn12, 0, wxLEFT, 15);
+	bSizer140->Add (m_radioBtn12, wxSizerFlags(0).Border(wxLEFT, 15));
 
    m_staticText190 = new wxStaticText (this,
 													wxID_ANY,
@@ -161,7 +160,7 @@ void CMClassWeightsDlg::CreateControls ()
 													0);
    m_staticText190->Wrap (-1);
    SetUpToolTip (m_staticText190, IDS_ToolTip335);
-   bSizer140->Add (m_staticText190, 0, wxALL, 5);
+	bSizer140->Add (m_staticText190, wxSizerFlags(0).Border(wxALL, 5));
 
    m_staticText191 = new wxStaticText (this,
 													IDC_WeightTotal,
@@ -171,11 +170,11 @@ void CMClassWeightsDlg::CreateControls ()
 													0);
    m_staticText191->Wrap (-1);
    SetUpToolTip (m_staticText191, IDS_ToolTip335);
-   bSizer140->Add (m_staticText191, 0, wxLEFT, 15);
+	bSizer140->Add (m_staticText191, wxSizerFlags(0).Border(wxLEFT, 15));
 
-   bSizer137->Add (bSizer140, 0, wxALL, 12);
+	bSizer137->Add (bSizer140, wxSizerFlags(0).Border(wxALL, 12));
 
-   bSizer136->Add (bSizer137, 0, wxEXPAND, 5);
+	bSizer136->Add (bSizer137, wxSizerFlags(0).Expand());
 
    wxBoxSizer* bSizer138;
 	bSizer138 = new wxBoxSizer (wxHORIZONTAL);
@@ -190,7 +189,7 @@ void CMClassWeightsDlg::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText192->Wrap (-1);
-	bSizer141->Add (m_staticText192, 0, wxALL, 5);
+	bSizer141->Add (m_staticText192, wxSizerFlags(0).Border(wxALL, 5));
 	
 	wxBoxSizer* bSizer143;
 	bSizer143 = new wxBoxSizer (wxHORIZONTAL);
@@ -202,19 +201,22 @@ void CMClassWeightsDlg::CreateControls ()
 										wxDefaultSize,
 										0);
    SetUpToolTip (m_button30, IDS_ToolTip330);
-	bSizer143->Add (m_button30, 0, wxALL, 5);
+	bSizer143->Add (m_button30, wxSizerFlags(0).Border(wxALL, 5));
 	
 	m_textCtrl89 = new wxTextCtrl (this,
 												IDC_Weight,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl89->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_weightString));
    SetUpToolTip (m_textCtrl89, IDS_ToolTip331);
-	bSizer143->Add (m_textCtrl89, 0, wxALL, 5);
+	bSizer143->Add (m_textCtrl89, wxSizerFlags(0).Border(wxALL, 5));
 	
-	bSizer141->Add (bSizer143, 0, wxEXPAND, 5);
+	bSizer141->Add (bSizer143, wxSizerFlags(0).Expand());
+	
+	wxBoxSizer* bSizer144;
+	bSizer144 = new wxBoxSizer (wxHORIZONTAL);
 	
 	m_button31 = new wxButton (this,
 										IDC_EqualWeightButton,
@@ -223,17 +225,11 @@ void CMClassWeightsDlg::CreateControls ()
 										wxDefaultSize,
 										0);
    SetUpToolTip (m_button31, IDS_ToolTip332);
-	bSizer141->Add (m_button31, 0, wxALL, 5);
-	
-	bSizer138->Add (bSizer141, 0, wxALL|wxEXPAND, 12);
-	
-	bSizer138->Add (0, 0, 0, wxEXPAND, 5);
+	//bSizer141->Add (m_button31, 0, wxALL, 5);
+	bSizer144->Add (m_button31, wxSizerFlags(0).Border(wxALL, 5));
 	
 	wxBoxSizer* bSizer142;
 	bSizer142 = new wxBoxSizer (wxVERTICAL);
-	
-	wxBoxSizer* bSizer144;
-	bSizer144 = new wxBoxSizer (wxHORIZONTAL);
 	
 	m_button34 = new wxButton (this,
 										IDC_HelpButton,
@@ -242,13 +238,17 @@ void CMClassWeightsDlg::CreateControls ()
 										wxDefaultSize,
 										0);
    SetUpToolTip (m_button34, IDS_ToolTip336);
-	bSizer144->Add (m_button34, 0, wxALL, 5);
+	bSizer142->Add (m_button34, wxSizerFlags(0).Border(wxALL, 5));
 	
-	bSizer142->Add (bSizer144, 1, wxALIGN_RIGHT);
-
-	bSizer138->Add (bSizer142, 0, wxEXPAND|wxLEFT|wxTOP|wxRIGHT, 12);
+	bSizer144->Add (bSizer142, wxSizerFlags(0).Border(wxLEFT, 245));
 	
-	bSizer136->Add (bSizer138, 0, wxEXPAND);
+	bSizer141->Add (bSizer144, wxSizerFlags(0).Align(wxALIGN_RIGHT));
+	
+	bSizer138->Add (bSizer141, wxSizerFlags(0).Expand().Border(wxALL, 12));
+	
+	bSizer138->Add (0, 0, 0, wxEXPAND, 5);
+	
+	bSizer136->Add (bSizer138, wxSizerFlags(0).Expand());
 	
 	CreateStandardButtons (bSizer136);
 	
@@ -280,7 +280,7 @@ void CMClassWeightsDlg::CreateControls ()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/15/2009
-//	Revised By:			Larry L. Biehl			Date: 03/13/2018
+//	Revised By:			Larry L. Biehl			Date: 02/16/2025
 
 SInt16 CMClassWeightsDlg::DoDialog (
 				UInt16								numberOutputClassesToUse,
@@ -309,8 +309,6 @@ SInt16 CMClassWeightsDlg::DoDialog (
 
    if (returnCode == wxID_OK)
 		{
-      //OKFlag = TRUE;
-
       weightsSelection = m_weightsSelection;
 
 		}	// end "if (returnCode == IDOK)"
@@ -388,7 +386,7 @@ void CMClassWeightsDlg::OnHelpButton (
 
 {
    SetDLogControlHilite (this, wxID_OK, 255);
-   DisplayAlert (0, 0, kAlertStrID, IDS_Alert7, 0, NULL);
+   DisplayAlert (0, 0, kAlertStrID, IDS_Alert7, 0, NULL, this, kASCIICharString);
    //TextFont (gWindowTextFont); 				// monaco
    //LUpdate (((GrafPtr)dialogPtr)->visRgn, gDialogListHandle);
    SetDLogControlHilite (this, wxID_OK, 0);
@@ -445,25 +443,6 @@ void CMClassWeightsDlg::OnInitDialog (
 		}	// end "if (TransferDataToWindow ())"
 
 }	// end "OnInitDialog"
-
-
-
-void CMClassWeightsDlg::OnOK (
-				wxCommandEvent&					event)
-
-{
-	wxListBox*							listBoxPtr;
-	
-	
-   listBoxPtr = (wxListBox*)FindWindow (IDC_List);
-
-   m_weightsSelection = ClassWeightsDialogOK (this,
-																listBoxPtr,
-																m_numberOutputClassesToUse,
-																m_classListPtr,
-																m_weightsListPtr);
-	
-}	// end "OnOK"
 
 
 

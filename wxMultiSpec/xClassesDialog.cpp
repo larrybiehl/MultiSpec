@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			05/02/2023
 //
 //	Language:				C++
 //
@@ -138,7 +138,7 @@ Boolean CMClassesDlg::DoDialog(
 //	Called By:			
 //
 //	Coded By:			Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:			Larry L. Biehl			Date: 01/12/2018	
+//	Revised By:			Larry L. Biehl			Date: 04/01/2023
 
 void CMClassesDlg::OnInitDialog (
 				wxInitDialogEvent&				event)
@@ -160,6 +160,20 @@ void CMClassesDlg::OnInitDialog (
 																		(SInt32)m_numberInputVecItems,
 																		(SInt32)m_numberOutputItems,
 																		(UInt16*)m_selectedItemsPtr);
+																		
+		int selectedItem = 0;
+		if (m_selectedItemsPtr != NULL)
+			{
+					// This allows for the first item to be a non-selected item in the list
+					// to allow the user to know there are no selected items above the first
+					// one being shown.
+					
+			if (m_selectedItemsPtr[0] > 1)
+				selectedItem = m_selectedItemsPtr[0] - 1;
+
+			}	// end "if (m_selectedItemsPtr != NULL)"
+			
+		listBoxPtr->SetFirstItem (selectedItem);
 				
 				// Set the number of selected items.									
 

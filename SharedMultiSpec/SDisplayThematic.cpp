@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/18/2025
 //
 //	Language:				C
 //
@@ -72,7 +72,7 @@
 	#include "xImageFrame.h"
 	#include "xImageView.h"  
 	#include "xMultiSpec.h"
-#endif	// defined multispec_wx 
+#endif	// defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
 	#define	IDC_Magnification				18
@@ -132,7 +132,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void);
 void RemoveListCells (
 				ListHandle							listHandle);
 
-void UpdateLegendWidth (void);
+Boolean UpdateLegendWidth (void);
 
 
 
@@ -324,7 +324,7 @@ void DisplayColorThematicImage (
 				DisplaySpecsPtr					displaySpecsPtr, 
 				FileInfoPtr							fileInfoPtr, 
 				HPtr									offScreenBufferPtr,
-				UInt32								pixRowBytes, 
+				SInt32								pixRowBytes, 
 				PixMapHandle						savedPortPixMapH, 
 				PixMapHandle						offScreenPixMapH, 
 				LongRect*							rectPtr,
@@ -789,7 +789,7 @@ void DisplayColorThematicImage (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 10/22/2018
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean DisplayThematicDialog (
 				DisplaySpecsPtr					displaySpecsPtr)
@@ -1311,7 +1311,7 @@ Boolean DisplayThematicDialog (
 
 	#if defined multispec_wx
 		CMDisplayThematicDlg* dialogPtr = NULL;
-		dialogPtr = new CMDisplayThematicDlg (NULL);
+		dialogPtr = new CMDisplayThematicDlg (GetMainFrameForDialog());
 
 		CMDisplay* displayCPtr = gActiveImageViewCPtr->m_displayMultiCPtr;
 		displayCPtr->SetDisplaySpecsPtr (displaySpecsPtr);
@@ -1345,7 +1345,7 @@ Boolean DisplayThematicDialog (
 //							DisplayThematicDialog
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2006
-//	Revised By:			Larry L. Biehl			Date: 04/27/2018
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023
 
 void DisplayThematicDialogInitialize (
 				DialogPtr							dialogPtr,
@@ -1502,7 +1502,7 @@ void DisplayThematicDialogInitialize (
 				wxComboBox* dispcombo = ((wxComboBox*)dialogPtr->
 																FindWindow (IDC_ClassesGroupsCombo));
 			#endif
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac || defined multispec_wxwin
 				wxChoice* dispcombo = ((wxChoice*)dialogPtr->
 																FindWindow (IDC_ClassesGroupsCombo));
 			#endif
@@ -1743,7 +1743,7 @@ void DisplayThematicDialogOK (
 // Called By:			DisplayImage in SDisplay.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/18/1988
-//	Revised By:			Larry L. Biehl			Date: 03/30/2020
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
 
 Boolean DisplayThematicImage (void)
 
@@ -1762,6 +1762,7 @@ Boolean DisplayThematicImage (void)
 	Boolean								continueFlag = TRUE,
 											displayChangedFlag,
 											imageDisplayedFlag = FALSE,
+											legendWidthChangedFlag,
 											paletteChangedFlag;
 		    		
 	
@@ -1828,7 +1829,7 @@ Boolean DisplayThematicImage (void)
 		{
 		MSetCursor (kWait);
          
-      UpdateLegendWidth ();
+      legendWidthChangedFlag = UpdateLegendWidth ();
 			
 				// Set up the vector to convert image data values to display		
 				// level values.																	
@@ -1917,9 +1918,10 @@ Boolean DisplayThematicImage (void)
 									// List message in Output Text Window that a default group table was
 									// created.
 							
-							int numChars = sprintf ((char*)gTextString3,
-											"    A default group table was created.%s",
-											gEndOfLine);
+							int numChars = snprintf ((char*)gTextString3,
+															256,
+															"    A default group table was created.%s",
+															gEndOfLine);
 							ListString ((char*)gTextString3, numChars, gOutputTextH);
 						
 							}	// end "if (savedNumberGroups == 0 && ..."
@@ -1959,7 +1961,17 @@ Boolean DisplayThematicImage (void)
 							
 						}	// end "else !displayChangedFlag"
 						
-					}	// end "...->grafPortType == kCGrafType" 
+					}	// end "...->grafPortType == kCGrafType"
+					
+				if (legendWidthChangedFlag)
+					{
+							// If the legend width changed set the window to just be around the image
+							// or image & legend depending on if legend is showing.
+
+					CMImageFrame* imageFrameCPtr = gActiveImageViewCPtr->GetImageFrameCPtr ();
+					imageFrameCPtr->MaximizeImageWindow ();
+					
+					}	// end "if (legendWidthChangedFlag)"
 				
 				UpdateImageZoomControls (
 							gActiveImageWindow, displaySpecsPtr->magnification, TRUE);
@@ -2789,7 +2801,7 @@ void LoadLocalClassGroupDisplayInfo (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/19/1989
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
 
 DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 
@@ -2802,7 +2814,8 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 	Handle								displaySpecsHandle;
 	//SInt32								numberBytes;
 
-	Boolean								groupInfoExistsFlag;
+	Boolean								groupInfoExistsFlag,
+											statisticsImageFlag;
 										
 	
 			// Setup and initialize the structure if need.
@@ -2877,31 +2890,40 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 								
 		displaySpecsPtr->thematicClassPaletteType = kDefaultColors;
 		displaySpecsPtr->thematicGroupPaletteType = kDefaultColors;
+			
+				// Determine if this is a statistics image file by whether
+				// .sti or 'statImage' is in the file name. Then indicate the legend
+				// is not to be shown by default.
+		
+		statisticsImageFlag = FALSE;
+		FileStringPtr fileNamePtr =
+					(FileStringPtr)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
+		if ((CompareSuffixNoCase ((char*)"\0.sti", fileNamePtr, NULL) ||
+				strstr ((char*)&fileNamePtr[2], "statImage") != NULL))
+			statisticsImageFlag = TRUE;
 		
 		if (displaySpecsPtr->filePaletteFlag)
 			{			
 			displaySpecsPtr->thematicClassPaletteType = kImageDefaultColorTable;
 			displaySpecsPtr->thematicGroupPaletteType = kImageDefaultColorTable;
+			if (statisticsImageFlag)
+				gImageWindowInfoPtr->showLegend = FALSE;
 			
 			}	// end "if (displaySpecsPtr->filePaletteFlag)" 
 			
 		else	// !displaySpecsPtr->filePaletteFlag 
 			{
-					// Determine if this is a statistics image file by whether		
-					// .sti is in the file name.  If so then make the default		
-					// palette the correlation palette.										
-			
-			FileStringPtr fileNamePtr =
-						(FileStringPtr)GetFileNamePPointerFromFileInfo (gImageFileInfoPtr);
-			if (CompareSuffixNoCase ((char*)"\0.sti", fileNamePtr, NULL))
+			if (statisticsImageFlag)
 				{
+						// Correlation Colors will be the default palette.
+						
 				displaySpecsPtr->thematicClassPaletteType = kCorrelationMatrixColors;
 				displaySpecsPtr->thematicGroupPaletteType = kCorrelationMatrixColors;
 				gImageWindowInfoPtr->showLegend = FALSE;
 				
 				}	// end "if (strPtr != NULL)" 
 			
-			}	// end "else !displaySpecsPtr->filePaletteFlag" 
+			}	// end "if (statisticsImageFlag)" 
 			
 				// Load in any group information if it exists.							
 				
@@ -2915,7 +2937,7 @@ DisplaySpecsPtr LoadThematicDisplaySpecs (void)
 														gImageFileInfoPtr->numberGroups == 16)
 			displaySpecsPtr->classGroupCode = kGroupDisplay;
 			
-				// Indicate that the display specification structure has been		
+				// Indicate that the display specification structure has been
 				// set up the first time.														
 				
 		displaySpecsPtr->firstTime = FALSE;
@@ -3130,9 +3152,9 @@ void RemoveListCells (
 // Called By:			in SDisplayThematic.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/09/2016
-//	Revised By:			Larry L. Biehl			Date: 05/09/2016
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
 
-void UpdateLegendWidth ()
+Boolean UpdateLegendWidth ()
 
 {
    Boolean                       redrawScrollBarFlag = FALSE;
@@ -3166,7 +3188,6 @@ void UpdateLegendWidth ()
                // Invalidate the area for the legend list so that it
                // will be drawn.
       
-      
          GetWindowPortBounds (gActiveImageWindow, &theBox);
          theBox.bottom -= kSBarWidth;
          EraseRect (&theBox);
@@ -3181,7 +3202,16 @@ void UpdateLegendWidth ()
             imageFrameCPtr->SetLegendWidth (gImageWindowInfoPtr->legendWidth);
       #endif	// defined multispec_win
       
+      #if defined multispec_wx
+            CMImageDoc* imageDocCPtr =
+											(CMImageDoc*)gActiveImageViewCPtr->GetDocument ();
+            CMImageFrame* imageFrameCPtr = imageDocCPtr->GetImageFrameCPtr ();
+            imageFrameCPtr->SetLegendWidth (gImageWindowInfoPtr->legendWidth);
+      #endif	// defined multispec_wx
+      
       }	// end "if (redrawScrollBarFlag)"
+      
+	return (redrawScrollBarFlag);
 
 }	// end "UpdateLegendWidth"
 

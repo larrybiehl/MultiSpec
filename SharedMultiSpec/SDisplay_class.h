@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			12/17/2019
+//	Revision date:			04/23/2023
 //
 //	Language:				C++
 //
@@ -54,7 +54,7 @@ class	CMDisplay //: public CMProcessor
 		double 					GetMaxMagnification (void);
 		
 		static double			GetMaxZoomValue (
-											DisplaySpecsPtr					displaySpecsPtr);
+										DisplaySpecsPtr					displaySpecsPtr);
 
 		void						ReleaseDisplaySupportMemory(void);
 		
@@ -78,7 +78,7 @@ class	CMDisplay //: public CMProcessor
 										
 		Boolean 					SetUpColorImageMemory (
 										Rect									*sourceRectPtr,
-										UInt32								*pixRowBytesPtr);
+										SInt32								*pixRowBytesPtr);
 		
 		static DisplaySpecsPtr	sDisplaySpecsPtr;
 		

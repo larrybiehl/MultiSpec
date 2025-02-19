@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			01/28/2019
+//	Revision date:			03/25/2023
 //
 //	Language:				C++
 //
@@ -109,7 +109,7 @@ void CMOverlayParameterDlg::CreateControls ()
     											IDC_LineThickness,
     											wxEmptyString,
     											wxDefaultPosition,
-    											wxDefaultSize,
+												wxSize(100, -1),
     											0);
 	fgSizer7->Add(m_textCtrl55, 0, wxALL, 5);
 	wxIntegerValidator<int> _val (&m_lineThickness);

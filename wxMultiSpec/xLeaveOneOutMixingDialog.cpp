@@ -20,7 +20,7 @@
 //	Authors:					Wei-Kang Hsu, Larry L. Biehl
 //
 //	Revision date:			01/26/2018 by Wei-Kang Hsu
-//								11/16/2018 by Larry L. Biehl
+//								03/27/2023 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //								CMLOOMixingDialog class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 				" xLeaveOneOutMixingDialog:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -119,8 +120,8 @@ void CMLOOMixingDialog::CreateControls ()
 	m_textCtrl131 = new wxTextCtrl (this, 
 												IDC_UserValue, 
 												wxEmptyString, 
-												wxDefaultPosition, 
-												wxDefaultSize, 
+												wxDefaultPosition,
+												wxSize(100, -1),
 												0);
 	bSizer315->Add (m_textCtrl131, 0, wxALL, 5);
 	

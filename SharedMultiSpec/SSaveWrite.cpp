@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/24/2020
+//	Revision date:			02/18/2025
 //
 //	Language:				C
 //
@@ -92,6 +92,7 @@ Boolean 	GetGroupInfoFile (
 				FileInfoPtr							outputFileInfoPtr);
 
 UInt32	GetNumberStripsToUse (
+				SInt16								bandInterleave,
 				SInt16								planarConfiguration,
 				UInt32								numberColumns,
 				UInt32								numberLines,
@@ -451,7 +452,7 @@ SInt16 FindEndOfLineCode (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 11/13/1996
-//	Revised By:			Larry L. Biehl			Date: 02/07/2018
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean GetGroupInfoFile (
 				Handle								inputFileInfoHandle,
@@ -509,10 +510,12 @@ Boolean GetGroupInfoFile (
 				
 			gGetFileImageType = kThematicImageType;
 		
-			errCode = GetFile (fileStreamPtr, 
-										numberFileTypes, 
+			errCode = GetFile (fileStreamPtr,
+										NULL,
+										numberFileTypes,
 										gListTypes, 
 										NULL, 
+										NULL,
 										NULL,
 										NULL,
 										promptString);
@@ -820,9 +823,10 @@ SInt16 GetNextLine (
 //							
 //
 //	Coded By:			Larry L. Biehl			Date: 05/21/2012
-//	Revised By:			Larry L. Biehl			Date: 07/16/2012
+//	Revised By:			Larry L. Biehl			Date: 12/25/2023
 
 UInt32 GetNumberStripsToUse (
+				SInt16								bandInterleave,
 				SInt16								planarConfiguration,
 				UInt32								numberColumns,
 				UInt32								numberLines,
@@ -856,9 +860,26 @@ UInt32 GetNumberStripsToUse (
 		
 		if (planarConfiguration == 2)
 			{
-			numberStrips = numberChannels;
-			numberBytesPerStrip = (UInt32)numberBytesPerChannel;
-			numberBytesInLastStrip = numberBytesPerStrip;
+			/*
+					// This was for attempt to allow BIL in GeoTIFF files. Could not get it to work.
+					// Larry Biehl in December 2023
+			if (bandInterleave == kBIL)
+				{
+				numberStrips = 1;
+				numberLinesPerStrip = 1;
+				numberBytesPerStrip = (UInt32)numberBytesPerChannel;
+				numberBytesInLastStrip = numberBytesPerStrip;
+				
+				}	// end "if (bandInterleave == kBIL)"
+			
+			else	// bandInterleave != kBIL
+				{
+			*/
+				numberStrips = numberChannels;
+				numberBytesPerStrip = (UInt32)numberBytesPerChannel;
+				numberBytesInLastStrip = numberBytesPerStrip;
+				
+			//	}	// end "else bandInterleave != kBIL"
 			
 			}	// end "if (planarConfiguration == 2)"
 																
@@ -962,7 +983,7 @@ UInt32 GetNumberStripsToUse (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/11/1996
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean GetThematicSupportFile (
 				FileInfoPtr							fileInfoPtr)
@@ -1027,12 +1048,14 @@ Boolean GetThematicSupportFile (
 		
 		do
 			{
-			errCode = GetFile (supportFileStreamPtr, 
-										numberFileTypes, 
+			errCode = GetFile (supportFileStreamPtr,
+										NULL,
+										numberFileTypes,
 										fileType, 
 										NULL, 
 										NULL,
-										NULL, 
+										NULL,
+										NULL,
 										IDS_FileIO76);
 										
 			continueFlag = (errCode == noErr) & FileExists (supportFileStreamPtr);
@@ -2754,7 +2777,7 @@ UInt32 LoadGeoModelTiePoints (
 // Called By:			WriteTIFFImageFile in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 03/10/2013
-//	Revised By:			Larry L. Biehl			Date: 07/02/2018
+//	Revised By:			Larry L. Biehl			Date: 01/04/2024
 
 UInt16 LoadInstrumentNameToTIFFAsciiTag (
 				FileInfoPtr 						fileInfoPtr,
@@ -2764,8 +2787,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 {
 	ReformatOptionsPtr				reformatOptionsPtr;
 	
-	SInt16								stringIndex,
-											stringLength = 0;
+	SInt16								stringLength = 0;
 											
 	Boolean								continueFlag = TRUE;
 	
@@ -2773,8 +2795,6 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 	if (fileInfoPtr->instrumentCode > 0)
 		{			
 		stringLength = sprintf ((char*)stringPtr, " Instrument Name: ");
-		
-		stringIndex = IDS_InstrumentName01+fileInfoPtr->instrumentCode-1;
 		
 		continueFlag = GetSpecifiedStringNumber (
 											kInstrumentNameStrID, 
@@ -2789,7 +2809,7 @@ UInt16 LoadInstrumentNameToTIFFAsciiTag (
 				reformatOptionsPtr = (ReformatOptionsPtr)GetHandlePointer (
 												gNonProjProcessorSpecs.reformatOptionsSpecsH);
 														
-				if (!reformatOptionsPtr->channelDescriptions)
+				if (reformatOptionsPtr->transformDataCode > 0)
 					stringLength += 
 							sprintf ((char*)&stringPtr[stringLength],"Transformed ");
 										
@@ -3503,12 +3523,14 @@ void LoadTiffEntry (
 // Called By:			Menus in MMenus.c
 //
 //	Coded By:			Larry L. Biehl			Date: 07/12/1993
-//	Revised By:			Larry L. Biehl			Date: 04/13/2020
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 void LoadTransformationFile (void)
 
 {
-	CMFileStream						fileStreamBlock; 
+	UInt8									bufferPtr[500];
+	
+	CMFileStream						fileStreamBlock;
 	
 	FileStringPtr						filePathPtr;
 											
@@ -3558,12 +3580,14 @@ void LoadTransformationFile (void)
 				numberFileTypes = -1; 
 		#endif	// defined multispec_mac  
 			
-		errCode = GetFile (fileStreamPtr, 
-									numberFileTypes, 
+		errCode = GetFile (fileStreamPtr,
+									NULL,
+									numberFileTypes,
 									fileTypePtr, 
 									NULL, 
 									NULL,
-									NULL, 
+									NULL,
+									NULL,
 									IDS_FileIO62);
 		continueFlag = (errCode == noErr) & (filePathPtr[0] != 0);
 			
@@ -3575,8 +3599,8 @@ void LoadTransformationFile (void)
 			
 			count = 256;		
 			errCode = MReadData (fileStreamPtr, 
-										&count, 
-										&gTransformationMatrix.imageFileName,
+										&count,
+										bufferPtr,
 										kNoErrorMessages);
 				
 			if (errCode == eofErr)
@@ -3591,7 +3615,7 @@ void LoadTransformationFile (void)
 						
 				GetFileHeaderValue (kFileIOStrID, 
 											IDS_FileIO92, 	// Offsets-Gains
-											(char*)&gTransformationMatrix.imageFileName, 
+											(char*)bufferPtr,
 											0,
 											kDoNotSkipEqual, 
 											&tReturnCode);
@@ -3695,6 +3719,9 @@ void LoadTransformationFile (void)
 												(char*)fileNamePtr,
 												continueFlag,
 												kUTF8CharString);
+												
+		GetCopyOfPFileNameFromFileStream (fileStreamPtr,
+														gTransformationMatrix.imageFileName);
 		
 				// Scroll output window to the selection and adjust the 				
 				// scroll bar.																		
@@ -3816,8 +3843,8 @@ Boolean ReadOffsetGainFile (
 
 			// Reread the first line and then skip it.
 			
-	//if (errCode == noErr)
-	//	errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
+	if (errCode == noErr)
+		errCode = GetNextLine ((ParmBlkPtr)&paramBlock, &inputStringPtr);
 	
 			// Now get the current=new or new=current line.
 	
@@ -4999,7 +5026,8 @@ void SaveImageWindowAs (void)
 									(char*)GetFileNameCPointerFromFileStream (fileStreamPtr);
 				GetActiveImageWindowTitle (gTextString2);
 				
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"'%s' image window saved as TIFF file -'%s'.%s%s",
 							&gTextString2[1],
 							fileNamePtr,
@@ -5509,7 +5537,8 @@ Boolean WriteArcViewHeaderFile (
 			{	
 					// Write the comment portion of the header.	
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+										256,
 										";%s; ArcView Image Information%s;%s",
 										gEndOfLine,
 										gEndOfLine,
@@ -5523,7 +5552,8 @@ Boolean WriteArcViewHeaderFile (
 			{
 					// Write "NCOLS" to the output header file.
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 								  "NCOLS       %u%s", 
 								  (unsigned int)fileInfoPtr->numberColumns,
 									gEndOfLine);
@@ -5536,9 +5566,10 @@ Boolean WriteArcViewHeaderFile (
 			{
 					// Write "NROWS" to the output header file.	
 				
-			count = sprintf ((char*)gTextString, 
-								  "NROWS       %u%s", 
-								  (unsigned int)fileInfoPtr->numberLines,
+			count = snprintf ((char*)gTextString,
+									256,
+									"NROWS       %u%s",
+									(unsigned int)fileInfoPtr->numberLines,
 									gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
@@ -5549,7 +5580,8 @@ Boolean WriteArcViewHeaderFile (
 			{	
 					// Write "NBANDS" to the output header file.	
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 									"NBANDS      %d%s", 
 									fileInfoPtr->numberChannels,
 									gEndOfLine);
@@ -5568,7 +5600,8 @@ Boolean WriteArcViewHeaderFile (
 			else if (numberBits > 16 && numberBits <= 32)
 				numberBits = 32;
 				
-			count = sprintf ((char*)gTextString,
+			count = snprintf ((char*)gTextString,
+									256,
 									"NBITS       %d%s", 
 									(unsigned int)numberBits,
 									gEndOfLine);
@@ -5582,16 +5615,16 @@ Boolean WriteArcViewHeaderFile (
 					// Write "LAYOUT" to the output header file.		
 		      
 			if (fileInfoPtr->bandInterleave == kBIL)
-				count = sprintf ((char*)gTextString, "LAYOUT      BIL%s", gEndOfLine);
+				count = snprintf ((char*)gTextString, 256, "LAYOUT      BIL%s", gEndOfLine);
 					
 			else if (fileInfoPtr->bandInterleave == kBSQ)
-				count = sprintf ((char*)gTextString, "LAYOUT      BSQ%s", gEndOfLine);
+				count = snprintf ((char*)gTextString, 256, "LAYOUT      BSQ%s", gEndOfLine);
 				
 			else if (fileInfoPtr->bandInterleave == kBIS)
-				count = sprintf ((char*)gTextString, "LAYOUT      BIP%s", gEndOfLine);
+				count = snprintf ((char*)gTextString, 256, "LAYOUT      BIP%s", gEndOfLine);
 				
 			else 		// fileInfoPtr->bandInterleave != kBIL, kBSQ, kBIS
-				count = sprintf ((char*)gTextString, "LAYOUT      ???%s", gEndOfLine);
+				count = snprintf ((char*)gTextString, 256, "LAYOUT      ???%s", gEndOfLine);
 				
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
 			
@@ -5621,7 +5654,8 @@ Boolean WriteArcViewHeaderFile (
 					
 				}	// end "else !gBigEndianFlag"
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 									"BYTEORDER   %c%s", 
 									byteOrderCharacter,
 									gEndOfLine);
@@ -5634,7 +5668,8 @@ Boolean WriteArcViewHeaderFile (
 			{
 					// Write "SKIPBYTES" to the output header file.	
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 								  "SKIPBYTES   %u%s", 
 								  (unsigned int)fileInfoPtr->numberHeaderBytes,
 									gEndOfLine);
@@ -5652,7 +5687,8 @@ Boolean WriteArcViewHeaderFile (
 				{
 				UInt32 numberBandRowBytes = fileInfoPtr->numberPostChannelBytes +
 										fileInfoPtr->numberColumns * fileInfoPtr->numberBytes;
-				count = sprintf ((char*)gTextString, 
+				count = snprintf ((char*)gTextString,
+										256,
 									  "BANDROWBYTES   %u%s",
 									  (unsigned int)numberBandRowBytes,
 										gEndOfLine);
@@ -5675,7 +5711,8 @@ Boolean WriteArcViewHeaderFile (
 					// ArcView parameters but they will be useful for documentation and
 					// for MultiSpec.
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 									"; Other Information%s",
 									gEndOfLine);
 				
@@ -5687,7 +5724,8 @@ Boolean WriteArcViewHeaderFile (
 			{
 				// Write "DATAVALUETYPE" to the output header file.
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 									"DATAVALUETYPE   SIGNED%s",
 									gEndOfLine);
 			
@@ -5701,21 +5739,27 @@ Boolean WriteArcViewHeaderFile (
 					// to MultiSpec in the "DATAVALUETYPE" parameter above.
 					// Write "PIXELTYPE" to the output header file.
 					
-			count = sprintf ((char*)gTextString, "PIXELTYPE   ");
+			count = snprintf ((char*)gTextString, 256, "PIXELTYPE   ");
 			
 			if (fileInfoPtr->dataTypeCode == kRealType)
-				count += sprintf ((char*)&gTextString[count], 
+				count += snprintf ((char*)&gTextString[count],
+										256-count,
 										"FLOAT");
 										
 			else if (fileInfoPtr->signedDataFlag)
-				count += sprintf ((char*)&gTextString[count], 
+				count += snprintf ((char*)&gTextString[count],
+										256-count,
 										"SIGNEDINT");
 										
 			else
-				count += sprintf ((char*)&gTextString[count], 
+				count += snprintf ((char*)&gTextString[count],
+										256-count,
 										"UNSIGNEDINT");
 										
-			count += sprintf ((char*)&gTextString[count], "%s", gEndOfLine);
+			count += snprintf ((char*)&gTextString[count],
+										256-count,
+										"%s",
+										gEndOfLine);
 			
 			errCode = MWriteData (headerStreamPtr, &count, gTextString, kErrorMessages);
 				
@@ -5740,42 +5784,42 @@ Boolean WriteArcViewHeaderFile (
 				{
 						// Write "MAP_UNITS" to the output header file.	
 						
-				count = sprintf ((char*)gTextString, "MAP_UNITS   ");
+				count = snprintf ((char*)gTextString, 256, "MAP_UNITS   ");
 						
 				if (mapUnitsCode == kMetersCode)
-					count += sprintf ((char*)&gTextString[count], "meters");
+					count += snprintf ((char*)&gTextString[count], 256-count, "meters");
 						
 				else if (mapUnitsCode == kUSSurveyFeetCode)
-					count += sprintf ((char*)&gTextString[count], "us survey feet");
+					count += snprintf ((char*)&gTextString[count], 256-count, "us survey feet");
 						
 				else if (mapUnitsCode == kFeetCode)
-					count += sprintf ((char*)&gTextString[count], "feet");
+					count += snprintf ((char*)&gTextString[count], 256-count, "feet");
 			      
 				else if (mapUnitsCode == kDecimalDegreesCode)
-					count += sprintf ((char*)&gTextString[count], "decimal degrees");
+					count += snprintf ((char*)&gTextString[count],  256-count, "decimal degrees");
 						
 				else if (mapUnitsCode == kKilometersCode)
-					count += sprintf ((char*)&gTextString[count], "kilometers");
+					count += snprintf ((char*)&gTextString[count],  256-count, "kilometers");
 						
 				else if (mapUnitsCode == kCentimetersCode)
-					count += sprintf ((char*)&gTextString[count], "centimeters");
+					count += snprintf ((char*)&gTextString[count],  256-count, "centimeters");
 						
 				else if (mapUnitsCode == kMillimetersCode)
-					count += sprintf ((char*)&gTextString[count], "millimeters");
+					count += snprintf ((char*)&gTextString[count],  256-count, "millimeters");
 						
 				else if (mapUnitsCode == kMicrometersCode)
-					count += sprintf ((char*)&gTextString[count], "micrometers");
+					count += snprintf ((char*)&gTextString[count],  256-count, "micrometers");
 						
 				else if (mapUnitsCode == kMilesCode)
-					count += sprintf ((char*)&gTextString[count], "miles");
+					count += snprintf ((char*)&gTextString[count],  256-count, "miles");
 						
 				else if (mapUnitsCode == kYardsCode)
-					count += sprintf ((char*)&gTextString[count], "yards");
+					count += snprintf ((char*)&gTextString[count],  256-count, "yards");
 						
 				else if (mapUnitsCode == kInchesCode)
-					count += sprintf ((char*)&gTextString[count], "inches");
+					count += snprintf ((char*)&gTextString[count],  256-count, "inches");
 					
-				count += sprintf ((char*)&gTextString[count], "%s", gEndOfLine);
+				count += snprintf ((char*)&gTextString[count],  256-count, "%s", gEndOfLine);
 				
 				errCode = MWriteData (headerStreamPtr, 
 												&count, 
@@ -5793,18 +5837,18 @@ Boolean WriteArcViewHeaderFile (
 				{
 						// Write "MAP_UNITS" to the output header file.	
 						
-				count = sprintf ((char*)gTextString, "DATUM   ");
+				count = snprintf ((char*)gTextString, 256, "DATUM   ");
 						
 				if (datumCode == kNAD27Code)
-					count += sprintf ((char*)&gTextString[count], "NAD27");
+					count += snprintf ((char*)&gTextString[count],  256-count, "NAD27");
 						
 				else if (datumCode == kNAD83Code)
-					count += sprintf ((char*)&gTextString[count], "NAD83");
+					count += snprintf ((char*)&gTextString[count],  256-count, "NAD83");
 			      
 				else if (datumCode == kWGS84Code)
-					count += sprintf ((char*)&gTextString[count], "WGS84");
+					count += snprintf ((char*)&gTextString[count],  256-count, "WGS84");
 					
-				count += sprintf ((char*)&gTextString[count], "%s", gEndOfLine);
+				count += snprintf ((char*)&gTextString[count],  256-count, "%s", gEndOfLine);
 				
 				errCode = MWriteData (headerStreamPtr, 
 												&count, 
@@ -5827,19 +5871,19 @@ Boolean WriteArcViewHeaderFile (
 								referenceSystemCode == kStatePlaneNAD83RSCode || 
 												projectionCode == kAlbersConicalEqualAreaCode))
 				{
-				count = sprintf ((char*)gTextString, "PROJECTION_NAME   ");
+				count = snprintf ((char*)gTextString,  256, "PROJECTION_NAME   ");
 						
 				if (UTMFlag)
-					count += sprintf ((char*)&gTextString[count], "UTM");
+					count += snprintf ((char*)&gTextString[count],  256-count, "UTM");
 						
 				else if (referenceSystemCode == kStatePlaneNAD27RSCode || 
 													referenceSystemCode == kStatePlaneNAD83RSCode)
-					count += sprintf ((char*)&gTextString[count], "SPCS");
+					count += snprintf ((char*)&gTextString[count],  256-count, "SPCS");
 			      
 				else if (projectionCode == kAlbersConicalEqualAreaCode)
-					count += sprintf ((char*)&gTextString[count], "ACEA");
+					count += snprintf ((char*)&gTextString[count],  256-count, "ACEA");
 					
-				count += sprintf ((char*)&gTextString[count], "%s", gEndOfLine);
+				count += snprintf ((char*)&gTextString[count],  256-count, "%s", gEndOfLine);
 				
 				errCode = MWriteData (headerStreamPtr, 
 												&count, 
@@ -5853,7 +5897,8 @@ Boolean WriteArcViewHeaderFile (
 			if (errCode == noErr && UTMFlag &&
 								mapProjectionInfoPtr->gridCoordinate.gridZone != 0)
 				{
-				count = sprintf ((char*)gTextString, 
+				count = snprintf ((char*)gTextString,
+										256,
 										"PROJECTION_ZONE   %d%s",
 										abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
 										gEndOfLine);
@@ -5983,7 +6028,8 @@ SInt16 WriteArcViewMapInformation (
 			{  
 					// Write "ULXMAP" to the output header file.	
 				
-			count = sprintf ((char*)gTextString, 
+			count = snprintf ((char*)gTextString,
+									256,
 									"ULXMAP   %35.7f %s", 
 									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11,
 									gEndOfLine);
@@ -5994,7 +6040,8 @@ SInt16 WriteArcViewMapInformation (
 				{
 						// Write "ULYMAP" to the output header file.	
 					
-				count = sprintf ((char*)gTextString, 
+				count = snprintf ((char*)gTextString,
+										256,
 										"ULYMAP   %35.7f %s", 
 										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11,
 										gEndOfLine);
@@ -6010,8 +6057,9 @@ SInt16 WriteArcViewMapInformation (
 				{
 						// Write "XDIM" to the output header file.	
 					
-				count = sprintf (
-						(char*)gTextString, 
+				count = snprintf (
+						(char*)gTextString,
+						256,
 						"XDIM   %35.11f %s", 
 						fabs (mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize),
 						gEndOfLine);
@@ -6371,7 +6419,8 @@ SInt16 WriteGeoTIFFInformation (
 				
 			if (fileInfoPtr->noDataValueFlag)
 				{	
-				numberGDALNoDataValueDigits = sprintf ((char*)gTextString,
+				numberGDALNoDataValueDigits = snprintf ((char*)gTextString,
+																		256,
 																		"%.9g",
 																		fileInfoPtr->noDataValue);
 																						
@@ -7797,8 +7846,8 @@ void WriteThematicInfo (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 04/27/2016
-// 
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
+//
 SInt16 WriteTIFFColorMap (
 				FileInfoPtr							fileInfoPtr,
 				CMFileStream* 						fileStreamPtr,
@@ -7829,7 +7878,8 @@ SInt16 WriteTIFFColorMap (
 	
 	UInt16								numberEntries; 
 	
-	Boolean								continueFlag;
+	Boolean								continueFlag,
+											swapBytesFlag;
 		                                  
 	
 	if (fileStreamPtr != NULL)
@@ -7982,14 +8032,22 @@ SInt16 WriteTIFFColorMap (
 		
 		if (continueFlag)
 			{
+			swapBytesFlag = (gSwapBytesFlag == gBigEndianFlag);
+			
+			if (swapBytesFlag)
+				Swap2Bytes (redVectorPtr, 256);
 			count = 512;
 			errCode = MWriteData (fileStreamPtr, &count, redVectorPtr, kErrorMessages);
 				
+			if (swapBytesFlag)
+				Swap2Bytes (greenVectorPtr, 256);
 			count = 512;
 			if (errCode == noErr)
 				errCode = 
 						MWriteData (fileStreamPtr, &count, greenVectorPtr, kErrorMessages);
-				
+			
+			if (swapBytesFlag)
+				Swap2Bytes (blueVectorPtr, 256);
 			count = 512;
 			if (errCode == noErr)
 				errCode =  
@@ -8022,7 +8080,7 @@ SInt16 WriteTIFFColorMap (
 // Called By:			WriteTIFFImageFile
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1994
-//	Revised By:			Larry L. Biehl			Date: 08/24/2020
+//	Revised By:			Larry L. Biehl			Date: 03/25/2024
 
 SInt16 WriteTIFFImageData (
 				CMFileStream* 						fileStreamPtr,
@@ -8364,9 +8422,16 @@ SInt16 WriteTIFFImageData (
 				#endif
 				
 				#if defined multispec_wx
-					tempBufferPtr[0] = *tOffScreenBufferPtr++;
-					tempBufferPtr[1] = *tOffScreenBufferPtr++;
-					tempBufferPtr[2] = *tOffScreenBufferPtr++;
+					#if defined multispec_wxlin || defined multispec_wxmac
+						tempBufferPtr[0] = *tOffScreenBufferPtr++;
+						tempBufferPtr[1] = *tOffScreenBufferPtr++;
+						tempBufferPtr[2] = *tOffScreenBufferPtr++;
+					#endif
+					#if defined multispec_wxwin
+						tempBufferPtr[2] = *tOffScreenBufferPtr++;
+						tempBufferPtr[1] = *tOffScreenBufferPtr++;
+						tempBufferPtr[0] = *tOffScreenBufferPtr++;
+					#endif
 				#endif
 				
 				tempBufferPtr += 3;
@@ -8485,7 +8550,7 @@ SInt16 WriteTIFFImageData (
 //							WriteNewImageHeader in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/20/1994
-//	Revised By:			Larry L. Biehl			Date: 04/15/2020
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean WriteTIFFImageFile (
 				FileInfoPtr							fileInfoPtr,
@@ -8668,11 +8733,10 @@ Boolean WriteTIFFImageFile (
 			
 			}	// end "else tiffSourceCode != kFromImageWindw"
 	
-				// Set some needed parameters.	
-			
-		bytesPerChannel = numberLines * numberColumns * numberBytes;
+				// Set some needed parameters.
 		
-		rowsPerStrip = GetNumberStripsToUse (planarConfiguration,
+		rowsPerStrip = GetNumberStripsToUse (fileInfoPtr->bandInterleave,
+															planarConfiguration,
 															numberColumns,
 															numberLines,
 															numberTIFFChannels,
@@ -8752,13 +8816,14 @@ Boolean WriteTIFFImageFile (
 		/*
 		if (numberStrips == 1)
 			{
-			if (planarConfiguration == 2 && numberTIFFChannels > 1)
+			if (planarConfiguration == 2 &&
+					numberTIFFChannels > 1 &&
+						fileInfoPtr->bandInterleave == kBIL)
 				imageDataOffset += 2 * 4 * numberTIFFChannels;
 				
 			}	// end "if (numberStrips == 1)"
 			
 		else	// numberStrips > 1
-			{
 		*/
 		if (numberStrips > 1)
 			imageDataOffset += 2 * 4 * numberStrips;
@@ -8934,12 +8999,15 @@ Boolean WriteTIFFImageFile (
 		if (numberStrips == 1)
 			{
 			/*
-			if (planarConfiguration == 2 && numberTIFFChannels > 1)
+			if (planarConfiguration == 2 &&
+					numberTIFFChannels > 1 &&
+						fileInfoPtr->bandInterleave == kBIL)
 				{
 				imageFileDirectory.count = numberTIFFChannels;
 				imageFileDirectory.value = otherValueOffset;
 					
 				tempULongInt = imageDataOffset;
+				bytesPerChannel = numberColumns * numberBytes;
 				for (i=0; i<numberTIFFChannels; i++)
 					{
 					tempULongInt2 = GetLongIntValue ((char*)&tempULongInt);
@@ -8951,13 +9019,13 @@ Boolean WriteTIFFImageFile (
 				
 				}	// end "if (planarConfiguration == 2 && ..." 
 			
-			else	// if (planarConfiguration == 1 || numberTIFFChannels == 1) 
-				{ 
+			else	// if (planarConfiguration == 1 || numberTIFFChannels == 1 || ...)
+				{
 			*/
 				imageFileDirectory.count = 1;
 				imageFileDirectory.value = imageDataOffset;
 				
-			//	}	// end "else planarConfiguration == 1 || ..."
+			// }	// end "else planarConfiguration == 1 || ..."
 				
 			}	// end "if (numberStrips == 1)"
 			
@@ -9022,10 +9090,13 @@ Boolean WriteTIFFImageFile (
 				// 279: StripByteCounts.																
 		
 		if (numberStrips == 1)
-			{	
-			/*												
-			if (planarConfiguration == 2 && numberTIFFChannels > 1)
+			{
+			/*
+			if (fileInfoPtr->bandInterleave == kBIL)
 				{
+						// This is a special case for TIFF/GeoTIFF files.
+						// The byte count represent number of byte in 1 channel and line
+						
 				imageFileDirectory.count = numberTIFFChannels;
 				imageFileDirectory.value = otherValueOffset;
 				
@@ -9037,18 +9108,15 @@ Boolean WriteTIFFImageFile (
 				
 					}	// end "for (i=0; i<numberTIFFChannels; i++)"
 				
-				}	// end "if (planarConfiguration == 2 && ..." 
-			
-			else	// if (planarConfiguration == 1 || numberTIFFChannels == 1) 
-				{ 
+				}	// end "if (planarConfiguration == 2 && ..."
+				
+			else	// fileInfoPtr->bandInterleave != kBIL
+				{
 			*/
 				imageFileDirectory.count = 1;
 				imageFileDirectory.value = bytesPerStrip;
 				
-			//	if (planarConfiguration == 1)
-			//		imageFileDirectory.value = bytesPerChannel * numberTIFFChannels;
-							
-			//	}	// end "else planarConfiguration == 1 || ..."	
+			//	}
 				
 			}	// end "if (numberStrips == 1)"
 			
@@ -9441,7 +9509,8 @@ void WriteTransformationFile (void)
 				
 				// Write the image file name.		
 		/*
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s",
 					gTransformationMatrix.imageFileName,
 					gEndOfLine);

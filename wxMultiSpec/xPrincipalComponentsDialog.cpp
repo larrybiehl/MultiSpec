@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/16/2025
 //
 //	Language:				C++
 //
@@ -52,7 +52,7 @@ BEGIN_EVENT_TABLE (CMPrincipalCompDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ChannelCombo, CMPrincipalCompDialog::OnChannelComboSelendok)
 		EVT_COMBOBOX (IDC_ClassCombo, CMPrincipalCompDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMPrincipalCompDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMPrincipalCompDialog::OnClassComboSelendok)
 	#endif
@@ -225,7 +225,7 @@ void CMPrincipalCompDialog::CreateControls ()
 
    m_staticText118 = new wxStaticText (this,
    												IDC_ChannelPrompt,
-   												wxT("Channel:"),
+   												wxT("Channels:"),
    												wxDefaultPosition,
    												wxDefaultSize,
    												0);

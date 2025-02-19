@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -421,8 +421,6 @@ Boolean ConvertImagePixelsToClassNumbers (
 											includePixelFlag,
 											skipLineFlag;
 
-	unsigned char						backgroundValue;
-
 
 			// Check input parameters.															
 			
@@ -441,8 +439,6 @@ Boolean ConvertImagePixelsToClassNumbers (
 	columnStart = reformatOptionsPtr->columnStart;
 	columnEnd = reformatOptionsPtr->columnEnd;
 	columnInterval = reformatOptionsPtr->columnInterval;
-	
-	backgroundValue = (UInt8)reformatOptionsPtr->backgroundValue;
 	
 	requestedFieldType = reformatOptionsPtr->fieldType;
 	
@@ -804,7 +800,7 @@ Boolean ConvertImagePixelsToClassNumbers (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 01/31/1993
-//	Revised By:			Larry L. Biehl			Date: 05/26/2011	
+//	Revised By:			Larry L. Biehl			Date: 050423/2023	
 
 Boolean CovertMultispectralToThematic (
 				WindowInfoPtr						inputWindowInfoPtr,
@@ -842,10 +838,10 @@ Boolean CovertMultispectralToThematic (
 											inputOffScreenMapHandle;
 	
 	SInt32								line,
+											rowBytes,
 											sample;
 	
-	UInt32								count,
-											rowBytes;
+	UInt32								count;
 	
 	SInt16								errCode,
 											numberColors;
@@ -909,7 +905,8 @@ Boolean CovertMultispectralToThematic (
 		{		
 				// List the number of colors that were found.						
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"\r  %ld unique colors were found.\r",
 					thePictInfo.uniqueColors);
 		continueFlag = ListString ((char*)gTextString, 
@@ -918,7 +915,8 @@ Boolean CovertMultispectralToThematic (
 											
 				// List the number of classes that were generated.					
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"  %d classes were generated (including a background class).\r",
 					(SInt16)(*thePictInfo.thePalette)->pmEntries+1);
 		continueFlag = ListString ((char*)gTextString, 
@@ -1165,7 +1163,7 @@ Boolean CovertMultispectralToThematic (
 		
 		numberColors = (*thePictInfo.thePalette)->pmEntries;
 		
-		sprintf ((char*)gTextString, "   0, 255, 255, 255\r");
+		snprintf ((char*)gTextString, 256, "   0, 255, 255, 255\r");
 		continueFlag = ListString ((char*)gTextString, 20, gOutputTextH);
 		
 		for (sample=0; sample<numberColors; sample++)
@@ -1176,7 +1174,8 @@ Boolean CovertMultispectralToThematic (
 			theColor.green = (theColor.green >> 8);
 			theColor.blue = (theColor.blue >> 8);
 			
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%4ld,%4d,%4d,%4d\r", 
 							sample+1, 
 							theColor.red, 
@@ -1188,7 +1187,7 @@ Boolean CovertMultispectralToThematic (
 				
 			}	// end "for (sample=0; sample<numberColors; sample++)" 
 		
-		sprintf ((char*)gTextString, "%4d,   0,   0,   0\r", numberColors+1);
+		snprintf ((char*)gTextString, 256, "%4d,   0,   0,   0\r", numberColors+1);
 		continueFlag = ListString ((char*)gTextString, 20, gOutputTextH);
 		
 		}	// end "if (continueFlag && thePictInfo.thePalette ...)" 
@@ -1625,7 +1624,8 @@ void ENVI_ROIToThematicFileControl (void)
 					
 			char* fileNamePtr =
 								(char*)GetFileNameCPointerFromFileStream (inputFileStreamPtr);
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+							256,
 							"    ROI text file = '%s'%s",
 							fileNamePtr,
 							gEndOfLine);
@@ -1817,7 +1817,7 @@ void ENVI_ROIToThematicFileControl (void)
 // Called By:			ENVI_ROIToThematicFileControl
 //
 //	Coded By:			Larry L. Biehl			Date: 07/24/2011
-//	Revised By:			Larry L. Biehl			Date: 03/15/2017
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean ENVI_ROIToThematicGetASCIIFile (
 				CMFileStream*						inputFileStreamPtr,
@@ -1855,12 +1855,14 @@ Boolean ENVI_ROIToThematicGetASCIIFile (
 		{	
 				// Get the input file.
 				
-		errCode = GetFile (inputFileStreamPtr, 
-										-1, 
+		errCode = GetFile (inputFileStreamPtr,
+										NULL,
+										-1,
 										NULL, 
 										NULL, 
 										NULL,
-										NULL, 
+										NULL,
+										NULL,
 										IDS_FileIO146);
 										
 		continueFlag = (errCode == noErr) & FileExists (inputFileStreamPtr);

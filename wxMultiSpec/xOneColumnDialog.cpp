@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/13/2019
+//	Revision date:			02/16/2025
 //
 //	Language:				C++
 //
@@ -30,6 +30,7 @@
 //
 //------------------------------------------------------------------------------------
 
+#include "SMultiSpec.h"
 #include "xOneColumnDialog.h"
 #include "wx/valnum.h"
 
@@ -77,6 +78,7 @@ CMOneColDlg::CMOneColDlg (
 	m_numberInputVecItems = gImageFileInfoPtr->numberClasses;
 	m_numberSelections = 0;
 	m_minimumItemsRequired = 1;
+	m_showListFlag = true;
 
 			// Setting up dialog GUI
 
@@ -101,6 +103,10 @@ void CMOneColDlg::CreateControls ()
 
 {
 	SetSizeHints (wxDefaultSize, wxDefaultSize);
+
+   wxFont  font = GetFont();
+   font.SetFamily (wxFONTFAMILY_TELETYPE);
+   font.SetWeight (wxFONTWEIGHT_NORMAL);		// wxFONTWEIGHT_NORMAL
 
 	wxBoxSizer* bVSizerMain = new wxBoxSizer (wxVERTICAL);
 
@@ -127,16 +133,11 @@ void CMOneColDlg::CreateControls ()
 											0,
 											NULL,
 											wxLB_MULTIPLE|wxLB_NEEDED_SB /*|wxLB_EXTENDED*/);
-	wxFont font (gFontSize,
-						wxFONTFAMILY_TELETYPE,
-						wxFONTSTYLE_NORMAL,
-						wxFONTWEIGHT_NORMAL,
-						false,
-						wxEmptyString);
-   m_listBox1->SetFont (font);
+	m_listBox1->SetFont (font);
+	
    bSizervl->Add (
 				m_listBox1,
-				wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
+				wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 
 	wxBoxSizer* bSizer15;
 	bSizer15 = new wxBoxSizer (wxHORIZONTAL);
@@ -181,14 +182,14 @@ void CMOneColDlg::CreateControls ()
 				wxSizerFlags(0).ReserveSpaceEvenIfHidden().
 						Align(wxALIGN_CENTER_HORIZONTAL).Border(wxLEFT|wxRIGHT|wxBOTTOM, 5));
 
-	m_button3 = new wxButton (this,
+	m_noneButton = new wxButton (this,
 										IDC_NoneSelected,
 										wxT("None"),
 										wxDefaultPosition,
 										wxDefaultSize,
 										0);
-   SetUpToolTip (m_button3, IDS_ToolTip163);
-	bSizervr->Add (m_button3,
+   SetUpToolTip (m_noneButton, IDS_ToolTip163);
+	bSizervr->Add (m_noneButton,
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().
 							Align(wxALIGN_CENTER_HORIZONTAL).Border(wxALL, 5));
 
@@ -203,9 +204,9 @@ void CMOneColDlg::CreateControls ()
 
 	m_staticText5 = new wxStaticText (sbSizer1->GetStaticBox(),
 													IDC_FirstLabel,
-													wxT("First \t"),
+													wxT("First"),
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(45, -1),
 													0);
 	m_staticText5->Wrap (-1);
 	bSizer11->Add (m_staticText5,
@@ -216,7 +217,7 @@ void CMOneColDlg::CreateControls ()
 											IDC_First,
 											wxEmptyString,
 											wxDefaultPosition,
-											wxDefaultSize,
+											wxSize(100, -1),
 											0);
 	m_textCtrl2->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl2, IDS_ToolTip164);
@@ -230,9 +231,9 @@ void CMOneColDlg::CreateControls ()
 
 	m_staticText6 = new wxStaticText (sbSizer1->GetStaticBox(),
 													IDC_LastLabel,
-													wxT("Last \t"),
+													wxT("Last"),
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(45, -1),
 													0);
 	m_staticText6->Wrap (-1);
 	bSizer13->Add (m_staticText6,
@@ -243,7 +244,7 @@ void CMOneColDlg::CreateControls ()
 											IDC_Last,
 											wxEmptyString,
 											wxDefaultPosition,
-											wxDefaultSize,
+											wxSize(100, -1),
 											0);
 	m_textCtrl3->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl3, IDS_ToolTip165);
@@ -257,9 +258,9 @@ void CMOneColDlg::CreateControls ()
 
 	m_staticText7 = new wxStaticText (sbSizer1->GetStaticBox(),
 													IDC_IntervalLabel,
-													wxT("Interval \t"),
+													wxT("Interval"),
 													wxDefaultPosition,
-													wxDefaultSize,
+													wxSize(45, -1),
 													0);
 	m_staticText7->Wrap (-1);
 	bSizer14->Add (m_staticText7,
@@ -270,7 +271,7 @@ void CMOneColDlg::CreateControls ()
 											IDC_Interval,
 											wxEmptyString,
 											wxDefaultPosition,
-											wxDefaultSize,
+											wxSize(100, -1),
 											0);
 	m_textCtrl4->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
    SetUpToolTip (m_textCtrl4, IDS_ToolTip166);
@@ -283,14 +284,14 @@ void CMOneColDlg::CreateControls ()
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Expand().
 																	Border(wxLEFT|wxTOP|wxBOTTOM, 5));
 
-	m_button4 = new wxButton (this,
+	m_enterNewRangebutton = new wxButton (this,
 										IDC_EnterNewRange,
 										wxT("Enter New Range"),
 										wxDefaultPosition,
 										wxDefaultSize,
 										0);
-   SetUpToolTip (m_button4, IDS_ToolTip167);
-	bSizervr->Add (m_button4,
+   SetUpToolTip (m_enterNewRangebutton, IDS_ToolTip167);
+	bSizervr->Add (m_enterNewRangebutton,
 						wxSizerFlags(0).ReserveSpaceEvenIfHidden().
 											Align(wxALIGN_CENTER_HORIZONTAL).Border(wxALL, 5));
 	
@@ -308,6 +309,7 @@ void CMOneColDlg::CreateControls ()
 
 	SetSizer (bVSizerMain);
 	Layout ();
+	Fit ();
 	 
 }	// end "CreateControls"
 
@@ -328,6 +330,19 @@ void CMOneColDlg::OnAllSelected (
 			wxListBoxPtr->Select(item);
 		
 		}	// end "if (wxListBoxPtr != NULL && wxListBoxPtr->GetCount () > 0)"
+		
+	else if (!m_showListFlag)
+		{
+				// List not being show because it is too long;
+				// Use all to adjust the range choice to be all channels
+
+		m_listStart = 1;
+		m_listInterval = 1;
+		m_listEnd = (UInt16)m_numberInputVecItems;
+			
+		TransferDataToWindow ();
+				
+		}	// else if (!m_showListFlag)
 
 	m_numberSelections = (UInt16)m_numberInputVecItems;
 
@@ -425,7 +440,7 @@ void CMOneColDlg::OnOK ()
 		wxListBoxPtr = (wxListBox*)FindWindow (IDC_List1);
 		if (wxListBoxPtr != NULL && wxListBoxPtr->GetCount() > 0)
 			{
-			for (item = 0; item < m_numberInputVecItems; item++)
+			for (item=0; item<m_numberInputVecItems; item++)
 				{
 				if (wxListBoxPtr->IsSelected (item))
 					{
@@ -434,11 +449,25 @@ void CMOneColDlg::OnOK ()
 
 					}	// end "if (wxListBoxPtr->IsSelected (item))"
 
-				}	// end "for (channel=0; channel<..."
+				}	// end "for (item=0; item<m_numberInputVecItems; item++)"
 
 			m_numberSelections = index;
 			
 			}	// end "if (wxListBoxPtr != NULL && wxListBoxPtr->GetCount() > 0)"
+			
+		else if (!m_showListFlag)
+			{
+					// The number of items for the list is too large;
+					// use only the start, end, interval values
+					
+			for (item=m_listStart; item<=m_listEnd; item+=m_listInterval)
+				{
+				m_selectedItemsPtr[index] = item - 1;
+				index++;
+
+				}	// end "for (item=0; item<m_numberInputVecItems; item++)"
+			
+			}	// else if (!m_showListFlag)
 
 		}	// end "if (m_listType == kSelectItemsList || ..."
 

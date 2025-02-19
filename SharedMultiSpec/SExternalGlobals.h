@@ -25,7 +25,7 @@
 //	Brief description:	This file contain globals declared as external
 //
 //	Revised By:				Abdur Maud				Date: 06/24/2013
-//	Revised By:				Larry L. Biehl			Date: 03/08/2022
+//	Revised By:				Larry L. Biehl			Date: 08/26/2022
 //	
 //------------------------------------------------------------------------------------
 
@@ -571,6 +571,9 @@ extern MenuHandle						gPopUpClusterMaskDiskFileMenu;
 
 		// Handle to class popup menu.														
 extern MenuHandle						gPopUpCollapseClassMenu;
+
+		// Handle for compare images option popup menu.
+extern MenuHandle						gPopUpCompareImagesMenu;
 
 		// Handle to compare parameter popup menu.														
 extern MenuHandle						gPopUpCompareParameterMenu;

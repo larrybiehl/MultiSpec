@@ -27,7 +27,7 @@
 //								CMGraphFrame classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/28/2020
+//	Revised By:				Larry L. Biehl			Date: 02/04/2024
 //
 //------------------------------------------------------------------------------------
 
@@ -47,13 +47,13 @@ class CMGraphCanvas : public wxPanel
 		 CMGraphCanvas (
 		 		wxWindow* 							parent);
 	
-		 void paintNow ();
+		 //void paintNow ();
 	
 		 CMGraphView*    					m_graphViewCPtr;
 	
 	
 	private:
-		 void paintEvent (
+		 void OnPaint (
 		 		wxPaintEvent& 						evt);
 		 DECLARE_EVENT_TABLE ()
 	
@@ -66,7 +66,7 @@ class CMGraphCanvas : public wxPanel
 
 //------------------------------------------------------------------------------------
 
-class CMGraphFrame : public wxDocChildFrame 
+class CMGraphFrame : public MChildFrame 
 {
 	DECLARE_DYNAMIC_CLASS (CMGraphFrame);
 	
@@ -76,7 +76,7 @@ class CMGraphFrame : public wxDocChildFrame
 		CMGraphFrame (
 				wxDocument* 						doc,
 				wxView* 								view = NULL,
-				wxDocParentFrame* 				parent = NULL,
+				MParentFrame* 						parent = NULL,
 				wxWindowID 							id = NULL,
 				const wxString& 					title = wxT("Selection Window"),
 				const wxPoint& 					pos = wxDefaultPosition,
@@ -165,7 +165,10 @@ class CMGraphFrame : public wxDocChildFrame
 		void OnChangeXAxis (
 				wxCommandEvent& 					WXUNUSED (event));
 	
-		void OnFilePrint ();
+		//void OnFilePrint ();
+		
+		void OnEditCopyGraph (
+				wxCommandEvent& 					event);
 	
 		void OnGraphWindow (
 				wxCommandEvent& 					WXUNUSED (event));
@@ -193,6 +196,9 @@ class CMGraphFrame : public wxDocChildFrame
 	
 		void OnSize (
 				wxSizeEvent& 						event);
+	
+		void OnUpdateEditCopyGraph (
+				wxUpdateUIEvent& 					pCmdUI);
 	
 		void OnUpdateFileGraphClose (
 				wxUpdateUIEvent& 					pCmdUI);

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			09/09/2020
+//	Revision date:			03/30/2023
 //
 //	Language:				C
 //
@@ -5982,7 +5982,7 @@ Boolean ReadImageSpheroid (
 // Called By:			LoadImagineImageStatistics in SImagine.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/22/1999
-//	Revised By:			Larry L. Biehl			Date: 04/17/2006
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 void ReadImagineNumberOfClasses (
 				FileInfoPtr							fileInfoPtr,
@@ -6006,6 +6006,7 @@ void ReadImagineNumberOfClasses (
 			// Set the number of classes to the number of bins to start with.
 					
 	fileInfoPtr->numberClasses = fileInfoPtr->numberBins;
+	fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 	
 	if (fileStreamPtr != NULL)	
 		{	
@@ -6021,10 +6022,14 @@ void ReadImagineNumberOfClasses (
 															ehfaEntryEdscColumnClassName.dataSize,
 															&edscColumnClassName);
 								
-		if (continueFlag)	
+		if (continueFlag)
+			{
 					// Set the number of classes.
 			fileInfoPtr->numberClasses = MIN (
 							edscColumnClassName.numRows, (SInt32)fileInfoPtr->numberBins);
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
+			
+			}	// end "if (continueFlag)"
 				
 		}	// end "if (fileStreamPtr != NULL)"
 	

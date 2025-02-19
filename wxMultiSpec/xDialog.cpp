@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -28,7 +28,8 @@
 //	Brief description:	This file contains functions that relate to the 
 //								CMDialog class.
 /* Template for debugging
-		int numberChars = sprintf (
+		int numberChars = snprintf (
+			256,
 			(char*)&gTextString3,
 			" xDialog: (): %s",
 			gEndOfLine);
@@ -378,7 +379,7 @@ void CMDialog::CreateLineColumnControls (
    SetUpToolTip (m_bpButton4, IDS_ToolTip40);
    m_bpButton4->SetBitmapDisabled (toentirei);
    bSizer791->Add (m_bpButton4,
-							wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+							wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_bpButton5 = new wxBitmapButton (sbSizer->GetStaticBox (),
    												IDSelectedImage,
@@ -542,7 +543,7 @@ void CMDialog::CreateLineColumnControls (
 		bVMainSizer->Add (standardButtonSizer, wxSizerFlags(0).Right());
 	#else
 		bVMainSizer->Add (standardButtonSizer,
-								wxSizerFlags(0).Right().Border(wxTOP|wxBOTTOM, 12));
+								wxSizerFlags(0).Right().Border(wxTOP|wxRIGHT|wxBOTTOM, 12));
 	#endif
 	
 }	// end "CreateStandardButtons"
@@ -569,7 +570,7 @@ void CMDialog::GetAllSubsetMenuControl (
 
 	#endif	// multispec_wxlin
 	
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
    	wxChoice* control = new wxChoice (parentWindow,
 														controlItemNumber,
 														wxDefaultPosition,
@@ -714,12 +715,12 @@ void CMDialog::GetEqualUnequalMenuControl (
 
 	#endif	// multispec_wxlin
 	
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
    	wxChoice* control = new wxChoice (parentWindow,
 														controlItemNumber,
 														wxDefaultPosition,
 														wxSize (horizontalSize, -1));
-	#endif	// multispec_wxmac
+	#endif	// multispec_wxmac || defined multispec_wxwin
 
 	if (controlCode == kWeightsMenu)
 		m_weightsCtrl = control;
@@ -757,12 +758,12 @@ void CMDialog::GetPaletteMenuControl (
 
 	#endif	// multispec_wxlin
 	
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
    	wxChoice* control = new wxChoice (parentWindow,
 														controlItemNumber,
 														wxDefaultPosition,
 														wxSize (horizontalSize, -1));
-	#endif	// multispec_wxmac
+	#endif	// multispec_wxmac || defined multispec_wxwin
 	
 	m_paletteCtrl = control;
 	
@@ -2263,7 +2264,9 @@ SInt16 CMDialog::VerifyLineColumnStartEndValues ()
 							kAlertStrID,
 							IDS_Alert68,
 							0,
-							NULL);
+							NULL,
+							this,
+							kASCIICharString);
 
       returnCode = IDC_LineStart;
 
@@ -2276,7 +2279,9 @@ SInt16 CMDialog::VerifyLineColumnStartEndValues ()
 							kAlertStrID,
 							IDS_Alert69,
 							0,
-							NULL);
+							NULL,
+							this,
+							kASCIICharString);
 
       returnCode = IDC_ColumnStart;
 
@@ -2338,7 +2343,14 @@ SInt16 CMDialog::VerifyLineColumnValues (
 														TRUE,
 														1,
 														maxValue))
-         DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+         DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								0,
+								0,
+								0,
+								gTextString,
+								this,
+								kASCIICharString);
 
 		}	// end "if (returnCode != 0)"
 

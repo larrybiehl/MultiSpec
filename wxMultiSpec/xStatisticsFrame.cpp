@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        04/22/2020
+//   Revision date:        01/14/2023
 //
 //   Language:					C++
 //
@@ -29,8 +29,9 @@
 //                       	CMStatisticsFrame class.
 //
 /*  Template for writing something to text window for debugging.
-	int numberChars = sprintf (
+	int numberChars = snprintf (
 				(char*)&gTextString3,
+									256,
 				" xStatisticsFrame::UpdateStatsTypeCombo 1: (): %s",
 				gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -48,9 +49,9 @@
 #include "wx/display.h"
 
 
-IMPLEMENT_DYNAMIC_CLASS (CMStatisticsFrame, wxDocChildFrame)
+IMPLEMENT_DYNAMIC_CLASS (CMStatisticsFrame, MChildFrame)
 
-BEGIN_EVENT_TABLE (CMStatisticsFrame, wxDocChildFrame)
+BEGIN_EVENT_TABLE (CMStatisticsFrame, MChildFrame)
    EVT_BUTTON (IDC_AddToList, CMStatisticsFrame::OnAddToList)
    EVT_BUTTON (IDC_Class, CMStatisticsFrame::OnClass)
    EVT_BUTTON (IDC_EditName, CMStatisticsFrame::OnEditName)
@@ -70,7 +71,7 @@ BEGIN_EVENT_TABLE (CMStatisticsFrame, wxDocChildFrame)
    	EVT_COMBOBOX (IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboSelendok)
   		EVT_COMBOBOX (IDC_StatsCombo, CMStatisticsFrame::OnStatsTypeComboSelendok)
    #endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_HistogramStatsCombo, CMStatisticsFrame::OnHistogramStatsComboSelendok)
    	EVT_CHOICE (IDC_ListStatsCombo, CMStatisticsFrame::OnListStatsComboSelendok)
    	EVT_CHOICE (IDC_StatsCombo, CMStatisticsFrame::OnStatsTypeComboSelendok)
@@ -110,13 +111,19 @@ CMStatisticsFrame::CMStatisticsFrame (void)
 CMStatisticsFrame::CMStatisticsFrame (
 				wxDocument* 						doc,
 				wxView* 								view,
-				wxDocParentFrame* 				parent,
+				MParentFrame* 						parent,
             wxWindowID 							id,
             const wxString& 					title,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
-				long 									style)
-		: wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
+				long 									style,
+				const wxString&					name)
+	#if defined multispec_wxlin || defined multispec_wxmac
+		: MChildFrame (doc, view, parent, id, title, pos, size, style)
+	#endif
+	#if defined multispec_wxwin
+		: MChildFrame (doc, view, parent, id, title, pos, size, style, name)
+	#endif
 
 {
    m_classList = 0;
@@ -132,21 +139,73 @@ CMStatisticsFrame::CMStatisticsFrame (
 	
    		// Change statistic dialog window to the top-right screen -
    		// Tsung Tai 12/10/18
-	
-   int			menuHeight = 0,
+	/*
+   int			clientWindowHeight = 0,
+					clientWindowWidth = 0,
+					mainFrameHeight = 0,
+					mainFrameWidth = 0,
+					menuHeight = 0,
    				menuWidth = 0,
    				windowHeight = 0,
    				windowWidth = 0,
    				xPosition,
    				yPosition;
-	
+   
    GetSize (&windowWidth, &windowHeight);
-   xPosition = wxDisplay().GetGeometry().GetWidth () - windowWidth - 3;
+	GetClientSize (&clientWindowWidth, &clientWindowHeight);
+   //xPosition = wxDisplay().GetGeometry().GetWidth () - windowWidth - 3;
+	GetMainFrame()->GetSize (&mainFrameWidth, &mainFrameHeight);
+	xPosition = mainFrameWidth - windowWidth - 3;
    xPosition = MAX (3, xPosition);
    GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
    yPosition = menuHeight + 3;
    Move (xPosition, yPosition);
-			
+   */
+   int			menuHeight = 0,
+   				menuWidth = 0,
+   				windowWidth = 0,
+   				xPosition,
+   				yPosition;
+	
+	GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+
+   //GetSize (&windowWidth, &windowHeight);
+   windowWidth = size.GetWidth ();
+   //windowHeight = size.GetHeight ();
+   #if defined multispec_wxlin
+   	int		toolBarHeight, toolBarWidth, windowFrameWidth = 7;
+	
+		GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+	
+		xPosition = wxDisplay().GetGeometry().GetWidth() -
+																windowWidth - 2*windowFrameWidth;
+		xPosition = MAX (2*windowFrameWidth, xPosition);
+		GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+	
+				// Allow 2 pixel space below toolbar
+		yPosition = 20 + menuHeight + toolBarHeight + 2;
+   #endif
+   #if defined multispec_wxmac
+		xPosition = wxDisplay().GetGeometry().GetWidth() - windowWidth - 6;
+		xPosition = MAX (3, xPosition);
+		yPosition = 2 * menuHeight + 3;
+   #endif
+	#if defined multispec_wxwin
+		int		mainFrameWidth, mainFrameHeight, toolBarHeight, toolBarWidth, windowFrameWidth = 9;
+
+		GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolBarHeight);
+		
+		GetMainFrame()->GetSize (&mainFrameWidth, &mainFrameHeight);
+		xPosition = mainFrameWidth - windowWidth - 2 * windowFrameWidth-9;
+		xPosition = MAX (2 * windowFrameWidth, xPosition);
+		GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
+
+				// Allow 2 pixel space below toolbar
+		yPosition = 7 + menuHeight;
+	#endif
+	
+   Move (xPosition, yPosition);
+	
 	wxAcceleratorEntry entries[32];
 	entries[0].Set (wxACCEL_CTRL, (int) 'O', ID_IMAGE_OPEN);
 	entries[1].Set (wxACCEL_CTRL, (int) ';', ID_FILE_OPEN_PROJECT);
@@ -233,11 +292,12 @@ void CMStatisticsFrame::CreateControls2 ()
 	
 	
    this->SetSizeHints (wxDefaultSize, wxDefaultSize);
-	
+	/*
 	wxFont  font (gFontSize,
 						wxFONTFAMILY_MODERN,
 						wxFONTSTYLE_NORMAL,
 						wxFONTWEIGHT_NORMAL);
+	*/
 	wxBoxSizer* bSizer233;
 	bSizer233 = new wxBoxSizer (wxVERTICAL);
 	
@@ -422,7 +482,7 @@ void CMStatisticsFrame::CreateControls2 ()
 												NULL,
 												wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_statsCtrl = new wxChoice (this,
 												IDC_StatsCombo,
 												wxDefaultPosition,
@@ -464,7 +524,7 @@ void CMStatisticsFrame::CreateControls2 ()
 														NULL,
 														wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_histogramCtrl = new wxChoice (this,
 													IDC_HistogramStatsCombo,
 													wxDefaultPosition,
@@ -492,7 +552,7 @@ void CMStatisticsFrame::CreateControls2 ()
 												NULL,
 												wxCB_READONLY);
 	#endif	// multispec_wxlin
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_listCtrl = new wxChoice (this,
 											IDC_ListStatsCombo,
 											wxDefaultPosition,
@@ -604,34 +664,7 @@ void CMStatisticsFrame::CreateControls2 ()
 	
 	bSizer233->Add (bSizer242, wxSizerFlags(0).Align(wxALIGN_CENTER).Border(wxBOTTOM|wxLEFT|wxRIGHT, 8));
 	
-	m_staticText223->SetFont (font);
-	m_staticText224->SetFont (font);
-	m_staticText225->SetFont (font);
-	m_staticText226->SetFont (font);
-	m_staticText227->SetFont (font);
-	m_staticText228->SetFont (font);
-	m_staticText229->SetFont (font);
-	m_staticText230->SetFont (font);
-	m_staticText231->SetFont (font);
-	m_staticText259->SetFont (font);
-	m_staticText260->SetFont (font);
-	m_staticText261->SetFont (font);
-	m_staticText262->SetFont (font);
-	m_classListCtrl->SetFont (font);
-	m_statsCtrl->SetFont (font);
-	m_histogramCtrl->SetFont (font);
-	m_listCtrl->SetFont (font);
-	m_checkBox53->SetFont (font);
-	m_button56->SetFont (font);
-	m_button60->SetFont (font);
-	m_button61->SetFont (font);
-	m_button62->SetFont (font);
-	m_button63->SetFont (font);
-	m_button64->SetFont (font);
-	m_button65->SetFont (font);
-	m_listBox->SetFont (font);
-	
-   bSizer234->SetMinSize (bSizer234->GetSize ());
+	bSizer234->SetMinSize (bSizer234->GetSize ());
    fgSizer8->SetMinSize (fgSizer8->GetSize ());
    fgSizer12->SetMinSize (fgSizer12->GetSize ());
    fgSizer13->SetMinSize (fgSizer13->GetSize ());

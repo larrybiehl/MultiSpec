@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/09/2025
 //
 //	Language:				C
 //
@@ -2336,7 +2336,9 @@ void MosaicTwoImagesDialogInitialize (
 				SInt16*								headerOptionsSelectionPtr)
 
 {	
-	#if defined multispec_win
+   Str255                        dialogString;
+
+   #if defined multispec_win
 		CComboBox* 							comboBoxPtr;
 	#endif	// defined multispec_win
 
@@ -2463,16 +2465,18 @@ void MosaicTwoImagesDialogInitialize (
 
 	FileStringPtr fileNamePtr =
 						(FileStringPtr)GetFileNamePPointerFromFileInfo (leftTopFileInfoPtr);
+   CopyFileStringToPString (fileNamePtr, (char*)dialogString);
 	#if defined multispec_mac
 		if (CreateUnicodeStaticTextControl (dialogPtr,
 														&fileNamePtr[2],
 														GetFileStringLength (fileNamePtr),
 														IDC_LeftTopImage, NULL) != noErr)
-			LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
+			LoadDItemString (dialogPtr, IDC_LeftTopImage, dialogString);
 	#endif
 
 	#if defined multispec_wx || defined multispec_win
-		LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
+		//LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)fileNamePtr);
+      LoadDItemString (dialogPtr, IDC_LeftTopImage, (Str255*)dialogString);
 	#endif
 
 			// Left 'to entire image icon'.													

@@ -19,7 +19,7 @@
 //	Author:					Chulhee Lee
 //	Revised by:				Larry L. Biehl
 //
-//	Revision date:			04/14/2020
+//	Revision date:			01/03/2024
 //
 //	Language:				C
 //
@@ -857,7 +857,8 @@ void FS_decision_boundary (
 																				accuracy,
 																				ERROR_FLAG);
 						
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+										256,
 										#if defined multispec_mac || defined multispec_win
 											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
@@ -883,7 +884,8 @@ void FS_decision_boundary (
 		   			}	// end "if (...->optimizeClassFlag)" 
 		   			
 		   		else	// !gFeatureExtractionSpecsPtr->optimizeClassFlag 
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+										256,
 										#if defined multispec_mac || defined multispec_win
 											"     %3d-%3d       %5lld   %5lld      %5d   %5d"
 										#endif
@@ -912,7 +914,8 @@ void FS_decision_boundary (
 														
 					if (*ERROR_FLAG == 0 && pixelPairs <= 0)
 						{
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+									256,
 									"     %3d-%3d       Boundary could not be determined for"
 									" this pair.%s",
 									classPtr[i],
@@ -958,7 +961,8 @@ void FS_decision_boundary (
 						
 				else	// classPairWeightPtr[classPairCount-1] <= 0 
 					{
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"     %3d-%3d    This class pair was not used.%s",
 								classPtr[i],
 								classPtr[j],
@@ -3619,7 +3623,8 @@ SInt32 NWFE (
 		  			
 		 	}	// end "for (i=0; i<numberClasses; i++)" 
 		/*
-		sprintf ((char*)gTextString,  
+		snprintf ((char*)gTextString,
+					256,
 					"%s    Number sample pairs multiplied was %ld.%s",
 					gEndOfLine,
 					gSampleMultipleCount, 

@@ -19,7 +19,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								03/28/2022 by Larry L. Biehl
+//								02/12/2025 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -29,7 +29,8 @@
 //								CMGraphCanvas class (graph windows).
 //	
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = snprintf ((char*)&gTextString3,
+									256,
 											" xGraphFrame: (): %s",
 											gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
@@ -49,13 +50,13 @@
 #define	kYAxis			2
 #define	kBothXYAxes		3
 
-IMPLEMENT_CLASS (CMGraphFrame, wxDocChildFrame)
+IMPLEMENT_CLASS (CMGraphFrame, MChildFrame)
 IMPLEMENT_CLASS (CMGraphCanvas, wxPanel)
 
 
 
 BEGIN_EVENT_TABLE (CMGraphCanvas, wxPanel)
-	EVT_PAINT (CMGraphCanvas::paintEvent) 
+	EVT_PAINT (CMGraphCanvas::OnPaint) 
 END_EVENT_TABLE ()
 
 
@@ -73,17 +74,19 @@ CMGraphCanvas::CMGraphCanvas (
  * to be redrawn. You can also trigger this call by
  * calling Refresh ()/Update ().
  */
-void CMGraphCanvas::paintEvent (
+void CMGraphCanvas::OnPaint (
 				wxPaintEvent&						evt)
 
 {   
    wxPaintDC dc (this);
+	m_graphViewCPtr->m_calledFromPaintFlag = TRUE;
    render (dc); 
+	m_graphViewCPtr->m_calledFromPaintFlag = FALSE;
    
-}	// end "paintEvent"
+}	// end "OnPaint"
 
 
-
+/*
 void CMGraphCanvas::paintNow ()
 
 {
@@ -91,7 +94,7 @@ void CMGraphCanvas::paintNow ()
 	render (dc);
 	
 }	// end "paintNow"
-
+*/
 
 
 void CMGraphCanvas::render (
@@ -106,7 +109,7 @@ void CMGraphCanvas::render (
 
 // CMGraphFrame 
 
-BEGIN_EVENT_TABLE (CMGraphFrame, wxDocChildFrame)
+BEGIN_EVENT_TABLE (CMGraphFrame, MChildFrame)
    EVT_BUTTON (IDC_NEXT_CHANNEL, CMGraphFrame::OnNextListData)
 
 	EVT_CHECKBOX (ID_GRAPHWINDOW, CMGraphFrame::OnGraphWindow)
@@ -116,6 +119,8 @@ BEGIN_EVENT_TABLE (CMGraphFrame, wxDocChildFrame)
 	EVT_CHOICE (ID_SelectionWinXlabelCombo, CMGraphFrame::OnChangeXAxis)
 
 	EVT_MAXIMIZE (CMGraphFrame::OnMaximizeWindow)
+	
+	EVT_MENU (wxID_COPY, CMGraphFrame::OnEditCopyGraph)
 
 	EVT_MENU_RANGE (ID_SELECTBINWIDTHMENUITEMSTART,
 							ID_SELECTBINWIDTHMENUITEMSTART+10,
@@ -132,15 +137,16 @@ BEGIN_EVENT_TABLE (CMGraphFrame, wxDocChildFrame)
 	EVT_SIZE (CMGraphFrame::OnSize)
 
 	EVT_UPDATE_UI (ID_FILE_SAVE_AS, CMGraphFrame::OnUpdateFileSaveAs)
+	EVT_UPDATE_UI (ID_EDIT_COPY, CMGraphFrame::OnUpdateEditCopyGraph)
 	EVT_UPDATE_UI (ID_MAGNIFICATION, CMGraphFrame::OnUpdateMagnification)
 	EVT_UPDATE_UI (ID_OVERLAY, CMGraphFrame::OnUpdateOverlay)
 	EVT_UPDATE_UI (ID_WINDOW_NEW_SELECTION_GRAPH,
 						CMGraphFrame::OnUpdateWindowNewSelectionGraph)
 	EVT_UPDATE_UI (ID_ZOOM_IN, CMGraphFrame::OnUpdateZoomIn)
 	EVT_UPDATE_UI (ID_ZOOM_OUT, CMGraphFrame::OnUpdateZoomOut)
-	EVT_UPDATE_UI (wxID_PRINT, CMGraphFrame::OnUpdateFilePrint)
-	EVT_UPDATE_UI (wxID_PREVIEW, CMGraphFrame::OnUpdateFilePrintPreview)
-	EVT_UPDATE_UI (wxID_PAGE_SETUP, CMGraphFrame::OnUpdateFilePrintSetup)
+	//EVT_UPDATE_UI (wxID_PRINT, CMGraphFrame::OnUpdateFilePrint)
+	//EVT_UPDATE_UI (wxID_PREVIEW, CMGraphFrame::OnUpdateFilePrintPreview)
+	//EVT_UPDATE_UI (wxID_PAGE_SETUP, CMGraphFrame::OnUpdateFilePrintSetup)
 END_EVENT_TABLE ()
 
 
@@ -163,13 +169,13 @@ CMGraphFrame::CMGraphFrame ()
 CMGraphFrame::CMGraphFrame (
 				wxDocument*							doc, 
 				wxView*								view, 
-				wxDocParentFrame*					parent, 
+				MParentFrame*						parent, 
 				wxWindowID							id, 
 				const wxString&					title, 
 				const wxPoint&						pos, 
 				const wxSize&						size, 
 				long									style)
-		: wxDocChildFrame (doc, view, parent, id, title, pos, size, style)
+		: MChildFrame (doc, view, parent, id, title, pos, size, style)
 		 
 {
 	GraphPtr								graphRecordPtr;
@@ -474,11 +480,17 @@ void CMGraphFrame::CreateControls ()
 											wxLC_REPORT|wxTL_CHECKBOX);
 	bSizer327->Add (m_listCtrl2, 1, wxALL|wxEXPAND, 5);
 	
-   wxFont  font (gFontSize,
-   					wxFONTFAMILY_MODERN,
-   					wxFONTSTYLE_NORMAL,
-   					wxFONTWEIGHT_NORMAL);
+   wxFont  font = GetFont();
+   font.SetFamily (wxFONTFAMILY_TELETYPE);
+   //font.SetFaceName ("Monaco");
+   //font.SetWeight (wxFONTWEIGHT_MEDIUM);
+   //wxSize pixelSize = font.GetPixelSize ();
+   //int pointSize = font.GetPointSize ();
+   //font.MakeSmaller ();//
+   //wxString faceName = font.GetFaceName ();
    m_listCtrl2->SetFont (font);
+   
+   m_listCtrl2->SetSingleStyle (wxLC_HRULES, false);
    
    m_listCtrl2->InsertColumn (0, 
 										wxT("  Channel  "), 
@@ -509,7 +521,7 @@ void CMGraphFrame::CreateControls ()
 													IDC_FEATURE_LIST, 
 													wxDefaultPosition, 
 													wxDefaultSize); 
-   m_listCtrl1->SetFont (font);
+   //m_listCtrl1->SetFont (font);
 	bSizer326->Add (m_listCtrl1, 1, wxALL|wxEXPAND, 5);
 	
    m_listCtrl1->AppendColumn (wxT("Feature Name"), 
@@ -623,12 +635,28 @@ void CMGraphFrame::CreateHistogramControls ()
 		wxBitmap arrow_previous = wxBITMAP_PNG_FROM_DATA (arrow_previous);
 	#endif
 
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac 
 		wxBitmap density_histogram = wxBITMAP_PNG (density_histogram);
 		wxBitmap binwidth = wxBITMAP_PNG (binwidth);
 		wxBitmap classes = wxBITMAP_PNG (classes);
 		wxBitmap arrow_next = wxBITMAP_PNG (arrow_next);
 		wxBitmap arrow_previous = wxBITMAP_PNG (arrow_previous);
+	#endif
+
+	#if  multispec_wxwin
+		//Boolean density_histogramOKFlag = true;
+		wxBitmap density_histogram; 
+		density_histogram.LoadFile (wxT("Resources/density_histogram.png"), wxBITMAP_TYPE_PNG);
+		//if (!density_histogram.IsOk ())
+		//	density_histogramOKFlag = false;
+		wxBitmap binwidth;
+		binwidth.LoadFile (wxT("Resources/binwidth.png"), wxBITMAP_TYPE_PNG);
+		wxBitmap classes;
+		classes.LoadFile (wxT("Resources/classes.png"), wxBITMAP_TYPE_PNG);
+		wxBitmap arrow_next;
+		arrow_next.LoadFile (wxT("Resources/arrow_next.png"), wxBITMAP_TYPE_PNG);
+		wxBitmap arrow_previous;
+		arrow_previous.LoadFile (wxT("Resources/arrow_previous.png"), wxBITMAP_TYPE_PNG);
 	#endif
 	
    m_panel2 = new CMGraphCanvas (this);
@@ -931,7 +959,7 @@ void CMGraphFrame::DoNextOrPreviousChannelEvent (
 			if (!UpdateGraphChannels ())
 				break;
 	
-			#if defined multispec_wxlin
+			#if defined multispec_wxlin || defined multispec_wxwin
 				Update ();
 			#endif
 		
@@ -986,7 +1014,7 @@ bool CMGraphFrame::OnCreateClient ()
 		
 {
    Boolean returnFlag = FALSE;
-   if (wxDocChildFrame::GetView ())
+   if (MChildFrame::GetView ())
    	{
       ((CMGraphDoc*)m_childDocument)->SetGraphFrameCPtr (this);
       returnFlag = TRUE;
@@ -1034,6 +1062,9 @@ void CMGraphFrame::OnChangeXAxis (
          	graphRecordPtr->xValueTypeCode = kRealType;
          
 			ReloadXAxis (graphRecordPtr, xAxisCode);
+			
+			if (m_dataListShowFlag == true)
+				m_graphViewCPtr->UpdateDataListCtrl ();
    
 			m_panel2->Refresh ();
 		
@@ -1090,6 +1121,16 @@ void CMGraphFrame::OnData (
 
 
 
+void CMGraphFrame::OnEditCopyGraph (
+				wxCommandEvent& 					event)
+
+{
+	m_graphViewCPtr->DoEditCopyGraph ();
+	
+}	// end "OnEditCopyGraph"
+
+
+
 void CMGraphFrame::OnFeature (
 				wxCommandEvent&					WXUNUSED (event))
 
@@ -1135,16 +1176,16 @@ void CMGraphFrame::OnFeature (
 }	// end "OnFeature"
 
 
-
+/*
 void CMGraphFrame::OnFilePrint ()
 
 {             
 	//((CMultiSpecApp*)AfxGetApp ())->SetPrintOrientation (GetActiveWindowInfoHandle ());
    
-	//m_graphViewCPtr->DoFilePrint ();
+	m_graphViewCPtr->DoFilePrint ();
 	
 }	// end "OnFilePrint" 
-
+*/
 
 
 void CMGraphFrame::OnGraphWindow (
@@ -1274,7 +1315,9 @@ void CMGraphFrame::OnPaint (
    if (graphRecordPtr->processorCode == kSelectionGraphProcessor)
 																								return;
    wxPaintDC dc (this);
+   m_graphViewCPtr->m_calledFromPaintFlag = TRUE;
    m_graphViewCPtr->OnDraw (&dc);
+   m_graphViewCPtr->m_calledFromPaintFlag = FALSE;
 	
 }	// end "OnPaint"
 
@@ -1381,6 +1424,16 @@ void CMGraphFrame::OnSize (
 
 
 
+void CMGraphFrame::OnUpdateEditCopyGraph (
+				wxUpdateUIEvent& 								pCmdUI)
+
+{	
+	pCmdUI.Enable (UpdateEditGraphicsCopy (&pCmdUI));
+	
+}	// end "OnUpdateEditCopy"
+
+
+/*
 void CMGraphFrame::OnUpdateFilePrint (
 				wxUpdateUIEvent&					pCmdUI)
 
@@ -1413,7 +1466,7 @@ void CMGraphFrame::OnUpdateFilePrintSetup (
     pCmdUI.Enable (false);
 
 }	// end "OnUpdateFilePrintSetup"
-
+*/
 
 
 void CMGraphFrame::OnUpdateFileSaveAs (
@@ -1736,7 +1789,7 @@ void CMGraphFrame::UpdateSplitterWindowLayout ()
 				maximumGraphHeight -= (27 + menuHeight + toolBarHeight);
 			#endif
 			
-			#if defined multispec_wxmac
+			#if defined multispec_wxmac || defined multispec_wxwin
 				wxRect	clientRect;
 		
 				clientRect = wxDisplay().GetClientArea ();

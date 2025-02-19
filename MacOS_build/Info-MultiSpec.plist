@@ -20,6 +20,8 @@
 			</array>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<integer>1</integer>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
@@ -178,9 +180,9 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.education</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7</string>
+	<string>10.9</string>
 	<key>LSRequiresNativeExecution</key>
-	<true/>
+	<false/>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 1988-2020, Purdue Research Foundation</string>
 	<key>NSPrincipalClass</key>

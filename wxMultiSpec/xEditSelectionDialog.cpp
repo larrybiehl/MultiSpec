@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/16/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xEditSelectionDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -159,7 +160,8 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues (
 			int numberDecimals = 4;
 			if (m_selectionUnits == kLatLongUnits)
             numberDecimals = 8;
-			SInt16 numberChars = sprintf ((char*)&gTextString[1],
+			SInt16 numberChars = snprintf ((char*)&gTextString[1],
+													255,
 													"Enter value between %.*f and %.*f.",
 													numberDecimals,
 													minDoubleValue,
@@ -171,7 +173,14 @@ Boolean CMEditCoordinatesDlg::CheckLineColumnValues (
 			}	// end "else m_selectionUnits != kLineColumnUnits"
 		
 		if (stringLoadedFlag)
-			DisplayAlert (kErrorAlertID, kStopAlert, 0, 0, 0, gTextString);
+			DisplayAlert (kErrorAlertID,
+								kStopAlert,
+								0,
+								0,
+								0,
+								gTextString,
+								this,
+								kASCIICharString);
 			
 		}	// end "if (valueItemHit != 0)"
 

@@ -2695,7 +2695,8 @@ void EditClassFieldDialogInitialize (
 		CreateNumberWithCommasInString ((char*)gTextString2, 
 													fieldIdentPtr->numberPixels);
 			
-		gTextString[0] = sprintf ((char*)&gTextString[1],
+		gTextString[0] = snprintf ((char*)&gTextString[1],
+											255,
 											"Number pixels: %s",
 											(char*)gTextString2);
 		LoadDItemString (dialogPtr, IDC_FieldNumberPixels, (Str255*)gTextString);
@@ -2877,7 +2878,8 @@ Boolean EditCoordinatesDialog (
 				#endif	// defined multispec_mac 
 					
 				#if defined multispec_win || defined multispec_wx
-					gTextString[0] = sprintf ((char*)&gTextString[1], 
+					gTextString[0] = snprintf ((char*)&gTextString[1],
+														255,
 														"%d\t%d",
 														(int)selectionRectangle.top,
 														(int)selectionRectangle.left);

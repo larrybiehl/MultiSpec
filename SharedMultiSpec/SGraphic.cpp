@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl and Nicus, Inc
 //
-//	Revision date:			05/29/2020
+//	Revision date:			12/29/2023
 //
 //	Language:				C
 //
@@ -218,14 +218,18 @@ void DeallocateV (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/03/1999
-//	Revised By:			Larry L. Biehl			Date: 02/28/2020
+//	Revised By:			Larry L. Biehl			Date: 04/04/2023
 
 void	DensityFunctionPlotV (
 				GraphPtr								graphPtr,
 				SInt32*								errorPtr,
 				SInt16								drawGraphCode)
 					
-{								
+{
+
+	#if defined multispec_wx
+		wxPoint splines[50];		// hopefully 50 should be enough; need to be sure to check.
+	#endif	// defined multispec_wx			
 	double								constant1,
 											constant2,
 											exponent,
@@ -372,8 +376,9 @@ void	DensityFunctionPlotV (
      
          #if defined multispec_wx
 				int b_size;
-				b_size = (int)((x_max- x_val)/x_increment)+2;
-				wxPoint splines[b_size+1];
+
+				b_size = (int)((x_max- x_val)/x_increment)+3;
+				b_size = MIN(b_size, 50);
 				int i = 0;
 				splines[i].x = x_point;
 				splines[i].y = y_point;
@@ -2875,7 +2880,7 @@ GraphPtr	NewGraph (
 //	Errors returned:	NU_NO_ERROR, NU_NOTSAMESIZEG, or NU_MUSTBEPOS
 //			
 //	Revised By:			Larry L. Biehl			Date: 12/09/1991
-//	Revised By:			Larry L. Biehl			Date: 05/24/2017
+//	Revised By:			Larry L. Biehl			Date: 12/29/2023
 //
 // ===================================================================================
 
@@ -2917,6 +2922,8 @@ void	ScatterPlotV (
 											width,
 											x_point, 
 											y_point;
+											
+	Boolean 								hasWavelengthValuesFlag;
 	
 	#if defined multispec_wx
 		char									symbolString[2];
@@ -2995,6 +3002,8 @@ void	ScatterPlotV (
 	vectorSymbolPtr = (char*)GetHandlePointer (
 										graph->vectorSymbolHandle,
 										kLock);
+	
+	hasWavelengthValuesFlag = (graph->descriptionCode & kBothReflectiveThermalData);
 		
 	for (lines=0; lines<numberVectors; lines++)
 		{
@@ -3013,8 +3022,12 @@ void	ScatterPlotV (
 			#if defined multispec_win
 				pDC->SetTextColor (vectorPaletteColorPtr[lines]);
 			#endif
+			
+					// Need to separate two: plot channel number or wavelength center
 				
 			xValuePtr = &x->basePtr[xVectorDataPtr[lines]];
+			if	(hasWavelengthValuesFlag && graph->xAxisCode > kChannels)
+				xValuePtr += points;
 			
 			points = vectorLengthsPtr[lines];
 			sym = vectorSymbolPtr[lines];	

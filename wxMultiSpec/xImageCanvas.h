@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMImageCanvas class
 //
 //	Written By:				Abdur Rahman Maud		Date: 06/22/2011
-//	Revised By:				Larry L. Biehl			Date: 10/25/2019
+//	Revised By:				Larry L. Biehl			Date: 04/29/2023
 //
 //------------------------------------------------------------------------------------
 

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			02/10/2025
 //
 //	Language:				C
 //
@@ -140,6 +140,12 @@
 #define	kDoNotCloseOverlayFileIfNoRecordsRead		0
 #define	kCloseOverlayFileIfNoRecordsRead				1
 
+extern SInt16 GetImageWavelengthsFromHDF5File (
+				FileInfoPtr							fileInfoPtr,
+				ChannelDescriptionPtr			channelDescriptionPtr,
+				float*								channelValuesPtr,
+				float*								channelWidthsPtr);
+
 extern SInt16 ReadVectorWithGDALLibrary (
 				Handle								windowInfoHandle,
 				FileInfoPtr 						fileInfoPtr,
@@ -185,6 +191,12 @@ SInt32 GetFileHeaderValues (
 				SInt32*								valuesPtr,
 				Boolean								skipEqualFlag,
 				SInt16*								returnCodePtr);
+
+SInt16 GetHyperionImageWavelengths (
+				FileInfoPtr							fileInfoPtr,
+				ChannelDescriptionPtr			channelDescriptionPtr,
+				float*								channelValuesPtr,
+				float*								channelWidthsPtr);
 
 void GetInstrumentChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr);
@@ -409,7 +421,7 @@ Boolean AddToImageWindowFile (
 //							SetUpThematicImageWindow in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/11/1988
-//	Revised By:			Larry L. Biehl			Date: 08/16/2019
+//	Revised By:			Larry L. Biehl			Date: 02/10/2025
 
 void AdjustImageWSize (
 				Handle								windowInfoHandle)
@@ -423,6 +435,9 @@ void AdjustImageWSize (
 
 	Handle								fileInfoHandle;
 
+	int									availableHeight,
+											availableWidth;
+
 	UInt32								columnInterval,
 											lineInterval,
 											numberColumns,
@@ -430,9 +445,10 @@ void AdjustImageWSize (
 
 	UInt16								amountToAllowForHStuff,
 											amountToAllowForVStuff,
+											legendHeight,
 											legendWidth,
-											windowHeight,
-											windowWidth;
+											frameHeight,
+											frameWidth;
 
 	Boolean								latLongPossibleFlag;
 
@@ -532,18 +548,25 @@ void AdjustImageWSize (
 	#endif	// defined multispec_mac || defined multispec_mac_swift
 
 	#if defined multispec_win
-		RECT rect;
+		RECT	rect; 
+
+		//int	availableHeight,
+		//		availableWidth;
+
 
 		CWinApp* winAppPtr = AfxGetApp ();
 		CFrameWnd* pMainFrame = (CFrameWnd*)winAppPtr->m_pMainWnd;
 		pMainFrame->GetClientRect (&rect);
 
+		availableWidth = rect.bottom - rect.top;
+		availableHeight = rect.right - rect.left;
+
 				// Allow for the status bar, tool bar, and scroll bars
 
-		rect.bottom -= 4 * (kSBarWidth - 1);
-		rect.right -= (kSBarWidth - 1);
+		availableHeight -= 4 * (kSBarWidth - 1);
+		availableWidth -= (kSBarWidth - 1);
 
-		rect.bottom -= 2 * (kSBarWidth - 1);
+		availableHeight -= 2 * (kSBarWidth - 1);
 
 				// Amount to allow for scroll bars in window sizing. Macintosh version
 				// needs to take the scroll bars into account. Windows version does not.
@@ -555,62 +578,83 @@ void AdjustImageWSize (
 
 		if (latLongPossibleFlag)
 			{
-			rect.bottom -= 33;
+			availableHeight -= 33;
 			amountToAllowForVStuff += 33;
 
 			}	// end "if (latLongPossibleFlag)"
 	#endif	// defined multispec_win
 
 	#if defined multispec_wx
-		RECT rect, frameRect;
-		wxRect client_rect, frameClient_rect;
+		RECT			mainFrameRect, 
+						frameRect;
 
-		#if defined multispec_wxlin
+		wxRect		wxMainFrameClientRect, 
+						wxFrameClientRect,
+						wxFrameRect;
+
+		int			//availableHeight,
+						//availableWidth,
+						canvasHeight,
+						canvasWidth,
+						titleToolBarHeight;
+
+		#if defined multispec_wxlin || defined multispec_wxwin
 			wxFrame* pMainFrame = (wxFrame*)GetMainFrame ();
-			client_rect = pMainFrame->GetClientRect ();
+			wxMainFrameClientRect = pMainFrame->GetClientRect ();
 			//client_rect = pMainFrame->GetRect ();
-			rect.top = client_rect.GetTop ();
-			rect.left = client_rect.GetLeft ();
-			rect.bottom = client_rect.GetBottom ();
-			rect.right = client_rect.GetRight ();
+			mainFrameRect.top = wxMainFrameClientRect.GetTop ();
+			mainFrameRect.left = wxMainFrameClientRect.GetLeft ();
+			mainFrameRect.bottom = wxMainFrameClientRect.GetBottom ();
+			mainFrameRect.right = wxMainFrameClientRect.GetRight ();
    	#endif
 		#if defined multispec_wxmac
 			//int			menuWidth,
 			//				menuHeight;
 	
-			client_rect = wxDisplay().GetClientArea ();
+			wxMainFrameClientRect = wxDisplay().GetClientArea ();
 	
    		//GetMainFrame()->m_menubar1->GetSize (&menuWidth, &menuHeight);
-			rect.top = client_rect.GetTop ();
-			rect.left = client_rect.GetLeft ();
-			rect.bottom = client_rect.GetBottom ();
-			rect.right = client_rect.GetRight ();
+			mainFrameRect.top = wxMainFrameClientRect.GetTop ();
+			mainFrameRect.left = wxMainFrameClientRect.GetLeft ();
+			mainFrameRect.bottom = wxMainFrameClientRect.GetBottom ();
+			mainFrameRect.right = wxMainFrameClientRect.GetRight ();
    	#endif
 		
 		CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 		CMImageView* imageViewCPtr = (CMImageView*)imageWindowCPtr->mImageViewCPtr;
 		imageFramePtr = imageViewCPtr->GetImageFrameCPtr ();
+
 		//client_rect = imageFramePtr->GetClientRect ();
-		client_rect = imageFramePtr->GetRect ();		
-		frameRect.top = client_rect.GetTop ();		
-		frameRect.left = client_rect.GetLeft ();
-		frameRect.bottom = client_rect.GetBottom ();
-		frameRect.right = client_rect.GetRight ();
+		wxFrameRect = imageFramePtr->GetRect ();
+		frameRect.top = wxFrameRect.GetTop ();
+		frameRect.left = wxFrameRect.GetLeft ();
+		frameRect.bottom = wxFrameRect.GetBottom ();
+		frameRect.right = wxFrameRect.GetRight ();
 
 				// Get the total of the title and toolbar height
 	
-		wxRect wxFrameRect = imageFramePtr->GetRect ();
-		wxRect wxFrameClientRect = imageFramePtr->GetClientRect ();
-		int titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
+		wxFrameClientRect = imageFramePtr->GetClientRect ();
+		titleToolBarHeight = wxFrameRect.height - wxFrameClientRect.height;
+
+		availableWidth = wxMainFrameClientRect.width;
+		availableHeight = wxMainFrameClientRect.height;
 
 				// Amount to allow for window border.
 		#ifdef NetBeansProject
-			rect.right -= 2 * 5;
-			rect.bottom -= 2 * 5 + 33;
+			availableWidth -= 2 * 5;
+			availableHeight -= 2 * 5 + 33;
 
 			amountToAllowForHStuff = 7;
 			amountToAllowForVStuff = 33;
-		#else	// mygeohub
+		#else	// not NetBeansProject
+			#if defined multispec_wxlin
+				availableWidth -= 2 * 5;
+				availableHeight -= 2 * 5 + 21;
+
+				amountToAllowForHStuff = 6;
+				amountToAllowForVStuff = 6;	// Allows for border
+			#endif
+
 			#if defined multispec_wxmac
 				//wxSize toolBarSize = imageFramePtr->GetToolBar()->GetToolBitmapSize ();
 						// Allow for 2 pixels top and bottom and 4 pixels top and bottom for
@@ -620,26 +664,43 @@ void AdjustImageWSize (
 								2 + 4 + wxFrameRect.width - wxFrameClientRect.width;	// 9
 				amountToAllowForVStuff = 2 + 4 + titleToolBarHeight;		// 2 * 5 + 24
 	
-				rect.right -= amountToAllowForHStuff;
-				rect.bottom -= amountToAllowForVStuff;		// 2 * 5 + 24
-			#else
-				rect.right -= 2 * 5;
-				rect.bottom -= 2 * 5 + 21;
+				availableWidth -= amountToAllowForHStuff;
+				availableHeight -= amountToAllowForVStuff;		// 2 * 5 + 24
+			#endif
 
-				amountToAllowForHStuff = 6;
-				amountToAllowForVStuff = 6;	// Allows for border
+			#if defined multispec_wxwin
+						// Allows for image frame width; Do not understand why so much
+
+				amountToAllowForHStuff = 2 * 11;			
+				amountToAllowForVStuff = 2 * 11 + 23;	//	23 allows for Frame title	
+
+						// Allows for small distance from main frame (or display) edges
+						// Also allow for tool bar
+
+				int toolBarWidth, toolbarHeight;
+				GetMainFrame()->m_toolBar1->GetSize (&toolBarWidth, &toolbarHeight);
+				availableWidth -= 2 * 5;			
+				availableHeight -= (2 * 5 + toolbarHeight);
 			#endif
 		#endif
 		
 		if (latLongPossibleFlag)
 			{
-					// Allow for coordinate view.
-			#if defined multispec_wxmac
-				rect.bottom -= 40;
-				amountToAllowForVStuff += 40;
-			#else
-				rect.bottom -= 39;
+					// Allow for coordinate view at top of the frame.
+
+			#if defined multispec_wxlin
+				availableHeight -= 39;
 				amountToAllowForVStuff += 39;
+			#endif
+
+			#if defined multispec_wxmac
+				availableHeight -= 40;
+				amountToAllowForVStuff += 40;
+			#endif
+
+			#if defined multispec_wxwin
+				availableHeight -= 41;
+				amountToAllowForVStuff += 41;
 			#endif
 
 			}	// end "if (latLongPossibleFlag)"
@@ -648,20 +709,30 @@ void AdjustImageWSize (
 			// Get legend width.																	
 
 	legendWidth = 0;
+	legendHeight = 0;
 	if (GetWindowType (windowInfoHandle) == kThematicWindowType)
+		{
 				// Allow for extra pixel
 		legendWidth = GetLegendWidth (windowInfoHandle) + 1;
+		
+		CMLegendList* imageLegendListCPtr = gActiveImageViewCPtr->GetImageLegendListCPtr();
+		if (imageLegendListCPtr != NULL)
+			legendHeight = imageLegendListCPtr->GetLegendFullHeight (0);
+			
+		if (legendHeight == 0)
+					// Legend is not set up yet; assume row height is 18 for each class.
+			legendHeight = fileInfoPtr->numberClasses * 18;
+		
+		}	// end "if (GetWindowType (windowInfoHandle) == kThematicWindowType)"
 
-			// Initialize resolutionElement depending upon whether display			
-			// elements are color or B&W patterns and then number of display		
-			// levels																				
+			// Determine width and height of pixels that can be displayed within the avalable area.																				
 
 	numberLines = windowInfoPtr->maxNumberLines;
 	numberColumns = windowInfoPtr->maxNumberColumns;
 
-	lineInterval = (numberLines / (rect.bottom - rect.top + 1)) + 1;
+	lineInterval = (numberLines / (availableHeight + 1)) + 1;
 
-	columnInterval = (numberColumns / (rect.right - rect.left - legendWidth + 1)) + 1;
+	columnInterval = (numberColumns / (availableWidth - legendWidth + 1)) + 1;
 
 	if (lineInterval > columnInterval)
 		columnInterval = lineInterval;
@@ -680,24 +751,29 @@ void AdjustImageWSize (
 		
 		}	// end "if (lineInterval > 1)"
 	/*
-	windowHeight = (UInt16)((numberLines - 1)/lineInterval + 1) +
+	frameHeight = (UInt16)((numberLines - 1)/lineInterval + 1) +
 																		amountToAllowForVStuff;
 	
-	windowWidth = (UInt16)((numberColumns - 1)/columnInterval + 1) +
+	frameWidth = (UInt16)((numberColumns - 1)/columnInterval + 1) +
 														legendWidth + amountToAllowForHStuff;
 	*/
-	windowHeight = (UInt16)(magnification * numberLines +
+	frameHeight = (UInt16)(magnification * numberLines +
 																		amountToAllowForVStuff);
 
-	windowWidth = (UInt16)(magnification * numberColumns +
+	frameWidth = (UInt16)(magnification * numberColumns +
 														legendWidth + amountToAllowForHStuff);
 	
-	windowHeight = MAX (windowHeight, (UInt16)gGrowAreaMinimum);
-
-	windowWidth = MAX (windowWidth, gGrowAreaMinimum + legendWidth);
+	frameHeight = MAX (frameHeight, (UInt16)gGrowAreaMinimum + legendHeight);
+			
+	frameWidth = MAX (frameWidth, gGrowAreaMinimum + legendWidth);
+			
+			// Make sure the height and width are not larger than the available space on the monitor
+			
+	frameHeight = MIN (frameHeight, availableHeight);
+	frameWidth = MIN (frameWidth, availableWidth);
 	 
 	#if defined multispec_mac
-		SizeWindow (windowPtr, windowWidth, windowHeight, TRUE);
+		SizeWindow (windowPtr, frameWidth, frameHeight, TRUE);
 
 		if (windowInfoPtr->windowType == kThematicWindowType)
 			{
@@ -741,7 +817,7 @@ void AdjustImageWSize (
 	#if defined multispec_win
 		CMImageWindow* imageWindowCPtr = windowInfoPtr->cImageWindowPtr;
 		CMImageDoc* imageDocCPtr = (CMImageDoc*)imageWindowCPtr->GetImageDocCPtr ();
-		imageDocCPtr->SetDocSize (windowHeight, windowWidth);
+		imageDocCPtr->SetDocSize (frameHeight, frameWidth);
 
 				// Show the coordinate view if it is to be shown when the window is first
 				// displayed.
@@ -755,14 +831,21 @@ void AdjustImageWSize (
 	#endif	// defined multispec_win
 
 	#if defined multispec_wx
-		int	lWindowWidth, lWindowHeight;
-		lWindowWidth = windowWidth;
-		lWindowHeight = windowHeight;
+		//wxRect currentCanvasRect = (imageViewCPtr->m_Canvas)->GetRect ();
+
+		canvasHeight = frameHeight - amountToAllowForVStuff + 12;
+		canvasWidth = frameWidth - legendWidth - amountToAllowForHStuff + 12;
+
 		imageFramePtr->SetSize (frameRect.left,
 											frameRect.top,
-											windowWidth,
-											windowHeight);	
-		(imageViewCPtr->m_Canvas)->SetVirtualSize (windowWidth, windowHeight);
+											frameWidth,
+											frameHeight);
+		//currentCanvasRect = (imageViewCPtr->m_Canvas)->GetRect ();
+		(imageViewCPtr->m_Canvas)->SetSize (canvasWidth,
+														canvasHeight);
+		(imageViewCPtr->m_Canvas)->SetVirtualSize (numberColumns, numberLines);
+
+		//currentCanvasRect = (imageViewCPtr->m_Canvas)->GetRect ();
 		
 				// Show the coordinate view if it is to be shown when the window is first
 				// displayed.
@@ -848,7 +931,7 @@ float* CheckChannelValuesHandleSize (
 //							ReadMultiSpecClassificationHeader in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/07/1992
-//	Revised By:			Larry L. Biehl			Date: 12/11/2012
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 CheckFileInfoParameters (
 				FileInfoPtr							fileInfoPtr)
@@ -892,6 +975,7 @@ SInt16 CheckFileInfoParameters (
 		if (fileInfoPtr->numberClasses <= 0)
 			{
 			fileInfoPtr->numberClasses = fileInfoPtr->numberBins;
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 			returnCode = 0;
 
 			}	// end "if (fileInfoPtr->numberClasses == 0)"
@@ -899,6 +983,7 @@ SInt16 CheckFileInfoParameters (
 		if (fileInfoPtr->numberClasses > kMaxNumberClasses)
 			{
 			fileInfoPtr->numberClasses = kMaxNumberClasses;
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 			returnCode = 0;
 
 			}	// end "if (fileInfoPtr->numberClasses > kMaxNumberClasses)"
@@ -1361,7 +1446,7 @@ SInt32 CheckIfProjectFile (
 // Called By:			LoadImageInformation	in SOpenImage.cpp	
 //
 //	Coded By:			Larry L. Biehl			Date: 08/23/1988
-//	Revised By:			Larry L. Biehl			Date: 03/30/2020
+//	Revised By:			Larry L. Biehl			Date: 02/08/2023
 
 SInt16 CheckImageHeader (
 				Handle								windowInfoHandle,
@@ -1629,7 +1714,7 @@ SInt16 CheckImageHeader (
 					SInt64 fileSize;
 					GetSizeOfFile (fileStreamPtr, &fileSize);
 					/*
-					sprintf ((char*)gTextString, " gdal returnCode = %5d%s", 
+					snprintf ((char*)gTextString, 256, " gdal returnCode = %5d%s",
 											returnCode,
 											gEndOfLine);
 					OutputString (NULL, 
@@ -1732,11 +1817,11 @@ SInt16 CheckImageHeader (
         // At this point if gdal is available, gdal was not able to read the file.
         // Check if image file is a TIFF file that MultiSpec code can read.
 
-		#if use_multispec_tiffcode
+		//#if use_multispec_tiffcode
 			if (fileInfoPtr->format == 0 && count >= 8)
             returnCode = ReadTIFFHeader (
             								fileInfoPtr, headerRecordPtr, formatOnlyCode);
-		#endif	// use_multispec_tiffcode
+		//#endif	// use_multispec_tiffcode
 		
 		#if include_gdal_capability
 					// At this point gdal is available. If gdal was not able to read the 
@@ -1808,7 +1893,11 @@ SInt16 CheckImageHeader (
             // possible of 256
 
 			if (fileInfoPtr->numberBytes == 1 && fileInfoPtr->numberClasses <= 0)
+				{
 				fileInfoPtr->numberClasses = 256;
+				fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
+				
+				}	// end "if (fileInfoPtr->numberBytes == 1 && ..."
 
 			if (fileInfoPtr->numberChannels > 1)
 				DisplayAlert (kErrorAlertID,
@@ -4195,6 +4284,221 @@ SInt32 GetFileHeaderValues (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		SInt16 GetHyperionImageWavelengths
+//
+//	Software purpose:	This routine get the Hyperion sensor wavelengths from the
+//							the resource text file.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 12/30/2023
+//	Revised By:			Larry L. Biehl			Date: 01/04/2024
+
+SInt16 GetHyperionImageWavelengths (
+				FileInfoPtr							fileInfoPtr,
+				ChannelDescriptionPtr			channelDescriptionPtr,
+				float*								channelValuesPtr,
+				float*								channelWidthsPtr)
+				
+{
+	char									resourceString_3000[3000];
+	
+	char									*descriptionPtr,
+											*fileNamePtr,
+											*nextSubStringPtr,
+											*startBandIdentiferPtr,
+											*subStringPtr;
+	
+   SInt32								descriptionLength,
+											valueStringLength;
+	
+	UInt32								channelIndex,
+											descriptionIndex,
+											endIndex,
+											requestedChannelNumber,
+											resourceStringLength,
+											startIndex,
+											valuesIndex;
+	
+ 	SInt16								returnCode = 0;
+   
+	
+	if (fileInfoPtr->numberChannels == 1)
+		{
+				// This implies linked files. Get the band number from them file name.
+
+		fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (fileInfoPtr);
+		startBandIdentiferPtr = strstr ((char*)fileNamePtr, "_L1GST");
+		
+				// The band number start 3 characters before this position. Go back
+				// 5 and start with _B
+
+		if (startBandIdentiferPtr != NULL)
+			{
+			startBandIdentiferPtr -= 5;
+			if (sscanf (startBandIdentiferPtr, "_B%d", &requestedChannelNumber) != 1)
+				returnCode = 1;
+			/*
+					// For debugging
+			snprintf ((char*)gTextString,
+							256,
+							"    channelNumber1 = %hd%s",
+							requestedChannelNumber,
+							gEndOfLine);
+			ListString (
+				(char*)gTextString, strlen ((char*)gTextString), gOutputTextH);
+			*/
+			}	// end "if (startBandIdentifer != NULL)"
+
+		}	// end "if (fileInfoPtr->numberChannels == 1)"
+
+	else if (fileInfoPtr->numberChannels != 242)
+		{
+				// combined file set with all 242 channels
+			
+			returnCode = 1;
+
+		}	// end "else combined file set"
+	
+	if (returnCode == 0)
+		{
+		returnCode = 1;
+		if (MGetString ((UCharPtr)resourceString_3000,
+								kChanDescriptionStrID,
+								4001,
+								3000-10,
+								&resourceStringLength))
+			{
+					// String has been found.
+					
+			subStringPtr = &resourceString_3000[1];
+			
+			if (fileInfoPtr->numberChannels == 1)
+				{
+						// Get the requested channel within the string.
+						
+				for (channelIndex=0; channelIndex<requestedChannelNumber-1; channelIndex++)
+					{
+					subStringPtr = strstr (subStringPtr, ",");
+					
+					if (subStringPtr == NULL)
+						break;
+					
+					else	// subStringPtr != NULL
+						subStringPtr++;
+					
+					}	// end "for (channelIndex=0; channelIndex<requestedChannelNumber-1; channelIndex++)"
+				
+				startIndex = requestedChannelNumber-1;
+				endIndex = requestedChannelNumber;
+						
+				}	// if (fileInfoPtr->numberChannels == 1)
+				
+			else	// fileInfoPtr->numberChannels == 242
+				{
+				startIndex = 0;
+				endIndex = fileInfoPtr->numberChannels;
+				
+				}	// end "else fileInfoPtr->numberChannels == 242"
+				
+						// Now read the center wavelength for each channel
+			
+			for (channelIndex=startIndex; channelIndex<endIndex; channelIndex++)
+				{
+				valuesIndex = channelIndex;
+				if (fileInfoPtr->numberChannels == 1)
+					valuesIndex = 0;
+					
+				if (sscanf (subStringPtr, "%f,", &channelValuesPtr[valuesIndex]) != 1)
+					break;
+				
+						// Need to convert the value from nanometers to micrometers
+				
+				channelValuesPtr[valuesIndex]/= 1000;
+					
+						// Fill the text description value using the string in the metadata.
+						// Force it to be no more than kChannelDescriptionLength characters.
+						
+				if (*subStringPtr == '\n')
+					subStringPtr++;
+						
+				nextSubStringPtr = strstr (subStringPtr, ",");
+				if (nextSubStringPtr != NULL)
+					valueStringLength = (SInt32)(nextSubStringPtr - subStringPtr);
+					
+				else	// nextSubStringPtr == NULL
+					valueStringLength = 1;
+				
+				descriptionPtr = (char*)channelDescriptionPtr;
+				descriptionLength = snprintf (descriptionPtr, kChannelDescriptionLength, "B%3d", channelIndex+1);
+				valueStringLength = MIN(valueStringLength, kChannelDescriptionLength-descriptionLength-3);
+
+						// Move the channel description to the channel description
+						// variable and set rest of string to blank.
+
+				BlockMoveData (subStringPtr, &descriptionPtr[descriptionLength], valueStringLength);
+
+				descriptionIndex = descriptionLength + valueStringLength;
+				snprintf (&descriptionPtr[descriptionIndex], 4, " nm");
+				descriptionIndex += 3;
+				
+				while (descriptionIndex < kChannelDescriptionLength)
+					{
+					descriptionPtr[descriptionIndex] = ' ';
+					descriptionIndex++;
+
+					}	// end "while (descriptionIndex < kChannelDescriptionLength)"
+
+				fileInfoPtr->maxNumberDescriptionCharacters = MAX (
+																 fileInfoPtr->maxNumberDescriptionCharacters,
+																 (SInt16)descriptionLength + valueStringLength);
+																 
+				channelDescriptionPtr++;
+						
+						// Now go to next space
+						
+				if (nextSubStringPtr == NULL)
+					break;
+					
+				if (strncmp (&nextSubStringPtr[1], (char*)"\n", 1) == 0)
+							// Skip new line symbol
+					nextSubStringPtr++;
+				subStringPtr = nextSubStringPtr + 1;
+				
+				}	// end "for (channelIndex=startIndex; channelIndex<endIndex; channelIndex++)"
+				
+			if (channelIndex >= endIndex - 1)
+				returnCode = 0;
+		
+			if (returnCode == 0)
+				{
+				fileInfoPtr->descriptionsFlag = TRUE;
+			
+						// Set the descriptionCode info. Hyperion data is reflective.
+						
+				fileInfoPtr->descriptionCode |= kReflectiveData;
+				
+				}	// end "if (returnCode == 0)"
+				
+			}	// end "if (MGetString ((UCharPtr)gTextString3, ..."
+			
+		}	// end "if (continueFlag)"
+		
+	return (returnCode);
+    
+}	// end "GetHyperionImageWavelengths"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		void GetInstrumentChannelDescriptionsAndValues
 //
 //	Software purpose:	The purpose of this routine is to load any known channel 
@@ -4211,7 +4515,7 @@ SInt32 GetFileHeaderValues (
 // Called By:			ReadChannelDescriptionsAndValues
 //
 //	Coded By:			Larry L. Biehl			Date: 11/18/1999
-//	Revised By:			Larry L. Biehl			Date: 03/08/2022
+//	Revised By:			Larry L. Biehl			Date: 12/29/2022
 
 void GetInstrumentChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -4227,8 +4531,6 @@ void GetInstrumentChannelDescriptionsAndValues (
 	UInt8									*fileNamePtr,
 											*filePathPPtr,
 											*startBandIdentiferPtr;
-	
-	//UInt16								*channelWavelengthOrderPtr;
 	
 	int									channelNumber,
 											fileStringLength;
@@ -4274,9 +4576,6 @@ void GetInstrumentChannelDescriptionsAndValues (
 					
 			*channelWidthsPtr = 0;
 			
-			//channelWavelengthOrderPtr =
-			//						(UInt16*)&channelWidthsPtr[fileInfoPtr->numberChannels];
-			
 			}	// end "if (continueFlag)"
 
 		}	// end "if (continueFlag)"
@@ -4308,7 +4607,8 @@ void GetInstrumentChannelDescriptionsAndValues (
 							channelNumber = 8;
 						/*
 								// For debugging
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+										256,
 										"    channelNumber1 = %hd%s",
 										channelNumber,
 										gEndOfLine);
@@ -4326,7 +4626,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 						}	// end "if (startBandIdentifer != NULL)"
 
-					}	// end "else if (GetNumberImageFiles (windowInfoHandle) > 1)"
+					}	// end "if (fileInfoPtr->numberChannels == 1)"
 
 				else	// combined file set
 					{
@@ -4335,7 +4635,8 @@ void GetInstrumentChannelDescriptionsAndValues (
 
 					}	// end "else combined file set"
 				/*
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+								256,
 								"    channelNumber2 = %hd%s",
 								channelNumber,
 								gEndOfLine);
@@ -4998,7 +5299,36 @@ void GetInstrumentChannelDescriptionsAndValues (
 					resourceStringID = (SInt16)(IDS_ChanDescription83 + channel - 1);
 
 				}	// end "else if (fileInfoPtr->instrumentCode == kPeruSat)"
-
+				
+			else if ((fileInfoPtr->instrumentCode == kPRISMA_VNIR ||
+								fileInfoPtr->instrumentCode == kPRISMA_SWIR ||
+										fileInfoPtr->instrumentCode == kPRISMA_PAN) &&
+															fileInfoPtr->format == kHDF5Type)
+				{
+				GetImageWavelengthsFromHDF5File (fileInfoPtr,
+															channelDescriptionPtr,
+															channelValuesPtr,
+															channelWidthsPtr);
+				
+						// Indicate all channel information has been read for PRISMA image
+						
+				channel = fileInfoPtr->numberChannels;
+				
+				}	// end "else if ((fileInfoPtr->instrumentCode == kPRISMA_VNIR || ..."
+				
+			else if (fileInfoPtr->instrumentCode == kEO1_HYPERION)
+				{
+				GetHyperionImageWavelengths (fileInfoPtr,
+															channelDescriptionPtr,
+															channelValuesPtr,
+															channelWidthsPtr);
+				
+						// Indicate all channel information has been read for Hyperion image
+						
+				channel = fileInfoPtr->numberChannels;
+				
+				}	// end "else if ((fileInfoPtr->instrumentCode == kPRISMA_VNIR || ..."
+				
 			if (continueFlag && resourceStringID != 0) 
 				{
 				if (MGetString ((UCharPtr)gTextString3,
@@ -5139,7 +5469,7 @@ void GetInstrumentChannelDescriptionsAndValues (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 03/12/2013
-//	Revised By:			Larry L. Biehl			Date: 02/26/2022
+//	Revised By:			Larry L. Biehl			Date: 01/04/2024
 
 void GetInstrumentCode (
 				FileInfoPtr							fileInfoPtr)
@@ -5160,7 +5490,8 @@ void GetInstrumentCode (
 	UInt16								instrumentResourceCode;
 
 
-	if (fileInfoPtr->format == kTIFFType || fileInfoPtr->format == kGeoTIFFType)
+	if (fileInfoPtr->fileStreamCPtr != NULL &&
+				(fileInfoPtr->format == kTIFFType || fileInfoPtr->format == kGeoTIFFType))
 		{
 		if (GetSpecifiedTIFFKeyDirectory (fileInfoPtr, 270, &tiffFileDirectory)) 
 			{
@@ -5415,6 +5746,16 @@ void GetInstrumentCode (
 				fileInfoPtr->instrumentCode = (UInt16)kPeruSat;
 			
 			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "PER1"))"
+				
+		else if (StrStrNoCase ((char*)fileNamePtr, "EO1H"))
+			{
+					// This may be EO1 Hyperion hyperspectral data
+					
+			if ((fileInfoPtr->numberChannels == 1 || fileInfoPtr->numberChannels == 242) &&
+						fileInfoPtr->numberBytes == 2)
+				fileInfoPtr->instrumentCode = (UInt16)kEO1_HYPERION;
+			
+			}	// end "else if (StrStrNoCase ((char*)fileNamePtr, "EO1H"))"
 		
 		}	// end "if (fileInfoPtr->instrumentCode == 0)"
 
@@ -5879,95 +6220,6 @@ HUInt16Ptr GetSymbolToBinaryVector (
 }	// end "GetSymbolToBinaryVector"
 
 
-/*
-//------------------------------------------------------------------------------------
-//                   Copyright 1988-2020 Purdue Research Foundation
-//
-//	Function name:		SInt16 GetChannelWavelengthOrder
-//
-//	Software purpose:	The purpose of this routine is to set the vector defining the
-//							wavelength order of the channels. This will only be done if
-//							information exists for the center wavelengths for each of the
-//							channels.
-//
-//	Parameters in:		window
-//
-//	Parameters out:	None
-//
-//	Value Returned:	Channel wavelength order code:
-//								=0; not applicable; no center wavelengths
-//								=1; channels are in wavelength order
-//								=2; channels are not in wavelength order
-// 
-// Called By:
-//
-//	Coded By:			Larry L. Biehl			Date: 06/28/2018
-//	Revised By:			Larry L. Biehl			Date: 06/29/2018
-
-SInt16 GetChannelWavelengthOrder (
-				FileInfoPtr							fileInfoPtr)
-
-{
-	float									*channelValuesPtr;
-	
-	UInt16								*channelWavelengthOrderPtr;
-	
-	UInt32								channelNumber,
-											endIndex,
-											lastIndex,
-											index;
-	
-	SInt16								returnCode = 0;
-
-
-	if (fileInfoPtr->channelValuesHandle != NULL)
-		{
-		returnCode = 1;
-		channelValuesPtr = (float*)GetHandlePointer (
-										fileInfoPtr->channelValuesHandle, kLock);
-		channelWavelengthOrderPtr =
-									(UInt16*)&channelValuesPtr[2*fileInfoPtr->numberChannels];
-		
-				// Initialize order
-		
-		for (index=0; index<fileInfoPtr->numberChannels; index++)
-			channelWavelengthOrderPtr[index] = index;
-		
-				// This is a simple bubble sort
-
-		endIndex = fileInfoPtr->numberChannels - 1;
-		do
-			{
-			lastIndex = 0;
-			for (index=0; index<endIndex; index++)
-				{
-            if (channelValuesPtr[channelWavelengthOrderPtr[index]] >
-											channelValuesPtr[channelWavelengthOrderPtr[index+1]])
-					{
-							// swap channel number in the sorted list
-					
-					channelNumber = channelWavelengthOrderPtr[index];
-					channelWavelengthOrderPtr[index] = channelWavelengthOrderPtr[index+1];
-					channelWavelengthOrderPtr[index+1] = channelNumber;
-
-					lastIndex = index;
-					returnCode = 2;
-					
-					}	// end "if (channelValuesPtr[index] > channelValuesPtr[index+1])"
-				
-				}	// end "for (index=0; index< fileInfoPtr->numberChannels; index++)"
-			
-			endIndex = lastIndex;
-			
-			}	while (endIndex > 0);
-
-		}	// end "if (fileInfoPtr->channelValuesHandle != NULL)"
-
-	return (returnCode);
-
-}	// end "GetChannelWavelengthOrder"
-*/
-
 
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
@@ -5991,7 +6243,7 @@ SInt16 GetChannelWavelengthOrder (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 07/10/2018
-//	Revised By:			Larry L. Biehl			Date: 07/11/2018
+//	Revised By:			Larry L. Biehl			Date: 12/31/2023
 
 SInt16 GetChannelWavelengthOrder (
 				WindowInfoPtr						windowInfoPtr,
@@ -6086,7 +6338,7 @@ SInt16 GetChannelWavelengthOrder (
 					channelWavelengthOrderPtr[index+1] = channelNumber;
 
 					lastIndex = index;
-					returnCode = 2;
+					returnCode = kNotInOrder;
 					
 					}	// end "if (tempChannelValuesPtr[index] > ..."
 				
@@ -6711,7 +6963,7 @@ void LoadClassNameDescriptions (
 //							UserLocateProjectBaseImage in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/02/1991
-//	Revised By:			Larry L. Biehl			Date: 01/25/2013
+//	Revised By:			Larry L. Biehl			Date: 12/02/2024
 
 Boolean LoadImageInformation (
 				Handle								windowInfoHandle,
@@ -6878,7 +7130,7 @@ Boolean LoadSelectedDataSetInformation	(
 // Called By:			LoadImageInformation in SOpenImage.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/07/1988
-//	Revised By:			Larry L. Biehl			Date: 04/01/2006
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 Boolean ModalFileFormat (
 				Handle								fileInfoHandle)
@@ -6955,6 +7207,7 @@ Boolean ModalFileFormat (
 			fileInfoPtr->numberBits = 8;
 			fileInfoPtr->numberBins = 256;
 			fileInfoPtr->numberClasses = 0;
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 			fileInfoPtr->maxClassNumberValue = 0;
 			fileInfoPtr->swapBytesFlag = FALSE;
 			fileInfoPtr->asciiSymbols = FALSE;
@@ -6979,10 +7232,15 @@ Boolean ModalFileFormat (
 	if (gGetFileImageType == kThematicImageType)
 		{
 		if (fileInfoPtr->numberClasses == 0)
+			{
 			fileInfoPtr->numberClasses = fileInfoPtr->numberBins;
 
-		if (fileInfoPtr->numberClasses == 0)
-			fileInfoPtr->numberClasses = 1;
+			if (fileInfoPtr->numberClasses == 0)
+				fileInfoPtr->numberClasses = 1;
+				
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
+			
+			}	// end "if (fileInfoPtr->numberClasses == 0)"
 
 		fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
 
@@ -7025,7 +7283,7 @@ Boolean ModalFileFormat (
 //							ModalFileSpecification in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/22/1993
-//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 void ReadChannelDescriptionsAndValues (
 				Handle								fileInfoHandle)
@@ -8680,7 +8938,7 @@ Boolean ReadERDASClassNames (
 //							GetProbabilityFile in SCluster.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/04/1989
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 ReadERDASHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -8742,6 +9000,7 @@ SInt16 ReadERDASHeader (
 
 			tempInt = (UInt16)GetShortIntValue ((char*)&headerRecordPtr[90]);
 			fileInfoPtr->numberClasses = (UInt32)tempInt;
+			fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 
 			fileInfoPtr->numberChannels = GetShortIntValue ((char*)&headerRecordPtr[8]);
 
@@ -8844,6 +9103,7 @@ SInt16 ReadERDASHeader (
 
 		tempInt = (UInt16)GetShortIntValue ((char*)&headerRecordPtr[90]);
 		fileInfoPtr->numberClasses = (UInt32)tempInt;
+		fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 
 		if (fileInfoPtr->numberClasses > 0)
 			fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
@@ -11127,7 +11387,7 @@ SInt16 ReadMacSADIEHeader (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/17/1990
-//	Revised By:			Larry L. Biehl			Date: 12/06/2019
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 ReadMultiSpecClassificationHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -11248,6 +11508,7 @@ SInt16 ReadMultiSpecClassificationHeader (
 		fileInfoPtr->numberLines = 100;
 		fileInfoPtr->numberColumns = 100;
 		fileInfoPtr->numberClasses = 2;
+		fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 		fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
 		fileInfoPtr->startColumn = 1;
 		fileInfoPtr->startLine = 1;
@@ -11821,7 +12082,7 @@ void ReadLARSYSChannelDescriptionsAndValues (
 //							ModalFileSpecification in SFileIO.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/09/1989
-//	Revised By:			Larry L. Biehl			Date: 08/28/2020
+//	Revised By:			Larry L. Biehl			Date: 01/02/2024
 
 void ReadMultiSpecChannelDescriptionsAndValues (
 				FileInfoPtr							fileInfoPtr)
@@ -11848,190 +12109,194 @@ void ReadMultiSpecChannelDescriptionsAndValues (
 	if (fileInfoPtr->dataCompressionCode == kNoCompression)
 		{
 		fileStreamPtr = GetFileStreamPointer (fileInfoPtr);
-
-				// Get the size of the image without any channel descriptions.
-
-		sizeImageFile = GetSizeOfImage (fileInfoPtr);
 		
-		if (fileInfoPtr->numberHeaderBytes == 0 &&
-					(fileInfoPtr->format == kTIFFType ||
-															fileInfoPtr->format == kGeoTIFFType))
+		if (fileStreamPtr != NULL)
 			{
-					// This implies that the tiff image has multiple strips and the number
-					// of header bytes is not known. If the MultiSpec channel descriptions
-					// exist they should be at a set location from the end of the file.
-					// Try that location.
+					// Get the size of the image without any channel descriptions.
+
+			sizeImageFile = GetSizeOfImage (fileInfoPtr);
 			
-			errCode = GetSizeOfFile (fileInfoPtr, &sizeFile);
-			foundCode = -1;
-			
-			if (errCode == noErr)
+			if (fileInfoPtr->numberHeaderBytes == 0 &&
+						(fileInfoPtr->format == kTIFFType ||
+																fileInfoPtr->format == kGeoTIFFType))
 				{
-				channelDescriptionLength1 = 20 + fileInfoPtr->numberChannels * 16 +
-																20 + fileInfoPtr->numberChannels * 9;
-
-				channelDescriptionLength2 = 20 +
-							fileInfoPtr->numberChannels * kChannelDescriptionLength +
-														20 + fileInfoPtr->numberChannels * 9;
-																
-						// Get size of the channel descriptions.
-			
-				channelDescription1Index = sizeFile - channelDescriptionLength1;
-				channelDescription2Index = sizeFile - channelDescriptionLength2;
+						// This implies that the tiff image has multiple strips and the number
+						// of header bytes is not known. If the MultiSpec channel descriptions
+						// exist they should be at a set location from the end of the file.
+						// Try that location.
 				
-				//sizeFile -= (20 + fileInfoPtr->numberChannels * 16 +
-				//											20 + fileInfoPtr->numberChannels * 9);
-				//
-				//if (sizeFile >= 0)
-				//	sizeImageFile = sizeFile;
-					
-				MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
-			
-				if (gTextString2[0] > 0)
+				errCode = GetSizeOfFile (fileInfoPtr, &sizeFile);
+				foundCode = -1;
+				
+				if (errCode == noErr)
 					{
-					if (channelDescription1Index >= 0)
-						{
-								// Now need to check if "CHANNEL DESCRIPTION" is at the
-								// location expected for Channel Description version 1
-									
-						sizeImageFile = channelDescription1Index;
+					channelDescriptionLength1 = 20 + fileInfoPtr->numberChannels * 16 +
+																	20 + fileInfoPtr->numberChannels * 9;
+
+					channelDescriptionLength2 = 20 +
+								fileInfoPtr->numberChannels * kChannelDescriptionLength +
+															20 + fileInfoPtr->numberChannels * 9;
+																	
+							// Get size of the channel descriptions.
+				
+					channelDescription1Index = sizeFile - channelDescriptionLength1;
+					channelDescription2Index = sizeFile - channelDescriptionLength2;
+					
+					//sizeFile -= (20 + fileInfoPtr->numberChannels * 16 +
+					//											20 + fileInfoPtr->numberChannels * 9);
+					//
+					//if (sizeFile >= 0)
+					//	sizeImageFile = sizeFile;
 						
-						errCode = MSetMarker (fileStreamPtr,
-													 fsFromStart,
-													 sizeImageFile,
-													 kNoErrorMessages);
-						if (errCode != eofErr)
-							IOCheck (errCode, fileStreamPtr);
-
-						if (errCode == noErr)
+					MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
+				
+					if (gTextString2[0] > 0)
+						{
+						if (channelDescription1Index >= 0)
 							{
-							count = 20;
-							errCode = MReadData (fileStreamPtr,
-															&count,
-															gTextString,
-															kNoErrorMessages);
-
+									// Now need to check if "CHANNEL DESCRIPTION" is at the
+									// location expected for Channel Description version 1
+										
+							sizeImageFile = channelDescription1Index;
+							
+							errCode = MSetMarker (fileStreamPtr,
+														 fsFromStart,
+														 sizeImageFile,
+														 kNoErrorMessages);
 							if (errCode != eofErr)
 								IOCheck (errCode, fileStreamPtr);
-							
-							}	// end "if (errCode == noErr)"
 
-						if (errCode == noErr)
-							{
-							if (strncmp ((char*)gTextString,
-												(char*)&gTextString2[1],
-												19) == 0)
-								foundCode = 1;
+							if (errCode == noErr)
+								{
+								count = 20;
+								errCode = MReadData (fileStreamPtr,
+																&count,
+																gTextString,
+																kNoErrorMessages);
+
+								if (errCode != eofErr)
+									IOCheck (errCode, fileStreamPtr);
 								
-							}	// end "if (errCode == noErr && ...)"
-						
-						}	// end "if (channelDescription1Index >= 0)"
-						
-					if (foundCode == -1 && channelDescription2Index >= 0)
-						{
-								// Assume that any channel descriptions that exist represent
-								// version 2. The next section of code will confirm this.
-											
-						sizeImageFile = channelDescription2Index;
-						
-						}	// end "if (foundCode == -1 && channelDescription2Index >= 0)"
-											
-					}	// end "if (gTextString2[0] > 0)"
-			
-				}	// end "if (errCode == noErr)"
-			
-			}	// end "if (fileInfoPtr->numberHeaderBytes == 0 && ..."
-		
-				// Set file pointer to end of image data.  If no eof error, then
-				// read in characters to check for channel description identifier.	
-		
-		errCode = MSetMarker (fileStreamPtr,
-									 fsFromStart,
-									 sizeImageFile,
-									 kNoErrorMessages);
-		if (errCode != eofErr)
-			IOCheck (errCode, fileStreamPtr);
+								}	// end "if (errCode == noErr)"
 
-		if (errCode == noErr)
-			{
-			count = 20;
-			errCode = MReadData (fileStreamPtr,
-											&count,
-											gTextString,
-											kNoErrorMessages);
-
+							if (errCode == noErr)
+								{
+								if (strncmp ((char*)gTextString,
+													(char*)&gTextString2[1],
+													19) == 0)
+									foundCode = 1;
+									
+								}	// end "if (errCode == noErr && ...)"
+							
+							}	// end "if (channelDescription1Index >= 0)"
+							
+						if (foundCode == -1 && channelDescription2Index >= 0)
+							{
+									// Assume that any channel descriptions that exist represent
+									// version 2. The next section of code will confirm this.
+												
+							sizeImageFile = channelDescription2Index;
+							
+							}	// end "if (foundCode == -1 && channelDescription2Index >= 0)"
+												
+						}	// end "if (gTextString2[0] > 0)"
+				
+					}	// end "if (errCode == noErr)"
+				
+				}	// end "if (fileInfoPtr->numberHeaderBytes == 0 && ..."
+			
+					// Set file pointer to end of image data.  If no eof error, then
+					// read in characters to check for channel description identifier.
+			
+			errCode = MSetMarker (fileStreamPtr,
+										 fsFromStart,
+										 sizeImageFile,
+										 kNoErrorMessages);
 			if (errCode != eofErr)
 				IOCheck (errCode, fileStreamPtr);
-			
-			}	// end "if (errCode == noErr)"
 
-		foundCode = -1;
-		if (errCode == noErr)
-			{
-					// If not at end of the file, then check if characters read in are
-					// "CHANNEL DESCRIPTIONS" or "CHANNEL DESCRIPTION2"
-
-			MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
-
-			if (gTextString2[0] > 0)
+			if (errCode == noErr)
 				{
-				if (strncmp ((char*)gTextString,
-									(char*)&gTextString2[1],
-									gTextString2[0]) == 0)
-					foundCode = 1;
-					
-				}	// end "if (errCode == noErr && ...)"
+				count = 20;
+				errCode = MReadData (fileStreamPtr,
+												&count,
+												gTextString,
+												kNoErrorMessages);
 
-			if (foundCode == -1)
-				{
-				MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescription2);
+				if (errCode != eofErr)
+					IOCheck (errCode, fileStreamPtr);
 				
+				}	// end "if (errCode == noErr)"
+
+			foundCode = -1;
+			if (errCode == noErr)
+				{
+						// If not at end of the file, then check if characters read in are
+						// "CHANNEL DESCRIPTIONS" or "CHANNEL DESCRIPTION2"
+
+				MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescriptions);
+
 				if (gTextString2[0] > 0)
 					{
 					if (strncmp ((char*)gTextString,
 										(char*)&gTextString2[1],
 										gTextString2[0]) == 0)
-						foundCode = 2;
+						foundCode = 1;
 						
-					}	// end "if (gTextString2[0] > 0)"
+					}	// end "if (errCode == noErr && ...)"
+
+				if (foundCode == -1)
+					{
+					MGetString (gTextString2, kFileIOStrID, IDS_ChannelDescription2);
 					
-				}	// end "if (foundCode == -1)"
-			
-			}	// end "if (errCode == noErr)"
+					if (gTextString2[0] > 0)
+						{
+						if (strncmp ((char*)gTextString,
+											(char*)&gTextString2[1],
+											gTextString2[0]) == 0)
+							foundCode = 2;
+							
+						}	// end "if (gTextString2[0] > 0)"
+						
+					}	// end "if (foundCode == -1)"
+				
+				}	// end "if (errCode == noErr)"
 
-		if (foundCode >= 0)
-			{
-			errCode = ReadMultiSpecChannelDescriptions (fileInfoPtr, foundCode);
-
-			if (errCode == noErr)
+			if (foundCode >= 0)
 				{
-						// Try to read in the identifier for the channel values.
+				errCode = ReadMultiSpecChannelDescriptions (fileInfoPtr, foundCode);
 
-				count = 20;
-				errCode = MReadData (fileStreamPtr,
-											&count,
-											gTextString,
-											kNoErrorMessages);
+				if (errCode == noErr)
+					{
+							// Try to read in the identifier for the channel values.
 
-            }	// end "if (errCode == noErr)"
+					count = 20;
+					errCode = MReadData (fileStreamPtr,
+												&count,
+												gTextString,
+												kNoErrorMessages);
 
-			}	// end "if (foundCode >= 0)"
+					}	// end "if (errCode == noErr)"
 
-		MGetString (gTextString2, kFileIOStrID, IDS_ChannelValues); // 56
-		foundCode = -1;
+				}	// end "if (foundCode >= 0)"
 
-		if (errCode == noErr &&
-                gTextString2[0] > 0 && strncmp (
-                (char*)gTextString, (char*)&gTextString2[1], gTextString2[0]) == 0)
-			foundCode = 0;
-		 
-		if (foundCode >= 0)
-			errCode = ReadMultiSpecChannelValues (fileInfoPtr);
-			
-				// Try to get the channel (band) widths from the descriptions.
-			
-		if (foundCode >= 0 && errCode == noErr)
-			GetMultiSpecChannelWidths (fileInfoPtr);
+			MGetString (gTextString2, kFileIOStrID, IDS_ChannelValues); // 56
+			foundCode = -1;
+
+			if (errCode == noErr &&
+						 gTextString2[0] > 0 && strncmp (
+						 (char*)gTextString, (char*)&gTextString2[1], gTextString2[0]) == 0)
+				foundCode = 0;
+			 
+			if (foundCode >= 0)
+				errCode = ReadMultiSpecChannelValues (fileInfoPtr);
+				
+					// Try to get the channel (band) widths from the descriptions.
+				
+			if (foundCode >= 0 && errCode == noErr)
+				GetMultiSpecChannelWidths (fileInfoPtr);
+				
+			}	// end "if (fileStreamPtr != NULL)
 
 		}	// end "if (fileInfoPtr->dataCompressionCode == kNoCompression)"
 
@@ -13534,6 +13799,7 @@ SInt16 ReadSunScreenDumpHeader (
 
 		fileInfoPtr->numberBits = (UInt16)GetLongIntValue ((char*)&headerRecordPtr[3]);
 		fileInfoPtr->numberClasses = GetLongIntValue ((char*)&headerRecordPtr[7]) / 3;
+		fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 		fileInfoPtr->maxClassNumberValue = fileInfoPtr->numberClasses - 1;
 
 		fileInfoPtr->numberBytes = 1;
@@ -13559,6 +13825,7 @@ SInt16 ReadSunScreenDumpHeader (
 			else	// gGetFileImageType == kThematicImageType 
 				{
 				fileInfoPtr->numberClasses = 256;
+				fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 				fileInfoPtr->maxClassNumberValue = 255;
 
 				}	// end "else gGetFileImageType == kThematicImageType"
@@ -14286,7 +14553,7 @@ Boolean ReadThematicGroupsFromImageFile (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 12/05/1991
-//	Revised By:			Larry L. Biehl			Date: 03/22/2019
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 ReadVICARHeader (
 				FileInfoPtr							fileInfoPtr,
@@ -14363,6 +14630,7 @@ SInt16 ReadVICARHeader (
 		fileInfoPtr->numberLines = 100;
 		fileInfoPtr->numberColumns = 100;
 		fileInfoPtr->numberClasses = 1;
+		fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 		fileInfoPtr->startColumn = 1;
 		fileInfoPtr->startLine = 1;
 		fileInfoPtr->numberHeaderBytes = 0;
@@ -14734,7 +15002,7 @@ SInt16 ReadVICARHeader (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/25/2002
-//	Revised By:			Larry L. Biehl			Date: 09/08/2006
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 SInt16 ReadWindowsBitMapHeader	(
 				FileInfoPtr							fileInfoPtr,
@@ -14841,6 +15109,7 @@ SInt16 ReadWindowsBitMapHeader	(
 			else	// gGetFileImageType == kThematicImageType || numberOfColors > 0 ...
 				{
 				fileInfoPtr->numberClasses = 256;
+				fileInfoPtr->origNumberClasses = fileInfoPtr->numberClasses;
 				gGetFileImageType = kThematicImageType;
 
 				}	// end "else gGetFileImageType == kThematicImageType || ..."
@@ -15381,7 +15650,7 @@ Boolean SizeOfImageFileCanBeCalculated (
 //							AddToImageWindowFile in SOpenFileDialog.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/15/1991
-//	Revised By:			Larry L. Biehl			Date: 03/05/2022
+//	Revised By:			Larry L. Biehl			Date: 05/14/2022
 
 Boolean UpdateLayerInfoStructure (
 				WindowInfoPtr						windowInfoPtr,
@@ -15429,7 +15698,25 @@ Boolean UpdateLayerInfoStructure (
 			// limit.																				
 
 	if (newTotalNumberChannels > kMaxNumberChannels)
+		{
+		DisplayAlert (kErrorAlertID, 
+						  kStopAlert, 
+						  kAlertStrID, 
+						  IDS_Alert153,
+						  0, 
+						  NULL);
+		
+		continueFlag = ListSpecifiedStringNumber (
+												kAlertStrID,
+												IDS_Alert153,
+												(unsigned char*)gTextString,
+												NULL,
+												gOutputForce1Code,
+												TRUE);
+						  
 																						return (FALSE);
+																						
+		}
 
 	fileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 																		fileInfoHandle, &handleStatus);

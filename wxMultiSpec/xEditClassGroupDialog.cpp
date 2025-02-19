@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " LEditClassGroupDlg:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -272,7 +273,7 @@ Boolean CMEditClassGroupDlg::OnOK ()
       if (m_newEditCode != kEditClass)
          classGroupCode = 3;
 
-      DupClassFieldNameAlert (classGroupCode, textString);
+      DupClassFieldNameAlert (this, classGroupCode, textString);
       OKFlag = FALSE;
 
 		}	// end "if (m_numberClassesGroups == 0)"  

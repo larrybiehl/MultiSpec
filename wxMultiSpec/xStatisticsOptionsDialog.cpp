@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/07/2018
+//	Revision date:			02/14/2025
 //
 //	Language:				C++
 //
@@ -29,7 +29,8 @@
 //								CMStatOptionsDlg class.
 //
 /* Template for debugging for MultiSpec Online on mygeohub.org.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = snprintf ((char*)&gTextString3,
+									256,
 								" xStatisticsOptionsDialog::xxx () %s",
 								gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -50,7 +51,7 @@ BEGIN_EVENT_TABLE (CMStatOptionsDlg, CMDialog)
 	EVT_INIT_DIALOG (CMStatOptionsDlg::OnInitDialog)
 
 	EVT_RADIOBUTTON (IDC_MeanStd, CMStatOptionsDlg::OnMeanStd)
-	EVT_RADIOBUTTON (IDC_meanStdCov, CMStatOptionsDlg::OnMeanStdCov)
+	EVT_RADIOBUTTON (IDC_MeanStdCov, CMStatOptionsDlg::OnMeanStdCov)
 END_EVENT_TABLE ()
 
 
@@ -62,6 +63,12 @@ CMStatOptionsDlg::CMStatOptionsDlg (
 		: CMDialog (CMStatOptionsDlg::IDD, pParent, title)
 
 {
+			// This was added for the WindowsOS version. The OnMeanStd event
+			// was being called during the creation of the Standard Buttons before
+			// the controls were finished being loaded. Don't know why.
+			
+	m_controlsLoadedFlag = FALSE;
+	
    m_classStatsOnlyFlag = FALSE;
    m_setZeroVarianceFlag = FALSE;
    m_statCode = -1;
@@ -72,6 +79,8 @@ CMStatOptionsDlg::CMStatOptionsDlg (
    m_initializedFlag = CMDialog::m_initializedFlag;
 	
    CreateControls ();
+   
+   m_controlsLoadedFlag = TRUE;
 	
 }	// end "CMStatOptionsDlg"
 
@@ -107,7 +116,7 @@ void CMStatOptionsDlg::CreateControls ()
    bSizer182->Add (m_radioBtn17, 0, wxLEFT, 20);
 
    m_radioBtn18 = new wxRadioButton (this,
-   												IDC_meanStdCov,
+   												IDC_MeanStdCov,
    												wxT("Mean, standard deviation and covariance"),
    												wxDefaultPosition,
    												//wxDefaultSize,
@@ -142,16 +151,20 @@ void CMStatOptionsDlg::CreateControls ()
    											wxDefaultSize,
    											0);
    SetUpToolTip (m_checkBox35, IDS_ToolTip118);
-   bSizer184->Add (m_checkBox35, 0, wxALIGN_CENTER | wxALL, 5);
+   //bSizer184->Add (m_checkBox35, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer184->Add (m_checkBox35,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
    m_textCtrl92 = new wxTextCtrl (this,
    											IDC_Variance,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(110, -1),
    											0);
    m_textCtrl92->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_varienceString));
-   bSizer184->Add (m_textCtrl92, 0, wxALL, 5);
+   //bSizer184->Add (m_textCtrl92, 0, wxALL, 5);
+	bSizer184->Add (m_textCtrl92,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
    bSizer181->Add (bSizer184, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
@@ -166,17 +179,21 @@ void CMStatOptionsDlg::CreateControls ()
 			wxDefaultSize,
 			0);
    m_staticText195->Wrap (-1);
-   bSizer185->Add (m_staticText195, 0, wxALIGN_CENTER | wxALL, 5);
+   //bSizer185->Add (m_staticText195, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer185->Add (m_staticText195,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
    m_textCtrl93 = new wxTextCtrl (this,
    											IDC_minLogDetValue,
    											wxEmptyString,
    											wxDefaultPosition,
-   											wxDefaultSize,
+												wxSize(110, -1),
    											0);
    m_textCtrl93->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_minLogString));
    SetUpToolTip (m_textCtrl93, IDS_ToolTip119);
-   bSizer185->Add (m_textCtrl93, 0, wxALIGN_CENTER | wxALL, 5);
+   //bSizer185->Add (m_textCtrl93, 0, wxALIGN_CENTER | wxALL, 5);
+	bSizer185->Add (m_textCtrl93,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
    bSizer181->Add (bSizer185, 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
@@ -315,57 +332,73 @@ void CMStatOptionsDlg::OnMeanStd (
 				wxCommandEvent& 					event)
 
 {
-   if (ProjectMenuClearStatistics ())
+	Boolean									returnFlag = true;
+	
+	
+			// Ignore if the controls have not been loaded.
+			
+	if (!m_controlsLoadedFlag)
+																							return;
+																							
+			// Ask user whether they wish statistics to be clear if they are loaded.
+			
+	if (gProjectInfoPtr->statsLoaded)
 		{
-      if (m_statCode + 1 == kMeanCovariance) 
+		returnFlag = ProjectMenuClearStatistics (NULL);
+		
+		}	// end "if (gProjectInfoPtr->statsLoaded)"
+		
+	if (returnFlag)
+		{
+		if (m_statCode + 1 == kMeanCovariance)
 			{
-         SetDLogControl (this, IDC_SetZeroVariance, 0);
-         SetDLogControlHilite (this, IDC_SetZeroVariance, 255);
-         HideDialogItem (this, IDC_Variance);
-         HideDialogItem (this, IDC_MinLogPrompt);
-         HideDialogItem (this, IDC_minLogDetValue);
+			SetDLogControl (this, IDC_SetZeroVariance, 0);
+			SetDLogControlHilite (this, IDC_SetZeroVariance, 255);
+			HideDialogItem (this, IDC_Variance);
+			HideDialogItem (this, IDC_MinLogPrompt);
+			HideDialogItem (this, IDC_minLogDetValue);
 
-         m_statCode = kMeanStdDevOnly - 1;
+			m_statCode = kMeanStdDevOnly - 1;
 
 			}	// end "if (m_statCode+1 == kMeanCovariance)"
 
-      else	// m_statCode+1 == kMeanStdDevOnly
+		else	// m_statCode+1 == kMeanStdDevOnly
 			{
-         SetDLogControl (this, IDC_SetZeroVariance, m_setZeroVarianceFlag);
-         SetDLogControlHilite (this, IDC_SetZeroVariance, 0);
+			SetDLogControl (this, IDC_SetZeroVariance, m_setZeroVarianceFlag);
+			SetDLogControlHilite (this, IDC_SetZeroVariance, 0);
 
-         SetZeroVariance ();
+			SetZeroVariance ();
 
-         ShowDialogItem (this, IDC_MinLogPrompt);
-         ShowDialogItem (this, IDC_minLogDetValue);
+			ShowDialogItem (this, IDC_MinLogPrompt);
+			ShowDialogItem (this, IDC_minLogDetValue);
 
-         m_statCode = kMeanCovariance - 1;
+			m_statCode = kMeanCovariance - 1;
 
 			}	// end "else m_statCode+1 == kMeanStdDevOnly"
 
-		}	// end "if (ProjectMenuClearStatistics ())"
+		}	// end "if (returnFlag)"
 
-   else	// !ProjectMenuClearStatistics ()
-		{ 
-				// User cancelled the operation. Set back to previous value.	 
+	else	// !returnFlag
+		{
+				// User cancelled the operation. Set back to previous value.
 				
-      wxRadioButton* meanstd = (wxRadioButton*)FindWindow (IDC_MeanStd);
-      wxRadioButton* meanstdcov = (wxRadioButton*)FindWindow (IDC_meanStdCov);
-      if (m_statCode == 1) 
+		wxRadioButton* meanstd = (wxRadioButton*)FindWindow (IDC_MeanStd);
+		wxRadioButton* meanstdcov = (wxRadioButton*)FindWindow (IDC_MeanStdCov);
+		if (m_statCode == 1)
 			{
-         meanstdcov->SetValue (true);
-         meanstd->SetValue (false);
+			meanstdcov->SetValue (true);
+			meanstd->SetValue (false);
 			
 			}	// end "if (m_statCode == 1)"
 			
 		else	// m_statCode != 1
 			{
-         meanstdcov->SetValue (false);
-         meanstd->SetValue (true);
+			meanstdcov->SetValue (false);
+			meanstd->SetValue (true);
 			
 			}	// end "else m_statCode != 1"
 			
-		}	// end "else !ProjectMenuClearStatistics ()"
+		}	// end "else !returnFlag"
 
 }	// end "OnMeanStd" 
 
@@ -463,7 +496,7 @@ bool CMStatOptionsDlg::TransferDataToWindow ()
 	variance->ChangeValue (wxString::Format (wxT("%.2f"), m_varianceValue));
 
 	wxRadioButton* meanstd = (wxRadioButton*)FindWindow (IDC_MeanStd);
-	wxRadioButton* meanstdcov = (wxRadioButton*)FindWindow (IDC_meanStdCov);
+	wxRadioButton* meanstdcov = (wxRadioButton*)FindWindow (IDC_MeanStdCov);
 	if (m_statCode == 1) 
 		{
 		meanstdcov->SetValue (true);

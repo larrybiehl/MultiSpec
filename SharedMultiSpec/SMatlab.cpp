@@ -31,7 +31,8 @@
 //								Support BIS only.
 //
 /* Template for debugging
-	int numberChars2 = sprintf ((char*)gTextString3,
+	int numberChars2 = snprintf ((char*)gTextString3,
+											256,
 											" SMatlab::xxx (linWidth, width): %d, %d%s",
 											linWidth,
 											width,

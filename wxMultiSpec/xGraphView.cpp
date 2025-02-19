@@ -19,7 +19,7 @@
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
 //	Revision date:			02/20/2017 by Wei-Kang Hsu
-//								02/26/2022 by Larry L. Biehl
+//								02/06/2024 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -29,7 +29,8 @@
 //								graph windows.
 //			
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = snprintf ((char*)&gTextString3,
+									256,
 											" xGraphView: (): %s",
 											gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);	
@@ -44,6 +45,7 @@
 #include "xImageView.h"
 
 #include "xGraphWindow_images.cpp"
+#include "wx/clipbrd.h"
 #include "wx/pen.h"
 
 #define	kXAxis			1
@@ -135,8 +137,9 @@ CMGraphView::CMGraphView ()
 		
 		}	// end "if (continueFlag)"
 	
-   m_printCopyModeFlag = FALSE;
 	m_printerTextScaling = 1.0;
+   m_printCopyModeFlag = FALSE;
+	m_calledFromPaintFlag = FALSE;
    
    if (continueFlag)
        UpdateWindowList ((CMImageView*)this, kGraphicsWindowType);
@@ -184,6 +187,68 @@ CMGraphView::~CMGraphView ()
 
 
 
+void CMGraphView::DoEditCopyGraph ()
+
+{
+	wxMemoryDC							temp_dc;
+	wxBitmap 							copyBitmap;
+
+	Rect									rect;
+											
+					
+			// Get the size of the graph portion of the window
+		
+	GraphPtr graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle);
+	graphRecordPtr->copyToClipboardFlag = TRUE;
+
+	//rect = m_frame->GetClientRect ();
+	rect = graphRecordPtr->clientRect;
+	
+	copyBitmap.Create (rect.right - rect.left,
+                      rect.bottom - rect.top,
+                      24);
+	
+	if (copyBitmap.IsOk ())
+		{
+		temp_dc.SelectObject (copyBitmap);
+		temp_dc.SetBackground (*wxWHITE);
+		temp_dc.Clear ();
+		
+		gCDCPointer = &temp_dc;			// Create the memory DC.
+		m_printCopyModeFlag = TRUE;
+		
+		GraphPtr graphRecordPtr = (GraphPtr)GetHandlePointer (m_graphRecordHandle);
+		graphRecordPtr->copyToClipboardFlag = TRUE;
+		
+		OnDraw (&temp_dc);
+	
+		graphRecordPtr->copyToClipboardFlag = FALSE;
+		m_printCopyModeFlag = FALSE;
+		gCDCPointer = NULL;
+		
+		if (wxTheClipboard->Open())
+			{
+					// Here are the actual clipboard functions.
+					
+			if (!wxTheClipboard->AddData(new wxBitmapDataObject (copyBitmap)))
+				{
+				wxLogError("Can't copy graph to the clipboard.");
+				
+				}	// end "if (!wxTheClipboard->AddData(..."
+
+			 wxTheClipboard->Close();
+			 
+			 }	// end "if (wxTheClipboard->Open())"
+			 
+		else	// !wxTheClipboard->Open()
+			wxLogError("Can't open clipboard.");
+		
+		}	// end "if (copyBitmap.IsOk ())"
+		
+}	// end "DoEditCopyGraph"
+
+
+/*
 void CMGraphView::DoFilePrint ()
 
 {                                              
@@ -192,7 +257,7 @@ void CMGraphView::DoFilePrint ()
 	gProcessorCode = 0;
 	
 }	// end "DoFilePrint"
-
+*/
 
 
 CMGraphDoc* CMGraphView::GetDocument ()
@@ -254,6 +319,7 @@ void CMGraphView::HideFeatureList ()
 bool CMGraphView::LoadChannelDescriptionIntoList (
 				FileInfoPtr							fileInfoPtr, 
 				LayerInfoPtr						layerInfoPtr,
+				int									row,
 				SInt16								channel)
 				
 {
@@ -270,9 +336,9 @@ bool CMGraphView::LoadChannelDescriptionIntoList (
 			// exists.  Otherwise assume all channels.	
 
 	channelNum = channel;
-
 	channelNum++;
-	NumToString((UInt32) channelNum, gTextString);
+	
+	NumToString((UInt32)(row+1), gTextString);
 
 			// If description for channel exists, add the description the cell.																
 			// First get a pointer to the channel descriptions if  they exist.																
@@ -318,7 +384,7 @@ bool CMGraphView::LoadChannelDescriptionIntoList (
 	tempPtr[dataLength] = 0;
 	wxString stringptr = wxString::FromUTF8(tempPtr);
 
-	if (m_frame->m_listCtrl2->SetItem (channel, 0, stringptr))
+	if (m_frame->m_listCtrl2->SetItem (row, 0, stringptr))
 		return true;
 		
 	else         
@@ -342,9 +408,8 @@ bool CMGraphView::LoadChannelNumbersAndValues (
 	
 	LayerInfoPtr 						layerInfoPtr = NULL;
 	
-   //long									points;
-	
-   int 									numberChannels,
+   int 									channelIndex,
+											numberChannels,
    										numberColumns,
 											numberVectors;
 	
@@ -354,6 +419,9 @@ bool CMGraphView::LoadChannelNumbersAndValues (
 	
    SignedByte 							handleStatus,
    										windowHandleStatus;
+   										
+	Boolean								changeWavelengthOrderFlag = FALSE,
+											hasWavelengthValuesFlag;
 	
 	
    numberVectors = graphRecordPtr->numberVectors;
@@ -391,15 +459,38 @@ bool CMGraphView::LoadChannelNumbersAndValues (
 			// Inserts rows in the list (1 for each channel)
 	
 	xValuePtr = &(graphRecordPtr->xVector.basePtr[xVectorDataPtr[0]]);
+	
+			// Now handle case where wavelengths are not in order and a graph in order
+			// of wavelength is being displayed.
+			
+ 	hasWavelengthValuesFlag = (graphRecordPtr->descriptionCode & kBothReflectiveThermalData);
+	if	(hasWavelengthValuesFlag && graphRecordPtr->xAxisCode > kChannels &&
+				!graphRecordPtr->channelsInWavelengthOrderFlag)
+		{
+		yValuePtr = &graphRecordPtr->yVector.basePtr[graphRecordPtr->yVector.size/2];
+			
+		xValuePtr = &xValuePtr[graphRecordPtr->xVector.numberPoints];
+			
+		changeWavelengthOrderFlag = TRUE;
+		
+		}	// end "if	(hasWavelengthValuesFlag && graph->xAxisCode > kChannels)"
+		
    for (int row=0; row<numberChannels; row++)
    	{
 		m_frame->m_listCtrl2->InsertItem (row, -1);
 	
 				// Insert the channel number/description in the first column
+				
+		channelIndex = row;
+		if (changeWavelengthOrderFlag)
+			channelIndex = layerInfoPtr[row+1].wavelengthOrder;
 	
 		if (fileInfoPtr != NULL)
 			{
-			if (!LoadChannelDescriptionIntoList (fileInfoPtr, layerInfoPtr, row))
+			if (!LoadChannelDescriptionIntoList (fileInfoPtr,
+																layerInfoPtr,
+																row,
+																channelIndex))
 																							return FALSE;
 			
 			}	// end "if (fileInfoPtr != NULL)"
@@ -493,6 +584,9 @@ void CMGraphView::OnActivateView (
 
       		// If the window is being activated, outside of a processing operating,
       		// make sure the global active image information is up to date.
+         
+      if (gProcessorCode == kPrintProcessor && bActivate)
+         gProcessorCode = 0;
 		
       if (gProcessorCode == 0 && bActivate)
       	{
@@ -596,7 +690,7 @@ bool CMGraphView::OnCreate (
    
    m_frame = new CMGraphFrame (doc, 
 											this, 
-											GetMainFrame (), 
+											(MParentFrame*)GetMainFrame (),
 											wxID_ANY, 
 											wxT("Selection Window"), 
 											wxPoint (textWindowXPosition, textWindowYPosition), 
@@ -610,6 +704,7 @@ bool CMGraphView::OnCreate (
 	m_frame->GetClientSize (&width, &height);
    
    ((CMGraphDoc*)doc)->SetGraphFrameCPtr ((CMGraphFrame*)m_frame);
+	gActiveWindowType = kGraphicsWindowType;
 	gTheActiveWindow = (WindowPtr)this;
    
    		// For graph selection window initialization
@@ -651,8 +746,19 @@ void CMGraphView::OnDraw (
 				wxDC*									pDC)
 
 {
+	double								ratio,
+											xRatio,
+											xScale,
+											yRatio,
+											yScale;
+											
+	Rect									graphRect;
 	wxFont 								font;
-	//wxFont* 								pOldFont;
+	wxPoint 								paperOrigin;
+	
+	int									graphRectHeight,
+											graphRectWidth;
+	
 	SignedByte							handleStatus;
 	Boolean								continueFlag;
 	
@@ -664,6 +770,48 @@ void CMGraphView::OnDraw (
 																				&handleStatus);
 	
 	graphRecordPtr->textScaling = m_printerTextScaling;
+	
+	GetGraphWindowClientRect (&graphRecordPtr->clientRect);
+	
+	if (!m_calledFromPaintFlag && !m_printCopyModeFlag)
+		{
+				// This is a call directly from the print architecture
+				
+		wxRect paperSize = pDC->GetSize();
+		
+		GetGraphWindowClientRect(&graphRect);
+            
+				// This is the scaling for printing
+				
+		pDC->GetUserScale (&xScale, &yScale);
+		m_printerPaperScaling = MIN (xScale, yScale);
+				
+		graphRectWidth = graphRect.right - graphRect.left;
+		graphRectHeight = graphRect.bottom - graphRect.top;
+		
+		xRatio = xScale;
+		yRatio = yScale;
+			
+		if (paperSize.width < m_printerPaperScaling*graphRectWidth)
+			xRatio = (double)paperSize.width/graphRectWidth;
+			
+		if (paperSize.height < m_printerPaperScaling*graphRectHeight)
+			yRatio = (double)paperSize.height/graphRectHeight;
+			
+		ratio = MIN (xRatio, yRatio);
+		
+		paperOrigin.x = (paperSize.width - ratio*graphRectWidth)/2;
+		paperOrigin.x = MAX (0, paperOrigin.x);
+		paperOrigin.y = (paperSize.height - ratio*graphRectHeight)/2;
+		paperOrigin.y = MAX (0, paperOrigin.y);
+			
+		pDC->SetUserScale (ratio, ratio);
+		
+		pDC->SetDeviceOrigin (paperOrigin.x, paperOrigin.y);
+		
+		graphRecordPtr->copyToClipboardFlag = TRUE;
+		
+		}	// end "if (!m_calledFromPaintFlag)"
    
    if (m_printCopyModeFlag)
 		{
@@ -692,8 +840,6 @@ void CMGraphView::OnDraw (
 		pDC->GetSize ((wxCoord*)&m_xPixelsPerInch, (wxCoord*)&m_yPixelsPerInch);
       
 		}	// end "else !m_printCopyModeFlag"
-	
-	GetGraphWindowClientRect (&graphRecordPtr->clientRect);
 	
 			// Get more space to draw histogram buttons
    
@@ -738,6 +884,8 @@ void CMGraphView::OnDraw (
 							  
 		graphRecordPtr->pDC = NULL;
 		gCDCPointer = NULL;
+		
+		graphRecordPtr->copyToClipboardFlag = FALSE;
 
 		}	// end "if (continueFlag)"
 
@@ -1343,7 +1491,7 @@ void CMGraphView::UpdateDataListCtrl (void)
 		lastColumnIndex = 5;
 		
       m_frame->m_listCtrl2->InsertColumn (
-      				0, wxT("Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+      				0, wxT("Index:   Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
       m_frame->m_listCtrl2->InsertColumn (
       				1, wxT("Mean  "), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
       m_frame->m_listCtrl2->InsertColumn (
@@ -1369,7 +1517,7 @@ void CMGraphView::UpdateDataListCtrl (void)
 		lastColumnIndex = 1;
 		
 		m_frame->m_listCtrl2->InsertColumn (
-					0, wxT("Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
+					0, wxT("Index:   Channel"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
 		m_frame->m_listCtrl2->InsertColumn (
 					1, wxT("Data value"), wxLIST_FORMAT_CENTRE, wxLIST_AUTOSIZE_USEHEADER);
 

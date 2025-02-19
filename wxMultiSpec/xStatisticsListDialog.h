@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMListStatsDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/15/2019
+//	Revised By:				Larry L. Biehl			Date: 02/10/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ class CMListStatsDialog : public CMDialog
 		CMListStatsDialog (
 		 		wxWindow* 							pParent = NULL,
 		 		wxWindowID 							id = wxID_ANY,
-		 		const wxString& 					title = wxT("List Stats"));
+		 		const wxString& 					title = wxT("Set List Stats Specifications"));
 	
 		Boolean DoDialog (
 				SInt16 								statsWindowMode);

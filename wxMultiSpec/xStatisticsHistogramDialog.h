@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMStatHistogramSpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 12/06/2019
+//	Revised By:				Larry L. Biehl			Date: 02/10/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ class CMStatHistogramSpecsDlg : public CMDialog
 		CMStatHistogramSpecsDlg (
 				wxWindow* 							pParent = NULL,
 		 		wxWindowID 							id = wxID_ANY,
-		 		const wxString& 					title = wxT("StatHistogramSpecsDlg"));
+		 		const wxString& 					title = wxT("Set Histogram Stats Specifications"));
 	
 		~CMStatHistogramSpecsDlg ();
 	

@@ -19,7 +19,7 @@
 //
 //   Authors:              Abdur Rahman Maud, Larry L. Biehl
 //
-//   Revision date:        11/08/2019
+//   Revision date:        02/14/2025
 //
 //   Language:					C++
 //
@@ -29,7 +29,8 @@
 //                       	CMReformatTransformDlg class.
 //
 /* Template for debugging for MultiSpec Online on mygeohub.org.
-	int numberChars = sprintf ((char*)&gTextString3,
+	int numberChars = snprintf ((char*)&gTextString3,
+									256,
 								" xStatisticsDialog::xxx () %s",
 								gEndOfLine);
 	ListString ((char*)&gTextString3, numberChars, gOutputTextH);
@@ -58,7 +59,7 @@ BEGIN_EVENT_TABLE (CMStatisticsDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ChannelCombo, CMStatisticsDialog::OnChannelComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMStatisticsDialog::OnChannelComboSelendok)
 	#endif
 
@@ -632,7 +633,7 @@ void CMStatisticsDialog::OnProjectChangesSelendok (
    if (m_projectCommands == 1) 
 		{
       SInt16 returnCode = m_channelListType;
-      if (ProjectMenuClearStatistics())
+      if (ProjectMenuClearStatistics(NULL))
          returnCode = 1;
 
 				// If project stats were cleared, then reload the local	
@@ -703,6 +704,7 @@ void CMStatisticsDialog::OnStatisticsOptions (
    SetDLogControlHilite (NULL, wxID_OK, 255);
 
    StatisticsOptionsDialog (&m_localStatCode,
+                              this,
 										&m_keepClassStatsFlag,
 										&m_variance,
 										&m_minLogDeterminant,

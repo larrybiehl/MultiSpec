@@ -26,7 +26,7 @@
 //	Brief description:	This file is the definition for the CMOneColDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 12/03/2019
+//	Revised By:				Larry L. Biehl			Date: 09/15/2022
 //
 //------------------------------------------------------------------------------------
 
@@ -100,8 +100,8 @@ class CMOneColDlg : public CMDialog
 		SInt16* 								m_selectedItemsPtr;
 	
 		wxButton								*m_button2,
-					 							*m_button3,
-												*m_button4;
+												*m_enterNewRangebutton,
+					 							*m_noneButton;
 												
 		wxListBox							*m_listBox1;
 	
@@ -126,6 +126,7 @@ class CMOneColDlg : public CMDialog
 		UInt16 								m_minimumItemsRequired,
 												m_numberSelections;
 
-		bool 									m_initializedFlag;
+		bool 									m_initializedFlag,
+												m_showListFlag;
 
 };	// end "class CMOneColDlg"

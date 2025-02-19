@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			02/26/2022
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -149,7 +149,7 @@ SInt16	WriteChannelValues (
 // Called By:			GetReformatOutputFile in SReformatUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/06/1991
-//	Revised By:			Larry L. Biehl			Date: 08/29/2020
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 SInt16 AppendFile (
 				FileInfoPtr 						fileInfoPtr, 
@@ -232,9 +232,11 @@ SInt16 AppendFile (
 		gGetFileImageType = 0;
 						
 		errCode = GetFile (fileStreamPtr,
+									NULL,
 									numberTypes,
 									(UInt32*)fileTypesPtr,
 									NULL, 
+									NULL,
 									NULL,
 									NULL,
 									stringIndex);
@@ -253,7 +255,7 @@ SInt16 AppendFile (
 				
 				if (errCode == noErr)
 					{
-							// Everything is okay to here. Copy the file IO stream 
+							// Everything is okay to here. Copy the file IO stream
 							// information to the structure that will be used for testing
 							// whether the selected file is okay.
 							
@@ -263,22 +265,33 @@ SInt16 AppendFile (
 					appendToFileStreamPtr = GetFileStreamPointer (appendToFileInfoPtr);
 					
 					CopyFileStream (appendToFileStreamPtr, fileStreamPtr); 
-					
-			    			// Determine the file format and load the header 			
-			    			// information.														
-			    				
-			    	fileInfoLoadedFlag = LoadImageInformation (
-													NULL, appendToFileInfoHandle, FALSE, NULL, 0);
-			    				
-					if (fileInfoLoadedFlag)
-								// Make sure that the file is write enabled.
-						errCode = SetFileWriteEnabled (appendToFileStreamPtr);
 				
-					if (fileInfoLoadedFlag && errCode == noErr)
-						errCode = GetSizeOfFile (appendToFileStreamPtr, &logicalEndOfFile);
-						
-					if (errCode != noErr)
-						fileInfoLoadedFlag = FALSE;
+					errCode = OpenFileReadOnly (appendToFileStreamPtr,
+																kResolveAliasChains,
+																kLockFile,
+																kDoNotVerifyFileStream);
+									
+					IOCheck (errCode, fileStreamPtr);
+					
+					if (errCode == noErr)
+						{
+								// Determine the file format and load the header
+								// information.
+									
+						fileInfoLoadedFlag = LoadImageInformation (
+														NULL, appendToFileInfoHandle, FALSE, NULL, 0);
+									
+						if (fileInfoLoadedFlag)
+									// Make sure that the file is write enabled.
+							errCode = SetFileWriteEnabled (appendToFileStreamPtr);
+					
+						if (fileInfoLoadedFlag && errCode == noErr)
+							errCode = GetSizeOfFile (appendToFileStreamPtr, &logicalEndOfFile);
+							
+						if (errCode != noErr)
+							fileInfoLoadedFlag = FALSE;
+							
+						}	// end "if (errCode == noErr)"
 			    						
 			    	}	// end "if (errCode == noErr)" 
 			    						
@@ -650,149 +663,149 @@ SInt16 AppendFileDialog (
 		
 		}	// end "else !appendFileInfoPtr->thematicType && ..."
 		
-#if defined multispec_mac  
-	Rect									theBox;
-	
-	DialogPtr							dialogPtr;
-	
-	Handle								theHandle;
-	
-	SInt32								maximumValue,
-											theNum;
-	
-	SInt16								itemHit,
-											theType;
-	                
-	Boolean								modalDone; 
-	
-																						
-	dialogPtr = LoadRequestedDialog (kAppendFileDialogID, kCopyScrap, 1, 2);
-	
-	returnCode = -1;
-	if (dialogPtr != NULL)
-		{
-				// Item 3: Append or modify.													
-				
-		if (modifyFlag)
-			LoadDItemString (dialogPtr, 3, (Str255*)"\pModify ");
-			
-		else	// !modifyFlag 
-			LoadDItemString (dialogPtr, 3, (Str255*)"\pAppend to ");
-			
-				// Item 5: File name to be appended to or modified.					
+	#if defined multispec_mac
+		Rect									theBox;
 		
-		StringPtr appendFileNamePtr =
-							(StringPtr)GetFileNamePPointerFromFileInfo (appendFileInfoPtr);
-		ParamText ((UCharPtr)appendFileNamePtr,"\p", "\p", "\p");
+		DialogPtr							dialogPtr;
 		
-				// Item 6: After lines or channels.											
-				
-		GetDialogItem (dialogPtr, 6, &theType, &theHandle, &theBox);
-		SetControlValue ((ControlHandle)theHandle, 0);
+		Handle								theHandle;
 		
-		if (lineFlag)
-			SetControlTitle ((ControlHandle)theHandle, "\pLine:");
-			
-		else	// !lineFlag 
-			SetControlTitle ((ControlHandle)theHandle, "\pChannel:");
+		SInt32								maximumValue,
+												theNum;
 		
-				// Item 7: line or channel number.											
-				
-		LoadDItemValue (dialogPtr, 7, (SInt32)newAfterLineChannel);
-		HideDialogItem (dialogPtr, 7);
+		SInt16								itemHit,
+												theType;
+							 
+		Boolean								modalDone;
 		
-				// Item 8: After last line or channel.										
-				
-		GetDialogItem (dialogPtr, 8, &theType, &theHandle, &theBox);
-		SetControlValue ((ControlHandle)theHandle, 1);
+																							
+		dialogPtr = LoadRequestedDialog (kAppendFileDialogID, kCopyScrap, 1, 2);
 		
-		if (lineFlag)
-			SetControlTitle ((ControlHandle)theHandle, "\pLast line");
-			
-		else	// !lineFlag 
-			SetControlTitle ((ControlHandle)theHandle, "\pLast Channel");
-		
-				// Center the dialog and then show it.										
-				
-		ShowDialogWindow (dialogPtr, kAppendFileDialogID, kSetUpDFilterTable);
-					
-		maximumValue = newAfterLineChannel;  
-		modalDone = FALSE;
-		itemHit = 0;
-		do 
+		returnCode = -1;
+		if (dialogPtr != NULL)
 			{
-	  	 	ModalDialog (gProcessorDialogFilterPtr, &itemHit);
-			if (itemHit > 2)
-				{
-				GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
-				if (theType == 16)
-					{
-					GetDialogItemText (theHandle, gTextString);	
-					StringToNum (gTextString, &theNum);
-				
-					}	// end "if (theType == 16)" 
-				
-				switch (itemHit)
-					{
-					case 6:	// Line or channel to start after. 
-						SetControlValue ((ControlHandle)theHandle, 1);
-						SetDLogControl (dialogPtr, 8, 0);
-						ShowDialogItem (dialogPtr, 7);
-						SelectDialogItemText (dialogPtr, 7, 0, INT16_MAX);
-						break;
-						
-					case 7:	// Line or channel to start after. 
-						
-						CheckStartValue (theNum, 
-												&newAfterLineChannel,
-												0,
-												maximumValue, 
-												dialogPtr, 
-												itemHit);
-						break;
-						
-					case 8:	// Last line or channel. 
-						SetControlValue ((ControlHandle)theHandle, 1);
-						SetDLogControl (dialogPtr, 6, 0);
-						HideDialogItem (dialogPtr, 7);
-						break;
-						
-					}	// end "switch (itemHit)" 
-				
-				}	// end "if (itemHit > 2)" 
-			
-			else if (itemHit > 0) 	// and itemHit <= 2 
-				{	
-				modalDone = TRUE;
-				returnCode = 0;	
-				
-				if	(itemHit == 1)		// User selected OK for information 
-					{
-					SInt16 lineColumnCode = 0; 
-					if (GetDLogControl (dialogPtr, 8))
-						lineColumnCode = 1;
+					// Item 3: Append or modify.
 					
-					AppendFileDialogOK (appendFileInfoPtr,
-												newFileInfoPtr,
-												lineColumnCode,
-												lineFlag,
-												modifyFlag,
-												newAfterLineChannel,
-												bytesToSkipPtr);
-										
-					}	// end "if (itemHit == 1)" 
+			if (modifyFlag)
+				LoadDItemString (dialogPtr, 3, (Str255*)"\pModify ");
 				
-				if	(itemHit == 2)      // User selected Cancel for information 
-					returnCode = -1;
+			else	// !modifyFlag
+				LoadDItemString (dialogPtr, 3, (Str255*)"\pAppend to ");
 				
-				}	// end "else if (itemHit > 0) and itemHit <= 2" 
+					// Item 5: File name to be appended to or modified.
+			
+			StringPtr appendFileNamePtr =
+								(StringPtr)GetFileNamePPointerFromFileInfo (appendFileInfoPtr);
+			ParamText ((UCharPtr)appendFileNamePtr,"\p", "\p", "\p");
+			
+					// Item 6: After lines or channels.
+					
+			GetDialogItem (dialogPtr, 6, &theType, &theHandle, &theBox);
+			SetControlValue ((ControlHandle)theHandle, 0);
+			
+			if (lineFlag)
+				SetControlTitle ((ControlHandle)theHandle, "\pLine:");
 				
-			} while (!modalDone);
-		
-		CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
-		
-		}	// end "if (dialogPtr != NULL)"  
-#endif	// defined multispec_mac  
+			else	// !lineFlag
+				SetControlTitle ((ControlHandle)theHandle, "\pChannel:");
+			
+					// Item 7: line or channel number.
+					
+			LoadDItemValue (dialogPtr, 7, (SInt32)newAfterLineChannel);
+			HideDialogItem (dialogPtr, 7);
+			
+					// Item 8: After last line or channel.
+					
+			GetDialogItem (dialogPtr, 8, &theType, &theHandle, &theBox);
+			SetControlValue ((ControlHandle)theHandle, 1);
+			
+			if (lineFlag)
+				SetControlTitle ((ControlHandle)theHandle, "\pLast line");
+				
+			else	// !lineFlag
+				SetControlTitle ((ControlHandle)theHandle, "\pLast Channel");
+			
+					// Center the dialog and then show it.
+					
+			ShowDialogWindow (dialogPtr, kAppendFileDialogID, kSetUpDFilterTable);
+						
+			maximumValue = newAfterLineChannel;
+			modalDone = FALSE;
+			itemHit = 0;
+			do
+				{
+				ModalDialog (gProcessorDialogFilterPtr, &itemHit);
+				if (itemHit > 2)
+					{
+					GetDialogItem (dialogPtr, itemHit, &theType, &theHandle, &theBox);
+					if (theType == 16)
+						{
+						GetDialogItemText (theHandle, gTextString);
+						StringToNum (gTextString, &theNum);
+					
+						}	// end "if (theType == 16)"
+					
+					switch (itemHit)
+						{
+						case 6:	// Line or channel to start after.
+							SetControlValue ((ControlHandle)theHandle, 1);
+							SetDLogControl (dialogPtr, 8, 0);
+							ShowDialogItem (dialogPtr, 7);
+							SelectDialogItemText (dialogPtr, 7, 0, INT16_MAX);
+							break;
+							
+						case 7:	// Line or channel to start after.
+							
+							CheckStartValue (theNum,
+													&newAfterLineChannel,
+													0,
+													maximumValue,
+													dialogPtr,
+													itemHit);
+							break;
+							
+						case 8:	// Last line or channel.
+							SetControlValue ((ControlHandle)theHandle, 1);
+							SetDLogControl (dialogPtr, 6, 0);
+							HideDialogItem (dialogPtr, 7);
+							break;
+							
+						}	// end "switch (itemHit)"
+					
+					}	// end "if (itemHit > 2)"
+				
+				else if (itemHit > 0) 	// and itemHit <= 2
+					{
+					modalDone = TRUE;
+					returnCode = 0;
+					
+					if	(itemHit == 1)		// User selected OK for information
+						{
+						SInt16 lineColumnCode = 0;
+						if (GetDLogControl (dialogPtr, 8))
+							lineColumnCode = 1;
+						
+						AppendFileDialogOK (appendFileInfoPtr,
+													newFileInfoPtr,
+													lineColumnCode,
+													lineFlag,
+													modifyFlag,
+													newAfterLineChannel,
+													bytesToSkipPtr);
+											
+						}	// end "if (itemHit == 1)"
+					
+					if	(itemHit == 2)      // User selected Cancel for information
+						returnCode = -1;
+					
+					}	// end "else if (itemHit > 0) and itemHit <= 2"
+					
+				} while (!modalDone);
+			
+			CloseRequestedDialog (dialogPtr, kSetUpDFilterTable);
+			
+			}	// end "if (dialogPtr != NULL)"
+	#endif	// defined multispec_mac
 
 	#if defined multispec_win 
 		CMAppendFileDialog*		dialogPtr = NULL; 
@@ -1538,7 +1551,7 @@ void GetOutputFileName (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 11/30/1990
-//	Revised By:			Larry L. Biehl			Date: 08/29/2020
+//	Revised By:			Larry L. Biehl			Date: 09/01/2022
 
 Boolean GetReformatOutputFile (
 				FileInfoPtr							outFileInfoPtr, 
@@ -1690,7 +1703,11 @@ Boolean GetReformatOutputFile (
 				
 			if (gMultiSpecWorkflowInfo.workFlowCode == 0)
 				{
-				strncpy ((char*)&outFileNamePtr[stringLength-2], "_new", 4);
+				if (gProcessorCode == kCompareImagesProcessor)
+					strncpy ((char*)&outFileNamePtr[stringLength-2], "_dif", 4);
+					
+				else	// gProcessorCode != kCompareImagesProcessor
+					strncpy ((char*)&outFileNamePtr[stringLength-2], "_new", 4);
 				
 				}	// end "if (gMultiSpecWorkflowInfo.workFlowCode == 0)"
 				
@@ -2124,7 +2141,8 @@ Boolean ListReformatResultsInformation (
 											gOutputForce1Code, 
 											continueFlag);
 										
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    New value = %f + %f*oldValue/%f%s",
 						reformatOptionsPtr->adjustOffset,
 						reformatOptionsPtr->adjustFactor,
@@ -2147,7 +2165,8 @@ Boolean ListReformatResultsInformation (
 																	gOutputForce1Code, 
 																	continueFlag);
 										
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    New value = oldValue + %f * channel_%d%s",
 						reformatOptionsPtr->transformAdjustSelectedChannelsFactor,
 						reformatOptionsPtr->transformAdjustSelectedChannel,
@@ -2171,7 +2190,9 @@ Boolean ListReformatResultsInformation (
 																	
 			if (reformatOptionsPtr->algebraicTransformOption == kAlgebraicTransformGeneral)
 				{
-				numChars = sprintf ((char*)gTextString, "     = %f + (%s)/(%s) * %f%s",
+				numChars = snprintf ((char*)gTextString,
+											256,
+											"     = %f + (%s)/(%s) * %f%s",
 											reformatOptionsPtr->transformOffset,
 											&reformatOptionsPtr->numeratorString[1],
 											&reformatOptionsPtr->denominatorString[1],
@@ -2203,7 +2224,9 @@ Boolean ListReformatResultsInformation (
 																		continueFlag,
 																		kUTF8CharString);
 																		
-				numChars = sprintf ((char*)gTextString, "      Radiance = %f + (%s)/(%s) * %f%s",
+				numChars = snprintf ((char*)gTextString,
+											256,
+											"      Radiance = %f + (%s)/(%s) * %f%s",
 											reformatOptionsPtr->transformOffset,
 											&reformatOptionsPtr->numeratorString[1],
 											&reformatOptionsPtr->denominatorString[1],
@@ -2215,7 +2238,9 @@ Boolean ListReformatResultsInformation (
 														gOutputForce1Code,
 														continueFlag);
 																		
-				numChars = sprintf ((char*)gTextString, "      Radiant Temperature = %f / ln(%f/Radiance + 1)%s",
+				numChars = snprintf ((char*)gTextString,
+											256,
+											"      Radiant Temperature = %f / ln(%f/Radiance + 1)%s",
 											reformatOptionsPtr->algebraicTransformK2Value,
 											reformatOptionsPtr->algebraicTransformK1Value,
 											gEndOfLine);
@@ -2293,7 +2318,8 @@ Boolean ListReformatResultsInformation (
 									IDS_ChannelFunction01+reformatOptionsPtr->functionCode-1);
 			#endif	// defined multispec_win
 											
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    New value = %s * %f%s",
 						&gTextString2[1],
 						reformatOptionsPtr->functionFactor,
@@ -2306,7 +2332,8 @@ Boolean ListReformatResultsInformation (
 												
 			if (reformatOptionsPtr->functionCode == kFunctionKthSmallestElement)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      kth smallest value: %d%s",
 							(int)reformatOptionsPtr->kthSmallestValue,
 							gEndOfLine);
@@ -2321,7 +2348,8 @@ Boolean ListReformatResultsInformation (
 			if (reformatOptionsPtr->functionCode == kFunctionLatestThreshold ||
 					reformatOptionsPtr->functionCode == kFunctionEarliestThreshold)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      Threshold value: %d%s",
 							(int)reformatOptionsPtr->thresholdValue,
 							gEndOfLine);
@@ -2359,13 +2387,15 @@ Boolean ListReformatResultsInformation (
 		fileNamePtr =
 				(FileStringPtr)GetFileNameCPointerFromFileHandle (mosaicFileInfoHandle);
 		if (reformatOptionsPtr->mosaicDirectionCode == kMosaicLeftRight)
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+								256,
 								"%s    Right input image file name: '%s'%s",
 								gEndOfLine,
 								fileNamePtr,
 								gEndOfLine);
 		else	// reformatOptionsPtr->mosaicDirectionCode == kMosaicTopBottom
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+								256,
 								"%s    Bottom input image file name: '%s'%s",
 								gEndOfLine,
 								fileNamePtr,
@@ -2422,7 +2452,8 @@ Boolean ListReformatResultsInformation (
 																continueFlag);
 	
 	fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileInfo (outFileInfoPtr);
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+						256,
 						"    New output image file name: '%s'%s",
 						fileNamePtr,
 						gEndOfLine);
@@ -2503,7 +2534,8 @@ Boolean ListReformatResultsInformation (
 									-1,
 									numberChars);
 									
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s"
 					"    %g is lowest calculated value%s"
 					"    %g is highest calculated value%s"
@@ -3333,7 +3365,7 @@ void ModifyChannelDescriptionsChangeChannel (
 //							ChangeImageFileFormat in SReformatChangeImageFileFormat.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 11/29/1990
-//	Revised By:			Larry L. Biehl			Date: 07/10/2018
+//	Revised By:			Larry L. Biehl			Date: 09/02/2022
 
 void UpdateOutputFileStructure (
 				FileInfoPtr							outFileInfoPtr,
@@ -3407,6 +3439,39 @@ void UpdateOutputFileStructure (
 			// Get whether the output data is to be signed.							
 			
 	outFileInfoPtr->signedDataFlag = reformatOptionsPtr->signedOutputDataFlag;
+	
+	if (gProcessorCode == kCompareImagesProcessor)
+		{
+		FileInfoPtr							compareImageFileInfoPtr;
+		RefCompareImagesOptionsPtr		compareImagesOptionsPtr;
+		Handle								compareImageFileInfoHandle;
+		
+		
+				// Set parameters unique for comparing images.
+				
+		compareImagesOptionsPtr = reformatOptionsPtr->compareImagesOptionsPtr;
+		compareImageFileInfoHandle =
+					GetFileInfoHandle (compareImagesOptionsPtr->compareImageWindowInfoHandle);
+		compareImageFileInfoPtr = (FileInfoPtr)GetHandlePointer (compareImageFileInfoHandle);
+			
+		if (gImageFileInfoPtr->numberBytes >= 4 ||
+												compareImageFileInfoPtr->numberBytes >= 4)
+			{
+			outFileInfoPtr->dataTypeCode = kRealType;
+			outFileInfoPtr->numberBytes = 8;
+			outFileInfoPtr->numberBits = 64;
+			
+			}	// end "if (gImageFileInfoPtr->dataTypeCode == kRealType)"
+			
+		else	// if (gImageFileInfoPtr->numberBytes >= 4)
+			{
+			outFileInfoPtr->dataTypeCode = kIntegerType;
+			outFileInfoPtr->numberBytes = 4;
+			outFileInfoPtr->numberBits = 32;
+			
+			}	// end "if (gImageFileInfoPtr->dataTypeCode == kRealType)"
+		
+		}	// end "if (gProcessorCode == kCompareImagesProcessor)"
 		
 			// Update the number of bits.													
 											
@@ -3435,7 +3500,7 @@ void UpdateOutputFileStructure (
 				!reformatOptionsPtr->outputInWavelengthOrderFlag)
 		outFileInfoPtr->channelsInWavelengthOrderCode = kNotInOrder;
 	
-			// Now copy map project information to the output file info structure
+			// Now copy map projection information to the output file info structure
 			// the information exists for the input file and a new file is being
 			// created.	
 		
@@ -3774,7 +3839,8 @@ SInt16 WriteChannelValues (
 				channel<numberChannelsWritten;
 				channel++)
 			{								
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+							256,
 							" %f",
 							channelValuePtr[channel]);
 				
@@ -3822,7 +3888,8 @@ SInt16 WriteChannelValues (
 			if (channelValuePtr != NULL)
 				{
 				fileChannel = gImageLayerInfoPtr[channel].fileChannelNumber;
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+								256,
 								" %f",
 								channelValuePtr[fileChannel-1]);
 								
@@ -3830,7 +3897,8 @@ SInt16 WriteChannelValues (
 				
 			else if (numberChannelsWritten > 0)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+								256,
 								" %f",
 								noValue);
 				

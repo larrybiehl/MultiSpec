@@ -19,7 +19,7 @@
 //	Authors:					Chulhee Lee
 //								Larry L. Biehl
 //
-//	Revision date:			04/17/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -495,7 +495,7 @@ void FS_find_STI_size (
 // Called By:	
 //
 //	Coded By:			Chulhee Lee				Date: ??/??/19??
-//	Revised By:			Larry L. Biehl			Date: 04/17/2020
+//	Revised By:			Larry L. Biehl			Date: 02/18/2025
 
 void FS_gen_make_stat_image_same_scale (
 				CLASS_INFO_STR* 					class_info,
@@ -514,11 +514,13 @@ void FS_gen_make_stat_image_same_scale (
 	FileStringPtr						filePathPtr,
 											newFilePathPtr;
 											
-	unsigned char						*cor, *final_cor, erdas_header[128];
+	unsigned char						*cor, *final_cor;
 	
 	double								max_mean_std_height,
 											min_mean_std_height,
 			 								sd;
+											
+	SInt32								imageDataStart;
 	
 	UInt32 								i,
 											j;
@@ -527,7 +529,8 @@ void FS_gen_make_stat_image_same_scale (
 											final_cor_size,
 											L_image_size_row;
 											
-	SInt16								errCode,
+	SInt16								continueFlag = TRUE,
+											errCode,
 											newFilePathLength;
 											
 	Boolean								addProjectIdentifierFlag = FALSE;
@@ -607,7 +610,6 @@ void FS_gen_make_stat_image_same_scale (
 										class_info,
 										classPtr, 
 										(SInt32)no_class,
-										//newFileInfoPtr,
 										max_mean_std_height,
 										min_mean_std_height,
 										STI_info,
@@ -619,13 +621,15 @@ void FS_gen_make_stat_image_same_scale (
 		if (*ERROR_FLAG != 0)
 																										return;
 			
-				// Make ERDAS Header
+				// Fill information for image header
       
       newFileInfoPtr->numberLines = L_image_size_row;
       newFileInfoPtr->numberColumns = (UInt32)(L_final_size_col * no_class);
      
       newFileInfoPtr->numberClasses = NO_PALETTE_CLASSES + 2;
       newFileInfoPtr->mapProjectionHandle = NULL;
+      
+      newFileInfoPtr->thematicType = TRUE;
      
      
       CMFileStream* newFileStreamPtr = GetFileStreamPointer (newFileInfoPtr);
@@ -665,92 +669,141 @@ void FS_gen_make_stat_image_same_scale (
 		newFilePathLength = GetFileStringLength (newFilePathPtr);
 		if (addProjectIdentifierFlag)
 			{
-			sprintf ((char*)&newFilePathPtr[newFilePathLength+2], (char*)"_project");
+			snprintf ((char*)&newFilePathPtr[newFilePathLength+2], _MAX_PATH, (char*)"_project");
 			 						
 			newFilePathLength += 8;
 			SetFileStringLength (newFilePathPtr, newFilePathLength);
 			
 			}	// end "if (addProjectIdentifierFlag)"
   
-		sprintf ((char*)&newFilePathPtr[newFilePathLength+2], (char*)".sti");
+		snprintf ((char*)&newFilePathPtr[newFilePathLength+2], _MAX_PATH, (char*)"_statImage.tif");
 
-		newFilePathLength += 4;
+		newFilePathLength += 14;
 		SetFileStringLength (newFilePathPtr, newFilePathLength);
-		  
-		LoadNewErdasHeader (newFileInfoPtr, (unsigned char*)erdas_header, kErdas74Type);
-		  
-		#if defined multispec_mac
-					// Force the uniFileName to be recreated to match the support file
-					// name.
-			newFileStreamPtr->uniFileName.length = 0;
-		#endif	// defined multispec_mac
 
 				// Now get wide character and unicode names.
 
 		SetFileDoesNotExist (newFileStreamPtr, kKeepUTF8CharName);
 		UpdateFileNameInformation (newFileStreamPtr, NULL);
-
-				// The following will verify that the direcctory specified is
-				// writable and if not change it to the working directory. Only
-				// done for wxWidgets interface versions.
-
-		CheckIfDirectoryIsWriteable (newFileStreamPtr);
-	
-      //newFileNamePtr =
-		//			(FileStringPtr)GetFileNamePPointerFromFileStream (newFileStreamPtr);
+		
+				// Hide status dialog. It is not needed any more.
+				
+		//gStatusDialogPtr->Show (0);
+		
+		errCode = PutFile (newFileStreamPtr,
+									final_cor_size + 100,	// Allow space for TIF header and Color Map
+									IDS_SaveImageStatisticsAs,
+									gCreator);
 									
-      errCode = CreateNewFile (newFileStreamPtr,
-											GetVolumeReferenceNumber (newFileStreamPtr),
-											gCreator,
-											kErrorMessages,
-											kReplaceFlag);
-		
-				// Make sure the output directory variable is set to empty.
-	
-		ResetOutputDirectory ();
-		
-		if (errCode != noErr)
-			*ERROR_FLAG = 200;
+		if (errCode == noErr)
+			{
+			#if defined multispec_mac
+						// Force the uniFileName to be recreated to match the support file
+						// name.
+				newFileStreamPtr->uniFileName.length = 0;
+			#endif	// defined multispec_mac
 
-      if (errCode == noErr)
-			{
-         count = 128;
-         errCode = MWriteData (newFileStreamPtr, 
-											&count,
-											erdas_header, 
-											kNoErrorMessages);
+					// Now get wide character and unicode names.
+
+			SetFileDoesNotExist (newFileStreamPtr, kKeepUTF8CharName);
+			UpdateFileNameInformation (newFileStreamPtr, NULL);
+
+					// The following will verify that the direcctory specified is
+					// writable and if not change it to the working directory. Only
+					// done for wxWidgets interface versions.
+
+			CheckIfDirectoryIsWriteable (newFileStreamPtr);
 		
+			//newFileNamePtr =
+			//			(FileStringPtr)GetFileNamePPointerFromFileStream (newFileStreamPtr);
+			/*
+			errCode = CreateNewFile (newFileStreamPtr,
+												GetVolumeReferenceNumber (newFileStreamPtr),
+												gCreator,
+												kErrorMessages,
+												kReplaceFlag);
+			*/
+					// Make sure the output directory variable is set to empty.
+		
+			ResetOutputDirectory ();
+				
+			continueFlag = WriteTIFFImageFile (newFileInfoPtr,
+															newFileStreamPtr,
+															NULL,
+															NULL,
+															kFromClassification,
+															kClassDisplay,
+															kCorrelationMatrixColors,
+															&imageDataStart,
+															1,
+															1);
+															
+			if (continueFlag)
+				{
+						// Note that the pointer is already pointing to the 'imageDataStart'
+						// in the file.
+						// Now write the statistics image data to the file.
+						
+				count = (UInt32)(L_image_size_row * L_final_size_col *no_class);
+				errCode = MWriteData (newFileStreamPtr,
+												&count,
+												final_cor,
+												kErrorMessages);
+												
+				}	// end "if (continueFlag)"
+				
 			if (errCode != noErr)
-				*ERROR_FLAG = 201;
-		
-			}	// end "if (errCode == noErr)"
-	
-      if (errCode == noErr)
-			{
-         count = (UInt32)(L_image_size_row * L_final_size_col *no_class);
-			//count = final_cor_size * 2;
-      
-         errCode = MWriteData (newFileStreamPtr, 
-											&count,
-											final_cor, 
-											kNoErrorMessages);
+				continueFlag = FALSE;
+												
+			if (continueFlag)
+				{
+			/*
+			if (errCode != noErr)
+				*ERROR_FLAG = 200;
+
+			if (errCode == noErr)
+				{
+				count = 128;
+				errCode = MWriteData (newFileStreamPtr,
+												&count,
+												erdas_header,
+												kNoErrorMessages);
 			
-			if (errCode != noErr)
-				*ERROR_FLAG = 202;
-		
+				if (errCode != noErr)
+					*ERROR_FLAG = 201;
+				
+				}	// end "if (errCode == noErr)"
+			
+			if (errCode == noErr)
+				{
+				count = (UInt32)(L_image_size_row * L_final_size_col *no_class);
+				//count = final_cor_size * 2;
+			
+				errCode = MWriteData (newFileStreamPtr,
+												&count,
+												final_cor,
+												kNoErrorMessages);
+				
+				if (errCode != noErr)
+					*ERROR_FLAG = 202;
+				
+				}	// end "if (errCode == noErr)"
+			
+			if (*ERROR_FLAG != 200)
+				IOCheck (errCode, newFileStreamPtr);
+			*/
+					// " Image statistics saved to disk as '%s'.\r",
+			
+			ListSpecifiedStringNumber (kStatisticsImageStrID,
+												IDS_StatisticsImage19,
+												(CMFileStream*)NULL,
+												gOutputForce1Code,
+												(char*)&newFilePathPtr[2],
+												*ERROR_FLAG == noErr);
+												
+				}	// end "if (continueFlag)"
+				
 			}	// end "if (errCode == noErr)"
-		
-		if (*ERROR_FLAG != 200)
-			IOCheck (errCode, newFileStreamPtr);
-	
-				// " Image statistics saved to disk as '%s'.\r",
-		
-      ListSpecifiedStringNumber (kStatisticsImageStrID,
-											IDS_StatisticsImage19,
-											(CMFileStream*)NULL, 
-											gOutputForce1Code, 
-											(char*)&newFilePathPtr[2],
-											*ERROR_FLAG == noErr);
 
       CloseFile (newFileInfoPtr);
 		

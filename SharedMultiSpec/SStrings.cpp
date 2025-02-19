@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			08/11/2022
+//	Revision date:			02/19/2025
 //
 //	Language:				C
 //
@@ -78,6 +78,9 @@
 					UInt16								maxStringLength=255);
 #endif	// defined multispec_win
 
+#if defined multispec_wxwin
+	//#include "Resources/xStringTable.def"
+#endif
 
 extern void	ListString (
 				const char*							textBuffer);
@@ -300,7 +303,67 @@ Boolean CheckTextWindowSpaceNeeded (
 		return true;
 	#endif
 
-}	// end "CheckTextWindowSpaceNeeded" 
+}	// end "CheckTextWindowSpaceNeeded"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		Boolean CompareFileNamesNoCase
+//
+//	Software purpose:	This routine compares the input suffix of length n
+//							with the last n characters of the input string.
+//							TRUE is returned if they compare and FALSE otherwise.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 03/25/2023
+//	Revised By:			Larry L. Biehl			Date: 03/25/2023
+
+Boolean CompareFileNamesNoCase (
+				FileStringPtr						fileName1Ptr,
+				FileStringPtr						fileName2Ptr)
+
+{
+	
+	SInt32								index;
+								
+	UInt32								lengthFileName1,
+											lengthFileName2;
+	
+	Boolean								returnFlag;
+
+	
+	returnFlag = FALSE;
+	lengthFileName1 = GetFileStringLength (fileName1Ptr);
+	lengthFileName2 = GetFileStringLength (fileName2Ptr);
+
+	if (lengthFileName1 == lengthFileName2)
+		{
+		returnFlag = TRUE;
+		for (index = 0; index<lengthFileName1; index++)
+			{
+			if (towupper (fileName1Ptr[index]) != towupper (fileName2Ptr[index]))
+				{
+				returnFlag = FALSE;
+				break;
+				
+				}	// end "if (diff != 0)"
+				
+			}	// end "for (index = 0; index<lengthFileName1; index++)"
+			
+		}	// end "if (lengthFileName1 != lengthFileName2)"
+
+	return (returnFlag);
+
+}	// end "CompareFileNamesNoCase"
 
 
 
@@ -693,7 +756,7 @@ void ConcatFilenameSuffix (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/10/2017
-//	Revised By:			Larry L. Biehl			Date: 04/15/2020
+//	Revised By:			Larry L. Biehl			Date: 03/25/2023
 
 void ConcatFilenameSuffix (
 				FileStringPtr						fileNamePtr,
@@ -1788,7 +1851,7 @@ int GetFileStringLength (
 //							CreateImageWindow in SImageWindow_class.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/23/2000
-//	Revised By:			Larry L. Biehl			Date: 04/12/2020
+//	Revised By:			Larry L. Biehl			Date: 01/15/2024
 
 void GetImageWindowName (
 				DisplaySpecsPtr					displaySpecsPtr, 
@@ -1797,7 +1860,7 @@ void GetImageWindowName (
 				Boolean								removeSuffixFlag)
 
 {
-	unsigned char						windowNameString[512];
+	unsigned char						windowNameString_512[512];
 	
 	int									numChars;
 	
@@ -1826,7 +1889,8 @@ void GetImageWindowName (
 		//CtoPstring (namePtr, namePtr);
 		//totalLength += namePtr[0];
 		
-		numChars = sprintf ((char*)&windowNameString[2],
+		numChars = snprintf ((char*)&windowNameString_512[2],
+									510,
 									"L%hd-",
 									gImageWindowInfoPtr->numberImageFiles);
 		totalLength += numChars;
@@ -1846,7 +1910,8 @@ void GetImageWindowName (
 		//				"%s",
 		//				&gTextString2[1]);
 						
-		sprintf ((char*)&windowNameString[totalLength+1],
+		snprintf ((char*)&windowNameString_512[totalLength+1],
+						512-(totalLength+1),
 						"%s",
 						&gTextString2[1]);
 		
@@ -1860,7 +1925,8 @@ void GetImageWindowName (
 		//				"%s",
 		//				fileNamePtr);
 						
-		sprintf ((char*)&windowNameString[totalLength+1],
+		snprintf ((char*)&windowNameString_512[totalLength+1],
+						512-(totalLength+1),
 						"%s",
 						fileNamePtr);
 						
@@ -1874,9 +1940,9 @@ void GetImageWindowName (
 		//RemoveSuffix ((FileStringPtr)namePtr);
 		//totalLength = namePtr[0] + 1;
 		
-		SetFileStringLength ((FileStringPtr)windowNameString, totalLength-1);
-		RemoveSuffix ((FileStringPtr)windowNameString);
-		totalLength = GetFileStringLength (windowNameString) + 1;
+		SetFileStringLength ((FileStringPtr)windowNameString_512, totalLength-1);
+		RemoveSuffix ((FileStringPtr)windowNameString_512);
+		totalLength = GetFileStringLength (windowNameString_512) + 1;
 		
 		savedLength = totalLength - 1;
 		
@@ -1884,7 +1950,7 @@ void GetImageWindowName (
 		
 	else	// !removeSuffixFlag
 		{
-		sprintf ((char*)&windowNameString[totalLength+1], " ");
+		snprintf ((char*)&windowNameString_512[totalLength+1], 512-totalLength+1, " ");
 		totalLength++;
 		
 		savedLength = totalLength;
@@ -1978,25 +2044,57 @@ void GetImageWindowName (
 					}
 
 				//sprintf (&namePtr[totalLength],
-				sprintf ((char*)&windowNameString[totalLength+1],
-							"(%s %hd)",
-							monthString[monthIndex],
-							day);
+				snprintf ((char*)&windowNameString_512[totalLength+1],
+								512-(totalLength+1),
+								"(%s %hd)",
+								monthString[monthIndex],
+								day);
 			#endif	// MONTH_DAY_DESCRIPTION
 				
 			#ifndef MONTH_DAY_DESCRIPTION
+				ChannelDescriptionPtr			channelDescriptionPtr = NULL;
+				char									channelLabelString_32[32];
+				channelLabelString_32[0] = 0;
+				if (fileInfoPtr->descriptionsFlag)
+					{
+					char*							descriptionStringPtr;
+					channelDescriptionPtr = (ChannelDescriptionPtr)GetHandlePointer (
+																	  fileInfoPtr->channelDescriptionH);
+					descriptionStringPtr = (char*)&channelDescriptionPtr[displaySpecsPtr->channelNumber-1];
+																	  
+							// Get description length minus the ending blanks
+					
+					int	index;
+					for (index=23; index>=0; index--)
+						{
+						if (strncmp ((char*)&descriptionStringPtr[index], " ", 1) != 0)
+							break;
+							
+						}	// end "for (index=23; index>=0; index--)"
+						
+					index++;
+																	  
+					snprintf (channelLabelString_32,
+								32,
+								": ");
+						
+					BlockMoveData (descriptionStringPtr, &channelLabelString_32[2], index);
+					channelLabelString_32[2+index] = 0;
+																	  
+					}	// end "if (fileInfoPtr->descriptionsFlag)"
+																	  
 				if (displaySpecsPtr->displayType == k1_ChannelThematicDisplayType)
-					//sprintf ((char*)&namePtr[totalLength],
-					sprintf ((char*)&windowNameString[totalLength+1],
-								"(ch_%hdT)",
-								//"(day %hd)",
-								displaySpecsPtr->channelNumber);
+					snprintf ((char*)&windowNameString_512[totalLength+1],
+								512-(totalLength+1),
+								"(ch_%hdT%s)",
+								displaySpecsPtr->channelNumber,
+								channelLabelString_32);
 				else
-					//sprintf ((char*)&namePtr[totalLength],
-					sprintf ((char*)&windowNameString[totalLength+1],
-								"(ch_%hd)",
-								//"(day %hd)",
-								displaySpecsPtr->channelNumber);
+					snprintf ((char*)&windowNameString_512[totalLength+1],
+								512-(totalLength+1),
+								"(ch_%hd%s)",
+								displaySpecsPtr->channelNumber,
+								channelLabelString_32);
 			#endif	// !MONTH_DAY_DESCRIPTION
 			
 			}	// end "if (displaySpecsPtr->displayType == ..."
@@ -2005,7 +2103,8 @@ void GetImageWindowName (
 										displaySpecsPtr->displayType == k3_2_ChannelDisplayType)
 			{
 			//sprintf ((char*)&namePtr[totalLength],
-			sprintf ((char*)&windowNameString[totalLength+1],
+			snprintf ((char*)&windowNameString_512[totalLength+1],
+						512-(totalLength+1),
 						"(chs_%hd,%hd,%hd)",
 						displaySpecsPtr->redChannelNumber,
 						displaySpecsPtr->greenChannelNumber,
@@ -2050,7 +2149,8 @@ void GetImageWindowName (
 		else if (displaySpecsPtr->displayType == kSideSideChannelDisplayType)
 			{
 			//sprintf ((char*)&namePtr[totalLength],
-			sprintf ((char*)&windowNameString[totalLength+1],
+			snprintf ((char*)&windowNameString_512[totalLength+1],
+						512-(totalLength+1),
 						"(multichannels)");
 			
 			}	// end "else if (displaySpecsPtr->displayType == ..."
@@ -2062,7 +2162,7 @@ void GetImageWindowName (
 			// info.
 			
 	//totalLength = (SInt16)strlen ((char*)&namePtr[1]);
-	totalLength = (SInt16)strlen ((char*)&windowNameString[2]);
+	totalLength = (SInt16)strlen ((char*)&windowNameString_512[2]);
 	totalLength = MIN (totalLength, gFileNameLengthLimit);
 	
 			// Copy string to output
@@ -2076,7 +2176,7 @@ void GetImageWindowName (
 			totalLength = savedLength;
 					
 		memcpy (&namePtr[2],
-					(char*)&windowNameString[2],
+					(char*)&windowNameString_512[2],
 					totalLength);
 					
 		SetFileStringLength ((FileStringPtr)namePtr, totalLength);
@@ -2086,7 +2186,7 @@ void GetImageWindowName (
 	else	// !removeSuffixFlag
 		{
 		memcpy (&namePtr[1],
-					(char*)&windowNameString[2],
+					(char*)&windowNameString_512[2],
 					totalLength);
 		
 				// Include the character count
@@ -2959,14 +3059,14 @@ void GetGraphWindowTitle (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/09/2007
-//	Revised By:			Larry L. Biehl			Date: 08/11/2022
+//	Revised By:			Larry L. Biehl			Date: 02/19/2025
 
 void InitializeDateVersionStrings ()
 
 {
 		// Date version string
 		
-	sprintf (gDateVersionString, "2022.08.11");
+	snprintf (gDateVersionString, 64, "2025.02.19");
 
 		// Application identifier string
 		
@@ -3016,11 +3116,19 @@ void InitializeDateVersionStrings ()
                         gDateVersionString);
             #endif
             #if defined(__x86_64__)
-               sprintf ((char*)gApplicationIdentifierString,
+               snprintf ((char*)gApplicationIdentifierString,
+								64,
                         "MultiSpec_Intel_%s",
                         gDateVersionString);
             #endif
-			#else
+			#endif
+
+			#if defined multispec_wxwin
+				sprintf (
+					gApplicationIdentifierString, "MultiSpecWin64wx_%s", gDateVersionString);
+			#endif
+
+			#if defined multispec_wxlin
 				sprintf ((char*)gApplicationIdentifierString,
 							"MultiSpec_on_MyGeohub_%s",
 							gDateVersionString);
@@ -3293,19 +3401,22 @@ Boolean ListChannelsUsed (
 	if (useTransformFlag)
 		{
 		if (gProcessorCode == kRefChangeFileFormatProcessor)
-			stringLength = sprintf ((char*)gTextString, 
+			stringLength = snprintf ((char*)gTextString,
+						256,
 						"    Features created: %s",
 						gEndOfLine);
 						
 		else	// gProcessorCode != kRefChangeFileFormatProcessor
-			stringLength = sprintf ((char*)gTextString, 
+			stringLength = snprintf ((char*)gTextString,
+						256,
 						"    Features used: %s",
 						gEndOfLine);
 						
 		}	// end "if (useTransformFlag)"
 	
 	else	// !useTransformFlag 
-		stringLength = sprintf ((char*)gTextString, 
+		stringLength = snprintf ((char*)gTextString,
+					256,
 					"    Channels used: %s",
 					gEndOfLine);
 	
@@ -3522,7 +3633,8 @@ Boolean ListChannelsUsed (
 				}	// end "if (localFileInfoPtr && !useTransformFlag)" 
 			
 			if (channelDescriptionPtr == NULL)
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"     %*u%s", 
 							channelNumberLength,
 							(unsigned int)channelNum,
@@ -3535,7 +3647,8 @@ Boolean ListChannelsUsed (
 					fileChanNum = localImageLayerInfoPtr[layerChanIndex].fileChannelNumber;
 					
 				BlockMoveData (&channelDescriptionPtr[fileChanNum-1], gTextString2, 24);
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"     %*u: %s%s", 
 							channelNumberLength,
 							(unsigned int)channelNum,
@@ -3660,7 +3773,7 @@ SInt16 ListCountValue (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/30/1993
-//	Revised By:			Larry L. Biehl			Date: 05/31/2020
+//	Revised By:			Larry L. Biehl			Date: 01/01/2024
 
 Boolean ListCPUTimeInformation (
 				CMFileStream*						resultsFileStreamPtr, 
@@ -3689,16 +3802,16 @@ Boolean ListCPUTimeInformation (
 	switch (gProcessorCode)
 		{
 		case kOpenImageFileProcessor:
-			sprintf ((char*)gTextString2, "opening image");
+			snprintf ((char*)gTextString2, 256, "opening image");
 			break;
 			
 		case kDisplayProcessor:
-			sprintf ((char*)gTextString2, "displaying image");
+			snprintf ((char*)gTextString2, 256, "displaying image");
 			break;
 			
 		case kHistogramProcessor:
 		case kHistogramInDisplayProcessor:
-			sprintf ((char*)gTextString2, "histograming image");
+			snprintf ((char*)gTextString2, 256, "histogramming image");
 			break;
 			
 		case kRefChangeHeaderProcessor:
@@ -3710,71 +3823,71 @@ Boolean ListCPUTimeInformation (
 		case kMultispecToThematicProcessor:
 		case kENVIROIToThematic:
 		case kRecodeThematicImageProcessor:
-			sprintf ((char*)gTextString2, "reformatting");
+			snprintf ((char*)gTextString2, 256, "reformatting");
 			break;
 						
 		case kListDataProcessor:
-			sprintf ((char*)gTextString2, "listing data");
+			snprintf ((char*)gTextString2, 256, "listing data");
 			break;
 		
 		case kClusterProcessor:
-			sprintf ((char*)gTextString2, "clustering");
+			snprintf ((char*)gTextString2, 256, "clustering");
 			break;
 		
 		case kComputeStatsProcessor:
-			sprintf ((char*)gTextString2, "statistics computation");
+			snprintf ((char*)gTextString2, 256, "statistics computation");
 			break;
 			
 		case kListStatsProcessor:
-			sprintf ((char*)gTextString2, "listing statistics");
+			snprintf ((char*)gTextString2, 256, "listing statistics");
 			break;
 			
 		case kHistogramStatsProcessor:
-			sprintf ((char*)gTextString2, "histograming statistics");
+			snprintf ((char*)gTextString2, 256, "histogramming statistics");
 			break;
 
 		case kStatEnhanceProcessor:
-			sprintf ((char*)gTextString2, "enhance statistics");
+			snprintf ((char*)gTextString2, 256, "enhance statistics");
 			break;
 			
 		case kFeatureExtractionProcessor:
-			sprintf ((char*)gTextString2, "feature extraction");
+			snprintf ((char*)gTextString2, 256, "feature extraction");
 			break;
 						
 		case kSeparabilityProcessor:
-			sprintf ((char*)gTextString2, "feature selection");
+			snprintf ((char*)gTextString2, 256, "feature selection");
 			break;
 						
 		case kClassifyProcessor:
-			sprintf ((char*)gTextString2, "classification");
+			snprintf ((char*)gTextString2, 256, "classification");
 			break;
 						
 		case kListResultsProcessor:
-			sprintf ((char*)gTextString2, "results listing");
+			snprintf ((char*)gTextString2, 256, "results listing");
 			break;
 						
 		case kPrincipalComponentsProcessor:
-			sprintf ((char*)gTextString2, "principal component analysis");
+			snprintf ((char*)gTextString2, 256, "principal component analysis");
 			break;
 			
 		case kStatisticsImageProcessor:
-			sprintf ((char*)gTextString2, "creating statistics images");
+			snprintf ((char*)gTextString2, 256, "creating statistics images");
 			break;
 						
 		case kBiPlotDataProcessor:
-			sprintf ((char*)gTextString2, "creating biplot of data");
+			snprintf ((char*)gTextString2, 256, "creating biplot of data");
 			break;
 			
 		case kCovarianceCheckProcessor:
-			sprintf ((char*)gTextString2, "checking covariance statistics");
+			snprintf ((char*)gTextString2, 256, "checking covariance statistics");
 			break;
 			
 		case kTransformCheckProcessor:
-			sprintf ((char*)gTextString2, "checking transformation matrix");
+			snprintf ((char*)gTextString2, 256, "checking transformation matrix");
 			break;
 			
 		default:
-			sprintf ((char*)gTextString2, "operation");
+			snprintf ((char*)gTextString2, 256, "operation");
 			break;
 			
 		}	// end "switch (gProcessorCode)" 
@@ -3784,13 +3897,15 @@ Boolean ListCPUTimeInformation (
 		if (gAlertReturnCode == 1)
 						// Operation was stopped and results to that point were listed.	
 
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"%s %s was stopped.  Results at that point were listed.",
 						gEndOfLine, 
 						gTextString2);
 			
 		else	// gAlertReturnCode != 1 
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"%s %s was cancelled.",
 						gEndOfLine, 
 						gTextString2);
@@ -3811,7 +3926,8 @@ Boolean ListCPUTimeInformation (
 	strftime ((char*)gTextString3, 254, "  %m-%d-%Y  %X", currentDate);
 	
 	if (totalTime < 60)
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s  %u CPU seconds for %s.%s%s",
 					gEndOfLine,
 					(unsigned int)totalTime,
@@ -3828,7 +3944,8 @@ Boolean ListCPUTimeInformation (
 		
 		if (minutes < 60)
 			{
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"%s  %u minutes and %u seconds CPU time for %s.%s%s",
 						gEndOfLine,
 						(unsigned int)minutes,
@@ -3846,7 +3963,8 @@ Boolean ListCPUTimeInformation (
 			hours = minutes/60;
 			minutes -= hours*60;
 			
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"%s  %u hours, %u minutes and %u seconds CPU time for %s.%s%s",
 						gEndOfLine,
 						(unsigned int)hours,
@@ -4004,7 +4122,8 @@ Boolean ListLineColumnIntervalString (
 		continueFlag = MGetString (gTextString2, kSharedStrID, IDS_Shared3);
 		
 	if (continueFlag)
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+							256,
 							(char*)&gTextString2[1],
 							lineStart,
 							lineEnd,
@@ -4068,7 +4187,8 @@ Boolean ListMapProjectionString (
 					
 		if (projectionCode <= 0)
 			{	
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
@@ -4094,7 +4214,8 @@ Boolean ListMapProjectionString (
 						IDS_ProjectionType01+projectionCode);
 			#endif	// defined multispec_win
 								
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sProjection:       %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
@@ -4148,7 +4269,8 @@ Boolean ListMapReferenceSystemString (
 							
 		if (referenceSystemCode <= 0)
 			{	
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
@@ -4174,7 +4296,8 @@ Boolean ListMapReferenceSystemString (
 						IDS_ReferenceSystem01+referenceSystemCode);
 			#endif	// defined multispec_win
 								
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sReference System: %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
@@ -4275,7 +4398,7 @@ Boolean ListMemoryMessage (
 // Called By:			ListHeaderInfo in SStrings.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 04/09/1991
-//	Revised By:			Larry L. Biehl			Date: 08/10/2022
+//	Revised By:			Larry L. Biehl			Date: 08/29/2022
 
 Boolean ListProcessorTitleLine (
 				CMFileStream*	 					resultsFileStreamPtr, 
@@ -4348,6 +4471,10 @@ Boolean ListProcessorTitleLine (
 		case kRefMosaicImagesProcessor:
 			stringIndex = IDS_Processor26;
 			break;
+				
+		case kCompareImagesProcessor:
+			stringIndex = IDS_Processor29;
+			break;
 						
 		case kListDataProcessor:
 			stringIndex = IDS_ProcessorListData;
@@ -4418,7 +4545,7 @@ Boolean ListProcessorTitleLine (
 	if (listClassificationIdentifierFlag)
 		{		
 		MGetString (gTextString2, kFileIOStrID, IDS_MultiSpecType);  // 42 
-		sprintf ((char*)gTextString, "%s%s", &gTextString2[1], gEndOfLine);
+		snprintf ((char*)gTextString, 256, "%s%s", &gTextString2[1], gEndOfLine);
 		continueFlag = OutputString (resultsFileStreamPtr, 
 												(char*)gTextString, 
 												0, 
@@ -4434,7 +4561,8 @@ Boolean ListProcessorTitleLine (
 				// Include the image file name
 				
 		char* fileNamePtr = (char*)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
-		sprintf ((char*)&gTextString2[gTextString2[0]+1],
+		snprintf ((char*)&gTextString2[gTextString2[0]+1],
+										256 - (gTextString2[0]+1),
 										(char*)" '%s'",
 										fileNamePtr);
 	
@@ -4445,7 +4573,8 @@ Boolean ListProcessorTitleLine (
 	time_t currentTime = time (NULL);
 	struct tm *currentDate = localtime (&currentTime);
 	strftime ((char*)gTextString3, 254, "  %m-%d-%Y  %X", currentDate);
-	sprintf (&textString[0],
+	snprintf (&textString[0],
+					256,
 					"%s%s (%s)%s",
 					&gTextString2[1], 
 					gTextString3,
@@ -4479,7 +4608,8 @@ Boolean ListProcessorTitleLine (
 			
 			if (numChars > 0)
 				{
-				numChars = sprintf ((char*)gTextString, 
+				numChars = snprintf ((char*)gTextString,
+											256,
 											"    %s", 
 											"(hdf set: ");
 
@@ -4552,9 +4682,10 @@ Boolean ListProjectAndImageName (
 								(char*)"Untitled Project");
 				
 			else	// projectFileNamePtr[0] != 0
-				sprintf ((char*)gTextString2, "%s", projectFileNamePtr);
+				snprintf ((char*)gTextString2, 256, "%s", projectFileNamePtr);
 			
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+							256,
 							(char*)"    Project = '%s'%s",
 							gTextString2,
 							gEndOfLine);
@@ -4631,7 +4762,8 @@ Boolean ListProjectAndImageName (
 			pstr ((char*)gTextString2, 
 					(char*)gProjectInfoPtr->imageFileName,
 					&strLength);
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						(char*)"    Base image file = '%s'%s",
 						gTextString2,
 						gEndOfLine);
@@ -4644,7 +4776,8 @@ Boolean ListProjectAndImageName (
 					
 			char* fileNamePtr =
 						(char*)GetFileNameCPointerFromFileInfo (gImageFileInfoPtr);
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						(char*)"    Image file = '%s'%s",
 						fileNamePtr,
 						gEndOfLine);
@@ -4762,7 +4895,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					dValue);
 							
@@ -4823,7 +4957,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					lValue);
 							
@@ -4885,7 +5020,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					lValue,
 					lValue2);
@@ -4949,7 +5085,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					lValue,
 					lValue2,
@@ -5012,7 +5149,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 				  &stringPtr2[1],
 				  lValue);
 		
@@ -5076,7 +5214,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 		
-		numChars = sprintf ((char*)gTextString,
+		numChars = snprintf ((char*)gTextString,
+									256,
 								  &stringPtr2[1],
 								  llValue,
 								  lValue2);
@@ -5241,7 +5380,7 @@ Boolean ListSpecifiedStringNumber (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/26/1995
-//	Revised By:			Larry L. Biehl			Date: 04/11/2020
+//	Revised By:			Larry L. Biehl			Date: 12/31/2023
 
 Boolean ListSpecifiedStringNumber (
 				SInt16								strListID, 
@@ -5253,7 +5392,7 @@ Boolean ListSpecifiedStringNumber (
 				SInt16								charFormatCode)
 													
 {
-	char									textString[1280];
+	char									textString_1280[1280];
 	CharPtr								stringPtr2;
 	
 	UInt32								numChars;
@@ -5268,12 +5407,13 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		numChars = sprintf (textString,
+		numChars = snprintf (textString_1280,
+									1280,
 									&stringPtr2[1],
 									inputStringPtr);
 							
 		continueFlag = OutputString (resultsFileStreamPtr, 
-												textString,
+												textString_1280,
 												numChars,
 												outputCode, 
 												TRUE,
@@ -5335,7 +5475,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					inputStringPtr, 
 					inputString2Ptr);
@@ -5403,7 +5544,8 @@ Boolean ListSpecifiedStringNumber (
 		{
 		stringPtr2 = (char*)&gTextString2;
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					&stringPtr2[1],
 					inputStringPtr, 
 					inputString2Ptr);
@@ -5796,7 +5938,8 @@ Boolean ListZoneMapProjectionString (
 					
 		if (projectionCode <= 0)
 			{	
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sNone specified%s",
 							spaceStringPtr,
 							gEndOfLine);
@@ -5822,7 +5965,8 @@ Boolean ListZoneMapProjectionString (
 						IDS_ProjectionType01+projectionCode);
 			#endif	// defined multispec_win
 								
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"%sZone Projection:   %s%s",
 							spaceStringPtr,
 							&gTextString2[1],
@@ -6341,7 +6485,7 @@ void* MemoryCopy (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/14/1995
-//	Revised By:			Larry L. Biehl			Date: 12/12/2019
+//	Revised By:			Larry L. Biehl			Date: 12/30/2023
 //
 // For wxWidgets interface: The String Table must be defined in xStringTable.def
 // The format for string table is given in xStringTable.def
@@ -6350,7 +6494,8 @@ Boolean MGetString (
 				UCharPtr								outTextPtr, 
 				UInt16								stringListID, 
 				UInt16								stringID,
-				UInt16								maxStringLength)
+				UInt16								maxStringLength,
+				UInt32*								stringLengthPtr)
 
 {		       
 	outTextPtr[0] = 0;
@@ -6410,14 +6555,32 @@ Boolean MGetString (
 	
 			wxStandardPaths std = wxStandardPaths::Get ();
 			wxString exePath = std.GetExecutablePath ();
+			#ifdef multispec_wxmlin
+				// This will be for MultiSpec on mygeohub
+				wxString exeDir = exePath.BeforeLast ('/');
+				exeDir.Append ("/xStringTable.def");
+			#endif
 			#ifdef multispec_wxmac
 				wxString exeDir = exePath.BeforeLast (wxUniChar('M'));
 				exeDir = exeDir.BeforeLast (wxUniChar ('M'));
 				exeDir.Append ("Resources/xStringTable.def");
-			#else
-						// This will be for MultiSpec on mygeohub
-				wxString exeDir = exePath.BeforeLast ('/');
-				exeDir.Append ("/xStringTable.def");
+			#endif
+			#ifdef multispec_wxwin
+				/*	
+				HGLOBAL hResLoad;
+				HMODULE hExe
+				HRSRC hRes;
+			
+				hExe = LoadLibrary(TEXT("MultiSpec_wxW64d.exe");
+				if (hExe != NULL)
+					{
+					hRes = FindResource(hExe, TEXT("xStringTable.def"), RT_STRING);
+					}
+				*/
+				wxString				exeDir;
+				//exeDir = "xStringTable.def";
+				exeDir = exePath.BeforeLast (wxUniChar ('M'));
+				exeDir.Append ("Resources\\xStringTable.def");
 			#endif
 	
 			wxTextFile file (exeDir);
@@ -6474,7 +6637,12 @@ Boolean MGetString (
 								strncpy ((char*)&outTextPtr[1],
 											(const char*) strout.mb_str (wxConvUTF8),
 											maxStringLength);
-								outTextPtr[0] = (unsigned char)strout.Len ();
+											
+								if (maxStringLength <= 255)
+									outTextPtr[0] = (unsigned char)strout.Len ();
+								
+								if (stringLengthPtr != NULL)
+									*stringLengthPtr = (UInt32)strout.Len ();
 								
 								}	// end "if (str.Contains (wxT("\"")))"
 							else
@@ -6499,7 +6667,8 @@ Boolean MGetString (
 			{
 			char		tempString[256];
 			
-			int numberChars = sprintf (tempString,
+			int numberChars = snprintf (tempString,
+												256,
 												" *String number %d was not found.%s",
 												stringID,
 												gEndOfLine);
@@ -6711,8 +6880,8 @@ void MSetWindowTitle (
 //	Revised By:			Larry L. Biehl			Date: 08/27/2010	
 							               	                
 void	NumToString (
-				UInt32					numberValue, 
-				UCharPtr					stringPtr) 
+				UInt32								numberValue,
+				UCharPtr								stringPtr)
 				
 {                            		
 	sprintf ((CharPtr)&stringPtr[1], 
@@ -6721,7 +6890,42 @@ void	NumToString (
 					
 	stringPtr[0] = (UInt8)strlen ((CharPtr)&stringPtr[1]);
 
-}	// end "NumToString" 
+}	// end "NumToString"
+
+
+//-----------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
+//	Function name:		void NumToString
+//
+//	Software purpose:	This routine converts the input 32-bit unsigned integer
+//							to a string.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	None
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 04/01/2023
+//	Revised By:			Larry L. Biehl			Date: 04/01/2023
+							               	                
+void	NumToString (
+				UInt32								numberValue,
+				UCharPtr								stringPtr,
+				UInt16								numberDigits)
+				
+{
+	sprintf ((CharPtr)&stringPtr[1],
+				"%*u",
+				numberDigits,
+				(unsigned int)numberValue);
+					
+	stringPtr[0] = (UInt8)strlen ((CharPtr)&stringPtr[1]);
+
+}	// end "NumToString"
 
 
 
@@ -6745,8 +6949,8 @@ void	NumToString (
 //	Revised By:			Larry L. Biehl			Date: 08/26/2010	
 							               	                
 void	NumToString (
-				SInt64					numberValue, 
-				UCharPtr					stringPtr) 
+				SInt64								numberValue,
+				UCharPtr								stringPtr)
 				
 {                            		
 	sprintf ((CharPtr)&stringPtr[1], 
@@ -7001,7 +7205,7 @@ void pstr (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 01/08/1997
-//	Revised By:			Larry L. Biehl			Date: 01/08/1997	
+//	Revised By:			Larry L. Biehl			Date: 05/17/2024
 							               	   
 CharPtr 	PtoCstring (
 				CharPtr								inPStringPtr, 
@@ -7010,7 +7214,13 @@ CharPtr 	PtoCstring (
 {
 	if (inPStringPtr != NULL && outCStringPtr != NULL)
 		{
-		size_t bytesToMove = inPStringPtr[0];
+		size_t 	bytesToMove = inPStringPtr[0];
+
+				// If length of the input string is 0, then assume that
+				// it is a C string and get the length.
+
+		if (bytesToMove == 0)
+			bytesToMove = strlen ((CharPtr)&inPStringPtr[1]);
 		
 		bytesToMove = MIN (bytesToMove, 254);
 
@@ -7039,6 +7249,11 @@ CharPtr 	PtoCstring (
 //							first character in 'remove string' are added plus the number
 //							characters.  This allows for the number characters or version
 //							to stay with the input string.
+//							Note that beginning on 3/25/2023 decided to keep numbers at
+//							the end of the file names. Not sure how much it is used now
+//							but wide character file names causes the logic in the current
+//							code to not work well. Also there are times when file names
+//							have numbers at the end which have nothing to do with version.
 //
 //	Parameters in:					
 //
@@ -7049,20 +7264,19 @@ CharPtr 	PtoCstring (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 04/10/1992
-//	Revised By:			Larry L. Biehl			Date: 04/14/2020
+//	Revised By:			Larry L. Biehl			Date: 03/25/2023
 
 void RemoveCharsAddVersion (
 				UCharPtr								removeStringPtr, 
 				FileStringPtr						stringPtr)
 
 {
-	UInt8									tempString[2];
-   FileStringPtr						tempPtr;
-											//temp2Ptr;
+	//UInt8									tempString[2];
+   //FileStringPtr						tempPtr;
 	
-	SInt16								index,
-											lengthString,
-											numberCharacters;
+	SInt16								//index,
+											lengthString;
+											//numberCharacters = 0;
 	
 	UInt16								lengthRemoveString;
 	
@@ -7083,9 +7297,8 @@ void RemoveCharsAddVersion (
 		
 		}	// end "if (lengthRemoveString == 0)"
 		
-	//lengthString = *stringPtr;
 	lengthString = GetFileStringLength (stringPtr);
-	
+	/*
 			// Get number of numbers at the end of the input string.
 			// Note that need to allow for 2-bytes being used for the string length
 			// at the beginning of the string.
@@ -7103,22 +7316,20 @@ void RemoveCharsAddVersion (
 		
 			// Now make stringPtr a pascal string without the version information.
 			
-	//*stringPtr -= (UInt8)numberCharacters;
 	lengthString -= numberCharacters;
+	
 	SetFileStringLength (stringPtr, lengthString);
-	 
+	*/
 	 		// Now determine if input suffix characters can be removed.
 	 		
 	if (CompareSuffixNoCase ((char*)removeStringPtr, stringPtr, &lengthRemoveString))
 		{
-		//index = lengthString - lengthRemoveString - numberCharacters + 1;
-		index = lengthString - lengthRemoveString + 2;
-		tempPtr = &stringPtr[index];
+		//index = lengthString - lengthRemoveString + 2;
+		//tempPtr = &stringPtr[index];
 		
-		//*stringPtr -= (UInt8)lengthRemoveString;
 		lengthString -= lengthRemoveString;
 		SetFileStringLength (stringPtr, lengthString);
-			
+		/*
 		if (numberCharacters > 0)
 			{
 					// Replace the '.' with an underscore.							
@@ -7133,17 +7344,15 @@ void RemoveCharsAddVersion (
 			
 			BlockMoveData (removeStringPtr, tempPtr, numberCharacters);
 			
-			//*stringPtr += (UInt8)(2 + numberCharacters);
 			lengthString += (2 + numberCharacters);
 			SetFileStringLength (stringPtr, lengthString);
 			
 			}	// end "if (numberCharacters > 0)"
-			
+		*/
 		}	// end "if (CompareSuffixNoCase (..."
 		
-	else	// !CompareSuffixNoCase (...
-		//*stringPtr += (UInt8)numberCharacters;
-		SetFileStringLength (stringPtr, lengthString+numberCharacters);
+	//else	// !CompareSuffixNoCase (...
+	//	SetFileStringLength (stringPtr, lengthString+numberCharacters);
 
 }	// end "RemoveCharsAddVersion"  
 
@@ -7464,7 +7673,7 @@ void SetOutputWTitle (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2017
-//	Revised By:			Larry L. Biehl			Date: 03/09/2017
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 void SetPascalStringLengthCharacter (
 				void* 								stringPtr,
@@ -7478,8 +7687,15 @@ void SetPascalStringLengthCharacter (
 		charStringPtr[0] = length;
 		
 		}	// end "if (charWidthCode == kReturnASCII)"
+		
+	else if (charWidthCode == kReturnUTF8)
+		{
+		UInt16*	UTF8StringPtr = (UInt16*)stringPtr;
+		UTF8StringPtr[0] = length;
+		
+		}	// end "if (charWidthCode == kReturnUTF8)"
 	
-	else	// charWidthCode != ReturnASCII
+	else	// charWidthCode != ReturnASCII && != kReturnUTF8
 		{
 				// Do according to the use_wide_character directive
 		wchar_t*	wideStringPtr = (wchar_t*)stringPtr;
@@ -7546,7 +7762,7 @@ SInt16 StringCompare (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 03/03/2017
-//	Revised By:			Larry L. Biehl			Date: 03/20/2017
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 void* StringCopy (
 				void* 								str1, 
@@ -7559,13 +7775,13 @@ void* StringCopy (
 	wchar_t*								wideCharString1Ptr;
 
 
-	if (charWidthCode == kASCIICharString)
+	if (charWidthCode == kASCIICharString || charWidthCode == kUTF8CharString)
 		{
 		charString1Ptr = (char*)str1;
 		return (void*)strcpy ((char*)&charString1Ptr[startInputStringIndex], 
 										(char*)str2);
 
-		}	// end "if (charWidthCode == kASCIICharString)"
+		}	// end "if (charWidthCode == kASCIICharString || ..."
 	
 	else	// charWidthCode == kUnicodeCharString
 		{

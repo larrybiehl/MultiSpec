@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/28/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -29,7 +29,8 @@
 //								CMClassifyDialog class.
 //
 /* Template for debugging
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+				256,
 				" xClassifyDialog:: (): %s",
 				gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -73,7 +74,7 @@ BEGIN_EVENT_TABLE (CMClassifyDialog, CMDialog)
 		EVT_COMBOBOX (IDC_PaletteCombo, CMClassifyDialog::OnPaletteComboSelendok)
 		EVT_COMBOBOX (IDC_WeightCombo, CMClassifyDialog::OnClassWeightsComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_AreasCombo, CMClassifyDialog::OnAreasComboSelendok)
 		EVT_CHOICE (IDC_ChannelCombo, CMClassifyDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMClassifyDialog::OnClassComboSelendok)
@@ -188,14 +189,17 @@ CMClassifyDialog::~CMClassifyDialog (void)
 void CMClassifyDialog::AdjustDlgLayout ()
 
 {
-    bSizer122->Layout ();
-    bSizer123->Layout ();
-    bSizer125->Layout ();
-    bSizer126->Layout ();
-    bSizer127->Layout ();
-    bSizer128->Layout ();
-    bSizer129->Layout ();
-    bSizer114->Layout ();
+	/*
+	bSizer122->Layout ();
+	bSizer123->Layout ();
+	bSizer125->Layout ();
+	bSizer126->Layout ();
+	bSizer127->Layout ();
+	bSizer128->Layout ();
+	bSizer129->Layout ();
+	bSizer114->Layout ();
+	*/  
+    Layout ();
 	
 }	// end "AdjustDlgLayout"
 
@@ -331,6 +335,7 @@ void CMClassifyDialog::CheckOutputFormatItems ()
 	m_outputFormatCode++;
 
 	ClassifyDialogSetPaletteItems (this,
+												m_diskFileFlag,
 												m_outputFormatCode,
 												m_createImageOverlayFlag);
 
@@ -385,12 +390,12 @@ void CMClassifyDialog::CreateControls ()
 														NULL,
 														wxCB_READONLY);
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_procedureCtrl = new wxChoice (this,
 													IDC_ClassificationProcedure,
 													wxDefaultPosition, 
 													wxSize (275, -1));
-	#endif
+	#endif	//  || defined multispec_wxwin
 	m_procedureCtrl->Append (wxT("Gaussian Maximum Likelihood"));
 	m_procedureCtrl->Append (wxT("Mahalanobis"));
 	m_procedureCtrl->Append (wxT("Fisher Linear Likelihood"));
@@ -405,7 +410,7 @@ void CMClassifyDialog::CreateControls ()
 	m_procedureCtrl->Append (wxT("Minimum Euclidean Distance"));
 	m_procedureCtrl->Append (wxT("Correlation (SAM)  +\u21E7..."));
 	m_procedureCtrl->Append (wxT("Matched Filter (CEM)..."));
-	m_procedureCtrl->Append (wxT("Parallel Piped"));
+	m_procedureCtrl->Append (wxT("Parallel Piped (PP)  +\u21E7..."));
 	SetUpToolTip (m_procedureCtrl, IDS_ToolTip175);
 	bSizer111->Add (m_procedureCtrl, 0, wxALL, 5);
 
@@ -508,7 +513,9 @@ void CMClassifyDialog::CreateControls ()
 										IDC_AreasCombo,
 										100,
 										IDS_ToolTip103);
-	bSizer132->Add (m_classAreasCtrl, 0, wxLEFT, 5);
+	//bSizer132->Add (m_classAreasCtrl, 0, wxLEFT, 5);
+	bSizer132->Add (m_classAreasCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT, 5));
 
 	bSizer116->Add (bSizer132, 1, 0, 5);
 
@@ -566,7 +573,9 @@ void CMClassifyDialog::CreateControls ()
 	
 	CreateLineColumnControls (sbSizer8);
 
-	bSizer117->Add (sbSizer8, 1, wxEXPAND|wxTOP, 3);
+	//bSizer117->Add (sbSizer8, 1, wxEXPAND|wxTOP, 3);
+	bSizer117->Add (sbSizer8,
+						wxSizerFlags(1).ReserveSpaceEvenIfHidden().Expand().Border(wxTOP, 3));
 	
 	bSizer115->Add (bSizer117, 0, 0, 5);
 	bSizer111->Add (bSizer115, 0, 0, 5);
@@ -689,13 +698,13 @@ void CMClassifyDialog::CreateControls ()
 	m_fileFormatCtrl = new wxChoice (this,
 												IDC_DiskCombo,
 												wxDefaultPosition,
-												wxDefaultSize);
+												wxSize (-1, -1));
 	m_fileFormatCtrl->Append (wxT("ASCII"));
 	m_fileFormatCtrl->Append (wxT("ERDAS .GIS"));
 	m_fileFormatCtrl->Append (wxT("GAIA"));
 	m_fileFormatCtrl->Append (wxT("GeoTIFF"));
 	SetUpToolTip (m_fileFormatCtrl, IDS_ToolTip215);
-	bSizer125->Add (m_fileFormatCtrl, 0, wxALIGN_CENTER|wxLEFT, 5);
+	bSizer125->Add (m_fileFormatCtrl, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxALIGN_CENTER|wxLEFT, 5);
 
 	bSizer124->Add (bSizer125, 0, wxALL, 5);
 
@@ -716,9 +725,12 @@ void CMClassifyDialog::CreateControls ()
 												wxSize (300, -1));
 	m_overlayCtrl->Append (wxT("Add new overlay"));
 	SetUpToolTip (m_overlayCtrl, IDS_ToolTip180);
-	bSizer126->Add (m_overlayCtrl, 0, wxLEFT, 35);
+	//bSizer126->Add (m_overlayCtrl, 0, wxRESERVE_SPACE_EVEN_IF_HIDDEN|wxLEFT, 35);
+	bSizer126->Add (m_overlayCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT, 35));
 
-	bSizer124->Add (bSizer126, 0, wxALL, 5);
+	//bSizer124->Add (bSizer126, 0, wxALL, 5);
+	bSizer124->Add (bSizer126, wxSizerFlags(0).Border(wxALL, 5));
 
 	bSizer127 = new wxBoxSizer (wxHORIZONTAL);
 
@@ -729,7 +741,10 @@ void CMClassifyDialog::CreateControls ()
 													wxDefaultSize,
 													0);
 	m_staticText182->Wrap (-1);
-	bSizer127->Add (m_staticText182, 0, wxALIGN_CENTER|wxLEFT, 15);
+	//bSizer127->Add (m_staticText182, 0, wxALIGN_CENTER|wxLEFT, 15);
+	bSizer127->Add (m_staticText182,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 15));
+	
 	#if defined multispec_wxlin
 		m_paletteCtrl = new wxComboBox (this,
 													IDC_PaletteCombo,
@@ -740,7 +755,7 @@ void CMClassifyDialog::CreateControls ()
 													NULL,
 													wxCB_READONLY);
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		m_paletteCtrl = new wxChoice (this,
 												IDC_PaletteCombo,
 												wxDefaultPosition,
@@ -755,7 +770,8 @@ void CMClassifyDialog::CreateControls ()
 	m_paletteCtrl->Append (wxT("ERDAS .trl file"));
 	m_paletteCtrl->Append (wxT("User Defined"));
 	SetUpToolTip (m_paletteCtrl, IDS_ToolTip181);
-	bSizer127->Add (m_paletteCtrl, 0, wxALIGN_CENTER|wxLEFT, 5);
+	bSizer127->Add (m_paletteCtrl,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 5));
 
 	bSizer124->Add (bSizer127, 0, wxALL, 5);
 
@@ -782,6 +798,8 @@ void CMClassifyDialog::CreateControls ()
 	m_textCtrl85->SetValidator (_val);
 	SetUpToolTip (m_textCtrl85, IDS_ToolTip183);
 	bSizer128->Add (m_textCtrl85, 0, wxALL, 5);
+	//bSizer128->Add (m_textCtrl85,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
 	m_staticText183 = new wxStaticText (this,
 													IDC_PercentSymbol,
@@ -791,7 +809,9 @@ void CMClassifyDialog::CreateControls ()
 													0);
 	m_staticText183->Wrap (-1);
 	bSizer128->Add (m_staticText183, 0, wxALIGN_CENTER|wxALL, 5);
-
+	//bSizer128->Add (m_staticText183,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
+	
 	m_textCtrl87 = new wxTextCtrl (this,
 												IDC_CEMThreshold,
 												wxEmptyString,
@@ -804,9 +824,10 @@ void CMClassifyDialog::CreateControls ()
 	wxFloatingPointValidator<double> _val187 (3, &m_cemThreshold);
 	_val187.SetRange (0.0, 1.0);
 	m_textCtrl87->SetValidator (_val);
-
 	bSizer128->Add (m_textCtrl87, 0, wxALL, 5);
-
+	//bSizer128->Add (m_textCtrl87,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
+	
 	m_textCtrl88 = new wxTextCtrl (this,
 												IDC_CorrelationAngleThreshold,
 												wxEmptyString,
@@ -820,6 +841,8 @@ void CMClassifyDialog::CreateControls ()
 	m_textCtrl88->SetValidator (_val188);
 	SetUpToolTip (m_textCtrl88, IDS_ToolTip148);
 	bSizer128->Add (m_textCtrl88, 0, wxALL, 5);
+	//bSizer128->Add (m_textCtrl88,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
 	m_staticText185 = new wxStaticText (this,
 													IDC_DegreeSymbol,
@@ -829,17 +852,21 @@ void CMClassifyDialog::CreateControls ()
 													0);
 	m_staticText185->Wrap (-1);
 	bSizer128->Add (m_staticText185, 0, 0);
+	//bSizer128->Add (m_staticText185,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden());
 
-	wxTextCtrl* m_textCtrl88 = new wxTextCtrl (this,
+	wxTextCtrl* m_textCtrl89 = new wxTextCtrl (this,
 																IDC_NearestNeighborThreshold,
 																wxEmptyString,
 																wxDefaultPosition,
 																wxSize (40, -1),
 																0);
-	m_textCtrl88->SetValidator (wxTextValidator (wxFILTER_DIGITS,
+	m_textCtrl89->SetValidator (wxTextValidator (wxFILTER_DIGITS,
 																&m_knnThresholdString));
-	SetUpToolTip (m_textCtrl88, IDS_ToolTip401);
-	bSizer128->Add (m_textCtrl88, 0, wxALL, 5);
+	SetUpToolTip (m_textCtrl89, IDS_ToolTip401);
+	bSizer128->Add (m_textCtrl89, 0, wxALL, 5);
+	//bSizer128->Add (m_textCtrl89,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
 	wxStaticText* staticText1852 = new wxStaticText (this,
 																		IDC_NearestNeighbor,
@@ -849,6 +876,8 @@ void CMClassifyDialog::CreateControls ()
 																		0);
 	staticText1852->Wrap (-1);
 	bSizer128->Add (staticText1852, 0, wxALIGN_CENTER|wxALL, 5);
+	//bSizer128->Add (staticText1852,
+	//					wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxALL, 5));
 
 	bSizer124->Add (bSizer128, 0);
 
@@ -863,7 +892,9 @@ void CMClassifyDialog::CreateControls ()
 													0);
 	m_staticText184->Wrap (-1);
 	SetUpToolTip (m_staticText184, IDS_ToolTip148);
-	bSizer129->Add (m_staticText184, 0, wxALIGN_CENTER|wxLEFT, 25);
+	//bSizer129->Add (m_staticText184, 0, wxALIGN_CENTER|wxLEFT, 25);
+	bSizer129->Add (m_staticText184,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER).Border(wxLEFT, 25));
 
 	m_textCtrl86 = new wxTextCtrl (this,
 												IDC_CorrelationCoefficientThreshold,
@@ -877,7 +908,9 @@ void CMClassifyDialog::CreateControls ()
 	_val186.SetRange (0.0, 1.0);
 	m_textCtrl86->SetValidator (_val186);
 	SetUpToolTip (m_textCtrl86, IDS_ToolTip148);
-	bSizer129->Add (m_textCtrl86, 0, wxALL, 5);
+	//bSizer129->Add (m_textCtrl86, 0, wxALL, 5);
+	bSizer129->Add (m_textCtrl86,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
 	bSizer124->Add (bSizer129, 0, wxEXPAND|wxLEFT, 5);
 
@@ -943,7 +976,7 @@ void CMClassifyDialog::CreateControls ()
 //	Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 02/27/1996
-//	Revised By:			Larry L. Biehl			Date: 05/04/2019
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 SInt16 CMClassifyDialog::DoDialog (void)
 
@@ -1012,6 +1045,7 @@ SInt16 CMClassifyDialog::DoDialog (void)
 								m_listResultsTestCode,
 								m_listResultsTrainingCode,
 								m_parallelPipedCode,
+								m_ppStdDeviationFactor,
 								m_nearestNeighborKValue);
 
 		}	// end "if (returnCode == IDOK)"
@@ -1327,6 +1361,7 @@ void CMClassifyDialog::OnClassificationProcedureSelendok (
 																&m_featureTransformAllowedFlag,
 																&weightsSelection,
 																&m_parallelPipedCode,
+																&m_ppStdDeviationFactor,
 																classificationProcedure,
 																&m_covarianceEstimate,
 																m_numberEigenvectors,
@@ -1507,9 +1542,9 @@ void CMClassifyDialog::OnImageArea (
 	SignedByte 							handleStatus;
 
 
-    wxCheckBox* imageareacb = (wxCheckBox*)FindWindow (IDC_ImageArea);
-    m_imageAreaFlag = imageareacb->GetValue ();
-    HideShowAreaItems (m_imageAreaFlag);
+	wxCheckBox* imageareacb = (wxCheckBox*)FindWindow (IDC_ImageArea);
+	m_imageAreaFlag = imageareacb->GetValue ();
+	HideShowAreaItems (m_imageAreaFlag);
 
 			// Determine if this is the entire area and set the
 			// to entire image icon.
@@ -1532,14 +1567,16 @@ void CMClassifyDialog::OnImageArea (
 
     	}	// end "if (m_imageAreaFlag)"
 
-    ClassifyDialogSetThresholdItems (this,
+	ClassifyDialogSetThresholdItems (this,
 													m_classificationProcedure,
 													m_imageAreaFlag,
 													m_createProbabilityFileFlag,
 													m_thresholdResultsFlag,
 													m_thresholdAllowedFlag);
 
-    CheckAreaSettings ();
+	CheckAreaSettings ();
+    
+	Layout ();
 
 }	// end "OnImageArea"
 
@@ -1559,8 +1596,9 @@ void CMClassifyDialog::OnImageOverlay (
 		HideDialogItem (this, IDC_ImageOverlayCombo);
 
 	ClassifyDialogSetPaletteItems (this,
-											m_outputFormatCode,
-											m_createImageOverlayFlag);
+												m_diskFileFlag,
+												m_outputFormatCode,
+												m_createImageOverlayFlag);
 
 	AdjustDlgLayout ();
 	
@@ -1630,6 +1668,7 @@ void CMClassifyDialog::OnInitDialog (
 										&m_listResultsTestCode,
 										&m_listResultsTrainingCode,
 										&m_parallelPipedCode,
+										&m_ppStdDeviationFactor,
 										&m_nearestNeighborKValue);
 
 			// Set feature/transform feature parameters  
@@ -1875,7 +1914,8 @@ void CMClassifyDialog::OnTargetComboSelendok (
 											 &m_targetWindowInfoHandle,
 											 &checkOKFlag,
 											 &m_dialogSelectArea,
-											 &createImageOverlayFlag);
+											 &createImageOverlayFlag,
+											 m_diskFileFlag);
 		m_createImageOverlayFlag = createImageOverlayFlag;
 		
 				// Update the selected area information.

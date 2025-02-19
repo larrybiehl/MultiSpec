@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMEvalTransformDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/24/2020
+//	Revised By:				Larry L. Biehl			Date: 02/17/2025
 //
 //------------------------------------------------------------------------------------
 
@@ -65,7 +65,8 @@ class CMEvalTransformDialog : public CMDialog
 		void CreateControls ();
 
 		void SetListCheckTransform (
-				Boolean 								checkTransformFlag);
+				Boolean 								checkTransformFlag,
+				int									transformTypeCode);
 
 		bool TransferDataFromWindow ();
 

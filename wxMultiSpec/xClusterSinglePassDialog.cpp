@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -44,7 +44,7 @@ BEGIN_EVENT_TABLE (CMSinglePassClusterDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ClassCombo, CMSinglePassClusterDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMSinglePassClusterDialog::OnClassComboSelendok)
 	#endif
 
@@ -215,7 +215,7 @@ void CMSinglePassClusterDialog::CreateControls ()
 												IDC_MinClusterSize,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl98->SetValidator (wxTextValidator (wxFILTER_DIGITS,
 																&m_minClusterSizeString));
@@ -237,7 +237,7 @@ void CMSinglePassClusterDialog::CreateControls ()
 												IDC_CriticalDistance1,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
 	m_textCtrl99->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_distance1String));
    SetUpToolTip (m_textCtrl99, IDS_ToolTip92);
@@ -258,7 +258,7 @@ void CMSinglePassClusterDialog::CreateControls ()
 												IDC_CriticalDistance2,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(100, -1),
 												0);
    m_textCtrl100->SetValidator (wxTextValidator (wxFILTER_NUMERIC, &m_distance2String));
    SetUpToolTip (m_textCtrl100, IDS_ToolTip93);

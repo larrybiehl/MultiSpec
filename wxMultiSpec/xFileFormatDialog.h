@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMFileFormatSpecsDlg class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 02/24/2020
+//	Revised By:				Larry L. Biehl			Date: 12/24/2023
 //
 //------------------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ class CMFileFormatSpecsDlg : public CMDialog
 		void OnStnClickedHdfdatasetprompt (
 				wxCommandEvent& 					event);
 	
-		void ShowMultipleDataSetMessage (void);
+		void ShowMessages ();
 		DECLARE_EVENT_TABLE ()
 	
 		void CreateControls ();
@@ -111,6 +111,8 @@ class CMFileFormatSpecsDlg : public CMDialog
 		bool TransferDataFromWindow ();
 	
 		bool TransferDataToWindow ();
+
+		void UpdateMultipleDataSetSettings ();
 	
 	
 		wxString 							m_imageName,
@@ -201,7 +203,8 @@ class CMFileFormatSpecsDlg : public CMDialog
 
 		SInt16								m_dataSetIndex,
 		 	 									m_eightBitsPerDataSelection,
-												m_gdalDataTypeCode;
+												m_gdalDataTypeCode,
+												m_instrumentCode;
 
 		UInt16								m_dataCompressionCode;
 
@@ -209,8 +212,11 @@ class CMFileFormatSpecsDlg : public CMDialog
 												m_computeNumClasses,
 												m_fillDataValueExistsFlag,
 												m_forceGroupTableUpdateFlag,
+												m_initDialogCalledFlag,
 												m_initializedFlag,
 												m_linesBottomToTopFlag,
+												m_multipleDataSetMessageCalledFlag,
+												m_onActivateCalledFlag,
 												m_onShowCalledFlag,
 												m_swapBytesFlag;
 	

@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/29/2019
+//	Revision date:			04/29/2023
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xEvaluateTransformationDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -108,7 +109,8 @@ void CMEvalTransformDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox15, IDS_ToolTip243);
-	bSizer175->Add (m_checkBox15, 0, wxALL, 5);
+	//bSizer175->Add (m_checkBox15, 0, wxALL, 5);
+	bSizer175->Add (m_checkBox15, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	m_checkBox16 = new wxCheckBox (this,
 												IDC_CheckTransform,
@@ -117,7 +119,8 @@ void CMEvalTransformDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox16, IDS_ToolTip248);
-	bSizer175->Add (m_checkBox16, 0, wxALL, 5);
+	//bSizer175->Add (m_checkBox16, 0, wxALL, 5);
+	bSizer175->Add (m_checkBox16, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 	
 	bSizer108->Add (bSizer175, 1, wxEXPAND, 5);
 	
@@ -133,7 +136,8 @@ void CMEvalTransformDialog::CreateControls ()
 												wxDefaultSize,
 												0);
    SetUpToolTip (m_checkBox23, IDS_ToolTip243);
-	bSizer109->Add (m_checkBox23, 0, wxLEFT, 30);
+	//bSizer109->Add (m_checkBox23, 0, wxLEFT, 30);
+	bSizer109->Add (m_checkBox23, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT, 30));
 	
 	m_staticText196 = new wxStaticText (
 							this,
@@ -143,7 +147,7 @@ void CMEvalTransformDialog::CreateControls ()
 							wxDefaultSize,
 							0);
 	m_staticText196->Wrap (-1);
-	bSizer109->Add (m_staticText196, 0, wxLEFT, 55);
+	bSizer109->Add (m_staticText196, wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxLEFT, 55));
 	
 	bSizer107->Add (bSizer109, 0, wxEXPAND|wxLEFT|wxRIGHT, 12);
 
@@ -205,7 +209,7 @@ void CMEvalTransformDialog::OnCheckTransform (
 	wxCheckBox* m_dialogFromPtr =
 										(wxCheckBox*)wxWindow::FindWindow (IDC_CheckTransform);
    m_checkTransformationFlag = m_dialogFromPtr->GetValue ();
-	SetListCheckTransform (m_checkTransformationFlag);
+	SetListCheckTransform (m_checkTransformationFlag, gTransformationMatrix.createdByCode);
 	
 }	// end "OnCheckTransform"
 
@@ -226,7 +230,7 @@ void CMEvalTransformDialog::OnInitDialog (
 													&m_checkTransformationFlag,
 													&m_listCheckMatrixFlag);
 	                                                                       
-	SetListCheckTransform (m_checkTransformationFlag);
+	SetListCheckTransform (m_checkTransformationFlag, gTransformationMatrix.createdByCode);
 	                  
 	if (TransferDataToWindow ())
 		PositionDialogWindow ();
@@ -236,24 +240,44 @@ void CMEvalTransformDialog::OnInitDialog (
 
 
 void CMEvalTransformDialog::SetListCheckTransform (
-				Boolean								checkTransformFlag)
+				Boolean								checkTransformFlag,
+				int									transformTypeCode)
 
 {
-	if (checkTransformFlag)
-		{ 
-		MShowDialogItem (this, IDC_ListCheckMatrix2);
-		MShowDialogItem (this, IDC_ListTransform);
-		
-		}	// end "if (checkTransformFlag)"
-		
-	else	// !checkTransformFlag
+	if (transformTypeCode < 16)
 		{
-      MShowDialogItem (this, IDC_CheckTransform);
-      MShowDialogItem (this, IDC_ListCheckMatrix);
-		MHideDialogItem (this, IDC_ListCheckMatrix2); 
+				// Transform type
+				
+		if (checkTransformFlag)
+			{
+			MShowDialogItem (this, IDC_ListTransform);
+			MShowDialogItem (this, IDC_ListCheckMatrix2);
+			
+			}	// end "if (checkTransformFlag)"
+			
+		else	// !checkTransformFlag
+			{
+			MShowDialogItem (this, IDC_ListCheckMatrix);
+			MShowDialogItem (this, IDC_CheckTransform);
+			MHideDialogItem (this, IDC_ListTransform);
+			MHideDialogItem (this, IDC_ListCheckMatrix2);
+			
+			}	// end "else !checkTransformFlag"
+			
+		}	// end "if (transformTypeCode < 16)"
+	/*
+	else	// transformTypeCode >= 16
+		{
+				// Gain-Offset type
+				
+		MHideDialogItem (this, IDC_ListCheckMatrix);
+		MHideDialogItem (this, IDC_CheckTransform);
 		MHideDialogItem (this, IDC_ListTransform);
-		
-		}	// end "else !checkTransformFlag"
+		MHideDialogItem (this, IDC_ListCheckMatrix2);
+			
+		}	// end "else	// transformTypeCode >= 16"
+	*/
+	Layout ();
 	
 }	// end "SetListCheckTransform"
 

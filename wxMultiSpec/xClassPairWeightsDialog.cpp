@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/16/2018
+//	Revision date:			04/01/2023
 //
 //	Language:				C++
 //
@@ -78,6 +78,10 @@ void CMClassPairWeightDlg::CreateControls ()
 
 {
    SetSizeHints (wxDefaultSize, wxDefaultSize);
+   
+   wxFont  font = GetFont();
+   font.SetFamily (wxFONTFAMILY_TELETYPE);
+   font.SetWeight (wxFONTWEIGHT_NORMAL);
 	
 	bSizer240 = new wxBoxSizer (wxVERTICAL);
 	
@@ -100,10 +104,11 @@ void CMClassPairWeightDlg::CreateControls ()
 	m_listBox2 = new wxListBox (this,
 											IDC_ClassList,
 											wxDefaultPosition,
-											wxSize (160,200),
+											wxSize (210, 200),
 											0,
 											NULL,
 											wxLB_MULTIPLE);
+	m_listBox2->SetFont (font);
 	bSizer243->Add (m_listBox2, 0, wxALL, 5);
 	
 	
@@ -177,10 +182,11 @@ void CMClassPairWeightDlg::CreateControls ()
 	m_listBox3 = new wxListBox (this,
 											IDC_ClassPairWeightList,
 											wxDefaultPosition,
-											wxSize (180,200),
+											wxSize (210, 200),
 											0,
 											NULL,
 											wxLB_MULTIPLE);
+	m_listBox3->SetFont (font);
 	bSizer245->Add (m_listBox3, 0, wxALL, 5);
 	
 	
@@ -385,7 +391,7 @@ void CMClassPairWeightDlg::OnHelpButton (
 {
    SetDLogControlHilite (this, wxID_OK, 255);
 
-   DisplayAlert (0, 0, kAlertStrID, IDS_Alert9, 0, NULL);
+   DisplayAlert (0, 0, kAlertStrID, IDS_Alert9, 0, NULL, this, kASCIICharString);
 
    SetDLogControlHilite (this, wxID_OK, 0);
 
@@ -399,11 +405,6 @@ void CMClassPairWeightDlg::OnInitDialog (
 {
 	wxListBox							*classListBoxPtr,
 											*weightsListBoxPtr;
-	
-   wxFont								font (gFontSize,
-													wxFONTFAMILY_MODERN,
-													wxFONTSTYLE_NORMAL,
-													wxFONTWEIGHT_NORMAL);
 
    SInt16								localDefaultClassPairWeight;
 
@@ -419,18 +420,10 @@ void CMClassPairWeightDlg::OnInitDialog (
    if (TransferDataToWindow ())
 		{
       PositionDialogWindow ();
-
-				// Set font for the class list box.
-
-      m_weightsListFont = font;
       
       classListBoxPtr = (wxListBox*)FindWindow (IDC_ClassList);
-      classListBoxPtr->SetFont (m_weightsListFont);
-
-				// Set font for the class pair list box
 
       weightsListBoxPtr = (wxListBox*)FindWindow (IDC_ClassPairWeightList);
-      weightsListBoxPtr->SetFont (m_weightsListFont);
 
 				// Load the class list.
 

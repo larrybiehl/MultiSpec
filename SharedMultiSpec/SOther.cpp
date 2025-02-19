@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/31/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C
 //
@@ -35,6 +35,7 @@
 #if defined multispec_wx
    #include "xEvaluateCovariancesDialog.h"
    #include "xEvaluateTransformationDialog.h"
+	#include "xMultiSpec.h"
 #endif // defined multispec_wx
 	
 #if defined multispec_mac || defined multispec_mac_swift
@@ -441,7 +442,8 @@ void EvaluateCovariancesControl (void)
 						&strLength);
 				gTextString2[strLength] = ' ';
 				gTextString2[kMaxClassFieldNameLength] = kNullTerminator;
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+								256,
 								"    Class %3d: %s%s",
 								classIndex+1, 
 								gTextString2,
@@ -535,7 +537,8 @@ void EvaluateCovariancesControl (void)
 			
 						// List the inversion statistics.									
 	
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+								256,
 								"%s    Inverted Covariance Matrix.%s"
 								"     Det = %14.9e%s"
 								"     Log Det = %14.9g%s",
@@ -551,7 +554,8 @@ void EvaluateCovariancesControl (void)
 															(UInt32)strlen ((char*)gTextString),
 															gOutputTextH);
 													
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+								256,
 								"     Rank of matrix = %hd%s", 
 								ipvotPtr[0],
 								gEndOfLine);
@@ -565,7 +569,8 @@ void EvaluateCovariancesControl (void)
 				if (ipvotPtr[0] < (SInt16)numberFeatures)
 					index = ipvotPtr[0];
 					 									
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+								256,
 								"     Smallest pivot value = %14.9g%s", 
 								pivotPtr[index],
 								gEndOfLine);
@@ -578,7 +583,8 @@ void EvaluateCovariancesControl (void)
 						// List the time to do the matrix inversion to nearest 		
 						// second.																	
 				
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"     %u CPU seconds for matrix inversion.%s",
 							(unsigned int)(endTime-startTime),
 							gEndOfLine);
@@ -644,7 +650,8 @@ void EvaluateCovariancesControl (void)
 			
 							// List the result of the multiplied matrices.				
 	
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+									256,
 									"%s    Multiplied matrices."
 									"%s     Total error = %14.9e."
 									"%s     Average error = %14.9e."
@@ -710,7 +717,8 @@ void EvaluateCovariancesControl (void)
 				
 							// List the inverted-inverted covariance matrix.			
 		
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+									256,
 									"%s    Inverted-Inverted Covariance Matrix.%s"
 									"     Det = %14.9e.%s"
 									"     Log Det = %14.9g%s", 
@@ -729,7 +737,8 @@ void EvaluateCovariancesControl (void)
 							// List the time to do the matrix inversion to  			
 							// nearest second.													
 														
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+									256,
 									"     %u CPU seconds for matrix inversion.%s",
 									(unsigned int)(endTime-startTime),
 									gEndOfLine);
@@ -878,7 +887,8 @@ void EvaluateCovariancesControl (void)
 																(UInt32)strlen ((char*)gTextString),  
 																gOutputTextH);
 						 									
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+									256,
 									"     Smallest pivot value = %14.9g%s", 
 									pivotPtr[0],
 									gEndOfLine);
@@ -891,7 +901,8 @@ void EvaluateCovariancesControl (void)
 							// Print the time to do the matrix inversion to nearest 		
 							// second.																	
 														
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"     %u CPU seconds for matrix inversion.%s",
 								(unsigned int)(endTime-startTime),
 								gEndOfLine);
@@ -957,7 +968,8 @@ void EvaluateCovariancesControl (void)
 				
 								// List the result of the multiplied matrices.				
 		
-						sprintf ((char*)gTextString, 
+						snprintf ((char*)gTextString,
+										256,
 										"%s    Multiplied matrices.%s"
 										"     Total error = %10.5e.%s"
 										"     Average error = %10.5e.%s"
@@ -1037,7 +1049,8 @@ void EvaluateCovariancesControl (void)
 				}
 			
 			endTime = time (NULL);
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+							256,
 							"%ld CPU seconds for %ld original matrix inversions\r",
 							endTime-startTime, loopCount);
 			if (continueFlag)
@@ -1046,7 +1059,7 @@ void EvaluateCovariancesControl (void)
 			*/
 					// Add blank line at the end of the text window.
 						
-			sprintf ((char*)gTextString, "%s", gEndOfLine);
+			snprintf ((char*)gTextString, 256, "%s", gEndOfLine);
 			continueFlag = OutputString ((CMFileStream*)NULL, 
 													(char*)gTextString, 
 													gNumberOfEndOfLineCharacters, 
@@ -1128,7 +1141,7 @@ void EvaluateCovariancesControl (void)
 // Called By:			EvaluateCovariancesControl   in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 10/29/1990
-//	Revised By:			Larry L. Biehl			Date: 06/10/1998	
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean EvaluateCovariancesDialog (
 				EvaluateCovarianceSpecsPtr		evaluateCovarianceSpecsPtr, 
@@ -1405,7 +1418,7 @@ Boolean EvaluateCovariancesDialog (
 	#if defined multispec_wx
    	CMEvalCovarianceDialog*		dialogPtr = NULL;  
    
-      dialogPtr = new CMEvalCovarianceDialog (); 
+      dialogPtr = new CMEvalCovarianceDialog (GetMainFrameForDialog());
 				
 		returnFlag = dialogPtr->DoDialog (evaluateCovarianceSpecsPtr); 
 	
@@ -1713,7 +1726,8 @@ void EvaluateTransformationControl (void)
 						
 							// List the result of the multiplied matrices.				
 			
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+						256,
 						"%s    Transposed transformation matrix times transformation matrix.%s"
 						"      Total error = %10.5e.   Average error = %10.5e.%s",
 								gEndOfLine,
@@ -1740,7 +1754,7 @@ void EvaluateTransformationControl (void)
 						
 							// Add blank line at the end of the text window.		
 							                                 
-					sprintf ((char*)gTextString, "%s", gEndOfLine);
+					snprintf ((char*)gTextString, 256, "%s", gEndOfLine);
 					continueFlag = OutputString ((CMFileStream*)NULL, 
 															(char*)gTextString, 
 															gNumberOfEndOfLineCharacters, 
@@ -1806,7 +1820,7 @@ void EvaluateTransformationControl (void)
 // Called By:			EvaluateTransformationControl   in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 06/27/1994
-//	Revised By:			Larry L. Biehl			Date: 05/13/1998	
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023	
 
 Boolean EvaluateTransformationDialog (
 				EvaluateTransformSpecsPtr		evalTransformationSpecsPtr)
@@ -1954,7 +1968,7 @@ Boolean EvaluateTransformationDialog (
 	#if defined multispec_wx
    	CMEvalTransformDialog*		dialogPtr = NULL;
       
-   	dialogPtr = new CMEvalTransformDialog (); 
+   	dialogPtr = new CMEvalTransformDialog (GetMainFrameForDialog());
 				
    	returnFlag = dialogPtr->DoDialog (evalTransformationSpecsPtr); 
 			                       
@@ -2006,11 +2020,16 @@ void EvaluateTransformationInitialize (
 		
 	else	// gTransformationMatrix.createdByCode >= 16)
 		{
-		CtoPstring ((UCharPtr)"List Offset & Gain Values", gTextString);
+		CtoPstring ((UCharPtr)"List Offset - Gain Values", gTextString);
 									
 		HideDialogItem (dialogPtr, IDC_ListTransform);
 		HideDialogItem (dialogPtr, IDC_CheckTransform);
 		HideDialogItem (dialogPtr, IDC_ListCheckMatrix);
+		HideDialogItem (dialogPtr, IDC_ListCheckMatrix2);
+		
+		*listTransformFlagPtr = FALSE;
+		*checkTransformationFlagPtr = FALSE;
+		*listTransformXTposedTransformFlagPtr = FALSE;
 		
 		}	// end "else gTransformationMatrix.createdByCode >= 16)"
 										
@@ -2278,7 +2297,8 @@ void ListDescriptionInformation (void)
 			GetActiveImageWindowTitle (gTextString2);	
 			
 			gTextString2 [gTextString2[0]+1] = 0;								
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"Description information for linked image window: '%s'%s",
 						&gTextString2[1],
 						gEndOfLine);
@@ -2293,7 +2313,8 @@ void ListDescriptionInformation (void)
 			{
 					// List the number of lines in the linked image.				
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Number of lines in linked image:     %6u%s",
 						(unsigned int)gImageWindowInfoPtr->maxNumberLines,
 						gEndOfLine);
@@ -2307,7 +2328,8 @@ void ListDescriptionInformation (void)
 			{
 					// List the number of columns in the linked image.				
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Number of columns in linked image:   %6u%s",
 						(unsigned int)gImageWindowInfoPtr->maxNumberColumns,
 						gEndOfLine);
@@ -2321,7 +2343,8 @@ void ListDescriptionInformation (void)
 			{
 						// List the number of channels in the linked image.			
 						
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Number of channels in linked image:    %4d%s", 
 						gImageWindowInfoPtr->totalNumberChannels,
 						gEndOfLine);
@@ -2335,7 +2358,8 @@ void ListDescriptionInformation (void)
 			{
 						// List the maximum number of bytes in the linked image.		
 							
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Maximum number of bytes in linked image: %2d%s", 
 						gImageWindowInfoPtr->numberBytes,
 						gEndOfLine);
@@ -2349,7 +2373,8 @@ void ListDescriptionInformation (void)
 			{
 						// List the maximum number of bits in the linked image.		
 							
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Maximum number of bits in linked image:  %2d%s", 
 						gImageWindowInfoPtr->numberBits,
 						gEndOfLine);
@@ -2363,7 +2388,8 @@ void ListDescriptionInformation (void)
 			{
 					// List the number of linked files.										
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"  Number of linked files:               %5d%s", 
 						gImageWindowInfoPtr->numberImageFiles,
 						gEndOfLine);
@@ -2389,12 +2415,15 @@ void ListDescriptionInformation (void)
 		
 		if (continueFlag)
 			{
-			FileStringPtr fileNamePtr = 
-						(FileStringPtr)GetFileNameCPointerFromFileInfo (localFileInfoPtr);
+			//FileStringPtr fileNamePtr =
+			//			(FileStringPtr)GetFileNameCPointerFromFileInfo (localFileInfoPtr);
+
+			FileStringPtr fileNamePtr = (FileStringPtr)GetFilePathPPointerFromFileInfo (localFileInfoPtr);
 			
 			if (gImageWindowInfoPtr->numberImageFiles == 1)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"Description information for");
 				stringLength = 27;
 				
@@ -2402,20 +2431,23 @@ void ListDescriptionInformation (void)
 					
 			else	// gImageWindowInfoPtr->numberImageFiles > 1)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+						256,
 							"  Description information for");
 				stringLength = 29;
 				
-				sprintf ((char*)&gTextString[stringLength],
+				snprintf ((char*)&gTextString[stringLength],
+							256-stringLength,
 							" file %3d", 
 							index+1);
 				stringLength += 9;
 				
 				}	// end "if (gImageWindowInfoPtr->numberImageFiles > 1)" 
 			
-			sprintf ((char*)&gTextString[stringLength],
+			snprintf ((char*)&gTextString[stringLength],
+						256-stringLength,
 						": '%s'%s", 
-						(char*)fileNamePtr,
+						(char*)&fileNamePtr[2],
 						gEndOfLine);
 			
 			continueFlag = ListString ((char*)gTextString,  
@@ -2528,7 +2560,7 @@ void ListDescriptionInformation (void)
 // Called By:		
 //
 //	Coded By:			Larry L. Biehl			Date: 06/28/2010
-//	Revised By:			Larry L. Biehl			Date: 05/31/2020
+//	Revised By:			Larry L. Biehl			Date: 12/22/2023
 
 Boolean ListDescriptionInformationForFile (
 				FileInfoPtr							fileInfoPtr,
@@ -2536,7 +2568,8 @@ Boolean ListDescriptionInformationForFile (
 				SInt16								maxFormatNameLength)
 
 {
-	unsigned char						formatName[256];
+	unsigned char						formatName[256],
+											readLibrary[10];
 	
 	SInt16								format;
 	UInt16								stringIndex;
@@ -2574,10 +2607,16 @@ Boolean ListDescriptionInformationForFile (
 				}	// end "if (!continueFlag)"
 				
 			if (continueFlag)
-				{				
-				sprintf ((char*)gTextString,
-							"    File format:              %s%s",
+				{
+				readLibrary[0] = 0;
+				if (fileInfoPtr->gdalDataSetH != NULL)
+					sprintf ((char*)readLibrary, " (GDAL)\0");
+					
+				snprintf ((char*)gTextString,
+							256,
+							"    File format:              %s%s%s",
 							&formatName[1],
+							readLibrary,
 							gEndOfLine);
 				continueFlag = ListString ((char*)gTextString,  
 													(UInt32)strlen ((char*)gTextString),  
@@ -2600,7 +2639,8 @@ Boolean ListDescriptionInformationForFile (
 										(StringPtr)gTextString2,
 										NULL);
 				
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"      %s data set name:         %s%s",
 						&formatNamePtr[1],
 						(char*)&gTextString2[1],
@@ -2616,7 +2656,8 @@ Boolean ListDescriptionInformationForFile (
 						
 				GetHdfHeaderFileName (fileInfoPtr, gTextString2);
 					
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      %s header file name:      %s%s",
 							&formatNamePtr[1],
 							(char*)&gTextString2[1],
@@ -2634,14 +2675,16 @@ Boolean ListDescriptionInformationForFile (
 			{			
 					// List the image type.														
 					
-			sprintf ((char*)gTextString,"    Image type:                  ");
+			snprintf ((char*)gTextString, 256, "    Image type:                  ");
 			
 			if (fileInfoPtr->thematicType)
-				sprintf ((char*)&gTextString[30],
+				snprintf ((char*)&gTextString[30],
+							256-30,
 							"Thematic%s",
 							gEndOfLine);
 			else	// !fileInfoPtr->thematicType 
-				sprintf ((char*)&gTextString[30],
+				snprintf ((char*)&gTextString[30],
+							256-30,
 							"Multispectral%s",
 							gEndOfLine);
 				
@@ -2693,7 +2736,8 @@ Boolean ListDescriptionInformationForFile (
 				
 			if (continueFlag)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"    Band interleave format:   %s%s", 
 							&formatName[1],
 							gEndOfLine);
@@ -2709,7 +2753,7 @@ Boolean ListDescriptionInformationForFile (
 				
 		if (continueFlag)
 			{
-			sprintf ((char*)gTextString,"    Data type:                   "); 
+			snprintf ((char*)gTextString, 256, "    Data type:                   ");
 			
 			if (fileInfoPtr->dataTypeCode == kIntegerType)
 				sprintf ((char*)&gTextString[30],"Integer%s", gEndOfLine);
@@ -2724,12 +2768,12 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && fileInfoPtr->numberBytes > 1)
 			{			
-			sprintf ((char*)gTextString,"    Swap bytes:                  "); 
+			snprintf ((char*)gTextString, 256, "    Swap bytes:                  ");
 			
 			if (fileInfoPtr->swapBytesFlag)
-				sprintf ((char*)&gTextString[30],"Yes%s", gEndOfLine);
+				snprintf ((char*)&gTextString[30], 256-30, "Yes%s", gEndOfLine);
 			else	// !fileInfoPtr->swapBytesFlag 
-				sprintf ((char*)&gTextString[30],"No%s", gEndOfLine);
+				snprintf ((char*)&gTextString[30], 256-30, "No%s", gEndOfLine);
 				
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2739,12 +2783,12 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && !fileInfoPtr->thematicType)
 			{			
-			sprintf ((char*)gTextString,"    Signed data:                 ");
+			snprintf ((char*)gTextString, 256, "    Signed data:                 ");
 			
 			if (fileInfoPtr->signedDataFlag)
-				sprintf ((char*)&gTextString[30],"Yes%s", gEndOfLine);
+				snprintf ((char*)&gTextString[30], 256-30, "Yes%s", gEndOfLine);
 			else	// !fileInfoPtr->signedDataFlag 
-				sprintf ((char*)&gTextString[30],"No%s", gEndOfLine);
+				snprintf ((char*)&gTextString[30], 256-30, "No%s", gEndOfLine);
 				
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),
@@ -2754,7 +2798,7 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && fileInfoPtr->dataCompressionCode != kNoCompression)
 			{			
-			sprintf ((char*)gTextString,"    Compression Algorithm:       ");
+			snprintf ((char*)gTextString, 256, "    Compression Algorithm:       ");
 			
 			stringIndex = IDS_Compression01+fileInfoPtr->dataCompressionCode-1;
 			
@@ -2764,7 +2808,7 @@ Boolean ListDescriptionInformationForFile (
 																	continueFlag);
 			
 			if (continueFlag)									
-				sprintf ((char*)&gTextString[30],"%s%s", &gTextString2[1], gEndOfLine);
+				snprintf ((char*)&gTextString[30], 256-30, "%s%s", &gTextString2[1], gEndOfLine);
 				
 			continueFlag = ListString ((char*)gTextString,
 												(UInt32)strlen ((char*)gTextString),  
@@ -2774,7 +2818,8 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && fileInfoPtr->blockedFlag)
 			{			
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"    Tiled format:             Yes%s", 
 						gEndOfLine);
 				
@@ -2788,7 +2833,8 @@ Boolean ListDescriptionInformationForFile (
 			{
 					// List the number of lines in the image file.					
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of lines:              %10u%s",
 						(unsigned int)fileInfoPtr->numberLines,
 						gEndOfLine);
@@ -2802,7 +2848,8 @@ Boolean ListDescriptionInformationForFile (
 			{
 					// List the number of columns in the image file.				
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of columns:            %10u%s",
 						(unsigned int)fileInfoPtr->numberColumns,
 						gEndOfLine);
@@ -2817,12 +2864,14 @@ Boolean ListDescriptionInformationForFile (
 						// List the number of channels in the image file.			
 			
 			if (fileInfoPtr->thematicType)	
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"    Number of classes:            %10u%s",
 							(unsigned int)fileInfoPtr->numberClasses,
 							gEndOfLine);
 			else	// !fileInfoPtr->thematicType 		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"    Number of channels:           %10d%s",   
 							fileInfoPtr->numberChannels,
 							gEndOfLine);	
@@ -2837,7 +2886,8 @@ Boolean ListDescriptionInformationForFile (
 			{
 						// List the number of bytes in the image file.				
 							
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of bytes:              %10d%s", 
 						fileInfoPtr->numberBytes,
 						gEndOfLine);
@@ -2851,7 +2901,8 @@ Boolean ListDescriptionInformationForFile (
 			{
 						// List the number of bits in the image file.				
 							
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of bits:               %10d%s", 
 						fileInfoPtr->numberBits,
 						gEndOfLine);
@@ -2868,7 +2919,8 @@ Boolean ListDescriptionInformationForFile (
 			{			
 						// List the number of header bytes in the image file.	
 						
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of header bytes:       %10u%s",
 						(unsigned int)fileInfoPtr->numberHeaderBytes,
 						gEndOfLine);
@@ -2886,7 +2938,8 @@ Boolean ListDescriptionInformationForFile (
 			{			
 						// List the number of pre-line bytes in the image file.	
 						
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Number of pre-line bytes:     %10u%s"
 						"    Number of post-line bytes:    %10u%s",
 						(unsigned int)fileInfoPtr->numberPreLineBytes,
@@ -2904,7 +2957,8 @@ Boolean ListDescriptionInformationForFile (
 											fileInfoPtr->bandInterleave == kBSQ ||
 											fileInfoPtr->bandInterleave == kBNonSQ))
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"    Number of pre-channel bytes:  %10u%s"
 							"    Number of post-channel bytes: %10u%s",
 							(unsigned int)fileInfoPtr->numberPreChannelBytes,
@@ -2930,7 +2984,8 @@ Boolean ListDescriptionInformationForFile (
 										&blockSize,
 										&blockOffset);
 						
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Block height:                 %10u%s"
 						"    Block width:                  %10u%s",
 						(unsigned int)blockHeight, gEndOfLine,
@@ -2941,7 +2996,8 @@ Boolean ListDescriptionInformationForFile (
 				
 			if (fileInfoPtr->blockedFlag)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"    Block size:                   %10u%s"
 							"    Block offset:                 %10u%s",
 							(unsigned int)blockSize, gEndOfLine,
@@ -2956,7 +3012,8 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag)
 			{			
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Line start:                   %10u%s"
 						"    Column start:                 %10u%s",
 						(unsigned int)fileInfoPtr->startLine,
@@ -2971,7 +3028,8 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && fileInfoPtr->noDataValueFlag)
 			{
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    No Data (or Fill) Value: %15.9g%s",	// 14.7e%s used in past.
 																				// Will try g for now.
 						fileInfoPtr->noDataValue,
@@ -2985,7 +3043,8 @@ Boolean ListDescriptionInformationForFile (
 			
 		if (continueFlag && fileInfoPtr->treatLinesAsBottomToTopFlag)
 			{
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"    Lines stored from bottom to top (rather than top to bottom)%s",
 						gEndOfLine);
 				
@@ -3033,7 +3092,7 @@ void ListInstrumentName (
 	
 	if (fileInfoPtr->instrumentCode > 0)
 		{			
-		sprintf ((char*)gTextString,"    Instrument Name:          ");
+		snprintf ((char*)gTextString, 256, "    Instrument Name:          ");
 		
 		stringIndex = IDS_InstrumentName01+fileInfoPtr->instrumentCode-1;
 		
@@ -3044,7 +3103,7 @@ void ListInstrumentName (
 		
 		if (continueFlag)
 			{
-			sprintf ((char*)&gTextString[30],"%s%s", &gTextString2[1], gEndOfLine);		
+			snprintf ((char*)&gTextString[30], 256-30, "%s%s", &gTextString2[1], gEndOfLine);
 			ListString ((char*)gTextString,  
 							(UInt32)strlen ((char*)gTextString),
 							gOutputTextH);
@@ -3137,7 +3196,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 	if (gSwapBytesFlag)
 		Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[2], 1);
 																				
-	sprintf ((char*)gTextString,
+	snprintf ((char*)gTextString,
+				256,
 				"%s    LARSYS Run Number:    %8u%s",
 				gEndOfLine,  
 				(unsigned int)headerRecordPtr[2],
@@ -3160,7 +3220,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			
 			}	// end "for (index=0; index<16; index++)" 
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    LARSYS Description:   %s%s", 
 					gTextString2,
 					gEndOfLine);
@@ -3182,7 +3243,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			
 			}	// end "if (gSwapBytesFlag)"
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    Date data collected:  %2u-%2u-%u%s",
 					(unsigned int)headerRecordPtr[10],
 					(unsigned int)headerRecordPtr[11],
@@ -3208,7 +3270,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			
 			}	// end "for (index=0; index<4; index++)" 
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 					"    Time data collected:  %s%s", 
 					(char*)gTextString2,
 					gEndOfLine);
@@ -3225,7 +3288,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[14], 1);
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    Altitude of platform: %u%s",
 					(unsigned int)headerRecordPtr[14],
 					gEndOfLine);
@@ -3242,7 +3306,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[15], 1);
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    Ground heading:       %u%s",
 					(unsigned int)headerRecordPtr[15],
 					gEndOfLine);
@@ -3266,7 +3331,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 			
 			}	// end "for (index=0; index<12; index++)" 
 		
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    Reformatting date:    %s%s", 
 					gTextString2,
 					gEndOfLine);
@@ -3283,7 +3349,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[0], 1);
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    LARSYS Tape Number:   %u%s",
 					(unsigned int)headerRecordPtr[0],
 					gEndOfLine);
@@ -3300,7 +3367,8 @@ Boolean ListLARSYSMISTHeaderInformation (
 		if (gSwapBytesFlag)
 			Swap4Bytes ((HUInt32Ptr)&headerRecordPtr[1], 1);
 			
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"    LARSYS File Number:   %u%s%s",
 					(unsigned int)headerRecordPtr[1],
 					gEndOfLine,
@@ -3397,7 +3465,8 @@ Boolean ListMapParameters (
 		
 				// List planar map parameters.
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"    Planar Map Parameters%s",
 						gEndOfLine);
 				
@@ -3407,8 +3476,9 @@ Boolean ListMapParameters (
 			
 				// List the x-map coordinate for pixel (1,1).				
 				
-		numberChars = sprintf (
+		numberChars = snprintf (
 									(char*)gTextString2,
+									256,
 									"%21.*f",
 									numberDigits,
 									mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11);	
@@ -3418,7 +3488,8 @@ Boolean ListMapParameters (
 																numberDigits,
 																numberChars);			
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"      x-map coordinate for center of upper-left pixel (1,1): %23s%s",
 					gTextString2,
 					gEndOfLine);
@@ -3429,7 +3500,8 @@ Boolean ListMapParameters (
 			
 				// List the y-map coordinate for pixel (1,1).				
 				
-		numberChars = sprintf ((char*)gTextString2,
+		numberChars = snprintf ((char*)gTextString2,
+										256,
 										"%21.*f",
 										numberDigits,
 										mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);	
@@ -3439,7 +3511,8 @@ Boolean ListMapParameters (
 																numberDigits,
 																numberChars);							
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"      y-map coordinate for center of upper-left pixel (1,1): %23s%s",
 					gTextString2,
 					gEndOfLine);
@@ -3451,8 +3524,9 @@ Boolean ListMapParameters (
 			
 				// List the horizontal pixel size.					
 				
-		numberChars = sprintf (
+		numberChars = snprintf (
 								(char*)gTextString2,
+								256,
 								"%21.*f",
 								numberSizeDigits,
 								mapProjectionInfoPtr->planarCoordinate.horizontalPixelSize);	
@@ -3462,7 +3536,8 @@ Boolean ListMapParameters (
 																numberSizeDigits,
 																numberChars);									
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"      horizontal pixel size per pixel:                       %23s%s",
 					gTextString2,
 					gEndOfLine);
@@ -3474,8 +3549,9 @@ Boolean ListMapParameters (
 			
 				// List the vertical pixel size.						
 				
-		numberChars = sprintf (
+		numberChars = snprintf (
 								(char*)gTextString2,
+								256,
 								"%21.*f",
 								numberSizeDigits,
 								mapProjectionInfoPtr->planarCoordinate.verticalPixelSize);	
@@ -3486,7 +3562,8 @@ Boolean ListMapParameters (
 									numberSizeDigits,
 									numberChars);					
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"      vertical pixel size per pixel:                         %23s%s",
 					gTextString2,
 					gEndOfLine);
@@ -3512,7 +3589,8 @@ Boolean ListMapParameters (
 					IDS_MapUnits01+mapProjectionInfoPtr->planarCoordinate.mapUnitsCode);
 		#endif	// defined multispec_win
 
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"      map units:       %s%s",
 						&gTextString2[1],
 						gEndOfLine);
@@ -3540,7 +3618,8 @@ Boolean ListMapParameters (
 						IDS_MapUnits01+mapProjectionInfoPtr->planarCoordinate.zMapUnitsCode);
 			#endif	// defined multispec_win
 
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+							256,
 							"      z map units:     %s%s",
 							&gTextString2[1],
 							gEndOfLine);
@@ -3556,7 +3635,8 @@ Boolean ListMapParameters (
 				
 		if (mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle != 0)
 			{
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"      map orientation angle:       %10.7f%s",
 						mapProjectionInfoPtr->planarCoordinate.mapOrientationAngle *
 																						kRadiansToDegrees,
@@ -3579,7 +3659,8 @@ Boolean ListMapParameters (
 			{
 			if (controlPointsPtr->count <= 20 || listAllInformationFlag)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"%s      Control Points:  %u%s          Column       Line         MapX          MapY%s",
 							gEndOfLine,
 							(unsigned int)controlPointsPtr->count,
@@ -3593,7 +3674,8 @@ Boolean ListMapParameters (
 								
 				for (index=0; index<(UInt32)controlPointsPtr->count; index++)
 					{
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"      %10.3f %10.3f %13.6f %13.6f%s",
 								controlPointsPtr->easting1Ptr[index],
 								controlPointsPtr->northing1Ptr[index],
@@ -3612,7 +3694,8 @@ Boolean ListMapParameters (
 				
 			else if (controlPointsPtr->count > 20)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"%s      There are %u control points. Use shift key with List Image Description... to force them to be listed.%s",
 							gEndOfLine,
 							(unsigned int)controlPointsPtr->count,
@@ -3635,7 +3718,8 @@ Boolean ListMapParameters (
 			{
 			GetCoefficientsVectorPointers (mapProjectionInfoPtr);
 						
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"%s      Coordinate Polygon Model (order = %d)%s"
 						"                             Column/Line To Map           Map to Column/Line%s"
 						"                            Easting      Northing       Easting      Northing%s",
@@ -3652,7 +3736,8 @@ Boolean ListMapParameters (
 							
 			for (index=0; index<mapProjectionInfoPtr->numberCoefficients; index++)
 				{
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Coefficient%2d %13.6g %13.6g %13.6g %13.6g%s",
 							(unsigned int)index,
 							mapProjectionInfoPtr->planarCoordinate.easting1CoefficientsPtr[index], 
@@ -3674,7 +3759,8 @@ Boolean ListMapParameters (
 				
 				// List Grid Coordinate System Parameters
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+					256,
 					"%s    Grid Coordinate System Parameters%s",
 					gEndOfLine,
 					gEndOfLine);
@@ -3697,7 +3783,8 @@ Boolean ListMapParameters (
 				{
 						// List the EPSG Code and Name
 						
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      EPSG Code:        %d  %s%s",
 							mapProjectionInfoPtr->projectedCSTypeGeoKey,
 							&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
@@ -3711,7 +3798,8 @@ Boolean ListMapParameters (
 					{																
 					case kStatePlaneNAD27RSCode:							
 					case kStatePlaneNAD83RSCode:
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+									256,
 									"      FIPS Zone:        %d  %s%s",
 									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
 									&mapProjectionInfoPtr->gridCoordinate.epsgName[1],
@@ -3719,14 +3807,16 @@ Boolean ListMapParameters (
 						break;
 											
 					case kGaussKrugerRSCode:
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+									256,
 									"      Zone:             %d%s",
 									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
 									gEndOfLine);
 						break;
 											
 					case kGDA94RSCode:
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+									256,
 									"      MGA Zone:         %d%s",
 									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
 									gEndOfLine);
@@ -3742,7 +3832,8 @@ Boolean ListMapParameters (
 												mapProjectionInfoPtr->gridCoordinate.gridZone < 0)
 							direction = 'S';
 							
-						sprintf ((char*)gTextString,
+						snprintf ((char*)gTextString,
+									256,
 									"      Zone:             %d%c%s",
 									abs (mapProjectionInfoPtr->gridCoordinate.gridZone),
 									direction,
@@ -3782,7 +3873,8 @@ Boolean ListMapParameters (
 			
 			if (projStdParallel1 != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Standard Parallel1:          %15.6f%s",
 							projStdParallel1,
 							gEndOfLine);
@@ -3796,7 +3888,8 @@ Boolean ListMapParameters (
 			
 			if (projStdParallel2 != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Standard Parallel2:          %15.6f%s",
 							projStdParallel2,
 							gEndOfLine);
@@ -3810,7 +3903,8 @@ Boolean ListMapParameters (
 			
 			if (projNatOriginLat != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Natural Origin Latitude:     %15.6f%s",
 							projNatOriginLat,
 							gEndOfLine);
@@ -3824,7 +3918,8 @@ Boolean ListMapParameters (
 			
 			if (projNatOriginLong != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Natural Origin Longitude:    %15.6f%s",
 							projNatOriginLong,
 							gEndOfLine);
@@ -3838,7 +3933,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseEasting != -9999)	
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Easting:               %15.6f%s",
 							projFalseEasting,
 							gEndOfLine);
@@ -3852,7 +3948,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseNorthing != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Northing:              %15.6f%s",
 							projFalseNorthing,
 							gEndOfLine);
@@ -3866,7 +3963,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseOriginLong != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Origin Longitude:      %15.6f%s",
 							projFalseOriginLong,
 							gEndOfLine);
@@ -3880,7 +3978,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseOriginLat != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Origin Latitude:       %15.6f%s",
 							projFalseOriginLat,
 							gEndOfLine);
@@ -3894,7 +3993,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseOriginEasting != -9999)	
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Origin Easting:        %15.6f%s",
 							projFalseOriginEasting,
 							gEndOfLine);
@@ -3908,7 +4008,8 @@ Boolean ListMapParameters (
 			
 			if (projFalseOriginNorthing != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        False Origin Northing:       %15.6f%s",
 							projFalseOriginNorthing,
 							gEndOfLine);
@@ -3922,7 +4023,8 @@ Boolean ListMapParameters (
 			
 			if (projCenterLong != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Longitude Central Meridian:  %15.6f%s",
 							projCenterLong,
 							gEndOfLine);
@@ -3936,7 +4038,8 @@ Boolean ListMapParameters (
 			
 			if (projCenterLat != -9999)	
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Latitude of Origin:          %15.6f%s",
 							projCenterLat,
 							gEndOfLine);
@@ -3950,7 +4053,8 @@ Boolean ListMapParameters (
 			
 			if (projScaleAtNatOrigin != -9999)	
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Scale Factor at Origin:      %13.10f%s",
 							projScaleAtNatOrigin,
 							gEndOfLine);
@@ -3964,7 +4068,8 @@ Boolean ListMapParameters (
 			
 			if (projAzimuthAngle != -9999)	
 				{			
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Projected Azimuth Angle:     %15.6f%s",
 							projAzimuthAngle,
 							gEndOfLine);
@@ -3978,7 +4083,8 @@ Boolean ListMapParameters (
 			
 			if (projStraightVertPoleLongitude != -9999)	
 				{		
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"        Longitude Central Meridian:  %15.6f%s",
 							projStraightVertPoleLongitude,
 							gEndOfLine);
@@ -3998,7 +4104,8 @@ Boolean ListMapParameters (
 			{
 					// List Geodetic Model Parameters
 					
-			sprintf ((char*)gTextString,
+			snprintf ((char*)gTextString,
+						256,
 						"%s    Geodetic Model Parameters%s",
 						gEndOfLine,
 						gEndOfLine);
@@ -4033,7 +4140,8 @@ Boolean ListMapParameters (
 					
 					}	// end "else referenceSystemCode != kByEPSGCodeCode"
 									
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      Horizontal Datum: %s%s",
 							stringPtr,
 							gEndOfLine);
@@ -4071,7 +4179,8 @@ Boolean ListMapParameters (
 					
 					}	// end "else referenceSystemCode != kByEPSGCodeCode"		
 									
-				sprintf ((char*)gTextString,
+				snprintf ((char*)gTextString,
+							256,
 							"      Ellipsoid:        %s%s",
 							stringPtr,
 							gEndOfLine);
@@ -4083,7 +4192,8 @@ Boolean ListMapParameters (
 						
 				if (mapProjectionInfoPtr->geodetic.spheroidCode == kSphereEllipsoidCode)
 					{
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"        Radius:           %13.5f%s",
 								mapProjectionInfoPtr->geodetic.radiusSpheroid,
 								gEndOfLine);
@@ -4097,7 +4207,8 @@ Boolean ListMapParameters (
 											
 				else	// ...->geodetic.spheroidCode != kSphereEllipsoidMenuItem
 					{
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"        Equatorial radius:  %13.5f%s",
 								mapProjectionInfoPtr->geodetic.semiMajorAxis,
 								gEndOfLine);
@@ -4107,7 +4218,8 @@ Boolean ListMapParameters (
 															(UInt32)strlen ((char*)gTextString),
 															gOutputTextH);
 							
-					sprintf ((char*)gTextString,
+					snprintf ((char*)gTextString,
+								256,
 								"        Polar radius:       %13.5f%s",
 								mapProjectionInfoPtr->geodetic.semiMinorAxis,
 								gEndOfLine);

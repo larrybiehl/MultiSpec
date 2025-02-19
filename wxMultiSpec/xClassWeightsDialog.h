@@ -26,8 +26,8 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 04/30/2018
-//	
+//	Revised By:				Larry L. Biehl			Date: 02/16/2025
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -74,9 +74,6 @@ class CMClassWeightsDlg : public CMDialog
 
 		void OnInitDialog (
 				wxInitDialogEvent& 				event);
-	
-		void OnOK (
-				wxCommandEvent&					event);
 
 		void OnSelchangeList (
 				wxCommandEvent&					event);

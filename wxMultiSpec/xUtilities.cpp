@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl, Tsung Tai Yeh
 //
-//	Revision date:			04/05/2022
+//	Revision date:			02/06/2024
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								utility type functions in MultiSpec for Linux OS.
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+													256,
 													" xUtilities.cpp: (): %s",
 													gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
@@ -36,6 +37,7 @@
 //------------------------------------------------------------------------------------
 
 #include "SMultiSpec.h"
+
 #include	<ctype.h>  
 
 #include "SImageWindow_class.h"
@@ -55,6 +57,9 @@
 	#include "xBitmapRefData.h"
 #endif	// defined multispec_wxmac
 
+extern void GetApplicationStartupPath (char* startupPathPtr,
+													long* sizeOfPathPtr);
+
 
 
 void* BeginBitMapRawDataAccess (
@@ -62,15 +67,19 @@ void* BeginBitMapRawDataAccess (
 				wxBitmap*							bitMapPtr)
 
 {
-	#if defined multispec_wxlin
+	#if defined multispec_wxlin || defined multispec_wxwin
 				// Get the bitmap raw data pointer again. It may have changed.
 				// Only do this for multispectral image windows
 
-		#if defined multispec_wxlin_alpha
+		#if defined multispec_wxlin_alpha || multispec_wxwin_alpha
 			wxAlphaPixelData pixeldata (gActiveImageViewCPtr->m_ScaledBitmap);
 		#else
 			wxNativePixelData pixeldata (gActiveImageViewCPtr->m_ScaledBitmap);
 		#endif
+			int numberLines = gActiveImageViewCPtr->m_ScaledBitmap.GetHeight ();
+			int numberColumns = gActiveImageViewCPtr->m_ScaledBitmap.GetWidth ();
+			int depth = gActiveImageViewCPtr->m_ScaledBitmap.GetDepth ();
+			int pixRowBytes = pixeldata.GetRowStride ();
 		return (pixeldata.GetPixels().m_ptr);
 	#endif
 	
@@ -101,7 +110,7 @@ void* BeginBitMapRawDataAccess (
 //							DoThematicWColorsUpdate in SThematicWindow.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 08/31/1988
-//	Revised By:			Larry L. Biehl			Date: 03/30/2022
+//	Revised By:			Larry L. Biehl			Date: 02/05/2024
 
 void CopyOffScreenImage (
 				CMImageView*						imageViewCPtr,
@@ -139,7 +148,9 @@ void CopyOffScreenImage (
 
    DisplaySpecsPtr					displaySpecsPtr;
 	
-	int 									pixRowBytes;
+	int 									blitXSrc,
+											blitYSrc,
+											pixRowBytes;
 
    SInt32								numberImageOverlays,
 											xDimension,
@@ -149,8 +160,8 @@ void CopyOffScreenImage (
 
    //SInt16								grafPortType;
 
-   SInt16								//legendWidth,
-											//titleHeight,
+   SInt16								legendWidth,
+											titleHeight,
 											windowCode;
 
    Boolean								drawBaseImageFlag,
@@ -165,9 +176,8 @@ void CopyOffScreenImage (
 	
    if (windowInfoPtr->drawBitMapFlag)
 		{
-      //legendWidth = 0;
-
-      //titleHeight = windowInfoPtr->titleHeight;
+		legendWidth = windowInfoPtr->legendWidth;
+      titleHeight = windowInfoPtr->titleHeight;
       //grafPortType = windowInfoPtr->grafPortType;
       numberImageOverlays = windowInfoPtr->numberImageOverlays;
       drawVectorOverlaysFlag = windowInfoPtr->drawVectorOverlaysFlag;
@@ -223,6 +233,11 @@ void CopyOffScreenImage (
 			{
          scrollOffset.x = 0;
          scrollOffset.y = 0;
+         
+			windowRect.top = inSourceRect->top * magnification;
+			windowRect.bottom = inSourceRect->bottom * magnification;
+			windowRect.left = inSourceRect->left * magnification;
+			windowRect.right = inSourceRect->right * magnification;
 
 			}	// end "else copyType == kClipboardCopy || copyType == kPrinterCopy)"
 
@@ -238,27 +253,27 @@ void CopyOffScreenImage (
 
       switch (copyType)
 			{
-			/*
          case kClipboardCopy:
-						// This case is currently not implemented for wxWidgets base apps
-						// Map sourceRect to destination that starts at (0,0)
-						// This is for copy to clipboard.    
 
-            legendWidth = windowInfoPtr->legendWidth;
+						// Map sourceRect to destination that starts at (0,0)
+						// This is for copy to clipboard.
 
             lSourceRect.top = inSourceRect->top;
             lSourceRect.left = inSourceRect->left;
             lSourceRect.bottom = inSourceRect->bottom;
             lSourceRect.right = inSourceRect->right;
 
-            lDestinationRect.top = (SInt32) titleHeight;
-            lDestinationRect.left = (SInt32) legendWidth;
+						// Need to allow for the negating the scaling for the legend and the
+						// title which is done at a 1 to 1 scale.
+						
+            lDestinationRect.top = (SInt32)titleHeight/magnification;
+            lDestinationRect.left = (SInt32)legendWidth/magnification;
             lDestinationRect.bottom = titleHeight + (SInt32)
 									((lSourceRect.bottom - lSourceRect.top) * magnification);
             lDestinationRect.right = legendWidth + (SInt32)
 									((lSourceRect.right - lSourceRect.left) * magnification);
             break;
-				*/
+				
          case kSourceCopy:
 						// Map to wherever sourceRect * magnification indicates.  This
 						// allows one to draw parts of the window at a time.
@@ -378,31 +393,46 @@ void CopyOffScreenImage (
 				lSourceRect.left = MAX (0, lSourceRect.left);
 				lSourceRect.top = MAX (0, lSourceRect.top);
 				break;	// end "case: kDestinationCopy"
-			/*
+			
 			case kPrinterCopy:
-						// This case is currently not implemented for wxWidgets base apps
-						// Printer. Just map the source to a destination rectangle that
-						// starts at 0, 0. The origon has been offset so that the image
-						// appears in the middle of the page.									
+						// Just map the source to a destination rectangle that
+						// starts at 0, 0. The origin has been offset so that the image
+						// appears in the middle of the page.
 
 				lSourceRect.top = inSourceRect->top;
 				lSourceRect.left = inSourceRect->left;
 				lSourceRect.bottom = inSourceRect->bottom;
 				lSourceRect.right = inSourceRect->right;
-				legendWidth = windowInfoPtr->legendWidth;
+				
+				//wxPoint deviceOriginSaved  = pDC->GetDeviceOrigin ();
 
-				lDestinationRect.top = (SInt32)
-									(titleHeight * imageViewCPtr->m_printerTextScaling + .5);
-				lDestinationRect.bottom = (SInt32)
-							(titleHeight * imageViewCPtr->m_printerTextScaling +
-								magnification * (lSourceRect.bottom - lSourceRect.top) + .5);
+						// Need to allow for the negating the scaling for the legend and the
+						// title which is done at a 1 to 1 scale.
+				
+				double legendMagnification = magnification * imageViewCPtr->m_printerPaperScaling;
+            lDestinationRect.left = legendWidth;
+            //lDestinationRect.left = (SInt32)(imageViewCPtr->m_printerPaperScaling * legendWidth + .5);
+            //lDestinationRect.left = (SInt32)(legendWidth/legendMagnification + .5);
+            //lDestinationRect.left = (SInt32)(legendWidth/imageViewCPtr->m_printerPaperScaling + .5);
+				lDestinationRect.right = lDestinationRect.left + (SInt32)
+									(magnification * (lSourceRect.right - lSourceRect.left) + .5);
+            lDestinationRect.top = titleHeight;
+            lDestinationRect.bottom = lDestinationRect.top + (SInt32)
+									(magnification * (lSourceRect.bottom - lSourceRect.top) +.5);
+				/*
 				lDestinationRect.left = (SInt32)
-								(legendWidth * imageViewCPtr->m_printerTextScaling * 1.4 + .5);
+								(legendWidth * imageViewCPtr->m_printerPaperScaling + .5);
 				lDestinationRect.right = (SInt32)
-							(legendWidth * imageViewCPtr->m_printerTextScaling * 1.4 +
+							(lDestinationRect.left +
 								magnification * (lSourceRect.right - lSourceRect.left) + .5);
+				lDestinationRect.top = (SInt32)
+									(titleHeight * imageViewCPtr->m_printerPaperScaling + .5);
+				lDestinationRect.bottom = (SInt32)
+							(lDestinationRect.top +
+								magnification * (lSourceRect.bottom - lSourceRect.top) + .5);
+				*/
 				break;
-			*/
+			
 			}	// end "switch (copyType)"
 
 		sourceRect.top = (int)lSourceRect.top;
@@ -437,12 +467,12 @@ void CopyOffScreenImage (
 					
 					wxBitmap& scaledBitmap = imageViewCPtr->m_ScaledBitmap;
 					unsigned char* imageDataPtr = (unsigned char*)imageBaseAddressH;
-					#if defined multispec_wxmac
+					#if defined multispec_wxmac 
 						unsigned char* baseBitmapBufferPtr =
 												(UCharPtr)BeginBitMapRawDataAccess (windowInfoPtr, &scaledBitmap);
 						pixRowBytes = scaledBitmap.GetBitmapData()->GetBytesPerRow ();
 					#endif
-					#if defined multispec_wxlin
+					#if defined multispec_wxlin || defined multispec_wxwin
 						#if defined multispec_wxlin_alpha
 							wxAlphaPixelData pixeldata (scaledBitmap);
 						#else
@@ -474,15 +504,26 @@ void CopyOffScreenImage (
 								bitmapBufferPtr++;
 							#endif
 							
-							*bitmapBufferPtr =
-												paletteCPtr->mPaletteObject[*imageDataPtr].red;
-							bitmapBufferPtr++;
-							*bitmapBufferPtr =
-												paletteCPtr->mPaletteObject[*imageDataPtr].green;
-							bitmapBufferPtr++;
-							*bitmapBufferPtr =
-												paletteCPtr->mPaletteObject[*imageDataPtr].blue;
-							
+							#if defined multispec_wxlin || defined multispec_wxmac
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].red;
+								bitmapBufferPtr++;
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].green;
+								bitmapBufferPtr++;
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].blue;
+							#endif
+							#if defined multispec_wxwin
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].blue;
+								bitmapBufferPtr++;
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].green;
+								bitmapBufferPtr++;
+								*bitmapBufferPtr =
+													paletteCPtr->mPaletteObject[*imageDataPtr].red;
+							#endif
 							#if defined multispec_wxlin_alpha
 										// Skip last (Alpha) byte
 								bitmapBufferPtr++;
@@ -501,7 +542,8 @@ void CopyOffScreenImage (
 					
 					paletteCPtr->SetPaletteLoadedFlag (TRUE);
 					/*
-					int numberChars = sprintf ((char*)gTextString3,
+					int numberChars = snprintf ((char*)gTextString3,
+						256,
 						" xUtilities.cpp:CopyOffScreenImage (updateStartLine, updateEndLine): %d, %d%s",
 						updateStartLine,
 						updateEndLine,
@@ -509,11 +551,12 @@ void CopyOffScreenImage (
 					ListString ((char*)gTextString3, numberChars, gOutputTextH);
 					*/
 					}	// end "if (paletteCPtr->GetPaletteChangedFlag ())"
-
+				
 						// Draw the legend
 				
-            if (windowInfoPtr->showLegend)
-               imageViewCPtr->DrawLegend ();
+            if ((copyType == kClipboardCopy || copyType == kPrinterCopy) &&
+														windowInfoPtr->showLegend)
+               imageViewCPtr->DrawLegend (pDC, copyType, legendWidth, 0, destinationRect.top);
 				
 				}	// end "if (displaySpecsPtr->displayType == ...)"
 		
@@ -522,6 +565,18 @@ void CopyOffScreenImage (
 				{
 
 				}	// end "else displaySpecsPtr->displayType != ..."
+         
+      if (copyType == kPrinterCopy)
+         {
+               // Adjust the device origin for any legend or title
+         
+         if (legendWidth > 0)
+            {
+            wxPoint deviceOrigin  = gCDCPointer->GetDeviceOrigin ();
+         
+            }  // end "if (copyType == kPrinterCopy)"
+            
+         }  // end "if (copyType == kPrinterCopy)"
 		
 		if (numberImageOverlays > 0 || numberVectorOverlays > 0 || projectWindowFlag)
 			{
@@ -553,7 +608,8 @@ void CopyOffScreenImage (
 		if (imageViewCPtr->m_ScaledBitmap.Ok () && drawBaseImageFlag)
 			{
 			/*
-			int numberChars = sprintf ((char*)gTextString3,
+			int numberChars = snprintf ((char*)gTextString3,
+													256,
 													" xUtilities.cpp:CopyOffscreen (left, right, top, bottom): %d, %d, %d, %d%s",
 													destinationRect.left,
 													destinationRect.right,
@@ -563,7 +619,8 @@ void CopyOffScreenImage (
 			ListString ((char*)gTextString3, numberChars, gOutputTextH);
 			*/
 			/*
-			int numberChars4 = sprintf ((char*)gTextString3,
+			int numberChars4 = snprintf ((char*)gTextString3,
+					256,
 					" xUtilities.cpp:CopyOffscreen (updateStartLine, updateEndLine): %d, %d%s%s",
 					displaySpecsPtr->updateStartLine,
 					displaySpecsPtr->updateEndLine,
@@ -572,7 +629,8 @@ void CopyOffScreenImage (
 			ListString ((char*)gTextString3, numberChars4, gOutputTextH);
 			*/
 			/*
-			int numberChars2 = sprintf ((char*)gTextString3,
+			int numberChars2 = snprintf ((char*)gTextString3,
+													256,
 													" xUtilities.cpp:CopyOffscreen (tdestination): %d, %d, %d, %d%s",
 													tDestinationRect.left,
 													tDestinationRect.right,
@@ -581,7 +639,8 @@ void CopyOffScreenImage (
 													gEndOfLine);
 			ListString ((char*)gTextString3, numberChars2, gOutputTextH);
 			
-			int numberChars3 = sprintf ((char*)gTextString3,
+			int numberChars3 = snprintf ((char*)gTextString3,
+													256,
 													" xUtilities.cpp:CopyOffscreen (tSourceRect): %d, %d, %d, %d%s",
 													tSourceRect.left,
 													tSourceRect.right,
@@ -592,30 +651,78 @@ void CopyOffScreenImage (
 			*/
 			int destinationRectWidth =  destinationRect.right - destinationRect.left;
 			int destinationRectHeight = destinationRect.bottom - destinationRect.top;
+		
+			blitXSrc = destinationRect.left;
+			blitYSrc = destinationRect.top;
 			
-			pDC->Blit (destinationRect.left, // DestX
-							destinationRect.top, // DestY
-							destinationRectWidth, // nDestWidth
-							destinationRectHeight, // nDestHeight   
-							&displaydc,  
-							destinationRect.left, // SrcX
-							destinationRect.top, // SrcY
-							wxCOPY, // 
-							false, // useMask
-							wxDefaultCoord, // 
-							wxDefaultCoord); // 
+			wxPoint deviceOrigin;
+			if (copyType == kClipboardCopy || copyType == kPrinterCopy)
+			//if (copyType == kClipboardCopy)
+				{
+				destinationRectWidth =  sourceRect.right - sourceRect.left;
+				destinationRectHeight = sourceRect.bottom - sourceRect.top;
 			
+				//if (copyType == kClipboardCopy)
+				//	{
+					blitXSrc = sourceRect.left;
+					blitYSrc = sourceRect.top;
+					
+				//	}	// end "if (copyType == kClipboardCopy)"
+				/*
+				if (copyType == kPrinterCopy)
+					{
+					pDC->GetDeviceOrigin (&deviceOrigin.x, &deviceOrigin.y);
+					pDC->SetDeviceOrigin (deviceOrigin.x+legendWidth, deviceOrigin.y);
+					//	blitXSrc = legendWidth;
+				
+					}	// if (copyType == kPrinterCopy)
+				*/
+				}	// if (copyType == kClipboardCopy || copyType == kPrinterCopy)
+			
+         //if (copyType != kClipboardCopy)
+				pDC->Blit (destinationRect.left, 		// xdest
+								destinationRect.top, 		// ydest
+								destinationRectWidth, 		// dstWidth
+								destinationRectHeight, 		// dstHeight
+								&displaydc,
+								blitXSrc,						// xsrc
+								blitYSrc, 						// ysrc
+								wxCOPY,
+								false, 							// useMask
+								wxDefaultCoord,
+								wxDefaultCoord);
+			/*
+			else	// copyType == kClipboardCopy)
+				pDC->StretchBlit	(
+								destinationRect.left, 	// 	xdest,
+								destinationRect.top, 	// ydest,
+								destinationRectWidth, 	// dstWidth,
+								destinationRectHeight,	// dstHeight,
+								&displaydc,					// source,
+								sourceRect.left, 			// xsrc,
+								sourceRect.top, 			// ysrc,
+								sourceRect.right - sourceRect.left, // srcWidth
+								sourceRect.bottom - sourceRect.top, // srcHeight
+								wxCOPY,
+								false, 						// useMask
+								wxDefaultCoord,
+								wxDefaultCoord);
+			*/
+				
+				//if (copyType == kPrinterCopy)
+				//	pDC->SetDeviceOrigin (deviceOrigin.x, deviceOrigin.y);
+					
 			}	// end "if (my_image.Ok () && drawBaseImageFlag)"
 		
 		displaydc.SelectObject (wxNullBitmap);
 		
-		#if defined multispec_wxlin
+		#if defined multispec_wxlin || defined multispec_wxwin
 			if (windowInfoPtr->offscreenMapSize == 0)
 				{
 						// Get the bitmap raw data pointer again. It may have changed.
 						// imageBaseAddressH is the raw pointer to the bitmap data.
 
-				#if defined multispec_wxlin_alpha
+				#if defined multispec_wxlin_alpha || defined multispec_wxwin_alpha
 					wxAlphaPixelData pixeldata (imageViewCPtr->m_ScaledBitmap);
 				#else
 					wxNativePixelData pixeldata (imageViewCPtr->m_ScaledBitmap);
@@ -646,23 +753,20 @@ void CopyOffScreenImage (
 										&windowRect,
 										windowCode,
 										NULL);
-		/*
+		
 				// If this window is the project window, outline the fields if requested.
 				// Set clipping area so that all of text will be printed on the image,
 				// not just the image segment clipped area.
 		
-		if (projectWindowFlag)
+		if ((copyType == kClipboardCopy || copyType == kPrinterCopy) && projectWindowFlag)
 			{
-      	GetWindowClipRectangle (imageViewCPtr, kImageArea, &windowRect);
-			ClipRect (&windowRect);
-			
 			OutlineFieldsControl (gProjectInfoPtr->statsWindowMode,
 											  imageViewCPtr,
 											  imageWindowCPtr->GetWindowInfoHandle (),
 											  windowCode);
 			
 			}	// end "if (projectWindowFlag)"
-		*/
+		
 		if (numberImageOverlays > 0 ||
 					numberVectorOverlays > 0 ||
 							(projectWindowFlag && windowCode >= 2))
@@ -682,7 +786,14 @@ void CopyOffScreenImage (
 		//pDC->DestroyClippingRegion ();
 		
 		}	// end "if (windowInfoPtr->drawBitMapFlag)"
-
+		
+			// Need to be sure the gProcessorCode is back to no processor
+			// It does not get reset for Print Preview
+			// Need to figure out way to do this.
+			
+	//if (gProcessorCode == kPrintProcessor)
+	//	gProcessorCode = 0;
+	
 }	// end "CopyOffScreenImage"
 
 
@@ -744,12 +855,14 @@ void CreateClassNameComboBoxList (
 }	// end "CreateClassNameComboBoxList"
 
 
-/*
+#if defined multispec_wxwin
 void GetApplicationStartupPath (
 				char*									startupPathPtr,
 				SInt32*								sizeOfPathPtr)
 
 {
+	char									executableFilePath[1024];
+
 	char*									executableFilePathPtr;
 
    SInt32								i,
@@ -760,6 +873,7 @@ void GetApplicationStartupPath (
 	*sizeOfPathPtr = 0;
 
 	//wxStandardPaths std;
+	executableFilePathPtr = executableFilePath;
 	wxString exepath = (wxStandardPaths::Get ()).GetExecutablePath ();
 	strncpy (executableFilePathPtr,
 				(const char*)exepath.mb_str (wxConvUTF8),
@@ -805,7 +919,7 @@ void GetApplicationStartupPath (
 		}	// end "if (executableFilePathPtr != NULL)"
 
 }	// end "GetApplicationStartupPath" 
-*/
+#endif	// defined multispec_wxwin
 
 
 void EndBitMapRawDataAccess (
@@ -929,13 +1043,13 @@ void GetMenuItemText (
 //							ConvertMultispectralToThematic in SFieldsToThematicsFile.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/07/1991
-//	Revised By:			Larry L. Biehl			Date: 03/22/2019
+//	Revised By:			Larry L. Biehl			Date: 04/23/2023
 
 SInt16 GetOffscreenGWorld (
 				WindowInfoPtr						windowInfoPtr,
 				DisplaySpecsPtr					displaySpecsPtr,
 				LongRect*							longRectPtr,
-				UInt32*								pixRowBytesPtr)
+				SInt32*								pixRowBytesPtr)
 
 {
 	UInt32								bytesNeeded;
@@ -1005,6 +1119,15 @@ SInt16 GetOffscreenGWorld (
 		#endif
 	#endif
 
+	#if defined multispec_wxwin
+			// Note Win OS bitmaps seem to always be 32 bits??
+		#if defined multispec_wxwin_alpha
+			pixelSize = 32;
+		#else
+			pixelSize = 24;
+		#endif
+	#endif
+
 	wxBitmap & scaledBitmap = gActiveImageViewCPtr->m_ScaledBitmap;
 	scaledBitmap.Create (longRectPtr->right, longRectPtr->bottom, pixelSize);
 	
@@ -1017,16 +1140,6 @@ SInt16 GetOffscreenGWorld (
 					// This is for multispectral image windows. Colors will be copied to the
 					// bitmap directly.
 			
-			#if defined multispec_wxmac
-						// Code says to use GetRawData but it did not work correctly.
-				//wxPixelData data;
-				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawData (data, 32);
-				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetBitmapData()->BeginRawAccess ();
-				windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawAccess ();
-				//windowInfoPtr->imageBaseAddressH = (Handle)gActiveImageViewCPtr->m_ScaledGraphicsBitmap.GetNativeBitmap ();
-				*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow ();
-			#endif
-			
 			#if defined multispec_wxlin
 				#if defined multispec_wxlin_alpha
 					wxAlphaPixelData pixeldata (scaledBitmap);
@@ -1037,18 +1150,44 @@ SInt16 GetOffscreenGWorld (
 				*pixRowBytesPtr = pixeldata.GetRowStride ();
 			#endif
 			
+			#if defined multispec_wxmac
+						// Code says to use GetRawData but it did not work correctly for wxmac
+				//wxPixelData data;
+				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawData (data, 32);
+				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetBitmapData()->BeginRawAccess ();
+				windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawAccess ();
+				//windowInfoPtr->imageBaseAddressH = (Handle)gActiveImageViewCPtr->m_ScaledGraphicsBitmap.GetNativeBitmap ();
+				*pixRowBytesPtr = scaledBitmap.GetBitmapData()->GetBytesPerRow ();
+			#endif
+
+			#if defined multispec_wxwin
+				//wxImage image = scaledBitmap.ConvertToImage ();
+				//wxImagePixelData data (image);
+				//windowInfoPtr->imageBaseAddressH = (Handle)scaledBitmap.GetRawData (data, 32);
+				#if defined multispec_wxwin_alpha
+					wxAlphaPixelData pixeldata (scaledBitmap);
+				#else
+					wxNativePixelData pixeldata (scaledBitmap);
+				#endif
+				windowInfoPtr->imageBaseAddressH = (unsigned char*)pixeldata.GetPixels().m_ptr;
+				*pixRowBytesPtr = pixeldata.GetRowStride ();	
+			#endif
+			
 					// This will indicate that the image base address is to a wxBitmap
 			
 			windowInfoPtr->offscreenMapSize = 0;
 			windowInfoPtr->rowBytes = *pixRowBytesPtr;
 			/*
-			int numberChars = sprintf ((char*)gTextString3,
-													" xUtilities.cpp: (imageBaseAddressH, IsOk, pixRowBytes): %ld, %d, %d%s",
-													windowInfoPtr->imageBaseAddressH,
+			int numberChars = snprintf ((char*)gTextString3,
+													256,
+													" xUtilities.cpp: (imageBaseAddressH, IsOk, pixRowBytes): %p, %d, %ld%s",
+													(void*)windowInfoPtr->imageBaseAddressH,
 													scaledBitmap.IsOk (),
 													*pixRowBytesPtr,
 													gEndOfLine);
 			ListString ((char*)gTextString3, numberChars, gOutputTextH);
+
+			UpdateOutputWScrolls (gOutputWindow, 1, kDisplayMessage);
 			*/
 			}	// end "if (numberPaletteEntries == 0)"
 		

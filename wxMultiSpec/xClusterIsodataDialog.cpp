@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			06/17/2020
+//	Revision date:			02/12/2025
 //
 //	Language:				C++
 //
@@ -48,7 +48,7 @@ BEGIN_EVENT_TABLE (CMISODATAClusterDialog, CMDialog)
 	#if defined multispec_wxlin
 		EVT_COMBOBOX (IDC_ClassCombo, CMISODATAClusterDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassCombo, CMISODATAClusterDialog::OnClassComboSelendok)
 	#endif
 
@@ -290,13 +290,13 @@ void CMISODATAClusterDialog::CreateControls ()
    m_staticText33->Wrap (-1);
    SetUpToolTip (m_staticText33, IDS_ToolTip101);
    bSizer47->Add (m_staticText33,
-						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl16 = new wxTextCtrl (sbSizer4->GetStaticBox (),
                                   IDC_NumberClusters,
                                   wxEmptyString,
                                   wxDefaultPosition,
-                                  wxDefaultSize,
+											 wxSize(100, -1),
                                   0);
    m_textCtrl16->SetValidator (
 								wxTextValidator (wxFILTER_DIGITS, &m_numberClustersString));
@@ -326,7 +326,7 @@ void CMISODATAClusterDialog::CreateControls ()
 											 IDC_Convergence,
 											 wxEmptyString,
 											 wxDefaultPosition,
-											 wxDefaultSize,
+											 wxSize(100, -1),
 											 0);
    m_textCtrl17->SetValidator (
 									wxTextValidator (wxFILTER_NUMERIC, &m_convergenceString));
@@ -356,7 +356,7 @@ void CMISODATAClusterDialog::CreateControls ()
 											 IDC_MinClusterSize,
 											 wxEmptyString,
 											 wxDefaultPosition,
-											 wxDefaultSize,
+											 wxSize(100, -1),
 											 0);
    m_textCtrl18->SetValidator (
 								wxTextValidator (wxFILTER_DIGITS, &m_minClusterSizeString));
@@ -377,14 +377,14 @@ void CMISODATAClusterDialog::CreateControls ()
    m_staticText36->Wrap (-1);
    SetUpToolTip (m_staticText36, IDS_ToolTip92);
    bSizer51->Add (m_staticText36,
-						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl19 = new wxTextCtrl (sbSizer4->GetStaticBox (),
-											 IDC_Distance1,
-											 wxEmptyString,
-											 wxDefaultPosition,
-											 wxDefaultSize,
-											 0);
+												IDC_Distance1,
+												wxEmptyString,
+												wxDefaultPosition,
+												wxSize(100, -1),
+												0);
    m_textCtrl19->SetValidator (
 									wxTextValidator (wxFILTER_NUMERIC, &m_distance1String));
    SetUpToolTip (m_textCtrl19, IDS_ToolTip92);
@@ -404,13 +404,13 @@ void CMISODATAClusterDialog::CreateControls ()
    m_staticText37->Wrap (-1);
    SetUpToolTip (m_staticText37, IDS_ToolTip93);
    bSizer52->Add (m_staticText37,
-						wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 5));
 
    m_textCtrl20 = new wxTextCtrl (sbSizer4->GetStaticBox (),
 											 IDC_Distance2,
 											 wxEmptyString,
 											 wxDefaultPosition,
-											 wxDefaultSize,
+											 wxSize(100, -1),
 											 0);
    m_textCtrl20->SetValidator (
 									wxTextValidator (wxFILTER_NUMERIC, &m_distance2String));

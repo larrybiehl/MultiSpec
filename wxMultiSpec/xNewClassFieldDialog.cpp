@@ -19,7 +19,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -135,7 +135,7 @@ void CMNewClassFieldDlg::CreateControls (void)
 												wxDefaultPosition,
 												wxSize (250, -1),
 												0);
-   m_textCtrl102->SetMaxLength (31);
+   m_textCtrl102->SetMaxLength (30);
    SetUpToolTip (m_textCtrl102, IDS_ToolTip302);
 	bSizer287->Add (m_textCtrl102, 0, wxALL, 5);
 	
@@ -170,7 +170,7 @@ void CMNewClassFieldDlg::CreateControls (void)
 												wxDefaultPosition,
 												wxSize (250, -1),
 												0);
-   m_textCtrl103->SetMaxLength (31);
+   m_textCtrl103->SetMaxLength (30);
    SetUpToolTip (m_textCtrl103, IDS_ToolTip304);
 	bSizer288->Add (m_textCtrl103, 0, wxALL, 5);
 	
@@ -357,7 +357,9 @@ void CMNewClassFieldDlg::CheckLength (
 						kAlertStrID,
 						IDS_Alert116,
 						0,
-						NULL);
+						NULL,
+						this,
+						kASCIICharString);
 	
 }	// end "CheckLength"
 
@@ -396,10 +398,17 @@ bool CMNewClassFieldDlg::TransferDataFromWindow ()
 		if (returnCode != 0)
 			{
 			if (returnCode < 0)
-				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert46, 0, NULL);
+				DisplayAlert (kErrorAlertID,
+									3,
+									kAlertStrID,
+									IDS_Alert46,
+									0,
+									NULL,
+									this,
+									kASCIICharString);
 			
 			else	// returnCode > 0
-				DupClassFieldNameAlert (1, (UCharPtr)m_classNamePtr);
+				DupClassFieldNameAlert (this, 1, (UCharPtr)m_classNamePtr);
 			
 			OKFlag = FALSE;
 			
@@ -418,10 +427,17 @@ bool CMNewClassFieldDlg::TransferDataFromWindow ()
 		if (returnCode > 0)
 			{
 			if (returnCode == 1)
-				DisplayAlert (kErrorAlertID, 3, kAlertStrID, IDS_Alert44, 0, NULL);
+				DisplayAlert (kErrorAlertID,
+									3,
+									kAlertStrID,
+									IDS_Alert44,
+									0,
+									NULL,
+									this,
+									kASCIICharString);
 			
 			else	// returnCode == 2
-				DupClassFieldNameAlert (2, (UCharPtr)m_fieldNamePtr);
+				DupClassFieldNameAlert (this, 2, (UCharPtr)m_fieldNamePtr);
 			
 			selectedItem = IDC_FieldName;
 			OKFlag = FALSE;

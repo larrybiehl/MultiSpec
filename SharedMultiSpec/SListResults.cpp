@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2022
+//	Revision date:			12/26/2023
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								classification results.
 //
 /* Template for debugging
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+												256,
 												" SLstRslt::xxx (entered routine. %s", 
 												gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);	
@@ -40,6 +41,7 @@
    
 #if defined multispec_wx
 	#include "xListResultsDialog.h"
+	#include "xMultiSpec.h"
 #endif	// defined multispec_wx
 
 #if defined multispec_mac || defined multispec_mac_swift
@@ -668,7 +670,7 @@ SInt16 GetAreaResults (
 {
 	double								minutesLeft;
 	
-	FileInfoPtr							fileInfoPtr;
+	//FileInfoPtr							fileInfoPtr;
 	
 	HSInt64Ptr							thresholdClassCountPtr;
 	
@@ -676,12 +678,11 @@ SInt16 GetAreaResults (
 				 							probabilityBuffer2Ptr;
 				 							
 	Point									point;
-	Ptr									stringPtr;
 	RgnHandle							rgnHandle;	
 			
 	HUInt16Ptr	 						symbolToIndexPtr;
 	
-	SInt32								byteSkip,
+	SInt32								//byteSkip,
 											columnInterval,
 											line,
 											lineCount,
@@ -714,7 +715,7 @@ SInt16 GetAreaResults (
 	
 			// Initialize local variables	
 			
-	fileInfoPtr = 				fileIOInstructions1Ptr->fileInfoPtr;													
+	//fileInfoPtr = 				fileIOInstructions1Ptr->fileInfoPtr;
 	
 	classNumber	= 				areaDescriptionPtr->classNumber;
 	columnInterval = 			areaDescriptionPtr->columnInterval;
@@ -735,9 +736,9 @@ SInt16 GetAreaResults (
 			// Get the byte skip.  Allow for the GAIA case which is two byte		
 			// data.  The first byte is the probability byte which is not used.	
 	
-	byteSkip = columnInterval;
-	if (fileInfoPtr->format == kGAIAType || fileInfoPtr->format == kGAIA2Type)
-		byteSkip *= 2;
+	//byteSkip = columnInterval;
+	//if (fileInfoPtr->format == kGAIAType || fileInfoPtr->format == kGAIA2Type)
+	//	byteSkip *= 2;
 	
 			// Get pointer to the probability map buffer incase it is needed.	
 			
@@ -902,8 +903,8 @@ SInt16 GetAreaResults (
 				minutesLeft = (linesLeft * (TickCount () - startTick))/
 															(double)(lineCount*kTicksPerMinute);
 														
-				sprintf ((char*)gTextString, " %.1f", minutesLeft);
-				stringPtr = (char*)CtoPstring (gTextString, gTextString);
+				snprintf ((char*)gTextString, 256, " %.1f", minutesLeft);
+				CtoPstring (gTextString, gTextString);
 				LoadDItemString (gStatusDialogPtr, IDC_Status14, (Str255*)gTextString);
 					
 				gNextMinutesLeftTime = TickCount () + gNextMinutesLeftTimeOffset;
@@ -1293,25 +1294,32 @@ SInt32 GetGroupIndex (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 06/11/1993
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017
+//	Revised By:			Larry L. Biehl			Date: 03/30/2023
 
 Handle GetProbabilityWindowInfoHandle (void)
 
 {
+	UInt8									fileName[_MAX_FILE];
+
 	FileInfoPtr							compareFileInfoPtr;
+	
+	FileStringPtr 						compareFileNamePPtr,
+											fileNamePPtr;
+											
 	WindowInfoPtr						compareWindowInfoPtr;
 	WindowPtr							windowPtr;
 	
 	Handle								compareFileInfoHandle,
 											compareWindowInfoHandle;
 								
-	SInt16								returnCode,
-											savedThresholdTypeCode,
+	SInt16								savedThresholdTypeCode,
 											window,
 											windowIndex;
 											
 	SignedByte							handleStatus1,
 											handleStatus2;
+											
+	Boolean								returnFlag;
 		
 	
 	if (gNumberOfIWindows <= 1)
@@ -1319,45 +1327,58 @@ Handle GetProbabilityWindowInfoHandle (void)
 																				
 	gTextString3[0] = 0;
 	
-			// Copy the input file name.														
+			// Copy the input file name.
+													
+	fileNamePPtr = fileName;
+	GetCopyOfPFileNameFromFileInfo (gImageFileInfoPtr, (FileStringPtr)fileNamePPtr, kReturnUTF8);
+	#if defined multispec_win
+		USES_CONVERSION;
+			// Convert unicode to char string
+		T2A((LPCWSTR)gTextString3);
+	#endif
 
-	FileStringPtr fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileInfo (
-																					gImageFileInfoPtr);
-	CtoPstring (fileNamePtr, gTextString3);
+	//fileNamePPtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (
+	//																				gImageFileInfoPtr);
+	//CtoPstring (fileNamePtr, gTextString3);
 	
 			// Remove the .GIS and other extensions if it exits at the end of
 			// the name.																		
 			          
 	#if defined multispec_mac   
-		RemoveCharsNoCase ((char*)"\0.gis\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.GAIA\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.echo_classify\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.maxlik_classify\0", gTextString3);
+		RemoveCharsNoCase ((char*)"\0.gis\0", fileNamePPtr);
+		RemoveCharsNoCase ((char*)"\0.GAIA\0", fileNamePPtr);
+		RemoveCharsNoCase ((char*)"\0.echo_classify\0", fileNamePPtr);
+		RemoveCharsNoCase ((char*)"\0.maxlik_classify\0", fileNamePPtr);
 		RemoveCharsNoCase ((char*)"\0.tif\0", gTextString3);
 	#endif	// defined multispec_mac
   		
    #if defined multispec_win | defined multispec_wx   
-		RemoveCharsNoCase ((char*)"\0.gis\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.GAI\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.ech\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.max\0", gTextString3);
-		RemoveCharsNoCase ((char*)"\0.tif\0", gTextString3);
+		RemoveCharsNoCase ((char*)"\0.gis\0", fileNamePPtr);
+		RemoveCharsNoCase ((char*)"\0.GAI\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.mxcl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.macl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.ficl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.echocl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.knncl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.cocl\0", fileNamePPtr);
+		//RemoveCharsNoCase ((char*)"\0.cemcl\0", fileNamePPtr);
+		RemoveCharsNoCase ((char*)"\0.tif\0", fileNamePPtr);
 	#endif	// defined multispec_win  
 		                           
 	if (gImageFileInfoPtr->format == kTIFFType ||
 													gImageFileInfoPtr->format == kGeoTIFFType)
-		ConcatFilenameSuffix ((FileStringPtr)gTextString3, (StringPtr)"\0Prob.tif\0");
+		ConcatFilenameSuffix (fileNamePPtr, (StringPtr)"\0Prob.tif\0");
 	
 	else
-		ConcatFilenameSuffix ((FileStringPtr)gTextString3, (StringPtr)"\0Prob.gis\0");
+		ConcatFilenameSuffix (fileNamePPtr, (StringPtr)"\0Prob.gis\0");
 	
 			// We now have the default name.  Check if it matches any of
 			// those images files that are open.
 		
 	window = 0;
 	windowIndex = kImageWindowStart;
-	returnCode = 1;
 	savedThresholdTypeCode = gListResultsSpecsPtr->thresholdTypeCode;
+	returnFlag = FALSE;
 	
 	do
 		{
@@ -1373,48 +1394,50 @@ Handle GetProbabilityWindowInfoHandle (void)
 			compareFileInfoPtr = (FileInfoPtr)GetHandleStatusAndPointer (
 															compareFileInfoHandle, &handleStatus2);
 			
-			fileNamePtr = (FileStringPtr)GetFileNameCPointerFromFileInfo (
+			compareFileNamePPtr = (FileStringPtr)GetFileNamePPointerFromFileInfo (
 																					compareFileInfoPtr);
-			returnCode = memcmp (fileNamePtr,
-										(char*)&gTextString3[1],
-										gTextString3[0]+1);
-			
-			if (returnCode == 0)
+																					
+			returnFlag = CompareFileNamesNoCase (compareFileNamePPtr, fileNamePPtr);
+																
+			if (returnFlag)
 				{
 				if (!compareFileInfoPtr->thematicType)
-					returnCode = 1;
+					returnFlag = FALSE;
 					
 				if (compareFileInfoPtr->numberBytes != 1)
-					returnCode = 1;
+					returnFlag = FALSE;
 				
 						// Determine which type of threshold image it is.
 				
 				gListResultsSpecsPtr->thresholdTypeCode = 0;
-				if (compareFileInfoPtr->numberClasses == 
+				if (compareFileInfoPtr->origNumberClasses ==
 															(UInt32)gNumberProbabilityClasses+1)
 					gListResultsSpecsPtr->thresholdTypeCode = kMaxLikeMode;
 					
-				else if (compareFileInfoPtr->numberClasses == 102+1)
+				else if (compareFileInfoPtr->origNumberClasses == 102+1)
 					gListResultsSpecsPtr->thresholdTypeCode = kCEMMode;
 					
-				else if (compareFileInfoPtr->numberClasses == 91+1)
+				else if (compareFileInfoPtr->origNumberClasses == 91+1)
 					gListResultsSpecsPtr->thresholdTypeCode = kCorrelationMode;
+					
+				else if (compareFileInfoPtr->origNumberClasses == 5+1)
+					gListResultsSpecsPtr->thresholdTypeCode = kKNearestNeighborMode;
 							
 				if (gListResultsSpecsPtr->thresholdTypeCode == 0)
-					returnCode = 1;
+					returnFlag = FALSE;
 					
 						// Now verify that the number of lines and columns are	
 						// same.	
 						
 				if (gImageWindowInfoPtr->maxNumberColumns !=
 															compareWindowInfoPtr->maxNumberColumns)
-					returnCode = 1;
+					returnFlag = FALSE;
 						
 				if (gImageWindowInfoPtr->maxNumberLines !=
 															compareWindowInfoPtr->maxNumberLines)
-					returnCode = 1;
+					returnFlag = FALSE;
 				
-				}	// end "if (returnCode == 0)" 
+				}	// end "if (returnFlag)"
 				
 			MHSetState (compareWindowInfoHandle, handleStatus1);
 				
@@ -1425,9 +1448,9 @@ Handle GetProbabilityWindowInfoHandle (void)
 		window++;
 		windowIndex++;
 														
-		}		while (window<gNumberOfIWindows && returnCode != 0);
+		}		while (window<gNumberOfIWindows && !returnFlag);
 		
-	if (returnCode == 0)
+	if (returnFlag)
 		{
 		if (savedThresholdTypeCode != gListResultsSpecsPtr->thresholdTypeCode)
 			{
@@ -1440,14 +1463,34 @@ Handle GetProbabilityWindowInfoHandle (void)
 				
 			else if (gListResultsSpecsPtr->thresholdTypeCode == kCorrelationMode)
 				gListResultsSpecsPtr->probabilityThreshold = 5.;
-			
+				
+			else if (gListResultsSpecsPtr->thresholdTypeCode == kKNearestNeighborMode)
+				gListResultsSpecsPtr->probabilityThreshold = 2.;
+				
 			}	// end "if (savedThresholdTypeCode != ...->thresholdTypeCode)"
 		
-		}	// end "if (returnCode == 0)"
+		}	// end "if (returnFlag)"
 		
-	else	// returnCode != 0
+	else	// !returnFlag
 		compareWindowInfoHandle = NULL;
+	/*
+			// Now remove the suffix that was added on the name at the beginning.
+			
+	if (gImageFileInfoPtr->format == kTIFFType ||
+													gImageFileInfoPtr->format == kGeoTIFFType)
+		{
+		RemoveCharsNoCase ((char*)"\0Prob.tif\0", fileNamePPtr);
+		ConcatFilenameSuffix (fileNamePPtr, (StringPtr)"\0.tif\0");
 		
+		}	// end "if (gImageFileInfoPtr->format == kTIFFType || ..."
+	
+	else	// gImageFileInfoPtr->format != kTIFFType && ...
+		{
+		RemoveCharsNoCase ((char*)"\0Prob.gis\0", fileNamePPtr);
+		ConcatFilenameSuffix (fileNamePPtr, (StringPtr)"\0.gis\0");
+		
+		}	// else gImageFileInfoPtr->format != kTIFFType && ...
+	*/
 	return (compareWindowInfoHandle);
 
 }	// end "GetProbabilityWindowInfoHandle" 
@@ -1971,7 +2014,7 @@ Boolean ListClassificationSummary (
 			// Get some variables needed for listing the number of pixels in text
 			// output window.
 			
-	sampleNumberWidth = sprintf ((char*)gTextString, "%lld", totalNumberPixels);
+	sampleNumberWidth = snprintf ((char*)gTextString, 256, "%lld", totalNumberPixels);
 											
 	samplesWidthWithCommas = (sampleNumberWidth-1)/3;
 	samplesWidthWithCommas += sampleNumberWidth;
@@ -1981,7 +2024,7 @@ Boolean ListClassificationSummary (
 			// Get the number width and precision for the percent values.
 			
 	percentPrecision =
-		sprintf ((char*)gTextString, "%lld", totalNumberPixels/minimumNumberPixels);
+		snprintf ((char*)gTextString, 256, "%lld", totalNumberPixels/minimumNumberPixels);
 	
 			// Allow for two digits represented by percent itself but still allow one
 			// more decimal than what is significant for user to have for interpretation.
@@ -2847,7 +2890,7 @@ Boolean ListLineOfResults (
 				
 			// Load the class name into a string.									
 	
-	sprintf ((char*)gTextString2, "                                  ");
+	snprintf ((char*)gTextString2, 256, "                                  ");
 	if (columnNamePtr != NULL)
 		{
 		pstr ((char*)gTextString2, columnNamePtr, &strLength);
@@ -2865,12 +2908,13 @@ Boolean ListLineOfResults (
 		identifier -= clsfyVariablePtr->backgroundIndexOffset;
 			
 	if (identifier >= 0)
-		sprintf ((char*)gTextString3, 
+		snprintf ((char*)gTextString3,
+						256,
 						"%4d",
 						(int)identifier);
 		
 	else	// identifier < 0 
-		sprintf ((char*)gTextString3, "    ");
+		snprintf ((char*)gTextString3, 256, "    ");
 	
 	if (totalNumberSamplesInLine > 0)
 		{
@@ -3017,11 +3061,13 @@ Boolean ListOverallPerformanceValues (
 		
 				// Get the number widths.
 				
-		correctNumberWidth = sprintf ((char*)gTextString, 
+		correctNumberWidth = snprintf ((char*)gTextString,
+													256,
 													"%lld", 
 													clsfyVariablePtr->totalCorrectSamples); 
 
-		totalNumberWidth = sprintf ((char*)gTextString,
+		totalNumberWidth = snprintf ((char*)gTextString,
+													256,
 													"%lld", 
 													clsfyVariablePtr->totalNumberSamples);
 				
@@ -3486,7 +3532,7 @@ Boolean ListReliabilityAccuracyLine (
 // Called By:			ListResultsControl
 //
 //	Coded By:			Larry L. Biehl			Date: 02/19/1991
-//	Revised By:			Larry L. Biehl			Date: 05/05/2022
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 Boolean ListResultsAreasControl (
 				FileInfoPtr							fileInfoPtr, 
@@ -3631,19 +3677,7 @@ Boolean ListResultsAreasControl (
 			
 	if (continueFlag)
 		{
-				// List the threshold value used if being used.		
-
-		continueFlag = ListThresholdValue (
-											gListResultsSpecsPtr->probabilityThreshold,
-											gListResultsSpecsPtr->probabilityThreshold,
-											gListResultsSpecsPtr->probabilityThreshold,
-											(SInt16)gListResultsSpecsPtr->probabilityThreshold,
-											listResultsFileStreamPtr,
-											&gOutputForce1Code,
-											gListResultsSpecsPtr->thresholdFlag,
-											gListResultsSpecsPtr->thresholdTypeCode);	
-		
-				// Show status fields in status dialog that apply for training,	
+				// Show status fields in status dialog that apply for training,
 				// test and image results listings.											
 		
 		if (continueFlag)
@@ -3826,14 +3860,14 @@ Boolean ListResultsAreasControl (
 // Called By:	
 //
 //	Coded By:			Larry L. Biehl			Date: 02/14/1991
-//	Revised By:			Larry L. Biehl			Date: 09/18/2006	
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 void ListResultsControl (void)
 
 {                                        
 	ClassifierVar						clsfyVariable;
 	CMFileStream*						resultsFileStreamPtr;
-	Ptr									ptr;         
+	//Ptr									ptr;
 	
 	SInt16*								classInGroupOrderPtr;
 	
@@ -3925,24 +3959,19 @@ void ListResultsControl (void)
 				{
 						// Lock handles for those items that may be used later.		
 				
-				ptr = GetHandlePointer (
+				GetHandlePointer (
 									gImageFileInfoPtr->classDescriptionH, kLock, kMoveHi);
 				
-				ptr = GetHandlePointer (
+				GetHandlePointer (
 									gImageFileInfoPtr->groupNameHandle, kLock, kMoveHi);
 				
-				ptr = GetHandlePointer (
+				GetHandlePointer (
 									gImageFileInfoPtr->groupTablesHandle, kLock, kMoveHi);
 				
 				if (gListResultsSpecsPtr->thresholdFlag)
 					{
 							// Set up file pointers for probability file.
-					/*
-					ptr = GetHandleStatusAndPointer (
-									gListResultsSpecsPtr->probabilityWindowInfoHandle,
-									&handleStatus,
-									kMoveHi);
-					*/
+
 					if (!GetImageInformationPointers (
 											&probabilityHandleStatus,
 											gListResultsSpecsPtr->probabilityWindowInfoHandle,
@@ -4067,6 +4096,45 @@ void ListResultsControl (void)
 														(UInt16)gImageFileInfoPtr->numberClasses, 
 														resultsFileStreamPtr, 
 														&gOutputForce1Code);
+														
+						// List the threshold file and value if being used.
+						
+				if (gListResultsSpecsPtr->thresholdFlag)
+					{
+					char* fileNamePtr =
+								(char*)GetFileNameCPointerFromFileInfo (gImageFileInfo2Ptr);
+					snprintf ((char*)gTextString,
+								256,
+								(char*)"    Threshold Image file = '%s'%s",
+								fileNamePtr,
+								gEndOfLine);
+			
+					continueFlag = OutputString (resultsFileStreamPtr,
+															(char*)gTextString,
+															0,
+															gOutputForce1Code,
+															continueFlag,
+															kUTF8CharString);
+
+					if (continueFlag)
+						continueFlag = ListThresholdValue (
+														gListResultsSpecsPtr->probabilityThreshold,
+														gListResultsSpecsPtr->probabilityThreshold,
+														gListResultsSpecsPtr->probabilityThreshold,
+														(SInt16)gListResultsSpecsPtr->probabilityThreshold,
+														resultsFileStreamPtr,
+														&gOutputForce1Code,
+														gListResultsSpecsPtr->thresholdFlag,
+														gListResultsSpecsPtr->thresholdTypeCode);
+
+					continueFlag = OutputString (resultsFileStreamPtr,
+															(char*)gEndOfLine,
+															0,
+															gOutputForce1Code,
+															continueFlag,
+															kUTF8CharString);
+													
+					}	// end "if (gListResultsSpecsPtr->thresholdFlag)"
 				
 						// List "  Output Information:".
 						
@@ -4184,7 +4252,7 @@ void ListResultsControl (void)
 // Called By:			ListResultsControl   in SListResults.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 02/14/1991
-//	Revised By:			Larry L. Biehl			Date: 09/05/2017	
+//	Revised By:			Larry L. Biehl			Date: 12/26/2023
 
 Boolean ListResultsDialog (
 				FileInfoPtr							fileInfoPtr)
@@ -4867,9 +4935,9 @@ Boolean ListResultsDialog (
 							
 					Handle fileInfoHandle = GetFileInfoHandle (
 											gListResultsSpecsPtr->probabilityWindowInfoHandle);
-								
+											
 					gListResultsSpecsPtr->probabilityThresholdCode = GetThresholdCode (
-														saveThresholdValue,
+														savedThreshoValue,
 														fileInfoHandle,
 														gListResultsSpecsPtr->thresholdTypeCode);
 					
@@ -4928,7 +4996,7 @@ Boolean ListResultsDialog (
       CMListResultsDialog*		dialogPtr = NULL;		
 		try
 			{
-			dialogPtr = new CMListResultsDialog ();
+			dialogPtr = new CMListResultsDialog (GetMainFrameForDialog());
 			returnFlag = dialogPtr->DoDialog (); 		                       
 			delete dialogPtr;
 			}			
@@ -4948,53 +5016,83 @@ Boolean ListResultsDialog (
 void ListResultsDialogSetThresholdItems (
 				DialogPtr							dialogPtr,
 				Boolean								thresholdResultsFlag,
+				Boolean								probabilityFileAvailableFlag,
 				SInt16								thresholdTypeCode)
 				
 {				
-	if (thresholdResultsFlag)
+	if (probabilityFileAvailableFlag)
 		{
-		if (thresholdTypeCode == kMaxLikeMode)
+      SetDLogControlHilite (dialogPtr, IDC_ThresholdResults, 0);
+		SetDLogControl (dialogPtr, IDC_ThresholdResults, thresholdResultsFlag);
+		
+		if (thresholdResultsFlag)
 			{
-			ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
-			ShowDialogItem (dialogPtr, IDC_Probability);			// 33
-			ShowDialogItem (dialogPtr, IDC_LRPercent);			// 38
-			HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
-			LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0Probabilities <");
+			if (thresholdTypeCode == kMaxLikeMode)
+				{
+				ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
+				ShowDialogItem (dialogPtr, IDC_Probability);			// 33
+				ShowDialogItem (dialogPtr, IDC_LRPercent);			// 38
+				HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
+				LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0Probabilities <");
+				
+				}	// end "if (gClassificationProcedure == kCorrelationMode)"
+				
+			else if (thresholdTypeCode == kCEMMode)
+				{
+				ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
+				ShowDialogItem (dialogPtr, IDC_Probability);			// 33
+				HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
+				HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
+				LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0CEM Values <");
+				
+				}	// end "else  ...!= kCorrelationMode"
+				
+			else if (thresholdTypeCode == kCorrelationMode)
+				{
+				ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
+				ShowDialogItem (dialogPtr, IDC_Probability);			// 33
+				HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
+				ShowDialogItem (dialogPtr, IDC_LRdegrees);			// 39
+				LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0SAM Values >");
+				
+				}	// end "else if thresholdTypeCode == kCorrelationMode"
+				
+			else	// thresholdTypeCode == kKNearestNeighborMode
+				{
+				ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
+				ShowDialogItem (dialogPtr, IDC_Probability);			// 33
+				HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
+				HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
+				LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0kNN <");
+				
+				}	// end "else thresholdTypeCode == kKNearestNeighborMode"
 			
-			}	// end "if (gClassificationProcedure == kCorrelationMode)"
-			
-		else if (thresholdTypeCode == kCEMMode)
+			SelectDialogItemText (dialogPtr, IDC_Probability, 0, SHRT_MAX);
+				
+			}	// end "thresholdResultsFlag"
+		
+		else	// !thresholdResultsFlag
 			{
-			ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
-			ShowDialogItem (dialogPtr, IDC_Probability);			// 33
+			HideDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
+			HideDialogItem (dialogPtr, IDC_Probability);			// 33
 			HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
 			HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
-			LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0CEM Values <");
 			
-			}	// end "else  ...!= kCorrelationMode"
-			
-		else	// thresholdTypeCode == kCorrelationMode
-			{
-			ShowDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
-			ShowDialogItem (dialogPtr, IDC_Probability);			// 33
-			HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
-			ShowDialogItem (dialogPtr, IDC_LRdegrees);			// 39
-			LoadDItemString (dialogPtr, IDC_ProbabilityPrompt, (Str255*)"\0SAM Values >");
-			
-			}	// end "else  ...!= kCorrelationMode"
-			
-		SelectDialogItemText (dialogPtr, IDC_Probability, 0, SHRT_MAX);
+			}	// end "else !thresholdResultsFlag"
 		
-		}	// end "if (thresholdResultsFlag && ...)" 
+		}	// end "if (probabilityFileAvailableFlag &&)"
 		
-	else	// !thresholdResultsFlag 
+	else	// !probabilityFileAvailableFlag
 		{
+		SetDLogControl (dialogPtr, IDC_ThresholdResults, 0);
+      SetDLogControlHilite (dialogPtr, IDC_ThresholdResults, 255);
+      
 		HideDialogItem (dialogPtr, IDC_ProbabilityPrompt);	// 32
 		HideDialogItem (dialogPtr, IDC_Probability);			// 33
 		HideDialogItem (dialogPtr, IDC_LRPercent);			// 38
 		HideDialogItem (dialogPtr, IDC_LRdegrees);			// 39
 		
-		}	// end "if (thresholdResultsFlag)"
+		}	// end "else !probabilityFileAvailableFlag"
 	
 }	// end "ListResultsDialogSetThresholdItems" 
 
@@ -5172,7 +5270,7 @@ Boolean ListResultsThematicClasses (
 				
 			}	// end "if (groupOrderedFlag)" 
 				
-		sprintf ((char*)gTextString2, "                               ");
+		snprintf ((char*)gTextString2, 256, "                               ");
 		pstr ((char*)gTextString2, (char*)&classNamePtr[classIndex*32], &strLength);
 		gTextString2[strLength] = ' ';
 		gTextString2[kMaxClassFieldNameLength] = kNullTerminator;
@@ -5188,7 +5286,7 @@ Boolean ListResultsThematicClasses (
 		if (listGroupColumnFlag)
 			{
 			groupIndex = classToGroupPtr[classIndex];
-			sprintf ((char*)gTextString2, "                               ");
+			snprintf ((char*)gTextString2, 256, "                               ");
 			pstr ((char*)gTextString2, &groupNamePtr[groupIndex*32], &strLength);
 			gTextString2[strLength] = ' ';
 			gTextString2[kMaxClassFieldNameLength] = kNullTerminator;

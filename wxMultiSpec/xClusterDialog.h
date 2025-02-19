@@ -26,8 +26,8 @@
 //	Brief description:	Header file for the CMClassifyDialog class
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 12/04/2019
-//	
+//	Revised By:				Larry L. Biehl			Date: 02/12/2025
+//
 //------------------------------------------------------------------------------------
 
 #pragma once
@@ -60,10 +60,19 @@ class CMClusterDialog : public CMDialog
 			// Implementation
 	protected:
 				// Generated message map functions
+		//void DoAlgorithmClick (
+		//		wxMouseEvent&						event);
+				
 		void OnAlgorithmSelection (
 				wxCommandEvent&					event);
 
 		void OnChannelComboSelendok (
+				wxCommandEvent&					event);
+
+		void OnAlgorithmComboCloseUp (
+				wxCommandEvent&					event);
+
+		void OnAlgorithmComboDropDown (
 				wxCommandEvent&					event);
 
 		void OnClassifySelectedArea (
@@ -124,10 +133,18 @@ class CMClusterDialog : public CMDialog
 												*m_choice20,
 												*m_choice21;
 	
+		#if defined multispec_wxlin
+			wxComboBox 							*m_algorithmCtrl;
+		#endif
+		#if defined multispec_wxmac || defined multispec_wxwin
+			wxChoice 							*m_algorithmCtrl;
+		#endif
+	
 		wxRadioBox							*m_algorithmSelectionRadioBox,
 												*m_radioBox4;
 	
-		wxStaticText						*m_staticText160,
+		wxStaticText						*m_staticText145,
+												*m_staticText160,
 												*m_staticText174,
 												*m_staticText175,
 												*m_staticText176;

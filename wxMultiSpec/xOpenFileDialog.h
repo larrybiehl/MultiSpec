@@ -26,7 +26,7 @@
 //	Brief description:	Header file for the CMOpenFileDialog and MyExtraPanel classes
 //
 //	Written By:				Abdur Rahman Maud		Date: ??/??/2009
-//	Revised By:				Larry L. Biehl			Date: 11/04/2019
+//	Revised By:				Larry L. Biehl			Date: 05/01/2023
 //
 //------------------------------------------------------------------------------------
 
@@ -57,7 +57,11 @@ class MyExtraPanel : public wxPanel
 		MyExtraPanel (
 				wxWindow*							parent);
 	
-		~MyExtraPanel ();
+		~MyExtraPanel (); 
+
+		void HandleLinkOption (
+				Boolean								beforeOKFlag,
+				int									linkSelection);
 	
 		void OnSelendokImageType (
 				wxCommandEvent& 					event);
@@ -67,7 +71,6 @@ class MyExtraPanel : public wxPanel
 	
 		void OnUploadFile (
 				wxCommandEvent& 					event);
-	
 	
 		enum { ID_UploadButton };
 	
@@ -82,13 +85,13 @@ class MyExtraPanel : public wxPanel
 	protected:
 		bool CreateControls (void);
 	
-		void OnFileNameChange (void);
-	
 		void OnInitDialog (void);
 	
-		void SetImageLinkToFalse (void);
+		void SetImageLinkToFalse (
+			Boolean									beforeOKFlag);
 	
-		void SetImageLinkToTrue (void);
+		void SetImageLinkToTrue (
+			Boolean									beforeOKFlag);
 
 
 		wxArrayString						strings;
@@ -119,6 +122,7 @@ class CMOpenFileDialog
 				wxWindow* 							pParent);
 	
 		bool DoDialog (
+				int*									returnKeyCodePtr,
 				int 									stringIndex,
 				long 									style);
 

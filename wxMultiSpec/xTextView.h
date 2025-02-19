@@ -19,13 +19,13 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			10/19/2018
+//	Revision date:			04/25/2023
 //
 //	Language:				C++
 //
 //	System:					Linux Operating Systems
 //
-//	Brief description:	This file is the definition for the TextWindow, TextWindow2
+//	Brief description:	This file is the definition for the TextWindow,
 //								and CMTextView classes
 //
 //------------------------------------------------------------------------------------
@@ -38,13 +38,13 @@
 #include "wx/textctrl.h"
 #include "wx/frame.h"
 
-
+/*
 class TextWindow: public wxTextCtrl
 {
 	public:
 		TextWindow (
 				wxView*								v,
-				wxDocChildFrame*					frame,
+				MChildFrame*						frame,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
 				long 									style);
@@ -52,21 +52,21 @@ class TextWindow: public wxTextCtrl
 		wxView*								m_view;
 	
 };	// end "class TextWindow"
+*/
 
-
-class TextWindow2: public wxStyledTextCtrl
+class TextWindow: public wxStyledTextCtrl
 {
 	public:
-		TextWindow2 (
+		TextWindow (
 				wxView*								v,
-				wxDocChildFrame*					frame,
+				MChildFrame*						frame,
 				const wxPoint& 					pos,
 				const wxSize& 						size,
 				long 									style);
 
 		wxView*								m_view;
     
-};	// end "class TextWindow2"
+};	// end "class TextWindow"
 
 
 class CMTextView: public wxView
@@ -108,17 +108,21 @@ class CMTextView: public wxView
 		SInt16 GetWindowType (void);
 	
 	
-		TextWindow2*								m_textsw;
+		TextWindow*								m_textsw;
 	 
-		wxDocChildFrame*							m_frame;
-	
-		 
+		#if defined multispec_wxlin || defined multispec_wxmac
+			wxDocChildFrame*							m_frame;
+		#endif
+		#if defined multispec_wxwin
+			wxDocMDIChildFrame*						m_frame;
+		#endif
+ 
 	protected:
 		void InitialUpdate (void);
-	
+		/*
 		bool DoEnumerateFamilies (
 				wxFont 								textwf,
 				bool 									fixedWidthOnly,
 				wxFontEncoding 					encoding);
-
+		*/
 };	// end "class CMTextView"

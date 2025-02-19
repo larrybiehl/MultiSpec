@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/11/2019
+//	Revision date:			05/01/2023
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xEvaluateCovariancesDialog:: (): %s",
 									 gEndOfLine);
 	ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -48,7 +49,7 @@ BEGIN_EVENT_TABLE (CMEvalCovarianceDialog, CMDialog)
 		EVT_COMBOBOX (IDC_ChannelCombo, CMEvalCovarianceDialog::OnChannelComboSelendok)
 		EVT_COMBOBOX (IDC_ClassCombo, CMEvalCovarianceDialog::OnClassComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ChannelCombo, CMEvalCovarianceDialog::OnChannelComboSelendok)
 		EVT_CHOICE (IDC_ClassCombo, CMEvalCovarianceDialog::OnClassComboSelendok)
 	#endif

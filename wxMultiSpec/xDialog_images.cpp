@@ -18,7 +18,7 @@
 //
 //	Authors:					Abdur Rahman Maud, Larry L. Biehl
 //
-//	Revision date:			10/25/2019 by Larry L. Biehl
+//	Revision date:			04/04/2023 by Larry L. Biehl
 //
 //	Language:				C++
 //
@@ -27,6 +27,8 @@
 //	Brief description:	This file describes icons used in dialog windows
 //
 //------------------------------------------------------------------------------------
+
+#include "SMultiSpec.h" 
 
 //#if defined multispec_wxlin
 //	png images for dialog boxes for allowing users to select entire area or

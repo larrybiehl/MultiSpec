@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			05/05/2020
+//	Revision date:			01/15/2024
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								windows in MultiSpec.
 //
 /*
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+			256,
 			" SGraphUtilities:LoadGraphXVector (xDataMin, xDataMax): %f, %f%s",
 			graphRecordPtr->xDataMin,
 			graphRecordPtr->xDataMax,
@@ -147,8 +148,6 @@ Boolean CheckGraphVectorsSize (
 				SInt32								numberSets)
 
 {
-	Ptr									ptr;
-	
 	SInt32								error,
 											numberBytes,
 											numberStatVariables,
@@ -241,14 +240,14 @@ Boolean CheckGraphVectorsSize (
 				}	// end "if (continueFlag && ...->flag == NU_HISTOGRAM_PLOT" 
 				
 			if (numberBytes > 0)	
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->classStatisticsHandle,
 							&continueFlag, 
 							&changedFlag, 
 							numberBytes);
 					
 			if (continueFlag)	
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->vectorDisplayHandle,
 							&continueFlag, 
 							&changedFlag, 
@@ -257,49 +256,49 @@ Boolean CheckGraphVectorsSize (
 			if (continueFlag && 
 						graphRecordPtr->flag == NU_HISTOGRAM_PLOT &&
 									numberVectors > 1)
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->vectorLabelHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberVectors * sizeof (Str31));
 			
 			if (continueFlag)		
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->vectorLengthsHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberSets * numberVectors * sizeof (SInt32));
 			
 			if (continueFlag)		
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->vectorPaletteColorHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberVectors * sizeof (SInt32));
 			
 			if (continueFlag)		
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->vectorSymbolHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberVectors * sizeof (char));
 			
 			if (continueFlag)		
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->xVectorDataHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberSets * numberVectors * sizeof (SInt32));
 							
 			if (continueFlag && graphRecordPtr->flag == NU_HISTOGRAM_PLOT)
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->setListHandle,
 							&continueFlag,
 							&changedFlag, 
 							numberSets * sizeof (SInt16));
 							
 			if (continueFlag && graphRecordPtr->flag == NU_HISTOGRAM_PLOT)
-				ptr = CheckHandleSize (
+				CheckHandleSize (
 							&graphRecordPtr->histogramBinWidthHandle,
 							&continueFlag,
 							&changedFlag, 
@@ -588,16 +587,15 @@ Boolean CheckSomeGraphWindowEvents (
 #endif	// defined multispec_win 
    
 #ifdef multispec_wx
-   Boolean	quitFlag = FALSE;
-   Boolean returnFlag = FALSE;
+	Boolean								quitFlag = FALSE,
+											returnFlag = FALSE;
 	
 	
-   //eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_UI);
    wxEventLoopBase* eventLoopBasePtr = wxEventLoopBase::GetActive ();
 	
    while (!quitFlag)
 		{
-      eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_USER_INPUT + wxEVT_CATEGORY_UI);
+		eventLoopBasePtr->YieldFor (wxEVT_CATEGORY_USER_INPUT + wxEVT_CATEGORY_UI);
 
       if (gListDataCode == 1)
 			{
@@ -642,7 +640,7 @@ Boolean CheckSomeGraphWindowEvents (
 // Called By:			ShowGraphWindowSelection in SSelectionGraph.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 07/31/1992
-//	Revised By:			Larry L. Biehl			Date: 07/31/1992			
+//	Revised By:			Larry L. Biehl			Date: 12/30/2023
 
 void CopyGraphYVector (
 				Handle								inputSelectionGraphRecHandle, 
@@ -665,13 +663,16 @@ void CopyGraphYVector (
 		outputGraphRecordPtr->yVector.numberPoints = 
 												inputGraphRecordPtr->yVector.numberPoints;
 		outputGraphRecordPtr->numberVectors = inputGraphRecordPtr->numberVectors;
-		vectorLength = inputGraphRecordPtr->yVector.numberPoints; 
+		outputGraphRecordPtr->channelsInWavelengthOrderFlag =
+										inputGraphRecordPtr->channelsInWavelengthOrderFlag;
+		vectorLength = inputGraphRecordPtr->yVector.numberPoints;
+		if (!outputGraphRecordPtr->channelsInWavelengthOrderFlag)
+			vectorLength = outputGraphRecordPtr->yVector.size;
 														
 		LockAndGetVectorPointer (&inputGraphRecordPtr->yVector, &error);
 		
 		if (error == noErr)
 			LockAndGetVectorPointer (&outputGraphRecordPtr->yVector, &error);
-		
 		
 		if (error == noErr)
 			{
@@ -1086,12 +1087,12 @@ Boolean DrawGraph	(
                graphRecPtr->pDC->SetPen (wxPen (gray)); 
 
 							// Draw gray grid column line
-
+					/*
 					wxDC* pDC = graphRecPtr->pDC;
                wxFont ffont (
 							gFontSize, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
                pDC->SetFont (ffont);
-
+					*/
 					DrawLinTicks (graphRecPtr,
 										graphRecPtr->xInt, 
 										graphRecPtr->yInt, 
@@ -1414,7 +1415,7 @@ void DrawGraphControls (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 10/09/1991
-//	Revised By:			Larry L. Biehl			Date: 04/04/2019
+//	Revised By:			Larry L. Biehl			Date: 01/15/2024
 
 void DrawGraphLabels (
 				GraphPtr								graphRecPtr)
@@ -1432,7 +1433,8 @@ void DrawGraphLabels (
 		USES_CONVERSION;
 	#endif
 
-	if (graphRecPtr->xLabel[0] > 0 && graphRecPtr->xLabel[0] < 32)
+	if ((graphRecPtr->xLabel[0] > 0 && graphRecPtr->xLabel[0] < 32) ||
+															graphRecPtr->copyToClipboardFlag)
 		{
 		clientRectPtr = &graphRecPtr->clientRect;
 		
@@ -1468,9 +1470,25 @@ void DrawGraphLabels (
 
       #if defined multispec_wx
          yPos = clientRectPtr->bottom - graphRecPtr->bottomInset + 
-												(SInt16)(3.5 * graphRecPtr->textSize);                                                
+												(SInt16)(3.5 * graphRecPtr->textSize);
+			
+			if (graphRecPtr->copyToClipboardFlag &&
+							graphRecPtr->processorCode != kHistogramStatsProcessor)
+				yPos -= 10;
+			
+			wxString 			xLabelPtr;
+			if (graphRecPtr->xLabel[0] > 0)
+				xLabelPtr = wxString::FromAscii (&graphRecPtr->xLabel[1]);
+				
+			else	// graphRecPtr->xLabel[0] == 0
+				{
+				if (graphRecPtr->xAxisCode == kChannels)
+					xLabelPtr = wxString::FromAscii ("Channels");
+				else	// Wavelenth axis
+					xLabelPtr = wxString::FromAscii ("Wavelength");
 
-			wxString xLabelPtr = wxString::FromAscii (&graphRecPtr->xLabel[1]);
+				}	// end "else graphRecPtr->xLabel[0] == 0"
+				
          if (graphRecPtr->processorCode == kHistogramStatsProcessor)
             graphRecPtr->pDC->DrawText (xLabelPtr, (int)xPos, (int)yPos-15);
          else
@@ -2124,7 +2142,8 @@ void GetGraphLabels (
 				if (hasWavelengthValuesFlag)
 					{
 							// Has combobox to replace text label
-					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
+					xLabelStringPtr[0] = snprintf ((char*)&xLabelStringPtr[1],
+																32,
 																"");
 					
 					#if defined multispec_wx
@@ -2147,7 +2166,8 @@ void GetGraphLabels (
 
 				else	// !hasWavelengthValuesFlag
 					{
-					xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
+					xLabelStringPtr[0] = snprintf ((char*)&xLabelStringPtr[1],
+																32,
 																"Channel Number");
 					#if defined multispec_wx
 						wxChoice* xAxisComboBoxPtr =
@@ -2170,14 +2190,16 @@ void GetGraphLabels (
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-					xLabelStringPtr[0] = sprintf (
+					xLabelStringPtr[0] = snprintf (
 												(char*)&xLabelStringPtr[1],
+												32,
 												"Feature %d",
 												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 									
 				else	// !...->featureTransformationFlag 
-					xLabelStringPtr[0] = sprintf (
+					xLabelStringPtr[0] = snprintf (
 												(char*)&xLabelStringPtr[1],
+												32,
 												"Channel %d",
 												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[0]+1));
 		
@@ -2186,7 +2208,8 @@ void GetGraphLabels (
 				break;
 				
 			case kHistogramStatsProcessor:
-				xLabelStringPtr[0] = sprintf ((char*)&xLabelStringPtr[1],
+				xLabelStringPtr[0] = snprintf ((char*)&xLabelStringPtr[1],
+														32,
 														"Data Value");
 				break;
 			
@@ -2200,20 +2223,23 @@ void GetGraphLabels (
 			{
 			case kListDataProcessor:
 			case kSelectionGraphProcessor:
-				yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
+				yLabelStringPtr[0] = snprintf ((char*)&yLabelStringPtr[1],
+																32,
 														"Value");
 				break;
 				
 			case kBiPlotDataProcessor:
 				if (gBiPlotDataSpecsPtr->featureTransformationFlag)
-					yLabelStringPtr[0] = sprintf (
+					yLabelStringPtr[0] = snprintf (
 												(char*)&yLabelStringPtr[1],
+												32,
 												"Feature %d",
 												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 									
 				else	// !...->featureTransformationFlag 
-					yLabelStringPtr[0] = sprintf (
+					yLabelStringPtr[0] = snprintf (
 												(char*)&yLabelStringPtr[1],
+												32,
 												"Channel %d",
 												(int)(gBiPlotDataSpecsPtr->axisFeaturePtr[1]+1));
 														
@@ -2222,7 +2248,8 @@ void GetGraphLabels (
 				break;
 				
 			case kHistogramStatsProcessor:
-				yLabelStringPtr[0] = sprintf ((char*)&yLabelStringPtr[1],
+				yLabelStringPtr[0] = snprintf ((char*)&yLabelStringPtr[1],
+														32,
 														"Count");
 				break;
 			
@@ -2272,12 +2299,14 @@ void GetGraphTitle (
 				
 				tempString[0] = 0;
 				if (graphRecordPtr->selectionTypeCode == kPolygonType)
-					sprintf ((char*)tempString,
+					snprintf ((char*)tempString,
+										16,
 										"Polygon ");
 				
 				if (columnEnd <= columnStart && lineEnd <= lineStart)
 					{
-					sprintf ((char*)&graphRecordPtr->title[1],
+					snprintf ((char*)&graphRecordPtr->title[1],
+										64,
 										"%sLine %d - Column %d Data Value",
 										tempString,
 										(int)lineStart,
@@ -2289,7 +2318,8 @@ void GetGraphTitle (
 										
 				else	// columnEnd > columnStart || lineEnd > lineStart)  
 					{
-					sprintf ((char*)&graphRecordPtr->title[1],
+					snprintf ((char*)&graphRecordPtr->title[1],
+										64,
 										"%sLines %d-%d, Columns %d-%d Data Values",
 										tempString,
 										(int)lineStart,
@@ -2297,7 +2327,8 @@ void GetGraphTitle (
 										(int)columnStart,
 										(int)columnEnd);
 										
-					sprintf ((char*)&graphRecordPtr->title2[1],
+					snprintf ((char*)&graphRecordPtr->title2[1],
+										32,
 										"(Average, +-Std Dev, Min-Max)");
 										
 					}	// end "else columnEnd > columnStart || ..." 
@@ -2323,7 +2354,7 @@ void GetGraphTitle (
 }	// end "GetGraphTitle" 
 
 
-
+#if defined multispec_mac || defined multispec_win
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
@@ -2400,7 +2431,7 @@ void GetGraphWindowLocation (
 	*ySizePtr = MIN (rect.bottom - 3 - gNextGraphicsWindowStart.v, *ySizePtr);
 
 }	// end "GetGraphWindowLocation" 
-
+#endif // defined multispec_mac || defined multispec_win
 
 
 //------------------------------------------------------------------------------------
@@ -2638,14 +2669,14 @@ void InvalidateGraphWindow (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 12/12/2002
-//	Revised By:			Larry L. Biehl			Date: 03/03/2017		
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 void ListBinWidthValue (
 				GraphPtr								graphRecordPtr,
 				Boolean								drawInWindowFlag)
 
 {	
-	Str63									tempString;
+	Str63									tempString_64;
 	
 	SInt32								error;
 	
@@ -2654,23 +2685,22 @@ void ListBinWidthValue (
 											textWidth,
 											top;
 											
-
 	#if defined multispec_win
 		USES_CONVERSION;
 	#endif
 											
 			// Draw the graph set control prompt text.
 	
-	numChars = sprintf ((CharPtr)tempString, "Bin width: ");
+	numChars = snprintf ((CharPtr)tempString_64, 64, "Bin width: ");
 	
-	FormatR ((CharPtr)&tempString[numChars], 
+	FormatR ((CharPtr)&tempString_64[numChars],
 					&graphRecordPtr->histogramBinWidth, 
 					graphRecordPtr->xESignificantDigits, 
 					graphRecordPtr->xFSignificantDigits,
 					false, 
 					&error);
-	numChars = (SInt16)strlen ((CharPtr)tempString);
-	textWidth = TextWidth ((UCharPtr)tempString, 0, numChars);
+	numChars = (SInt16)strlen ((CharPtr)tempString_64);
+	textWidth = TextWidth ((UCharPtr)tempString_64, 0, numChars);
 	/*									
 	valueFieldSize = FormatHistogramSummaryString (
 										(CharPtr)&tempString[numChars],
@@ -3692,15 +3722,32 @@ void MSetGraphWindowTitle (
 // Called By:			CreateGraphWindow
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2018
-//	Revised By:			Larry L. Biehl			Date: 03/16/2018
+//	Revised By:			Larry L. Biehl			Date: 12/29/2023
 
 void ReloadXAxis (
 				GraphPtr								graphRecordPtr,
 				int									xAxisSelection) 
 				
-{	
+{
+	UInt32								numberPoints;
+	
+	
 	UpdateSelectionGraphXAxisMinMax (graphRecordPtr);
    SetGraphMinMax (graphRecordPtr, kBothXYAxes);
+   
+			// Also check if type of graph needs to be changed
+		
+	if (graphRecordPtr->xVector.numberPoints <= 1)
+		{
+		if (graphRecordPtr->xAxisCode == kBandWidths ||
+				graphRecordPtr->xAxisCode == kReflectiveBandWidths ||
+						graphRecordPtr->xAxisCode == kThermalBandWidths)
+			graphRecordPtr->flag = NU_LINE_PLOT;
+			
+		else	// not band width plot
+			graphRecordPtr->flag = NU_SCATTER_PLOT;
+			
+		}	// end "if (graphRecordPtr->xVector.numberPoints <= 1)"
 	
 }	// end "ReloadXAxis"
 
@@ -3772,13 +3819,15 @@ void SetGraphWindowTitle (
 			if (charPtr == NULL ||
 						graphRecordPtr == NULL ||
 								(graphRecordPtr->drawGraphCode & 0x8000))
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"Graph Window %hd",
 							graphViewCPtr->GetGraphWindowNumber ());
 						
 			else	// charPtr != NULL && !(...->drawGraphCode & 0x8000)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"Graph Window: %s",
 							(char*)&charPtr[2]);
 							
@@ -3802,16 +3851,19 @@ void SetGraphWindowTitle (
 												
 		
 		if (processorCode == kListDataProcessor)
-			numberCharacters = sprintf ((char*)&gTextString[1], 
+			numberCharacters = snprintf ((char*)&gTextString[1],
+													255,
 													"List Data Graph (");
 
 		else if (processorCode == kBiPlotDataProcessor)
-			numberCharacters = sprintf ((char*)&gTextString[1], 
+			numberCharacters = snprintf ((char*)&gTextString[1],
+													255,
 													"Biplot Graph %hd (",
 													gNumberOfGWindows);
 
 		else	// processorCode == kHistogramStatsProcessor
-			numberCharacters = sprintf ((char*)&gTextString[1], 
+			numberCharacters = snprintf ((char*)&gTextString[1],
+													255,
 													"Histogram Graph %hd (",
 													gNumberOfGWindows);
 						
@@ -4006,10 +4058,14 @@ void SetGraphMinMax (
 						
 					else if (graphRecordPtr->flag & NU_SCATTER_PLOT)	
 						{
-						FindMaxMinV (&graphRecordPtr->xDataMax, 
-											&graphRecordPtr->xDataMin, 
-											&graphRecordPtr->xVector, 
-											&error);
+								// The min and max have been determined for non-channel
+								// type graphs
+								
+						if (graphRecordPtr->xAxisCode == 1)
+							FindMaxMinV (&graphRecordPtr->xDataMax,
+												&graphRecordPtr->xDataMin,
+												&graphRecordPtr->xVector,
+												&error);
 					
 						min = graphRecordPtr->xDataMin;
 						max = graphRecordPtr->xDataMax;
@@ -4401,12 +4457,14 @@ void SetStatHistogramGraphTitle2 (
 					// Create title line 2.															
 					
 			if (graphRecordPtr->setCode == 1)
-				sprintf ((char*)&graphRecordPtr->title2[1], 
+				snprintf ((char*)&graphRecordPtr->title2[1],
+								32,
 								"Channel %hd",
 								setValue);
 							
 			else	// graphRecordPtr->setCode == 2 
-				sprintf ((char*)&graphRecordPtr->title2[1], 
+				snprintf ((char*)&graphRecordPtr->title2[1],
+								32,
 								"Feature %hd",
 								setValue);
 								
@@ -4812,15 +4870,15 @@ void SetUpVectorPopUpMenu (
 // Called By:
 //
 //	Coded By:			Larry L. Biehl			Date: 03/02/2018
-//	Revised By:			Larry L. Biehl			Date: 08/29/2020
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 SInt16 SetUpXAxisPopUpMenu (
 				GraphPtr								graphRecordPtr,
 				MenuHandle							popUpMenuHandle)
 
 {
-	char									xAxisLabel [256],
-											wavelengthUnits[16];
+	char									xAxisLabel_256 [256],
+											wavelengthUnits_16[16];
 	
 	int									length,
 											newSelection = kChannels;
@@ -4860,14 +4918,15 @@ SInt16 SetUpXAxisPopUpMenu (
 		
 					// Get the units string
 		
-			sprintf (wavelengthUnits, "um)");
+			snprintf (wavelengthUnits_16, 16, "um)");
 			if (graphRecordPtr->channelDescriptionUnitString[0] != 0)
 				{
-				length = snprintf (wavelengthUnits,
+				length = snprintf (wavelengthUnits_16,
 										14,
 										"%s",
 										graphRecordPtr->channelDescriptionUnitString);
-				length = sprintf (&wavelengthUnits[length],
+				length = snprintf (&wavelengthUnits_16[length],
+										16-length,
 										")");
 			
 				}	// end "if (fgraphRecordPtr->channelDescriptionUnitString[0] != 0)"
@@ -4898,10 +4957,10 @@ SInt16 SetUpXAxisPopUpMenu (
 						// An AppendMenu and then SetMenuItemText is used so that no
 						// characters will be interpreted as "metacharacters" by AppendMenu.
 				
-				length = sprintf (&xAxisLabel[1], "Wavelength (%s", wavelengthUnits);
-				xAxisLabel[0] = length;
+				length = snprintf (&xAxisLabel_256[1], 255, "Wavelength (%s", wavelengthUnits_16);
+				xAxisLabel_256[0] = length;
          
-				MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+				MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
    
             #if defined multispec_wx
 					xLabelComboBoxPtr->SetClientData (index, (void*)kWavelengths);
@@ -4918,13 +4977,14 @@ SInt16 SetUpXAxisPopUpMenu (
 				if (descriptionCode & kBandWidthInfoExists ||
 						(descriptionCode & kReflectiveData && descriptionCode & kThermalData))
 					{
-					length = sprintf (&xAxisLabel[1],
+					length = snprintf (&xAxisLabel_256[1],
+												255,
 												"Wavelength-bandwidths (%s",
-												wavelengthUnits);
-					xAxisLabel[0] = length;
+												wavelengthUnits_16);
+					xAxisLabel_256[0] = length;
 					if (useDisabledMenuItemFlag || (descriptionCode & kBandWidthInfoExists))
 						{
-						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
       
 						#if defined multispec_wx
 							xLabelComboBoxPtr->SetClientData (index, (void*)kBandWidths);
@@ -4952,12 +5012,13 @@ SInt16 SetUpXAxisPopUpMenu (
 								// Both Reflective and Thermal data exists, allow the ability
 								// for the user to select one or the other.
 						
-						length = sprintf (&xAxisLabel[1],
+						length = snprintf (&xAxisLabel_256[1],
+												255,
 												"Wavelength-reflective (%s",
-												wavelengthUnits);
-						xAxisLabel[0] = length;
+												wavelengthUnits_16);
+						xAxisLabel_256[0] = length;
              
-						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
          
                   #if defined multispec_wx
 							xLabelComboBoxPtr->SetClientData (
@@ -4971,15 +5032,16 @@ SInt16 SetUpXAxisPopUpMenu (
 						if (xAxisCode == kReflectiveWavelengths)
 							newSelection = kReflectiveWavelengths;
 						
-						length = sprintf (&xAxisLabel[1],
+						length = snprintf (&xAxisLabel_256[1],
+												255,
 												"Wavelength-reflective bandwidths (%s",
-												wavelengthUnits);
-						xAxisLabel[0] = length;
+												wavelengthUnits_16);
+						xAxisLabel_256[0] = length;
 						
 						if (useDisabledMenuItemFlag ||
 														(descriptionCode & kBandWidthInfoExists))
 							{
-							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+							MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
                  
                      #if defined multispec_wx
 								xLabelComboBoxPtr->SetClientData (
@@ -5004,12 +5066,13 @@ SInt16 SetUpXAxisPopUpMenu (
 								DisableMenuItem (popUpMenuHandle, kReflectiveBandWidths-1);
 						#endif
 										
-						length = sprintf (&xAxisLabel[1],
+						length = snprintf (&xAxisLabel_256[1],
+												255,
 												"Wavelength-thermal (%s",
-												wavelengthUnits);
-						xAxisLabel[0] = length;
+												wavelengthUnits_16);
+						xAxisLabel_256[0] = length;
                 
-						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+						MAppendMenuItemText ((MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
         
                   #if defined multispec_wx
 							xLabelComboBoxPtr->SetClientData (
@@ -5023,16 +5086,17 @@ SInt16 SetUpXAxisPopUpMenu (
 						if (xAxisCode == kThermalWavelengths)
 							newSelection = kThermalWavelengths;
 						
-						length = sprintf (&xAxisLabel[1],
+						length = snprintf (&xAxisLabel_256[1],
+												255,
 												"Wavelength-thermal bandwidths (%s",
-												wavelengthUnits);
-						xAxisLabel[0] = length;
+												wavelengthUnits_16);
+						xAxisLabel_256[0] = length;
 
 						if (useDisabledMenuItemFlag ||
 															(descriptionCode & kBandWidthInfoExists))
 							{
 							MAppendMenuItemText (
-													(MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel);
+													(MenuRef)popUpMenuHandle, (UInt8*)xAxisLabel_256);
                 
                      #if defined multispec_wx
 								xLabelComboBoxPtr->SetClientData (
@@ -5503,7 +5567,7 @@ void SetYGraphScale (
 				GraphPtr								graphRecordPtr)
 
 {
-	char									number[64];
+	char									number_64[64];
 	
 	double								interval,
 											realAdditional;
@@ -5540,7 +5604,7 @@ void SetYGraphScale (
 			
 		integerInterval = (UInt32)(interval + 0.5);
 	
-		numberDigits = sprintf (number, "%u", (unsigned int)integerInterval) - 2;
+		numberDigits = snprintf (number_64, 64, "%u", (unsigned int)integerInterval) - 2;
 		if (numberDigits >= 1)
 			{
 			additional = (UInt32)pow ((double)10,(double)numberDigits);
@@ -5669,22 +5733,22 @@ void SetYGraphScale (
 			
 				// Get length of max y tic label string.
 				
-		FormatR (number, 
+		FormatR (number_64,
 						&graphRecordPtr->yScaleMin,
 						graphRecordPtr->yESignificantDigits, 
 						graphRecordPtr->yFSignificantDigits,
 						false, 
 						&error);
-		ticLabelWidth = TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+		ticLabelWidth = TextWidth ((UCharPtr)number_64, 0, (SInt16)strlen (number_64));
 				
-		FormatR (number, 
+		FormatR (number_64,
 						&graphRecordPtr->yScaleMax,
 						graphRecordPtr->yESignificantDigits, 
 						graphRecordPtr->yFSignificantDigits,
 						false, 
 						&error);
 		graphRecordPtr->yTicLabelWidth = 
-									TextWidth ((UCharPtr)number, 0, (SInt16)strlen (number));
+									TextWidth ((UCharPtr)number_64, 0, (SInt16)strlen (number_64));
 		graphRecordPtr->yTicLabelWidth = (SInt16)
 											MAX (graphRecordPtr->yTicLabelWidth, ticLabelWidth);
 		

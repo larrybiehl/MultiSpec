@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			11/21/2019
+//	Revision date:			04/04/2023
 //
 //	Language:				C++
 //
@@ -341,7 +341,7 @@ class CMDialog : public wxDialog
 													*m_paletteCtrl,
 													*m_weightsCtrl;
 		#endif
-		#if defined multispec_wxmac
+		#if defined multispec_wxmac || defined multispec_wxwin
 			wxChoice								*m_channelsCtrl,
 													*m_channelsPossibleCtrl,
 													*m_classesCtrl,

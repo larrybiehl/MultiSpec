@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/16/2020
+//	Revision date:			02/14/2025
 //
 //	Language:				C
 //
@@ -616,7 +616,7 @@ UInt16 GetLengthOfMaxSum (
 	maxValue *= projectWindowInfoPtr->maxNumberLines *
 															projectWindowInfoPtr->maxNumberColumns;
 	
-	sprintf ((char*)gTextString, "%.0f", maxValue);
+	snprintf ((char*)gTextString, 256, "%.0f", maxValue);
 	stringLength = (UInt16)strlen ((char*)gTextString);
 	
 	return (stringLength);
@@ -672,7 +672,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 	maxValue *= projectWindowInfoPtr->maxNumberLines *
 														projectWindowInfoPtr->maxNumberColumns;
 	
-	sprintf ((char*)gTextString, "%.0f", maxValue);
+	snprintf ((char*)gTextString, 256, "%.0f", maxValue);
 	stringLength = (UInt16)strlen ((char*)gTextString);
 	
 	return (stringLength);
@@ -698,7 +698,7 @@ UInt16 GetLengthOfMaxSumOfSquares (
 // Called By:			OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1988
-//	Revised By:			Larry L. Biehl			Date: 09/01/2017	
+//	Revised By:			Larry L. Biehl			Date: 02/14/2025
 
 Boolean GetProjectFile (
 				LocalAppFile*						localAppFilePtr)
@@ -736,12 +736,14 @@ Boolean GetProjectFile (
 		
 		do
 			{
-			errCode = GetFile (projectFileStreamPtr, 
-										numberFileTypes, 
+			errCode = GetFile (projectFileStreamPtr,
+										NULL,
+										numberFileTypes,
 										gListTypes, 
 										localAppFilePtr, 
 										NULL,
-										NULL, 
+										NULL,
+										NULL,
 										IDS_SelectProject); // kFileIOStr8);
 			continueFlag = (errCode == noErr) & FileExists (projectFileStreamPtr);
 			
@@ -1946,7 +1948,7 @@ SInt16 ReadModifiedStats (
 // Called By:			OpenProjectFile in SProject.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/21/1988
-//	Revised By:			Larry L. Biehl			Date: 06/04/2019
+//	Revised By:			Larry L. Biehl			Date: 02/17/2025
 
 SInt16 ReadProjectFile (void)
 
@@ -1988,7 +1990,6 @@ SInt16 ReadProjectFile (void)
 											intTemp,
 											intTemp2,
 											fieldCount,
-											fieldStatsLoadedCode,
 											formatArchitectureCode,
 											newPreviousField,
 											point,
@@ -2730,9 +2731,7 @@ SInt16 ReadProjectFile (void)
 					}	// end "if (TickCount () >= nextTime)" 
 		
 				LoadDItemValue (gStatusDialogPtr, IDC_Status4, (SInt32)fieldCount);  
-				fieldCount++; 
-					
-				fieldStatsLoadedCode = 0;
+				fieldCount++;
 				
 						// Make certain that memory was allocated for this field.	
 				
@@ -3153,7 +3152,7 @@ SInt16 ReadProjectFile (void)
 			GetSpecifiedMaskFile (kTestMaskSet,
 											(UCharPtr)&testMaskFileName,
 											&gProjectInfoPtr->testMask,
-											TRUE); 
+											TRUE);
 		
 				// Make certain that the total number of points is correct.			
 		
@@ -3393,7 +3392,7 @@ SInt16 ReadStatistics (
 																		numberStatisticsChannels, 
 																		binaryListingCode+1);
 					
-					}	// end "if (!(fieldStatsLoadedCode & 0x0002))" 
+					}	// end "if (!(statsLoadedCode & 0x0002))" 
 					
 				*meansCovFlagPtr = TRUE;
 				UpdateGraphicStatusBox (boxRightPtr, boxIncrement);
@@ -4602,7 +4601,8 @@ Boolean WriteChannelInformation (
 					// If type is 1, write channel means.	
 			for (channel=0; channel<numberStatisticsChannels; channel++)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"\t%.9g",
 							chanStatsPtr->mean);
 					
@@ -4621,7 +4621,8 @@ Boolean WriteChannelInformation (
 					// If type is 2, write channel sums.
 			for (channel=0; channel<numberStatisticsChannels; channel++)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"\t%.0f",
 							chanStatsPtr->sum);
 					
@@ -4640,7 +4641,8 @@ Boolean WriteChannelInformation (
 					// If type is 3, write channel minimums.	
 			for (channel=0; channel<numberStatisticsChannels; channel++)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"\t%.0f",
 							chanStatsPtr->minimum);
 					
@@ -4659,7 +4661,8 @@ Boolean WriteChannelInformation (
 					// If type is 4, write channel maximums.
 			for (channel=0; channel<numberStatisticsChannels; channel++)
 				{
-				sprintf ((char*)gTextString, 
+				snprintf ((char*)gTextString,
+							256,
 							"\t%.0f",
 							chanStatsPtr->maximum);
 					
@@ -4841,7 +4844,8 @@ Boolean WriteCovarianceInformation (
 								(lChannelStatsPtr2->mean * lChannelStatsPtr2->sum)) /
 																				numberPixelsLessOne;
 																					
-						sprintf ((char*)gTextString, 
+						snprintf ((char*)gTextString,
+									256,
 									"\t%.9g",
 									covariance);
 							
@@ -4868,7 +4872,8 @@ Boolean WriteCovarianceInformation (
 								(*matrixStatsPtr - (channelMean * lChannelStatsPtr2->sum)) /
 																						numberPixelsLessOne;
 																					
-						sprintf ((char*)gTextString, 
+						snprintf ((char*)gTextString,
+									256,
 									"\t%.9g",
 									covariance);
 							
@@ -4913,7 +4918,8 @@ Boolean WriteCovarianceInformation (
 					
 				for (covChan=0; covChan<=channel; covChan++)
 					{															
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"\t%.0f",
 								*matrixStatsPtr);
 						
@@ -5409,7 +5415,8 @@ SInt16 WriteProjectFile (
 		{
 				// Write project file format version.										
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					//"PROJECT FORMAT VERSION 990107 %ld%s",
 					//"PROJECT FORMAT VERSION 20060124 %ld%s",
 					//"PROJECT FORMAT VERSION 20110722 %ld%s",
@@ -5432,13 +5439,14 @@ SInt16 WriteProjectFile (
 				(FileStringPtr)GetFileNamePPointerFromFileStream (projectFileStreamPtr);
 
 		//UInt16 stringLength = strlen ((char*)projectFileNamePtr);
-		UInt16 stringLength = projectFileNamePtr[0];
+		UInt16 stringLength = GetFileStringLength(projectFileNamePtr);
 		stringLength = MIN (stringLength, 254);
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"P1 PROJECT NAME\t%hd\t%s",
 						stringLength,
-						&projectFileNamePtr[1]);
+						&projectFileNamePtr[2]);
 					
 		continueFlag = OutputString (projectFileStreamPtr,
 												(char*)gTextString, 
@@ -5453,7 +5461,8 @@ SInt16 WriteProjectFile (
 		returnCode = MIN (gProjectInfoPtr->imageFileName[0], 253);
 		gProjectInfoPtr->imageFileName[returnCode+1] = kNullTerminator;
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+					256,
 					"\t%hd\t%s%s",
 					(short int)gProjectInfoPtr->imageFileName[0],
 					&gProjectInfoPtr->imageFileName[1],
@@ -5468,7 +5477,8 @@ SInt16 WriteProjectFile (
 		
 				// Write "P2" record.															
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+				256,
 				#if defined multispec_mac || defined multispec_win || defined multispec_mac_swift
 					"P2\t%ld\t%ld\t%hd\t%hd\t%ld\t%ld\t%hd\t%d\t%hd\t%ld\t%ld\t%ld\t%ld"
 					"\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%hd\t%d\t%hd\t%d\t%d\t%d\t%hd\t%hd\t%hd\t%hd%s",
@@ -5526,7 +5536,8 @@ SInt16 WriteProjectFile (
 				channel<gProjectInfoPtr->numberStatisticsChannels; 
 					channel++)
 			{
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"\t%d",
 						(int)(gProjectInfoPtr->channelsPtr[channel]+1));
 					
@@ -5538,7 +5549,8 @@ SInt16 WriteProjectFile (
 			
 			}	// end "for (channel=0; channel<gProjectInfoPtr->..." 															
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"%s",
 						gEndOfLine);
 				
@@ -5558,7 +5570,8 @@ SInt16 WriteProjectFile (
 																	&gProjectInfoPtr->trainingMask,
 																	&maskFileStreamHandleStatus);
 			
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"P4 TRAINING MASK NAME\t%hd\t%s\t%u%s",
 						(SInt16)GetFileStringLength (maskFileNamePPointer),
 						&maskFileNamePPointer[2],
@@ -5585,7 +5598,8 @@ SInt16 WriteProjectFile (
 			maskFileNamePPointer = GetMaskFileNamePPointer (&gProjectInfoPtr->testMask,
 																			&maskFileStreamHandleStatus);
 			
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+						256,
 						"P5 TEST MASK NAME\t%hd\t%s\t%u%s",
 						(SInt16)GetFileStringLength (maskFileNamePPointer),
 						&maskFileNamePPointer[2],
@@ -5612,7 +5626,8 @@ SInt16 WriteProjectFile (
 		if (projectWindowInfoPtr->numberBytes >= 4)
 			binaryListingCode = 10;													
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"Training Statistics%s",
 						gEndOfLine);
 				
@@ -5680,7 +5695,8 @@ SInt16 WriteProjectFile (
 									classNamesPtr[classStorage].numberStatisticsPixels <= 0)
 				modifiedStatsFlag = FALSE;
 							
-			sprintf ((char*)gTextString, 
+			snprintf ((char*)gTextString,
+							256,
 							"C1\t%d\t%s\t%hd\t%hd\t%hd\t%lld\t%hd\t%d\t%f\t%f\t%f\t%f"
 									"\t%hd%s",
 							(int)classNamesPtr[classStorage].name[0],
@@ -5800,7 +5816,8 @@ SInt16 WriteProjectFile (
 								(char*)fieldIdentPtr[field].name, 
 								&strLength);
 							
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"F1\t%d\t%s\t%hd\t%d\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
 								(int)fieldIdentPtr[field].name[0],
 								gTextString2,
@@ -5851,7 +5868,8 @@ SInt16 WriteProjectFile (
 							point<fieldIdentPtr[field].numberOfPolygonPoints;
 								point++)
 						{
-						sprintf ((char*)gTextString, 
+						snprintf ((char*)gTextString,
+									256,
 									"V1\t%u\t%u%s",
 									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].line,
 									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].col,
@@ -5885,7 +5903,8 @@ SInt16 WriteProjectFile (
 					
 			}	// end "for (classIndex=1; ..." 															
 				
-		sprintf ((char*)gTextString,
+		snprintf ((char*)gTextString,
+						256,
 						"Test Fields%s",
 						gEndOfLine);
 				
@@ -5919,7 +5938,8 @@ SInt16 WriteProjectFile (
 							(char*)fieldIdentPtr[field].name,
 							&strLength);
 							
-					sprintf ((char*)gTextString, 
+					snprintf ((char*)gTextString,
+								256,
 								"F1\t%d\t%s\t%hd\t%d\t%hd\t%hd\t%lld\t%hd\t%hd\t%hd\t%lld%s",
 								(int)(fieldIdentPtr[field].name[0]),
 								gTextString2,
@@ -5951,7 +5971,8 @@ SInt16 WriteProjectFile (
 							point<fieldIdentPtr[field].numberOfPolygonPoints;
 								point++)
 						{
-						sprintf ((char*)gTextString, 
+						snprintf ((char*)gTextString,
+									256,
 									"V1\t%u\t%u%s",
 									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].line,
 									(unsigned int)gProjectInfoPtr->fieldPointsPtr[index].col,

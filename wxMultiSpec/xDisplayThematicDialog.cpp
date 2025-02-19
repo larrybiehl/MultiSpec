@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			01/09/2020
+//	Revision date:			02/17/2025
 //
 //	Language:				C++
 //
@@ -30,7 +30,8 @@
 //
 // Following is template for debugging
 /*
-		int numberChars = sprintf ((char*)gTextString3,
+		int numberChars = snprintf ((char*)gTextString3,
+									256,
 									 " xDisplayThematicDialog:: (): %s",
 									 gEndOfLine);
 		ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -61,7 +62,7 @@ BEGIN_EVENT_TABLE (CMDisplayThematicDlg, CMDialog)
 		EVT_COMBOBOX (IDC_ClassesGroupsCombo, CMDisplayThematicDlg::OnClassesGroupsComboSelendok)
 		EVT_COMBOBOX (IDC_PaletteCombo, CMDisplayThematicDlg::OnPaletteComboSelendok)
 	#endif
-	#if defined multispec_wxmac
+	#if defined multispec_wxmac || defined multispec_wxwin
 		EVT_CHOICE (IDC_ClassesGroupsCombo, CMDisplayThematicDlg::OnClassesGroupsComboSelendok)
 		EVT_CHOICE (IDC_PaletteCombo, CMDisplayThematicDlg::OnPaletteComboSelendok)
 	#endif
@@ -152,6 +153,7 @@ CMDisplayThematicDlg::CMDisplayThematicDlg (
 		}	// end "if (m_initializedFlag)"                   
 
 	Centre ();
+	Layout ();
 
 }	// end "CMDisplayThematicDlg" 
 
@@ -236,7 +238,8 @@ void CMDisplayThematicDlg::CreateControls ()
 												IDC_Magnification,
 												wxT("1"),
 												wxDefaultPosition,
-												wxDefaultSize,
+												//wxDefaultSize,
+												wxSize(100, -1),
 												0);
    SetUpToolTip (m_textCtrl14, IDS_ToolTip33);
 	m_textCtrl14->SetValidator (_val);
@@ -366,10 +369,14 @@ void CMDisplayThematicDlg::CreateControls ()
 															wxDefaultSize,
 															0);
    SetUpToolTip (checkBox17, IDS_ToolTip31);
-	sbSizer9->Add (checkBox17, 0, wxALL, 5);
+	//sbSizer9->Add (checkBox17, 0, wxALL, 5);
+	sbSizer9->Add (checkBox17,
+						wxSizerFlags(0).ReserveSpaceEvenIfHidden().Border(wxALL, 5));
 
+	//bSizer21->Add (sbSizer9,
+	//					wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
 	bSizer21->Add (sbSizer9,
-						wxSizerFlags(0).Expand().Border(wxTOP|wxRIGHT|wxBOTTOM, 5));
+						wxSizerFlags(0).Border(wxALL, 5));
 	
 			// Second column
 	
@@ -433,6 +440,7 @@ void CMDisplayThematicDlg::CreateControls ()
 	CreateStandardButtons (bSizer18);
 
 	SetSizerAndFit (bSizer18);
+	Layout ();
 	
 }	// end "CreateControls"
 
@@ -749,6 +757,11 @@ void CMDisplayThematicDlg::OnInitDialog (
 		PositionDialogWindow ();
 
 	SelectDialogItemText (this, IDC_LineStart, 0, SInt16_MAX);
+		
+			// This is included because some dialog items may have been hidden/shown.
+			// Need to allow for having to redo the lay out of the dialog.
+			
+	Layout ();
 
 }	// end "OnInitDialog"
 
@@ -891,7 +904,9 @@ bool CMDisplayThematicDlg::TransferDataFromWindow ()
 								kAlertStrID,
 								IDS_Alert152,
 								0,
-								NULL);
+								NULL,
+								this,
+								kASCIICharString);
 			
 			returnCode = IDC_Magnification;
 			

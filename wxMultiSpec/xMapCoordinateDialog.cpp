@@ -19,7 +19,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			04/07/2020
+//	Revision date:			03/25/2023
 //
 //	Language:				C++
 //
@@ -372,7 +372,7 @@ void CMMapCoordinateDlg::CreateControls ()
 												IDC_EPSGCode,
 												wxEmptyString,
 												wxDefaultPosition,
-												wxDefaultSize,
+												wxSize(120, -1),
 												0);
    m_textCtrl181->SetValidator (wxTextValidator (wxFILTER_DIGITS, &m_stringCheck));
 	m_textCtrl181->SetWindowStyle (wxTE_RIGHT);

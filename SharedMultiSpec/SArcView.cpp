@@ -18,7 +18,7 @@
 //
 //	Authors:             Larry L. Biehl
 //
-//	Revision date:       04/11/2020
+//	Revision date:       01/13/2024
 //
 //	Language:            C
 //
@@ -29,7 +29,8 @@
 //                      .bip, and shape files.
 //
 /* Template for debugging
-      int numberChars = sprintf ((char*)gTextString3,
+      int numberChars = snprintf ((char*)gTextString3,
+											256,
                                   " SArcView:xxx (entered routine. %s",
                                   gEndOfLine)
       ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -848,8 +849,6 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 	
 	UInt32								index;
 	
-	SInt16								conversionCode;
-	
 	Boolean								convertedFlag,
 											mapInfoSameFlag,
 											mapUnitsFlag,
@@ -868,7 +867,6 @@ Boolean CheckIfVectorOverlaysIntersectImage (
 																					return (FALSE);
 	
 	vectorOverlayIntersectsFlag = FALSE;
-	conversionCode = 0;
 	mapUnitsFlag = TRUE;		
 		
 	shapeHandlePtr = (Handle*)GetHandlePointer (gShapeFilesHandle, kLock);
@@ -1615,7 +1613,7 @@ Boolean ConvertLatLongRectToMapRect (
 // Called By:			CreateThematicSupportFile in SFileIO.cpp
 //							
 //	Coded By:			Larry L. Biehl			Date: 05/15/2011
-//	Revised By:			Larry L. Biehl			Date: 05/16/2018
+//	Revised By:			Larry L. Biehl			Date: 01/03/2024
 
 Boolean CreateCLRSupportFile (
 				CMFileStream*						trailerStreamPtr, 
@@ -1641,7 +1639,8 @@ Boolean CreateCLRSupportFile (
 									
 	SInt32								classNumber;
 	
-	UInt32								count,
+	UInt32								bufferLeftBytes,
+											count,
 											numberBytes;
 	
 	SInt16								classValue,
@@ -1672,7 +1671,7 @@ Boolean CreateCLRSupportFile (
 			// though we are limited to colors for only 256 classes, we can
 			// have class names for up to 'gClassListLimit' classes.			
 			
-	numberBytes = (numberSupportFileClasses+1) * 256;
+	bufferLeftBytes = numberBytes = (numberSupportFileClasses+1) * 256;
 	ioBufferPtr = (HFileIOBufferPtr)MNewPointer (numberBytes);
 	continueFlag = (ioBufferPtr != NULL);
 			
@@ -1712,8 +1711,9 @@ Boolean CreateCLRSupportFile (
 													groupName, localGroupNamePtr[0]);
 							groupName[(int)localGroupNamePtr[0]] = 0;
 							
-							stringLength = sprintf (
+							stringLength = snprintf (
 												(char*)ioTempBufferPtr,
+												bufferLeftBytes,
 												"%d %3d %3d %3d n:%s~ g:%d %3d %3d %3d %s~%s",
 												classValue,
 												classColorTablePtr->red,
@@ -1730,7 +1730,8 @@ Boolean CreateCLRSupportFile (
 							}	// end "if (listAllGroupInfoPtr[classNumber])"
 						
 						else	// !listAllGroupInfoPtr[classNumber]
-							stringLength = sprintf ((char*)ioTempBufferPtr, 
+							stringLength = snprintf ((char*)ioTempBufferPtr,
+															bufferLeftBytes,
 															"%d %3d %3d %3d n:%s~ g:%d%s",
 															classValue,
 															classColorTablePtr->red,
@@ -1745,7 +1746,8 @@ Boolean CreateCLRSupportFile (
 					}	// end "if (numberGroups > 0)"
 					
 				if (groupNumber < 0)
-					stringLength = sprintf ((char*)ioTempBufferPtr, 
+					stringLength = snprintf ((char*)ioTempBufferPtr,
+													bufferLeftBytes,
 													"%d %3d %3d %3d n:%s~%s",
 													classValue,
 													classColorTablePtr->red,
@@ -1758,6 +1760,7 @@ Boolean CreateCLRSupportFile (
 					classSymbolIndex++;	
 									
 				ioTempBufferPtr += stringLength;
+				bufferLeftBytes -= stringLength;
 																						
 				}	// end "if (classSymbolPtr == NULL || classNumber == ..."
 			
@@ -2095,7 +2098,7 @@ void DoShowOverlaySelection (
 // Called By:			CopyOffScreenImage in xUtilities.cpp and WUtilities.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 12/29/2000
-//	Revised By:			Larry L. Biehl			Date: 02/28/2020
+//	Revised By:			Larry L. Biehl			Date: 01/13/2024
 
 void DrawArcViewShapes (
 				WindowPtr							windowPtr,
@@ -2262,13 +2265,21 @@ void DrawArcViewShapes (
 		#endif	// defined multispec_mac
       
 		#if defined multispec_wx
-					// Initialize pen to white 
-         GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
-			//inputBoundingRectPtr = &gViewRect;
+					// Initialize pen to white
+			if (windowCode == kToImageWindow)
+				GetWindowClipRectangle (windowPtr, kImageArea, &gViewRect);
+			else // windowCode == kToClipboardWindow)
+				GetSelectedOffscreenRectangle (windowInfoPtr,
+                                             &gViewRect,
+                                             FALSE,
+                                             TRUE);
+         
 			overlayPenPtr = new wxPen (*wxWHITE);
 				
 			gCDCPointer->GetUserScale (&xScale, &yScale);
-			gCDCPointer->SetUserScale (1, 1);
+			
+			if (windowCode != kToPrintWindow)
+				gCDCPointer->SetUserScale (1, 1);
 		#endif
 											
 				// Set some parameters for converting from map units to window units.
@@ -2315,7 +2326,53 @@ void DrawArcViewShapes (
 					ClipRect (&clipRect);
 			#endif	// defined multispec_win || defined multispec_wx
 			
-			}	// end "if (gSideBySideChannels > 1)"     
+			}	// end "if (gSideBySideChannels > 1)"
+         
+      #if defined multispec_wx
+         if (windowCode == kToClipboardWindow)
+            {
+            if (windowInfoPtr->legendWidth > 0)
+               {
+                     // Get the clip area of the image being written into
+                     // the clipboard. Do not include the legend or any area
+                     // below the image which allows for the legend being
+                     // taller than the image
+                  
+               wxSize bitmapSize = gCDCPointer->GetSize ();
+               clipRect.left = windowInfoPtr->legendWidth;
+               clipRect.right = bitmapSize.GetWidth();
+               clipRect.top = 0;
+               clipRect.bottom = bitmapSize.GetHeight();
+                  
+                     // Allow for the legend being taller than image.
+                  
+               gViewRect.bottom -= gViewRect.top;
+               gViewRect.bottom *= mapToWindowUnitsVariables.magnification;
+               clipRect.bottom = MIN (clipRect.bottom, gViewRect.bottom);
+                  
+               ClipRect (&clipRect);
+            
+               }  // if (windowInfoPtr->legendWidth > 0)
+				
+            }  // if (windowCode == kToClipboardWindow || ...
+            
+			if (windowCode == kToPrintWindow)
+				{
+				wxPoint deviceOrigin  = gCDCPointer->GetDeviceOrigin ();
+				double pageScaling = windowPtr->m_printerPaperScaling;
+				pageScaling *= mapToWindowUnitsVariables.magnification;
+				clipRect.left = deviceOrigin.x + windowPtr->m_printerPaperScaling * windowInfoPtr->legendWidth;
+				clipRect.right = clipRect.left +  pageScaling * (gViewRect.right - gViewRect.left);
+				clipRect.top = deviceOrigin.y;
+				clipRect.bottom = clipRect.top + pageScaling * (gViewRect.bottom - gViewRect.top);
+				
+				gCDCPointer->SetUserScale (xScale/mapToWindowUnitsVariables.magnification,
+													yScale/mapToWindowUnitsVariables.magnification);
+				//clipRect = gViewRect;
+				ClipRect (&clipRect);
+				
+				}	// end "if (windowCode == kToPrintWindow)"
+      #endif   // defined multispec_wx
 
 		//SInt16 countPolygons = 0;
 		
@@ -3285,7 +3342,8 @@ void ListNonIntersectionMessage (
 		{
 		boundingMapRectangle = windowInfoPtr->boundingMapRectangle;
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"%s  Bounding map rectangle for image is:%s", 
 						gEndOfLine,
 						gEndOfLine);
@@ -3296,7 +3354,8 @@ void ListNonIntersectionMessage (
 												gOutputForce1Code, 
 												continueFlag);
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"    x: %f - %f%s", 
 						boundingMapRectangle.left,
 						boundingMapRectangle.right, 
@@ -3308,7 +3367,8 @@ void ListNonIntersectionMessage (
 												gOutputForce1Code, 
 												continueFlag);
 		
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"    y: %f - %f%s", 
 						boundingMapRectangle.top,
 						boundingMapRectangle.bottom, 
@@ -3320,7 +3380,8 @@ void ListNonIntersectionMessage (
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"%s  Bounding map rectangle for shape file is:%s", 
 						gEndOfLine,
 						gEndOfLine);
@@ -3331,7 +3392,8 @@ void ListNonIntersectionMessage (
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"    x: %f - %f%s", 
 						boundingOverlayRectanglePtr->left,
 						boundingOverlayRectanglePtr->right, 
@@ -3343,7 +3405,8 @@ void ListNonIntersectionMessage (
 												gOutputForce1Code, 
 												continueFlag);
 												
-		sprintf ((char*)gTextString, 
+		snprintf ((char*)gTextString,
+						256,
 						"    y: %f - %f%s", 
 						boundingOverlayRectanglePtr->top,
 						boundingOverlayRectanglePtr->bottom, 
@@ -3798,7 +3861,7 @@ void OverlayDialogOK (
 //							LoadThematicClasses in SSaveWrite.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/10/2011
-//	Revised By:			Larry L. Biehl			Date: 02/28/2018
+//	Revised By:			Larry L. Biehl			Date: 03/31/2023
 
 Boolean ReadArcViewClassNames (
 				FileInfoPtr							fileInfoPtr, 
@@ -3926,8 +3989,9 @@ Boolean ReadArcViewClassNames (
 					// This check is included to catch problem files which may cause
 					// an infinite loop.
 				
-				int numberChars = sprintf (
+				int numberChars = snprintf (
 								(char*)gTextString3,
+								256,
 								" There is a problem reading the .clr file; default class names will be used.%s",
 								gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -4102,6 +4166,12 @@ Boolean ReadArcViewClassNames (
 		returnFlag = TRUE;
 		fileInfoPtr->ancillaryInfoformat = kArcViewDefaultSupportType;
 		
+				// The whileLoopCount indicates how many class name and colors are in the .clr file
+				// Use this for the original number of classes. The numberClasses value may have
+				// been collapsed to just those in the file.
+				
+		fileInfoPtr->origNumberClasses = whileLoopCount - 1;
+		
 		}	// end "if (errCode == noErr)"  
 		
 	if (checkIOErrorFlag)
@@ -4149,8 +4219,8 @@ Boolean ReadArcViewColorPalette (
 	
 	HParamBlockRec						paramBlock;
 	
-	SInt16								*classToGroupPtr,
-											*groupToPalettePtr;
+	//SInt16								*classToGroupPtr,
+	//										*groupToPalettePtr;
 											
 	UInt16								*vectorBluePtr,
 											*vectorGreenPtr,
@@ -4200,7 +4270,7 @@ Boolean ReadArcViewColorPalette (
 	vectorRedPtr = &vectorBluePtr[2*maxNumberClrTableClasses];
 		
 	classCodeFlag = (displaySpecsPtr->classGroupCode == kClassDisplay);
-	
+	/*
 		// Get the class to group pointer if needed.							
 	
 	if (!classCodeFlag)
@@ -4209,7 +4279,7 @@ Boolean ReadArcViewColorPalette (
 		groupToPalettePtr = GetGroupToPalettePointer (imageFileInfoPtr);
 			
 		}	// end "if (!classCodeFlag)" 
-	
+	*/
 			// If the file is not open, then open a path to the file that			
 			// contains the palette. The OpenFileReadOnly routine will
 			// check if the file is already opened.														
@@ -4256,8 +4326,9 @@ Boolean ReadArcViewColorPalette (
 					// This check is included to catch problem files which may cause an
 					// infinite loop.
 				
-				int numberChars = sprintf (
+				int numberChars = snprintf (
 							(char*)gTextString3,
+							256,
 							" There is a problem reading the .clr file; default palette will be used.%s",
 							gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -4551,8 +4622,9 @@ Boolean ReadArcViewGroups (
 						// This check is included to catch problem files which may cause an
 						// infinite loop.
 				
-				int numberChars = sprintf (
+				int numberChars = snprintf (
 							(char*)gTextString3,
+							256,
 							" There is a problem reading the .clr file; default group names will be used.%s",
 							gEndOfLine);
 				ListString ((char*)gTextString3, numberChars, gOutputTextH);
@@ -5020,8 +5092,7 @@ SInt16 ReadArcViewHeader (
 											returnCode = 1,
 											tReturnCode;
 											
-	Boolean								geoSpotHeaderFlag,
-											mapInfoExistsFlag = FALSE;
+	Boolean								geoSpotHeaderFlag;
 	
 			
 	if (headerRecordPtr != NULL && fileInfoPtr != NULL)		
@@ -5502,9 +5573,9 @@ SInt16 ReadArcViewHeader (
 		if (errCode == noErr)
 					// Check if ArcView map information exists. 
 					
-			mapInfoExistsFlag = GetArcViewMapInformation (fileInfoPtr, 
-																			headerRecordPtr, 
-																			&geoSpotHeaderFlag);
+			GetArcViewMapInformation (fileInfoPtr,
+												headerRecordPtr,
+												&geoSpotHeaderFlag);
 		
 		if (errCode == noErr)
 			{

@@ -18,7 +18,7 @@
 //
 //	Authors:					Larry L. Biehl
 //
-//	Revision date:			03/28/2020
+//	Revision date:			12/30/2023
 //
 //	Language:				C
 //
@@ -28,7 +28,8 @@
 //								various disk files.
 //
 /*	Template for debugging.
-	int numberChars = sprintf ((char*)gTextString3,
+	int numberChars = snprintf ((char*)gTextString3,
+										256,
 										" SHDF5: (filePathPtr hDS): %s %ld%s", 
 										filePathPtr,
 										hDS,
@@ -97,6 +98,12 @@ struct opdata
 	 
 	};
 
+extern SInt16 GetImageWavelengthsFromHDF5File (
+				FileInfoPtr							fileInfoPtr,
+				ChannelDescriptionPtr			channelDescriptionPtr,
+				float*								channelValuesPtr,
+				float*								channelWidthsPtr);
+
 
 		// Routines in GDALInterface.cpp
 
@@ -133,6 +140,8 @@ extern SInt16 ReadGDALHeaderInformation (
 
 extern SInt16 ReadGDALProjectionInformation (
 				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								hdfDataSetSelection,
 				GDALDatasetH						hDS,
 				Boolean								vectorFlag);
 
@@ -182,6 +191,9 @@ SInt16	GetDataProductCodeFromHDF5File (
 				hid_t									file_id);
 
 SInt16	GetInstumentCodeFromHDF5File (
+				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								dataSetIndex,
 				hid_t									file_id);
 
 Boolean GetMapInfoFromHDF5_CAIGlobalRadiance (
@@ -372,7 +384,7 @@ void CloseHDF5DataSetInfo (
 // Called By:			ListDescriptionInformation in SOther.cpp
 //
 //	Coded By:			Larry L. Biehl			Date: 05/02/2012
-//	Revised By:			Larry L. Biehl			Date: 06/27/2012
+//	Revised By:			Larry L. Biehl			Date: 12/30/2023
 
 herr_t file_info (
 				hid_t									loc_id, 
@@ -380,7 +392,7 @@ herr_t file_info (
 				void*									operatorData)
 
 {
-	char									listString[1024];
+	char									listString_1024[1024];
 	struct opdata						next_op_data;
 	
 	struct opdata*						opDataPtr;
@@ -409,7 +421,7 @@ herr_t file_info (
 	returnValue = 1;
 	
 			// Allow for c-string end of line terminator.
-	maxStringLength = sizeof (listString) - gNumberOfEndOfLineCharacters - 1;
+	maxStringLength = sizeof (listString_1024) - gNumberOfEndOfLineCharacters - 1;
 	
 	opDataPtr = (struct opdata*)operatorData;
 	spaces = 2 * (opDataPtr->recursionLevel+3);
@@ -425,7 +437,8 @@ herr_t file_info (
 	switch (statbuf.type) 
 		{
 		case H5G_GROUP: 
-			stringLength = sprintf (listString,
+			stringLength = snprintf (listString_1024,
+											1024,
 											"%*s%s%s",
 												spaces,
 												" ",
@@ -449,8 +462,8 @@ herr_t file_info (
 				 
 				next_op_data.recursionLevel = opDataPtr->recursionLevel + 1;
 				next_op_data.prevOpData = opDataPtr;
-				next_op_data.groupno[0] = statbuf.objno[0];
-				next_op_data.groupno[1] = statbuf.objno[1];
+				next_op_data.groupno[0] = (UInt32)statbuf.objno[0];
+				next_op_data.groupno[1] = (UInt32)statbuf.objno[1];
 				 
 				callH5GiterateFlag = TRUE;
 				
@@ -458,8 +471,9 @@ herr_t file_info (
 			break;
 				
 		case H5G_DATASET:
-			stringLength = sprintf (listString,
-											"%*s%s: ",
+			stringLength = snprintf (listString_1024,
+												1024,
+												"%*s%s: ",
 												spaces,
 												" ",
 												name);
@@ -476,13 +490,13 @@ herr_t file_info (
 					length = GetDataSetValueAsString (
 															dataset_id, 
 															dataspace, 
-															&listString[stringLength],
+															&listString_1024[stringLength],
 															(UInt32)(maxStringLength-stringLength));
 					
 				else	// numberDimensions > 1. Implies image data set
 					{
 					stringLength -= 2;						
-					length = sprintf (&listString[stringLength], " image data set");
+					length = snprintf (&listString_1024[stringLength], 1024-stringLength, " image data set");
 					stringLength += length;
 					
 					if (numberDimensions <= 4)
@@ -490,20 +504,23 @@ herr_t file_info (
 					
 					length = 0;
 					if (numberDimensions == 2)
-						length = sprintf (&listString[stringLength], 
+						length = snprintf (&listString_1024[stringLength],
+													1024-stringLength,
 													" (%ld x %ld)", 
 													dims[0], 
 													dims[1]);
 						
 					else if (numberDimensions == 3)
-						length = sprintf (&listString[stringLength], 
+						length = snprintf (&listString_1024[stringLength],
+													1024-stringLength,
 													" (%ld x %ld x %ld)", 
 													dims[0], 
 													dims[1], 
 													dims[2]);
 						
 					else if (numberDimensions == 4)
-						length = sprintf (&listString[stringLength], 
+						length = snprintf (&listString_1024[stringLength],
+													1024,
 													" (%ld x %ld x %ld x %ld)", 
 													dims[0], 
 													dims[1], 
@@ -521,7 +538,8 @@ herr_t file_info (
 			
 					// Add carriage return
 					
-			length = sprintf (&listString[stringLength],
+			length = snprintf (&listString_1024[stringLength],
+											1024,
 											"%s",
 											gEndOfLine);
 			stringLength += length;
@@ -530,7 +548,8 @@ herr_t file_info (
 			break;
 				
 		case H5G_TYPE: 
-			stringLength = sprintf (listString,
+			stringLength = snprintf (listString_1024,
+												1024,
 												"%*s%s named datatype%s",
 												spaces,
 												" ",
@@ -540,7 +559,8 @@ herr_t file_info (
 			break;
 				
 		default:
-			stringLength = sprintf (listString,
+			stringLength = snprintf (listString_1024,
+												1024,
 												"%*sUnable to identify an object.%s",
 												spaces,
 												" ",
@@ -549,7 +569,7 @@ herr_t file_info (
 				
 		}	// end "switch (statbuf.type)"
 
-	continueFlag = ListString (listString,  
+	continueFlag = ListString (listString_1024,
 										stringLength,  
 										gOutputTextH);
 										
@@ -656,10 +676,12 @@ SInt16 GetHDF5CompressionInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/24/2012
-//	Revised By:			Larry L. Biehl			Date: 04/23/2019
+//	Revised By:			Larry L. Biehl			Date: 12/24/2023
 
 SInt16 GetHDF5ProjectionInformation (
-				FileInfoPtr							fileInfoPtr)
+				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								hdfDataSetSelection)
 				
 {
 	
@@ -689,7 +711,6 @@ SInt16 GetHDF5ProjectionInformation (
  	SInt16								convertFromLatLongToMapCode,
 											dataProductCode,
 											index,
-											instrumentCode,				
 											mapProjectionCode,
 											mapProjectionEllipsoidCode,
 											mapProjectionDatumCode,
@@ -700,14 +721,12 @@ SInt16 GetHDF5ProjectionInformation (
 	SignedByte							handleStatus;
 	
 	Boolean								adjustUpperLeftOffsetFlag,
-											convertedFlag,
 											mapInfoFlag = FALSE;
    
    			
 	if (fileInfoPtr->format != kHDF5Type)
 																						return (noErr);
 																						
-	instrumentCode = 0;
 	mapUnitsCode = 0;
 	xMapCoordinate11 = 0;
 	yMapCoordinate11 = 0;
@@ -726,7 +745,10 @@ SInt16 GetHDF5ProjectionInformation (
 										
 	file_id = GetHDF5Pointer (fileInfoPtr->gdalDataSetH);
 																	
-	fileInfoPtr->instrumentCode = GetInstumentCodeFromHDF5File (file_id);
+	fileInfoPtr->instrumentCode = GetInstumentCodeFromHDF5File (fileInfoPtr,
+																					hdfDataSetsPtr,
+																					hdfDataSetSelection,
+																					file_id);
 	
 	dataProductCode = GetDataProductCodeFromHDF5File (file_id);
 	
@@ -931,7 +953,7 @@ SInt16 GetHDF5ProjectionInformation (
 													
 		if (convertFromLatLongToMapCode > 0)
 				// Convert the lat-long coordinates to map coordinates					
-			convertedFlag = ConvertLatLongPointToMapPoint (
+			ConvertLatLongPointToMapPoint (
 								mapProjectionInfoPtr,
 								&mapProjectionInfoPtr->planarCoordinate.xMapCoordinate11, 
 								&mapProjectionInfoPtr->planarCoordinate.yMapCoordinate11);
@@ -1041,6 +1063,191 @@ SInt16 GetHDF5ProjectionInformation (
 //------------------------------------------------------------------------------------
 //                   Copyright 1988-2020 Purdue Research Foundation
 //
+//	Function name:		SInt16 GetImageWavelengthsFromHDF5File
+//
+//	Software purpose:	This routine tries to get the wavelengths for the specific
+//							instrument in the metadata in the hdf5 file.
+//
+//	Parameters in:
+//
+//	Parameters out:
+//
+//	Value Returned:	0 is returned if all is found
+//							1 if returned if information is not found
+//
+// Called By:
+//
+//	Coded By:			Larry L. Biehl			Date: 12/28/2023
+//	Revised By:			Larry L. Biehl			Date: 12/30/2023
+
+SInt16 GetImageWavelengthsFromHDF5File (
+				FileInfoPtr							fileInfoPtr,
+				ChannelDescriptionPtr			channelDescriptionPtr,
+				float*								channelValuesPtr,
+				float*								channelWidthsPtr)
+				
+{
+	char									prefix[4],
+											wavelengthIdentiferString[16];
+	
+	char									**metadataStringPtrPtr = NULL;
+	
+	char									*descriptionPtr,
+											*nextSubStringPtr,
+											*subStringPtr;
+												
+	GDALDatasetH						hDS;
+	
+ 	SInt16								returnCode = 1;
+	
+   SInt32								descriptionLength,
+											valueStringLength;
+	
+	UInt32								channelIndex,
+											descriptionIndex,
+											index;
+   
+	
+	wavelengthIdentiferString[0] = 0;
+	if (fileInfoPtr->instrumentCode == kPRISMA_PAN)
+		{
+		channelValuesPtr[0] = (400.+700.)/2/1000;
+		descriptionPtr = (char*)channelDescriptionPtr;
+		descriptionLength = snprintf (descriptionPtr, kChannelDescriptionLength, "B1 400 - 700 nm");
+				
+		channelWidthsPtr[0] = (700.-400.)/1000;
+		fileInfoPtr->descriptionCode |= kBandWidthInfoExists;
+		
+		returnCode = 0;
+		
+		}	// end "if (fileInfoPtr->instrumentCode == kPRISMA_PAN)"
+		
+	else if (fileInfoPtr->instrumentCode == kPRISMA_VNIR)
+		{
+		snprintf (wavelengthIdentiferString, 16, (char*)"List_Cw_Vnir=");
+		snprintf (prefix, 4, "V");
+		
+		}	// end "else if (fileInfoPtr->instrumentCode == kPRISMA_VNIR)"
+	
+	else if (fileInfoPtr->instrumentCode == kPRISMA_SWIR)
+		{
+		snprintf (wavelengthIdentiferString, 16, (char*)"List_Cw_Swir=");
+		snprintf (prefix, 4, "S");
+		
+		}	// end "else if (fileInfoPtr->instrumentCode == kPRISMA_SWIR)"
+		
+	if (wavelengthIdentiferString[0])
+		{
+				// Get the global file metadata
+			
+		hDS = GetGDALFileReference (fileInfoPtr->hdfHandle,
+												fileInfoPtr->numberHdfDataSets,
+												fileInfoPtr->format,
+												(GDALDatasetH)fileInfoPtr->hdf5FileID,
+												NULL,
+												fileInfoPtr->hdfDataSetSelection);
+			
+		if (hDS != NULL)
+			metadataStringPtrPtr = GDALGetMetadata (hDS, NULL);
+		
+		if (metadataStringPtrPtr != NULL)
+			{
+			index = 0;
+			while (metadataStringPtrPtr[index] != NULL)
+				{
+				if (strstr ((char*)metadataStringPtrPtr[index], wavelengthIdentiferString))
+					{
+					subStringPtr = metadataStringPtrPtr[index];
+					
+							// Skip the line label
+							
+					subStringPtr += strlen (wavelengthIdentiferString);
+					
+							// Now read the center wavelength for each channel
+							
+					for (channelIndex=0; channelIndex<fileInfoPtr->numberChannels; channelIndex++)
+						{
+						if (sscanf (subStringPtr, "%f", &channelValuesPtr[channelIndex]) != 1)
+							break;
+						
+								// Need to convert the value from nanometers to micrometers
+						
+						channelValuesPtr[channelIndex]/= 1000;
+							
+								// Fill the text description value using the string in the metadata.
+								// Force it to be no more than kChannelDescriptionLength characters.
+								
+						nextSubStringPtr = strstr (subStringPtr, " ");
+						if (nextSubStringPtr != NULL)
+							valueStringLength = (SInt32)(nextSubStringPtr - subStringPtr);
+							
+						else	// nextSubStringPtr == NULL
+							valueStringLength = 1;
+						
+						descriptionPtr = (char*)channelDescriptionPtr;
+						descriptionLength = snprintf (descriptionPtr, kChannelDescriptionLength, "%s%3d ", prefix, channelIndex+1);
+						valueStringLength = MIN(valueStringLength, kChannelDescriptionLength-descriptionLength);
+
+								// Move the channel description to the channel description
+								// variable and set rest of string to blank.
+	
+						BlockMoveData (subStringPtr, &descriptionPtr[descriptionLength], valueStringLength);
+
+						descriptionIndex = descriptionLength + valueStringLength;
+						while (descriptionIndex < kChannelDescriptionLength)
+							{
+							descriptionPtr[descriptionIndex] = ' ';
+							descriptionIndex++;
+
+							}	// end "while (descriptionIndex < kChannelDescriptionLength)"
+
+						fileInfoPtr->maxNumberDescriptionCharacters = MAX (
+																		 fileInfoPtr->maxNumberDescriptionCharacters,
+																		 (SInt16)descriptionLength + valueStringLength);
+																		 
+						channelDescriptionPtr++;
+								
+								// Now go to next space
+								
+						if (subStringPtr == NULL)
+							break;
+							
+						subStringPtr = nextSubStringPtr + 1;
+						
+						}	// end "for (channelIndex=0; channelIndex<fileInfoPtr->numberChannels; ..."
+						
+					if (channelIndex == fileInfoPtr->numberChannels)
+						returnCode = 0;
+														
+					}	// end "if (strstr ((char*)metadataStringPtrPtr[index], wavelengthIdentiferString))"
+					
+				index++;
+														
+				}	// end "while (metadataStringPtrPtr[index] != NULL)"
+				
+			}	// end "if (metadataStringPtrPtr != NULL)"
+													
+		}	// end "if (wavelengthIdentiferString[0])"
+	
+	if (returnCode == 0)
+		{
+		fileInfoPtr->descriptionsFlag = TRUE;
+	
+				// Set the descriptionCode info. PRISMA data is reflective.
+				
+		fileInfoPtr->descriptionCode |= kReflectiveData;
+		
+		}	// end "if (returnCode == 0)"
+		
+	return (returnCode);
+    
+}	// end "GetImageWavelengthsFromHDF5File"
+
+
+
+//------------------------------------------------------------------------------------
+//                   Copyright 1988-2020 Purdue Research Foundation
+//
 //	Function name:		SInt16 GetInstumentCodeFromHDF5File
 //
 //	Software purpose:	This routine tries to obtain the instrument code for the data in
@@ -1056,9 +1263,12 @@ SInt16 GetHDF5ProjectionInformation (
 // Called By:			
 //
 //	Coded By:			Larry L. Biehl			Date: 04/26/2012
-//	Revised By:			Larry L. Biehl			Date: 07/27/2015
+//	Revised By:			Larry L. Biehl			Date: 12/24/2023
 
 SInt16 GetInstumentCodeFromHDF5File (
+				FileInfoPtr							fileInfoPtr,
+				HdfDataSets*						hdfDataSetsPtr,
+				SInt32								hdfDataSetSelection,
 				hid_t									file_id)
 				
 {	
@@ -1085,6 +1295,29 @@ SInt16 GetInstumentCodeFromHDF5File (
 			instrumentCode = kTANSO_FTS;
 		
 		}	// end "if (returnCode > 0)"
+		
+	if (instrumentCode == 0)
+		{
+				// Check if data is from PRISMA Instrument. Only check if a
+				// data set selection has been made.
+																
+		if (hdfDataSetsPtr != NULL && hdfDataSetSelection > 0)
+			{
+			if (strstr ((char*)&hdfDataSetsPtr[hdfDataSetSelection].name[1],
+											"HDFEOS_SWATHS_PRS_\0"))
+				{
+				if (fileInfoPtr->numberChannels == 66)
+					instrumentCode = kPRISMA_VNIR;
+				else if (fileInfoPtr->numberChannels == 173)
+					instrumentCode = kPRISMA_SWIR;
+				else if (fileInfoPtr->numberChannels == 1)
+					instrumentCode = kPRISMA_PAN;
+				
+				}	// end "if (strstr (..."
+				
+			}	// end "if (hdfDataSetsPtr != NULL)"
+			
+		}	// end "if (instrumentCode == 0)"
 										
 	return (instrumentCode);
     
@@ -1935,7 +2168,8 @@ Boolean ListHDF5DataSetAttributes (
 				returnCode = H5Aread (attr, atype_mem, string_out);
 				returnCode = H5Tclose (atype_mem);
 				
-				stringLength = sprintf ((char*)&gTextString[0],
+				stringLength = snprintf ((char*)&gTextString[0],
+																256,
 																"      %s%s", 
 																string_out,
 																gEndOfLine);
@@ -2054,7 +2288,8 @@ Boolean ListHDF5FileInformation (
 
 				// List the header for the listing
 
-		stringLength = sprintf ((char*)&gTextString[0],
+		stringLength = snprintf ((char*)&gTextString[0],
+										256,
 										"    HDF5 file metadata and information:%s",
 										gEndOfLine);
 
@@ -2070,7 +2305,8 @@ Boolean ListHDF5FileInformation (
 		if (continueFlag)
 			H5Giterate (file_id, "/", NULL, file_info, (void*)&op_data);
 			
-		stringLength = sprintf ((char*)&gTextString[0],
+		stringLength = snprintf ((char*)&gTextString[0],
+										256,
 										"    End HDF5 file metadata and information%s%s",
 										gEndOfLine,
 										gEndOfLine);
@@ -2757,7 +2993,9 @@ SInt16 LoadHDF5HeaderInformation (
 																													
 		if (returnCode == noErr)
 			returnCode = ReadGDALProjectionInformation (
-										fileInfoPtr, 
+										fileInfoPtr,
+										hdfDataSetsPtr,
+										dataSetIndex,
 										(GDALDatasetH)hdfDataSetsPtr[dataSetIndex].sdid,
 										false);
 																	

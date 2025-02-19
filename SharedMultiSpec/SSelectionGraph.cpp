@@ -224,7 +224,6 @@ Boolean SelectionGraphControl (
 			// Save current selection graph information in case it is needs to
 			// be restored.
 	
-   
 	oldSelectionGraphViewCPtr = gSelectionGraphViewCPtr;
 	                 
 	oldSelectionGraphRecHandle = NULL;
