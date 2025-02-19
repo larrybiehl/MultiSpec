@@ -77,13 +77,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
-    <UseOfMfc>Static</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -145,7 +145,7 @@
     <OutDir>.\</OutDir>
     <IntDir>.\x64Debug\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>MultiSpecW64d</TargetName>
+    <TargetName>MultiSpec_wxW64d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_x64|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -210,8 +210,8 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>..\Windows;..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\raw;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\ogr\ogrsf_frmts\avc;..\gdal-2.1.2\frmts\pcidsk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;multispec_win;_WIN64;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\Windows;..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\raw;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\ogr\ogrsf_frmts\avc;..\HDF42r2\HDF4.2r2\hdf\src;..\gdal-2.1.2\frmts\pcidsk;..\wxWidgets-3.2.2.1\include;Resources;..\wxMultiSpec;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;multispec_wx;multispec_wxwin;_WIN64;_UNICODE;UNICODE;_CRT_SECURE_NO_WARNINGS=1;INTEL86</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -291,8 +291,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\Windows;..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\frmts\pcidsk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;multispec_win;_WIN64;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\SharedMultiSpec;..\gdal-2.1.2\gcore;..\gdal-2.1.2\port;..\gdal-2.1.2\ogr;..\gdal-2.1.2\frmts\gtiff\libgeotiff;..\hdf5-1.8.8\src;..\gdal-2.1.2\frmts\hdf5;..\gdal-2.1.2\ogr\ogrsf_frmts\shape;..\gdal-2.1.2\frmts\pcidsk;..\wxWidgets-3.2.2.1\include;..\wxMultiSpec;..\HDF42r2\HDF4.2r2\hdf\src;Resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;multispec_wx;multispec_wxwin;_WIN64;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS=1;INTEL86;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>SMultiSpec.h</PrecompiledHeaderFile>
@@ -307,6 +307,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
+      <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -315,12 +316,13 @@
     <Link>
       <AdditionalOptions>/VERBOSE:LIB %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>msimg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>MultiSpecW64d.exe</OutputFile>
+      <OutputFile>MultiSpec_wxW64d.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>.\MultispecW64d.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
-      <EntryPointSymbol>wWinMainCRTStartup</EntryPointSymbol>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX64</TargetMachine>
@@ -467,9 +469,15 @@
     <ClCompile Include="..\SharedMultiSpec\SProjectionPursuit.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SProjectListStatistics.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SProjectMatrixUtilities.cpp" />
+    <ClCompile Include="..\SharedMultiSpec\SReadHDFHeader.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_HDFLIB_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\HDF42r2\HDF4.2r2\hdf\src;..\HDF42r2\HDF4.2r2\mfhdf\libsrc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\HDF42r2\HDF4.2r2\mfhdf\libsrc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="..\SharedMultiSpec\SRecodeThematicImage.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SRectifyImage.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SReformatChangeImageFileFormat.cpp" />
+    <ClCompile Include="..\SharedMultiSpec\SReformatCompareImages.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SReformatUtilities.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SRegistration.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SSaveWrite.cpp" />
@@ -487,14 +495,6 @@
     <ClCompile Include="..\SharedMultiSpec\SUtilities.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SWindowInfo.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SWindowInfo_class.cpp" />
-    <ClCompile Include="..\Windows\IniReader.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\Windows\IniWriter.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\SharedMultiSpec\SBiPlotData.cpp" />
     <ClCompile Include="..\SharedMultiSpec\SCluster.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
@@ -683,21 +683,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\Windows\WAfxTextFloatFormat.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WAppendFileDialog.cpp" />
-    <ClCompile Include="..\Windows\WClassesDialog.cpp" />
-    <ClCompile Include="..\Windows\WClassifyKNNDialog.cpp" />
-    <ClCompile Include="..\Windows\WClassifySVMDialog.cpp" />
-    <ClCompile Include="..\Windows\WEditSelectionDialog.cpp" />
-    <ClCompile Include="..\Windows\WGraphView.cpp" />
-    <ClCompile Include="..\Windows\WImageView.cpp" />
-    <ClCompile Include="..\Windows\WMultiSpec_pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\SharedMultiSpec\SSelectionUtility.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
@@ -759,764 +744,100 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\Windows\WOneColumnDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WAbout.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WBiPlotDialog.cpp" />
-    <ClCompile Include="..\Windows\WClassifyCEMDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WChangeChannelDescriptionDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyCorrelationDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WChannelsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassGroupDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClusterIsodataDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClusterSinglePassDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClusterDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WCoordinateBar.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WEvaluateCovarianceDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassPairWeightsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WEditClassGroupDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassWeightsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WDialog.cpp" />
-    <ClCompile Include="..\Windows\WDisplayMultispectralDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WDisplayThematicDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WDisplayMinMaxDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WDrawObjects.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyEchoDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WEnhanceStatisticsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WFalseColorDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WFeatureExtractionDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WOpenFileDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WFileFormatDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WFeatureSelectionDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WFieldsToThematicDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WGaussianParameterDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WGraphDoc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WGraphFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WHistogramDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WImageDoc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WImageSplitterWnd.cpp" />
-    <ClCompile Include="..\Windows\WImageFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WLegendList.cpp" />
-    <ClCompile Include="..\Windows\WListResultsOptionsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WListBox.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WLeaveOneOutMixingDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WListDataDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WListResultsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WMainFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WMapCoordinateDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WColorDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WMosaicTwoImagesDialog.cpp" />
-    <ClCompile Include="..\Windows\WMultiSpec.cpp" />
-    <ClCompile Include="..\Windows\WNewClassFieldDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WOverlayParametersDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WPrincipalComponentsDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WEditClassFieldDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+    <ClCompile Include="..\wxMultiSpec\xAbout.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Windows\WProjectionPursuitDialog.cpp" />
-    <ClCompile Include="..\Windows\WReformatChangeDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+    <ClCompile Include="..\wxMultiSpec\xBiplotDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xChangeChannelDescriptionDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xChannelsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassesDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassGroupDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyCEMDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyCorrelationDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyEchoDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyKNNDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifyParallelPipedDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassifySVMDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassPairWeightsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClassWeightsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClusterDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClusterIsodataDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xClusterSinglePassDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xCoordinateBar.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xCursor_images.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDialog_images.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDisplayMinMaxDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDisplayMultispectralDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDisplayThematicDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xDrawObjects.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEditClassFieldDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEditClassGroupDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEditSelectionDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEnhanceStatisticsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEvaluateCovariancesDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xEvaluateTransformationDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xFalseColorDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xFeatureExtractionDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xFeatureSelectionDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xFieldsToThematicDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xFileFormatDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xGaussianParameterDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xGraphDoc.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xGraphFrame.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xGraphView.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xGraphWindow_images.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xHistogramDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xImageCanvas.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xImageDoc.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xImageFrame.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xImageView.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xLeaveOneOutMixingDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xLegendList.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xLegendView.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xListDataDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xListResultsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xListResultsOptionsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xMainFrame.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xMapCoordinateDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xMosaicTwoImagesDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xMultiSpec.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Windows\WRecodeThematicImageDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+    <ClCompile Include="..\wxMultiSpec\xNewClassFieldDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xOneColumnDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xOpenFileDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xOverlayParametersDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xPrincipalComponentsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xProjectionPursuitDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xRecodeThematicImageDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xReformatChangeDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xReformatCompareImagesDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xReformatRectifyDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xReformatTransformDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsDoc.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsFrame.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsHistogramDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsImageDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsListDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsOptionsDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatisticsView.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xStatusDialog.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xTextDoc.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xTextFrame.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xTextView.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatRectifyDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
+    <ClCompile Include="..\wxMultiSpec\xTitleBar.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xToolBar_images.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xTools.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatTransformDialog.cpp" />
-    <ClCompile Include="..\Windows\WReformatChangeHeaderDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsDialog.cpp" />
-    <ClCompile Include="..\Windows\WStatisticsListDialog.cpp" />
-    <ClCompile Include="..\Windows\WStatisticsOptionsDialog.cpp" />
-    <ClCompile Include="..\Windows\WStatusDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsDoc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsHistogramDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsImageDialog.cpp" />
-    <ClCompile Include="..\Windows\WStatisticsView.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WTextDoc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WTextFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WTextView.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WLegendView.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WToolBar.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WTools.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WEvaluateTransformationDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug_x64_custom|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="..\Windows\WUtilities.cpp" />
+    <ClCompile Include="..\wxMultiSpec\xUtilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SharedMultiSpec\SConstants.h" />
@@ -1534,124 +855,100 @@
     <ClInclude Include="..\SharedMultiSpec\SResourceConstants.h" />
     <ClInclude Include="..\SharedMultiSpec\Ssvm.h" />
     <ClInclude Include="..\SharedMultiSpec\SWindowInfo_class.h" />
-    <ClInclude Include="..\Windows\IniReader.h" />
-    <ClInclude Include="..\Windows\IniWriter.h" />
-    <ClInclude Include="..\Windows\resource.h" />
     <ClInclude Include="..\SharedMultiSpec\SDefines.h" />
     <ClInclude Include="..\SharedMultiSpec\SEcho.h" />
     <ClInclude Include="..\SharedMultiSpec\SGraphic.h" />
-    <ClInclude Include="..\Windows\Stdafx.h" />
-    <ClInclude Include="..\Windows\WClassifyKNNDialog.h" />
-    <ClInclude Include="..\Windows\WClassifySVMDialog.h" />
-    <ClInclude Include="..\Windows\WEditSelectionDialog.h" />
-    <ClInclude Include="..\Windows\WGraphView.h" />
-    <ClInclude Include="..\Windows\WOneColumnDialog.h" />
-    <ClInclude Include="..\Windows\WAbout.h" />
-    <ClInclude Include="..\Windows\WAppendFileDialog.h" />
-    <ClInclude Include="..\Windows\WBiPlotDialog.h" />
-    <ClInclude Include="..\Windows\WClassifyCEMDialog.h" />
-    <ClInclude Include="..\Windows\WChangeChannelDescriptionDialog.h" />
-    <ClInclude Include="..\Windows\WClassifyCorrelationDialog.h" />
-    <ClInclude Include="..\Windows\WChannelsDialog.h" />
-    <ClInclude Include="..\Windows\WClassesDialog.h" />
-    <ClInclude Include="..\Windows\WClassGroupDialog.h" />
-    <ClInclude Include="..\Windows\WClusterIsodataDialog.h" />
-    <ClInclude Include="..\Windows\WClassifyDialog.h" />
-    <ClInclude Include="..\Windows\WClusterSinglePassDialog.h" />
-    <ClInclude Include="..\Windows\WClusterDialog.h" />
-    <ClInclude Include="..\Windows\WCoordinateBar.h" />
-    <ClInclude Include="..\Windows\WEvaluateCovarianceDialog.h" />
-    <ClInclude Include="..\Windows\WClassPairWeightsDialog.h" />
-    <ClInclude Include="..\Windows\WEditClassGroupDialog.h" />
-    <ClInclude Include="..\Windows\WClassWeightsDialog.h" />
-    <ClInclude Include="..\Windows\WDialog.h" />
-    <ClInclude Include="..\Windows\WDisplayMultispectralDialog.h" />
-    <ClInclude Include="..\Windows\WDisplayThematicDialog.h" />
-    <ClInclude Include="..\Windows\WDisplayMinMaxDialog.h" />
-    <ClInclude Include="..\Windows\WDrawObjects.h" />
-    <ClInclude Include="..\Windows\WClassifyEchoDialog.h" />
-    <ClInclude Include="..\Windows\WEnhanceStatisticsDialog.h" />
-    <ClInclude Include="..\Windows\WFalseColorDialog.h" />
-    <ClInclude Include="..\Windows\WFeatureExtractionDialog.h" />
-    <ClInclude Include="..\Windows\WOpenFileDialog.h" />
-    <ClInclude Include="..\Windows\WFileFormatDialog.h" />
-    <ClInclude Include="..\Windows\WFeatureSelectionDialog.h" />
-    <ClInclude Include="..\Windows\WFieldsToThematicDialog.h" />
-    <ClInclude Include="..\Windows\WGaussianParameterDialog.h" />
-    <ClInclude Include="..\Windows\WGraphDoc.h" />
-    <ClInclude Include="..\Windows\WGraphFrame.h" />
-    <ClInclude Include="..\Windows\WHistogramDialog.h" />
-    <ClInclude Include="..\Windows\WImageDoc.h" />
-    <ClInclude Include="..\Windows\WImageSplitterWnd.h" />
-    <ClInclude Include="..\Windows\WImageView.h" />
-    <ClInclude Include="..\Windows\WImageFrame.h" />
-    <ClInclude Include="..\Windows\WLegendList.h" />
-    <ClInclude Include="..\Windows\WListResultsOptionsDialog.h" />
-    <ClInclude Include="..\Windows\WListBox.h" />
-    <ClInclude Include="..\Windows\WLeaveOneOutMixingDialog.h" />
-    <ClInclude Include="..\Windows\WListDataDialog.h" />
-    <ClInclude Include="..\Windows\WListResultsDialog.h" />
-    <ClInclude Include="..\Windows\WMainFrame.h" />
-    <ClInclude Include="..\Windows\WMapCoordinateDialog.h" />
-    <ClInclude Include="..\Windows\WColorDialog.h" />
-    <ClInclude Include="..\Windows\WMosaicTwoImagesDialog.h" />
-    <ClInclude Include="..\Windows\WMultiSpec.h" />
-    <ClInclude Include="..\Windows\WNewClassFieldDialog.h" />
-    <ClInclude Include="..\Windows\WOverlayParametersDialog.h" />
-    <ClInclude Include="..\Windows\WPrincipalComponentsDialog.h" />
-    <ClInclude Include="..\Windows\WEditClassFieldDialog.h" />
-    <ClInclude Include="..\Windows\WProjectionPursuitDialog.h" />
-    <ClInclude Include="..\Windows\WReformatChangeDialog.h" />
-    <ClInclude Include="..\Windows\WRecodeThematicImageDialog.h" />
-    <ClInclude Include="..\Windows\WReformatRectifyDialog.h" />
-    <ClInclude Include="..\Windows\WReformatTransformDialog.h" />
-    <ClInclude Include="..\Windows\WReformatChangeHeaderDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsListDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsOptionsDialog.h" />
-    <ClInclude Include="..\Windows\WStatusDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsDoc.h" />
-    <ClInclude Include="..\Windows\WStatisticsFrame.h" />
-    <ClInclude Include="..\Windows\WStatisticsHistogramDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsImageDialog.h" />
-    <ClInclude Include="..\Windows\WStatisticsView.h" />
-    <ClInclude Include="..\Windows\WTextDoc.h" />
-    <ClInclude Include="..\Windows\WTextFrame.h" />
-    <ClInclude Include="..\Windows\WTextView.h" />
-    <ClInclude Include="..\Windows\WLegendView.h" />
-    <ClInclude Include="..\Windows\WToolBar.h" />
-    <ClInclude Include="..\Windows\WTools.h" />
-    <ClInclude Include="..\Windows\WEvaluateTransformationDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\resource.h" />
+    <ClInclude Include="..\wxMultiSpec\xAbout.h" />
+    <ClInclude Include="..\wxMultiSpec\xBiplotDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xBitmapRefData.h" />
+    <ClInclude Include="..\wxMultiSpec\xChangeChannelDescriptionDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xChannelsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassesDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassGroupDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyCEMDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyCorrelationDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyEchoDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyKNNDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifyParallelPipedDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassifySVMDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassPairWeightsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClassWeightsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClusterDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClusterIsodataDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xClusterSinglePassDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xCoordinateBar.h" />
+    <ClInclude Include="..\wxMultiSpec\xDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xDisplayMinMaxDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xDisplayMultispectralDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xDisplayThematicDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xDrawObjects.h" />
+    <ClInclude Include="..\wxMultiSpec\xEditClassFieldDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xEditClassGroupDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xEditSelectionDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xEnhanceStatisticsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xEvaluateCovariancesDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xEvaluateTransformationDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xFalseColorDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xFeatureExtractionDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xFeatureSelectionDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xFieldsToThematicDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xFileFormatDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xGaussianParameterDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xGraphDoc.h" />
+    <ClInclude Include="..\wxMultiSpec\xGraphFrame.h" />
+    <ClInclude Include="..\wxMultiSpec\xGraphView.h" />
+    <ClInclude Include="..\wxMultiSpec\xHistogramDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xImageCanvas.h" />
+    <ClInclude Include="..\wxMultiSpec\xImageDoc.h" />
+    <ClInclude Include="..\wxMultiSpec\xImageFrame.h" />
+    <ClInclude Include="..\wxMultiSpec\xImageView.h" />
+    <ClInclude Include="..\wxMultiSpec\xLeaveOneOutMixingDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xLegendList.h" />
+    <ClInclude Include="..\wxMultiSpec\xLegendView.h" />
+    <ClInclude Include="..\wxMultiSpec\xListDataDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xListResultsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xListResultsOptionsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xMainFrame.h" />
+    <ClInclude Include="..\wxMultiSpec\xMapCoordinateDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xMosaicTwoImagesDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xMultiSpec.h" />
+    <ClInclude Include="..\wxMultiSpec\xNewClassFieldDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xOneColumnDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xOpenFileDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xOverlayParametersDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xPrincipalComponentsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xProjectionPursuitDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xRecodeThematicImageDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xReformatChangeDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xReformatCompareImagesDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xReformatRectifyDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xReformatTransformDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xResource.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsDoc.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsFrame.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsHistogramDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsImageDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsListDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsOptionsDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatisticsView.h" />
+    <ClInclude Include="..\wxMultiSpec\xStatusDialog.h" />
+    <ClInclude Include="..\wxMultiSpec\xTextDoc.h" />
+    <ClInclude Include="..\wxMultiSpec\xTextFrame.h" />
+    <ClInclude Include="..\wxMultiSpec\xTextView.h" />
+    <ClInclude Include="..\wxMultiSpec\xTitleBar.h" />
+    <ClInclude Include="..\wxMultiSpec\xTools.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Windows\res\blink_open.cur" />
-    <None Include="..\Windows\res\blink_shut.cur" />
-    <None Include="..\Windows\res\cross_cursor1.cur" />
-    <None Include="..\Windows\res\cross_cursor2.cur" />
-    <None Include="..\Windows\res\multspec.rc2" />
+    <None Include="Resources\open.xpm" />
+    <None Include="Resources\xStringTable.def" />
     <None Include="res\epsg_csv\gcs.csv" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="..\HDF42r2\HDF4.2r2\windows\proj\multispec_hdf_64D.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\HDF42r2\HDF4.2r2\windows\proj\multispec_hdf_64R.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\Windows\Multspec.rc" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\gdal-2.1.2\gdal_64D.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </Library>
     <Library Include="..\gdal-2.1.2\gdal_64R.lib">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
@@ -1659,22 +956,176 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </Library>
+    <Library Include="..\HDF42r2\HDF4.2r2\windows\proj\x64Debug\hdf\multispec_hdf_64D.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\HDF42r2\HDF4.2r2\windows\proj\x64Release\hdf\multispec_hdf_64R.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud_net.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud_xml.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u_net.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u_xml.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxexpat.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxexpatd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxjpeg.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxjpegd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_aui.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_core.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_gl.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_html.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_media.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_propgrid.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_qa.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_ribbon.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_richtext.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_stc.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_webview.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_xrc.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_aui.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_core.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_gl.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_html.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_media.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_propgrid.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_qa.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_ribbon.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_richtext.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_stc.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_webview.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_xrc.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxpng.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxpngd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxregexu.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxregexud.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxscintilla.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxscintillad.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxtiff.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxtiffd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxzlib.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxzlibd.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Library>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Windows\res\binwidth.bmp" />
-    <Image Include="..\Windows\res\bmp00001.bmp" />
-    <Image Include="..\Windows\res\bmp00003.bmp" />
-    <Image Include="..\Windows\res\bmp00004.bmp" />
-    <Image Include="..\Windows\res\classes.bmp" />
-    <Image Include="..\Windows\res\entireim.bmp" />
-    <Image Include="..\Windows\res\idr_outt.ico" />
-    <Image Include="..\Windows\res\mspec.ico" />
-    <Image Include="..\Windows\res\mspecdoc.ico" />
-    <Image Include="..\Windows\res\overlay.bmp" />
-    <Image Include="..\Windows\res\selected.bmp" />
-    <Image Include="..\Windows\res\toentire.bmp" />
-    <Image Include="..\Windows\res\toolbar1.bmp" />
-    <Image Include="..\Windows\res\toolbar2.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\binwidth.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\bmp00001.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\bmp00003.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\bmp00004.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\classes.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\entireim.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\IDR_OUTT.ICO" />
+    <Image Include="..\wxMultiSpec\Resources\mspec.ico" />
+    <Image Include="..\wxMultiSpec\Resources\mspecdoc.ico" />
+    <Image Include="..\wxMultiSpec\Resources\overlay.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\selected.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\toentire.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\toolbar1.bmp" />
+    <Image Include="..\wxMultiSpec\Resources\toolbar2.bmp" />
+    <Image Include="Resources\arrow_next.png" />
+    <Image Include="Resources\arrow_previous.png" />
+    <Image Include="Resources\binwidth.png" />
+    <Image Include="Resources\bitmap1.bmp" />
+    <Image Include="Resources\blink_open.png" />
+    <Image Include="Resources\blink_shut.png" />
+    <Image Include="Resources\classes.png" />
+    <Image Include="Resources\density_histogram.png" />
+    <Image Include="Resources\mspec.ico" />
+    <Image Include="Resources\overlay.png" />
+    <Image Include="Resources\zoomx1.png" />
+    <Image Include="Resources\zoom_in.png" />
+    <Image Include="Resources\zoom_out.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\wxMultiSpec\MultiSpec_wxwin.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

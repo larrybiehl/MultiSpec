@@ -16,14 +16,20 @@
     <Filter Include="Header Files\SharedMultiSpec">
       <UniqueIdentifier>{3f1735bc-cf44-4a54-bc3d-20bc8a4d9213}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Windows">
-      <UniqueIdentifier>{29476eb5-a820-4c95-b62f-51c70eaf4903}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\SharedMultiSpec">
       <UniqueIdentifier>{30a401f0-9018-4536-92fc-4bf2b925ed51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Windows">
-      <UniqueIdentifier>{9acab62f-1695-4e65-b963-1d1c364e6339}</UniqueIdentifier>
+    <Filter Include="Header Files\wxMultiSpec">
+      <UniqueIdentifier>{a7b69fe3-8a46-4d4d-aed2-e90b72900d64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\wxMultiSpec">
+      <UniqueIdentifier>{bd02cf83-23b8-4569-b479-26107f6e9fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wxWidgets_d">
+      <UniqueIdentifier>{76a32bf0-db05-42a8-aeaa-18a0ca50d485}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wxWidgets_r">
+      <UniqueIdentifier>{a6e10ab1-a78c-4968-bec4-7e3eaf43b072}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -309,263 +315,263 @@
     <ClCompile Include="..\SharedMultiSpec\SWindowInfo_class.cpp">
       <Filter>Source Files\SharedMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\IniReader.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\SharedMultiSpec\SReformatCompareImages.cpp">
+      <Filter>Source Files\SharedMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\IniWriter.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xAbout.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WAbout.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xBiplotDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WAfxTextFloatFormat.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xChangeChannelDescriptionDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WAppendFileDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xChannelsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WBiPlotDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassesDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WChangeChannelDescriptionDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassGroupDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WChannelsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyCEMDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassesDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyCorrelationDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassGroupDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyCEMDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyEchoDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyCorrelationDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyKNNDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifySVMDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyEchoDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassPairWeightsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifyKNNDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassWeightsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassifySVMDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClusterDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassPairWeightsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClusterIsodataDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClassWeightsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClusterSinglePassDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClusterDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xCoordinateBar.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClusterIsodataDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xCursor_images.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WClusterSinglePassDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WColorDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDialog_images.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WCoordinateBar.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDisplayMinMaxDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDisplayMultispectralDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WDisplayMinMaxDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDisplayThematicDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WDisplayMultispectralDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xDrawObjects.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WDisplayThematicDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEditClassFieldDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WDrawObjects.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEditClassGroupDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEditClassFieldDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEditSelectionDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEditClassGroupDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEnhanceStatisticsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEditSelectionDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEvaluateCovariancesDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEnhanceStatisticsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xEvaluateTransformationDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEvaluateCovarianceDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xFalseColorDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WEvaluateTransformationDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xFeatureExtractionDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WFalseColorDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xFeatureSelectionDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WFeatureExtractionDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xFieldsToThematicDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WFeatureSelectionDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xFileFormatDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WFieldsToThematicDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xGaussianParameterDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WFileFormatDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xGraphDoc.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WGaussianParameterDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xGraphFrame.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WGraphDoc.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xGraphView.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WGraphFrame.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xGraphWindow_images.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WGraphView.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xHistogramDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WHistogramDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xImageCanvas.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WImageDoc.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xImageDoc.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WImageFrame.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xImageFrame.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WImageSplitterWnd.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xImageView.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WImageView.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xLeaveOneOutMixingDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WLeaveOneOutMixingDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xLegendList.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WLegendList.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xLegendView.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WLegendView.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xListDataDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WListBox.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xListResultsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WListDataDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xListResultsOptionsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WListResultsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xMainFrame.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WListResultsOptionsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xMapCoordinateDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WMainFrame.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xMosaicTwoImagesDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WMapCoordinateDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xMultiSpec.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WMosaicTwoImagesDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xNewClassFieldDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WMultiSpec.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xOneColumnDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WMultiSpec_pch.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xOpenFileDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WNewClassFieldDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xOverlayParametersDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WOneColumnDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xPrincipalComponentsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WOpenFileDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xProjectionPursuitDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WOverlayParametersDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xRecodeThematicImageDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WPrincipalComponentsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xReformatChangeDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WProjectionPursuitDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xReformatCompareImagesDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WRecodeThematicImageDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xReformatRectifyDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatChangeDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xReformatTransformDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatChangeHeaderDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatRectifyDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsDoc.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WReformatTransformDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsFrame.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsHistogramDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsDoc.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsImageDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsFrame.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsListDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsHistogramDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsOptionsDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsImageDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatisticsView.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsListDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xStatusDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsOptionsDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xTextDoc.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatisticsView.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xTextFrame.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WStatusDialog.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xTextView.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WTextDoc.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xTitleBar.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WTextFrame.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xToolBar_images.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WTextView.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xUtilities.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WToolBar.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\SharedMultiSpec\SReadHDFHeader.cpp">
+      <Filter>Source Files\SharedMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WTools.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xTools.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
-    <ClCompile Include="..\Windows\WUtilities.cpp">
-      <Filter>Source Files\Windows</Filter>
+    <ClCompile Include="..\wxMultiSpec\xClassifyParallelPipedDialog.cpp">
+      <Filter>Source Files\wxMultiSpec</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -623,347 +629,486 @@
     <ClInclude Include="..\SharedMultiSpec\SWindowInfo_class.h">
       <Filter>Header Files\SharedMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\IniReader.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xAbout.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\IniWriter.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xBiplotDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\resource.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xBitmapRefData.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\Stdafx.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xChangeChannelDescriptionDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WAbout.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xChannelsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WAppendFileDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassesDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WBiPlotDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassGroupDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WChangeChannelDescriptionDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyCEMDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WChannelsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyCorrelationDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassesDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassGroupDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyEchoDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifyCEMDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyKNNDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifyCorrelationDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifySVMDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifyDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassPairWeightsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifyEchoDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassWeightsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifyKNNDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClusterDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassifySVMDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClusterIsodataDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassPairWeightsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClusterSinglePassDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClassWeightsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xCoordinateBar.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClusterDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClusterIsodataDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xDisplayMinMaxDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WClusterSinglePassDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xDisplayMultispectralDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WColorDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xDisplayThematicDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WCoordinateBar.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xDrawObjects.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEditClassFieldDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WDisplayMinMaxDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEditClassGroupDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WDisplayMultispectralDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEditSelectionDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WDisplayThematicDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEnhanceStatisticsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WDrawObjects.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEvaluateCovariancesDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEditClassFieldDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xEvaluateTransformationDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEditClassGroupDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xFalseColorDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEditSelectionDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xFeatureExtractionDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEnhanceStatisticsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xFeatureSelectionDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEvaluateCovarianceDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xFieldsToThematicDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WEvaluateTransformationDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xFileFormatDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WFalseColorDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xGaussianParameterDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WFeatureExtractionDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xGraphDoc.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WFeatureSelectionDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xGraphFrame.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WFieldsToThematicDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xGraphView.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WFileFormatDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xHistogramDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WGaussianParameterDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xImageCanvas.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WGraphDoc.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xImageDoc.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WGraphFrame.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xImageFrame.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WGraphView.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xImageView.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WHistogramDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xLeaveOneOutMixingDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WImageDoc.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xLegendList.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WImageFrame.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xLegendView.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WImageSplitterWnd.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xListDataDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WImageView.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xListResultsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WLeaveOneOutMixingDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xListResultsOptionsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WLegendList.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xMainFrame.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WLegendView.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xMapCoordinateDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WListBox.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xMosaicTwoImagesDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WListDataDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xMultiSpec.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WListResultsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xNewClassFieldDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WListResultsOptionsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xOneColumnDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WMainFrame.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xOpenFileDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WMapCoordinateDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xOverlayParametersDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WMosaicTwoImagesDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xPrincipalComponentsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WMultiSpec.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xProjectionPursuitDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WNewClassFieldDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xRecodeThematicImageDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WOneColumnDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xReformatChangeDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WOpenFileDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xReformatCompareImagesDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WOverlayParametersDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xReformatRectifyDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WPrincipalComponentsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xReformatTransformDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WProjectionPursuitDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xResource.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WRecodeThematicImageDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WReformatChangeDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsDoc.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WReformatChangeHeaderDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsFrame.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WReformatRectifyDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsHistogramDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WReformatTransformDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsImageDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsListDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsDoc.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsOptionsDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsFrame.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatisticsView.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsHistogramDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xStatusDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsImageDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xTextDoc.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsListDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xTextFrame.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsOptionsDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xTextView.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatisticsView.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xTitleBar.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WStatusDialog.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xTools.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WTextDoc.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Windows\WTextFrame.h">
-      <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\WTextView.h">
-      <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\WToolBar.h">
-      <Filter>Header Files\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Windows\WTools.h">
-      <Filter>Header Files\Windows</Filter>
+    <ClInclude Include="..\wxMultiSpec\xClassifyParallelPipedDialog.h">
+      <Filter>Header Files\wxMultiSpec</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Windows\RES\MSPEC.ICO">
+    <Image Include="Resources\arrow_next.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\RES\MSPECDOC.ICO">
+    <Image Include="Resources\arrow_previous.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\RES\SELECTED.BMP">
+    <Image Include="Resources\binwidth.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\RES\TOENTIRE.BMP">
+    <Image Include="Resources\blink_open.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\binwidth.bmp">
+    <Image Include="Resources\blink_shut.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\bmp00001.bmp">
+    <Image Include="Resources\classes.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\bmp00003.bmp">
+    <Image Include="Resources\density_histogram.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\bmp00004.bmp">
+    <Image Include="Resources\overlay.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\classes.bmp">
+    <Image Include="Resources\zoom_in.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\entireim.bmp">
+    <Image Include="Resources\zoom_out.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\idr_outt.ico">
+    <Image Include="Resources\zoomx1.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\mspec.ico">
+    <Image Include="Resources\bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\mspecdoc.ico">
+    <Image Include="Resources\mspec.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\overlay.bmp">
+    <Image Include="..\wxMultiSpec\Resources\mspec.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\selected.bmp">
+    <Image Include="..\wxMultiSpec\Resources\mspecdoc.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\toentire.bmp">
+    <Image Include="..\wxMultiSpec\Resources\IDR_OUTT.ICO">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\toolbar2.bmp">
+    <Image Include="..\wxMultiSpec\Resources\entireim.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Windows\res\toolbar1.bmp">
+    <Image Include="..\wxMultiSpec\Resources\bmp00001.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\selected.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\bmp00003.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\toentire.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\bmp00004.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\toolbar2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\overlay.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\classes.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\binwidth.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\wxMultiSpec\Resources\toolbar1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\epsg_csv\gcs.csv" />
-    <None Include="..\Windows\res\blink_open.cur">
+    <None Include="Resources\xStringTable.def">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Windows\res\blink_shut.cur">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Windows\res\cross_cursor1.cur">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Windows\res\cross_cursor2.cur">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Windows\res\multspec.rc2">
+    <None Include="Resources\open.xpm">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\HDF42r2\HDF4.2r2\windows\proj\multispec_hdf_64D.lib" />
-    <CustomBuild Include="..\HDF42r2\HDF4.2r2\windows\proj\multispec_hdf_64R.lib" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\gdal-2.1.2\gdal_64D.lib" />
     <Library Include="..\gdal-2.1.2\gdal_64R.lib" />
+    <Library Include="..\gdal-2.1.2\gdal_64D.lib" />
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud_net.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32ud_xml.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxexpatd.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxjpegd.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_aui.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_core.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_gl.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_html.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_media.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_propgrid.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_qa.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_ribbon.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_richtext.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_stc.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_webview.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32ud_xrc.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxpngd.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxregexud.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxscintillad.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxtiffd.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxzlibd.lib">
+      <Filter>wxWidgets_d</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_gl.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_stc.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_richtext.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_propgrid.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_xrc.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_ribbon.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_aui.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_qa.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_webview.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_html.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_media.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxmsw32u_core.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u_net.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u_xml.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxscintilla.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxbase32u.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxtiff.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxjpeg.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxpng.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxregexu.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxexpat.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\wxWidgets-3.2.2.1\lib\vc_x64_lib\wxzlib.lib">
+      <Filter>wxWidgets_r</Filter>
+    </Library>
+    <Library Include="..\HDF42r2\HDF4.2r2\windows\proj\x64Release\hdf\multispec_hdf_64R.lib" />
+    <Library Include="..\HDF42r2\HDF4.2r2\windows\proj\x64Debug\hdf\multispec_hdf_64D.lib" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\Windows\Multspec.rc">
-      <Filter>Source Files\Windows</Filter>
+    <ResourceCompile Include="..\wxMultiSpec\MultiSpec_wxwin.rc">
+      <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>
