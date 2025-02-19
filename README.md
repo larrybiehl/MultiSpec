@@ -26,8 +26,8 @@ This version has always been created from the command line with a makefile. The 
 ## MacOS: 
 Xcode verson 9.2 was used to create the project file included in this repository (MacOS_build) in MacOS 10.13.6.
   
-    - The code for the full MacOS version uses the following library versions. Only the wxWidgets library is provided:
-      - wxWidgets-3.1.2 library is used for the graphical user interface
+    - The code for the full MacOS version uses the following library versions. Only the older version of the wxWidgets library is provided:
+      - wxWidgets-3.2.2.1 library is used for the graphical user interface
       - HDF4.2r2
       - gdal-2.1.2
       - hdf5-1.8.8
@@ -43,6 +43,7 @@ Xcode verson 9.2 was used to create the project file included in this repository
 Visual Studio 2015 was used to create the project file included in this repository (Windows_build) in Windows7 OS.
   
     - The code for the full Windows version uses the following library versions. These libraries are not provided:
+      - wxWidgets-3.2.2.1 library is used for the graphical user interface
       - HDF4.2r2
       - gdal-2.1.2
       - hdf5-1.8.8
